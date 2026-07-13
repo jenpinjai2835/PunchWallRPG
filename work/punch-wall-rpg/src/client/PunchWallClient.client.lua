@@ -1986,7 +1986,11 @@ local function buildGauntlet(fistName)
 			or definition.style == "Boxing" and 1.18
 			or 1.12
 		if imported:IsA("Model") then imported:ScaleTo(importedScale) else imported.Size *= importedScale end
-		local visualCFrame = hand.CFrame * CFrame.new(0, 0, -hand.Size.Z * 0.86) * CFrame.Angles(math.rad(90), 0, 0)
+		-- Imported Creator Store meshes use a different authoring axis than the
+		-- character rig. Match the visual to the same local axes as the procedural
+		-- fist: palm up, knuckles toward the hand's local -Z direction.
+		local gripOffset = CFrame.new(0, -hand.Size.Y * 0.08, -hand.Size.Z * 0.76)
+		local visualCFrame = hand.CFrame * gripOffset
 		if imported:IsA("Model") then imported:PivotTo(visualCFrame) else imported.CFrame = visualCFrame end
 		-- Creator Store assets can be a single MeshPart or a Model. Include the
 		-- root part as well as descendants so every visual is actually attached.
