@@ -80888,6 +80888,7 @@ for layer = 1, DEPTH_LAYERS do
 			block:SetAttribute("Broken", false)
 			block:SetAttribute("StructuralDetached", false)
 			block:SetAttribute("StructuralFalling", false)
+			block:SetAttribute("StructuralFailure", false)
 			block:SetAttribute("VisualRole", "SharedExcavationBlock")
 		end
 	end
@@ -80965,6 +80966,7 @@ root:SetAttribute("PunchWindupSeconds", depthPunch.WindupSeconds)
 root:SetAttribute("MaxStructuralFalling", depthPunch.MaxStructuralFalling)
 root:SetAttribute("ActiveStructuralFalling", 0)
 root:SetAttribute("LastStructuralCollapseCount", 0)
+root:SetAttribute("LastCharacterOverlapEjectCount", 0)
 
 function depthPunch.Shake(block, intensity)
 	local baseCFrame = block:GetAttribute("BaseCFrame") or block.CFrame
@@ -81021,7 +81023,7 @@ function depthPunch.ClearCharactersFromStructuralBlock(block)
 	return totalPush
 end
 
-function depthPunch.DropStructural(block, player)
+function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	if not block or block:GetAttribute("Broken") or block:GetAttribute("StructuralDetached") then return false end
 	local active = root:GetAttribute("ActiveStructuralFalling") or 0
 	if active >= depthPunch.MaxStructuralFalling then return false end
@@ -81030,6 +81032,7 @@ function depthPunch.DropStructural(block, player)
 	block:SetAttribute("StructuralFalling", true)
 	block:SetAttribute("StructuralDetached", true)
 	block:SetAttribute("Broken", false)
+	block:SetAttribute("StructuralFailure", ejectFromCharacter == true)
 	block:SetAttribute("HP", math.max(1, (block:GetAttribute("MaxHP") or 1) * 0.35))
 	block:SetAttribute("DamageStage", 2)
 	block:SetAttribute("LastStructuralCollapseAt", workspace:GetServerTimeNow())
@@ -81042,11 +81045,22 @@ function depthPunch.DropStructural(block, player)
 	pcall(function() block:SetNetworkOwner(nil) end)
 	local character = player and player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local offset = rootPart and (rootPart.Position - block.Position) or Vector3.new(0, 0, 1)
-	local outward = offset.Magnitude > 0.01 and offset.Unit or Vector3.new(0, 0, 1)
-	block.CFrame = block.CFrame + outward * (block.Size.Z + 0.3)
-	block.AssemblyLinearVelocity = outward * 7 + Vector3.new(0, -5, 0)
-	block.AssemblyAngularVelocity = Vector3.new(math.random(-5, 5), math.random(-7, 7), math.random(-5, 5))
+	local offset = ejectFromCharacter and rootPart and (block.Position - rootPart.Position)
+		or (rootPart and (rootPart.Position - block.Position) or Vector3.new(0, 0, 1))
+	local outward = offset.Magnitude > 0.01 and offset.Unit or block.CFrame.LookVector
+	block.CFrame = block.CFrame + outward * (block.Size.Z + (ejectFromCharacter and 1.0 or 0.3))
+	if ejectFromCharacter then
+		-- The character wins the overlap: eject the block with a readable, medium
+		-- impact instead of moving or teleporting the player.
+		block.AssemblyLinearVelocity = outward * 24 + Vector3.new(0, 8, 0)
+		block.AssemblyAngularVelocity = Vector3.new(3, 5, 2)
+		block:SetAttribute("LastOverlapEjectAt", workspace:GetServerTimeNow())
+		block:SetAttribute("LastOverlapEjectSpeed", block.AssemblyLinearVelocity.Magnitude)
+		depthPunch.ClearCharactersFromStructuralBlock(block)
+	else
+		block.AssemblyLinearVelocity = outward * 7 + Vector3.new(0, -5, 0)
+		block.AssemblyAngularVelocity = Vector3.new(math.random(-5, 5), math.random(-7, 7), math.random(-5, 5))
+	end
 	root:SetAttribute("ActiveStructuralFalling", active + 1)
 	task.delay(2.8, function()
 		if block.Parent and block:GetAttribute("StructuralToken") == token and not block:GetAttribute("Broken") then
@@ -81122,6 +81136,44 @@ function depthPunch.StructuralCollapse(sourceBlock, player)
 	end
 	return collapsed
 end
+
+-- A high-power lunge can place the character inside a block between physics
+-- steps. Resolve that state on the server by failing the overlapping block,
+-- while leaving the character's position and velocity untouched.
+function depthPunch.ResolveCharacterOverlaps()
+	local ejected = 0
+	for _, player in ipairs(Players:GetPlayers()) do
+		local character = player.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if rootPart and humanoid and humanoid.Health > 0 then
+			local overlap = OverlapParams.new()
+			overlap.FilterType = Enum.RaycastFilterType.Include
+			overlap.FilterDescendantsInstances = { depthBlocksFolder }
+			overlap.MaxParts = 48
+			local boxCFrame, boxSize = character:GetBoundingBox()
+			boxSize += Vector3.new(0.28, 0.28, 0.28)
+			for _, block in ipairs(workspace:GetPartBoundsInBox(boxCFrame, boxSize, overlap)) do
+				if block:GetAttribute("IsDepthBlock")
+					and not block:GetAttribute("Broken")
+					and not block:GetAttribute("StructuralDetached")
+					and block.Anchored
+					and depthPunch.DropStructural(block, player, true) then
+					ejected += 1
+				end
+			end
+		end
+	end
+	root:SetAttribute("LastCharacterOverlapEjectCount", ejected)
+	return ejected
+end
+
+task.spawn(function()
+	while root.Parent do
+		depthPunch.ResolveCharacterOverlaps()
+		task.wait(0.16)
+	end
+end)
 
 function depthPunch.PowerProfile(player)
 	local power = math.max(1, statValue(player, "Power", 1))
@@ -82676,11 +82728,14 @@ local function resetAutomationState(player)
 		block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
 		block:SetAttribute("StructuralFalling", false)
 		block:SetAttribute("StructuralDetached", false)
+		block:SetAttribute("StructuralFailure", false)
 		block:SetAttribute("StructuralToken", (block:GetAttribute("StructuralToken") or 0) + 1)
 		block:SetAttribute("DetachedImpactToken", (block:GetAttribute("DetachedImpactToken") or 0) + 1)
 		block:SetAttribute("SettledCFrame", nil)
 		block:SetAttribute("DetachedImpactOrigin", nil)
 		block:SetAttribute("LastDetachedLaunchSpeed", nil)
+		block:SetAttribute("LastOverlapEjectAt", nil)
+		block:SetAttribute("LastOverlapEjectSpeed", nil)
 		block.Color = block:GetAttribute("OriginalColor") or block.Color
 		block.CFrame = block:GetAttribute("BaseCFrame") or block.CFrame
 		block.Transparency = 0
@@ -82693,6 +82748,7 @@ local function resetAutomationState(player)
 	depthDebrisFolder:ClearAllChildren()
 	root:SetAttribute("ActiveStructuralFalling", 0)
 	root:SetAttribute("LastStructuralCollapseCount", 0)
+	root:SetAttribute("LastCharacterOverlapEjectCount", 0)
 	resetWallState(boss)
 	bossContributions = {}
 	bossParticipants = {}
@@ -82737,6 +82793,16 @@ if RunService:IsStudio() then
 		elseif action == "HitDepthBlock" or action == "BreakDepthBlock" then
 			local selector = typeof(target) == "table" and target or { name = target }
 			local block = selector.name and depthBlocksFolder:FindFirstChild(tostring(selector.name))
+			if not block and selector.layer and selector.column and selector.row then
+				for _, candidate in ipairs(depthBlocksFolder:GetChildren()) do
+					if candidate:GetAttribute("Depth") == tonumber(selector.layer)
+						and candidate:GetAttribute("Column") == tonumber(selector.column)
+						and candidate:GetAttribute("Row") == tonumber(selector.row) then
+						block = candidate
+						break
+					end
+				end
+			end
 			if not block then
 				local layer = math.clamp(math.floor(tonumber(selector.layer) or 1), 1, DEPTH_LAYERS)
 				local column = math.clamp(math.floor(tonumber(selector.column) or 6), 1, DEPTH_COLUMNS)

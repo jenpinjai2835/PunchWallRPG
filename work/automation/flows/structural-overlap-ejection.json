@@ -1,0 +1,19 @@
+{
+  "name": "structural-overlap-ejection",
+  "description": "Verify a wall block overlapping the character becomes structural failure and ejects outward without moving the character.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for overlap recovery runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local target=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R01') assert(target,'missing target block') local before=root.Position root.CFrame=target.CFrame root.Anchored=true task.wait(0.45) local result={before=tostring(before),after=tostring(root.Position),drift=(root.Position-before).Magnitude,detached=target:GetAttribute('StructuralDetached'),failure=target:GetAttribute('StructuralFailure'),falling=target:GetAttribute('StructuralFalling'),ejectAt=target:GetAttribute('LastOverlapEjectAt') or 0,velocity=target.AssemblyLinearVelocity.Magnitude,blockDistance=(target.Position-root.Position).Magnitude} root.Anchored=false return H:JSONEncode(result)" }, "label": "force wall overlap" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local target=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R01') return H:JSONEncode({detached=target:GetAttribute('StructuralDetached'),failure=target:GetAttribute('StructuralFailure'),ejectAt=target:GetAttribute('LastOverlapEjectAt') or 0,velocity=target:GetAttribute('LastOverlapEjectSpeed') or target.AssemblyLinearVelocity.Magnitude,rootAnchored=root.Anchored})" }, "expectRegex": ["\"detached\"\\s*:\\s*true", "\"failure\"\\s*:\\s*true", "\"ejectAt\"\\s*:\\s*[1-9]", "\"velocity\"\\s*:\\s*(?:1[5-9]|2[0-9]|3[0-9])", "\"rootAnchored\"\\s*:\\s*false"], "label": "block ejects without trapping player" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}
