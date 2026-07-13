@@ -64852,16 +64852,22 @@ local function buildGauntlet(fistName)
 		local imported = importedSource:Clone()
 		imported.Name = "Creator Store Fist Visual"
 		imported.Parent = model
-		local importedScale = definition.style == "Titan" and 0.44
-			or definition.style == "Thunder" and 1.4
-			or definition.style == "Iron" and 1.2
-			or definition.style == "Boxing" and 1.18
-			or 1.12
+		-- Creator Store meshes have unrelated authoring scales. Normalize the
+		-- largest visual dimension against the actual RightHand before welding,
+		-- otherwise a glove can appear as a detached box beside the arm.
+		local sourceSize = imported:IsA("Model") and select(2, imported:GetBoundingBox()) or imported.Size
+		local styleScale = definition.style == "Titan" and 1.48
+			or definition.style == "Thunder" and 1.28
+			or definition.style == "Iron" and 1.16
+			or definition.style == "Boxing" and 1.04
+			or 0.96
+		local sourceLargest = math.max(sourceSize.X, sourceSize.Y, sourceSize.Z)
+		local importedScale = math.clamp((hand.Size.Y * styleScale) / math.max(sourceLargest, 0.01), 0.38, 1.05)
 		if imported:IsA("Model") then imported:ScaleTo(importedScale) else imported.Size *= importedScale end
 		-- Imported Creator Store meshes use a different authoring axis than the
 		-- character rig. Match the visual to the same local axes as the procedural
 		-- fist: palm up, knuckles toward the hand's local -Z direction.
-		local gripOffset = CFrame.new(0, -hand.Size.Y * 0.08, -hand.Size.Z * 0.76)
+		local gripOffset = CFrame.new(0, -hand.Size.Y * 0.06, -hand.Size.Z * 0.58)
 		local visualCFrame = hand.CFrame * gripOffset
 		if imported:IsA("Model") then imported:PivotTo(visualCFrame) else imported.CFrame = visualCFrame end
 		-- Creator Store assets can be a single MeshPart or a Model. Include the
