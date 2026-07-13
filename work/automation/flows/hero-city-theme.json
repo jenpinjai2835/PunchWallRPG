@@ -1,0 +1,97 @@
+{
+  "name": "hero-city-theme",
+  "description": "Verify the whole game uses the Hero City anime-action palette, lighting, world signage, HUD typography, comic accents, and responsive menu language.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for Hero City runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local p=require(game.ReplicatedStorage.PolishConfig) local titles={} local parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 elseif d:IsA(\"TextLabel\") and (d.Text:find(\"HERO\",1,true) or d.Text:find(\"SIDEKICK\",1,true)) then table.insert(titles,d.Text) end end local L=game.Lighting local color=L:FindFirstChild(\"Hero City Color\") local atmosphere=L:FindFirstChild(\"Hero City Atmosphere\") return H:JSONEncode({theme=p.StyleName,rootTheme=root:GetAttribute(\"Theme\"),direction=root:GetAttribute(\"VisualDirection\"),brickTheme=root.Walls[\"Brick Wall\"]:GetAttribute(\"Theme\"),parts=parts,bloom=L:FindFirstChild(\"Hero City Bloom\")~=nil,color=color~=nil,saturation=color and color.Saturation or -1,atmosphere=atmosphere~=nil,density=atmosphere and atmosphere.Density or -1,heroRed=string.format(\"%d,%d,%d\",p.Palette.HeroRed.R*255,p.Palette.HeroRed.G*255,p.Palette.HeroRed.B*255),heroCyan=string.format(\"%d,%d,%d\",p.Palette.HeroCyan.R*255,p.Palette.HeroCyan.G*255,p.Palette.HeroCyan.B*255),heroYellow=string.format(\"%d,%d,%d\",p.Palette.HeroYellow.R*255,p.Palette.HeroYellow.G*255,p.Palette.HeroYellow.B*255),titles=titles})"
+      },
+      "expectRegex": [
+        "\"theme\"\\s*:\\s*\"Hero City\"",
+        "\"rootTheme\"\\s*:\\s*\"Hero City\"",
+        "\"direction\"\\s*:\\s*\"Anime Hero Action\"",
+        "\"brickTheme\"\\s*:\\s*\"Hero City\"",
+        "\"parts\"\\s*:\\s*1297",
+        "\"bloom\"\\s*:\\s*true",
+        "\"color\"\\s*:\\s*true",
+        "\"saturation\"\\s*:\\s*0\\.1",
+        "\"atmosphere\"\\s*:\\s*true",
+        "\"density\"\\s*:\\s*0\\.2[12]",
+        "226,48,43",
+        "36,178,224",
+        "255,197,45",
+        "HERO CITY",
+        "HERO FIST HQ",
+        "HERO SIDEKICK LAB",
+        "HERO RAID: TITAN",
+        "HERO REBIRTH GATE"
+      ],
+      "label": "world palette lighting and hero signage pass"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local U=game:GetService(\"UserInputService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Tasks\") task.wait(.35) local accents=0 local labels={} for _,d in ipairs(g:GetDescendants()) do if d.Name==\"HeroAccent\" then accents+=1 end if d:IsA(\"TextLabel\") and d.Text:find(\"HERO\",1,true) then table.insert(labels,d.Text) end end local compact=U.TouchEnabled or workspace.CurrentCamera.ViewportSize.Y<520 local titleResponsive=g.StatsPanel.Title.Visible==not compact return H:JSONEncode({theme=g:GetAttribute(\"Theme\"),title=g.StatsPanel.Title.Text,banner=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\")~=nil,accents=accents,labels=labels,titleResponsive=titleResponsive,modal=g.GameMenu.Visible and not g.StatsPanel.Visible and not g.MenuButton.Visible and not g.MobileControls.Visible})"
+      },
+      "expectRegex": [
+        "\"theme\"\\s*:\\s*\"Hero City\"",
+        "\"title\"\\s*:\\s*\"HERO STATUS\"",
+        "\"banner\"\\s*:\\s*true",
+        "\"accents\"\\s*:\\s*(1[0-9]|[2-9][0-9])",
+        "HERO MISSIONS",
+        "HERO MISSIONS AND REWARDS",
+        "\"titleResponsive\"\\s*:\\s*true",
+        "\"modal\"\\s*:\\s*true"
+      ],
+      "label": "Hero City HUD menu and responsive comic accents pass"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

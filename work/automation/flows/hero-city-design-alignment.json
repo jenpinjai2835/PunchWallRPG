@@ -1,0 +1,124 @@
+{
+  "name": "hero-city-design-alignment",
+  "description": "Validate reference-aligned HUD, wall combat billboard, combat camera, and hero action controls.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for aligned presentation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\") local left=g:FindFirstChild(\"LeftHeroNavigation\") local right=g:FindFirstChild(\"RightHeroNavigation\") local controls=g:FindFirstChild(\"MobileControls\") return H:JSONEncode({status=g:FindFirstChild(\"HeroStatusDeck\")~=nil,statusCards=g.HeroStatusDeck and #g.HeroStatusDeck:GetChildren() or 0,leftButtons=left and #left:GetChildren() or 0,rightButtons=right and #right:GetChildren() or 0,nextWorld=g:FindFirstChild(\"NextWorldProgress\")~=nil,quest=g:FindFirstChild(\"ObjectiveCard\")~=nil,punch=controls and controls:FindFirstChild(\"ActionPunch\")~=nil,jump=controls and controls:FindFirstChild(\"ActionJump\")~=nil,spawnReveal=g:GetAttribute(\"SpawnRevealPlayed\")==true})"
+      },
+      "expectRegex": [
+        "\"status\"\\s*:\\s*true",
+        "\"leftButtons\"\\s*:\\s*5",
+        "\"rightButtons\"\\s*:\\s*5",
+        "\"nextWorld\"\\s*:\\s*true",
+        "\"quest\"\\s*:\\s*true",
+        "\"punch\"\\s*:\\s*true",
+        "\"jump\"\\s*:\\s*true",
+        "\"spawnReveal\"\\s*:\\s*true"
+      ],
+      "label": "reference HUD composition exists"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local wall=root.Walls:FindFirstChild(\"Brick Wall\") local bricks,vehicles,road=0,0,0 for _,d in ipairs(root.Polish:GetDescendants()) do if d:GetAttribute(\"PolishRole\")==\"ModularDestructionBrick\" and string.find(d.Name,\"Brick Wall\",1,true) then bricks+=1 elseif d:GetAttribute(\"VisualRole\")==\"StreetVehicle\" then vehicles+=1 elseif d:GetAttribute(\"VisualRole\")==\"HeroCityRoadDetail\" then road+=1 end end local board=wall and wall:FindFirstChild(\"WallCombatBillboard\") local physical=wall and wall:FindFirstChild(\"PhysicalCombatSign\") return H:JSONEncode({bricks=bricks,vehicles=vehicles,road=road,billboard=board~=nil,physical=physical~=nil,level=board and board:FindFirstChild(\"WallLevel\",true)~=nil,hp=board and board:FindFirstChild(\"HPText\",true)~=nil,role=wall and wall:GetAttribute(\"VisualRole\")})"
+      },
+      "expectRegex": [
+        "\"bricks\"\\s*:\\s*50",
+        "\"vehicles\"\\s*:\\s*3",
+        "\"road\"\\s*:\\s*8",
+        "\"billboard\"\\s*:\\s*true",
+        "\"physical\"\\s*:\\s*true",
+        "\"level\"\\s*:\\s*true",
+        "\"hp\"\\s*:\\s*true",
+        "\"role\"\\s*:\\s*\"LayeredDestructionTarget\""
+      ],
+      "label": "layered wall target and in-world HP exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local wall=workspace.PunchWallRPG.Walls:FindFirstChild(\"Brick Wall\") local root=game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild(\"HumanoidRootPart\") if wall and root then root.CFrame=CFrame.new(wall.Position+Vector3.new(0,0,14),wall.Position) end task.wait(.6) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({autoFocus=gui:GetAttribute(\"CombatCameraActive\"),cameraType=workspace.CurrentCamera.CameraType.Name})"
+      },
+      "expectRegex": [ "\"autoFocus\"\\s*:\\s*false", "\"cameraType\"\\s*:\\s*\"Custom\"" ],
+      "label": "camera remains player controlled near wall"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local function overlap(a,b) return a.Visible and b.Visible and a.AbsolutePosition.X<a.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X>b.AbsolutePosition.X and a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y end return H:JSONEncode({questClear=not overlap(g.TargetWallHUD,g.ObjectiveCard),actionsClear=not overlap(g.TargetWallHUD,g.MobileControls),statusClear=not overlap(g.TargetWallHUD,g.HeroStatusDeck)})"
+      },
+      "expectRegex": [
+        "\"questClear\"\\s*:\\s*true",
+        "\"actionsClear\"\\s*:\\s*true",
+        "\"statusClear\"\\s*:\\s*true"
+      ],
+      "label": "mobile combat HUD avoids quest status and actions"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local command=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") local result=command:Invoke(\"Spin\") return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"Coins\"\\s*:\\s*[2-9][0-9][0-9]"
+      ],
+      "label": "hero spin grants a real reward"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

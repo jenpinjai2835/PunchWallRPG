@@ -1,0 +1,83 @@
+{
+  "name": "hero-city-reference-ui",
+  "description": "Verify the supplied Hero City image is the live sprite source for HUD icons, action buttons, shop cards, tabs, notifications, Armory nameplates, and the world shop billboard.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for supplied Hero City art"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local id=\"rbxassetid://104014193600358\" local sign=root[\"Fist Shop Sign\"] local signImages,signDecals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==id then signImages+=1 elseif d:IsA(\"Decal\") and d.Texture==id then signDecals+=1 end end local nameplateIcons=0 for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local plate=root.Polish[\"City Decor\"][name..\" Armory Nameplate\"] for _,d in ipairs(plate:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==id then nameplateIcons+=1 end end end return H:JSONEncode({signImages=signImages,signDecals=signDecals,nameplateIcons=nameplateIcons,theme=sign:GetAttribute(\"Theme\")})"
+      },
+      "expectRegex": [
+        "\"signImages\"\\s*:\\s*2",
+        "\"signDecals\"\\s*:\\s*2",
+        "\"nameplateIcons\"\\s*:\\s*8"
+      ],
+      "label": "world Armory uses supplied Hero City image"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local id=\"rbxassetid://104014193600358\" local function read(parent,name) local d=parent:FindFirstChild(name,true) return d and string.format(\"%d,%d,%d,%d\",d.ImageRectOffset.X,d.ImageRectOffset.Y,d.ImageRectSize.X,d.ImageRectSize.Y) or \"\" end local old=0 local current=0 for _,d in ipairs(g:GetDescendants()) do if d:IsA(\"ImageLabel\") then if d.Image==\"rbxassetid://134314320646796\" then old+=1 elseif d.Image==id then current+=1 end end end local banner=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\") local boxing=g.GameMenu.Content:FindFirstChild(\"Street Boxing Fist\",true) local titan=g.GameMenu.Content:FindFirstChild(\"Titan Siege Fist\",true) return H:JSONEncode({currentEnough=current>=20,old=old,power=read(g.StatsPanel:FindFirstChild(\"Power\",true),\"StatIcon\"),punch=read(g.MobileControls.ActionPunch,\"ActionIcon\"),train=read(g.MobileControls.ActionTrain,\"ActionIcon\"),settings=read(g.GameMenu.Tabs.SettingsTab,\"TabIcon\"),banner=read(g.GameMenu.Content,\"Hero City Generated Banner\"),boxing=boxing and read(boxing,\"ProductIcon\") or {},titan=titan and read(titan,\"ProductIcon\") or {}})"
+      },
+      "expectRegex": [
+        "\"currentEnough\"\\s*:\\s*true",
+        "\"old\"\\s*:\\s*0",
+        "\"power\"\\s*:\\s*\"10,64,73,78\"",
+        "\"punch\"\\s*:\\s*\"18,154,147,172\"",
+        "\"train\"\\s*:\\s*\"442,222,66,78\"",
+        "\"settings\"\\s*:\\s*\"587,307,60,48\"",
+        "\"banner\"\\s*:\\s*\"174,134,271,66\"",
+        "\"boxing\"\\s*:\\s*\"191,187,70,122\"",
+        "\"titan\"\\s*:\\s*\"347,179,78,134\""
+      ],
+      "label": "HUD and shop crop the supplied sprite regions"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "name": "iteration05-final-depth-motion",
+  "description": "Verify Iteration 05 compact mobile status, objective progress, deep break-linked buildings, Titan generated identity, fixed Armory nameplates, ambient motion, and reduced-motion restoration.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for Iteration 05 runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local tier=root.Polish[\"Wall Tier Frames\"] local parts,regular,depthOK,roofs,ambient=0,0,true,0,0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 if d:GetAttribute(\"AmbientMotion\")==\"Pulse\" then ambient+=1 end end end for _,w in ipairs(root.Walls:GetChildren()) do if w:IsA(\"BasePart\") and w.Name~=\"Titan Server Wall\" then regular+=1 local rear=tier:FindFirstChild(w.Name..\" Rear Building Mass\") local roof=tier:FindFirstChild(w.Name..\" Deep Roof\") depthOK=depthOK and rear~=nil and rear.Size.Z==12 and rear:GetAttribute(\"PolishRole\")==\"BreakLinkedBuildingDepth\" roofs+=roof and 1 or 0 end end local header=tier[\"Titan Containment Graphic Header\"] local images,decals=0,0 for _,d in ipairs(header:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://93552182756522\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://93552182756522\" then decals+=1 end end local plates,faces=0,true for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local plate=root.Polish[\"City Decor\"]:FindFirstChild(name..\" Armory Nameplate\") plates+=plate and 1 or 0 local front,back=false,false if plate then for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end end faces=faces and front and back end return H:JSONEncode({parts=parts,regular=regular,depthOK=depthOK,roofs=roofs,bossDepth=tier[\"Titan HQ Deep Tower Core\"].Size.Z,ribs=(tier:FindFirstChild(\"Titan HQ Structural Rib -1\") and tier:FindFirstChild(\"Titan HQ Structural Rib 1\")) and 2 or 0,images=images,decals=decals,plates=plates,faces=faces,ambient=ambient})"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"regular\"\\s*:\\s*6",
+        "\"depthOK\"\\s*:\\s*true",
+        "\"roofs\"\\s*:\\s*6",
+        "\"bossDepth\"\\s*:\\s*22",
+        "\"ribs\"\\s*:\\s*2",
+        "\"images\"\\s*:\\s*2",
+        "\"decals\"\\s*:\\s*2",
+        "\"plates\"\\s*:\\s*4",
+        "\"faces\"\\s*:\\s*true",
+        "\"ambient\"\\s*:\\s*6"
+      ],
+      "label": "deep city, Titan art, Armory nameplates, and ambient tags exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(2.2) local d=g.HeroStatusDeck local power=d:FindFirstChild(\"PowerCard\") local coins=d:FindFirstChild(\"CoinsCard\") local wall=d:FindFirstChild(\"WallLevelCard\") local layoutOK=d.Visible and d:FindFirstChildOfClass(\"UIListLayout\")~=nil local visibilityOK=power~=nil and coins~=nil and wall~=nil and power.Visible and coins.Visible and wall.Visible return H:JSONEncode({layoutOK=layoutOK,visibilityOK=visibilityOK,title=\"HERO CITY\",progress=g.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale,bossArt=g.BossHUD.TitanContainmentArt.Image,ambientCount=g:GetAttribute(\"AmbientPulseCount\"),ambientActive=g:GetAttribute(\"AmbientMotionActive\")})"
+      },
+      "expectRegex": [
+        "\"layoutOK\"\\s*:\\s*true",
+        "\"visibilityOK\"\\s*:\\s*true",
+        "HERO CITY",
+        "\"progress\"\\s*:\\s*0\\.2",
+        "rbxassetid://93552182756522",
+        "\"ambientCount\"\\s*:\\s*6",
+        "\"ambientActive\"\\s*:\\s*true"
+      ],
+      "label": "mobile status, objective progress, boss art, and ambient state pass"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "game.ServerStorage.PunchWallAutomation:Invoke(\"SetStats\",{TutorialStep=4}) return true"
+      },
+      "label": "advance tutorial progress"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for tutorial progress sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "return tostring(game.Players.LocalPlayer.PlayerGui.PunchWallHUD.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale)"
+      },
+      "expectRegex": ["0\\.8"],
+      "label": "objective progress reflects tutorial step"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local part=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"][\"Titan Warning Beacon -1\"] local a=part.Transparency task.wait(.45) local b=part.Transparency game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) task.wait(.8) local c=part.Transparency task.wait(.45) local d=part.Transparency local inactive=g:GetAttribute(\"AmbientMotionActive\")==false game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return H:JSONEncode({changed=math.abs(a-b)>.015,stable=math.abs(c-d)<.002,base=math.abs(c)<.002,inactive=inactive})"
+      },
+      "expectRegex": [
+        "\"changed\"\\s*:\\s*true",
+        "\"stable\"\\s*:\\s*true",
+        "\"base\"\\s*:\\s*true",
+        "\"inactive\"\\s*:\\s*true"
+      ],
+      "label": "ambient pulse runs and reduced motion restores a stable base"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=1000,WallLevel=1,FistMultiplier=1,PetMultiplier=0,CritChance=0}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13) local hit=c:Invoke(\"HitWall\",\"Brick Wall\") task.wait(.2) local tier=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"] return H:JSONEncode({outcome=hit.outcome,rearHidden=tier[\"Brick Wall Rear Building Mass\"].Transparency>=0.8,roofHidden=tier[\"Brick Wall Deep Roof\"].Transparency>=0.8})"
+      },
+      "expectRegex": [
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"rearHidden\"\\s*:\\s*true",
+        "\"roofHidden\"\\s*:\\s*true"
+      ],
+      "label": "new building depth collapses with its combat facade"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

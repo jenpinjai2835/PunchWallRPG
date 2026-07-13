@@ -1,0 +1,82 @@
+{
+  "name": "ai-material-assets",
+  "description": "Validate AI-generated city materials and sanitized curated models in the final place.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal ms=game:GetService(\"MaterialService\")\nlocal folder=workspace:FindFirstChild(\"CuratedVisualAssets\")\nlocal variants={}\nfor _,d in ipairs(ms:GetDescendants()) do if d:IsA(\"MaterialVariant\") then variants[d.Name]=true end end\nlocal scripts,meshes,parts=0,0,0\nif folder then for _,d in ipairs(folder:GetDescendants()) do if d:IsA(\"LuaSourceContainer\") then scripts+=1 elseif d:IsA(\"MeshPart\") then meshes+=1 end if d:IsA(\"BasePart\") then parts+=1 end end end\nreturn HttpService:JSONEncode({concrete=variants.KaijuDamagedConcrete==true,asphalt=variants.KaijuWornAsphalt==true,metal=variants.KaijuContainmentMetal==true,assets=folder and #folder:GetChildren() or 0,scripts=scripts,meshes=meshes,parts=parts})"
+      },
+      "expectRegex": [
+        "\"concrete\"\\s*:\\s*true",
+        "\"asphalt\"\\s*:\\s*true",
+        "\"metal\"\\s*:\\s*true",
+        "\"assets\"\\s*:\\s*5",
+        "\"scripts\"\\s*:\\s*0",
+        "\"meshes\"\\s*:\\s*173",
+        "\"parts\"\\s*:\\s*431"
+      ],
+      "label": "embedded materials and visual assets exist"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime materials"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal root=workspace:FindFirstChild(\"PunchWallRPG\")\nlocal result={concrete=0,asphalt=0,metal=0,scripts=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then if d.MaterialVariant==\"KaijuDamagedConcrete\" then result.concrete+=1 elseif d.MaterialVariant==\"KaijuWornAsphalt\" then result.asphalt+=1 elseif d.MaterialVariant==\"KaijuContainmentMetal\" then result.metal+=1 end elseif d:IsA(\"LuaSourceContainer\") then result.scripts+=1 end end\nreturn HttpService:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"concrete\"\\s*:\\s*2[0-9][0-9]",
+        "\"asphalt\"\\s*:\\s*[3-9]",
+        "\"metal\"\\s*:\\s*1[0-9][0-9]",
+        "\"scripts\"\\s*:\\s*0"
+      ],
+      "label": "runtime uses generated material variants"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

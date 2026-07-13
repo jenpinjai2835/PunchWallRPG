@@ -1,0 +1,71 @@
+{
+  "name": "punch-collision-recovery",
+  "description": "Verify preflight penetration planning stops a weak lunge before an unbroken depth block without camera-breaking rollback.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for collision recovery runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=1,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local hum=p.Character:FindFirstChildOfClass(\"Humanoid\") root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-33),Vector3.new(-2,3,-100)) p:SetAttribute(\"LastWallHit\",0) local before=root.Position local r=c:Invoke(\"PunchRadius\") local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Include overlap.FilterDescendantsInstances={workspace.PunchWallRPG[\"Depth Blocks\"]} local stuck=0 for _,b in ipairs(workspace:GetPartBoundsInBox(root.CFrame,Vector3.new(2.8,5,2.8),overlap)) do if b.CanCollide and not b:GetAttribute(\"Broken\") then stuck+=1 end end return H:JSONEncode({ok=r.ok,corrected=r.collisionCorrected,raw=p:GetAttribute(\"LastPunchRawLungeDistance\"),safe=p:GetAttribute(\"LastPunchSafeTravel\"),correction=p:GetAttribute(\"LastPunchCollisionCorrectionStuds\"),overlapCount=p:GetAttribute(\"LastPunchCollisionOverlapCount\"),stuck=stuck,moved=(root.Position-before).Magnitude,velocity=root.AssemblyLinearVelocity.Magnitude,platform=hum.PlatformStand,sit=hum.Sit,state=hum:GetState().Name})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"corrected\"\\s*:\\s*false",
+        "\"raw\"\\s*:\\s*0(?:\\.[0-9]+)?",
+        "\"safe\"\\s*:\\s*(?:0(?:\\.[0-9]+)?|1(?:\\.[0-9]+)?|2(?:\\.0+)?)",
+        "\"correction\"\\s*:\\s*0",
+        "\"overlapCount\"\\s*:\\s*0",
+        "\"stuck\"\\s*:\\s*0",
+        "\"velocity\"\\s*:\\s*0(?:\\.[0-9]+)?",
+        "\"platform\"\\s*:\\s*false",
+        "\"sit\"\\s*:\\s*false",
+        "\"state\"\\s*:\\s*\"Running\""
+      ],
+      "label": "weak punch stops before the blocking collider"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

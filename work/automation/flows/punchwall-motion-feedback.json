@@ -1,0 +1,247 @@
+{
+  "name": "punchwall-motion-feedback",
+  "description": "Validate Train, Punch/Reward, Shop, Pet, Rebirth, and Boss feedback remotes reach the client HUD.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*15"
+      ],
+      "label": "reset deterministic state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Train\", \"Power Bag\"))"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*19"
+      ],
+      "label": "trigger train feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for train feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Train\"",
+        "\"target\"\\s*:\\s*\"Power Bag\""
+      ],
+      "label": "train feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Power = 120, Coins = 0, WallLevel = 1, CritChance = 0, FistMultiplier = 1, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"BreakWall\", \"Brick Wall\", 1))"
+      },
+      "expectRegex": [
+        "\"BrickWallBroken\"\\s*:\\s*true",
+        "\"Coins\"\\s*:\\s*45"
+      ],
+      "label": "trigger punch and reward feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for reward feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Reward\"",
+        "\"target\"\\s*:\\s*\"Brick Wall\""
+      ],
+      "label": "reward feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Coins = 1000, FistMultiplier = 1, BreakSpeed = 1, EquippedFist = \"Starter Glove\" })\nreturn HttpService:JSONEncode(command:Invoke(\"BuyFist\", \"Boxing Glove\"))"
+      },
+      "expectRegex": [
+        "\"EquippedFist\"\\s*:\\s*\"Boxing Glove\""
+      ],
+      "label": "trigger shop feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for shop feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Shop\"",
+        "\"target\"\\s*:\\s*\"Boxing Glove\""
+      ],
+      "label": "shop feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { Coins = 700, Luck = 1, PetMultiplier = 0, Pet = \"None\" })\nreturn HttpService:JSONEncode(command:Invoke(\"HatchPet\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "trigger pet feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for pet feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Pet\"",
+        "\"target\"\\s*:\\s*\"(Brick Pup|Miner Cat|Crystal Fox|Lava Dragon|Secret Titan Golem)\""
+      ],
+      "label": "pet feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { WallLevel = 55, Coins = 1000000, Power = 250000, Rebirths = 0, FistMultiplier = 45, EquippedFist = \"Titan Gauntlet\" })\nreturn HttpService:JSONEncode(command:Invoke(\"Rebirth\"))"
+      },
+      "expectRegex": [
+        "\"Rebirths\"\\s*:\\s*1"
+      ],
+      "label": "trigger rebirth feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for rebirth feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Rebirth\""
+      ],
+      "label": "rebirth feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { WallLevel = 20, Coins = 0, Power = 4000000, FistMultiplier = 2, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"HitBoss\"))"
+      },
+      "expectRegex": [
+        "\"TitanBroken\"\\s*:\\s*true"
+      ],
+      "label": "trigger boss feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for boss feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Boss\"",
+        "\"target\"\\s*:\\s*\"Titan Server Wall\""
+      ],
+      "label": "boss feedback received"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

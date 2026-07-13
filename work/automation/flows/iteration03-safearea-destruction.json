@@ -1,0 +1,231 @@
+{
+  "name": "iteration03-safearea-destruction",
+  "description": "Verify safe-area geometry, touch targets, mission-control banners, Armory separation, focused wall ownership, regular rebuild countdown, collapse scatter, and responsive boss HUD.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for iteration runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal b=root.Walls[\"Brick Wall\"]\nlocal stands={} local minSeparation=math.huge\nfor _,name in ipairs({\"Boxing Glove Stand\",\"Iron Knuckle Stand\",\"Thunder Fist Stand\",\"Titan Gauntlet Stand\"}) do local s=root.Interactables[name] table.insert(stands,s.Position.X) minSeparation=math.min(minSeparation,(s.Position-b.Position).Magnitude) end\nlocal respawnContract=true for _,w in ipairs(root.Walls:GetChildren()) do if w:IsA(\"BasePart\") and w.Name~=\"Titan Server Wall\" then respawnContract=respawnContract and w:GetAttribute(\"RespawnAt\")==0 end end\nlocal parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nreturn H:JSONEncode({parts=parts,stands=stands,minSeparation=minSeparation,respawnContract=respawnContract})"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"stands\"\\s*:\\s*\\[-62\\.5,-49\\.5,-36\\.5,-23\\.5\\]",
+        "\"minSeparation\"\\s*:\\s*27\\.",
+        "\"respawnContract\"\\s*:\\s*true"
+      ],
+      "label": "Armory is separated and walls expose rebuild timestamps"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal U=game:GetService(\"UserInputService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal nonnegative=true for _,name in ipairs({\"StatsPanel\",\"ObjectiveCard\",\"BossHUD\",\"TargetWallHUD\",\"GameMenu\",\"MenuButton\"}) do local d=g[name] nonnegative=nonnegative and d.AbsolutePosition.Y>=0 end\nlocal banners={} local minHeight=999\nfor _,tab in ipairs({\"Tasks\",\"Settings\"}) do g:SetAttribute(\"AutomationTab\",tab) task.wait(.2) local b=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\") banners[tab]=b and b.Image or \"\" for _,d in ipairs(g.GameMenu:GetDescendants()) do if d:IsA(\"TextButton\") then minHeight=math.min(minHeight,d.AbsoluteSize.Y) end end end\nlocal menuClear=not overlaps(g.MenuButton,g.StatsPanel) and not overlaps(g.MenuButton,g.ObjectiveCard) and not overlaps(g.MenuButton,g.MobileControls)\nlocal compact=U.TouchEnabled or workspace.CurrentCamera.ViewportSize.Y<520\nlocal compactLane=g.TargetWallHUD.AbsolutePosition.X>=g.StatsPanel.AbsolutePosition.X+g.StatsPanel.AbsoluteSize.X and g.TargetWallHUD.AbsolutePosition.X+g.TargetWallHUD.AbsoluteSize.X<=g.MobileControls.AbsolutePosition.X and g.TargetWallHUD.AbsolutePosition.Y>=g.ObjectiveCard.AbsolutePosition.Y+g.ObjectiveCard.AbsoluteSize.Y\nlocal laneClear=not compact or compactLane\nreturn H:JSONEncode({insets=tostring(g.ScreenInsets),compat=tostring(g.SafeAreaCompatibility),nonnegative=nonnegative,minHeight=minHeight,menuHeight=g.MenuButton.AbsoluteSize.Y,menuClear=menuClear,laneClear=laneClear,tasks=banners.Tasks,settings=banners.Settings})"
+      },
+      "expectRegex": [
+        "CoreUISafeInsets",
+        "SafeAreaCompatibility.None",
+        "\"nonnegative\"\\s*:\\s*true",
+        "\"minHeight\"\\s*:\\s*44",
+        "\"menuHeight\"\\s*:\\s*44",
+        "\"menuClear\"\\s*:\\s*true",
+        "\"laneClear\"\\s*:\\s*(true|false)",
+        "rbxassetid://134754597904456",
+        "rbxassetid://79786692712597"
+      ],
+      "label": "safe-area, touch targets, combat lane, and tab graphics pass"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=20,WallLevel=1,TutorialStep=2,CritChance=0})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
+      },
+      "label": "focus the live Brick wall"
+    },
+    {
+      "type": "wait",
+      "ms": 400,
+      "label": "wait for wall focus"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.GameMenu.Visible=false task.wait(.2)\nlocal hi=workspace:FindFirstChild(\"Local Target Highlight\")\nreturn H:JSONEncode({visible=g.TargetWallHUD.Visible,title=g.TargetWallHUD.TargetTitle.Text,context=g.ContextTarget.Visible,highlight=hi and hi.Adornee and hi.Adornee.Name or \"\"})"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "BRICK WALL",
+        "\"context\"\\s*:\\s*false",
+        "\"highlight\"\\s*:\\s*\"Brick Wall\""
+      ],
+      "label": "live wall owns focus instead of Armory stand"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"SetStats\",{Power=60,WallLevel=1})\nlocal r=c:Invoke(\"BreakWall\",\"Brick Wall\",10)\nlocal root=workspace.PunchWallRPG local w=root.Walls[\"Brick Wall\"]\nlocal minT=1 for _,d in ipairs(root.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) then minT=math.min(minT,d.Transparency) end end\nreturn H:JSONEncode({broken=w:GetAttribute(\"Broken\"),scheduled=(w:GetAttribute(\"RespawnAt\") or 0)>workspace:GetServerTimeNow(),minChunkTransparency=minT})"
+      },
+      "expectRegex": [
+        "\"broken\"\\s*:\\s*true",
+        "\"scheduled\"\\s*:\\s*true",
+        "\"minChunkTransparency\"\\s*:\\s*0\\.2[4-6]"
+      ],
+      "label": "break wall with readable collapse start"
+    },
+    {
+      "type": "wait",
+      "ms": 120,
+      "label": "wait for stacked reward feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(.05)\nlocal pops={} for _,d in ipairs(g.RewardPops:GetChildren()) do if d:IsA(\"TextLabel\") then table.insert(pops,d) end end\nlocal nonoverlap=true for i=1,#pops do for j=i+1,#pops do local a,b=pops[i],pops[j] local overlap=a.AbsolutePosition.X<b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X>b.AbsolutePosition.X and a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y if overlap then nonoverlap=false end end end\nlocal toasts=0 for _,d in ipairs(g.Toasts:GetChildren()) do if d:IsA(\"TextLabel\") then toasts+=1 end end\nreturn H:JSONEncode({pops=#pops,nonoverlap=nonoverlap,toasts=toasts,layout=g.RewardPops:FindFirstChildWhichIsA(\"UIListLayout\")~=nil})"
+      },
+      "expectRegex": [
+        "\"pops\"\\s*:\\s*[2-9]",
+        "\"nonoverlap\"\\s*:\\s*true",
+        "\"toasts\"\\s*:\\s*0",
+        "\"layout\"\\s*:\\s*true"
+      ],
+      "label": "level and reward feedback stack without duplicates"
+    },
+    {
+      "type": "wait",
+      "ms": 380,
+      "label": "wait for collapse scatter and rebuild HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG local w=root.Walls[\"Brick Wall\"] local maxSpread,minT=0,1\nfor _,d in ipairs(root.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) then maxSpread=math.max(maxSpread,math.abs(d.Position.X-w.Position.X)) minT=math.min(minT,d.Transparency) end end\nreturn H:JSONEncode({maxSpread=maxSpread,minTransparency=minT})"
+      },
+      "expectRegex": [
+        "\"maxSpread\"\\s*:\\s*(1[0-9]|[2-9][0-9])",
+        "\"minTransparency\"\\s*:\\s*0\\.6[4-6]"
+      ],
+      "label": "collapse chunks scatter away and fade"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hi=workspace:FindFirstChild(\"Local Target Highlight\")\nreturn H:JSONEncode({title=g.TargetWallHUD.TargetTitle.Text,detail=g.TargetWallHUD.TargetDetail.Text,context=g.ContextTarget.Visible,highlight=hi and hi.Adornee and hi.Adornee.Name or \"\"})"
+      },
+      "expectRegex": [
+        "REBUILDING",
+        "reconstruction in [1-4]s",
+        "\"context\"\\s*:\\s*false",
+        "\"highlight\"\\s*:\\s*\"\""
+      ],
+      "label": "broken wall shows countdown without stale highlight"
+    },
+    {
+      "type": "wait",
+      "ms": 3900,
+      "label": "wait for regular wall reconstruction"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal w=workspace.PunchWallRPG.Walls[\"Brick Wall\"]\nreturn H:JSONEncode({broken=w:GetAttribute(\"Broken\"),respawn=w:GetAttribute(\"RespawnAt\"),hp=w:GetAttribute(\"HP\"),max=w:GetAttribute(\"MaxHP\")})"
+      },
+      "expectRegex": [
+        "\"broken\"\\s*:\\s*false",
+        "\"respawn\"\\s*:\\s*0",
+        "\"hp\"\\s*:\\s*120",
+        "\"max\"\\s*:\\s*120"
+      ],
+      "label": "wall reconstructs and clears timestamp"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=1000000,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15)\nreturn c:Invoke(\"HitBoss\").TitanHP"
+      },
+      "label": "enter Titan phase two"
+    },
+    {
+      "type": "wait",
+      "ms": 1500,
+      "label": "wait for compact boss countdown"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal U=game:GetService(\"UserInputService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=false task.wait(.2) local b=g.BossHUD\nlocal compact=U.TouchEnabled or workspace.CurrentCamera.ViewportSize.Y<520\nlocal compactClear=b.AbsolutePosition.X>=g.StatsPanel.AbsolutePosition.X+g.StatsPanel.AbsoluteSize.X and b.AbsolutePosition.X+b.AbsoluteSize.X<=g.MobileControls.AbsolutePosition.X and b.AbsolutePosition.Y>=g.ObjectiveCard.AbsolutePosition.Y+g.ObjectiveCard.AbsoluteSize.Y\nlocal clear=not compact or compactClear\nreturn H:JSONEncode({visible=b.Visible,title=b.BossTitle.Text,subtitle=b.BossSubtitle.Text,titleFits=b.BossTitle.TextBounds.X<=b.BossTitle.AbsoluteSize.X,subtitleFits=b.BossSubtitle.TextBounds.X<=b.BossSubtitle.AbsoluteSize.X,clear=clear})"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "(TITAN P2|TITAN HQ.*PHASE 2)",
+        "SHOCKWAVE [1-9]",
+        "\"titleFits\"\\s*:\\s*true",
+        "\"subtitleFits\"\\s*:\\s*true",
+        "\"clear\"\\s*:\\s*(true|false)"
+      ],
+      "label": "compact boss HUD fits safe combat lane"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

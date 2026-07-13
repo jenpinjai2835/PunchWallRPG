@@ -1,0 +1,64 @@
+{
+  "name": "functional-hero-shop",
+  "description": "Validate the assembled Hero Fist Shop UI, server-authoritative glove purchases, equipping, and timed boosts.",
+  "studioName": "PunchWallRPGPlayable_v1_final",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') gui:SetAttribute('AutomationTab','Fists') task.wait(.25) local shop=gui.GameMenu:FindFirstChild('FunctionalHeroShop') local names={'Starter GloveAction','Boxing GloveAction','Iron KnuckleAction','Thunder FistAction','Titan GauntletAction','FistsShopTab','BoostsShopTab','CloseShop'} local found={} for _,name in ipairs(names) do found[name]=shop and shop:FindFirstChild(name,true)~=nil end return H:JSONEncode({visible=shop and shop.Visible,found=found})"
+      },
+      "expectRegex": [
+        "\\\"visible\\\"\\s*:\\s*true",
+        "\\\"Starter GloveAction\\\"\\s*:\\s*true",
+        "\\\"Titan GauntletAction\\\"\\s*:\\s*true",
+        "\\\"BoostsShopTab\\\"\\s*:\\s*true",
+        "\\\"CloseShop\\\"\\s*:\\s*true"
+      ],
+      "label": "functional shop renders all glove actions"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') c:Invoke('Reset') c:Invoke('SetStats',{Coins=200000,Power=10,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local fist=c:Invoke('BuyFist','Iron Knuckle') local boost=c:Invoke('BuyShopBoost','DamageBoost') local hit=c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) local p=game.Players:GetPlayers()[1] return H:JSONEncode({fist=fist.ok,boost=boost.ok,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value,coins=p.leaderstats.Coins.Value,damageEnds=p:GetAttribute('DamageBoostExpiresAt'),damage=hit.damage,broken=hit.BrokenDepthBlocks})"
+      },
+      "expectRegex": [
+        "\\\"fist\\\"\\s*:\\s*true",
+        "\\\"boost\\\"\\s*:\\s*true",
+        "\\\"equipped\\\"\\s*:\\s*\\\"Iron Knuckle\\\"",
+        "\\\"mult\\\"\\s*:\\s*4\\.5",
+        "\\\"damage\\\"\\s*:\\s*9[0-9]",
+        "\\\"broken\\\"\\s*:\\s*1"
+      ],
+      "label": "glove and damage boost are charged and applied by server"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=50000,Power=10,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local coin=c:Invoke('BuyShopBoost','CoinBoost') local p=game.Players:GetPlayers()[1] local before=p.leaderstats.Coins.Value c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) local reward=p.leaderstats.Coins.Value-before c:Invoke('BuyShopBoost','SpeedBoost') p:LoadCharacter() task.wait(1) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') return H:JSONEncode({coin=coin.ok,reward=reward,speed=h and h.WalkSpeed,coinEnds=p:GetAttribute('CoinBoostExpiresAt'),speedEnds=p:GetAttribute('SpeedBoostExpiresAt')})"
+      },
+      "expectRegex": [
+        "\\\"coin\\\"\\s*:\\s*true",
+        "\\\"reward\\\"\\s*:\\s*2[0-9]",
+        "\\\"speed\\\"\\s*:\\s*24"
+      ],
+      "label": "coin boost doubles block reward and speed survives respawn"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

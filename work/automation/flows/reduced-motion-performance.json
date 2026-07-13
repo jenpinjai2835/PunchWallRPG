@@ -1,0 +1,113 @@
+{
+  "name": "reduced-motion-performance",
+  "description": "Validate reduced-motion behavior, loaded audio, and stable runtime scene cost after repeated destruction.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for audio and runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=60,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nreturn true"
+      },
+      "label": "prepare deterministic state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\")\nlocal bridge=gui:WaitForChild(\"PunchWallClientAutomation\")\nworkspace.CurrentCamera.FieldOfView=70\nbridge:Invoke({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}})\nreturn true"
+      },
+      "label": "enable reduced motion"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for settings sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\nreturn game.HttpService:JSONEncode(command:Invoke(\"HitWall\",\"Brick Wall\"))"
+      },
+      "expectRegex": [
+        "\"BrickWallBroken\"\\s*:\\s*false"
+      ],
+      "label": "trigger punch feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nreturn game.HttpService:JSONEncode({motion=gui:GetAttribute(\"LastMotionApplied\"),feedback=gui:GetAttribute(\"LastFeedbackType\"),fov=math.floor(workspace.CurrentCamera.FieldOfView+0.5)})"
+      },
+      "expectRegex": [
+        "\"motion\"\\s*:\\s*false",
+        "\"feedback\"\\s*:\\s*\"Punch\"",
+        "\"fov\"\\s*:\\s*70"
+      ],
+      "label": "reduced motion suppresses camera impulse"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=500,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\ncommand:Invoke(\"BreakWallCycles\",\"Brick Wall\",20)\nlocal root=workspace.PunchWallRPG\nlocal result={parts=0,sounds=0,loaded=0,particles=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then result.parts+=1 elseif d:IsA(\"Sound\") then result.sounds+=1 if d.IsLoaded then result.loaded+=1 end elseif d:IsA(\"ParticleEmitter\") then result.particles+=1 end end\nreturn HttpService:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"sounds\"\\s*:\\s*15",
+        "\"loaded\"\\s*:\\s*15",
+        "\"particles\"\\s*:\\s*26"
+      ],
+      "label": "scene cost stable after repeated destruction"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

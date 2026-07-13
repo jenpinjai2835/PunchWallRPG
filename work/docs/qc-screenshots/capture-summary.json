@@ -1,0 +1,30 @@
+[
+  {
+    "name": "spawn_training",
+    "contentTypes": [
+      "image"
+    ],
+    "text": ""
+  },
+  {
+    "name": "wall_lane",
+    "contentTypes": [
+      "image"
+    ],
+    "text": ""
+  },
+  {
+    "name": "shop_egg",
+    "contentTypes": [
+      "image"
+    ],
+    "text": ""
+  },
+  {
+    "name": "rebirth_boss",
+    "contentTypes": [
+      "image"
+    ],
+    "text": ""
+  }
+]

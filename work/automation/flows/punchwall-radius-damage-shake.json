@@ -1,0 +1,120 @@
+{
+  "name": "punchwall-radius-damage-shake",
+  "description": "Validate body-direction radial punch damage falloff, no target lock when facing away, and replicated block vibration before destruction.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-40)) local r=c:Invoke(\"PunchRadius\") local folder=workspace.PunchWallRPG[\"Depth Blocks\"] local affected,broken,surviving=0,0,0 local minScale,maxScale=1,0 for _,b in ipairs(folder:GetChildren()) do local scale=b:GetAttribute(\"LastRadiusDamageScale\") or 0 if scale>0 then affected+=1 minScale=math.min(minScale,scale) maxScale=math.max(maxScale,scale) if b:GetAttribute(\"Broken\") then broken+=1 elseif (b:GetAttribute(\"HP\") or 0)<(b:GetAttribute(\"MaxHP\") or 0) then surviving+=1 end end end local primary=folder:FindFirstChild(tostring(r.primary)) return H:JSONEncode({ok=r.ok,outcome=r.outcome,hitCount=r.hitCount,affected=affected,broken=broken,surviving=surviving,minScale=minScale,maxScale=maxScale,primaryBroken=primary and primary:GetAttribute(\"Broken\"),score=r.Score})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"radius\"",
+        "\"hitCount\"\\s*:\\s*[2-8]",
+        "\"affected\"\\s*:\\s*[2-8]",
+        "\"broken\"\\s*:\\s*1",
+        "\"surviving\"\\s*:\\s*[1-9][0-9]*",
+        "\"minScale\"\\s*:\\s*0\\.[0-9]+",
+        "\"maxScale\"\\s*:\\s*1",
+        "\"primaryBroken\"\\s*:\\s*true",
+        "\"score\"\\s*:\\s*40"
+      ],
+      "label": "one body-directed punch damages a radius with falloff"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,0)) local r=c:Invoke(\"PunchRadius\") return H:JSONEncode({ok=r.ok,reason=r.reason,broken=r.BrokenDepthBlocks,score=r.Score})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"no_block\"",
+        "\"broken\"\\s*:\\s*0",
+        "\"score\"\\s*:\\s*0"
+      ],
+      "label": "facing away causes no damage and proves no target lock"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=100,WallLevel=3,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-68),Vector3.new(-2,3,-90)) local r=c:Invoke(\"PunchRadius\") local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(tostring(r.primary)) return H:JSONEncode({ok=r.ok,primary=r.primary,shakeToken=b and b:GetAttribute(\"ShakeToken\"),lastShakeAt=b and b:GetAttribute(\"LastShakeAt\"),survived=b and not b:GetAttribute(\"Broken\"),hp=b and b:GetAttribute(\"HP\"),maxHP=b and b:GetAttribute(\"MaxHP\")})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"shakeToken\"\\s*:\\s*[2-9][0-9]*",
+        "\"survived\"\\s*:\\s*true",
+        "\"hp\"\\s*:\\s*7[0-9]{2}",
+        "\"maxHP\"\\s*:\\s*900"
+      ],
+      "label": "tough block starts vibration when damaged but not broken"
+    },
+    {
+      "type": "wait",
+      "ms": 450,
+      "label": "wait for vibration restore"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local name=p:GetAttribute(\"LastRadiusPrimary\") local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(tostring(name)) local base=b and b:GetAttribute(\"BaseCFrame\") return H:JSONEncode({exists=b~=nil,shaking=b and b:GetAttribute(\"Shaking\"),restored=b and base and (b.CFrame.Position-base.Position).Magnitude<0.01})"
+      },
+      "expectRegex": [
+        "\"exists\"\\s*:\\s*true",
+        "\"shaking\"\\s*:\\s*false",
+        "\"restored\"\\s*:\\s*true"
+      ],
+      "label": "vibrating block returns to its exact grid position"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "name": "punchwall-visual-polish-smoke",
+  "description": "Validate Hero City visual polish: bright anime hero lighting, city decor, smashable building facade textures, and responsive HUD sizing.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "stateBefore",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Edit"
+      ],
+      "label": "edit mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "ReplicatedStorage.PolishConfig"
+      },
+      "expectRegex": [
+        "ModuleScript"
+      ],
+      "label": "polish config exists"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Lighting.Hero City Bloom"
+      },
+      "expectRegex": [
+        "BloomEffect",
+        "\"Intensity\"\\s*:\\s*0\\.1"
+      ],
+      "label": "kaiju bloom configured"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Lighting.Hero City Color"
+      },
+      "expectRegex": [
+        "ColorCorrectionEffect",
+        "\"Contrast\"\\s*:\\s*0\\.2"
+      ],
+      "label": "kaiju color correction configured"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal root = workspace:WaitForChild(\"PunchWallRPG\", 10)\nlocal polish = root:WaitForChild(\"Polish\", 10)\nlocal city = polish:WaitForChild(\"City Decor\", 10)\nlocal tier = polish:WaitForChild(\"Wall Tier Frames\", 10)\nlocal guide = polish:WaitForChild(\"Guide Path\", 10)\nlocal vfx = polish:WaitForChild(\"VFX Anchors\", 10)\nlocal detailCount = 0\nlocal facadeCount = 0\nfor _, inst in ipairs(root:GetDescendants()) do\n if inst:GetAttribute(\"TextureStyle\") == \"ThreeDimensionalFacadeDetail\" then detailCount += 1 end\n if inst.Name == \"WindowFacade\" then facadeCount += 1 end\nend\nreturn HttpService:JSONEncode({ hasGuide = guide ~= nil, hasTier = tier ~= nil, hasCity = city ~= nil, hasVfx = vfx ~= nil, cityChildren = #city:GetChildren(), tierChildren = #tier:GetChildren(), detailBucket = detailCount >= 1000 and \"1000+\" or tostring(detailCount), facadeBucket = facadeCount >= 20 and \"20+\" or tostring(facadeCount) })"
+      },
+      "expectRegex": [
+        "\"hasGuide\"\\s*:\\s*true",
+        "\"hasTier\"\\s*:\\s*true",
+        "\"hasCity\"\\s*:\\s*true",
+        "\"hasVfx\"\\s*:\\s*true",
+        "\"detailBucket\"\\s*:\\s*\"688\"",
+        "\"facadeBucket\"\\s*:\\s*\"20\\+\""
+      ],
+      "label": "kaiju polish folders and 3d facade detail counts"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Downtown Smash Block"
+      },
+      "expectRegex": [
+        "Asphalt",
+        "\"Size\""
+      ],
+      "label": "asphalt city base exists"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Walls.Brick Wall"
+      },
+      "expectRegex": [
+        "\"Theme\"\\s*:\\s*\"Hero City\"",
+        "\"VisualRole\"\\s*:\\s*\"LayeredDestructionTarget\"",
+        "\"DamageStage\"\\s*:\\s*0",
+        "WallCombatBillboard",
+        "PhysicalCombatSign",
+        "Hit Spark Attachment",
+        "Break Burst Attachment"
+      ],
+      "label": "wall has kaiju building facade and vfx"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Walls.Titan Server Wall"
+      },
+      "expectRegex": [
+        "\"Theme\"\\s*:\\s*\"Hero City\"",
+        "\"VisualRole\"\\s*:\\s*\"KaijuBossTower\"",
+        "WindowFacade"
+      ],
+      "label": "titan boss tower has city facade"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal mobile = gui:WaitForChild(\"MobileControls\", 5)\nmobile.Visible = true\nlocal punch = mobile:WaitForChild(\"ActionPunch\", 5)\nreturn HttpService:JSONEncode({ title = gui:FindFirstChild(\"StatsPanel\", true):FindFirstChild(\"Title\", true).Text, rewardPops = gui:FindFirstChild(\"RewardPops\") ~= nil, mobileWidth = mobile.AbsoluteSize.X, punchWidth = punch.AbsoluteSize.X, punchText = punch.Text })"
+      },
+      "expectRegex": [
+        "\"title\"\\s*:\\s*\"HERO STATUS\"",
+        "\"rewardPops\"\\s*:\\s*true",
+        "\"punchText\"\\s*:\\s*\"PUNCH\"",
+        "\"mobileWidth\"\\s*:\\s*278",
+        "\"punchWidth\"\\s*:\\s*100"
+      ],
+      "label": "mobile hud still readable"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

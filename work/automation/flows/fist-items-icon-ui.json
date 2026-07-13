@@ -1,0 +1,175 @@
+{
+  "name": "fist-items-icon-ui",
+  "description": "Verify original avatar preservation, five closed-fist item tiers, starter ownership, coin-funded upgrade purchase, themed icon HUD, modal menu behavior, and icon feedback.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for fist shop and HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local decor=root.Polish[\"City Decor\"] local result={count=0,allClosed=true,noBlades=true,allIcons=true,names={}} for _,internal in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local palm=decor:FindFirstChild(internal..\" Gauntlet Palm\") local plate=decor:FindFirstChild(internal..\" Armory Nameplate\") local knuckles,wedges,icons=0,0,0 for _,d in ipairs(decor:GetChildren()) do if d.Name:find(internal,1,true) and d.Name:find(\"Closed Knuckle\",1,true) then knuckles+=1 end if d:IsA(\"WedgePart\") and d.Name:find(internal,1,true) then wedges+=1 end end if plate then for _,d in ipairs(plate:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then icons+=1 end end end result.count+=palm and 1 or 0 result.allClosed=result.allClosed and palm~=nil and palm.Shape==Enum.PartType.Ball and knuckles==4 result.noBlades=result.noBlades and wedges==0 result.allIcons=result.allIcons and icons==2 table.insert(result.names,plate and plate:FindFirstChild(\"Title\",true) and plate:FindFirstChild(\"Title\",true).Text or \"\") end return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*4",
+        "\"allClosed\"\\s*:\\s*true",
+        "\"noBlades\"\\s*:\\s*true",
+        "\"allIcons\"\\s*:\\s*true",
+        "Street Boxing Fist",
+        "Iron Crusher Fist",
+        "Thunder Core Fist",
+        "Titan Siege Fist"
+      ],
+      "label": "armory displays four distinct closed fists with icons"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local fist=p.Character:FindFirstChild(\"Equipped Kaiju Gauntlet\") local knuckles,mutations,tails,wedges=0,0,0,0 for _,d in ipairs(fist:GetDescendants()) do if d.Name:find(\"Closed Knuckle\",1,true) then knuckles+=1 elseif d.Name:find(\"Mutation\",1,true) then mutations+=1 elseif d.Name:find(\"Kaiju Tail\",1,true) then tails+=1 elseif d:IsA(\"WedgePart\") then wedges+=1 end end local atlasIcons,actionIcons,tabIcons,rowIcons=0,0,0,0 for _,d in ipairs(g:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then atlasIcons+=1 if d.Name==\"ActionIcon\" then actionIcons+=1 elseif d.Name==\"TabIcon\" then tabIcons+=1 elseif d.Name==\"RowIcon\" then rowIcons+=1 end end end local compact=game:GetService(\"UserInputService\").TouchEnabled or workspace.CurrentCamera.ViewportSize.Y<520 local titleResponsive=g.StatsPanel.Title.Visible==not compact return H:JSONEncode({closed=fist:GetAttribute(\"ClosedFist\"),tier=fist:GetAttribute(\"Tier\"),display=fist:GetAttribute(\"DisplayName\"),knuckles=knuckles,mutations=mutations,tails=tails,wedges=wedges,atlasIcons=atlasIcons,actionIcons=actionIcons,tabIcons=tabIcons,rowIcons=rowIcons,menuIcon=g.MenuButton:FindFirstChild(\"MenuIcon\")~=nil,objectiveIcon=g.ObjectiveCard:FindFirstChild(\"ObjectiveIcon\")~=nil,targetIcon=g.TargetWallHUD:FindFirstChild(\"TargetIcon\")~=nil,title=g.StatsPanel.Title.Text,titleResponsive=titleResponsive})"
+      },
+      "expectRegex": [
+        "\"closed\"\\s*:\\s*true",
+        "\"tier\"\\s*:\\s*1",
+        "\"display\"\\s*:\\s*\"Starter Fist\"",
+        "\"knuckles\"\\s*:\\s*4",
+        "\"mutations\"\\s*:\\s*0",
+        "\"tails\"\\s*:\\s*0",
+        "\"wedges\"\\s*:\\s*0",
+        "\"atlasIcons\"\\s*:\\s*(1[6-9]|2[0-9])",
+        "\"actionIcons\"\\s*:\\s*4",
+        "\"tabIcons\"\\s*:\\s*4",
+        "\"menuIcon\"\\s*:\\s*true",
+        "\"objectiveIcon\"\\s*:\\s*true",
+        "\"targetIcon\"\\s*:\\s*true",
+        "HERO STATUS",
+        "\"titleResponsive\"\\s*:\\s*true"
+      ],
+      "label": "starter fist and themed mobile HUD preserve original avatar"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true task.wait(.15) local hidden=not g.HeroStatusDeck.Visible and not g.ObjectiveCard.Visible and not g.MobileControls.Visible and not g.MenuButton.Visible g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.25) local tabsOK=true for _,n in ipairs({\"FistsTab\",\"PetsTab\",\"TasksTab\",\"SettingsTab\"}) do local b=g.GameMenu.Tabs[n] tabsOK=tabsOK and b:FindFirstChild(\"TabIcon\")~=nil and b.AbsoluteSize.X>=80 end local productIcons=0 for _,d in ipairs(g.GameMenu.Content:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Name==\"ProductIcon\" and d.Image==\"rbxassetid://104014193600358\" then productIcons+=1 end end g.GameMenu.Visible=false task.wait(.1) local restored=g.HeroStatusDeck.Visible and g.LeftHeroNavigation.Visible and g.RightHeroNavigation.Visible and g.MobileControls.Visible and not g.MenuButton.Visible return H:JSONEncode({hidden=hidden,tabsOK=tabsOK,rowIcons=productIcons,restored=restored})"
+      },
+      "expectRegex": [
+        "\"hidden\"\\s*:\\s*true",
+        "\"tabsOK\"\\s*:\\s*true",
+        "\"rowIcons\"\\s*:\\s*[5-9]",
+        "\"restored\"\\s*:\\s*true"
+      ],
+      "label": "icon menu behaves as a clean mobile modal"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=500}) local buy=c:Invoke(\"BuyFist\",\"Boxing Glove\") return H:JSONEncode({ok=buy.ok,coins=buy.Coins,equipped=buy.EquippedFist,owned=buy.OwnedFistsJSON,mult=buy.FistMultiplier})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"coins\"\\s*:\\s*320",
+        "\"equipped\"\\s*:\\s*\"Boxing Glove\"",
+        "Starter Glove",
+        "Boxing Glove",
+        "\"mult\"\\s*:\\s*1\\.8"
+      ],
+      "label": "coins purchase and auto-equip the next fist tier"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for equipped fist visuals"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local label=g.StatsPanel:FindFirstChild(\"EquippedFist\",true) local icon=label:FindFirstChild(\"StatIcon\") local fist=p.Character:FindFirstChild(\"Equipped Kaiju Gauntlet\") return H:JSONEncode({text=label.Text,x=icon.ImageRectOffset.X,y=icon.ImageRectOffset.Y,tier=fist:GetAttribute(\"Tier\"),display=fist:GetAttribute(\"DisplayName\"),style=fist:GetAttribute(\"FistStyle\")})"
+      },
+      "expectRegex": [
+        "Fist: Street Boxing Fist",
+        "\"x\"\\s*:\\s*191",
+        "\"y\"\\s*:\\s*187",
+        "\"tier\"\\s*:\\s*2",
+        "\"display\"\\s*:\\s*\"Street Boxing Fist\"",
+        "\"style\"\\s*:\\s*\"Boxing\""
+      ],
+      "label": "equipped item updates fist model and HUD icon"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] game.ReplicatedStorage.PunchWallEvents.Feedback:FireClient(p,{type=\"Shop\",target=\"Boxing Glove\"}) return true"
+      },
+      "label": "emit shop feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 100,
+      "label": "wait for icon feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local icons=0 for _,d in ipairs(g:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Name==\"FeedbackIcon\" and d.Image==\"rbxassetid://104014193600358\" then icons+=1 end end return H:JSONEncode({type=g:GetAttribute(\"LastFeedbackType\"),icons=icons})"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Shop\"",
+        "\"icons\"\\s*:\\s*[1-9]"
+      ],
+      "label": "shop notification uses themed icon feedback"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

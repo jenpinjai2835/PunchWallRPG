@@ -1,0 +1,30 @@
+{
+  "name": "creator-store-fist-visuals",
+  "description": "Validate sanitized free Creator Store fist visuals attach to each equipped shop tier without third-party behavior.",
+  "studioName": "PunchWallRPGPlayable_v1_final",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=1000000,Power=1000,WallLevel=99}) return 'ready'" }, "label": "prepare purchase balance" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation return c:Invoke('BuyFist','Boxing Glove').item or 'Starter fallback'" }, "label": "equip boxing visual" },
+    { "type": "wait", "ms": 500, "label": "wait boxing visual" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local c=game.Players.LocalPlayer.Character local hand=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 local maxDistance=0 for _,d in ipairs(g and g:GetDescendants() or {}) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if hand then maxDistance=math.max(maxDistance,(d.Position-hand.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 end end return H:JSONEncode({ok=v~=nil,style=g and g:GetAttribute('FistStyle'),parts=v and #v:GetDescendants() or 0,anchored=anchored,welds=welds,maxDistance=maxDistance})" }, "expectRegex": ["\\\"ok\\\"\\s*:\\s*true","\\\"style\\\"\\s*:\\s*\\\"Boxing\\\"","\\\"anchored\\\"\\s*:\\s*0","\\\"welds\\\"\\s*:\\s*[1-9]"] , "label": "boxing asset attached" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation return c:Invoke('BuyFist','Iron Knuckle').item" }, "label": "equip iron visual" },
+    { "type": "wait", "ms": 500, "label": "wait iron visual" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local c=game.Players.LocalPlayer.Character local hand=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 for _,d in ipairs(g and g:GetDescendants() or {}) do if d:IsA('BasePart') and d.Anchored then anchored+=1 elseif d:IsA('WeldConstraint') then welds+=1 end end return tostring(v~=nil and anchored==0 and welds>0)" }, "expectRegex": ["true"], "label": "iron asset attached" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('BuyFist','Thunder Fist') return 'thunder'" }, "label": "equip thunder visual" },
+    { "type": "wait", "ms": 500, "label": "wait thunder visual" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local c=game.Players.LocalPlayer.Character local hand=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 for _,d in ipairs(g and g:GetDescendants() or {}) do if d:IsA('BasePart') and d.Anchored then anchored+=1 elseif d:IsA('WeldConstraint') then welds+=1 end end return tostring(v~=nil and #v:GetDescendants()>5 and anchored==0 and welds>0)" }, "expectRegex": ["true"], "label": "thunder asset and particles attached" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('BuyFist','Titan Gauntlet') return 'titan'" }, "label": "equip titan visual" },
+    { "type": "wait", "ms": 500, "label": "wait titan visual" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local c=game.Players.LocalPlayer.Character local hand=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local scripts=0 local anchored=0 local welds=0 local maxDistance=0 for _,d in ipairs(g and g:GetDescendants() or {}) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if hand then maxDistance=math.max(maxDistance,(d.Position-hand.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 elseif d:IsA('Script') or d:IsA('LocalScript') or d:IsA('ModuleScript') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') then scripts+=1 end end return H:JSONEncode({ok=v~=nil,style=g and g:GetAttribute('FistStyle'),parts=v and #v:GetDescendants() or 0,scripts=scripts,anchored=anchored,welds=welds,maxDistance=maxDistance})" }, "expectRegex": ["\\\"ok\\\"\\s*:\\s*true","\\\"style\\\"\\s*:\\s*\\\"Titan\\\"","\\\"scripts\\\"\\s*:\\s*0","\\\"anchored\\\"\\s*:\\s*0","\\\"welds\\\"\\s*:\\s*[1-9]"] , "label": "titan asset is visual-only" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "name": "iteration02-companion-tasks-boss",
+  "description": "Verify DNA graphics, compact companions, original avatar with a closed fist item, pet inventory layout, task readiness feedback, hit estimates, Titan countdown, and weak-point feedback.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for iteration runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal decor=root.Polish[\"City Decor\"]\nlocal dna=decor[\"DNA Lab Compact Sign\"]\nlocal boss=root.Walls[\"Titan Server Wall\"]\nlocal parts,images,decals=0,0,0\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nfor _,d in ipairs(dna:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://80764015986038\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://80764015986038\" then decals+=1 end end\nreturn H:JSONEncode({parts=parts,images=images,decals=decals,nextAttack=boss:GetAttribute(\"NextAttackAt\"),hasNextAttribute=boss:GetAttribute(\"NextAttackAt\")~=nil})"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"images\"\\s*:\\s*1",
+        "\"decals\"\\s*:\\s*1",
+        "\"nextAttack\"\\s*:\\s*0",
+        "\"hasNextAttribute\"\\s*:\\s*true"
+      ],
+      "label": "DNA graphic and boss countdown contract exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Coins=10000,Power=60,WallLevel=25,FistMastery=10,DailyBreaks=0,DailyQuestClaimed=0,PlaytimeSeconds=5,PlaytimeClaimed=0})\nlocal hatch=c:Invoke(\"HatchPet\")\nif hatch.pet then c:Invoke(\"EquipPet\",hatch.pet) end\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn H:JSONEncode({pet=hatch.pet,ok=hatch.ok})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"pet\"\\s*:\\s*\"[^\"]+\""
+      ],
+      "label": "prepare one equipped companion and wall target"
+    },
+    {
+      "type": "wait",
+      "ms": 900,
+      "label": "wait for client companion visuals"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\ng:SetAttribute(\"AutomationTab\",\"Pets\")\ntask.wait(.45)\nlocal c=g.GameMenu.Content\nlocal banner=c:FindFirstChild(\"Hero City Generated Banner\")\nlocal folder=workspace:FindFirstChild(p.Name..\" Client Companions\")\nlocal model=folder and folder:FindFirstChildWhichIsA(\"Model\")\nlocal maxSize,eyes,feet,tails=0,0,0,0\nif model then for _,d in ipairs(model:GetDescendants()) do if d:IsA(\"BasePart\") then maxSize=math.max(maxSize,d.Size.X,d.Size.Y,d.Size.Z) end if d.Name==\"Eye\" then eyes+=1 elseif d.Name==\"Foot\" then feet+=1 elseif d.Name==\"Tail\" then tails+=1 end end end\nlocal row,thumb\nfor _,d in ipairs(c:GetChildren()) do if d:IsA(\"Frame\") and string.match(d.Name,\"^#%d+\") then row=d thumb=d:FindFirstChild(\"Pet Rarity Thumbnail\") break end end\nlocal actions=row and row:FindFirstChild(\"Actions\")\nlocal buttons,layoutOK=0,true\nif actions then for _,b in ipairs(actions:GetChildren()) do if b:IsA(\"TextButton\") then buttons+=1 layoutOK=layoutOK and b.AbsoluteSize.Y>=44 and b.AbsolutePosition.X>=actions.AbsolutePosition.X-1 and b.AbsolutePosition.X+b.AbsoluteSize.X<=actions.AbsolutePosition.X+actions.AbsoluteSize.X+1 end end end\nlocal char=p.Character\nlocal gauntlet=char and char:FindFirstChild(\"Equipped Kaiju Gauntlet\")\nlocal mutation,tailSegments,knuckles,wedges=0,0,0,0\nif gauntlet then for _,d in ipairs(gauntlet:GetDescendants()) do if string.find(d.Name,\"Starter Mutation\",1,true) then mutation+=1 elseif string.find(d.Name,\"Kaiju Tail Segment\",1,true) then tailSegments+=1 elseif string.find(d.Name,\"Closed Knuckle\",1,true) then knuckles+=1 elseif d:IsA(\"WedgePart\") then wedges+=1 end end end\nlocal distance=(model and model.PrimaryPart and char and char:FindFirstChild(\"HumanoidRootPart\")) and (model.PrimaryPart.Position-char.HumanoidRootPart.Position).Magnitude or 0\nreturn H:JSONEncode({banner=banner and banner.Image or \"\",companion=model~=nil,sizeOK=maxSize<=1.91,eyes=eyes,feet=feet,tails=tails,distanceOK=distance>=2 and distance<=6,thumb=thumb and thumb.Image or \"\",buttons=buttons,layoutOK=layoutOK,mutation=mutation,tailSegments=tailSegments,knuckles=knuckles,wedges=wedges,closed=gauntlet and gauntlet:GetAttribute(\"ClosedFist\"),cuff=gauntlet and gauntlet:FindFirstChild(\"Gauntlet Tapered Cuff\")~=nil})"
+      },
+      "expectRegex": [
+        "rbxassetid://80764015986038",
+        "\"companion\"\\s*:\\s*true",
+        "\"sizeOK\"\\s*:\\s*true",
+        "\"eyes\"\\s*:\\s*2",
+        "\"feet\"\\s*:\\s*4",
+        "\"tails\"\\s*:\\s*1",
+        "\"distanceOK\"\\s*:\\s*true",
+        "rbxassetid://114585325653299",
+        "\"buttons\"\\s*:\\s*3",
+        "\"layoutOK\"\\s*:\\s*true",
+        "\"mutation\"\\s*:\\s*0",
+        "\"tailSegments\"\\s*:\\s*0",
+        "\"knuckles\"\\s*:\\s*4",
+        "\"wedges\"\\s*:\\s*0",
+        "\"closed\"\\s*:\\s*true",
+        "\"cuff\"\\s*:\\s*true"
+      ],
+      "label": "companion, pet menu, and closed fist preserve the avatar"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local ordered={}\nlocal menu=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.GameMenu\nlocal tabBar=menu:FindFirstChild(\"Tabs\")\nassert(tabBar,\"Tabs missing\")\nfor _,d in ipairs(tabBar:GetChildren()) do if d:IsA(\"TextButton\") then table.insert(ordered,{x=d.AbsolutePosition.X,name=d.Name}) end end\ntable.sort(ordered,function(a,b) return a.x<b.x end)\nlocal names={} for _,item in ipairs(ordered) do table.insert(names,item.name) end\nreturn table.concat(names,\"|\")"
+      },
+      "expectRegex": [
+        "^FistsTab\\|PetsTab\\|TasksTab\\|SettingsTab$"
+      ],
+      "label": "menu tabs keep intentional left-to-right order"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=15,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
+      },
+      "label": "refresh deterministic wall target state"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for refreshed wall target"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.GameMenu.Visible=false\ntask.wait(.6)\nlocal hud=g.TargetWallHUD\nreturn H:JSONEncode({visible=hud.Visible,detail=hud.TargetDetail.Text,hasHits=string.find(string.lower(hud.TargetDetail.Text),\"hits\",1,true)~=nil})"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "\"hasHits\"\\s*:\\s*true",
+        "~[0-9]+ hits"
+      ],
+      "label": "wall HUD estimates current hits remaining"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng:SetAttribute(\"AutomationTab\",\"Tasks\")\ntask.wait(.35)\nlocal c=g.GameMenu.Content\nlocal q=c[\"City Cleanup\"]:FindFirstChild(\"ClaimQuest\",true)\nlocal p=c[\"Five Minute Supply\"]:FindFirstChild(\"ClaimPlaytime\",true)\nreturn H:JSONEncode({quest=q.Text,questActive=q.Active,questHeight=q.AbsoluteSize.Y,play=p.Text,playActive=p.Active,playHeight=p.AbsoluteSize.Y})"
+      },
+      "expectRegex": [
+        "\"quest\"\\s*:\\s*\"WAIT\"",
+        "\"questActive\"\\s*:\\s*false",
+        "\"questHeight\"\\s*:\\s*44",
+        "\"play\"\\s*:\\s*\"WAIT\"",
+        "\"playActive\"\\s*:\\s*false",
+        "\"playHeight\"\\s*:\\s*44"
+      ],
+      "label": "unavailable task rewards communicate WAIT"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal r=game.ServerStorage.PunchWallAutomation:Invoke(\"ClaimQuest\")\nreturn H:JSONEncode({ok=r.ok,reason=r.reason})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"not_ready\""
+      ],
+      "label": "early quest claim rejected authoritatively"
+    },
+    {
+      "type": "wait",
+      "ms": 300,
+      "label": "wait for failed claim feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nreturn H:JSONEncode({type=g:GetAttribute(\"LastFeedbackType\"),target=g:GetAttribute(\"LastFeedbackTarget\")})"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"Fail\"",
+        "\"target\"\\s*:\\s*\"Quest\""
+      ],
+      "label": "failed claim gives explicit local feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=1000000,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15)\nlocal hit=c:Invoke(\"HitBoss\")\nreturn H:JSONEncode({ok=hit.ok,broken=hit.TitanBroken,hp=hit.TitanHP})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"broken\"\\s*:\\s*false"
+      ],
+      "label": "enter Titan phase two without breaking boss"
+    },
+    {
+      "type": "wait",
+      "ms": 1600,
+      "label": "wait for countdown scheduling and boss HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal b=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"]\nlocal nextAt=b:GetAttribute(\"NextAttackAt\") or 0\nreturn H:JSONEncode({phase=b:GetAttribute(\"BossPhase\"),scheduled=nextAt>workspace:GetServerTimeNow(),remaining=math.ceil(nextAt-workspace:GetServerTimeNow())})"
+      },
+      "expectRegex": [
+        "\"phase\"\\s*:\\s*2",
+        "\"scheduled\"\\s*:\\s*true",
+        "\"remaining\"\\s*:\\s*[1-9]"
+      ],
+      "label": "Titan shockwave has a replicated countdown"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.GameMenu.Visible=false\ntask.wait(.3)\nreturn H:JSONEncode({visible=g.BossHUD.Visible,title=g.BossHUD.BossTitle.Text,subtitle=g.BossHUD.BossSubtitle.Text,weak=string.find(g.BossHUD.BossTitle.Text,\"x1.5\",1,true)~=nil,countdown=string.find(g.BossHUD.BossSubtitle.Text,\"SHOCKWAVE\",1,true)~=nil})"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "\"weak\"\\s*:\\s*true",
+        "\"countdown\"\\s*:\\s*true",
+        "SHOCKWAVE [1-9]"
+      ],
+      "label": "boss HUD explains weak point and incoming shockwave"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"SetStats\",{Power=100})\nlocal r=c:Invoke(\"HitBossWeakPoint\")\nreturn H:JSONEncode({ok=r.ok,damage=r.damage or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"damage\"\\s*:\\s*[1-9]"
+      ],
+      "label": "strike a Titan weak point"
+    },
+    {
+      "type": "wait",
+      "ms": 300,
+      "label": "wait for weak point feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nreturn H:JSONEncode({type=g:GetAttribute(\"LastFeedbackType\"),target=g:GetAttribute(\"LastFeedbackTarget\")})"
+      },
+      "expectRegex": [
+        "\"type\"\\s*:\\s*\"WeakPoint\"",
+        "\"target\"\\s*:\\s*\"Titan Server Wall\""
+      ],
+      "label": "weak-point strike gives distinct local feedback"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "name": "punchwall-hybrid-physics-lunge",
+  "description": "Validate persistent server-owned structural rubble, detached re-impact physics, finishing destruction, capped hybrid debris, client-only visual shards, and a wind-up plus unobstructed 10.5-stud forward punch lunge without target rotation.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for hybrid runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") game.ServerStorage.PunchWallAutomation:Invoke(\"Reset\") local root=workspace.PunchWallRPG return H:JSONEncode({lunge=root:GetAttribute(\"PunchLungeDistance\"),windup=root:GetAttribute(\"PunchWindupSeconds\"),maxFalling=root:GetAttribute(\"MaxStructuralFalling\"),active=root:GetAttribute(\"ActiveStructuralFalling\")})"
+      },
+      "expectRegex": [
+        "\"lunge\"\\s*:\\s*10\\.5",
+        "\"windup\"\\s*:\\s*0\\.2",
+        "\"maxFalling\"\\s*:\\s*60",
+        "\"active\"\\s*:\\s*0"
+      ],
+      "label": "hybrid physics and lunge contract"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local hrp=p.Character.HumanoidRootPart hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-40)) local beforePosition,beforeLook=hrp.Position,hrp.CFrame.LookVector local r=c:Invoke(\"PunchRadius\") local moved=(hrp.Position-beforePosition).Magnitude local lookDelta=(hrp.CFrame.LookVector-beforeLook).Magnitude return H:JSONEncode({ok=r.ok,lunge=r.lungeDistance,moved=moved,lookDelta=lookDelta,broken=r.BrokenDepthBlocks,power=r.Power,coins=r.Coins,serverChunks=r.PhysicsFragments})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"lunge\"\\s*:\\s*10\\.5",
+        "\"moved\"\\s*:\\s*10\\.[0-9]+",
+        "\"lookDelta\"\\s*:\\s*0",
+        "\"broken\"\\s*:\\s*1",
+        "\"power\"\\s*:\\s*15",
+        "\"coins\"\\s*:\\s*11",
+        "\"serverChunks\"\\s*:\\s*6"
+      ],
+      "label": "wind-up punch lunges forward without rotating"
+    },
+    {
+      "type": "wait",
+      "ms": 120,
+      "label": "wait for local visual debris"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local folder=workspace:FindFirstChild(\"Local Punch Debris\") local count,collidable=0,0 if folder then for _,d in ipairs(folder:GetChildren()) do if d:GetAttribute(\"LocalVisualDebris\") then count+=1 if d.CanCollide then collidable+=1 end end end end local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({count=count,collidable=collidable,windup=gui:GetAttribute(\"PunchWindupSeconds\"),lunge=gui:GetAttribute(\"PunchLungeStuds\")})"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*8",
+        "\"collidable\"\\s*:\\s*0",
+        "\"windup\"\\s*:\\s*0\\.2",
+        "\"lunge\"\\s*:\\s*10\\.5"
+      ],
+      "label": "client owns eight non-colliding visual shards"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) c:Invoke(\"HitDepthBlock\",{layer=1,column=7,row=1}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(1000,10,1000),Vector3.new(1000,10,1010)) local root=workspace.PunchWallRPG local falling,serverOwned,unanchored=0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralFalling\") then falling+=1 if not b.Anchored then unanchored+=1 end local ok,owner=pcall(function() return b:GetNetworkOwner() end) if ok and owner==nil then serverOwned+=1 end end end local snap=c:Invoke(\"Snapshot\") return H:JSONEncode({lastCollapse=root:GetAttribute(\"LastStructuralCollapseCount\"),active=root:GetAttribute(\"ActiveStructuralFalling\"),falling=falling,serverOwned=serverOwned,unanchored=unanchored,broken=snap.BrokenDepthBlocks,detached=snap.DetachedDepthBlocks,serverChunks=snap.PhysicsFragments})"
+      },
+      "expectRegex": [
+        "\"lastCollapse\"\\s*:\\s*4",
+        "\"active\"\\s*:\\s*4",
+        "\"falling\"\\s*:\\s*4",
+        "\"serverOwned\"\\s*:\\s*4",
+        "\"unanchored\"\\s*:\\s*4",
+        "\"broken\"\\s*:\\s*2",
+        "\"detached\"\\s*:\\s*4",
+        "\"serverChunks\"\\s*:\\s*12"
+      ],
+      "label": "two missing supports trigger server-owned structural cascade"
+    },
+    {
+      "type": "wait",
+      "ms": 3200,
+      "label": "wait for structural blocks to settle naturally"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local visible,unanchored,collidable,queryable,moved=0,0,0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralDetached\") then if b.Transparency==0 then visible+=1 end if not b.Anchored then unanchored+=1 end if b.CanCollide then collidable+=1 end if b.CanQuery then queryable+=1 end local base=b:GetAttribute(\"BaseCFrame\") if base and (b.Position-base.Position).Magnitude>1 then moved+=1 end end end return H:JSONEncode({active=root:GetAttribute(\"ActiveStructuralFalling\"),visible=visible,unanchored=unanchored,collidable=collidable,queryable=queryable,moved=moved})"
+      },
+      "expectRegex": [
+        "\"active\"\\s*:\\s*0",
+        "\"visible\"\\s*:\\s*4",
+        "\"unanchored\"\\s*:\\s*4",
+        "\"collidable\"\\s*:\\s*4",
+        "\"queryable\"\\s*:\\s*4",
+        "\"moved\"\\s*:\\s*4"
+      ],
+      "label": "fallen blocks persist at their natural physics positions"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local name=\"DepthBlock_L001_C06_R02\" local r=c:Invoke(\"HitDepthBlock\",name) local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(name) return H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,hp=r.hp,impactAt=b:GetAttribute(\"LastDetachedImpactAt\"),launchSpeed=b:GetAttribute(\"LastDetachedLaunchSpeed\"),falling=b:GetAttribute(\"StructuralFalling\"),stillVisible=b.Transparency==0,stillCollidable=b.CanCollide,stillQueryable=b.CanQuery})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"hit\"",
+        "\"detached\"\\s*:\\s*true",
+        "\"hp\"\\s*:\\s*4(?:\\.[0-9]+)?",
+		"\"impactAt\"\\s*:\\s*[1-9]",
+		"\"launchSpeed\"\\s*:\\s*[1-9][0-9]*(?:\\.[0-9]+)?",
+        "\"falling\"\\s*:\\s*true",
+        "\"stillVisible\"\\s*:\\s*true",
+        "\"stillCollidable\"\\s*:\\s*true",
+        "\"stillQueryable\"\\s*:\\s*true"
+      ],
+      "label": "punching fallen rubble makes it bounce without deleting it"
+    },
+    {
+      "type": "wait",
+      "ms": 140,
+      "label": "wait for detached impact physics step"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local b=workspace.PunchWallRPG[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local origin=b:GetAttribute(\"DetachedImpactOrigin\") return H:JSONEncode({moved=origin and (b.Position-origin.Position).Magnitude or 0,unanchored=not b.Anchored})"
+      },
+      "expectRegex": [
+        "\"moved\"\\s*:\\s*(?:0\\.[0-9]*[1-9]|[1-9][0-9]*(?:\\.[0-9]+)?)",
+        "\"unanchored\"\\s*:\\s*true"
+      ],
+      "label": "fallen block moves from its settled position under impulse"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local name=\"DepthBlock_L001_C06_R02\" local r=c:Invoke(\"HitDepthBlock\",name) local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(name) local snap=c:Invoke(\"Snapshot\") return H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,broken=b:GetAttribute(\"Broken\"),hidden=b.Transparency==1,collidable=b.CanCollide,queryable=b.CanQuery,detachedRemaining=snap.DetachedDepthBlocks,brokenTotal=snap.BrokenDepthBlocks,serverChunks=snap.PhysicsFragments})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"detached\"\\s*:\\s*true",
+        "\"broken\"\\s*:\\s*true",
+        "\"hidden\"\\s*:\\s*true",
+        "\"collidable\"\\s*:\\s*false",
+        "\"queryable\"\\s*:\\s*false",
+        "\"detachedRemaining\"\\s*:\\s*3",
+        "\"brokenTotal\"\\s*:\\s*3",
+        "\"serverChunks\"\\s*:\\s*6"
+      ],
+      "label": "fallen rubble disappears only after a finishing punch"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

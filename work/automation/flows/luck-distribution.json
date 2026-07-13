@@ -1,0 +1,35 @@
+{
+  "name": "luck-distribution",
+  "description": "Validate higher Luck monotonically improves non-common rarity chances and pet inventory actions remain consistent.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local cfg=require(game:GetService(\"ReplicatedStorage\"):WaitForChild(\"GameConfig\")) local a=cfg.PetChances(1) local b=cfg.PetChances(2) local c=cfg.PetChances(5) local d=cfg.PetChances(10) local nonCommon={1-a[\"Brick Pup\"],1-b[\"Brick Pup\"],1-c[\"Brick Pup\"],1-d[\"Brick Pup\"]} local monotonic=nonCommon[1]<nonCommon[2] and nonCommon[2]<nonCommon[3] and nonCommon[3]<nonCommon[4] local secretMonotonic=a[\"Secret Titan Golem\"]<b[\"Secret Titan Golem\"] and b[\"Secret Titan Golem\"]<c[\"Secret Titan Golem\"] and c[\"Secret Titan Golem\"]<d[\"Secret Titan Golem\"] return H:JSONEncode({monotonic=monotonic,secretMonotonic=secretMonotonic,commonDecreases=a[\"Brick Pup\"]>d[\"Brick Pup\"],secret1=a[\"Secret Titan Golem\"],secret10=d[\"Secret Titan Golem\"]})"
+      },
+      "expectRegex": ["\"monotonic\"\\s*:\\s*true", "\"secretMonotonic\"\\s*:\\s*true", "\"commonDecreases\"\\s*:\\s*true"],
+      "label": "luck improves rarity chances"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=1000}) local hatch=c:Invoke(\"HatchPet\") local pet=hatch.pet local before=H:JSONDecode(hatch.PetInventoryJSON) local unequip=c:Invoke(\"UnequipPet\",pet) local equip=c:Invoke(\"EquipPet\",pet) local deleted=c:Invoke(\"DeletePet\",pet) local after=H:JSONDecode(deleted.PetInventoryJSON) return H:JSONEncode({hatched=hatch.ok,inventoryAdded=#before==1,unequip=unequip.ok,equip=equip.ok,deleted=deleted.ok,inventoryRemoved=#after==0})"
+      },
+      "expectRegex": ["\"hatched\"\\s*:\\s*true", "\"inventoryAdded\"\\s*:\\s*true", "\"unequip\"\\s*:\\s*true", "\"equip\"\\s*:\\s*true", "\"deleted\"\\s*:\\s*true", "\"inventoryRemoved\"\\s*:\\s*true"],
+      "label": "pet inventory lifecycle"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

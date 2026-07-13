@@ -1,0 +1,148 @@
+{
+  "name": "iteration01-complete-polish",
+  "description": "Verify generated graphics, compact signage, wall HUD, original avatar preservation, starter fist, Titan landmark, road dressing, and dynamic tutorial guidance.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for iteration runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal decor=root.Polish[\"City Decor\"]\nlocal tier=root.Polish[\"Wall Tier Frames\"]\nlocal egg=root.Interactables[\"Pet Egg Machine\"]\nlocal rebirth=root.Interactables[\"Rebirth Shrine\"]\nlocal parts,graphics,spawnGraphics,worldDecals,barricades=0,0,0,0,0\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 elseif d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://82590428870038\" then graphics+=1 elseif d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://125153703372122\" then spawnGraphics+=1 elseif d:IsA(\"Decal\") and (d.Texture==\"rbxassetid://82590428870038\" or d.Texture==\"rbxassetid://125153703372122\") then worldDecals+=1 end end\nfor _,d in ipairs(decor:GetChildren()) do if string.find(d.Name,\"Emergency Barricade\",1,true) then barricades+=1 end end\nreturn H:JSONEncode({parts=parts,graphics=graphics,spawnGraphics=spawnGraphics,worldDecals=worldDecals,barricades=barricades,dnaSign=decor:FindFirstChild(\"DNA Lab Compact Sign\")~=nil,rebirthSign=decor:FindFirstChild(\"Evac Portal Compact Sign\")~=nil,eggText=egg:FindFirstChildWhichIsA(\"SurfaceGui\")==nil,rebirthText=rebirth:FindFirstChildWhichIsA(\"SurfaceGui\")==nil,titanPylons=tier:FindFirstChild(\"Titan Containment Pylon -1\")~=nil and tier:FindFirstChild(\"Titan Containment Pylon 1\")~=nil,titanCore=tier:FindFirstChild(\"Titan Reactor Core\")~=nil,hazard=tier:FindFirstChild(\"Titan Arena Hazard Stripe 1\")~=nil})"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"graphics\"\\s*:\\s*1",
+        "\"spawnGraphics\"\\s*:\\s*2",
+        "\"worldDecals\"\\s*:\\s*3",
+        "\"barricades\"\\s*:\\s*4",
+        "\"dnaSign\"\\s*:\\s*true",
+        "\"rebirthSign\"\\s*:\\s*true",
+        "\"eggText\"\\s*:\\s*true",
+        "\"rebirthText\"\\s*:\\s*true",
+        "\"titanPylons\"\\s*:\\s*true",
+        "\"titanCore\"\\s*:\\s*true",
+        "\"hazard\"\\s*:\\s*true"
+      ],
+      "label": "world graphics and landmarks exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal p=game.Players.LocalPlayer\nlocal gui=p.PlayerGui:WaitForChild(\"PunchWallHUD\")\ngui.GameMenu.Visible=true\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"RequestSync\"})\ntask.wait(.4)\nlocal banner=gui.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\")\nlocal gauntlet=(p.Character or p.CharacterAdded:Wait()):FindFirstChild(\"Equipped Kaiju Gauntlet\")\nlocal spines,knuckles,wedges=0,0,0\nif gauntlet then for _,d in ipairs(gauntlet:GetDescendants()) do if string.find(d.Name,\"Starter Mutation\",1,true) then spines+=1 elseif string.find(d.Name,\"Closed Knuckle\",1,true) then knuckles+=1 elseif d:IsA(\"WedgePart\") then wedges+=1 end end end\nlocal result=H:JSONEncode({banner=banner~=nil,image=banner and banner.Image or \"\",spines=spines,knuckles=knuckles,wedges=wedges,closed=gauntlet and gauntlet:GetAttribute(\"ClosedFist\"),display=gauntlet and gauntlet:GetAttribute(\"DisplayName\"),hitFlash=gui:FindFirstChild(\"HitFlash\")~=nil,targetHUD=gui:FindFirstChild(\"TargetWallHUD\")~=nil})\ngui.GameMenu.Visible=false\nreturn result"
+      },
+      "expectRegex": [
+        "\"banner\"\\s*:\\s*true",
+        "rbxassetid://104014193600358",
+        "\"spines\"\\s*:\\s*0",
+        "\"knuckles\"\\s*:\\s*4",
+        "\"wedges\"\\s*:\\s*0",
+        "\"closed\"\\s*:\\s*true",
+        "\"display\"\\s*:\\s*\"Starter Fist\"",
+        "\"hitFlash\"\\s*:\\s*true",
+        "\"targetHUD\"\\s*:\\s*true"
+      ],
+      "label": "menu graphic and starter fist preserve original avatar"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=60,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
+      },
+      "label": "damage wall for contextual HUD"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for wall HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal hud=g.TargetWallHUD\nreturn H:JSONEncode({visible=hud.Visible,title=hud:FindFirstChildWhichIsA(\"TextLabel\").Text,fill=hud.HealthTrack.HealthFill.Size.X.Scale,context=g.ContextTarget.Visible})"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "BRICK WALL",
+        "\"fill\"\\s*:\\s*0\\.4[0-9]+",
+        "\"context\"\\s*:\\s*false"
+      ],
+      "label": "wall HUD shows live HP"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"SetStats\",{TutorialStep=3,WallLevel=2,WallXP=0})\nreturn true"
+      },
+      "label": "set repeated break tutorial"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for dynamic tutorial"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "return game.Players.LocalPlayer.PlayerGui.PunchWallHUD.ObjectiveCard.Text"
+      },
+      "expectRegex": [
+        "Earn [0-9]+ more Wall XP",
+        "about [0-9]+ Brick break"
+      ],
+      "label": "tutorial estimates remaining breaks"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

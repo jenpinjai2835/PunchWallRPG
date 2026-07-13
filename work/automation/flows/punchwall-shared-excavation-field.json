@@ -1,0 +1,184 @@
+{
+  "name": "punchwall-shared-excavation-field",
+  "description": "Validate the solid multiplayer depth block field, per-block HP, physics fracture, passable holes, tier hardness, and player-controlled camera.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for shared field bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "game.ServerStorage:WaitForChild(\"PunchWallAutomation\"):Invoke(\"Reset\") return true"
+      },
+      "label": "reset shared field before geometry assertions"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local f=root[\"Depth Blocks\"] local count=#f:GetChildren() local perLayer={} local minX,maxX,minY,maxY,minZ,maxZ=math.huge,-math.huge,math.huge,-math.huge,math.huge,-math.huge local materials={} local uniform=true for _,b in ipairs(f:GetChildren()) do local layer=b:GetAttribute(\"Depth\") perLayer[layer]=(perLayer[layer] or 0)+1 minX=math.min(minX,b.Position.X-b.Size.X/2) maxX=math.max(maxX,b.Position.X+b.Size.X/2) minY=math.min(minY,b.Position.Y-b.Size.Y/2) maxY=math.max(maxY,b.Position.Y+b.Size.Y/2) minZ=math.min(minZ,b.Position.Z-b.Size.Z/2) maxZ=math.max(maxZ,b.Position.Z+b.Size.Z/2) materials[b.Material.Name]=true uniform=uniform and (b.Size-Vector3.new(4,4,4)).Magnitude<0.01 and b.CanCollide and b.Anchored end local layersOK=true for i=1,75 do layersOK=layersOK and perLayer[i]==36 end local unique=0 for _ in pairs(materials) do unique+=1 end local first=f.DepthBlock_L001_C06_R02 local last=f.DepthBlock_L075_C06_R02 return H:JSONEncode({count=count,layersOK=layersOK,uniform=uniform,width=maxX-minX,height=maxY-minY,length=maxZ-minZ,firstHP=first:GetAttribute(\"MaxHP\"),lastHP=last:GetAttribute(\"MaxHP\"),firstTier=first:GetAttribute(\"Tier\"),lastTier=last:GetAttribute(\"Tier\"),uniqueMaterials=unique,bossDepth=root.Walls[\"Titan Server Wall\"]:GetAttribute(\"Depth\")})"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*2700",
+        "\"layersOK\"\\s*:\\s*true",
+        "\"uniform\"\\s*:\\s*true",
+        "\"width\"\\s*:\\s*48",
+        "\"height\"\\s*:\\s*12",
+        "\"length\"\\s*:\\s*300",
+        "\"firstHP\"\\s*:\\s*15",
+        "\"lastHP\"\\s*:\\s*220000000",
+        "\"firstTier\"\\s*:\\s*1",
+        "\"lastTier\"\\s*:\\s*10",
+        "\"uniqueMaterials\"\\s*:\\s*[6-9]",
+        "\"bossDepth\"\\s*:\\s*76"
+      ],
+      "label": "solid field dimensions and tier materials"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local forest=root.Polish[\"World 1 Forest\"] local trees,canopies,grounds,rocks,courseBuildings=0,0,0,0,0 for _,d in ipairs(forest:GetDescendants()) do local role=d:GetAttribute(\"VisualRole\") if role==\"ForestTree\" then trees+=1 elseif role==\"ForestCanopy\" then canopies+=1 elseif role==\"ForestGround\" then grounds+=1 elseif role==\"ForestRock\" then rocks+=1 end end for _,d in ipairs(root.Polish[\"City Decor\"]:GetDescendants()) do if d:IsA(\"BasePart\") and d.Position.Z<0 and d:GetAttribute(\"TextureStyle\")==\"BuildingFacadeWindows\" then courseBuildings+=1 end end return H:JSONEncode({theme=forest:GetAttribute(\"WorldTheme\"),trees=trees,canopies=canopies,grounds=grounds,rocks=rocks,courseBuildings=courseBuildings})"
+      },
+      "expectRegex": [
+        "\"theme\"\\s*:\\s*\"NaturalForest\"",
+        "\"trees\"\\s*:\\s*36",
+        "\"canopies\"\\s*:\\s*108",
+        "\"grounds\"\\s*:\\s*2",
+        "\"rocks\"\\s*:\\s*36",
+        "\"courseBuildings\"\\s*:\\s*0"
+      ],
+      "label": "world one uses a natural forest environment"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=7,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=2}) local f=workspace.PunchWallRPG[\"Depth Blocks\"] local b=f.DepthBlock_L001_C06_R02 local n=f.DepthBlock_L001_C07_R02 return H:JSONEncode({ok=r.ok,outcome=r.outcome,targetHP=b:GetAttribute(\"HP\"),neighborHP=n:GetAttribute(\"HP\"),targetBroken=b:GetAttribute(\"Broken\"),neighborBroken=n:GetAttribute(\"Broken\")})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"hit\"",
+        "\"targetHP\"\\s*:\\s*7(?:\\.\\d+)?",
+        "\"neighborHP\"\\s*:\\s*15",
+        "\"targetBroken\"\\s*:\\s*false",
+        "\"neighborBroken\"\\s*:\\s*false"
+      ],
+      "label": "damage affects only one shared block"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=2}) local root=workspace.PunchWallRPG local b=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local n=root[\"Depth Blocks\"].DepthBlock_L001_C07_R02 local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(b.Position) return H:JSONEncode({ok=r.ok,outcome=r.outcome,broken=b:GetAttribute(\"Broken\"),passable=not b.CanCollide and not b.CanQuery and b.Transparency==1,neighborHP=n:GetAttribute(\"HP\"),fragments=#root[\"Depth Physics Debris\"]:GetChildren(),depth=r.Depth,score=r.Score,playerInside=(p.Character.HumanoidRootPart.Position-b.Position).Magnitude<1})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"broken\"\\s*:\\s*true",
+        "\"passable\"\\s*:\\s*true",
+        "\"neighborHP\"\\s*:\\s*15",
+        "\"fragments\"\\s*:\\s*4",
+        "\"depth\"\\s*:\\s*1",
+        "\"score\"\\s*:\\s*40",
+        "\"playerInside\"\\s*:\\s*true"
+      ],
+      "label": "starter fist one-shots a block and opens a physics hole"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local b=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({replicatedBroken=b:GetAttribute(\"Broken\"),replicatedHole=not b.CanCollide and b.Transparency==1,camera=workspace.CurrentCamera.CameraType.Name,autoFocus=gui:GetAttribute(\"CombatCameraActive\")})"
+      },
+      "expectRegex": [
+        "\"replicatedBroken\"\\s*:\\s*true",
+        "\"replicatedHole\"\\s*:\\s*true",
+        "\"camera\"\\s*:\\s*\"Custom\"",
+        "\"autoFocus\"\\s*:\\s*false"
+      ],
+      "label": "shared hole replicates while camera stays player controlled"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) local root=workspace.PunchWallRPG local f=root[\"Depth Blocks\"] local open=0 for _,row in ipairs({1,2}) do local b=f:FindFirstChild((\"DepthBlock_L001_C06_R%02d\"):format(row)) if b and b:GetAttribute(\"Broken\") and not b.CanCollide then open+=1 end end local p=game.Players:GetPlayers()[1] local center=(f.DepthBlock_L001_C06_R01.Position+f.DepthBlock_L001_C06_R02.Position)/2 p.Character.HumanoidRootPart.CFrame=CFrame.new(center) local snap=c:Invoke(\"Snapshot\") return H:JSONEncode({openBlocks=open,openingWidth=4,openingHeight=8,playerInside=(p.Character.HumanoidRootPart.Position-center).Magnitude<1,broken=snap.BrokenDepthBlocks,score=snap.Score})"
+      },
+      "expectRegex": [
+        "\"openBlocks\"\\s*:\\s*2",
+        "\"openingWidth\"\\s*:\\s*4",
+        "\"openingHeight\"\\s*:\\s*8",
+        "\"playerInside\"\\s*:\\s*true",
+        "\"broken\"\\s*:\\s*2",
+        "\"score\"\\s*:\\s*80"
+      ],
+      "label": "two cubic blocks form a full character passage"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=100000,WallLevel=1,CritChance=0}) local locked=c:Invoke(\"HitDepthBlock\",{layer=9,column=6,row=2}) c:Invoke(\"SetStats\",{WallLevel=3}) local open=c:Invoke(\"HitDepthBlock\",{layer=9,column=6,row=2}) return H:JSONEncode({lockedOK=not locked.ok,reason=locked.reason,required=locked.requiredLevel,openOK=open.ok,tier=open.Tier,depth=open.Depth})"
+      },
+      "expectRegex": [
+        "\"lockedOK\"\\s*:\\s*true",
+        "\"reason\"\\s*:\\s*\"level_gate\"",
+        "\"required\"\\s*:\\s*3",
+        "\"openOK\"\\s*:\\s*true",
+        "\"tier\"\\s*:\\s*2",
+        "\"depth\"\\s*:\\s*9"
+      ],
+      "label": "deeper material tier requires stronger wall level"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

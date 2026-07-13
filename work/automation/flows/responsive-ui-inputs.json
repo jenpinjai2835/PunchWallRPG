@@ -1,0 +1,35 @@
+{
+  "name": "responsive-ui-inputs",
+  "description": "Validate safe-area HUD, game menu, contextual controls, equipped gauntlet, and keyboard/gamepad bindings.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime UI" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local p=game:GetService(\"Players\").LocalPlayer local g=p.PlayerGui:WaitForChild(\"PunchWallHUD\",5) local cas=game:GetService(\"ContextActionService\") local bindings=cas:GetAllBoundActionInfo() local character=p.Character or p.CharacterAdded:Wait() return H:JSONEncode({safeInsets=g.ScreenInsets==Enum.ScreenInsets.CoreUISafeInsets,safeCompatibility=g.SafeAreaCompatibility==Enum.SafeAreaCompatibility.None,clipSafe=g.ClipToDeviceSafeArea,stats=g:FindFirstChild(\"StatsPanel\")~=nil,objective=g:FindFirstChild(\"ObjectiveCard\")~=nil,menu=g:FindFirstChild(\"GameMenu\")~=nil,context=g:FindFirstChild(\"ContextTarget\")~=nil,gauntlet=character:FindFirstChild(\"Equipped Kaiju Gauntlet\")~=nil,punchBinding=bindings.KaijuPunch~=nil,trainBinding=bindings.KaijuTrain~=nil,useBinding=bindings.KaijuUse~=nil,menuBinding=bindings.KaijuMenu~=nil})"
+      },
+      "expectRegex": ["\"safeInsets\"\\s*:\\s*true", "\"safeCompatibility\"\\s*:\\s*true", "\"clipSafe\"\\s*:\\s*true", "\"stats\"\\s*:\\s*true", "\"objective\"\\s*:\\s*true", "\"menu\"\\s*:\\s*true", "\"context\"\\s*:\\s*true", "\"gauntlet\"\\s*:\\s*true", "\"punchBinding\"\\s*:\\s*true", "\"trainBinding\"\\s*:\\s*true", "\"useBinding\"\\s*:\\s*true", "\"menuBinding\"\\s*:\\s*true"],
+      "label": "responsive UI and input bindings exist"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game:GetService(\"Players\").LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true game:GetService(\"ReplicatedStorage\").PunchWallEvents.ActionRequest:FireServer({action=\"RequestSync\"}) task.wait(.25) local tabs=g.GameMenu.Tabs local content=g.GameMenu.Content return H:JSONEncode({visible=g.GameMenu.Visible,fists=tabs:FindFirstChild(\"FistsTab\")~=nil,pets=tabs:FindFirstChild(\"PetsTab\")~=nil,tasks=tabs:FindFirstChild(\"TasksTab\")~=nil,settings=tabs:FindFirstChild(\"SettingsTab\")~=nil,rows=#content:GetChildren()>=3})"
+      },
+      "expectRegex": ["\"visible\"\\s*:\\s*true", "\"fists\"\\s*:\\s*true", "\"pets\"\\s*:\\s*true", "\"tasks\"\\s*:\\s*true", "\"settings\"\\s*:\\s*true", "\"rows\"\\s*:\\s*true"],
+      "label": "menu surfaces render"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

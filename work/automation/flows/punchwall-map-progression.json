@@ -1,0 +1,111 @@
+{
+  "name": "punchwall-map-progression",
+  "description": "Validate spawn placement, progression gates, and key interaction affordances.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\"):GetPlayers()[1]\nassert(player, \"missing player\")\nlocal character = player.Character or player.CharacterAdded:Wait()\nlocal root = character:WaitForChild(\"HumanoidRootPart\", 5)\nassert(root, \"missing character root\")\nlocal distance = (root.Position - Vector3.new(-42, 2, 0)).Magnitude\nreturn HttpService:JSONEncode({ hasCharacter = true, spawnNearTraining = distance < 40, spawnDistance = math.floor(distance + 0.5), mapExists = workspace:FindFirstChild(\"PunchWallRPG\") ~= nil })"
+      },
+      "expectRegex": [
+        "\"hasCharacter\"\\s*:\\s*true",
+        "\"spawnNearTraining\"\\s*:\\s*true",
+        "\"mapExists\"\\s*:\\s*true"
+      ],
+      "label": "spawn near training island"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nreturn HttpService:JSONEncode(command:Invoke(\"HitWall\", \"Concrete Wall\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"level_gate\"",
+        "\"requiredLevel\"\\s*:\\s*3",
+        "\"WallLevel\"\\s*:\\s*1"
+      ],
+      "label": "fresh player blocked by concrete gate"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Walls.Cyber Gate"
+      },
+      "expectRegex": [
+        "\"RequiredLevel\"\\s*:\\s*48",
+        "ClickDetector",
+        "Sign"
+      ],
+      "label": "high-tier wall has gate metadata and affordance"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local stand=root.Interactables[\"Boxing Glove Stand\"] local plate=root.Polish[\"City Decor\"][\"Boxing Glove Armory Nameplate\"] return H:JSONEncode({click=stand:FindFirstChildWhichIsA(\"ClickDetector\")~=nil,front=plate:FindFirstChild(\"Sign\")~=nil,plateRole=plate:GetAttribute(\"PolishRole\")})"
+      },
+      "expectRegex": [
+        "\"click\"\\s*:\\s*true",
+        "\"front\"\\s*:\\s*true",
+        "ArmoryFixedNameplate"
+      ],
+      "label": "shop stand has click target and fixed nameplate"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

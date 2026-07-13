@@ -1,0 +1,1218 @@
+<roblox version="4">
+  <Item class="Lighting" referent="0">
+    <Properties>
+      <string name="Name">Lighting</string>
+      <Color3 name="Ambient">
+        <R>0.35</R>
+        <G>0.38</G>
+        <B>0.42</B>
+      </Color3>
+      <float name="Brightness">2.5</float>
+      <float name="ClockTime">14</float>
+      <Color3 name="OutdoorAmbient">
+        <R>0.52</R>
+        <G>0.56</G>
+        <B>0.62</B>
+      </Color3>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+  </Item>
+  <Item class="ServerScriptService" referent="2">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="3">
+      <Properties>
+        <string name="Name">PunchWallBootstrap</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DataStoreService = game:GetService("DataStoreService")
+local TweenService = game:GetService("TweenService")
+
+local ROOT_NAME = "PunchWallRPG"
+local WALL_RESPAWN_SECONDS = 5
+local TRAINING_COOLDOWN = 0.45
+local WALL_HIT_COOLDOWN = 0.25
+local EGG_COST = 350
+local AUTOSAVE_SECONDS = 75
+
+local NUMBER_STAT_DEFAULTS = {
+	Power = 15,
+	Coins = 0,
+	WallLevel = 1,
+	Rebirths = 0,
+	FistMastery = 1,
+	BreakSpeed = 1,
+	CritChance = 5,
+	Luck = 1,
+	FistMultiplier = 1,
+	PetMultiplier = 0,
+}
+
+local TEXT_STAT_DEFAULTS = {
+	EquippedFist = "Starter Glove",
+	Pet = "None",
+}
+
+local LEADERSTAT_NAMES = {
+	"Power",
+	"Coins",
+	"WallLevel",
+	"Rebirths",
+}
+
+local RPG_NUMBER_STAT_NAMES = {
+	"FistMastery",
+	"BreakSpeed",
+	"CritChance",
+	"Luck",
+	"FistMultiplier",
+	"PetMultiplier",
+}
+
+local RPG_TEXT_STAT_NAMES = {
+	"EquippedFist",
+	"Pet",
+}
+
+local playerStore = DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v1")
+local savingPlayers = {}
+
+local root = workspace:FindFirstChild(ROOT_NAME)
+if root then
+	root:Destroy()
+end
+
+root = Instance.new("Folder")
+root.Name = ROOT_NAME
+root.Parent = workspace
+
+local remotes = ReplicatedStorage:FindFirstChild("PunchWallEvents")
+if remotes then
+	remotes:Destroy()
+end
+remotes = Instance.new("Folder")
+remotes.Name = "PunchWallEvents"
+remotes.Parent = ReplicatedStorage
+
+local notifyRemote = Instance.new("RemoteEvent")
+notifyRemote.Name = "Notify"
+notifyRemote.Parent = remotes
+
+local statRemote = Instance.new("RemoteEvent")
+statRemote.Name = "StatsChanged"
+statRemote.Parent = remotes
+
+local wallsFolder = Instance.new("Folder")
+wallsFolder.Name = "Walls"
+wallsFolder.Parent = root
+
+local interactFolder = Instance.new("Folder")
+interactFolder.Name = "Interactables"
+interactFolder.Parent = root
+
+local function makePart(name, parent, size, position, color, material)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Anchored = true
+	part.Size = size
+	part.Position = position
+	part.Color = color
+	part.Material = material or Enum.Material.SmoothPlastic
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = parent
+	return part
+end
+
+local function makeText(part, title, subtitle, face)
+	local surface = Instance.new("SurfaceGui")
+	surface.Name = "Sign"
+	surface.Face = face or Enum.NormalId.Front
+	surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	surface.PixelsPerStud = 40
+	surface.Parent = part
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Name = "Title"
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Position = UDim2.fromScale(0.04, 0.08)
+	titleLabel.Size = UDim2.fromScale(0.92, 0.38)
+	titleLabel.Font = Enum.Font.GothamBlack
+	titleLabel.Text = title
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.TextScaled = true
+	titleLabel.TextStrokeTransparency = 0.55
+	titleLabel.Parent = surface
+
+	local subLabel = Instance.new("TextLabel")
+	subLabel.Name = "Subtitle"
+	subLabel.BackgroundTransparency = 1
+	subLabel.Position = UDim2.fromScale(0.06, 0.48)
+	subLabel.Size = UDim2.fromScale(0.88, 0.38)
+	subLabel.Font = Enum.Font.GothamBold
+	subLabel.Text = subtitle
+	subLabel.TextColor3 = Color3.fromRGB(235, 242, 255)
+	subLabel.TextScaled = true
+	subLabel.TextStrokeTransparency = 0.65
+	subLabel.Parent = surface
+
+	return surface
+end
+
+local function formatNumber(value)
+	local abs = math.abs(value)
+	if abs >= 1e12 then
+		return string.format("%.1fT", value / 1e12)
+	elseif abs >= 1e9 then
+		return string.format("%.1fB", value / 1e9)
+	elseif abs >= 1e6 then
+		return string.format("%.1fM", value / 1e6)
+	elseif abs >= 1e3 then
+		return string.format("%.1fK", value / 1e3)
+	end
+	return tostring(math.floor(value + 0.5))
+end
+
+local function playerStat(player, name)
+	local stats = player:FindFirstChild("RPGStats")
+	local value = stats and stats:FindFirstChild(name)
+	if value then
+		return value
+	end
+
+	local leaderstats = player:FindFirstChild("leaderstats")
+	return leaderstats and leaderstats:FindFirstChild(name)
+end
+
+local function notify(player, message, color)
+	notifyRemote:FireClient(player, message, color or Color3.fromRGB(255, 235, 140))
+end
+
+local function broadcast(message, color)
+	for _, player in ipairs(Players:GetPlayers()) do
+		notify(player, message, color)
+	end
+end
+
+local function syncStats(player)
+	local stats = player:FindFirstChild("RPGStats")
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not stats or not leaderstats then
+		return
+	end
+
+	local payload = {}
+	for _, folder in ipairs({ leaderstats, stats }) do
+		for _, value in ipairs(folder:GetChildren()) do
+			if value:IsA("NumberValue") or value:IsA("StringValue") then
+				payload[value.Name] = value.Value
+			end
+		end
+	end
+	statRemote:FireClient(player, payload)
+end
+
+local function loadPlayerData(player)
+	local ok, data = pcall(function()
+		return playerStore:GetAsync(tostring(player.UserId))
+	end)
+
+	if ok and type(data) == "table" then
+		return data
+	end
+
+	if not ok then
+		warn(("[PunchWallRPG] DataStore load failed for %s: %s"):format(player.Name, tostring(data)))
+	end
+	return {}
+end
+
+local function savedNumber(savedData, name)
+	local value = savedData[name]
+	if type(value) == "number" then
+		return value
+	end
+	return NUMBER_STAT_DEFAULTS[name]
+end
+
+local function savedText(savedData, name)
+	local value = savedData[name]
+	if type(value) == "string" then
+		return value
+	end
+	return TEXT_STAT_DEFAULTS[name]
+end
+
+local function ensureStats(player)
+	if player:FindFirstChild("RPGStats") and player:FindFirstChild("leaderstats") then
+		syncStats(player)
+		return
+	end
+
+	local savedData = loadPlayerData(player)
+
+	local stats = Instance.new("Folder")
+	stats.Name = "RPGStats"
+	stats.Parent = player
+
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local function number(name, value, parent)
+		local instance = Instance.new("NumberValue")
+		instance.Name = name
+		instance.Value = value
+		instance.Parent = parent or stats
+		instance.Changed:Connect(function()
+			syncStats(player)
+		end)
+		return instance
+	end
+
+	local function text(name)
+		local instance = Instance.new("StringValue")
+		instance.Name = name
+		instance.Value = savedText(savedData, name)
+		instance.Parent = stats
+		instance.Changed:Connect(function()
+			syncStats(player)
+		end)
+		return instance
+	end
+
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		number(name, savedNumber(savedData, name), leaderstats)
+	end
+
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		number(name, savedNumber(savedData, name))
+	end
+
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		text(name)
+	end
+
+	task.defer(function()
+		syncStats(player)
+		notify(player, "Punch Wall RPG loaded. Click bags to train, click walls to break.")
+	end)
+end
+
+local function statValue(player, name, fallback)
+	local value = playerStat(player, name)
+	if value then
+		return value.Value
+	end
+	return fallback or 0
+end
+
+local function setStat(player, name, amount)
+	local value = playerStat(player, name)
+	if value then
+		value.Value = amount
+	end
+end
+
+local function addStat(player, name, amount)
+	setStat(player, name, statValue(player, name) + amount)
+end
+
+local function collectPlayerData(player)
+	local data = {}
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		data[name] = statValue(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		data[name] = statValue(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		data[name] = tostring(statValue(player, name, TEXT_STAT_DEFAULTS[name]))
+	end
+	return data
+end
+
+local function savePlayerData(player)
+	if savingPlayers[player] or not player:FindFirstChild("RPGStats") then
+		return
+	end
+
+	savingPlayers[player] = true
+	local data = collectPlayerData(player)
+	local ok, err = pcall(function()
+		playerStore:SetAsync(tostring(player.UserId), data)
+	end)
+	savingPlayers[player] = nil
+
+	if not ok then
+		warn(("[PunchWallRPG] DataStore save failed for %s: %s"):format(player.Name, tostring(err)))
+	end
+end
+
+local base = makePart("Main Training Island", root, Vector3.new(210, 3, 96), Vector3.new(48, -1.5, 0), Color3.fromRGB(75, 94, 106), Enum.Material.Concrete)
+base.Locked = true
+
+makePart("Spawn Pad", root, Vector3.new(18, 1, 18), Vector3.new(-42, 1, 0), Color3.fromRGB(94, 220, 160), Enum.Material.Neon)
+local spawn = Instance.new("SpawnLocation")
+spawn.Name = "Punch Rookie Spawn"
+spawn.Anchored = true
+spawn.Size = Vector3.new(10, 1, 10)
+spawn.Position = Vector3.new(-42, 2, 0)
+spawn.Color = Color3.fromRGB(105, 232, 167)
+spawn.Material = Enum.Material.Neon
+spawn.Neutral = true
+spawn.Parent = root
+
+local arch = makePart("Prototype Title Sign", root, Vector3.new(42, 14, 2), Vector3.new(-44, 9, -25), Color3.fromRGB(30, 42, 58), Enum.Material.Metal)
+makeText(arch, "PUNCH WALL RPG", "Train > Break > Hatch Pets > Rebirth")
+
+local wallConfigs = {
+	{
+		name = "Brick Wall",
+		hp = 120,
+		level = 1,
+		coins = 45,
+		power = 3,
+		pos = Vector3.new(-2, 7, -27),
+		color = Color3.fromRGB(181, 89, 68),
+		material = Enum.Material.Brick,
+	},
+	{
+		name = "Concrete Wall",
+		hp = 900,
+		level = 3,
+		coins = 180,
+		power = 10,
+		pos = Vector3.new(25, 8, -27),
+		color = Color3.fromRGB(150, 154, 160),
+		material = Enum.Material.Concrete,
+	},
+	{
+		name = "Iron Wall",
+		hp = 6500,
+		level = 8,
+		coins = 980,
+		power = 45,
+		pos = Vector3.new(55, 9, -27),
+		color = Color3.fromRGB(97, 109, 122),
+		material = Enum.Material.Metal,
+	},
+	{
+		name = "Crystal Wall",
+		hp = 42000,
+		level = 16,
+		coins = 5200,
+		power = 230,
+		pos = Vector3.new(88, 10, -27),
+		color = Color3.fromRGB(88, 220, 245),
+		material = Enum.Material.Glass,
+	},
+	{
+		name = "Lava Wall",
+		hp = 220000,
+		level = 30,
+		coins = 28000,
+		power = 1100,
+		pos = Vector3.new(124, 11, -27),
+		color = Color3.fromRGB(255, 96, 45),
+		material = Enum.Material.Neon,
+	},
+	{
+		name = "Cyber Gate",
+		hp = 1200000,
+		level = 48,
+		coins = 160000,
+		power = 5500,
+		pos = Vector3.new(164, 12, -27),
+		color = Color3.fromRGB(75, 115, 255),
+		material = Enum.Material.ForceField,
+	},
+}
+
+local function updateWallText(wall)
+	local sign = wall:FindFirstChild("Sign")
+	if not sign then
+		return
+	end
+	local title = sign:FindFirstChild("Title")
+	local subtitle = sign:FindFirstChild("Subtitle")
+	local hp = wall:GetAttribute("HP") or 0
+	local maxHp = wall:GetAttribute("MaxHP") or 1
+	if title then
+		title.Text = wall.Name
+	end
+	if subtitle then
+		subtitle.Text = ("HP %s/%s | Lv %d"):format(formatNumber(hp), formatNumber(maxHp), wall:GetAttribute("RequiredLevel") or 1)
+	end
+end
+
+local function buildWall(config)
+	local wall = makePart(config.name, wallsFolder, Vector3.new(18, 14 + config.level * 0.12, 4), config.pos, config.color, config.material)
+	wall:SetAttribute("MaxHP", config.hp)
+	wall:SetAttribute("HP", config.hp)
+	wall:SetAttribute("RequiredLevel", config.level)
+	wall:SetAttribute("CoinReward", config.coins)
+	wall:SetAttribute("PowerReward", config.power)
+	makeText(wall, config.name, "", Enum.NormalId.Front)
+	updateWallText(wall)
+
+	local clickDetector = Instance.new("ClickDetector")
+	clickDetector.MaxActivationDistance = 34
+	clickDetector.Parent = wall
+
+	clickDetector.MouseClick:Connect(function(player)
+		local now = os.clock()
+		local lastHit = player:GetAttribute("LastWallHit") or 0
+		local cooldown = math.max(0.08, WALL_HIT_COOLDOWN / math.max(statValue(player, "BreakSpeed", 1), 1))
+		if now - lastHit < cooldown then
+			return
+		end
+		player:SetAttribute("LastWallHit", now)
+
+		local required = wall:GetAttribute("RequiredLevel") or 1
+		if statValue(player, "WallLevel", 1) < required then
+			notify(player, ("Need Wall Level %d for %s."):format(required, wall.Name), Color3.fromRGB(255, 120, 120))
+			return
+		end
+
+		local power = statValue(player, "Power", 1)
+		local fist = statValue(player, "FistMultiplier", 1)
+		local pet = statValue(player, "PetMultiplier", 0)
+		local rebirth = 1 + statValue(player, "Rebirths", 0) * 0.25
+		local damage = power * fist * (1 + pet) * rebirth
+		local critChance = statValue(player, "CritChance", 0)
+		if math.random(1, 100) <= critChance then
+			damage *= 2
+			notify(player, "Critical punch! x2 damage", Color3.fromRGB(255, 236, 94))
+		end
+
+		wall:SetAttribute("HP", math.max(0, (wall:GetAttribute("HP") or 0) - damage))
+		updateWallText(wall)
+
+		local pulse = TweenService:Create(wall, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = wall.Size + Vector3.new(0.4, 0.4, 0.08) })
+		pulse:Play()
+		pulse.Completed:Once(function()
+			if wall.Parent then
+				TweenService:Create(wall, TweenInfo.new(0.1), { Size = Vector3.new(18, 14 + required * 0.12, 4) }):Play()
+			end
+		end)
+
+		if wall:GetAttribute("HP") <= 0 and not wall:GetAttribute("Broken") then
+			wall:SetAttribute("Broken", true)
+			local reward = wall:GetAttribute("CoinReward") or 0
+			local powerReward = wall:GetAttribute("PowerReward") or 0
+			addStat(player, "Coins", reward)
+			addStat(player, "Power", powerReward)
+			addStat(player, "FistMastery", 0.35)
+			if required >= statValue(player, "WallLevel", 1) then
+				addStat(player, "WallLevel", 1)
+			end
+			notify(player, ("Broke %s! +%s coins, +%s power"):format(wall.Name, formatNumber(reward), formatNumber(powerReward)), Color3.fromRGB(104, 255, 169))
+
+			wall.Transparency = 0.78
+			wall.CanCollide = false
+			task.delay(WALL_RESPAWN_SECONDS, function()
+				if wall.Parent then
+					wall:SetAttribute("HP", wall:GetAttribute("MaxHP"))
+					wall:SetAttribute("Broken", false)
+					wall.Transparency = 0
+					wall.CanCollide = true
+					updateWallText(wall)
+				end
+			end)
+		end
+	end)
+end
+
+for _, config in ipairs(wallConfigs) do
+	buildWall(config)
+end
+
+local boss = makePart("Titan Server Wall", wallsFolder, Vector3.new(34, 28, 6), Vector3.new(82, 16, 27), Color3.fromRGB(38, 36, 46), Enum.Material.Slate)
+boss:SetAttribute("MaxHP", 5000000)
+boss:SetAttribute("HP", 5000000)
+boss:SetAttribute("RequiredLevel", 20)
+boss:SetAttribute("CoinReward", 450000)
+boss:SetAttribute("PowerReward", 12000)
+makeText(boss, "TITAN SERVER WALL", "Co-op Boss | Big Reward", Enum.NormalId.Front)
+updateWallText(boss)
+
+local bossClick = Instance.new("ClickDetector")
+bossClick.MaxActivationDistance = 50
+bossClick.Parent = boss
+bossClick.MouseClick:Connect(function(player)
+	if statValue(player, "WallLevel", 1) < 20 then
+		notify(player, "Need Wall Level 20 to fight Titan Wall.", Color3.fromRGB(255, 120, 120))
+		return
+	end
+	local now = os.clock()
+	local lastHit = player:GetAttribute("LastBossHit") or 0
+	if now - lastHit < 0.2 then
+		return
+	end
+	player:SetAttribute("LastBossHit", now)
+
+	local damage = statValue(player, "Power", 1) * statValue(player, "FistMultiplier", 1) * (1 + statValue(player, "PetMultiplier", 0)) * 1.4
+	boss:SetAttribute("HP", math.max(0, boss:GetAttribute("HP") - damage))
+	updateWallText(boss)
+	if boss:GetAttribute("HP") <= 0 and not boss:GetAttribute("Broken") then
+		boss:SetAttribute("Broken", true)
+		broadcast("Titan Server Wall shattered! Everyone gets a reward.", Color3.fromRGB(120, 220, 255))
+		for _, plr in ipairs(Players:GetPlayers()) do
+			addStat(plr, "Coins", boss:GetAttribute("CoinReward"))
+			addStat(plr, "Power", boss:GetAttribute("PowerReward"))
+		end
+		boss.Transparency = 0.85
+		boss.CanCollide = false
+		task.delay(20, function()
+			if boss.Parent then
+				boss:SetAttribute("HP", boss:GetAttribute("MaxHP"))
+				boss:SetAttribute("Broken", false)
+				boss.Transparency = 0
+				boss.CanCollide = true
+				updateWallText(boss)
+			end
+		end)
+	end
+end)
+
+local trainingConfigs = {
+	{ name = "Power Bag", stat = "Power", gain = 4, pos = Vector3.new(-53, 4, 24), color = Color3.fromRGB(255, 215, 90) },
+	{ name = "Speed Dummy", stat = "BreakSpeed", gain = 0.02, pos = Vector3.new(-34, 4, 24), color = Color3.fromRGB(102, 194, 255) },
+	{ name = "Focus Stone", stat = "CritChance", gain = 0.05, pos = Vector3.new(-15, 4, 24), color = Color3.fromRGB(190, 126, 255) },
+}
+
+for _, config in ipairs(trainingConfigs) do
+	local station = makePart(config.name, interactFolder, Vector3.new(9, 8, 9), config.pos, config.color, Enum.Material.Neon)
+	makeText(station, config.name, ("Click: +%s %s"):format(config.gain, config.stat), Enum.NormalId.Front)
+	local detector = Instance.new("ClickDetector")
+	detector.MaxActivationDistance = 32
+	detector.Parent = station
+	detector.MouseClick:Connect(function(player)
+		local now = os.clock()
+		local key = "LastTrain" .. config.stat
+		local lastTrain = player:GetAttribute(key) or 0
+		if now - lastTrain < TRAINING_COOLDOWN then
+			return
+		end
+		player:SetAttribute(key, now)
+		addStat(player, config.stat, config.gain)
+		addStat(player, "FistMastery", 0.03)
+		notify(player, ("Training: +%s %s"):format(config.gain, config.stat), Color3.fromRGB(255, 246, 155))
+	end)
+end
+
+local fistShop = {
+	{ name = "Boxing Glove", cost = 250, mult = 1.8, speed = 0.2 },
+	{ name = "Iron Knuckle", cost = 1500, mult = 4.5, speed = 0.35 },
+	{ name = "Thunder Fist", cost = 12000, mult = 13, speed = 0.7 },
+	{ name = "Titan Gauntlet", cost = 125000, mult = 45, speed = 1.2 },
+}
+
+local shopBack = makePart("Fist Shop Sign", root, Vector3.new(42, 10, 2), Vector3.new(-43, 7, -3), Color3.fromRGB(24, 43, 50), Enum.Material.Metal)
+makeText(shopBack, "FIST SHOP", "Click a glove stand to buy upgrades")
+
+for index, item in ipairs(fistShop) do
+	local stand = makePart(item.name .. " Stand", interactFolder, Vector3.new(9, 5, 9), Vector3.new(-65 + index * 14, 3, -10), Color3.fromRGB(230, 230, 230), Enum.Material.Metal)
+	makeText(stand, item.name, ("Cost %s | x%.1f"):format(formatNumber(item.cost), item.mult), Enum.NormalId.Front)
+	local detector = Instance.new("ClickDetector")
+	detector.MaxActivationDistance = 30
+	detector.Parent = stand
+	detector.MouseClick:Connect(function(player)
+		if statValue(player, "Coins", 0) < item.cost then
+			notify(player, ("Need %s coins for %s."):format(formatNumber(item.cost), item.name), Color3.fromRGB(255, 120, 120))
+			return
+		end
+		if statValue(player, "FistMultiplier", 1) >= item.mult then
+			notify(player, "You already own an equal or stronger fist.", Color3.fromRGB(190, 220, 255))
+			return
+		end
+		addStat(player, "Coins", -item.cost)
+		setStat(player, "FistMultiplier", item.mult)
+		addStat(player, "BreakSpeed", item.speed)
+		local equipped = playerStat(player, "EquippedFist")
+		if equipped then
+			equipped.Value = item.name
+		end
+		notify(player, ("Equipped %s! Damage x%.1f"):format(item.name, item.mult), Color3.fromRGB(104, 255, 169))
+	end)
+end
+
+local eggPart = makePart("Pet Egg Machine", interactFolder, Vector3.new(14, 11, 14), Vector3.new(-72, 6, 24), Color3.fromRGB(255, 180, 88), Enum.Material.Neon)
+makeText(eggPart, "PET EGG", ("Cost %s coins | Luck helps"):format(EGG_COST), Enum.NormalId.Front)
+
+local pets = {
+	{ name = "Brick Pup", chance = 55, mult = 0.15, luck = 0.05 },
+	{ name = "Miner Cat", chance = 30, mult = 0.35, luck = 0.12 },
+	{ name = "Crystal Fox", chance = 11, mult = 0.85, luck = 0.25 },
+	{ name = "Lava Dragon", chance = 3.5, mult = 1.7, luck = 0.45 },
+	{ name = "Secret Titan Golem", chance = 0.5, mult = 4.5, luck = 1.2 },
+}
+
+local eggDetector = Instance.new("ClickDetector")
+eggDetector.MaxActivationDistance = 32
+eggDetector.Parent = eggPart
+eggDetector.MouseClick:Connect(function(player)
+	if statValue(player, "Coins", 0) < EGG_COST then
+		notify(player, ("Need %s coins to hatch an egg."):format(EGG_COST), Color3.fromRGB(255, 120, 120))
+		return
+	end
+	addStat(player, "Coins", -EGG_COST)
+
+	local luck = math.max(1, statValue(player, "Luck", 1))
+	local roll = math.random() * 100 / luck
+	local cumulative = 0
+	local chosen = pets[1]
+	for _, pet in ipairs(pets) do
+		cumulative += pet.chance
+		if roll <= cumulative then
+			chosen = pet
+			break
+		end
+	end
+
+	local current = statValue(player, "PetMultiplier", 0)
+	if chosen.mult > current then
+		setStat(player, "PetMultiplier", chosen.mult)
+		local petName = playerStat(player, "Pet")
+		if petName then
+			petName.Value = chosen.name
+		end
+	end
+	addStat(player, "Luck", chosen.luck)
+	notify(player, ("Hatched %s! Pet power +%.0f%%"):format(chosen.name, chosen.mult * 100), Color3.fromRGB(255, 210, 95))
+end)
+
+local rebirthPart = makePart("Rebirth Shrine", interactFolder, Vector3.new(14, 13, 14), Vector3.new(160, 7, 24), Color3.fromRGB(255, 255, 255), Enum.Material.ForceField)
+makeText(rebirthPart, "REBIRTH", "Need Wall Lv 55 and 1M coins")
+local rebirthDetector = Instance.new("ClickDetector")
+rebirthDetector.MaxActivationDistance = 35
+rebirthDetector.Parent = rebirthPart
+rebirthDetector.MouseClick:Connect(function(player)
+	if statValue(player, "WallLevel", 1) < 55 or statValue(player, "Coins", 0) < 1000000 then
+		notify(player, "Rebirth needs Wall Level 55 and 1M coins.", Color3.fromRGB(255, 120, 120))
+		return
+	end
+	addStat(player, "Rebirths", 1)
+	setStat(player, "Power", 25)
+	setStat(player, "Coins", 0)
+	setStat(player, "WallLevel", 1)
+	setStat(player, "FistMultiplier", 1)
+	setStat(player, "BreakSpeed", 1)
+	local fist = playerStat(player, "EquippedFist")
+	if fist then
+		fist.Value = "Starter Glove"
+	end
+	notify(player, "Rebirth complete! Permanent +25% power multiplier.", Color3.fromRGB(140, 220, 255))
+end)
+
+for _, z in ipairs({ -44, -10, 24, 58 }) do
+	makePart("Lane Stripe", root, Vector3.new(210, 0.15, 1.2), Vector3.new(48, 0.12, z), Color3.fromRGB(110, 130, 142), Enum.Material.Neon)
+end
+
+Players.PlayerAdded:Connect(ensureStats)
+Players.PlayerRemoving:Connect(savePlayerData)
+for _, player in ipairs(Players:GetPlayers()) do
+	ensureStats(player)
+end
+
+game:BindToClose(function()
+	for _, player in ipairs(Players:GetPlayers()) do
+		savePlayerData(player)
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(AUTOSAVE_SECONDS)
+		for _, player in ipairs(Players:GetPlayers()) do
+			savePlayerData(player)
+		end
+	end
+end)
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="4">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="5">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="6">
+        <Properties>
+          <string name="Name">PunchWallClient</string>
+          <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
+local notifyRemote = remotes:WaitForChild("Notify")
+local statRemote = remotes:WaitForChild("StatsChanged")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PunchWallHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local panel = Instance.new("Frame")
+panel.Name = "StatsPanel"
+panel.AnchorPoint = Vector2.new(0, 0)
+panel.Position = UDim2.fromOffset(18, 18)
+panel.Size = UDim2.fromOffset(310, 196)
+panel.BackgroundColor3 = Color3.fromRGB(22, 27, 34)
+panel.BackgroundTransparency = 0.08
+panel.BorderSizePixel = 0
+panel.Parent = gui
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 8)
+panelCorner.Parent = panel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = Color3.fromRGB(91, 112, 130)
+panelStroke.Thickness = 1
+panelStroke.Parent = panel
+
+local title = Instance.new("TextLabel")
+title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(14, 10)
+title.Size = UDim2.new(1, -28, 0, 30)
+title.Font = Enum.Font.GothamBlack
+title.Text = "Punch Wall RPG"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 22
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = panel
+
+local statsList = Instance.new("Frame")
+statsList.BackgroundTransparency = 1
+statsList.Position = UDim2.fromOffset(14, 46)
+statsList.Size = UDim2.new(1, -28, 1, -58)
+statsList.Parent = panel
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 4)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = statsList
+
+local labels = {}
+local order = {
+	"Power",
+	"Coins",
+	"WallLevel",
+	"EquippedFist",
+	"Pet",
+	"Rebirths",
+}
+
+local function formatNumber(value)
+	value = tonumber(value) or 0
+	local abs = math.abs(value)
+	if abs >= 1e12 then
+		return string.format("%.1fT", value / 1e12)
+	elseif abs >= 1e9 then
+		return string.format("%.1fB", value / 1e9)
+	elseif abs >= 1e6 then
+		return string.format("%.1fM", value / 1e6)
+	elseif abs >= 1e3 then
+		return string.format("%.1fK", value / 1e3)
+	end
+	return tostring(math.floor(value + 0.5))
+end
+
+for index, key in ipairs(order) do
+	local label = Instance.new("TextLabel")
+	label.Name = key
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.new(1, 0, 0, 20)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextColor3 = Color3.fromRGB(218, 229, 240)
+	label.TextSize = 16
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.LayoutOrder = index
+	label.Text = key .. ": ..."
+	label.Parent = statsList
+	labels[key] = label
+end
+
+local help = Instance.new("TextLabel")
+help.AnchorPoint = Vector2.new(0, 1)
+help.Position = UDim2.new(0, 18, 1, -18)
+help.Size = UDim2.fromOffset(560, 42)
+help.BackgroundColor3 = Color3.fromRGB(19, 24, 30)
+help.BackgroundTransparency = 0.12
+help.BorderSizePixel = 0
+help.Font = Enum.Font.GothamBold
+help.Text = "Click training stations for stats. Click walls to break them. Buy fists, hatch pets, then push to Titan Wall."
+help.TextColor3 = Color3.fromRGB(235, 242, 255)
+help.TextSize = 15
+help.TextWrapped = true
+help.Parent = gui
+
+local helpCorner = Instance.new("UICorner")
+helpCorner.CornerRadius = UDim.new(0, 8)
+helpCorner.Parent = help
+
+local toastHolder = Instance.new("Frame")
+toastHolder.Name = "Toasts"
+toastHolder.AnchorPoint = Vector2.new(0.5, 0)
+toastHolder.BackgroundTransparency = 1
+toastHolder.Position = UDim2.new(0.5, 0, 0, 24)
+toastHolder.Size = UDim2.fromOffset(460, 160)
+toastHolder.Parent = gui
+
+local toastLayout = Instance.new("UIListLayout")
+toastLayout.Padding = UDim.new(0, 8)
+toastLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+toastLayout.SortOrder = Enum.SortOrder.LayoutOrder
+toastLayout.Parent = toastHolder
+
+local function showToast(message, color)
+	local toast = Instance.new("TextLabel")
+	toast.BackgroundColor3 = Color3.fromRGB(24, 30, 38)
+	toast.BackgroundTransparency = 0.05
+	toast.BorderSizePixel = 0
+	toast.Font = Enum.Font.GothamBold
+	toast.Text = message
+	toast.TextColor3 = color or Color3.fromRGB(255, 235, 140)
+	toast.TextSize = 17
+	toast.TextWrapped = true
+	toast.Size = UDim2.fromOffset(440, 46)
+	toast.Parent = toastHolder
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = toast
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = toast.TextColor3
+	stroke.Transparency = 0.35
+	stroke.Thickness = 1
+	stroke.Parent = toast
+
+	toast.TextTransparency = 1
+	toast.BackgroundTransparency = 1
+	TweenService:Create(toast, TweenInfo.new(0.18), {
+		TextTransparency = 0,
+		BackgroundTransparency = 0.05,
+	}):Play()
+
+	task.delay(3, function()
+		if toast.Parent then
+			local tween = TweenService:Create(toast, TweenInfo.new(0.22), {
+				TextTransparency = 1,
+				BackgroundTransparency = 1,
+			})
+			tween:Play()
+			tween.Completed:Wait()
+			toast:Destroy()
+		end
+	end)
+end
+
+statRemote.OnClientEvent:Connect(function(payload)
+	for _, key in ipairs(order) do
+		if labels[key] then
+			local value = payload[key]
+			if typeof(value) == "number" then
+				labels[key].Text = key .. ": " .. formatNumber(value)
+			else
+				labels[key].Text = key .. ": " .. tostring(value or "None")
+			end
+		end
+	end
+end)
+
+notifyRemote.OnClientEvent:Connect(showToast)
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="Workspace" referent="7">
+    <Properties>
+      <string name="Name">Workspace</string>
+      <bool name="NeedsPivotMigration">false</bool>
+    </Properties>
+    <Item class="Folder" referent="8">
+      <Properties>
+        <string name="Name">PunchWallRPG</string>
+      </Properties>
+      <Item class="Part" referent="9">
+        <Properties>
+          <string name="Name">Main Training Island</string>
+          <bool name="Anchored">true</bool>
+          <Color3uint8 name="Color3uint8">4873835</Color3uint8>
+          <token name="Material">816</token>
+          <Vector3 name="Position">
+            <X>48</X>
+            <Y>-1.5</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3 name="size">
+            <X>210</X>
+            <Y>3</Y>
+            <Z>96</Z>
+          </Vector3>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="10">
+        <Properties>
+          <string name="Name">Preview Interactables</string>
+        </Properties>
+        <Item class="Part" referent="11">
+          <Properties>
+            <string name="Name">Focus Stone Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">12549631</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-15</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="12">
+          <Properties>
+            <string name="Name">Pet Egg Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16758105</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-72</X>
+              <Y>6</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>14</X>
+              <Y>11</Y>
+              <Z>14</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="13">
+          <Properties>
+            <string name="Name">Power Bag Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16766553</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-53</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="14">
+          <Properties>
+            <string name="Name">Rebirth Shrine Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+            <token name="Material">1584</token>
+            <Vector3 name="Position">
+              <X>160</X>
+              <Y>7</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>14</X>
+              <Y>13</Y>
+              <Z>14</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="15">
+          <Properties>
+            <string name="Name">Speed Dummy Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">6734591</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-34</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="16">
+        <Properties>
+          <string name="Name">Preview Walls</string>
+        </Properties>
+        <Item class="Part" referent="17">
+          <Properties>
+            <string name="Name">Brick Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">11884869</Color3uint8>
+            <token name="Material">848</token>
+            <Vector3 name="Position">
+              <X>-2</X>
+              <Y>7</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>14</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="18">
+          <Properties>
+            <string name="Name">Concrete Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">9869729</Color3uint8>
+            <token name="Material">816</token>
+            <Vector3 name="Position">
+              <X>25</X>
+              <Y>8</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>16</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="19">
+          <Properties>
+            <string name="Name">Crystal Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">5889013</Color3uint8>
+            <token name="Material">1568</token>
+            <Vector3 name="Position">
+              <X>88</X>
+              <Y>10</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>20</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="20">
+          <Properties>
+            <string name="Name">Cyber Gate Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">4879359</Color3uint8>
+            <token name="Material">1584</token>
+            <Vector3 name="Position">
+              <X>164</X>
+              <Y>12</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>24</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="21">
+          <Properties>
+            <string name="Name">Iron Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">6385274</Color3uint8>
+            <token name="Material">1088</token>
+            <Vector3 name="Position">
+              <X>55</X>
+              <Y>9</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>18</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="22">
+          <Properties>
+            <string name="Name">Lava Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16736558</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>124</X>
+              <Y>11</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>22</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="23">
+          <Properties>
+            <string name="Name">Titan Server Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">2499630</Color3uint8>
+            <token name="Material">800</token>
+            <Vector3 name="Position">
+              <X>82</X>
+              <Y>16</Y>
+              <Z>27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>34</X>
+              <Y>28</Y>
+              <Z>6</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="SpawnLocation" referent="24">
+        <Properties>
+          <string name="Name">Spawn Pad Preview</string>
+          <bool name="Anchored">true</bool>
+          <Color3uint8 name="Color3uint8">6940838</Color3uint8>
+          <token name="Material">288</token>
+          <bool name="Neutral">true</bool>
+          <Vector3 name="Position">
+            <X>-42</X>
+            <Y>2</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3 name="size">
+            <X>10</X>
+            <Y>1</Y>
+            <Z>10</Z>
+          </Vector3>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

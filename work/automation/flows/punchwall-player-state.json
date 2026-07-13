@@ -1,0 +1,96 @@
+{
+  "name": "punchwall-player-state",
+  "description": "Validate fresh player stat structure and HUD sync after leaderstats/RPGStats update.",
+  "studioName": "PunchWallRPGPrototype",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for player bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal player = Players:GetPlayers()[1]\nassert(player, \"missing player\")\nlocal leaderstats = player:WaitForChild(\"leaderstats\", 5)\nlocal stats = player:WaitForChild(\"RPGStats\", 5)\nassert(leaderstats and stats, \"missing stat folders\")\nlocal function setValue(folder, name, value)\n\tlocal instance = folder:FindFirstChild(name)\n\tassert(instance, \"missing \" .. name)\n\tinstance.Value = value\nend\nsetValue(leaderstats, \"Power\", 15)\nsetValue(leaderstats, \"Coins\", 0)\nsetValue(leaderstats, \"WallLevel\", 1)\nsetValue(leaderstats, \"Rebirths\", 0)\nsetValue(stats, \"FistMastery\", 1)\nsetValue(stats, \"BreakSpeed\", 1)\nsetValue(stats, \"CritChance\", 5)\nsetValue(stats, \"Luck\", 1)\nsetValue(stats, \"FistMultiplier\", 1)\nsetValue(stats, \"PetMultiplier\", 0)\nsetValue(stats, \"EquippedFist\", \"Starter Glove\")\nsetValue(stats, \"Pet\", \"None\")\nreturn HttpService:JSONEncode({ power = leaderstats.Power.Value, coins = leaderstats.Coins.Value, wallLevel = leaderstats.WallLevel.Value, rebirths = leaderstats.Rebirths.Value, equippedFist = stats.EquippedFist.Value, pet = stats.Pet.Value })"
+      },
+      "saveAs": "serverStats",
+      "expectRegex": [
+        "\"power\"\\s*:\\s*15",
+        "\"coins\"\\s*:\\s*0",
+        "\"wallLevel\"\\s*:\\s*1",
+        "\"rebirths\"\\s*:\\s*0",
+        "Starter Glove",
+        "\"pet\"\\s*:\\s*\"None\""
+      ],
+      "label": "default stats exist"
+    },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for stat remote"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal player = Players.LocalPlayer\nassert(player, \"missing local player\")\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nassert(gui, \"missing PunchWallHUD\")\nlocal wanted = { Power = true, Coins = true, WallLevel = true, EquippedFist = true, Pet = true, Rebirths = true }\nlocal labels = {}\nfor _, descendant in ipairs(gui:GetDescendants()) do\n\tif descendant:IsA(\"TextLabel\") and wanted[descendant.Name] then\n\t\tlabels[descendant.Name] = descendant.Text\n\tend\nend\nreturn HttpService:JSONEncode(labels)"
+      },
+      "saveAs": "hudStats",
+      "expectRegex": [
+        "Power: 15",
+        "Coins: 0",
+        "Wall Lv: 1",
+        "Fist: Starter Fist",
+        "Pets: None  x1.00",
+        "Rebirths: 0  x1.00"
+      ],
+      "label": "hud labels synced"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

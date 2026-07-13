@@ -1,0 +1,69 @@
+{
+  "name": "natural-progression",
+  "description": "Validate a fresh player naturally earns Wall XP, unlocks every tier, earns 1M coins, and rebirths without SetStats.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\",5)\nassert(command,\"missing automation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+      },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*1", "\"WallXP\"\\s*:\\s*0", "\"Coins\"\\s*:\\s*0"],
+      "label": "fresh player state"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Brick Wall\",3))" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"WallLevel\"\\s*:\\s*[3-9]"],
+      "label": "brick repeats unlock concrete"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Concrete Wall\",4))" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*(?:[89]|[1-9][0-9])"],
+      "label": "concrete repeats unlock iron"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Iron Wall\",10))" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*(?:1[6-9]|[2-9][0-9])"],
+      "label": "iron repeats unlock crystal"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Crystal Wall\",10))" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*(?:3[0-9]|[4-9][0-9])"],
+      "label": "crystal repeats unlock lava"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Lava Wall\",10))" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*(?:4[8-9]|[5-9][0-9])"],
+      "label": "lava repeats unlock cyber"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"BreakWallCycles\",\"Cyber Gate\",10))" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*(?:5[5-9]|[6-9][0-9])", "\"Coins\"\\s*:\\s*[1-9][0-9]{6,}"],
+      "label": "cyber repeats reach rebirth economy"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation return H:JSONEncode(c:Invoke(\"Rebirth\"))" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Rebirths\"\\s*:\\s*1", "\"WallLevel\"\\s*:\\s*1", "\"WallXP\"\\s*:\\s*0"],
+      "label": "natural loop reaches rebirth"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

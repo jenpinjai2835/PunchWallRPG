@@ -1,0 +1,18 @@
+# Roblox Studio transient files
+outputs/*.lock
+outputs/**/*.lock
+*.lock
+
+# Local logs and generated test result caches
+outputs/*.log
+work/automation/results/*.json
+work/docs/full-matrix-latest.json
+
+# Temporary screenshots generated during local work
+work/qc-screenshots/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+

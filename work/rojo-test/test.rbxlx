@@ -1,0 +1,26 @@
+<roblox version="4">
+  <Item class="Workspace" referent="0">
+    <Properties>
+      <string name="Name">Workspace</string>
+      <bool name="NeedsPivotMigration">false</bool>
+    </Properties>
+    <Item class="Part" referent="1">
+      <Properties>
+        <string name="Name">TestPart</string>
+        <bool name="Anchored">true</bool>
+        <Color3uint8 name="Color3uint8">16731443</Color3uint8>
+        <token name="Material">288</token>
+        <Vector3 name="Position">
+          <X>0</X>
+          <Y>5</Y>
+          <Z>0</Z>
+        </Vector3>
+        <Vector3 name="size">
+          <X>10</X>
+          <Y>2</Y>
+          <Z>8</Z>
+        </Vector3>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

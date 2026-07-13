@@ -1,0 +1,177 @@
+{
+  "name": "punchwall-smoke",
+  "description": "Existing smoke flow for the Punch Wall RPG prototype.",
+  "studioName": "PunchWallRPGPrototype",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "stateBefore",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Edit"
+      ],
+      "label": "edit mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "search_game_tree",
+      "args": {
+        "path": "Workspace.PunchWallRPG",
+        "max_depth": 3,
+        "head_limit": 120
+      },
+      "saveAs": "editTree",
+      "label": "capture edit preview tree"
+    },
+    {
+      "type": "assertTreeNames",
+      "source": "editTree",
+      "parentName": "PunchWallRPG",
+      "names": [
+        "Preview Walls",
+        "Preview Interactables"
+      ],
+      "label": "edit preview folders detected"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6000,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "statePlay",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Play",
+        "Available DataModels:\\s*Client,\\s*Server"
+      ],
+      "label": "play mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "search_game_tree",
+      "args": {
+        "path": "Workspace.PunchWallRPG",
+        "max_depth": 2,
+        "head_limit": 180
+      },
+      "saveAs": "playTree",
+      "timeoutMs": 35000,
+      "label": "capture runtime tree"
+    },
+    {
+      "type": "assertTreeMinChildren",
+      "source": "playTree",
+      "parentName": "Walls",
+      "min": 1,
+      "label": "runtime boss wall count"
+    },
+    {
+      "type": "assertTreeMinChildren",
+      "source": "playTree",
+      "parentName": "Depth Blocks",
+      "min": 4320,
+      "label": "runtime shared depth block count"
+    },
+    {
+      "type": "assertTreeMinChildren",
+      "source": "playTree",
+      "parentName": "Interactables",
+      "min": 9,
+      "label": "runtime interactable count"
+    },
+    {
+      "type": "assertTreeNames",
+      "source": "playTree",
+      "parentName": "Walls",
+      "names": [
+        "Titan Server Wall"
+      ],
+      "label": "runtime boss wall name"
+    },
+    {
+      "type": "assertTreeNames",
+      "source": "playTree",
+      "parentName": "Interactables",
+      "names": [
+        "Power Bag",
+        "Speed Dummy",
+        "Focus Stone",
+        "Pet Egg Machine",
+        "Rebirth Shrine"
+      ],
+      "label": "runtime interactable names"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L001_C06_R02"
+      },
+      "saveAs": "brickWall",
+      "expectRegex": [
+        "\"MaxHP\"\\s*:\\s*15",
+        "\"IsDepthBlock\"\\s*:\\s*true",
+        "\"Tier\"\\s*:\\s*1"
+      ],
+      "label": "front excavation block attributes"
+    },
+    {
+      "type": "call",
+      "tool": "inspect_instance",
+      "args": {
+        "path": "Workspace.PunchWallRPG.Walls.Titan Server Wall"
+      },
+      "saveAs": "titanWall",
+      "expectRegex": [
+        "\"MaxHP\"\\s*:\\s*800000000",
+        "ClickDetector"
+      ],
+      "label": "titan wall attributes"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

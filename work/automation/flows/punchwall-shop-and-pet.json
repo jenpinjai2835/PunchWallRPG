@@ -1,0 +1,120 @@
+{
+  "name": "punchwall-shop-and-pet",
+  "description": "Validate the first fist purchase and one pet hatch with deterministic economy setup.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nreturn HttpService:JSONEncode(command:Invoke(\"SetStats\", { Coins = 1000, FistMultiplier = 1, BreakSpeed = 1, Luck = 1, PetMultiplier = 0, EquippedFist = \"Starter Glove\", Pet = \"None\" }))"
+      },
+      "expectRegex": [
+        "\"Coins\"\\s*:\\s*1000",
+        "\"EquippedFist\"\\s*:\\s*\"Starter Glove\"",
+        "\"Pet\"\\s*:\\s*\"None\""
+      ],
+      "label": "seed economy state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"BuyFist\", \"Boxing Glove\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"item\"\\s*:\\s*\"Boxing Glove\"",
+        "\"Coins\"\\s*:\\s*820",
+        "\"EquippedFist\"\\s*:\\s*\"Boxing Glove\"",
+        "\"FistMultiplier\"\\s*:\\s*1\\.8"
+      ],
+      "label": "buy boxing glove"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"HatchPet\"))"
+      },
+      "saveAs": "afterHatch",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"Coins\"\\s*:\\s*470",
+        "\"Pet\"\\s*:\\s*\"(Brick Pup|Miner Cat|Crystal Fox|Lava Dragon|Secret Titan Golem)\"",
+        "\"PetMultiplier\"\\s*:\\s*(0\\.15|0\\.35|0\\.85|1\\.7|4\\.5)"
+      ],
+      "label": "hatch one pet"
+    },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for hud sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal wanted = { Coins = true, EquippedFist = true, Pet = true }\nlocal labels = {}\nfor _, descendant in ipairs(gui:GetDescendants()) do\n\tif descendant:IsA(\"TextLabel\") and wanted[descendant.Name] then\n\t\tlabels[descendant.Name] = descendant.Text\n\tend\nend\nreturn HttpService:JSONEncode(labels)"
+      },
+      "expectRegex": [
+        "Coins: 470",
+        "Fist: Street Boxing Fist",
+        "Pets: 1 equipped  x(1\\.15|1\\.35|1\\.85|2\\.70|5\\.50)"
+      ],
+      "label": "hud economy labels synced"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

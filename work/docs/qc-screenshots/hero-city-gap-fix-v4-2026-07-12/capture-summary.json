@@ -1,0 +1,137 @@
+{
+  "captures": [
+    {
+      "id": "01_spawn_player_view",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\01_spawn_player_view.jpg",
+      "camera": [
+        -60,
+        7,
+        8
+      ],
+      "look": [
+        -15,
+        8,
+        -21
+      ]
+    },
+    {
+      "id": "02_wall_lane_close",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\02_wall_lane_close.jpg",
+      "camera": [
+        -34,
+        8,
+        -6
+      ],
+      "look": [
+        32,
+        10,
+        -27
+      ]
+    },
+    {
+      "id": "03_wall_facade_detail",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\03_wall_facade_detail.jpg",
+      "camera": [
+        -6,
+        10,
+        -9
+      ],
+      "look": [
+        20,
+        11,
+        -27
+      ]
+    },
+    {
+      "id": "04_shop_and_lab",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\04_shop_and_lab.jpg",
+      "camera": [
+        -100,
+        11,
+        10
+      ],
+      "look": [
+        -55,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "05_boss_tower",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\05_boss_tower.jpg",
+      "camera": [
+        138,
+        28,
+        10
+      ],
+      "look": [
+        82,
+        17,
+        27
+      ]
+    },
+    {
+      "id": "05b_boss_front",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\05b_boss_front.jpg",
+      "camera": [
+        82,
+        25,
+        -28
+      ],
+      "look": [
+        82,
+        20,
+        27
+      ]
+    },
+    {
+      "id": "06_long_progression_read",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\06_long_progression_read.jpg",
+      "camera": [
+        -88,
+        32,
+        -82
+      ],
+      "look": [
+        76,
+        12,
+        -22
+      ]
+    },
+    {
+      "id": "08_combat_damaged",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\08_combat_damaged.jpg",
+      "gameplayState": "damage_stage_3"
+    },
+    {
+      "id": "09_combat_break",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\09_combat_break.jpg",
+      "gameplayState": "wall_break"
+    },
+    {
+      "id": "07_menu_fists",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\07_menu_fists.jpg",
+      "uiTab": "Fists"
+    },
+    {
+      "id": "07_menu_pets",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\07_menu_pets.jpg",
+      "uiTab": "Pets"
+    },
+    {
+      "id": "07_menu_tasks",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\07_menu_tasks.jpg",
+      "uiTab": "Tasks"
+    },
+    {
+      "id": "07_menu_settings",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-gap-fix-v4-2026-07-12\\07_menu_settings.jpg",
+      "uiTab": "Settings"
+    }
+  ],
+  "selectedStudio": {
+    "active": false,
+    "id": "f8a348ba-133f-4820-a0e3-5c5cc242beef",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  }
+}

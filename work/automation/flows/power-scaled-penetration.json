@@ -1,0 +1,140 @@
+{
+  "name": "power-scaled-penetration",
+  "description": "Validate fixed one-second attack cadence, power-scaled lunge distance, swept block penetration, and server-owned physics impulses.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for penetration runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG return H:JSONEncode({interval=root:GetAttribute(\"PunchAttackInterval\"),baseLunge=root:GetAttribute(\"PunchLungeDistance\"),maxLunge=root:GetAttribute(\"PunchMaxLungeDistance\"),mode=root:GetAttribute(\"PunchPenetrationMode\"),maxFragments=root:GetAttribute(\"MaxDepthPhysicsFragments\")})"
+      },
+      "expectRegex": [
+        "\"interval\"\\s*:\\s*1",
+        "\"baseLunge\"\\s*:\\s*10\\.5",
+        "\"maxLunge\"\\s*:\\s*48",
+        "\"mode\"\\s*:\\s*\"PowerScaledSweptVolume\"",
+        "\"maxFragments\"\\s*:\\s*120"
+      ],
+      "label": "fixed cadence and penetration contract"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({interval=gui:GetAttribute(\"PunchAttackInterval\"),duration=gui:GetAttribute(\"PunchAnimationDuration\"),windup=gui:GetAttribute(\"PunchWindupSeconds\")})"
+      },
+      "expectRegex": [
+        "\"interval\"\\s*:\\s*1",
+        "\"duration\"\\s*:\\s*0\\.72",
+        "\"windup\"\\s*:\\s*0\\.2"
+      ],
+      "label": "client hold cadence matches server"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0,BreakSpeed=99}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-200)) p:SetAttribute(\"LastWallHit\",0) local first=c:Invoke(\"PunchWithCooldown\") local second=c:Invoke(\"PunchWithCooldown\") return H:JSONEncode({first=first.ok,second=second.ok,reason=second.reason,breakSpeed=second.BreakSpeed,interval=workspace.PunchWallRPG:GetAttribute(\"PunchAttackInterval\")})"
+      },
+      "expectRegex": [
+        "\"first\"\\s*:\\s*true",
+        "\"second\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"cooldown\"",
+        "\"breakSpeed\"\\s*:\\s*99",
+        "\"interval\"\\s*:\\s*1"
+      ],
+      "label": "server rejects sub-second repeat regardless of break speed"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local hrp=p.Character.HumanoidRootPart hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-200)) p:SetAttribute(\"LastWallHit\",0) local r=c:Invoke(\"PunchRadius\") return H:JSONEncode({ok=r.ok,outcome=r.outcome,requested=p:GetAttribute(\"LastPunchRequestedDistance\"),travel=p:GetAttribute(\"LastPunchLungeDistance\"),scale=p:GetAttribute(\"LastPunchPowerScale\"),limit=p:GetAttribute(\"LastPunchPenetrationLimit\"),force=p:GetAttribute(\"LastPunchImpactForceScale\"),hit=p:GetAttribute(\"LastRadiusHitCount\"),broken=r.BrokenDepthBlocks,fragments=#workspace.PunchWallRPG[\"Depth Physics Debris\"]:GetChildren()})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"penetration\"",
+        "\"requested\"\\s*:\\s*10\\.5",
+        "\"travel\"\\s*:\\s*10\\.5",
+        "\"scale\"\\s*:\\s*0",
+        "\"limit\"\\s*:\\s*8",
+        "\"force\"\\s*:\\s*1",
+        "\"hit\"\\s*:\\s*[3-8]",
+        "\"broken\"\\s*:\\s*1",
+        "\"fragments\"\\s*:\\s*6"
+      ],
+      "label": "starter power breaks front block with short lunge"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=1500000000,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local hrp=p.Character.HumanoidRootPart hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-200)) p:SetAttribute(\"LastWallHit\",0) local r=c:Invoke(\"PunchRadius\") task.wait(0.15) local maxSpeed,maxInitial,serverOwned=0,0,0 for _,f in ipairs(workspace.PunchWallRPG[\"Depth Physics Debris\"]:GetChildren()) do maxSpeed=math.max(maxSpeed,f.AssemblyLinearVelocity.Magnitude) maxInitial=math.max(maxInitial,f:GetAttribute(\"InitialForwardSpeed\") or 0) local ok,owner=pcall(function() return f:GetNetworkOwner() end) if ok and owner==nil then serverOwned+=1 end end return H:JSONEncode({ok=r.ok,outcome=r.outcome,requested=p:GetAttribute(\"LastPunchRequestedDistance\"),travel=p:GetAttribute(\"LastPunchLungeDistance\"),scale=p:GetAttribute(\"LastPunchPowerScale\"),limit=p:GetAttribute(\"LastPunchPenetrationLimit\"),force=p:GetAttribute(\"LastPunchImpactForceScale\"),hit=p:GetAttribute(\"LastRadiusHitCount\"),broken=r.BrokenDepthBlocks,fragments=#workspace.PunchWallRPG[\"Depth Physics Debris\"]:GetChildren(),maxSpeed=maxSpeed,maxInitial=maxInitial,serverOwned=serverOwned})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"penetration\"",
+        "\"requested\"\\s*:\\s*48",
+        "\"travel\"\\s*:\\s*48",
+        "\"scale\"\\s*:\\s*1",
+        "\"limit\"\\s*:\\s*48",
+        "\"force\"\\s*:\\s*3\\.4",
+        "\"hit\"\\s*:\\s*4[0-8]",
+        "\"broken\"\\s*:\\s*4[0-8]",
+        "\"fragments\"\\s*:\\s*120",
+        "\"serverOwned\"\\s*:\\s*120",
+        "\"maxSpeed\"\\s*:\\s*(?:[3-9][0-9]|[1-9][0-9]{2,})(?:\\.[0-9]+)?",
+        "\"maxInitial\"\\s*:\\s*(?:1[0-9]{2}|[2-9][0-9]{2,})(?:\\.[0-9]+)?"
+      ],
+      "label": "high power carves a long server-physics tunnel"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

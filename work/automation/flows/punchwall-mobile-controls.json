@@ -1,0 +1,199 @@
+{
+  "name": "punchwall-mobile-controls",
+  "description": "Validate Android/iOS touch buttons exist and drive Train, Punch, and Use actions through the live UI.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal frame = gui:WaitForChild(\"MobileControls\", 5)\nassert(frame, \"missing MobileControls\")\nframe.Visible = true\nlocal result = { visible = frame.Visible }\nfor _, name in ipairs({ \"ActionPunch\", \"ActionTrain\", \"ActionUse\" }) do\n\tlocal button = frame:FindFirstChild(name)\n\tresult[name] = button and button.Text or \"missing\"\nend\nreturn HttpService:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"visible\"\\s*:\\s*true",
+        "\"ActionPunch\"\\s*:\\s*\"PUNCH\"",
+        "\"ActionTrain\"\\s*:\\s*\"TRAIN\"",
+        "\"ActionUse\"\\s*:\\s*\"USE\""
+      ],
+      "label": "mobile buttons exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-53, 7, 13)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Power Bag\"\nreturn HttpService:JSONEncode(snapshot)"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*15",
+        "\"PositionedNear\"\\s*:\\s*\"Power Bag\""
+      ],
+      "label": "position near training station"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local bridge = game:GetService(\"Players\").LocalPlayer.PlayerGui.PunchWallHUD:WaitForChild(\"PunchWallClientAutomation\", 5)\nassert(bridge, \"missing client automation bridge\")\nreturn bridge:Invoke(\"Train\")"
+      },
+      "timeoutMs": 30000,
+      "label": "tap mobile train"
+    },
+    {
+      "type": "wait",
+      "ms": 1000,
+      "label": "wait for mobile train result"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*19"
+      ],
+      "label": "mobile train increases power"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Power = 15, Coins = 0, WallLevel = 1, CritChance = 0, FistMultiplier = 1, PetMultiplier = 0 })\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.lookAt(Vector3.new(-2, 7, -20), Vector3.new(-2, 7, -40))\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Front Depth Block\"\nreturn HttpService:JSONEncode(snapshot)"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*15",
+        "\"BrickWallHP\"\\s*:\\s*15",
+        "\"PositionedNear\"\\s*:\\s*\"Front Depth Block\""
+      ],
+      "label": "position near brick wall"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local bridge = game:GetService(\"Players\").LocalPlayer.PlayerGui.PunchWallHUD:WaitForChild(\"PunchWallClientAutomation\", 5)\nassert(bridge, \"missing client automation bridge\")\nreturn bridge:Invoke(\"Punch\")"
+      },
+      "timeoutMs": 30000,
+      "label": "tap mobile punch"
+    },
+    {
+      "type": "wait",
+      "ms": 1000,
+      "label": "wait for mobile punch result"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+      },
+      "expectRegex": [
+        "\"BrokenDepthBlocks\"\\s*:\\s*1",
+        "\"Coins\"\\s*:\\s*11",
+        "\"WallLevel\"\\s*:\\s*1",
+        "\"Power\"\\s*:\\s*15",
+        "\"Depth\"\\s*:\\s*1",
+        "\"Score\"\\s*:\\s*40"
+      ],
+      "label": "mobile punch breaks one shared depth block"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Coins = 300, FistMultiplier = 1, BreakSpeed = 1, EquippedFist = \"Starter Glove\" })\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-60, 7, -10)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Boxing Glove Stand\"\nreturn HttpService:JSONEncode(snapshot)"
+      },
+      "expectRegex": [
+        "\"Coins\"\\s*:\\s*300",
+        "\"EquippedFist\"\\s*:\\s*\"Starter Glove\"",
+        "\"PositionedNear\"\\s*:\\s*\"Boxing Glove Stand\""
+      ],
+      "label": "position near first shop stand"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local bridge = game:GetService(\"Players\").LocalPlayer.PlayerGui.PunchWallHUD:WaitForChild(\"PunchWallClientAutomation\", 5)\nassert(bridge, \"missing client automation bridge\")\nreturn bridge:Invoke(\"Use\")"
+      },
+      "timeoutMs": 30000,
+      "label": "tap mobile use"
+    },
+    {
+      "type": "wait",
+      "ms": 1000,
+      "label": "wait for mobile use result"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+      },
+      "expectRegex": [
+        "\"Coins\"\\s*:\\s*120",
+        "\"EquippedFist\"\\s*:\\s*\"Boxing Glove\"",
+        "\"FistMultiplier\"\\s*:\\s*1\\.8"
+      ],
+      "label": "mobile use buys fist"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

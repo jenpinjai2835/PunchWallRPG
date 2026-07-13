@@ -1,0 +1,103 @@
+{
+  "name": "punchwall-train-and-break",
+  "description": "Validate the early gameplay loop through the same server functions used by ClickDetectors.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+      },
+      "expectRegex": [
+        "\"Power\"\\s*:\\s*15",
+        "\"Coins\"\\s*:\\s*0",
+        "\"WallLevel\"\\s*:\\s*1",
+        "\"BrickWallHP\"\\s*:\\s*15",
+        "\"BrickWallBroken\"\\s*:\\s*false"
+      ],
+      "label": "reset deterministic state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Train\", \"Power Bag\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"stat\"\\s*:\\s*\"Power\"",
+        "\"Power\"\\s*:\\s*19"
+      ],
+      "label": "power bag increases power"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"BreakWall\", \"Brick Wall\", 8))"
+      },
+      "saveAs": "afterBreak",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"Power\"\\s*:\\s*19",
+        "\"Coins\"\\s*:\\s*11",
+        "\"WallLevel\"\\s*:\\s*1",
+        "\"BrickWallBroken\"\\s*:\\s*true"
+      ],
+      "label": "brick break grants coins without power"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

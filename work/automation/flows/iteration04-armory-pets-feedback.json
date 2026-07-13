@@ -1,0 +1,318 @@
+{
+  "name": "iteration04-armory-pets-feedback",
+  "description": "Verify Iteration 04 Armory art and tier colors, combat profile, accurate pet summary, per-slot duplicate locks/deletion, Hatch x3, notification de-duplication, toast lane, and regular/boss HUD exclusivity.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for iteration runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local images,decals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://104014193600358\" then decals+=1 end end local colors={} local faces=true for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local palm=root.Polish[\"City Decor\"][name..\" Gauntlet Palm\"] colors[name]=string.format(\"%d,%d,%d\",math.floor(palm.Color.R*255+.5),math.floor(palm.Color.G*255+.5),math.floor(palm.Color.B*255+.5)) local plate=root.Polish[\"City Decor\"][name..\" Armory Nameplate\"] local front,back=false,false for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end faces=faces and front and back end local parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end return H:JSONEncode({parts=parts,images=images,decals=decals,faces=faces,colors=colors})"
+      },
+      "expectRegex": [
+        "\"parts\"\\s*:\\s*1297",
+        "\"images\"\\s*:\\s*2",
+        "\"decals\"\\s*:\\s*2",
+        "\"faces\"\\s*:\\s*true",
+        "191,47,39",
+        "92,101,108",
+        "37,108,180",
+        "29,33,39"
+      ],
+      "label": "Armory graphic, both-face labels, and tier colors exist"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local city=root[\"City Alert Billboard\"] return H:JSONEncode({signX=sign.Size.X,signY=sign.Size.Y,signHeight=sign.Position.Y,cityZ=city.Position.Z,separated=math.abs(sign.Position.Z-city.Position.Z)>50})"
+      },
+      "expectRegex": [
+        "\"signX\"\\s*:\\s*36",
+        "\"signY\"\\s*:\\s*10",
+        "\"signHeight\"\\s*:\\s*21\\.5",
+        "\"cityZ\"\\s*:\\s*42",
+        "\"separated\"\\s*:\\s*true"
+      ],
+      "label": "Armory landmark and city guidance billboard are visually separated"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{PetInventoryJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',EquippedPetsJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',DiscoveredPetsJSON='[\"Crystal Fox\",\"Miner Cat\"]',LockedPetsJSON='[]',Power=123,FistMastery=50,BreakSpeed=1.5,CritChance=12,WallLevel=20}) return true"
+      },
+      "label": "prepare duplicate pets and combat profile"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for profile sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local U=game:GetService(\"UserInputService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local petLabel=\"\" for _,d in ipairs(g.StatsPanel:GetDescendants()) do if d:IsA(\"TextLabel\") and string.find(d.Text,\"Pets:\",1,true)==1 then petLabel=d.Text end end g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.3) local banner=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\") local profile=g.GameMenu.Content:FindFirstChild(\"COMBAT PROFILE\") local desc=\"\" if profile then for _,d in ipairs(profile:GetChildren()) do if d:IsA(\"TextLabel\") and d.Text~=\"COMBAT PROFILE\" then desc=d.Text end end end local t,c=g.Toasts,g.MobileControls local clear=t.AbsolutePosition.X+t.AbsoluteSize.X<=c.AbsolutePosition.X or t.AbsolutePosition.X>=c.AbsolutePosition.X+c.AbsoluteSize.X or t.AbsolutePosition.Y+t.AbsoluteSize.Y<=c.AbsolutePosition.Y or t.AbsolutePosition.Y>=c.AbsolutePosition.Y+c.AbsoluteSize.Y local toastSafe=t.AbsolutePosition.Y>=0 and t.AbsolutePosition.Y+t.AbsoluteSize.Y<=workspace.CurrentCamera.ViewportSize.Y and (not U.TouchEnabled or clear) return H:JSONEncode({petLabel=petLabel,banner=banner and banner.Image or \"\",profile=desc,toastSafe=toastSafe,toastClear=clear})"
+      },
+      "expectRegex": [
+        "Pets: 3 equipped",
+        "rbxassetid://104014193600358",
+        "Power 123",
+        "Mastery x1.050",
+        "Speed 1.50",
+        "Crit 12.0%",
+        "\"toastSafe\"\\s*:\\s*true",
+        "\"toastClear\"\\s*:\\s*true"
+      ],
+      "label": "pet summary, Combat Profile, banner, and toast lane are accurate"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"LockPet\",target=\"Crystal Fox\",value=true,index=2}) return true"
+      },
+      "label": "lock only duplicate slot two"
+    },
+    {
+      "type": "wait",
+      "ms": 300,
+      "label": "wait for slot lock sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Pets\") task.wait(.3) local states={} for _,r in ipairs(g.GameMenu.Content:GetChildren()) do if r:IsA(\"Frame\") and string.match(r.Name,\"^#0[12]\") then for _,b in ipairs(r.Actions:GetChildren()) do if b:IsA(\"TextButton\") and string.find(b.Name,\"Lock\",1,true) then states[r.Name]=b.Text end end end end return H:JSONEncode(states)"
+      },
+      "expectRegex": [
+        "#01[^\"]*Crystal Fox\"\\s*:\\s*\"LOCK\"",
+        "#02[^\"]*Crystal Fox\"\\s*:\\s*\"UNLOCK\""
+      ],
+      "label": "duplicate rows expose independent lock states"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"DeletePet\",target=\"Crystal Fox\",index=1}) return true"
+      },
+      "label": "delete unlocked duplicate slot one"
+    },
+    {
+      "type": "wait",
+      "ms": 300,
+      "label": "wait for lock index shift"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local s=game.Players:GetPlayers()[1].RPGStats return H:JSONEncode({inventory=s.PetInventoryJSON.Value,locked=s.LockedPetsJSON.Value,equipped=s.EquippedPetsJSON.Value})"
+      },
+      "expectRegex": [
+        "\"inventory\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\",\\\\\"Miner Cat\\\\\"\\]\"",
+        "slot:1",
+        "\"equipped\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\",\\\\\"Miner Cat\\\\\"\\]\""
+      ],
+      "label": "deletion selects row and shifts later slot lock"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=2000,Luck=1}) return true"
+      },
+      "label": "prepare Hatch x3 economy"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"BeforeFeedback\",g:GetAttribute(\"FeedbackCount\") or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"HatchPet\",value=3}) return true"
+      },
+      "label": "trigger Hatch x3"
+    },
+    {
+      "type": "wait",
+      "ms": 180,
+      "label": "wait for three hatch results"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local pops={} for _,d in ipairs(g.RewardPops:GetChildren()) do if d:IsA(\"TextLabel\") then table.insert(pops,d) end end local nonoverlap=true for i=1,#pops do for j=i+1,#pops do local a,b=pops[i],pops[j] if a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y then nonoverlap=false end end end local toasts=0 for _,d in ipairs(g.Toasts:GetChildren()) do if d:IsA(\"TextLabel\") then toasts+=1 end end return H:JSONEncode({delta=(g:GetAttribute(\"FeedbackCount\") or 0)-(g:GetAttribute(\"BeforeFeedback\") or 0),pops=#pops,nonoverlap=nonoverlap,toasts=toasts})"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*3",
+        "\"pops\"\\s*:\\s*3",
+        "\"nonoverlap\"\\s*:\\s*true",
+        "\"toasts\"\\s*:\\s*0"
+      ],
+      "label": "Hatch x3 feedback stacks once per result without toast duplicates"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local s=p.RPGStats local inv=H:JSONDecode(s.PetInventoryJSON.Value) local eq=H:JSONDecode(s.EquippedPetsJSON.Value) return H:JSONEncode({coins=p.leaderstats.Coins.Value,inventory=#inv,equipped=#eq,mult=s.PetMultiplier.Value})"
+      },
+      "expectRegex": [
+        "\"coins\"\\s*:\\s*950",
+        "\"inventory\"\\s*:\\s*3",
+        "\"equipped\"\\s*:\\s*3",
+        "\"mult\"\\s*:\\s*[0-9]"
+      ],
+      "label": "Hatch x3 charges and adds three pets"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-53,7,13) return true"
+      },
+      "label": "prepare one training action"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"BeforeFeedback\",g:GetAttribute(\"FeedbackCount\") or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"Train\"}) return true"
+      },
+      "label": "trigger one training action"
+    },
+    {
+      "type": "wait",
+      "ms": 250,
+      "label": "wait for training feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local toasts=0 for _,d in ipairs(g.Toasts:GetChildren()) do if d:IsA(\"TextLabel\") then toasts+=1 end end return H:JSONEncode({delta=(g:GetAttribute(\"FeedbackCount\") or 0)-(g:GetAttribute(\"BeforeFeedback\") or 0),type=g:GetAttribute(\"LastFeedbackType\"),toasts=toasts})"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"type\"\\s*:\\s*\"Train\"",
+        "\"toasts\"\\s*:\\s*0"
+      ],
+      "label": "training uses one feedback channel"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=20}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(55,10,-13) return true"
+      },
+      "label": "move to Iron wall inside old boss radius"
+    },
+    {
+      "type": "wait",
+      "ms": 450,
+      "label": "wait for regular target HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=false task.wait(.5) return H:JSONEncode({target=g.TargetWallHUD.Visible,boss=g.BossHUD.Visible,title=g.TargetWallHUD.TargetTitle.Text})"
+      },
+      "expectRegex": [
+        "\"target\"\\s*:\\s*true",
+        "\"boss\"\\s*:\\s*false",
+        "IRON WALL"
+      ],
+      "label": "regular wall HUD suppresses idle boss HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15) return true"
+      },
+      "label": "move into Titan encounter"
+    },
+    {
+      "type": "wait",
+      "ms": 450,
+      "label": "wait for boss target HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({target=g.TargetWallHUD.Visible,boss=g.BossHUD.Visible,title=g.BossHUD.BossTitle.Text})"
+      },
+      "expectRegex": [
+        "\"target\"\\s*:\\s*false",
+        "\"boss\"\\s*:\\s*true",
+        "(TITAN P1|TITAN HQ.*PHASE 1)"
+      ],
+      "label": "Titan encounter owns boss HUD exclusively"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

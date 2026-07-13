@@ -1,0 +1,80 @@
+{
+  "name": "camera-tunnel-zoom-preservation",
+  "description": "Verify Invisicam keeps the player-selected zoom distance while entering enclosed depth tunnels.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for camera runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local cam=workspace.CurrentCamera return H:JSONEncode({mode=p.DevCameraOcclusionMode.Name,cameraType=cam.CameraType.Name,combat=g:GetAttribute(\"CombatCameraActive\"),preserve=g:GetAttribute(\"PreservePlayerZoomInTunnels\"),serverFlag=p:GetAttribute(\"PreserveTunnelCameraZoom\"),attribute=g:GetAttribute(\"CameraOcclusionMode\")})"
+      },
+      "expectRegex": [
+        "\"mode\"\\s*:\\s*\"Invisicam\"",
+        "\"cameraType\"\\s*:\\s*\"Custom\"",
+        "\"combat\"\\s*:\\s*false",
+        "\"preserve\"\\s*:\\s*true",
+        "\"serverFlag\"\\s*:\\s*true",
+        "\"attribute\"\\s*:\\s*\"Invisicam\""
+      ],
+      "label": "player camera uses non-zooming occlusion"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild(\"HumanoidRootPart\") local cam=workspace.CurrentCamera assert(root,\"missing root\") local oldMin,oldMax=p.CameraMinZoomDistance,p.CameraMaxZoomDistance p.CameraMinZoomDistance=14 p.CameraMaxZoomDistance=14 task.wait(1) local before=(cam.CFrame.Position-cam.Focus.Position).Magnitude local shell=Instance.new(\"Part\") shell.Name=\"Camera Occlusion Test Shell\" shell.Size=Vector3.new(8,8,8) shell.CFrame=root.CFrame shell.Anchored=true shell.CanCollide=false shell.CanTouch=false shell.CanQuery=true shell.Transparency=0 shell.Parent=workspace task.wait(1) local after=(cam.CFrame.Position-cam.Focus.Position).Magnitude local localTransparency=shell.LocalTransparencyModifier shell:Destroy() p.CameraMinZoomDistance=oldMin p.CameraMaxZoomDistance=oldMax return H:JSONEncode({before=before,after=after,zoomPreserved=math.abs(after-before)<=0.5,localTransparency=localTransparency,mode=p.DevCameraOcclusionMode.Name})"
+      },
+      "expectRegex": [
+        "\"zoomPreserved\"\\s*:\\s*true",
+        "\"localTransparency\"\\s*:\\s*0\\.75",
+        "\"mode\"\\s*:\\s*\"Invisicam\""
+      ],
+      "label": "enclosure stays transparent without changing user zoom"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "name": "punch-character-motion",
+  "description": "Verify punch input drives a visible full-body pose on modern AnimationConstraint rigs and legacy Motor6D rigs, recovers cleanly, and honors Motion Feedback off.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for character and runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,FistMultiplier=1,PetMultiplier=0,CritChance=0,SettingsJSON=game:GetService(\"HttpService\"):JSONEncode({motion=true,sound=true,uiScale=1})}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13) return true"
+      },
+      "label": "prepare a valid Brick Wall punch"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "wait for motion settings sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local R=game:GetService(\"RunService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local joint for _,d in ipairs(p.Character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(joint,\"right shoulder joint missing\") local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") local maxAngle,maxPosition=0,0 for _=1,32 do R.RenderStepped:Wait() local x,y,z=joint.Transform:ToOrientation() maxAngle=math.max(maxAngle,math.abs(x),math.abs(y),math.abs(z)) maxPosition=math.max(maxPosition,joint.Transform.Position.Magnitude) end task.wait(.2) return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0,maxAngle=maxAngle,maxPosition=maxPosition,active=g:GetAttribute(\"CharacterPunchMotionActive\")})"
+      },
+      "expectRegex": [
+        "\"class\"\\s*:\\s*\"(AnimationConstraint|Motor6D)\"",
+        "\"rig\"\\s*:\\s*\"R(6|15)\"",
+        "\"count\"\\s*:\\s*1",
+        "\"peak\"\\s*:\\s*0\\.9",
+        "\"maxAngle\"\\s*:\\s*[12]\\.",
+        "\"maxPosition\"\\s*:\\s*0\\.[3-9]",
+        "\"active\"\\s*:\\s*false"
+      ],
+      "label": "punch produces and recovers a visible character pose"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) return true"
+      },
+      "label": "disable motion feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 700,
+      "label": "wait for reduced-motion sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),active=g:GetAttribute(\"CharacterPunchMotionActive\")}) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return result"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*0",
+        "\"suppressed\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*false"
+      ],
+      "label": "reduced motion suppresses character pose"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

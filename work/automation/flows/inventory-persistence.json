@@ -1,0 +1,32 @@
+{
+  "name": "inventory-persistence",
+  "description": "Validate fist ownership and pet inventory survive rebirth while equipped fist state resets.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=1000}) local fist=c:Invoke(\"BuyFist\",\"Boxing Glove\") local pet=c:Invoke(\"HatchPet\") c:Invoke(\"SetStats\",{WallLevel=55,Coins=1000000}) local rebirth=c:Invoke(\"Rebirth\") local owned=H:JSONDecode(rebirth.OwnedFistsJSON) local inventory=H:JSONDecode(rebirth.PetInventoryJSON) local equippedPets=H:JSONDecode(rebirth.EquippedPetsJSON) local reEquip=c:Invoke(\"EquipFist\",\"Boxing Glove\") return H:JSONEncode({fistBought=fist.ok,petHatched=pet.ok,rebirth=rebirth.ok,ownsBoxing=table.find(owned,\"Boxing Glove\")~=nil,petCount=#inventory,equippedPetCount=#equippedPets,resetFist=rebirth.EquippedFist==\"Starter Glove\",reEquip=reEquip.ok})"
+      },
+      "expectRegex": ["\"fistBought\"\\s*:\\s*true", "\"petHatched\"\\s*:\\s*true", "\"rebirth\"\\s*:\\s*true", "\"ownsBoxing\"\\s*:\\s*true", "\"petCount\"\\s*:\\s*1", "\"equippedPetCount\"\\s*:\\s*1", "\"resetFist\"\\s*:\\s*true", "\"reEquip\"\\s*:\\s*true"],
+      "label": "inventory survives rebirth"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local cfg=require(game:GetService(\"ReplicatedStorage\").GameConfig) return H:JSONEncode({solo=cfg.ContributionReward(100,1),half=cfg.ContributionReward(100,.5),small=cfg.ContributionReward(100,.1),ordered=cfg.ContributionReward(100,1)>cfg.ContributionReward(100,.5) and cfg.ContributionReward(100,.5)>cfg.ContributionReward(100,.1)})" },
+      "expectRegex": ["\"solo\"\\s*:\\s*100", "\"half\"\\s*:\\s*75", "\"small\"\\s*:\\s*55", "\"ordered\"\\s*:\\s*true"],
+      "label": "contribution reward curve"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

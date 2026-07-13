@@ -1,0 +1,135 @@
+{
+  "name": "punchwall-rebirth-boss",
+  "description": "Validate rebirth requirements, rebirth reset, Titan gate, and Titan reward.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+      },
+      "expectRegex": [
+        "\"Rebirths\"\\s*:\\s*0",
+        "\"WallLevel\"\\s*:\\s*1",
+        "\"Coins\"\\s*:\\s*0",
+        "\"TitanHP\"\\s*:\\s*800000000"
+      ],
+      "label": "reset deterministic state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Rebirth\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"requirements\"",
+        "\"Rebirths\"\\s*:\\s*0"
+      ],
+      "label": "fresh player cannot rebirth"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"HitBoss\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"level_gate\"",
+        "\"TitanHP\"\\s*:\\s*800000000",
+        "\"TitanBroken\"\\s*:\\s*false"
+      ],
+      "label": "fresh player cannot damage titan"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { WallLevel = 55, Coins = 1000000, Power = 250000, Rebirths = 0, FistMultiplier = 45, EquippedFist = \"Titan Gauntlet\" })\nreturn HttpService:JSONEncode(command:Invoke(\"Rebirth\"))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"Rebirths\"\\s*:\\s*1",
+        "\"Power\"\\s*:\\s*25",
+        "\"Coins\"\\s*:\\s*0",
+        "\"WallLevel\"\\s*:\\s*1",
+        "\"EquippedFist\"\\s*:\\s*\"Starter Glove\""
+      ],
+      "label": "qualified player rebirths and resets"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { WallLevel = 99, Depth = 75, Coins = 0, Power = 400000000, FistMultiplier = 2, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"HitBoss\"))"
+      },
+      "saveAs": "afterBoss",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"TitanBroken\"\\s*:\\s*true",
+        "\"TitanHP\"\\s*:\\s*0",
+        "\"Coins\"\\s*:\\s*60000000",
+        "\"Power\"\\s*:\\s*400000000",
+        "\"Depth\"\\s*:\\s*76"
+      ],
+      "label": "qualified player breaks titan"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

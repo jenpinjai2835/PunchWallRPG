@@ -1,0 +1,81 @@
+{
+  "name": "center-feedback-suppression",
+  "description": "Verify combat and action feedback does not create central text, icons, or world damage numbers while preserving action feedback events.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for client feedback runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-80)) p:SetAttribute(\"LastWallHit\",0) return c:Invoke(\"PunchRadius\")"
+      },
+      "label": "trigger a punch feedback event"
+    },
+    {
+      "type": "wait",
+      "ms": 700,
+      "label": "allow feedback replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center,damage=0,0 for _,d in ipairs(gui:GetDescendants()) do if d.Name==\"FeedbackPop\" or d.Name==\"CombatDamageBurst\" or d.Name==\"CombatImpactCore\" or d.Name==\"CombatSparkRays\" then center+=1 end end for _,d in ipairs(workspace:GetDescendants()) do if d.Name==\"LocalDamageNumber\" then damage+=1 end end return H:JSONEncode({enabled=gui:GetAttribute(\"CenterActionFeedbackEnabled\"),toasts=gui.Toasts.Visible,rewards=gui.RewardPops.Visible,center=center,damage=damage,feedback=gui:GetAttribute(\"FeedbackCount\") or 0,lastType=gui:GetAttribute(\"LastFeedbackType\")})"
+      },
+      "expectRegex": [
+        "\"enabled\"\\s*:\\s*false",
+        "\"toasts\"\\s*:\\s*false",
+        "\"rewards\"\\s*:\\s*false",
+        "\"center\"\\s*:\\s*0",
+        "\"damage\"\\s*:\\s*0",
+        "\"feedback\"\\s*:\\s*[1-9][0-9]*",
+        "\"lastType\"\\s*:\\s*\"Punch\""
+      ],
+      "label": "no text or icon feedback appears over gameplay"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

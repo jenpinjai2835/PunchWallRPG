@@ -1,0 +1,19 @@
+{
+  "captures": [
+    {
+      "id": "08_combat_damaged",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-reference-aspect-after-5-2026-07-12\\08_combat_damaged.jpg",
+      "gameplayState": "damage_stage_3"
+    },
+    {
+      "id": "09_combat_break",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\hero-city-reference-aspect-after-5-2026-07-12\\09_combat_break.jpg",
+      "gameplayState": "wall_break"
+    }
+  ],
+  "selectedStudio": {
+    "active": false,
+    "id": "f8a348ba-133f-4820-a0e3-5c5cc242beef",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  }
+}

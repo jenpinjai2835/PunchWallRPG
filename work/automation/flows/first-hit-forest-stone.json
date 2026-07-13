@@ -1,0 +1,33 @@
+{
+  "name": "first-hit-forest-stone",
+  "description": "Validate the fresh-player one-hit Forest Stone onboarding beat: break, coins, no Power reward, and fragments.",
+  "studioName": "PunchWallRPGPlayable_v1_final",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') local root=workspace:WaitForChild('PunchWallRPG') c:Invoke('Reset') c:Invoke('SetStats',{Power=15,Coins=0,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local b=root['Depth Blocks']:WaitForChild('DepthBlock_L001_C06_R02') local before={hp=b:GetAttribute('HP'),max=b:GetAttribute('MaxHP')} local r=c:Invoke('HitDepthBlock',{name=b.Name}) task.wait(.25) return H:JSONEncode({before=before,result=r,broken=b:GetAttribute('Broken'),hp=b:GetAttribute('HP'),coins=game.Players:GetPlayers()[1].leaderstats.Coins.Value,power=game.Players:GetPlayers()[1].leaderstats.Power.Value,fragments=#root['Depth Physics Debris']:GetChildren()})"
+      },
+      "expectRegex": [
+        "\\\"max\\\"\\s*:\\s*8",
+        "\\\"broken\\\"\\s*:\\s*true",
+        "\\\"coins\\\"\\s*:\\s*[1-9][0-9]*",
+        "\\\"power\\\"\\s*:\\s*15",
+        "\\\"fragments\\\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "first Forest Stone breaks in one punch and pays coins only"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

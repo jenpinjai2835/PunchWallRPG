@@ -1,0 +1,83 @@
+{
+  "name": "onboarding-waypoint",
+  "description": "Validate fresh-player orientation, objective text, and world waypoint guidance.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal p=game.Players:GetPlayers()[1]\nlocal spawn=workspace:FindFirstChild(\"Punch Rookie Spawn\",true)\np.Character:PivotTo(spawn.CFrame*CFrame.new(0,4,0))\nreturn HttpService:JSONEncode({spawnYaw=math.floor(spawn.Orientation.Y+0.5),tutorial=command:Invoke(\"Snapshot\").TutorialStep})"
+      },
+      "expectRegex": [
+        "\"spawnYaw\"\\s*:\\s*180",
+        "\"tutorial\"\\s*:\\s*1"
+      ],
+      "label": "fresh spawn faces training district"
+    },
+    {
+      "type": "wait",
+      "ms": 700,
+      "label": "wait for objective refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal gui=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\")\nlocal waypoint=gui:WaitForChild(\"TutorialWaypoint\")\nlocal help=gui:WaitForChild(\"ObjectiveCard\")\nlocal context=gui:WaitForChild(\"ContextTarget\")\nreturn HttpService:JSONEncode({enabled=waypoint.Enabled,target=waypoint.Adornee and waypoint.Adornee.Name or \"\",objective=help.Text,context=context.Text,contextVisible=context.Visible})"
+      },
+      "expectRegex": [
+        "\"enabled\"\\s*:\\s*true",
+        "\"target\"\\s*:\\s*\"Power Bag\"",
+        "Train Power",
+        "studs",
+        "\"contextVisible\"\\s*:\\s*false"
+      ],
+      "label": "tutorial waypoint and distance visible"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

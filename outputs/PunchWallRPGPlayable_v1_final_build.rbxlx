@@ -1,0 +1,4228 @@
+<roblox version="4">
+  <Item class="Lighting" referent="0">
+    <Properties>
+      <string name="Name">Lighting</string>
+      <Color3 name="Ambient">
+        <R>0.35</R>
+        <G>0.38</G>
+        <B>0.42</B>
+      </Color3>
+      <float name="Brightness">2.5</float>
+      <float name="ClockTime">14</float>
+      <Color3 name="OutdoorAmbient">
+        <R>0.52</R>
+        <G>0.56</G>
+        <B>0.62</B>
+      </Color3>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="ModuleScript" referent="2">
+      <Properties>
+        <string name="Name">GameConfig</string>
+        <string name="Source"><![CDATA[local GameConfig = {}
+
+GameConfig.DataVersion = 2
+GameConfig.MaxCritChance = 65
+GameConfig.MaxPetInventory = 60
+GameConfig.MaxEquippedPets = 3
+GameConfig.RegularWallRespawnSeconds = 4
+GameConfig.BossRespawnSeconds = 20
+
+GameConfig.WallOrder = {
+	"Brick Wall",
+	"Concrete Wall",
+	"Iron Wall",
+	"Crystal Wall",
+	"Lava Wall",
+	"Cyber Gate",
+}
+
+GameConfig.WallXP = {
+	["Brick Wall"] = 32,
+	["Concrete Wall"] = 95,
+	["Iron Wall"] = 260,
+	["Crystal Wall"] = 720,
+	["Lava Wall"] = 1850,
+	["Cyber Gate"] = 5200,
+	["Titan Server Wall"] = 12000,
+}
+
+function GameConfig.XPForLevel(level)
+	level = math.max(1, math.floor(tonumber(level) or 1))
+	return math.floor(18 + level * 7 + level ^ 1.38 * 2.4)
+end
+
+GameConfig.Fists = {
+	{ name = "Starter Glove", cost = 0, mult = 1, speed = 0, color = Color3.fromRGB(112, 118, 124) },
+	{ name = "Boxing Glove", cost = 180, mult = 1.8, speed = 0.2, color = Color3.fromRGB(205, 62, 48) },
+	{ name = "Iron Knuckle", cost = 1100, mult = 4.5, speed = 0.35, color = Color3.fromRGB(126, 137, 147) },
+	{ name = "Thunder Fist", cost = 8200, mult = 13, speed = 0.7, color = Color3.fromRGB(61, 153, 215) },
+	{ name = "Titan Gauntlet", cost = 90000, mult = 45, speed = 1.2, color = Color3.fromRGB(221, 74, 56) },
+}
+
+GameConfig.Pets = {
+	{ name = "Brick Pup", rarity = "Common", baseWeight = 5500, mult = 0.15, luckGain = 0.03, color = Color3.fromRGB(174, 116, 88) },
+	{ name = "Miner Cat", rarity = "Rare", baseWeight = 3000, mult = 0.35, luckGain = 0.08, color = Color3.fromRGB(80, 151, 211) },
+	{ name = "Crystal Fox", rarity = "Epic", baseWeight = 1100, mult = 0.85, luckGain = 0.16, color = Color3.fromRGB(168, 103, 219) },
+	{ name = "Lava Dragon", rarity = "Legendary", baseWeight = 350, mult = 1.7, luckGain = 0.28, color = Color3.fromRGB(238, 142, 48) },
+	{ name = "Secret Titan Golem", rarity = "Secret", baseWeight = 50, mult = 4.5, luckGain = 0.5, color = Color3.fromRGB(225, 59, 65) },
+}
+
+GameConfig.RarityLuckPower = {
+	Common = -0.55,
+	Rare = 0.18,
+	Epic = 0.48,
+	Legendary = 0.78,
+	Secret = 1.05,
+}
+
+function GameConfig.PetWeight(pet, luck)
+	luck = math.max(1, tonumber(luck) or 1)
+	local exponent = GameConfig.RarityLuckPower[pet.rarity] or 0
+	return pet.baseWeight * luck ^ exponent
+end
+
+function GameConfig.PetChances(luck)
+	local total = 0
+	local weights = {}
+	for _, pet in ipairs(GameConfig.Pets) do
+		local weight = GameConfig.PetWeight(pet, luck)
+		weights[pet.name] = weight
+		total += weight
+	end
+	local chances = {}
+	for _, pet in ipairs(GameConfig.Pets) do
+		chances[pet.name] = weights[pet.name] / total
+	end
+	return chances
+end
+
+function GameConfig.ContributionReward(baseReward, share)
+	baseReward = math.max(0, tonumber(baseReward) or 0)
+	share = math.clamp(tonumber(share) or 0, 0, 1)
+	return math.max(baseReward > 0 and 1 or 0, math.floor(baseReward * (0.5 + share * 0.5)))
+end
+
+GameConfig.Tutorial = {
+	[1] = { title = "Train Power", detail = "Hit the Power Bag once", target = "Power Bag" },
+	[2] = { title = "Smash A Building", detail = "Break the Brick Apartments", target = "Brick Wall" },
+	[3] = { title = "Reach Wall Level 3", detail = "Repeat Brick Apartments to earn Wall XP", target = "Brick Wall" },
+	[4] = { title = "Upgrade Your Fist", detail = "Buy the Boxing Glove at the Armory", target = "Boxing Glove Stand" },
+	[5] = { title = "Hatch A Kaiju Pet", detail = "Open one DNA capsule", target = "Pet Egg Machine" },
+	[6] = { title = "Reach Titan HQ", detail = "Unlock districts and damage the Titan", target = "Titan Server Wall" },
+	[7] = { title = "Rebirth", detail = "Reach Level 55 and activate the Evac Portal", target = "Rebirth Shrine" },
+	[8] = { title = "City Defender", detail = "Tutorial complete. Keep growing your kaiju.", target = "" },
+}
+
+GameConfig.Rewards = {
+	DailyCoins = 600,
+	QuestBreakTarget = 10,
+	QuestCoins = 850,
+	PlaytimeSeconds = 300,
+	PlaytimeCoins = 1200,
+}
+
+GameConfig.Audio = {
+	Punch = "rbxassetid://132504023010884",
+	Collapse = "rbxassetid://73130804959365",
+	Reward = "rbxassetid://4612374209",
+	BossRoar = "rbxassetid://133651202885353",
+}
+
+return GameConfig
+]]></string>
+      </Properties>
+    </Item>
+    <Item class="ModuleScript" referent="3">
+      <Properties>
+        <string name="Name">PolishConfig</string>
+        <string name="Source"><![CDATA[local PolishConfig = {}
+
+PolishConfig.StyleName = "Kaiju City Smash"
+
+PolishConfig.Palette = {
+	Sky = Color3.fromRGB(124, 161, 184),
+	Ground = Color3.fromRGB(42, 45, 48),
+	GroundDark = Color3.fromRGB(22, 24, 27),
+	Path = Color3.fromRGB(244, 191, 54),
+	PathEdge = Color3.fromRGB(232, 232, 220),
+	Panel = Color3.fromRGB(17, 23, 30),
+	PanelSoft = Color3.fromRGB(31, 41, 50),
+	Text = Color3.fromRGB(247, 249, 244),
+	MutedText = Color3.fromRGB(202, 214, 220),
+	Punch = Color3.fromRGB(226, 68, 51),
+	Train = Color3.fromRGB(244, 191, 54),
+	Use = Color3.fromRGB(64, 142, 191),
+	Reward = Color3.fromRGB(110, 218, 146),
+	Fail = Color3.fromRGB(238, 82, 72),
+	Crit = Color3.fromRGB(255, 223, 94),
+	Glass = Color3.fromRGB(82, 133, 164),
+	Concrete = Color3.fromRGB(132, 139, 143),
+	Asphalt = Color3.fromRGB(35, 37, 39),
+	RoadLine = Color3.fromRGB(241, 194, 64),
+	Rubble = Color3.fromRGB(94, 91, 86),
+}
+
+PolishConfig.WallTiers = {
+	["Brick Wall"] = {
+		color = Color3.fromRGB(159, 73, 54),
+		accent = Color3.fromRGB(219, 122, 79),
+		pad = Color3.fromRGB(73, 76, 78),
+		crack = Color3.fromRGB(47, 34, 32),
+		material = Enum.Material.Brick,
+		label = "Brick Apartments",
+		window = Color3.fromRGB(71, 108, 128),
+	},
+	["Concrete Wall"] = {
+		color = Color3.fromRGB(133, 139, 143),
+		accent = Color3.fromRGB(188, 196, 199),
+		pad = Color3.fromRGB(61, 64, 66),
+		crack = Color3.fromRGB(44, 47, 50),
+		material = Enum.Material.Concrete,
+		label = "Parking Tower",
+		window = Color3.fromRGB(59, 83, 96),
+	},
+	["Iron Wall"] = {
+		color = Color3.fromRGB(84, 91, 99),
+		accent = Color3.fromRGB(170, 177, 180),
+		pad = Color3.fromRGB(54, 58, 62),
+		crack = Color3.fromRGB(29, 33, 38),
+		material = Enum.Material.Metal,
+		label = "Steel Office",
+		window = Color3.fromRGB(89, 132, 156),
+	},
+	["Crystal Wall"] = {
+		color = Color3.fromRGB(72, 122, 151),
+		accent = Color3.fromRGB(133, 195, 222),
+		pad = Color3.fromRGB(49, 56, 62),
+		crack = Color3.fromRGB(24, 57, 76),
+		material = Enum.Material.Glass,
+		label = "Glass Highrise",
+		window = Color3.fromRGB(153, 215, 235),
+	},
+	["Lava Wall"] = {
+		color = Color3.fromRGB(113, 65, 47),
+		accent = Color3.fromRGB(255, 114, 50),
+		pad = Color3.fromRGB(56, 45, 40),
+		crack = Color3.fromRGB(52, 25, 21),
+		material = Enum.Material.Basalt,
+		label = "Burning Factory",
+		window = Color3.fromRGB(255, 136, 57),
+	},
+	["Cyber Gate"] = {
+		color = Color3.fromRGB(37, 52, 70),
+		accent = Color3.fromRGB(45, 180, 215),
+		pad = Color3.fromRGB(34, 41, 51),
+		crack = Color3.fromRGB(12, 23, 35),
+		material = Enum.Material.Metal,
+		label = "Defense Grid",
+		window = Color3.fromRGB(67, 198, 230),
+	},
+	["Titan Server Wall"] = {
+		color = Color3.fromRGB(31, 33, 39),
+		accent = Color3.fromRGB(230, 57, 47),
+		pad = Color3.fromRGB(47, 43, 44),
+		crack = Color3.fromRGB(10, 12, 15),
+		material = Enum.Material.Metal,
+		label = "Titan HQ Core",
+		window = Color3.fromRGB(235, 69, 58),
+	},
+}
+
+PolishConfig.RarityColors = {
+	Common = Color3.fromRGB(158, 189, 160),
+	Rare = Color3.fromRGB(88, 159, 210),
+	Epic = Color3.fromRGB(164, 106, 215),
+	Legendary = Color3.fromRGB(233, 169, 61),
+	Secret = Color3.fromRGB(225, 59, 65),
+}
+
+PolishConfig.Motion = {
+	HitPulseSeconds = 0.08,
+	HitRecoverSeconds = 0.1,
+	TrainBounceSeconds = 0.1,
+	ButtonPressSeconds = 0.08,
+	RewardPopSeconds = 1.15,
+	BreakEmit = 44,
+	HitEmit = 13,
+	TrainEmit = 12,
+}
+
+PolishConfig.FreeAssetCandidates = {
+	{ use = "Modular downtown buildings", assetId = "6418277837", name = "City Building Pack", creator = "Roblox", hasScripts = false, fallback = "Source-built city facade blocks with windows" },
+	{ use = "Skyscraper decor", assetId = "44147935", name = "skyscraper", creator = "coolman104531", hasScripts = false, fallback = "Source-built background skyscraper blocks" },
+	{ use = "Destroyed building decor", assetId = "7935361972", name = "ATF: destroyed building", creator = "Jacob_hosker", hasScripts = false, fallback = "Source-built rubble pile and cracked facade" },
+	{ use = "Large city district candidate", assetId = "74343734530879", name = "City Buildings Skyscraper Apartment Town RP", creator = "XxOwenRoguexX201481", hasScripts = false, fallback = "Source-built street grid and facade blocks" },
+	{ use = "Destroyed city candidate", assetId = "146162368", name = "destroyed city", creator = "544457", hasScripts = true, fallback = "Source-built rubble only; candidate requires full script/audio removal" },
+	{ use = "Textured wrecked city vehicles", assetId = "74466546814963", name = "Abandoned car pack vehicle city roleplay RP", creator = "benr3al2015", hasScripts = true, fallback = "Source-built road barricades; all scripts removed when kept" },
+	{ use = "Legendary kaiju companion display", assetId = "5618903358", name = "Crimson Claw Dragon Ally", creator = "Josegamer941", hasScripts = true, fallback = "Client-built companion geometry; all scripts and behavior removed when kept" },
+	{ use = "Detailed city landmark", assetId = "135834344041946", name = "Buildings 3", creator = "TenTsuDev", hasScripts = false, fallback = "Source-built distant skyline blocks" },
+}
+
+return PolishConfig
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="4">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="5">
+      <Properties>
+        <string name="Name">PunchWallBootstrap</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local HttpService = game:GetService("HttpService")
+local InsertService = game:GetService("InsertService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
+local DataStoreService = game:GetService("DataStoreService")
+local TweenService = game:GetService("TweenService")
+local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
+local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
+
+local ROOT_NAME = "PunchWallRPG"
+local WALL_RESPAWN_SECONDS = GameConfig.RegularWallRespawnSeconds
+local TRAINING_COOLDOWN = 0.45
+local WALL_HIT_COOLDOWN = 0.25
+local EGG_COST = 350
+local AUTOSAVE_SECONDS = 75
+local MOBILE_ACTION_DISTANCE = 38
+local MOBILE_ACTION_COOLDOWN = 0.12
+
+local NUMBER_STAT_DEFAULTS = {
+	Power = 15,
+	Coins = 0,
+	WallLevel = 1,
+	WallXP = 0,
+	Rebirths = 0,
+	FistMastery = 1,
+	BreakSpeed = 1,
+	CritChance = 5,
+	Luck = 1,
+	FistMultiplier = 1,
+	PetMultiplier = 0,
+	TutorialStep = 1,
+	DailyBreaks = 0,
+	DailyQuestClaimed = 0,
+	PlaytimeSeconds = 0,
+	PlaytimeClaimed = 0,
+}
+
+local TEXT_STAT_DEFAULTS = {
+	EquippedFist = "Starter Glove",
+	Pet = "None",
+	OwnedFistsJSON = "[\"Starter Glove\"]",
+	PetInventoryJSON = "[]",
+	EquippedPetsJSON = "[]",
+	DiscoveredPetsJSON = "[]",
+	LockedPetsJSON = "[]",
+	LastDailyDate = "",
+	DailyQuestDate = "",
+	SettingsJSON = "{\"motion\":true,\"sound\":true,\"uiScale\":1}",
+}
+
+local LEADERSTAT_NAMES = {
+	"Power",
+	"Coins",
+	"WallLevel",
+	"WallXP",
+	"Rebirths",
+}
+
+local RPG_NUMBER_STAT_NAMES = {
+	"FistMastery",
+	"BreakSpeed",
+	"CritChance",
+	"Luck",
+	"FistMultiplier",
+	"PetMultiplier",
+	"TutorialStep",
+	"DailyBreaks",
+	"DailyQuestClaimed",
+	"PlaytimeSeconds",
+	"PlaytimeClaimed",
+}
+
+local RPG_TEXT_STAT_NAMES = {
+	"EquippedFist",
+	"Pet",
+	"OwnedFistsJSON",
+	"PetInventoryJSON",
+	"EquippedPetsJSON",
+	"DiscoveredPetsJSON",
+	"LockedPetsJSON",
+	"LastDailyDate",
+	"DailyQuestDate",
+	"SettingsJSON",
+}
+
+local playerStore
+local legacyPlayerStore
+local dataStoreOk, dataStoreResult = pcall(function()
+	return DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v2")
+end)
+if dataStoreOk then
+	playerStore = dataStoreResult
+	legacyPlayerStore = DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v1")
+else
+	warn(("[PunchWallRPG] DataStore disabled for this session: %s"):format(tostring(dataStoreResult)))
+end
+local savingPlayers = {}
+
+local root = workspace:FindFirstChild(ROOT_NAME)
+if root then
+	root:Destroy()
+end
+
+root = Instance.new("Folder")
+root.Name = ROOT_NAME
+root.Parent = workspace
+
+local remotes = ReplicatedStorage:FindFirstChild("PunchWallEvents")
+if remotes then
+	remotes:Destroy()
+end
+remotes = Instance.new("Folder")
+remotes.Name = "PunchWallEvents"
+remotes.Parent = ReplicatedStorage
+
+local notifyRemote = Instance.new("RemoteEvent")
+notifyRemote.Name = "Notify"
+notifyRemote.Parent = remotes
+
+local statRemote = Instance.new("RemoteEvent")
+statRemote.Name = "StatsChanged"
+statRemote.Parent = remotes
+
+local actionRemote = Instance.new("RemoteEvent")
+actionRemote.Name = "ActionRequest"
+actionRemote.Parent = remotes
+
+local feedbackRemote = Instance.new("RemoteEvent")
+feedbackRemote.Name = "Feedback"
+feedbackRemote.Parent = remotes
+
+local wallsFolder = Instance.new("Folder")
+wallsFolder.Name = "Walls"
+wallsFolder.Parent = root
+
+local interactFolder = Instance.new("Folder")
+interactFolder.Name = "Interactables"
+interactFolder.Parent = root
+
+local polishFolder = Instance.new("Folder")
+polishFolder.Name = "Polish"
+polishFolder.Parent = root
+
+local guideFolder = Instance.new("Folder")
+guideFolder.Name = "Guide Path"
+guideFolder.Parent = polishFolder
+
+local tierFolder = Instance.new("Folder")
+tierFolder.Name = "Wall Tier Frames"
+tierFolder.Parent = polishFolder
+
+local decorFolder = Instance.new("Folder")
+decorFolder.Name = "City Decor"
+decorFolder.Parent = polishFolder
+
+local vfxFolder = Instance.new("Folder")
+vfxFolder.Name = "VFX Anchors"
+vfxFolder.Parent = polishFolder
+
+local function makePart(name, parent, size, position, color, material)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Anchored = true
+	part.Size = size
+	part.Position = position
+	part.Color = color
+	part.Material = material or Enum.Material.SmoothPlastic
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = parent
+	return part
+end
+
+local function makeVisualPart(name, parent, size, cframe, color, material)
+	local part = makePart(name, parent, size, cframe.Position, color, material)
+	part.CFrame = cframe
+	part.CanCollide = false
+	part.CastShadow = true
+	return part
+end
+
+local function addFacadeGrid(part, rows, columns, windowColor, mullionColor)
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+		local surface = Instance.new("SurfaceGui")
+		surface.Name = "WindowFacade"
+		surface.Face = face
+		surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		surface.PixelsPerStud = 28
+		surface.LightInfluence = 0.55
+		surface.Parent = part
+
+		local backing = Instance.new("Frame")
+		backing.Name = "FacadeBacking"
+		backing.BackgroundColor3 = mullionColor or Color3.fromRGB(45, 48, 52)
+		backing.BackgroundTransparency = 0.72
+		backing.BorderSizePixel = 0
+		backing.Size = UDim2.fromScale(1, 1)
+		backing.Parent = surface
+
+		local grid = Instance.new("UIGridLayout")
+		grid.CellPadding = UDim2.fromScale(0.045, 0.055)
+		grid.CellSize = UDim2.fromScale(1 / columns - 0.035, 1 / rows - 0.045)
+		grid.SortOrder = Enum.SortOrder.LayoutOrder
+		grid.Parent = backing
+
+		for index = 1, rows * columns do
+			local window = Instance.new("Frame")
+			window.Name = "WindowTile"
+			window.BackgroundColor3 = (index % 7 == 0) and Color3.fromRGB(247, 204, 99) or windowColor
+			window.BackgroundTransparency = (index % 5 == 0) and 0.72 or 0.58
+			window.BorderSizePixel = 0
+			window.Parent = backing
+		end
+	end
+	part:SetAttribute("TextureStyle", "BuildingFacadeWindows")
+end
+
+local function addFacadeGeometry(part, parent, rows, columns, windowColor, trimColor, prefix)
+	local details = {}
+	local function addDetail(name, size, localOffset, color, material, transparency, reflectance)
+		local detail = makeVisualPart(name, parent, size, part.CFrame * CFrame.new(localOffset), color, material)
+		detail.Transparency = transparency or 0
+		detail.Reflectance = reflectance or 0
+		detail:SetAttribute("TextureStyle", "ThreeDimensionalFacadeDetail")
+		table.insert(details, { part = detail, transparency = detail.Transparency })
+		return detail
+	end
+
+	local usableWidth = part.Size.X - 3.2
+	local usableHeight = part.Size.Y - 5
+	local startX = -usableWidth / 2
+	local startY = -usableHeight / 2 + 1.2
+	local cellW = usableWidth / columns
+	local cellH = usableHeight / rows
+	local glass = windowColor or PolishConfig.Palette.Glass
+	local trim = trimColor or Color3.fromRGB(28, 31, 34)
+
+	for _, face in ipairs({
+		{ suffix = "Front", sign = -1 },
+		{ suffix = "Back", sign = 1 },
+	}) do
+		local faceZ = face.sign * (part.Size.Z / 2 + 0.13)
+		local protrude = face.sign * 0.12
+		for row = 1, rows do
+			local y = startY + (row - 0.5) * cellH
+			addDetail(prefix .. " " .. face.suffix .. " Floor Ledge " .. row, Vector3.new(part.Size.X + 0.35, 0.16, 0.32), Vector3.new(0, y - cellH / 2, faceZ + protrude), trim, Enum.Material.Metal, 0.04, 0.02)
+			for column = 1, columns do
+				local x = startX + (column - 0.5) * cellW
+				local lit = (row + column) % 7 == 0
+				local pane = addDetail(prefix .. " " .. face.suffix .. " Glass Pane " .. row .. "-" .. column, Vector3.new(cellW * 0.58, cellH * 0.46, 0.16), Vector3.new(x, y, faceZ + face.sign * 0.08), lit and Color3.fromRGB(238, 190, 78) or glass, Enum.Material.Glass, lit and 0.12 or 0.28, lit and 0.04 or 0.16)
+				pane.CastShadow = false
+				addDetail(prefix .. " " .. face.suffix .. " Window Top Rail " .. row .. "-" .. column, Vector3.new(cellW * 0.68, 0.12, 0.2), Vector3.new(x, y + cellH * 0.27, faceZ + face.sign * 0.1), trim, Enum.Material.Metal, 0, 0.02)
+				addDetail(prefix .. " " .. face.suffix .. " Window Sill " .. row .. "-" .. column, Vector3.new(cellW * 0.72, 0.14, 0.36), Vector3.new(x, y - cellH * 0.27, faceZ + face.sign * 0.18), Color3.fromRGB(58, 61, 63), Enum.Material.Concrete, 0, 0)
+			end
+		end
+		for column = 0, columns do
+			local x = -usableWidth / 2 + column * cellW
+			addDetail(prefix .. " " .. face.suffix .. " Vertical Mullion " .. column, Vector3.new(0.18, usableHeight + 0.6, 0.28), Vector3.new(x, 0, faceZ + face.sign * 0.11), trim, Enum.Material.Metal, 0.02, 0.02)
+		end
+	end
+
+	addDetail(prefix .. " Roof Parapet", Vector3.new(part.Size.X + 1.4, 1.2, part.Size.Z + 0.7), Vector3.new(0, part.Size.Y / 2 + 0.58, 0), Color3.fromRGB(25, 27, 30), Enum.Material.Metal, 0, 0.02)
+	addDetail(prefix .. " Front Entrance Awning", Vector3.new(part.Size.X * 0.52, 0.36, 2.2), Vector3.new(0, -part.Size.Y / 2 + 3.1, -part.Size.Z / 2 - 0.85), Color3.fromRGB(31, 34, 36), Enum.Material.Metal, 0, 0.04)
+	addDetail(prefix .. " Back Entrance Awning", Vector3.new(part.Size.X * 0.52, 0.36, 2.2), Vector3.new(0, -part.Size.Y / 2 + 3.1, part.Size.Z / 2 + 0.85), Color3.fromRGB(31, 34, 36), Enum.Material.Metal, 0, 0.04)
+	addDetail(prefix .. " Utility AC Unit", Vector3.new(2.5, 1.2, 1.1), Vector3.new(part.Size.X / 2 - 2.3, 1.2, -part.Size.Z / 2 - 0.8), Color3.fromRGB(112, 119, 120), Enum.Material.Metal, 0.02, 0.03)
+	addDetail(prefix .. " Fire Escape Rail", Vector3.new(0.22, part.Size.Y * 0.62, 0.22), Vector3.new(-part.Size.X / 2 - 0.25, 0, -0.3), Color3.fromRGB(22, 24, 26), Enum.Material.Metal, 0, 0.03)
+
+	part:SetAttribute("FacadeDetailCount", #details)
+	return details
+end
+
+local function addRoadMarking(name, position, size, color)
+	local mark = makePart(name, decorFolder, size, position, color, Enum.Material.SmoothPlastic)
+	mark:SetAttribute("TextureStyle", "RoadPaint")
+	return mark
+end
+
+local function makeRubblePile(parent, basePosition, prefix)
+	for index, offset in ipairs({
+		Vector3.new(0, 0.35, 0),
+		Vector3.new(2.2, 0.45, 0.8),
+		Vector3.new(-1.8, 0.42, 1.2),
+		Vector3.new(0.8, 0.5, -1.6),
+	}) do
+		local rubble = makeVisualPart((prefix or "Rubble") .. " Chunk " .. index, parent, Vector3.new(2.5, 0.8 + index * 0.15, 1.8), CFrame.new(basePosition + offset) * CFrame.Angles(0, math.rad(14 * index), math.rad(index * 7)), PolishConfig.Palette.Rubble, Enum.Material.Concrete)
+		rubble:SetAttribute("PolishFallback", "Source-built rubble chunk")
+	end
+end
+
+local function makeStreetLight(name, position)
+	local pole = makePart(name .. " Pole", decorFolder, Vector3.new(0.35, 10, 0.35), position + Vector3.new(0, 5, 0), Color3.fromRGB(38, 40, 42), Enum.Material.Metal)
+	pole.CanCollide = false
+	local arm = makeVisualPart(name .. " Arm", decorFolder, Vector3.new(4.8, 0.28, 0.28), CFrame.new(position + Vector3.new(1.9, 9.4, 0)) * CFrame.Angles(0, 0, math.rad(-8)), Color3.fromRGB(38, 40, 42), Enum.Material.Metal)
+	local lamp = makePart(name .. " Lamp", decorFolder, Vector3.new(1.4, 0.6, 1.4), position + Vector3.new(4.1, 9.15, 0), Color3.fromRGB(255, 221, 139), Enum.Material.Neon)
+	lamp.CanCollide = false
+	local light = Instance.new("PointLight")
+	light.Name = name .. " Light"
+	light.Color = lamp.Color
+	light.Brightness = 1.4
+	light.Range = 24
+	light.Shadows = true
+	light.Parent = lamp
+	arm:SetAttribute("TextureStyle", "StreetFixture")
+	lamp:SetAttribute("TextureStyle", "StreetLightGlow")
+end
+
+local function makeCityBuilding(name, position, size, color, windowColor, rotation)
+	local building = makePart(name, decorFolder, size, position, color, Enum.Material.Concrete)
+	building.CFrame = CFrame.new(position) * CFrame.Angles(0, math.rad(rotation or 0), 0)
+	building.CanCollide = false
+	building:SetAttribute("PolishFallback", "Source-built city building")
+	building:SetAttribute("TextureStyle", "BuildingFacadeWindows")
+	addFacadeGrid(building, math.max(3, math.floor(size.Y / 4)), math.max(3, math.floor(size.X / 4)), windowColor or PolishConfig.Palette.Glass, Color3.fromRGB(35, 38, 42))
+	addFacadeGeometry(building, decorFolder, 3, 3, windowColor or PolishConfig.Palette.Glass, Color3.fromRGB(32, 35, 38), name)
+
+	local roof = makeVisualPart(name .. " Roof Unit", decorFolder, Vector3.new(size.X * 0.42, 1.4, size.Z * 0.46), building.CFrame + Vector3.new(0, size.Y / 2 + 0.8, 0), Color3.fromRGB(46, 49, 53), Enum.Material.Metal)
+	roof:SetAttribute("TextureStyle", "RooftopUnit")
+	return building
+end
+
+local function makeSkylineBlock(name, position, size, color, windowColor)
+	local building = makePart(name, decorFolder, size, position, color, Enum.Material.Concrete)
+	building.CanCollide = false
+	building.CastShadow = true
+	building:SetAttribute("VisualRole", "DistantSkyline")
+	addFacadeGrid(building, 6, 4, windowColor, Color3.fromRGB(24, 27, 30))
+	local roof = makePart(name .. " Roof", decorFolder, Vector3.new(size.X * 0.7, 1.2, size.Z * 0.65), position + Vector3.new(0, size.Y / 2 + 0.6, 0), Color3.fromRGB(25, 28, 31), Enum.Material.Metal)
+	roof.CanCollide = false
+	return building
+end
+
+local allowedVisualClasses = {
+	Model = true,
+	Folder = true,
+	Part = true,
+	WedgePart = true,
+	CornerWedgePart = true,
+	MeshPart = true,
+	UnionOperation = true,
+	TrussPart = true,
+	Attachment = true,
+	Decal = true,
+	Texture = true,
+	SurfaceAppearance = true,
+	ParticleEmitter = true,
+	Beam = true,
+	Trail = true,
+}
+
+local function sanitizeVisualAsset(instance)
+	for _, child in ipairs(instance:GetChildren()) do
+		if not allowedVisualClasses[child.ClassName] then
+			child:Destroy()
+		else
+			sanitizeVisualAsset(child)
+		end
+	end
+	if instance:IsA("BasePart") then
+		instance.Anchored = true
+		instance.CanCollide = false
+		instance.CanTouch = false
+		instance.CanQuery = false
+	end
+end
+
+local function tryInsertVisualAsset(candidate, position, scale)
+	local ok, asset = pcall(function()
+		return InsertService:LoadAsset(tonumber(candidate.assetId))
+	end)
+	if not ok or not asset then
+		return nil
+	end
+	asset.Name = "Creator Store " .. candidate.name
+	sanitizeVisualAsset(asset)
+	asset.Parent = decorFolder
+	asset:SetAttribute("AssetId", candidate.assetId)
+	asset:SetAttribute("Creator", candidate.creator)
+	asset:SetAttribute("Use", candidate.use)
+	asset:SetAttribute("SanitizedVisualOnly", true)
+	if asset:IsA("Model") then
+		pcall(function()
+			asset:ScaleTo(scale or 0.08)
+		end)
+		asset:PivotTo(CFrame.new(position))
+	end
+	return asset
+end
+
+local function makeText(part, title, subtitle, face)
+	local surface = Instance.new("SurfaceGui")
+	surface.Name = "Sign"
+	surface.Face = face or Enum.NormalId.Front
+	surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	surface.PixelsPerStud = 40
+	surface.Parent = part
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Name = "Title"
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Position = UDim2.fromScale(0.04, 0.08)
+	titleLabel.Size = UDim2.fromScale(0.92, 0.38)
+	titleLabel.Font = Enum.Font.GothamBlack
+	titleLabel.Text = title
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.TextScaled = true
+	titleLabel.TextStrokeTransparency = 0.55
+	titleLabel.Parent = surface
+
+	local subLabel = Instance.new("TextLabel")
+	subLabel.Name = "Subtitle"
+	subLabel.BackgroundTransparency = 1
+	subLabel.Position = UDim2.fromScale(0.06, 0.48)
+	subLabel.Size = UDim2.fromScale(0.88, 0.38)
+	subLabel.Font = Enum.Font.GothamBold
+	subLabel.Text = subtitle
+	subLabel.TextColor3 = Color3.fromRGB(235, 242, 255)
+	subLabel.TextScaled = true
+	subLabel.TextStrokeTransparency = 0.65
+	subLabel.Parent = surface
+
+	return surface
+end
+
+local function makeBall(name, parent, size, position, color, material)
+	local part = makePart(name, parent, size, position, color, material)
+	part.Shape = Enum.PartType.Ball
+	return part
+end
+
+local function makeCylinder(name, parent, size, position, color, material, orientation)
+	local part = makePart(name, parent, size, position, color, material)
+	part.Shape = Enum.PartType.Cylinder
+	if orientation then
+		part.Orientation = orientation
+	end
+	return part
+end
+
+local function makeWedge(name, parent, size, position, color, material, orientation)
+	local part = Instance.new("WedgePart")
+	part.Name = name
+	part.Anchored = true
+	part.Size = size
+	part.Position = position
+	part.Color = color
+	part.Material = material or Enum.Material.SmoothPlastic
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	if orientation then
+		part.Orientation = orientation
+	end
+	part.Parent = parent
+	return part
+end
+
+local function applyLightingPolish()
+	Lighting.Brightness = 2.15
+	Lighting.ClockTime = 16.35
+	Lighting.Ambient = Color3.fromRGB(95, 105, 112)
+	Lighting.OutdoorAmbient = Color3.fromRGB(128, 139, 145)
+	Lighting.ColorShift_Top = Color3.fromRGB(218, 222, 210)
+	Lighting.ColorShift_Bottom = Color3.fromRGB(76, 82, 85)
+
+	local bloom = Lighting:FindFirstChild("Kaiju City Bloom") or Instance.new("BloomEffect")
+	bloom.Name = "Kaiju City Bloom"
+	bloom.Intensity = 0.12
+	bloom.Size = 16
+	bloom.Threshold = 1.35
+	bloom.Parent = Lighting
+
+	local color = Lighting:FindFirstChild("Kaiju City Color") or Instance.new("ColorCorrectionEffect")
+	color.Name = "Kaiju City Color"
+	color.Brightness = -0.01
+	color.Contrast = 0.2
+	color.Saturation = -0.05
+	color.TintColor = Color3.fromRGB(232, 235, 224)
+	color.Parent = Lighting
+
+	local atmosphere = Lighting:FindFirstChild("Kaiju City Atmosphere") or Instance.new("Atmosphere")
+	atmosphere.Name = "Kaiju City Atmosphere"
+	atmosphere.Density = 0.32
+	atmosphere.Offset = 0.05
+	atmosphere.Color = PolishConfig.Palette.Sky
+	atmosphere.Decay = Color3.fromRGB(97, 105, 111)
+	atmosphere.Glare = 0.04
+	atmosphere.Haze = 1.05
+	atmosphere.Parent = Lighting
+end
+
+local function addEmitter(part, name, color, texture)
+	local attachment = Instance.new("Attachment")
+	attachment.Name = name .. " Attachment"
+	attachment.Parent = part
+
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Name = name
+	emitter.Enabled = false
+	emitter.LightEmission = 0.35
+	emitter.Lifetime = NumberRange.new(0.28, 0.58)
+	emitter.Rate = 0
+	emitter.Speed = NumberRange.new(8, 16)
+	emitter.SpreadAngle = Vector2.new(55, 55)
+	emitter.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.38),
+		NumberSequenceKeypoint.new(0.45, 0.9),
+		NumberSequenceKeypoint.new(1, 0),
+	})
+	emitter.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.04),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	emitter.Color = ColorSequence.new(color)
+	if texture then
+		emitter.Texture = texture
+	end
+	emitter.Parent = attachment
+	return emitter
+end
+
+local function emitNamed(part, name, count)
+	local attachment = part:FindFirstChild(name .. " Attachment")
+	local emitter = attachment and attachment:FindFirstChild(name)
+	if emitter then
+		emitter:Emit(count)
+	end
+end
+
+local function addSound(part, name, soundId, volume, playbackSpeed)
+	local sound = Instance.new("Sound")
+	sound.Name = name
+	sound.SoundId = soundId
+	sound.Volume = volume or 0.6
+	sound.PlaybackSpeed = playbackSpeed or 1
+	sound.RollOffMaxDistance = 90
+	sound.RollOffMinDistance = 8
+	sound.Parent = part
+	return sound
+end
+
+local function playNamedSound(part, name, pitch)
+	local sound = part and part:FindFirstChild(name)
+	if sound and sound:IsA("Sound") then
+		sound.PlaybackSpeed = pitch or sound.PlaybackSpeed
+		sound.TimePosition = 0
+		sound:Play()
+	end
+end
+
+local function sendFeedback(player, payload)
+	if player then
+		feedbackRemote:FireClient(player, payload)
+	end
+end
+
+local function broadcastFeedback(payload)
+	for _, player in ipairs(Players:GetPlayers()) do
+		sendFeedback(player, payload)
+	end
+end
+
+local function createGuidePath()
+	for index, position in ipairs({
+		Vector3.new(-38, 0.18, 8),
+		Vector3.new(-44, 0.18, 18),
+		Vector3.new(-32, 0.18, 22),
+		Vector3.new(-16, 0.18, 10),
+		Vector3.new(-2, 0.18, -10),
+	}) do
+		local pad = makePart("Road Guide Stripe " .. index, guideFolder, Vector3.new(10, 0.12, 1.1), position, PolishConfig.Palette.RoadLine, Enum.Material.SmoothPlastic)
+		pad.Orientation = Vector3.new(0, -22, 0)
+		pad:SetAttribute("TextureStyle", "RoadPaint")
+		local arrow = makeWedge("Road Direction Arrow " .. index, guideFolder, Vector3.new(4, 0.22, 5), position + Vector3.new(5, 0.16, -2), PolishConfig.Palette.PathEdge, Enum.Material.SmoothPlastic, Vector3.new(0, -22, 0))
+		arrow:SetAttribute("TextureStyle", "RoadPaint")
+	end
+end
+
+local function makeCoinStack(parent, position)
+	for index = 1, 4 do
+		local coin = makeCylinder("Bank Coin Stack " .. index, parent, Vector3.new(0.35, 3.2, 3.2), position + Vector3.new(0, 0.18 * index, 0), Color3.fromRGB(214, 166, 51), Enum.Material.Metal, Vector3.new(0, 0, 90))
+		coin:SetAttribute("PolishFallback", "Source-built bank coin stack")
+	end
+end
+
+local function makeRockCluster(parent, basePosition, color)
+	makeRubblePile(parent, basePosition, "Street Rubble")
+end
+
+applyLightingPolish()
+
+local function formatNumber(value)
+	local abs = math.abs(value)
+	if abs >= 1e12 then
+		return string.format("%.1fT", value / 1e12)
+	elseif abs >= 1e9 then
+		return string.format("%.1fB", value / 1e9)
+	elseif abs >= 1e6 then
+		return string.format("%.1fM", value / 1e6)
+	elseif abs >= 1e3 then
+		return string.format("%.1fK", value / 1e3)
+	end
+	return tostring(math.floor(value + 0.5))
+end
+
+local function playerStat(player, name)
+	local stats = player:FindFirstChild("RPGStats")
+	local value = stats and stats:FindFirstChild(name)
+	if value then
+		return value
+	end
+
+	local leaderstats = player:FindFirstChild("leaderstats")
+	return leaderstats and leaderstats:FindFirstChild(name)
+end
+
+local function notify(player, message, color)
+	notifyRemote:FireClient(player, message, color or Color3.fromRGB(255, 235, 140))
+end
+
+local function broadcast(message, color)
+	for _, player in ipairs(Players:GetPlayers()) do
+		notify(player, message, color)
+	end
+end
+
+local function syncStats(player)
+	local stats = player:FindFirstChild("RPGStats")
+	local leaderstats = player:FindFirstChild("leaderstats")
+	if not stats or not leaderstats then
+		return
+	end
+
+	local payload = {}
+	for _, folder in ipairs({ leaderstats, stats }) do
+		for _, value in ipairs(folder:GetChildren()) do
+			if value:IsA("NumberValue") or value:IsA("StringValue") then
+				payload[value.Name] = value.Value
+			end
+		end
+	end
+	payload.WallXPNeeded = GameConfig.XPForLevel(payload.WallLevel or 1)
+	payload.RebirthBonus = 1 + (payload.Rebirths or 0) * 0.25
+	payload.MaxCritChance = GameConfig.MaxCritChance
+	payload.MaxEquippedPets = GameConfig.MaxEquippedPets
+	payload.Tutorial = GameConfig.Tutorial[payload.TutorialStep or 1]
+	payload.FistCatalog = GameConfig.Fists
+	payload.PetCatalog = GameConfig.Pets
+	payload.Rewards = GameConfig.Rewards
+	statRemote:FireClient(player, payload)
+end
+
+local function loadPlayerData(player)
+	if not playerStore then
+		return {}
+	end
+
+	local ok, data = pcall(function()
+		return playerStore:GetAsync(tostring(player.UserId))
+	end)
+	if ok and data == nil and legacyPlayerStore then
+		local legacyOk, legacyData = pcall(function()
+			return legacyPlayerStore:GetAsync(tostring(player.UserId))
+		end)
+		if legacyOk and type(legacyData) == "table" then
+			data = legacyData
+			data.DataVersion = 1
+		end
+	end
+
+	if ok and type(data) == "table" then
+		return data
+	end
+
+	if not ok then
+		warn(("[PunchWallRPG] DataStore load failed for %s: %s"):format(player.Name, tostring(data)))
+	end
+	return {}
+end
+
+local function savedNumber(savedData, name)
+	local value = savedData[name]
+	if type(value) == "number" then
+		return value
+	end
+	return NUMBER_STAT_DEFAULTS[name]
+end
+
+local function savedText(savedData, name)
+	local value = savedData[name]
+	if type(value) == "string" then
+		return value
+	end
+	return TEXT_STAT_DEFAULTS[name]
+end
+
+local function applyKaijuGrowth(player)
+	local character = player.Character
+	local levelValue = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("WallLevel")
+	if not character or not levelValue then return end
+	local scale = 1 + math.min(math.max(levelValue.Value - 1, 0), 54) * 0.006
+	pcall(function() character:ScaleTo(scale) end)
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if rootPart then
+		local aura = rootPart:FindFirstChild("Kaiju Growth Aura") or Instance.new("ParticleEmitter")
+		aura.Name = "Kaiju Growth Aura"
+		aura.Enabled = levelValue.Value >= 8
+		aura.Rate = math.clamp(levelValue.Value / 3, 3, 18)
+		aura.Lifetime = NumberRange.new(0.5, 0.9)
+		aura.Speed = NumberRange.new(0.4, 1.2)
+		aura.SpreadAngle = Vector2.new(180, 30)
+		aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0) })
+		aura.Color = ColorSequence.new(levelValue.Value >= 30 and Color3.fromRGB(232, 75, 52) or Color3.fromRGB(82, 178, 213))
+		aura.Parent = rootPart
+	end
+end
+
+local function ensureStats(player)
+	if player:FindFirstChild("RPGStats") and player:FindFirstChild("leaderstats") then
+		syncStats(player)
+		return
+	end
+
+	local savedData = loadPlayerData(player)
+
+	local stats = Instance.new("Folder")
+	stats.Name = "RPGStats"
+	stats.Parent = player
+
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local function number(name, value, parent)
+		local instance = Instance.new("NumberValue")
+		instance.Name = name
+		instance.Value = value
+		instance.Parent = parent or stats
+		instance.Changed:Connect(function()
+			syncStats(player)
+			if name == "WallLevel" then applyKaijuGrowth(player) end
+		end)
+		return instance
+	end
+
+	local function text(name)
+		local instance = Instance.new("StringValue")
+		instance.Name = name
+		instance.Value = savedText(savedData, name)
+		instance.Parent = stats
+		instance.Changed:Connect(function()
+			syncStats(player)
+		end)
+		return instance
+	end
+
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		number(name, savedNumber(savedData, name), leaderstats)
+	end
+
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		number(name, savedNumber(savedData, name))
+	end
+
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		text(name)
+	end
+
+	local crit = stats:FindFirstChild("CritChance")
+	if crit then crit.Value = math.clamp(crit.Value, 0, GameConfig.MaxCritChance) end
+	local ownedFists = stats:FindFirstChild("OwnedFistsJSON")
+	if ownedFists then
+		local ok, decoded = pcall(function() return HttpService:JSONDecode(ownedFists.Value) end)
+		if not ok or type(decoded) ~= "table" then
+			ownedFists.Value = TEXT_STAT_DEFAULTS.OwnedFistsJSON
+		elseif not table.find(decoded, "Starter Glove") then
+			table.insert(decoded, 1, "Starter Glove")
+			ownedFists.Value = HttpService:JSONEncode(decoded)
+		end
+	end
+	for _, name in ipairs({ "PetInventoryJSON", "EquippedPetsJSON", "DiscoveredPetsJSON", "LockedPetsJSON" }) do
+		local value = stats:FindFirstChild(name)
+		if value then
+			local ok, decoded = pcall(function() return HttpService:JSONDecode(value.Value) end)
+			if not ok or type(decoded) ~= "table" then value.Value = "[]" end
+		end
+	end
+	local dailyQuestDate = stats:FindFirstChild("DailyQuestDate")
+	if dailyQuestDate and dailyQuestDate.Value ~= os.date("!%Y-%m-%d") then
+		stats.DailyBreaks.Value = 0
+		stats.DailyQuestClaimed.Value = 0
+		dailyQuestDate.Value = os.date("!%Y-%m-%d")
+	end
+	if not player:GetAttribute("KaijuGrowthConnected") then
+		player:SetAttribute("KaijuGrowthConnected", true)
+		player.CharacterAdded:Connect(function()
+			task.wait(0.5)
+			applyKaijuGrowth(player)
+		end)
+	end
+	task.defer(function() applyKaijuGrowth(player) end)
+
+	task.defer(function()
+		syncStats(player)
+		notify(player, "Punch Wall RPG loaded. Click bags to train, click walls to break.")
+	end)
+end
+
+local function statValue(player, name, fallback)
+	local value = playerStat(player, name)
+	if value then
+		return value.Value
+	end
+	return fallback or 0
+end
+
+local function setStat(player, name, amount)
+	local value = playerStat(player, name)
+	if value then
+		value.Value = amount
+	end
+end
+
+local function addStat(player, name, amount)
+	setStat(player, name, statValue(player, name) + amount)
+end
+
+local function decodeList(player, statName)
+	local raw = statValue(player, statName, "[]")
+	if type(raw) ~= "string" then
+		return {}
+	end
+	local ok, value = pcall(function()
+		return HttpService:JSONDecode(raw)
+	end)
+	return ok and type(value) == "table" and value or {}
+end
+
+local function encodeList(player, statName, value)
+	setStat(player, statName, HttpService:JSONEncode(value))
+end
+
+local function listContains(list, value)
+	for _, current in ipairs(list) do
+		if current == value then
+			return true
+		end
+	end
+	return false
+end
+
+local function removeFirst(list, value)
+	for index, current in ipairs(list) do
+		if current == value then
+			table.remove(list, index)
+			return true
+		end
+	end
+	return false
+end
+
+local function advanceTutorial(player, completedStep)
+	local current = math.floor(statValue(player, "TutorialStep", 1))
+	if current == completedStep then
+		setStat(player, "TutorialStep", math.min(#GameConfig.Tutorial, current + 1))
+	end
+end
+
+local function awardWallXP(player, amount)
+	local level = math.max(1, math.floor(statValue(player, "WallLevel", 1)))
+	local xp = math.max(0, statValue(player, "WallXP", 0) + amount)
+	local gained = 0
+	while level < 99 do
+		local needed = GameConfig.XPForLevel(level)
+		if xp < needed then
+			break
+		end
+		xp -= needed
+		level += 1
+		gained += 1
+	end
+	setStat(player, "WallXP", xp)
+	setStat(player, "WallLevel", level)
+	if level >= 3 then
+		advanceTutorial(player, 3)
+	end
+	if gained > 0 then
+		notify(player, ("Wall Level %d! New city targets unlocked."):format(level), Color3.fromRGB(110, 218, 146))
+		sendFeedback(player, {
+			type = "LevelUp",
+			target = tostring(level),
+			color = PolishConfig.Palette.Reward,
+		})
+	end
+	return gained
+end
+
+local function collectPlayerData(player)
+	local data = { DataVersion = GameConfig.DataVersion }
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		data[name] = statValue(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		data[name] = statValue(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		data[name] = tostring(statValue(player, name, TEXT_STAT_DEFAULTS[name]))
+	end
+	return data
+end
+
+local function savePlayerData(player)
+	if not playerStore or savingPlayers[player] or not player:FindFirstChild("RPGStats") then
+		return
+	end
+
+	savingPlayers[player] = true
+	local data = collectPlayerData(player)
+	local ok = false
+	local err
+	for attempt = 1, 3 do
+		ok, err = pcall(function()
+			playerStore:UpdateAsync(tostring(player.UserId), function(previous)
+				local merged = type(previous) == "table" and previous or {}
+				for key, value in pairs(data) do
+					merged[key] = value
+				end
+				merged.DataVersion = GameConfig.DataVersion
+				return merged
+			end)
+		end)
+		if ok then
+			break
+		end
+		task.wait(attempt * 0.35)
+	end
+	savingPlayers[player] = nil
+
+	if not ok then
+		warn(("[PunchWallRPG] DataStore save failed for %s: %s"):format(player.Name, tostring(err)))
+	end
+end
+
+local base = makePart("Downtown Smash Block", root, Vector3.new(280, 3, 150), Vector3.new(55, -1.5, 0), PolishConfig.Palette.Ground, Enum.Material.Asphalt)
+base.Locked = true
+
+local islandEdge = makePart("City Block Concrete Edge", polishFolder, Vector3.new(284, 0.6, 154), Vector3.new(55, -3.15, 0), PolishConfig.Palette.GroundDark, Enum.Material.Concrete)
+islandEdge.Locked = true
+local metroFoundation = makePart("Metro Foundation Horizon", decorFolder, Vector3.new(620, 5, 620), Vector3.new(55, -7, 0), Color3.fromRGB(27, 30, 32), Enum.Material.Concrete)
+metroFoundation.Locked = true
+metroFoundation:SetAttribute("VisualRole", "CityHorizonFoundation")
+
+makePart("Main Avenue Asphalt", decorFolder, Vector3.new(222, 0.18, 30), Vector3.new(48, 0.12, -27), Color3.fromRGB(31, 33, 35), Enum.Material.Asphalt)
+makePart("Training Sidewalk", decorFolder, Vector3.new(78, 0.22, 24), Vector3.new(-43, 0.18, 24), Color3.fromRGB(118, 121, 119), Enum.Material.Concrete)
+makePart("Shop Sidewalk", decorFolder, Vector3.new(80, 0.22, 24), Vector3.new(-43, 0.19, -9), Color3.fromRGB(118, 121, 119), Enum.Material.Concrete)
+makePart("Boss Service Road", decorFolder, Vector3.new(70, 0.18, 32), Vector3.new(138, 0.14, 27), Color3.fromRGB(28, 30, 33), Enum.Material.Asphalt)
+for x = -60, 174, 18 do
+	addRoadMarking("Avenue Dashed Center " .. x, Vector3.new(x, 0.28, -27), Vector3.new(8, 0.08, 0.7), PolishConfig.Palette.RoadLine)
+end
+for index, x in ipairs({ -50, -46, -42, -38, -34, -30 }) do
+	addRoadMarking("Spawn Crosswalk " .. index, Vector3.new(x, 0.3, -9.5), Vector3.new(2.2, 0.08, 12), Color3.fromRGB(226, 226, 214))
+end
+
+makePart("Spawn Pad", root, Vector3.new(18, 1, 18), Vector3.new(-42, 1, 0), Color3.fromRGB(66, 73, 78), Enum.Material.DiamondPlate)
+local spawn = Instance.new("SpawnLocation")
+spawn.Name = "Punch Rookie Spawn"
+spawn.Anchored = true
+spawn.Size = Vector3.new(10, 1, 10)
+spawn.Position = Vector3.new(-42, 2, 0)
+spawn.Color = Color3.fromRGB(72, 83, 88)
+spawn.Material = Enum.Material.DiamondPlate
+spawn.Neutral = true
+spawn.Parent = root
+
+for _, boundary in ipairs({
+	{ name = "North Safety Barrier", size = Vector3.new(280, 3.2, 1), position = Vector3.new(55, 1.1, -74) },
+	{ name = "South Safety Barrier", size = Vector3.new(280, 3.2, 1), position = Vector3.new(55, 1.1, 74) },
+	{ name = "West Safety Barrier", size = Vector3.new(1, 3.2, 148), position = Vector3.new(-84, 1.1, 0) },
+	{ name = "East Safety Barrier", size = Vector3.new(1, 3.2, 148), position = Vector3.new(194, 1.1, 0) },
+}) do
+	local barrier = makePart(boundary.name, decorFolder, boundary.size, boundary.position, Color3.fromRGB(67, 70, 72), Enum.Material.Concrete)
+	barrier:SetAttribute("VisualRole", "CitySafetyBoundary")
+end
+
+local fallRecovery = makePart("Fall Recovery Zone", root, Vector3.new(420, 1, 320), Vector3.new(55, -35, 0), Color3.new(0, 0, 0), Enum.Material.SmoothPlastic)
+fallRecovery.Transparency = 1
+fallRecovery.CanCollide = false
+fallRecovery.Touched:Connect(function(hit)
+	local character = hit.Parent
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid and character.PrimaryPart then
+		character:PivotTo(spawn.CFrame + Vector3.new(0, 5, 0))
+	end
+end)
+
+local spawnRing = makeCylinder("Emergency Spawn Helipad Ring", decorFolder, Vector3.new(0.35, 22, 22), Vector3.new(-42, 1.65, 0), Color3.fromRGB(244, 191, 54), Enum.Material.Metal, Vector3.new(0, 0, 90))
+spawnRing.Transparency = 0.18
+
+local arch = makePart("City Alert Billboard", root, Vector3.new(20, 5, 1.0), Vector3.new(-42, 5.8, -31), Color3.fromRGB(27, 32, 36), Enum.Material.Metal)
+makeText(arch, "DOWNTOWN SMASH", "TRAINING | ARMORY | WALL LANE")
+makeText(arch, "DOWNTOWN SMASH", "FOLLOW THE ROAD", Enum.NormalId.Back)
+makeCityBuilding("Background Office A", Vector3.new(-76, 14, 48), Vector3.new(12, 28, 12), Color3.fromRGB(92, 98, 102), Color3.fromRGB(77, 118, 142), -8)
+makeCityBuilding("Background Office B", Vector3.new(-12, 18, 50), Vector3.new(14, 36, 12), Color3.fromRGB(73, 80, 88), Color3.fromRGB(85, 130, 154), 7)
+makeCityBuilding("Background Brick Tower", Vector3.new(35, 16, 50), Vector3.new(16, 32, 12), Color3.fromRGB(126, 69, 56), Color3.fromRGB(68, 91, 105), -4)
+makeCityBuilding("Distant Glass Tower", Vector3.new(116, 22, 50), Vector3.new(16, 44, 14), Color3.fromRGB(63, 86, 103), Color3.fromRGB(104, 166, 194), 5)
+for index, config in ipairs({
+	{ Vector3.new(-55, 17, -112), Vector3.new(18, 34, 18) },
+	{ Vector3.new(-5, 24, -118), Vector3.new(22, 48, 20) },
+	{ Vector3.new(50, 19, -114), Vector3.new(18, 38, 18) },
+	{ Vector3.new(110, 28, -120), Vector3.new(24, 56, 22) },
+	{ Vector3.new(170, 21, -110), Vector3.new(20, 42, 18) },
+	{ Vector3.new(-35, 23, 112), Vector3.new(22, 46, 20) },
+	{ Vector3.new(35, 18, 118), Vector3.new(18, 36, 18) },
+	{ Vector3.new(105, 26, 116), Vector3.new(24, 52, 22) },
+	{ Vector3.new(175, 20, 108), Vector3.new(20, 40, 18) },
+}) do
+	makeSkylineBlock("Distant Skyline " .. index, config[1], config[2], Color3.fromRGB(45 + index * 2, 50 + index * 2, 55 + index * 2), index % 3 == 0 and Color3.fromRGB(232, 174, 74) or Color3.fromRGB(67, 105, 126))
+end
+makeStreetLight("Training Street Light", Vector3.new(-69, 0.4, 14))
+makeStreetLight("Shop Street Light", Vector3.new(-18, 0.4, -15))
+createGuidePath()
+makeRockCluster(decorFolder, Vector3.new(-68, 0.4, 4), Color3.fromRGB(116, 169, 152))
+makeRockCluster(decorFolder, Vector3.new(-22, 0.4, -34), Color3.fromRGB(116, 169, 152))
+makeCoinStack(decorFolder, Vector3.new(-55, 1.1, -6))
+
+task.spawn(function()
+	if workspace:FindFirstChild("CuratedVisualAssets") then return end
+	for _, candidate in ipairs(PolishConfig.FreeAssetCandidates) do
+		if candidate.assetId == "7935361972" then
+			tryInsertVisualAsset(candidate, Vector3.new(178, 0.4, 58), 0.11)
+		elseif candidate.assetId == "44147935" then
+			tryInsertVisualAsset(candidate, Vector3.new(180, 0.4, -58), 0.16)
+		elseif candidate.assetId == "74466546814963" then
+			tryInsertVisualAsset(candidate, Vector3.new(8, 1.3, 39), 0.08)
+		elseif candidate.assetId == "5618903358" then
+			tryInsertVisualAsset(candidate, Vector3.new(-58, 3.2, 31), 0.07)
+		elseif candidate.assetId == "135834344041946" then
+			tryInsertVisualAsset(candidate, Vector3.new(178, 20, 55), 0.29)
+		end
+	end
+end)
+
+local wallConfigs = {
+	{
+		name = "Brick Wall",
+		hp = 120,
+		level = 1,
+		coins = 45,
+		power = 3,
+		pos = Vector3.new(-2, 7, -27),
+		color = Color3.fromRGB(181, 89, 68),
+		material = Enum.Material.Brick,
+	},
+	{
+		name = "Concrete Wall",
+		hp = 900,
+		level = 3,
+		coins = 180,
+		power = 10,
+		pos = Vector3.new(25, 8, -27),
+		color = Color3.fromRGB(150, 154, 160),
+		material = Enum.Material.Concrete,
+	},
+	{
+		name = "Iron Wall",
+		hp = 6500,
+		level = 8,
+		coins = 980,
+		power = 45,
+		pos = Vector3.new(55, 9, -27),
+		color = Color3.fromRGB(97, 109, 122),
+		material = Enum.Material.Metal,
+	},
+	{
+		name = "Crystal Wall",
+		hp = 42000,
+		level = 16,
+		coins = 5200,
+		power = 230,
+		pos = Vector3.new(88, 10, -27),
+		color = Color3.fromRGB(88, 220, 245),
+		material = Enum.Material.Glass,
+	},
+	{
+		name = "Lava Wall",
+		hp = 220000,
+		level = 30,
+		coins = 28000,
+		power = 1100,
+		pos = Vector3.new(124, 11, -27),
+		color = Color3.fromRGB(255, 96, 45),
+		material = Enum.Material.Neon,
+	},
+	{
+		name = "Cyber Gate",
+		hp = 1200000,
+		level = 48,
+		coins = 160000,
+		power = 5500,
+		pos = Vector3.new(164, 12, -27),
+		color = Color3.fromRGB(75, 115, 255),
+		material = Enum.Material.ForceField,
+	},
+}
+
+local wallDamageParts = {}
+local wallVisualDetails = {}
+local wallContributions = {}
+local wallDebris = {}
+
+local function wallStyle(name)
+	return PolishConfig.WallTiers[name] or {
+		color = Color3.fromRGB(210, 210, 210),
+		accent = PolishConfig.Palette.Reward,
+		pad = PolishConfig.Palette.Path,
+		crack = Color3.fromRGB(70, 70, 90),
+	}
+end
+
+local function updateWallDamage(wall)
+	local cracks = wallDamageParts[wall]
+	if not cracks then
+		return
+	end
+	local hp = wall:GetAttribute("HP") or 0
+	local maxHp = wall:GetAttribute("MaxHP") or 1
+	local ratio = hp / maxHp
+	local stage = 0
+	if ratio <= 0.25 then
+		stage = 3
+	elseif ratio <= 0.5 then
+		stage = 2
+	elseif ratio <= 0.75 then
+		stage = 1
+	end
+	wall:SetAttribute("DamageStage", stage)
+	for index, crack in ipairs(cracks) do
+		crack.Transparency = index <= stage and 0.12 or 1
+	end
+end
+
+local function setWallVisualDetailsBroken(wall, isBroken)
+	for _, detail in ipairs(wallVisualDetails[wall] or {}) do
+		if detail.part and detail.part.Parent then
+			detail.part.Transparency = isBroken and math.max(0.82, detail.transparency) or detail.transparency
+		end
+	end
+end
+
+local function setWallDebrisState(wall, isBroken)
+	for index, debris in ipairs(wallDebris[wall] or {}) do
+		if debris.part and debris.part.Parent then
+			debris.part.CFrame = debris.baseCFrame
+			debris.part.Transparency = isBroken and 0.08 or 1
+			if isBroken then
+				local direction = Vector3.new((index % 3 - 1) * 5.5, -2.5 - index * 0.35, -5 - index)
+				TweenService:Create(debris.part, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					CFrame = debris.baseCFrame * CFrame.new(direction) * CFrame.Angles(index * 0.2, index * 0.4, index * 0.13),
+					Transparency = 0.42,
+				}):Play()
+			end
+		end
+	end
+end
+
+local function updateWallText(wall)
+	local sign = wall:FindFirstChild("Sign")
+	if not sign then
+		return
+	end
+	local title = sign:FindFirstChild("Title")
+	local subtitle = sign:FindFirstChild("Subtitle")
+	local hp = wall:GetAttribute("HP") or 0
+	local maxHp = wall:GetAttribute("MaxHP") or 1
+	if title then
+		title.Text = wall.Name
+	end
+	if subtitle then
+		subtitle.Text = ("HP %s/%s | Lv %d"):format(formatNumber(hp), formatNumber(maxHp), wall:GetAttribute("RequiredLevel") or 1)
+	end
+end
+
+local function hitWall(player, wall)
+	if wall:GetAttribute("Broken") then
+		return { ok = false, reason = "respawning" }
+	end
+	local now = os.clock()
+	local lastHit = player:GetAttribute("LastWallHit") or 0
+	local cooldown = math.max(0.08, WALL_HIT_COOLDOWN / math.max(statValue(player, "BreakSpeed", 1), 1))
+	if now - lastHit < cooldown then
+		return { ok = false, reason = "cooldown" }
+	end
+	player:SetAttribute("LastWallHit", now)
+
+	local required = wall:GetAttribute("RequiredLevel") or 1
+	if statValue(player, "WallLevel", 1) < required then
+		notify(player, ("Need Wall Level %d for %s."):format(required, wall.Name), Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, {
+			type = "Fail",
+			target = wall.Name,
+			message = ("Need Lv %d"):format(required),
+			color = PolishConfig.Palette.Fail,
+		})
+		return { ok = false, reason = "level_gate", requiredLevel = required }
+	end
+
+	local power = statValue(player, "Power", 1)
+	local fist = statValue(player, "FistMultiplier", 1)
+	local pet = statValue(player, "PetMultiplier", 0)
+	local rebirth = 1 + statValue(player, "Rebirths", 0) * 0.25
+	local mastery = 1 + math.min(statValue(player, "FistMastery", 1), 500) * 0.001
+	local damage = power * fist * (1 + pet) * rebirth * mastery
+	local critChance = math.clamp(statValue(player, "CritChance", 0), 0, GameConfig.MaxCritChance)
+	if math.random(1, 100) <= critChance then
+		damage *= 2
+		notify(player, "Critical punch! x2 damage", Color3.fromRGB(255, 236, 94))
+	end
+
+	local previousHP = wall:GetAttribute("HP") or 0
+	local actualDamage = math.min(previousHP, damage)
+	wall:SetAttribute("HP", math.max(0, previousHP - damage))
+	wallContributions[wall] = wallContributions[wall] or {}
+	wallContributions[wall][player.UserId] = (wallContributions[wall][player.UserId] or 0) + actualDamage
+	updateWallText(wall)
+	updateWallDamage(wall)
+	emitNamed(wall, "Hit Spark", PolishConfig.Motion.HitEmit)
+	playNamedSound(wall, "Punch Impact", 0.94 + math.random() * 0.12)
+
+	local originalColor = wall:GetAttribute("OriginalColor") or wall.Color
+	local accent = wall:GetAttribute("AccentColor") or PolishConfig.Palette.Crit
+	TweenService:Create(wall, TweenInfo.new(0.04), { Color = accent }):Play()
+	task.delay(0.06, function()
+		if wall.Parent and not wall:GetAttribute("Broken") then
+			TweenService:Create(wall, TweenInfo.new(0.1), { Color = originalColor }):Play()
+		end
+	end)
+	sendFeedback(player, {
+		type = "Punch",
+		target = wall.Name,
+		damage = math.floor(damage + 0.5),
+		color = accent,
+	})
+
+	local pulse = TweenService:Create(wall, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = wall.Size + Vector3.new(0.4, 0.4, 0.08) })
+	pulse:Play()
+	pulse.Completed:Once(function()
+		if wall.Parent then
+			TweenService:Create(wall, TweenInfo.new(0.1), { Size = wall:GetAttribute("BaseSize") or wall.Size }):Play()
+		end
+	end)
+
+	if wall:GetAttribute("HP") <= 0 and not wall:GetAttribute("Broken") then
+		wall:SetAttribute("Broken", true)
+		local reward = wall:GetAttribute("CoinReward") or 0
+		local powerReward = wall:GetAttribute("PowerReward") or 0
+		local xpReward = wall:GetAttribute("XPReward") or GameConfig.WallXP[wall.Name] or 20
+		local contributions = wallContributions[wall] or {}
+		local totalContribution = 0
+		for _, contribution in pairs(contributions) do
+			totalContribution += contribution
+		end
+		for userId, contribution in pairs(contributions) do
+			local contributor = Players:GetPlayerByUserId(userId)
+			if contributor and contribution > 0 then
+				local share = totalContribution > 0 and contribution / totalContribution or 1
+				local contributorCoins = GameConfig.ContributionReward(reward, share)
+				local contributorPower = GameConfig.ContributionReward(powerReward, share)
+				addStat(contributor, "Coins", contributorCoins)
+				addStat(contributor, "Power", contributorPower)
+				addStat(contributor, "FistMastery", 0.35)
+				addStat(contributor, "DailyBreaks", 1)
+				awardWallXP(contributor, xpReward)
+				if wall.Name == "Brick Wall" then
+					advanceTutorial(contributor, 2)
+				end
+				notify(contributor, ("Broke %s! +%s coins, +%s power, +%s XP"):format(wall.Name, formatNumber(contributorCoins), formatNumber(contributorPower), formatNumber(xpReward)), Color3.fromRGB(104, 255, 169))
+				sendFeedback(contributor, {
+					type = "Reward",
+					target = wall.Name,
+					coins = contributorCoins,
+					power = contributorPower,
+					xp = xpReward,
+					color = PolishConfig.Palette.Reward,
+				})
+			end
+		end
+		emitNamed(wall, "Break Burst", PolishConfig.Motion.BreakEmit)
+		playNamedSound(wall, "Building Collapse", 0.92 + math.random() * 0.1)
+
+		wall.Transparency = 0.78
+		setWallVisualDetailsBroken(wall, true)
+		setWallDebrisState(wall, true)
+		wall.CanCollide = false
+		task.delay(WALL_RESPAWN_SECONDS, function()
+			if wall.Parent then
+				wallContributions[wall] = {}
+				wall:SetAttribute("HP", wall:GetAttribute("MaxHP"))
+				wall:SetAttribute("Broken", false)
+					wall.Transparency = 0
+					setWallVisualDetailsBroken(wall, false)
+					setWallDebrisState(wall, false)
+					wall.CanCollide = true
+					updateWallText(wall)
+					updateWallDamage(wall)
+					emitNamed(wall, "Respawn Shimmer", 14)
+				end
+			end)
+
+		return { ok = true, outcome = "broken", damage = damage }
+	end
+
+	return { ok = true, outcome = "hit", damage = damage, hp = wall:GetAttribute("HP") }
+end
+
+local function buildWall(config)
+	local style = wallStyle(config.name)
+	local wallSize = Vector3.new(18, 16 + config.level * 0.2, 6)
+	local wall = makePart(config.name, wallsFolder, wallSize, config.pos + Vector3.new(0, (wallSize.Y - (14 + config.level * 0.12)) / 2, 0), style.color or config.color, style.material or config.material or Enum.Material.Concrete)
+	wall:SetAttribute("MaxHP", config.hp)
+	wall:SetAttribute("HP", config.hp)
+	wall:SetAttribute("RequiredLevel", config.level)
+	wall:SetAttribute("CoinReward", config.coins)
+	wall:SetAttribute("PowerReward", config.power)
+	wall:SetAttribute("XPReward", GameConfig.WallXP[config.name] or 20)
+	wall:SetAttribute("Theme", PolishConfig.StyleName)
+	wall:SetAttribute("VisualRole", "SmashableCityBuilding")
+	wall:SetAttribute("BaseSize", wall.Size)
+	wall:SetAttribute("OriginalColor", wall.Color)
+	wall:SetAttribute("AccentColor", style.accent)
+	local facadeRows = math.clamp(math.floor(wall.Size.Y / 5), 3, 4)
+	addFacadeGrid(wall, facadeRows, 4, style.window or PolishConfig.Palette.Glass, Color3.fromRGB(41, 44, 48))
+	wallVisualDetails[wall] = addFacadeGeometry(wall, tierFolder, facadeRows, 4, style.window or PolishConfig.Palette.Glass, Color3.fromRGB(28, 31, 34), config.name)
+	makeText(wall, config.name, "", Enum.NormalId.Front)
+	updateWallText(wall)
+	addEmitter(wall, "Hit Spark", style.accent)
+	addEmitter(wall, "Break Burst", style.accent)
+	addEmitter(wall, "Respawn Shimmer", Color3.fromRGB(255, 255, 255))
+	addSound(wall, "Punch Impact", GameConfig.Audio.Punch, 0.52)
+	addSound(wall, "Building Collapse", GameConfig.Audio.Collapse, 0.78)
+
+	local frame = makePart(config.name .. " Street Foundation", tierFolder, Vector3.new(23, 1.1, 9), wall.Position + Vector3.new(0, -wall.Size.Y / 2 - 0.6, 0), style.pad, Enum.Material.Concrete)
+	frame:SetAttribute("PolishRole", "WallTierFrame")
+	local back = makePart(config.name .. " Reinforced Rear Facade", tierFolder, Vector3.new(20, wall.Size.Y + 2, 0.8), wall.Position + Vector3.new(0, 0, 3.65), style.accent, Enum.Material.Metal)
+	back.Transparency = 0.35
+	back:SetAttribute("PolishRole", "WallBackplate")
+	local banner = makePart(config.name .. " Street Level Sign", tierFolder, Vector3.new(16, 3, 0.6), wall.Position + Vector3.new(0, wall.Size.Y / 2 + 2.4, -3.45), Color3.fromRGB(28, 32, 35), Enum.Material.Metal)
+	makeText(banner, ("LV %d"):format(config.level), style.label or config.name, Enum.NormalId.Front)
+	makeRubblePile(tierFolder, wall.Position + Vector3.new(-8, -wall.Size.Y / 2 - 0.25, -3.5), config.name .. " Debris")
+	local debrisPieces = {}
+	for index = 1, 7 do
+		local x = -6 + ((index - 1) % 4) * 4
+		local y = -wall.Size.Y * 0.28 + math.floor((index - 1) / 4) * 4
+		local piece = makeVisualPart(config.name .. " Collapse Chunk " .. index, tierFolder, Vector3.new(2.8, 2.2, 1.2), wall.CFrame * CFrame.new(x, y, -3.8), style.color, style.material or Enum.Material.Concrete)
+		piece.Transparency = 1
+		table.insert(debrisPieces, { part = piece, baseCFrame = piece.CFrame })
+	end
+	wallDebris[wall] = debrisPieces
+
+	local cracks = {}
+	for index, offset in ipairs({
+		Vector3.new(-4, 1.5, -3.08),
+		Vector3.new(1, -1.6, -3.08),
+		Vector3.new(5, 2.7, -3.08),
+	}) do
+		local crack = makeWedge(config.name .. " Facade Crack " .. index, tierFolder, Vector3.new(0.38, 5.1, 0.22), wall.Position + offset, style.crack, Enum.Material.Concrete, Vector3.new(0, 0, 25 * index))
+		crack.Transparency = 1
+		crack:SetAttribute("PolishRole", "WallDamageCrack")
+		table.insert(cracks, crack)
+	end
+	wallDamageParts[wall] = cracks
+	updateWallDamage(wall)
+
+	local clickDetector = Instance.new("ClickDetector")
+	clickDetector.MaxActivationDistance = 34
+	clickDetector.Parent = wall
+
+	clickDetector.MouseClick:Connect(function(player)
+		hitWall(player, wall)
+	end)
+end
+
+for _, config in ipairs(wallConfigs) do
+	buildWall(config)
+end
+
+local bossStyle = wallStyle("Titan Server Wall")
+local boss = makePart("Titan Server Wall", wallsFolder, Vector3.new(38, 34, 8), Vector3.new(82, 19, 27), bossStyle.color, bossStyle.material or Enum.Material.Metal)
+boss:SetAttribute("MaxHP", 5000000)
+boss:SetAttribute("HP", 5000000)
+boss:SetAttribute("RequiredLevel", 20)
+boss:SetAttribute("CoinReward", 450000)
+boss:SetAttribute("PowerReward", 12000)
+boss:SetAttribute("XPReward", GameConfig.WallXP["Titan Server Wall"])
+boss:SetAttribute("Theme", PolishConfig.StyleName)
+boss:SetAttribute("VisualRole", "KaijuBossTower")
+boss:SetAttribute("BaseSize", boss.Size)
+boss:SetAttribute("OriginalColor", boss.Color)
+boss:SetAttribute("AccentColor", bossStyle.accent)
+addSound(boss, "Punch Impact", GameConfig.Audio.Punch, 0.7, 0.82)
+addSound(boss, "Building Collapse", GameConfig.Audio.Collapse, 1, 0.78)
+addSound(boss, "Boss Roar", GameConfig.Audio.BossRoar, 0.9, 0.9)
+addFacadeGrid(boss, 6, 5, bossStyle.window, Color3.fromRGB(16, 18, 22))
+wallVisualDetails[boss] = addFacadeGeometry(boss, tierFolder, 5, 5, bossStyle.window, Color3.fromRGB(12, 15, 18), "Titan HQ")
+makeText(boss, "TITAN SERVER WALL", "Co-op Boss | Big Reward", Enum.NormalId.Front)
+updateWallText(boss)
+addEmitter(boss, "Hit Spark", bossStyle.accent)
+addEmitter(boss, "Break Burst", bossStyle.accent)
+addEmitter(boss, "Respawn Shimmer", Color3.fromRGB(255, 255, 255))
+local bossPad = makePart("Titan Boss City Plaza", tierFolder, Vector3.new(48, 1.2, 18), boss.Position + Vector3.new(0, -17.6, 0), bossStyle.pad, Enum.Material.Concrete)
+bossPad:SetAttribute("PolishRole", "BossArenaPad")
+local bossDangerZone = makePart("Titan Danger Zone", tierFolder, Vector3.new(44, 0.18, 15), bossPad.Position + Vector3.new(0, 0.72, 0), bossStyle.accent, Enum.Material.Neon)
+bossDangerZone.CanCollide = false
+bossDangerZone.Transparency = 1
+local bossDebrisPieces = {}
+for index = 1, 10 do
+	local x = -14 + ((index - 1) % 5) * 7
+	local y = -9 + math.floor((index - 1) / 5) * 8
+	local piece = makeVisualPart("Titan Collapse Chunk " .. index, tierFolder, Vector3.new(4.5, 3.4, 1.5), boss.CFrame * CFrame.new(x, y, -5), bossStyle.color, Enum.Material.Metal)
+	piece.Transparency = 1
+	table.insert(bossDebrisPieces, { part = piece, baseCFrame = piece.CFrame })
+end
+wallDebris[boss] = bossDebrisPieces
+makePart("Titan HQ Emergency Glow", tierFolder, Vector3.new(42, 38, 0.8), boss.Position + Vector3.new(0, 0, 4.55), bossStyle.accent, Enum.Material.Neon).Transparency = 0.55
+makePart("Titan HQ Antenna Mast", tierFolder, Vector3.new(1.2, 16, 1.2), boss.Position + Vector3.new(0, boss.Size.Y / 2 + 8, 0), bossStyle.accent, Enum.Material.Metal)
+makePart("Titan HQ Rooftop Core", tierFolder, Vector3.new(18, 3, 10), boss.Position + Vector3.new(0, boss.Size.Y / 2 + 2, 0), Color3.fromRGB(21, 24, 29), Enum.Material.Metal)
+makeRubblePile(tierFolder, boss.Position + Vector3.new(-16, -17.4, -4.5), "Titan Plaza Rubble")
+wallDamageParts[boss] = {
+	makeWedge("Titan Facade Crack 1", tierFolder, Vector3.new(0.5, 9, 0.25), boss.Position + Vector3.new(-8, 3, -4.08), bossStyle.crack, Enum.Material.Concrete, Vector3.new(0, 0, 28)),
+	makeWedge("Titan Facade Crack 2", tierFolder, Vector3.new(0.5, 9, 0.25), boss.Position + Vector3.new(2, -2, -4.08), bossStyle.crack, Enum.Material.Concrete, Vector3.new(0, 0, -22)),
+	makeWedge("Titan Facade Crack 3", tierFolder, Vector3.new(0.5, 9, 0.25), boss.Position + Vector3.new(9, 4, -4.08), bossStyle.crack, Enum.Material.Concrete, Vector3.new(0, 0, 18)),
+}
+updateWallDamage(boss)
+
+local bossWeakPoints = {}
+for index, offset in ipairs({ Vector3.new(-10, 7, -4.6), Vector3.new(0, -2, -4.6), Vector3.new(10, 6, -4.6) }) do
+	local weakPoint = makePart("Titan Weak Point " .. index, tierFolder, Vector3.new(4.2, 4.2, 0.8), boss.Position + offset, bossStyle.accent, Enum.Material.Neon)
+	weakPoint.CanCollide = false
+	weakPoint:SetAttribute("WeakPointMultiplier", 1.5)
+	table.insert(bossWeakPoints, weakPoint)
+	table.insert(wallVisualDetails[boss], { part = weakPoint, transparency = 0 })
+end
+boss:SetAttribute("WeakPointCount", #bossWeakPoints)
+
+local bossClick = Instance.new("ClickDetector")
+bossClick.MaxActivationDistance = 50
+bossClick.Parent = boss
+local bossContributions = {}
+local bossParticipants = {}
+boss:SetAttribute("BossPhase", 1)
+boss:SetAttribute("ParticipantCount", 0)
+
+local function hitBoss(player, weakPointMultiplier)
+	if boss:GetAttribute("Broken") then
+		return { ok = false, reason = "respawning" }
+	end
+	if statValue(player, "WallLevel", 1) < 20 then
+		notify(player, "Need Wall Level 20 to fight Titan Wall.", Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, {
+			type = "Fail",
+			target = boss.Name,
+			message = "Need Lv 20",
+			color = PolishConfig.Palette.Fail,
+		})
+		return { ok = false, reason = "level_gate" }
+	end
+	local now = os.clock()
+	local lastHit = player:GetAttribute("LastBossHit") or 0
+	if now - lastHit < 0.2 then
+		return { ok = false, reason = "cooldown" }
+	end
+	player:SetAttribute("LastBossHit", now)
+
+	if not bossParticipants[player.UserId] then
+		bossParticipants[player.UserId] = true
+		local participantCount = 0
+		for _ in pairs(bossParticipants) do participantCount += 1 end
+		boss:SetAttribute("ParticipantCount", participantCount)
+		if participantCount > 1 then
+			local addedHP = 5000000 * 0.65
+			boss:SetAttribute("MaxHP", boss:GetAttribute("MaxHP") + addedHP)
+			boss:SetAttribute("HP", boss:GetAttribute("HP") + addedHP)
+		end
+	end
+	local rebirth = 1 + statValue(player, "Rebirths", 0) * 0.25
+	local mastery = 1 + math.min(statValue(player, "FistMastery", 1), 500) * 0.001
+	local damage = statValue(player, "Power", 1) * statValue(player, "FistMultiplier", 1) * (1 + statValue(player, "PetMultiplier", 0)) * rebirth * mastery * 1.4 * (weakPointMultiplier or 1)
+	local previousHP = boss:GetAttribute("HP")
+	local actualDamage = math.min(previousHP, damage)
+	boss:SetAttribute("HP", math.max(0, previousHP - damage))
+	bossContributions[player.UserId] = (bossContributions[player.UserId] or 0) + actualDamage
+	advanceTutorial(player, 6)
+	local ratio = boss:GetAttribute("HP") / math.max(1, boss:GetAttribute("MaxHP"))
+	local phase = ratio <= 0.25 and 4 or ratio <= 0.5 and 3 or ratio <= 0.75 and 2 or 1
+	if phase ~= boss:GetAttribute("BossPhase") then
+		boss:SetAttribute("BossPhase", phase)
+		broadcastFeedback({ type = "BossPhase", target = tostring(phase), color = bossStyle.accent })
+	end
+	updateWallText(boss)
+	updateWallDamage(boss)
+	emitNamed(boss, "Hit Spark", PolishConfig.Motion.HitEmit + 8)
+	playNamedSound(boss, "Punch Impact", 0.8 + math.random() * 0.08)
+	sendFeedback(player, {
+		type = "Punch",
+		target = boss.Name,
+		damage = math.floor(damage + 0.5),
+		color = bossStyle.accent,
+	})
+	if boss:GetAttribute("HP") <= 0 and not boss:GetAttribute("Broken") then
+		boss:SetAttribute("Broken", true)
+		broadcast("Titan HQ shattered! Contributors receive rewards.", Color3.fromRGB(120, 220, 255))
+		emitNamed(boss, "Break Burst", PolishConfig.Motion.BreakEmit + 30)
+		playNamedSound(boss, "Building Collapse", 0.76)
+		local totalContribution = 0
+		for _, contribution in pairs(bossContributions) do totalContribution += contribution end
+		for userId, contribution in pairs(bossContributions) do
+			local plr = Players:GetPlayerByUserId(userId)
+			if plr and contribution / math.max(1, totalContribution) >= 0.01 then
+				local share = contribution / math.max(1, totalContribution)
+				local coins = math.max(1, math.floor(boss:GetAttribute("CoinReward") * (0.6 + share * 0.4)))
+				local powerReward = math.max(1, math.floor(boss:GetAttribute("PowerReward") * (0.6 + share * 0.4)))
+				addStat(plr, "Coins", coins)
+				addStat(plr, "Power", powerReward)
+				awardWallXP(plr, boss:GetAttribute("XPReward"))
+				sendFeedback(plr, { type = "Boss", target = boss.Name, coins = coins, power = powerReward, color = bossStyle.accent })
+			end
+		end
+		boss.Transparency = 0.85
+		setWallVisualDetailsBroken(boss, true)
+		setWallDebrisState(boss, true)
+		boss.CanCollide = false
+		boss:SetAttribute("RespawnAt", workspace:GetServerTimeNow() + GameConfig.BossRespawnSeconds)
+		task.delay(GameConfig.BossRespawnSeconds, function()
+			if boss.Parent then
+				bossContributions = {}
+				bossParticipants = {}
+				boss:SetAttribute("MaxHP", 5000000)
+				boss:SetAttribute("HP", 5000000)
+				boss:SetAttribute("Broken", false)
+				boss:SetAttribute("BossPhase", 1)
+				boss:SetAttribute("ParticipantCount", 0)
+				boss:SetAttribute("RespawnAt", 0)
+				boss.Transparency = 0
+				setWallVisualDetailsBroken(boss, false)
+				setWallDebrisState(boss, false)
+				boss.CanCollide = true
+				updateWallText(boss)
+				updateWallDamage(boss)
+				emitNamed(boss, "Respawn Shimmer", 22)
+			end
+		end)
+		return { ok = true, outcome = "broken", damage = damage }
+	end
+	return { ok = true, outcome = "hit", damage = damage, hp = boss:GetAttribute("HP") }
+end
+
+bossClick.MouseClick:Connect(function(player)
+	hitBoss(player)
+end)
+for _, weakPoint in ipairs(bossWeakPoints) do
+	local detector = Instance.new("ClickDetector")
+	detector.MaxActivationDistance = 50
+	detector.Parent = weakPoint
+	detector.MouseClick:Connect(function(player)
+		hitBoss(player, weakPoint:GetAttribute("WeakPointMultiplier") or 1.5)
+	end)
+end
+
+task.spawn(function()
+	while boss.Parent do
+		task.wait(10)
+		if not boss:GetAttribute("Broken") and boss:GetAttribute("HP") < boss:GetAttribute("MaxHP") and (boss:GetAttribute("BossPhase") or 1) >= 2 then
+			broadcastFeedback({ type = "BossAttack", target = "Shockwave", color = bossStyle.accent })
+			playNamedSound(boss, "Boss Roar", 0.88 + (boss:GetAttribute("BossPhase") or 1) * 0.03)
+			bossDangerZone.Transparency = 0.48
+			TweenService:Create(bossDangerZone, TweenInfo.new(1.15), { Transparency = 0.12 }):Play()
+			task.wait(1.2)
+			for _, plr in ipairs(Players:GetPlayers()) do
+				local character = plr.Character
+				local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+				if rootPart and humanoid then
+					local flatDistance = (Vector3.new(rootPart.Position.X, 0, rootPart.Position.Z) - Vector3.new(boss.Position.X, 0, boss.Position.Z)).Magnitude
+					if flatDistance <= 29 then
+						humanoid:TakeDamage(10 + (boss:GetAttribute("BossPhase") or 1) * 5)
+					end
+				end
+			end
+			bossDangerZone.Transparency = 1
+		end
+	end
+end)
+
+local trainingConfigs = {
+	{ name = "Power Bag", stat = "Power", gain = 4, pos = Vector3.new(-53, 4, 24), color = Color3.fromRGB(218, 66, 48) },
+	{ name = "Speed Dummy", stat = "BreakSpeed", gain = 0.02, pos = Vector3.new(-34, 4, 24), color = Color3.fromRGB(57, 132, 180) },
+	{ name = "Focus Stone", stat = "CritChance", gain = 0.05, pos = Vector3.new(-15, 4, 24), color = Color3.fromRGB(236, 178, 67) },
+}
+
+local trainingByName = {}
+local trainingPartsByName = {}
+
+local function trainPlayer(player, config)
+	local now = os.clock()
+	local key = "LastTrain" .. config.stat
+	local lastTrain = player:GetAttribute(key) or 0
+	if now - lastTrain < TRAINING_COOLDOWN then
+		return { ok = false, reason = "cooldown" }
+	end
+	player:SetAttribute(key, now)
+	addStat(player, config.stat, config.gain)
+	if config.stat == "CritChance" then
+		setStat(player, "CritChance", math.min(GameConfig.MaxCritChance, statValue(player, "CritChance", 0)))
+	end
+	addStat(player, "FistMastery", 0.03)
+	if config.name == "Power Bag" then
+		advanceTutorial(player, 1)
+	end
+	if config.part then
+		emitNamed(config.part, "Train Pop", PolishConfig.Motion.TrainEmit)
+		local baseSize = config.part:GetAttribute("BaseSize")
+		local targetSize = baseSize or config.part.Size
+		TweenService:Create(config.part, TweenInfo.new(PolishConfig.Motion.TrainBounceSeconds), { Size = targetSize + Vector3.new(0.7, 0.7, 0.7) }):Play()
+		task.delay(PolishConfig.Motion.TrainBounceSeconds, function()
+			if config.part and config.part.Parent then
+				TweenService:Create(config.part, TweenInfo.new(0.12), { Size = targetSize }):Play()
+			end
+		end)
+	end
+	notify(player, ("Training: +%s %s"):format(config.gain, config.stat), Color3.fromRGB(255, 246, 155))
+	sendFeedback(player, {
+		type = "Train",
+		target = config.name,
+		stat = config.stat,
+		gain = config.gain,
+		color = config.color,
+	})
+	return { ok = true, stat = config.stat, gain = config.gain, value = statValue(player, config.stat) }
+end
+
+for _, config in ipairs(trainingConfigs) do
+	trainingByName[config.name] = config
+	local station = makePart(config.name, interactFolder, Vector3.new(9, 8, 9), config.pos, config.color, Enum.Material.Metal)
+	config.part = station
+	station:SetAttribute("BaseSize", station.Size)
+	station:SetAttribute("Theme", PolishConfig.StyleName)
+	station:SetAttribute("VisualRole", "CityTrainingStation")
+	station.Transparency = 0.88
+	station.CanCollide = false
+	addEmitter(station, "Train Pop", config.color)
+	trainingPartsByName[config.name] = station
+	makeText(station, config.name, ("Click: +%s %s"):format(config.gain, config.stat), Enum.NormalId.Front)
+	makePart(config.name .. " Gym Mat", decorFolder, Vector3.new(13, 0.25, 13), config.pos + Vector3.new(0, -3.9, 0), Color3.fromRGB(43, 47, 50), Enum.Material.Fabric)
+	if config.name == "Speed Dummy" then
+		makeCylinder("Boxing Dummy Head", decorFolder, Vector3.new(2.4, 2.4, 2.4), config.pos + Vector3.new(0, 6.2, 0), Color3.fromRGB(174, 135, 91), Enum.Material.Fabric)
+		makePart("Boxing Dummy Body", decorFolder, Vector3.new(3.8, 5.4, 1.7), config.pos + Vector3.new(0, 1.7, 0), Color3.fromRGB(122, 68, 48), Enum.Material.Fabric)
+	elseif config.name == "Power Bag" then
+		makeCylinder("Heavy Bag Chain", decorFolder, Vector3.new(0.35, 5, 0.35), config.pos + Vector3.new(0, 6.6, 0), Color3.fromRGB(34, 34, 34), Enum.Material.Metal)
+		makeCylinder("Heavy Punch Bag Shell", decorFolder, Vector3.new(5.8, 2.6, 2.6), config.pos + Vector3.new(0, 2.4, 0), Color3.fromRGB(128, 36, 30), Enum.Material.Fabric, Vector3.new(0, 0, 90))
+		makePart("Heavy Bag Steel Band", decorFolder, Vector3.new(3.2, 0.35, 3.2), config.pos + Vector3.new(0, 4.4, 0), Color3.fromRGB(48, 51, 54), Enum.Material.Metal)
+	elseif config.name == "Focus Stone" then
+		makePart("Cracked Focus Concrete", decorFolder, Vector3.new(6, 3, 6), config.pos + Vector3.new(0, -1.7, 0), Color3.fromRGB(111, 116, 114), Enum.Material.Concrete)
+		makeWedge("Focus Concrete Broken Edge", decorFolder, Vector3.new(4.2, 2.4, 1.8), config.pos + Vector3.new(1.5, 1.0, -2.4), Color3.fromRGB(84, 87, 86), Enum.Material.Concrete, Vector3.new(0, 30, 0))
+	end
+	local detector = Instance.new("ClickDetector")
+	detector.MaxActivationDistance = 32
+	detector.Parent = station
+	detector.MouseClick:Connect(function(player)
+		trainPlayer(player, config)
+	end)
+end
+
+local fistShop = {}
+for index = 2, #GameConfig.Fists do
+	table.insert(fistShop, GameConfig.Fists[index])
+end
+
+local fistByName = {}
+local fistPartsByName = {}
+for _, item in ipairs(GameConfig.Fists) do
+	fistByName[item.name] = item
+end
+
+local function buyFist(player, item)
+	local owned = decodeList(player, "OwnedFistsJSON")
+	if listContains(owned, item.name) then
+		setStat(player, "FistMultiplier", item.mult)
+		setStat(player, "BreakSpeed", 1 + item.speed)
+		setStat(player, "EquippedFist", item.name)
+		notify(player, ("Equipped %s."):format(item.name), Color3.fromRGB(104, 255, 169))
+		sendFeedback(player, { type = "Shop", target = item.name, color = PolishConfig.Palette.Use })
+		return { ok = true, outcome = "equipped", item = item.name, multiplier = item.mult, coins = statValue(player, "Coins", 0) }
+	end
+	if statValue(player, "Coins", 0) < item.cost then
+		notify(player, ("Need %s coins for %s."):format(formatNumber(item.cost), item.name), Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, {
+			type = "Fail",
+			target = item.name,
+			message = "Need coins",
+			color = PolishConfig.Palette.Fail,
+		})
+		return { ok = false, reason = "not_enough_coins", cost = item.cost }
+	end
+	addStat(player, "Coins", -item.cost)
+	setStat(player, "FistMultiplier", item.mult)
+	setStat(player, "BreakSpeed", 1 + item.speed)
+	table.insert(owned, item.name)
+	encodeList(player, "OwnedFistsJSON", owned)
+	local equipped = playerStat(player, "EquippedFist")
+	if equipped then
+		equipped.Value = item.name
+	end
+	advanceTutorial(player, 4)
+	notify(player, ("Equipped %s! Damage x%.1f"):format(item.name, item.mult), Color3.fromRGB(104, 255, 169))
+	sendFeedback(player, {
+		type = "Shop",
+		target = item.name,
+		coins = -item.cost,
+		color = PolishConfig.Palette.Use,
+	})
+	return { ok = true, item = item.name, multiplier = item.mult, coins = statValue(player, "Coins", 0) }
+end
+
+local shopBack = makePart("Fist Shop Sign", root, Vector3.new(22, 3.2, 0.8), Vector3.new(-43, 13.4, -18.8), Color3.fromRGB(28, 34, 38), Enum.Material.Metal)
+makeText(shopBack, "CITY FIST ARMORY", "Click a glove stand to buy upgrades")
+makeText(shopBack, "CITY FIST ARMORY", "Upgrade punch power", Enum.NormalId.Back)
+local shopRoof = makePart("Armory Steel Roof", decorFolder, Vector3.new(34, 0.55, 4.4), Vector3.new(-43, 15.8, -16.8), Color3.fromRGB(65, 69, 72), Enum.Material.DiamondPlate)
+shopRoof:SetAttribute("TextureStyle", "IndustrialRoof")
+makePart("Armory Warning Stripe", decorFolder, Vector3.new(34, 0.18, 0.65), Vector3.new(-43, 16.18, -18.9), PolishConfig.Palette.RoadLine, Enum.Material.SmoothPlastic)
+makePart("Armory Back Wall", decorFolder, Vector3.new(44, 7.5, 0.8), Vector3.new(-43, 5.0, -16.2), Color3.fromRGB(62, 66, 68), Enum.Material.Concrete)
+makeCoinStack(decorFolder, Vector3.new(-69, 1.1, -1))
+
+for index, item in ipairs(fistShop) do
+	local stand = makePart(item.name .. " Stand", interactFolder, Vector3.new(9, 5, 9), Vector3.new(-65 + index * 14, 3, -10), Color3.fromRGB(230, 230, 230), Enum.Material.Metal)
+	stand.Color = Color3.fromRGB(77 + index * 12, 79 + index * 9, 80 + index * 6)
+	stand:SetAttribute("Theme", PolishConfig.StyleName)
+	stand.Transparency = 0.9
+	stand.CanCollide = false
+	fistPartsByName[item.name] = stand
+	makePart(item.name .. " Display Plinth", decorFolder, Vector3.new(8, 1.0, 7), stand.Position + Vector3.new(0, -2.0, 0), Color3.fromRGB(57, 60, 62), Enum.Material.DiamondPlate)
+	makeText(stand, item.name, ("Cost %s | x%.1f"):format(formatNumber(item.cost), item.mult), Enum.NormalId.Front)
+	makePart(item.name .. " Gauntlet Palm", decorFolder, Vector3.new(2.8, 2.0, 2.0), stand.Position + Vector3.new(0, 4.35, -1.5), Color3.fromRGB(177, 54, 43), Enum.Material.Metal)
+	makePart(item.name .. " Gauntlet Cuff", decorFolder, Vector3.new(2.4, 1.0, 2.2), stand.Position + Vector3.new(0, 3.55, -1.5), Color3.fromRGB(48, 51, 54), Enum.Material.Metal)
+	for finger = 1, 4 do
+		makePart(item.name .. " Gauntlet Finger " .. finger, decorFolder, Vector3.new(0.45, 1.2, 0.5), stand.Position + Vector3.new(-0.9 + finger * 0.45, 5.25, -2.2), Color3.fromRGB(185, 65, 52), Enum.Material.Metal)
+	end
+	makePart(item.name .. " Gauntlet Knuckle Bar", decorFolder, Vector3.new(2.7, 0.35, 0.6), stand.Position + Vector3.new(0, 5.45, -1.62), Color3.fromRGB(42, 45, 48), Enum.Material.Metal)
+	local detector = Instance.new("ClickDetector")
+	detector.MaxActivationDistance = 30
+	detector.Parent = stand
+	detector.MouseClick:Connect(function(player)
+		buyFist(player, item)
+	end)
+end
+
+local eggPart = makePart("Pet Egg Machine", interactFolder, Vector3.new(14, 11, 14), Vector3.new(-72, 6, 24), Color3.fromRGB(47, 78, 91), Enum.Material.Glass)
+eggPart:SetAttribute("Theme", PolishConfig.StyleName)
+eggPart.Transparency = 0.94
+eggPart.CanCollide = false
+makeText(eggPart, "KAIJU DNA LAB", ("Cost %s coins | Luck helps"):format(EGG_COST), Enum.NormalId.Front)
+addEmitter(eggPart, "Egg Reveal", PolishConfig.RarityColors.Epic)
+makePart("DNA Lab Concrete Base", decorFolder, Vector3.new(19, 0.6, 19), eggPart.Position + Vector3.new(0, -5.7, 0), Color3.fromRGB(88, 92, 93), Enum.Material.Concrete)
+makeCylinder("DNA Containment Tube", decorFolder, Vector3.new(9.5, 7, 7), eggPart.Position + Vector3.new(0, 2.1, 0), Color3.fromRGB(91, 190, 179), Enum.Material.Glass, Vector3.new(0, 0, 90)).Transparency = 0.28
+makeCylinder("DNA Tube Top Clamp", decorFolder, Vector3.new(0.5, 8.4, 8.4), eggPart.Position + Vector3.new(0, 7.0, 0), Color3.fromRGB(42, 48, 51), Enum.Material.Metal, Vector3.new(0, 0, 90))
+makeCylinder("DNA Tube Bottom Clamp", decorFolder, Vector3.new(0.5, 8.4, 8.4), eggPart.Position + Vector3.new(0, -2.5, 0), Color3.fromRGB(42, 48, 51), Enum.Material.Metal, Vector3.new(0, 0, 90))
+makePart("DNA Lab Control Panel", decorFolder, Vector3.new(5.5, 3.2, 1.0), eggPart.Position + Vector3.new(-7.2, -1.3, -5.4), Color3.fromRGB(29, 34, 38), Enum.Material.Metal)
+makePart("DNA Lab Screen", decorFolder, Vector3.new(4.2, 2.1, 0.25), eggPart.Position + Vector3.new(-7.2, -0.7, -6.0), Color3.fromRGB(79, 211, 177), Enum.Material.Neon)
+makePart("Kaiju Sample Tank", decorFolder, Vector3.new(4, 6, 4), eggPart.Position + Vector3.new(10, -1.1, 0), Color3.fromRGB(42, 63, 69), Enum.Material.Metal)
+makeBall("Kaiju Sample Glow", decorFolder, Vector3.new(3.2, 3.2, 3.2), eggPart.Position + Vector3.new(10, 2.3, 0), Color3.fromRGB(111, 224, 173), Enum.Material.Neon)
+
+local pets = GameConfig.Pets
+local petByName = {}
+for _, pet in ipairs(pets) do
+	petByName[pet.name] = pet
+end
+
+local function refreshEquippedPets(player)
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	local inventory = decodeList(player, "PetInventoryJSON")
+	local valid = {}
+	local available = {}
+	for _, name in ipairs(inventory) do
+		available[name] = (available[name] or 0) + 1
+	end
+	local multiplier = 0
+	for _, name in ipairs(equipped) do
+		if #valid < GameConfig.MaxEquippedPets and petByName[name] and (available[name] or 0) > 0 then
+			table.insert(valid, name)
+			available[name] -= 1
+			multiplier += petByName[name].mult
+		end
+	end
+	encodeList(player, "EquippedPetsJSON", valid)
+	setStat(player, "PetMultiplier", multiplier)
+	setStat(player, "Pet", valid[1] or "None")
+	return valid, multiplier
+end
+
+local function rollPet(luck)
+	local total = 0
+	for _, pet in ipairs(pets) do
+		total += GameConfig.PetWeight(pet, luck)
+	end
+	local roll = math.random() * total
+	local cumulative = 0
+	for _, pet in ipairs(pets) do
+		cumulative += GameConfig.PetWeight(pet, luck)
+		if roll <= cumulative then
+			return pet
+		end
+	end
+	return pets[#pets]
+end
+
+local function hatchPet(player)
+	local inventory = decodeList(player, "PetInventoryJSON")
+	if #inventory >= GameConfig.MaxPetInventory then
+		notify(player, "Pet inventory is full.", Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, { type = "Fail", target = "Pet Egg", message = "Inventory full", color = PolishConfig.Palette.Fail })
+		return { ok = false, reason = "inventory_full" }
+	end
+	if statValue(player, "Coins", 0) < EGG_COST then
+		notify(player, ("Need %s coins to hatch an egg."):format(EGG_COST), Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, {
+			type = "Fail",
+			target = "Pet Egg",
+			message = "Need coins",
+			color = PolishConfig.Palette.Fail,
+		})
+		return { ok = false, reason = "not_enough_coins", cost = EGG_COST }
+	end
+	addStat(player, "Coins", -EGG_COST)
+
+	local luck = math.max(1, statValue(player, "Luck", 1))
+	local chosen = rollPet(luck)
+	table.insert(inventory, chosen.name)
+	encodeList(player, "PetInventoryJSON", inventory)
+	local discovered = decodeList(player, "DiscoveredPetsJSON")
+	if not listContains(discovered, chosen.name) then
+		table.insert(discovered, chosen.name)
+		encodeList(player, "DiscoveredPetsJSON", discovered)
+	end
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	if #equipped < GameConfig.MaxEquippedPets then
+		table.insert(equipped, chosen.name)
+		encodeList(player, "EquippedPetsJSON", equipped)
+	end
+	local _, equippedMultiplier = refreshEquippedPets(player)
+	addStat(player, "Luck", chosen.luckGain)
+	advanceTutorial(player, 5)
+	notify(player, ("Hatched %s! Pet power +%.0f%%"):format(chosen.name, chosen.mult * 100), Color3.fromRGB(255, 210, 95))
+	emitNamed(eggPart, "Egg Reveal", 32)
+	local rarityColor = chosen.mult >= 4 and PolishConfig.RarityColors.Secret
+		or chosen.mult >= 1.5 and PolishConfig.RarityColors.Legendary
+		or chosen.mult >= 0.8 and PolishConfig.RarityColors.Epic
+		or chosen.mult >= 0.3 and PolishConfig.RarityColors.Rare
+		or PolishConfig.RarityColors.Common
+	sendFeedback(player, {
+		type = "Pet",
+		target = chosen.name,
+		rarity = chosen.rarity,
+		multiplier = chosen.mult,
+		color = rarityColor,
+	})
+	return { ok = true, pet = chosen.name, rarity = chosen.rarity, multiplier = chosen.mult, equippedMultiplier = equippedMultiplier, coins = statValue(player, "Coins", 0), luck = statValue(player, "Luck", 1) }
+end
+
+local function hatchPets(player, count)
+	count = math.clamp(math.floor(tonumber(count) or 1), 1, 3)
+	local results = {}
+	for _ = 1, count do
+		local result = hatchPet(player)
+		table.insert(results, result)
+		if not result.ok then break end
+	end
+	return results
+end
+
+local function equipPet(player, petName)
+	if not petByName[petName] then
+		return { ok = false, reason = "unknown_pet" }
+	end
+	local inventory = decodeList(player, "PetInventoryJSON")
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	local ownedCount = 0
+	local equippedCount = 0
+	for _, name in ipairs(inventory) do
+		if name == petName then ownedCount += 1 end
+	end
+	for _, name in ipairs(equipped) do
+		if name == petName then equippedCount += 1 end
+	end
+	if equippedCount >= ownedCount then
+		return { ok = false, reason = "not_owned" }
+	end
+	if #equipped >= GameConfig.MaxEquippedPets then
+		return { ok = false, reason = "slots_full" }
+	end
+	table.insert(equipped, petName)
+	encodeList(player, "EquippedPetsJSON", equipped)
+	local valid, multiplier = refreshEquippedPets(player)
+	return { ok = true, pet = petName, equipped = valid, multiplier = multiplier }
+end
+
+local function unequipPet(player, petName)
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	if not removeFirst(equipped, petName) then
+		return { ok = false, reason = "not_equipped" }
+	end
+	encodeList(player, "EquippedPetsJSON", equipped)
+	local valid, multiplier = refreshEquippedPets(player)
+	return { ok = true, pet = petName, equipped = valid, multiplier = multiplier }
+end
+
+local function deletePet(player, petName)
+	if listContains(decodeList(player, "LockedPetsJSON"), petName) then
+		return { ok = false, reason = "pet_locked" }
+	end
+	local inventory = decodeList(player, "PetInventoryJSON")
+	if not removeFirst(inventory, petName) then
+		return { ok = false, reason = "not_owned" }
+	end
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	removeFirst(equipped, petName)
+	encodeList(player, "PetInventoryJSON", inventory)
+	encodeList(player, "EquippedPetsJSON", equipped)
+	local valid, multiplier = refreshEquippedPets(player)
+	return { ok = true, pet = petName, inventory = inventory, equipped = valid, multiplier = multiplier }
+end
+
+local function setPetLocked(player, petName, locked)
+	if not listContains(decodeList(player, "PetInventoryJSON"), petName) then
+		return { ok = false, reason = "not_owned" }
+	end
+	local lockedPets = decodeList(player, "LockedPetsJSON")
+	if locked and not listContains(lockedPets, petName) then table.insert(lockedPets, petName) end
+	if not locked then while removeFirst(lockedPets, petName) do end end
+	encodeList(player, "LockedPetsJSON", lockedPets)
+	return { ok = true, pet = petName, locked = locked }
+end
+
+local eggDetector = Instance.new("ClickDetector")
+eggDetector.MaxActivationDistance = 32
+eggDetector.Parent = eggPart
+eggDetector.MouseClick:Connect(function(player)
+	hatchPet(player)
+end)
+
+local rebirthPart = makePart("Rebirth Shrine", interactFolder, Vector3.new(14, 13, 14), Vector3.new(160, 7, 24), Color3.fromRGB(60, 72, 82), Enum.Material.ForceField)
+rebirthPart:SetAttribute("Theme", PolishConfig.StyleName)
+rebirthPart.Transparency = 0.82
+rebirthPart.CanCollide = false
+makeText(rebirthPart, "EVAC PORTAL", "Need Wall Lv 55 and 1M coins")
+addEmitter(rebirthPart, "Rebirth Pulse", Color3.fromRGB(255, 255, 255))
+makeCylinder("Evac Portal Ring", decorFolder, Vector3.new(0.45, 22, 22), rebirthPart.Position + Vector3.new(0, -6.3, 0), Color3.fromRGB(77, 178, 214), Enum.Material.Neon, Vector3.new(0, 0, 90))
+local rebirthDetector = Instance.new("ClickDetector")
+rebirthDetector.MaxActivationDistance = 35
+rebirthDetector.Parent = rebirthPart
+
+local function tryRebirth(player)
+	if statValue(player, "WallLevel", 1) < 55 or statValue(player, "Coins", 0) < 1000000 then
+		notify(player, "Rebirth needs Wall Level 55 and 1M coins.", Color3.fromRGB(255, 120, 120))
+		sendFeedback(player, {
+			type = "Fail",
+			target = "Rebirth",
+			message = "Locked",
+			color = PolishConfig.Palette.Fail,
+		})
+		return { ok = false, reason = "requirements" }
+	end
+	addStat(player, "Rebirths", 1)
+	setStat(player, "Power", 25)
+	setStat(player, "Coins", 0)
+	setStat(player, "WallLevel", 1)
+	setStat(player, "WallXP", 0)
+	setStat(player, "FistMultiplier", 1)
+	setStat(player, "BreakSpeed", 1)
+	local fist = playerStat(player, "EquippedFist")
+	if fist then
+		fist.Value = "Starter Glove"
+	end
+	advanceTutorial(player, 7)
+	notify(player, "Rebirth complete! Permanent +25% power multiplier.", Color3.fromRGB(140, 220, 255))
+	emitNamed(rebirthPart, "Rebirth Pulse", 44)
+	sendFeedback(player, {
+		type = "Rebirth",
+		target = "Rebirth",
+		color = Color3.fromRGB(207, 188, 255),
+	})
+	return { ok = true, rebirths = statValue(player, "Rebirths", 0), power = statValue(player, "Power", 0), coins = statValue(player, "Coins", 0), wallLevel = statValue(player, "WallLevel", 0) }
+end
+
+rebirthDetector.MouseClick:Connect(function(player)
+	tryRebirth(player)
+end)
+
+local function equipFist(player, fistName)
+	local item = fistByName[fistName]
+	local owned = decodeList(player, "OwnedFistsJSON")
+	if not item or not listContains(owned, fistName) then
+		return { ok = false, reason = "not_owned" }
+	end
+	setStat(player, "EquippedFist", fistName)
+	setStat(player, "FistMultiplier", item.mult)
+	setStat(player, "BreakSpeed", 1 + item.speed)
+	sendFeedback(player, { type = "Shop", target = fistName, color = PolishConfig.Palette.Use })
+	return { ok = true, item = fistName, multiplier = item.mult }
+end
+
+local function claimDaily(player)
+	local today = os.date("!%Y-%m-%d")
+	if statValue(player, "LastDailyDate", "") == today then
+		return { ok = false, reason = "already_claimed" }
+	end
+	setStat(player, "LastDailyDate", today)
+	addStat(player, "Coins", GameConfig.Rewards.DailyCoins)
+	sendFeedback(player, { type = "Reward", target = "Daily", coins = GameConfig.Rewards.DailyCoins, power = 0, color = PolishConfig.Palette.Reward })
+	return { ok = true, reward = GameConfig.Rewards.DailyCoins }
+end
+
+local function claimQuest(player)
+	if statValue(player, "DailyQuestClaimed", 0) >= 1 then
+		return { ok = false, reason = "already_claimed" }
+	end
+	if statValue(player, "DailyBreaks", 0) < GameConfig.Rewards.QuestBreakTarget then
+		return { ok = false, reason = "not_ready" }
+	end
+	setStat(player, "DailyQuestClaimed", 1)
+	addStat(player, "Coins", GameConfig.Rewards.QuestCoins)
+	sendFeedback(player, { type = "Reward", target = "Quest", coins = GameConfig.Rewards.QuestCoins, power = 0, color = PolishConfig.Palette.Reward })
+	return { ok = true, reward = GameConfig.Rewards.QuestCoins }
+end
+
+local function claimPlaytime(player)
+	if statValue(player, "PlaytimeClaimed", 0) >= 1 then
+		return { ok = false, reason = "already_claimed" }
+	end
+	if statValue(player, "PlaytimeSeconds", 0) < GameConfig.Rewards.PlaytimeSeconds then
+		return { ok = false, reason = "not_ready" }
+	end
+	setStat(player, "PlaytimeClaimed", 1)
+	addStat(player, "Coins", GameConfig.Rewards.PlaytimeCoins)
+	sendFeedback(player, { type = "Reward", target = "Playtime", coins = GameConfig.Rewards.PlaytimeCoins, power = 0, color = PolishConfig.Palette.Reward })
+	return { ok = true, reward = GameConfig.Rewards.PlaytimeCoins }
+end
+
+local function characterRoot(player)
+	local character = player.Character
+	return character and character:FindFirstChild("HumanoidRootPart")
+end
+
+local function nearestNamedPart(player, partsByName)
+	local rootPart = characterRoot(player)
+	if not rootPart then
+		return nil
+	end
+
+	local nearestName = nil
+	local nearestPart = nil
+	local nearestDistance = MOBILE_ACTION_DISTANCE
+	for name, part in pairs(partsByName) do
+		if part and part.Parent then
+			local distance = (rootPart.Position - part.Position).Magnitude
+			if distance <= nearestDistance then
+				nearestName = name
+				nearestPart = part
+				nearestDistance = distance
+			end
+		end
+	end
+
+	return nearestName, nearestPart, nearestDistance
+end
+
+local function nearestWall(player)
+	local rootPart = characterRoot(player)
+	if not rootPart then
+		return nil
+	end
+
+	local nearest = nil
+	local nearestDistance = MOBILE_ACTION_DISTANCE
+	for _, wall in ipairs(wallsFolder:GetChildren()) do
+		if wall:IsA("BasePart") then
+			local distance = (rootPart.Position - wall.Position).Magnitude
+			if distance <= nearestDistance then
+				nearest = wall
+				nearestDistance = distance
+			end
+		end
+	end
+
+	return nearest, nearestDistance
+end
+
+local function nearestUseTarget(player)
+	local rootPart = characterRoot(player)
+	if not rootPart then
+		return nil
+	end
+
+	local nearestKind = nil
+	local nearestName = nil
+	local nearestDistance = MOBILE_ACTION_DISTANCE
+
+	for name, part in pairs(fistPartsByName) do
+		if part and part.Parent then
+			local distance = (rootPart.Position - part.Position).Magnitude
+			if distance <= nearestDistance then
+				nearestKind = "Fist"
+				nearestName = name
+				nearestDistance = distance
+			end
+		end
+	end
+
+	for _, target in ipairs({
+		{ kind = "Egg", name = "Pet Egg Machine", part = eggPart },
+		{ kind = "Rebirth", name = "Rebirth Shrine", part = rebirthPart },
+	}) do
+		if target.part and target.part.Parent then
+			local distance = (rootPart.Position - target.part.Position).Magnitude
+			if distance <= nearestDistance then
+				nearestKind = target.kind
+				nearestName = target.name
+				nearestDistance = distance
+			end
+		end
+	end
+
+	return nearestKind, nearestName, nearestDistance
+end
+
+local function handleMobileAction(player, request)
+	local action = request
+	local target
+	local value
+	if typeof(request) == "table" then
+		action = request.action
+		target = request.target
+		value = request.value
+	end
+	if typeof(action) ~= "string" then
+		return
+	end
+	local now = os.clock()
+	local lastAction = player:GetAttribute("LastMobileAction") or 0
+	if now - lastAction < MOBILE_ACTION_COOLDOWN then
+		return
+	end
+	player:SetAttribute("LastMobileAction", now)
+
+	if action == "RequestSync" then
+		syncStats(player)
+		return
+	elseif action == "BuyFist" then
+		local item = target and fistByName[target]
+		if item then buyFist(player, item) end
+		return
+	elseif action == "EquipFist" then
+		equipFist(player, target)
+		return
+	elseif action == "HatchPet" then
+		hatchPets(player, value)
+		return
+	elseif action == "EquipPet" then
+		equipPet(player, target)
+		return
+	elseif action == "UnequipPet" then
+		unequipPet(player, target)
+		return
+	elseif action == "DeletePet" then
+		deletePet(player, target)
+		return
+	elseif action == "LockPet" then
+		setPetLocked(player, target, value == true)
+		return
+	elseif action == "ClaimDaily" then
+		claimDaily(player)
+		return
+	elseif action == "ClaimQuest" then
+		claimQuest(player)
+		return
+	elseif action == "ClaimPlaytime" then
+		claimPlaytime(player)
+		return
+	elseif action == "UpdateSettings" and typeof(value) == "table" then
+		local settings = {
+			motion = value.motion ~= false,
+			sound = value.sound ~= false,
+			uiScale = math.clamp(tonumber(value.uiScale) or 1, 0.8, 1.2),
+		}
+		setStat(player, "SettingsJSON", HttpService:JSONEncode(settings))
+		return
+	elseif action == "Rebirth" then
+		tryRebirth(player)
+		return
+	elseif action == "Train" then
+		local stationName = nearestNamedPart(player, trainingPartsByName)
+		local config = stationName and trainingByName[stationName]
+		if not config then
+			notify(player, "Move closer to a training station.", Color3.fromRGB(255, 160, 120))
+			sendFeedback(player, { type = "Fail", target = "Train", message = "Move closer", color = PolishConfig.Palette.Fail })
+			return
+		end
+		trainPlayer(player, config)
+	elseif action == "Punch" then
+		local wall = nearestWall(player)
+		if not wall then
+			notify(player, "Move closer to a wall.", Color3.fromRGB(255, 160, 120))
+			sendFeedback(player, { type = "Fail", target = "Punch", message = "Move closer", color = PolishConfig.Palette.Fail })
+			return
+		end
+		if wall == boss then
+			hitBoss(player)
+		else
+			hitWall(player, wall)
+		end
+	elseif action == "Use" then
+		local targetKind, targetName = nearestUseTarget(player)
+		if targetKind == "Fist" then
+			buyFist(player, fistByName[targetName])
+		elseif targetKind == "Egg" then
+			hatchPet(player)
+		elseif targetKind == "Rebirth" then
+			tryRebirth(player)
+		else
+			notify(player, "Move closer to a shop, egg, or shrine.", Color3.fromRGB(255, 160, 120))
+			sendFeedback(player, { type = "Fail", target = "Use", message = "Move closer", color = PolishConfig.Palette.Fail })
+		end
+	end
+end
+
+actionRemote.OnServerEvent:Connect(function(player, action)
+	if typeof(action) ~= "string" and typeof(action) ~= "table" then
+		return
+	end
+	handleMobileAction(player, action)
+end)
+
+local function resetWallState(wall)
+	if wall.Name == "Titan Server Wall" then wall:SetAttribute("MaxHP", 5000000) end
+	wall:SetAttribute("HP", wall:GetAttribute("MaxHP"))
+	wall:SetAttribute("Broken", false)
+	if wall:GetAttribute("OriginalColor") then
+		wall.Color = wall:GetAttribute("OriginalColor")
+	end
+	wall.Transparency = 0
+	wall.CanCollide = true
+	setWallVisualDetailsBroken(wall, false)
+	setWallDebrisState(wall, false)
+	wallContributions[wall] = {}
+	updateWallText(wall)
+	updateWallDamage(wall)
+end
+
+local function automationSnapshot(player, extra)
+	local result = collectPlayerData(player)
+	result.BrickWallHP = wallsFolder:FindFirstChild("Brick Wall") and wallsFolder["Brick Wall"]:GetAttribute("HP") or 0
+	result.BrickWallBroken = wallsFolder:FindFirstChild("Brick Wall") and wallsFolder["Brick Wall"]:GetAttribute("Broken") == true or false
+	result.TitanHP = boss:GetAttribute("HP")
+	result.TitanBroken = boss:GetAttribute("Broken") == true
+	if extra then
+		for key, value in pairs(extra) do
+			result[key] = value
+		end
+	end
+	return result
+end
+
+local function resetAutomationState(player)
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		setStat(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		setStat(player, name, NUMBER_STAT_DEFAULTS[name])
+	end
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		setStat(player, name, TEXT_STAT_DEFAULTS[name])
+	end
+	player:SetAttribute("LastWallHit", 0)
+	player:SetAttribute("LastBossHit", 0)
+	for _, config in ipairs(trainingConfigs) do
+		player:SetAttribute("LastTrain" .. config.stat, 0)
+	end
+	for _, wall in ipairs(wallsFolder:GetChildren()) do
+		if wall:IsA("BasePart") then
+			resetWallState(wall)
+		end
+	end
+	resetWallState(boss)
+	bossContributions = {}
+	bossParticipants = {}
+	boss:SetAttribute("BossPhase", 1)
+	boss:SetAttribute("ParticipantCount", 0)
+	boss:SetAttribute("RespawnAt", 0)
+	return automationSnapshot(player, { action = "Reset", ok = true })
+end
+
+if RunService:IsStudio() then
+	local existing = ServerStorage:FindFirstChild("PunchWallAutomation")
+	if existing then
+		existing:Destroy()
+	end
+
+	local automationCommand = Instance.new("BindableFunction")
+	automationCommand.Name = "PunchWallAutomation"
+	automationCommand.Parent = ServerStorage
+	automationCommand.OnInvoke = function(action, target, amount)
+		local player = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+		player:WaitForChild("leaderstats", 5)
+		player:WaitForChild("RPGStats", 5)
+
+		if action == "Reset" then
+			return resetAutomationState(player)
+		elseif action == "SetStats" then
+			for name, value in pairs(target or {}) do
+				setStat(player, name, value)
+			end
+			return automationSnapshot(player, { action = action, ok = true })
+		elseif action == "Train" then
+			local config = trainingByName[target]
+			assert(config, "Unknown training station: " .. tostring(target))
+			player:SetAttribute("LastTrain" .. config.stat, 0)
+			return automationSnapshot(player, trainPlayer(player, config))
+		elseif action == "HitWall" then
+			local wall = wallsFolder:FindFirstChild(target)
+			assert(wall, "Unknown wall: " .. tostring(target))
+			player:SetAttribute("LastWallHit", 0)
+			return automationSnapshot(player, hitWall(player, wall))
+		elseif action == "BreakWall" then
+			local wall = wallsFolder:FindFirstChild(target)
+			assert(wall, "Unknown wall: " .. tostring(target))
+			local result
+			for _ = 1, amount or 20 do
+				if wall:GetAttribute("Broken") then
+					break
+				end
+				player:SetAttribute("LastWallHit", 0)
+				result = hitWall(player, wall)
+			end
+			return automationSnapshot(player, result or { ok = false, reason = "not_hit" })
+		elseif action == "BreakWallCycles" then
+			local wall = wallsFolder:FindFirstChild(target)
+			assert(wall, "Unknown wall: " .. tostring(target))
+			local cycles = math.clamp(tonumber(amount) or 1, 1, 200)
+			local completed = 0
+			for _ = 1, cycles do
+				if statValue(player, "WallLevel", 1) < (wall:GetAttribute("RequiredLevel") or 1) then break end
+				for _ = 1, 500 do
+					if wall:GetAttribute("Broken") then break end
+					player:SetAttribute("LastWallHit", 0)
+					hitWall(player, wall)
+				end
+				if not wall:GetAttribute("Broken") then break end
+				completed += 1
+				resetWallState(wall)
+				wallContributions[wall] = {}
+			end
+			return automationSnapshot(player, { action = action, ok = completed > 0, completed = completed })
+		elseif action == "BuyFist" then
+			local item = fistByName[target]
+			assert(item, "Unknown fist: " .. tostring(target))
+			return automationSnapshot(player, buyFist(player, item))
+		elseif action == "HatchPet" then
+			return automationSnapshot(player, hatchPet(player))
+		elseif action == "EquipPet" then
+			return automationSnapshot(player, equipPet(player, target))
+		elseif action == "UnequipPet" then
+			return automationSnapshot(player, unequipPet(player, target))
+		elseif action == "DeletePet" then
+			return automationSnapshot(player, deletePet(player, target))
+		elseif action == "LockPet" then
+			return automationSnapshot(player, setPetLocked(player, target, amount == true or amount == 1))
+		elseif action == "EquipFist" then
+			return automationSnapshot(player, equipFist(player, target))
+		elseif action == "ClaimDaily" then
+			return automationSnapshot(player, claimDaily(player))
+		elseif action == "ClaimQuest" then
+			return automationSnapshot(player, claimQuest(player))
+		elseif action == "ClaimPlaytime" then
+			return automationSnapshot(player, claimPlaytime(player))
+		elseif action == "Rebirth" then
+			return automationSnapshot(player, tryRebirth(player))
+		elseif action == "HitBoss" then
+			player:SetAttribute("LastBossHit", 0)
+			return automationSnapshot(player, hitBoss(player))
+		elseif action == "Snapshot" then
+			return automationSnapshot(player, { action = action, ok = true })
+		end
+
+		error("Unknown automation action: " .. tostring(action))
+	end
+end
+
+for _, z in ipairs({ -44, -10, 24, 58 }) do
+	local stripe = makePart("City Lane Paint", root, Vector3.new(210, 0.12, 1.2), Vector3.new(48, 0.22, z), Color3.fromRGB(210, 214, 205), Enum.Material.SmoothPlastic)
+	stripe:SetAttribute("Theme", PolishConfig.StyleName)
+	stripe:SetAttribute("TextureStyle", "RoadPaint")
+end
+
+Players.PlayerAdded:Connect(ensureStats)
+Players.PlayerRemoving:Connect(savePlayerData)
+for _, player in ipairs(Players:GetPlayers()) do
+	ensureStats(player)
+end
+
+game:BindToClose(function()
+	for _, player in ipairs(Players:GetPlayers()) do
+		savePlayerData(player)
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(1)
+		local today = os.date("!%Y-%m-%d")
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player:FindFirstChild("RPGStats") then
+				addStat(player, "PlaytimeSeconds", 1)
+				if statValue(player, "DailyQuestDate", "") ~= today then
+					setStat(player, "DailyBreaks", 0)
+					setStat(player, "DailyQuestClaimed", 0)
+					setStat(player, "DailyQuestDate", today)
+				end
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(AUTOSAVE_SECONDS)
+		for _, player in ipairs(Players:GetPlayers()) do
+			savePlayerData(player)
+		end
+	end
+end)
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="6">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="7">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="8">
+        <Properties>
+          <string name="Name">PunchWallClient</string>
+          <string name="Source"><![CDATA[local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
+local Debris = game:GetService("Debris")
+local HttpService = game:GetService("HttpService")
+local HapticService = game:GetService("HapticService")
+
+local player = Players.LocalPlayer
+local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
+local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
+local palette = PolishConfig.Palette
+local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
+local notifyRemote = remotes:WaitForChild("Notify")
+local statRemote = remotes:WaitForChild("StatsChanged")
+local actionRemote = remotes:WaitForChild("ActionRequest")
+local feedbackRemote = remotes:WaitForChild("Feedback")
+
+local latestStats = {}
+local clientSettings = { motion = true, sound = true, uiScale = 1 }
+
+local function decodeJSON(raw, fallback)
+	if type(raw) ~= "string" then return fallback end
+	local ok, value = pcall(function() return HttpService:JSONDecode(raw) end)
+	return ok and value or fallback
+end
+
+local function playUISound(soundId, volume, speed)
+	if not clientSettings.sound then return end
+	local sound = Instance.new("Sound")
+	sound.SoundId = soundId
+	sound.Volume = volume or 0.45
+	sound.PlaybackSpeed = speed or 1
+	sound.Parent = SoundService
+	sound:Play()
+	Debris:AddItem(sound, 6)
+end
+
+local function pulseHaptic(strength, duration)
+	for _, inputType in ipairs({ Enum.UserInputType.Touch, Enum.UserInputType.Gamepad1 }) do
+		pcall(function()
+			if HapticService:IsMotorSupported(inputType, Enum.VibrationMotor.Small) then
+				HapticService:SetMotor(inputType, Enum.VibrationMotor.Small, strength or 0.35)
+				task.delay(duration or 0.06, function()
+					pcall(function() HapticService:SetMotor(inputType, Enum.VibrationMotor.Small, 0) end)
+				end)
+			end
+		end)
+	end
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "PunchWallHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = false
+gui.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+gui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.FullscreenExtension
+gui.ClipToDeviceSafeArea = true
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local panel = Instance.new("Frame")
+panel.Name = "StatsPanel"
+panel.AnchorPoint = Vector2.new(0, 0)
+panel.Position = UDim2.fromOffset(18, 18)
+panel.Size = UDim2.fromOffset(310, 196)
+panel.BackgroundColor3 = palette.Panel
+panel.BackgroundTransparency = 0.03
+panel.BorderSizePixel = 0
+panel.Parent = gui
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 8)
+panelCorner.Parent = panel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = palette.RoadLine
+panelStroke.Thickness = 2
+panelStroke.Parent = panel
+
+local panelScale = Instance.new("UIScale")
+panelScale.Name = "ResponsiveScale"
+panelScale.Parent = panel
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(14, 10)
+title.Size = UDim2.new(1, -28, 0, 30)
+title.Font = Enum.Font.GothamBlack
+title.Text = "Kaiju City Smash"
+title.TextColor3 = palette.Text
+title.TextSize = 22
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = panel
+
+local statsList = Instance.new("Frame")
+statsList.BackgroundTransparency = 1
+statsList.Position = UDim2.fromOffset(14, 46)
+statsList.Size = UDim2.new(1, -28, 1, -58)
+statsList.Parent = panel
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 4)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = statsList
+
+local labels = {}
+local order = {
+	"Power",
+	"Coins",
+	"WallLevel",
+	"EquippedFist",
+	"Pet",
+	"Rebirths",
+}
+
+local function formatNumber(value)
+	value = tonumber(value) or 0
+	local abs = math.abs(value)
+	if abs >= 1e12 then
+		return string.format("%.1fT", value / 1e12)
+	elseif abs >= 1e9 then
+		return string.format("%.1fB", value / 1e9)
+	elseif abs >= 1e6 then
+		return string.format("%.1fM", value / 1e6)
+	elseif abs >= 1e3 then
+		return string.format("%.1fK", value / 1e3)
+	end
+	return tostring(math.floor(value + 0.5))
+end
+
+for index, key in ipairs(order) do
+	local label = Instance.new("TextLabel")
+	label.Name = key
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.new(1, 0, 0, 20)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextColor3 = palette.MutedText
+	label.TextSize = 16
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.LayoutOrder = index
+	label.Text = key .. ": ..."
+	label.Parent = statsList
+	labels[key] = label
+end
+
+local help = Instance.new("TextLabel")
+help.Name = "ObjectiveCard"
+help.AnchorPoint = Vector2.new(0.5, 0)
+help.Position = UDim2.new(0.5, 0, 0, 18)
+help.Size = UDim2.fromOffset(430, 54)
+help.BackgroundColor3 = palette.PanelSoft
+help.BackgroundTransparency = 0.04
+help.BorderSizePixel = 0
+help.Font = Enum.Font.GothamBold
+help.Text = "OBJECTIVE  |  Train at the Power Bag"
+help.TextColor3 = palette.Text
+help.TextSize = 15
+help.TextWrapped = true
+help.Parent = gui
+
+local helpCorner = Instance.new("UICorner")
+helpCorner.CornerRadius = UDim.new(0, 8)
+helpCorner.Parent = help
+
+local mobileControls = Instance.new("Frame")
+mobileControls.Name = "MobileControls"
+mobileControls.AnchorPoint = Vector2.new(1, 1)
+mobileControls.BackgroundTransparency = 1
+mobileControls.Position = UDim2.new(1, -18, 1, -126)
+mobileControls.Size = UDim2.fromOffset(196, 108)
+mobileControls.Visible = UserInputService.TouchEnabled
+mobileControls.Parent = gui
+
+local mobileLayout = Instance.new("UIGridLayout")
+mobileLayout.CellPadding = UDim2.fromOffset(8, 8)
+mobileLayout.CellSize = UDim2.fromOffset(92, 46)
+mobileLayout.FillDirectionMaxCells = 2
+mobileLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+mobileLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+mobileLayout.SortOrder = Enum.SortOrder.LayoutOrder
+mobileLayout.Parent = mobileControls
+
+local function makeActionButton(name, text, action, orderIndex, color)
+	local button = Instance.new("TextButton")
+	button.Name = name
+	button.LayoutOrder = orderIndex
+	button.Size = UDim2.fromOffset(92, 46)
+	button.BackgroundColor3 = color
+	button.BackgroundTransparency = 0.04
+	button.BorderSizePixel = 0
+	button.Font = Enum.Font.GothamBlack
+	button.Text = text
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.TextSize = 18
+	button.AutoButtonColor = true
+	button.Parent = mobileControls
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = button
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Transparency = 0.35
+	stroke.Thickness = 2
+	stroke.Parent = button
+
+	local scale = Instance.new("UIScale")
+	scale.Name = "PressScale"
+	scale.Scale = 1
+	scale.Parent = button
+
+	button.Activated:Connect(function()
+		TweenService:Create(scale, TweenInfo.new(PolishConfig.Motion.ButtonPressSeconds), { Scale = 0.92 }):Play()
+		task.delay(PolishConfig.Motion.ButtonPressSeconds, function()
+			if scale.Parent then
+				TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1 }):Play()
+			end
+		end)
+		actionRemote:FireServer(action)
+	end)
+
+	return button
+end
+
+local punchButton = makeActionButton("ActionPunch", "PUNCH", "Punch", 1, palette.Punch)
+local trainButton = makeActionButton("ActionTrain", "TRAIN", "Train", 2, palette.Train)
+local useButton = makeActionButton("ActionUse", "USE", "Use", 3, palette.Use)
+
+local contextLabel = Instance.new("TextLabel")
+contextLabel.Name = "ContextTarget"
+contextLabel.AnchorPoint = Vector2.new(0.5, 1)
+contextLabel.Position = UDim2.new(0.5, 0, 1, -92)
+contextLabel.Size = UDim2.fromOffset(220, 30)
+contextLabel.BackgroundColor3 = palette.Panel
+contextLabel.BackgroundTransparency = 0.08
+contextLabel.BorderSizePixel = 0
+contextLabel.Font = Enum.Font.GothamBold
+contextLabel.Text = "Move near a target"
+contextLabel.TextColor3 = palette.Text
+contextLabel.TextSize = 13
+contextLabel.TextTruncate = Enum.TextTruncate.AtEnd
+contextLabel.Parent = gui
+
+local contextCorner = Instance.new("UICorner")
+contextCorner.CornerRadius = UDim.new(0, 6)
+contextCorner.Parent = contextLabel
+
+local bossHUD = Instance.new("Frame")
+bossHUD.Name = "BossHUD"
+bossHUD.AnchorPoint = Vector2.new(0.5, 0)
+bossHUD.Position = UDim2.new(0.5, 0, 0, 82)
+bossHUD.Size = UDim2.fromOffset(420, 58)
+bossHUD.BackgroundColor3 = palette.Panel
+bossHUD.BackgroundTransparency = 0.04
+bossHUD.BorderSizePixel = 0
+bossHUD.Visible = false
+bossHUD.Parent = gui
+
+local bossCorner = Instance.new("UICorner")
+bossCorner.CornerRadius = UDim.new(0, 8)
+bossCorner.Parent = bossHUD
+
+local bossTitle = Instance.new("TextLabel")
+bossTitle.BackgroundTransparency = 1
+bossTitle.Position = UDim2.fromOffset(10, 5)
+bossTitle.Size = UDim2.new(1, -20, 0, 20)
+bossTitle.Font = Enum.Font.GothamBlack
+bossTitle.Text = "TITAN HQ"
+bossTitle.TextColor3 = palette.Text
+bossTitle.TextSize = 15
+bossTitle.TextXAlignment = Enum.TextXAlignment.Left
+bossTitle.Parent = bossHUD
+
+local bossTrack = Instance.new("Frame")
+bossTrack.Position = UDim2.fromOffset(10, 29)
+bossTrack.Size = UDim2.new(1, -20, 0, 13)
+bossTrack.BackgroundColor3 = Color3.fromRGB(56, 61, 66)
+bossTrack.BorderSizePixel = 0
+bossTrack.Parent = bossHUD
+local bossTrackCorner = Instance.new("UICorner")
+bossTrackCorner.CornerRadius = UDim.new(0, 5)
+bossTrackCorner.Parent = bossTrack
+
+local bossFill = Instance.new("Frame")
+bossFill.Size = UDim2.fromScale(1, 1)
+bossFill.BackgroundColor3 = palette.Punch
+bossFill.BorderSizePixel = 0
+bossFill.Parent = bossTrack
+local bossFillCorner = Instance.new("UICorner")
+bossFillCorner.CornerRadius = UDim.new(0, 5)
+bossFillCorner.Parent = bossFill
+
+local bossSubtitle = Instance.new("TextLabel")
+bossSubtitle.BackgroundTransparency = 1
+bossSubtitle.Position = UDim2.new(0, 10, 1, -15)
+bossSubtitle.Size = UDim2.new(1, -20, 0, 13)
+bossSubtitle.Font = Enum.Font.Gotham
+bossSubtitle.Text = ""
+bossSubtitle.TextColor3 = palette.MutedText
+bossSubtitle.TextSize = 10
+bossSubtitle.TextXAlignment = Enum.TextXAlignment.Right
+bossSubtitle.Parent = bossHUD
+
+local toastHolder = Instance.new("Frame")
+toastHolder.Name = "Toasts"
+toastHolder.AnchorPoint = Vector2.new(0.5, 0)
+toastHolder.BackgroundTransparency = 1
+toastHolder.Position = UDim2.new(0.5, 0, 0, 24)
+toastHolder.Size = UDim2.fromOffset(460, 160)
+toastHolder.Parent = gui
+
+local toastLayout = Instance.new("UIListLayout")
+toastLayout.Padding = UDim.new(0, 8)
+toastLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+toastLayout.SortOrder = Enum.SortOrder.LayoutOrder
+toastLayout.Parent = toastHolder
+
+local rewardHolder = Instance.new("Frame")
+rewardHolder.Name = "RewardPops"
+rewardHolder.AnchorPoint = Vector2.new(0.5, 0.5)
+rewardHolder.BackgroundTransparency = 1
+rewardHolder.Position = UDim2.fromScale(0.5, 0.48)
+rewardHolder.Size = UDim2.fromOffset(520, 220)
+rewardHolder.Parent = gui
+
+local function feedbackText(payload)
+	if payload.type == "Punch" then
+		return ("-%s HP"):format(formatNumber(payload.damage or 0))
+	elseif payload.type == "Reward" then
+		local xp = payload.xp and ("  +%s XP"):format(formatNumber(payload.xp)) or ""
+		return ("+%s coins  +%s power%s"):format(formatNumber(payload.coins or 0), formatNumber(payload.power or 0), xp)
+	elseif payload.type == "Train" then
+		return ("+%s %s"):format(tostring(payload.gain or ""), tostring(payload.stat or "Stat"))
+	elseif payload.type == "Shop" then
+		return ("Equipped %s"):format(tostring(payload.target or "Fist"))
+	elseif payload.type == "Pet" then
+		return ("Hatched %s!"):format(tostring(payload.target or "Pet"))
+	elseif payload.type == "Rebirth" then
+		return "REBIRTH COMPLETE"
+	elseif payload.type == "Boss" then
+		return "TITAN WALL SHATTERED"
+	elseif payload.type == "BossPhase" then
+		return ("TITAN PHASE %s"):format(tostring(payload.target or "?"))
+	elseif payload.type == "BossAttack" then
+		return "SHOCKWAVE INCOMING"
+	elseif payload.type == "LevelUp" then
+		return ("WALL LEVEL %s"):format(tostring(payload.target or "?"))
+	elseif payload.type == "Fail" then
+		return tostring(payload.message or "Locked")
+	end
+	return tostring(payload.type or "Feedback")
+end
+
+local performPunchAnimation = function() end
+
+local function showWorldDamage(payload)
+	if payload.type ~= "Punch" then return end
+	local root = workspace:FindFirstChild("PunchWallRPG")
+	local walls = root and root:FindFirstChild("Walls")
+	local target = walls and walls:FindFirstChild(tostring(payload.target or ""))
+	if not target or not target:IsA("BasePart") then return end
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "LocalDamageNumber"
+	billboard.AlwaysOnTop = true
+	billboard.LightInfluence = 0
+	billboard.Size = UDim2.fromOffset(150, 48)
+	billboard.StudsOffsetWorldSpace = Vector3.new(math.random(-3, 3), math.random(2, 5), -4.5)
+	billboard.Parent = target
+	local textLabel = Instance.new("TextLabel")
+	textLabel.BackgroundTransparency = 1
+	textLabel.Size = UDim2.fromScale(1, 1)
+	textLabel.Font = Enum.Font.GothamBlack
+	textLabel.Text = ("-%s"):format(formatNumber(payload.damage or 0))
+	textLabel.TextColor3 = payload.color or palette.Crit
+	textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+	textLabel.TextStrokeTransparency = 0.25
+	textLabel.TextScaled = true
+	textLabel.Parent = billboard
+	if clientSettings.motion then
+		TweenService:Create(billboard, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			StudsOffsetWorldSpace = billboard.StudsOffsetWorldSpace + Vector3.new(0, 3, 0),
+		}):Play()
+		TweenService:Create(textLabel, TweenInfo.new(0.65), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	end
+	Debris:AddItem(billboard, 0.72)
+end
+
+local function showFeedback(payload)
+	if typeof(payload) ~= "table" then
+		return
+	end
+	local count = (gui:GetAttribute("FeedbackCount") or 0) + 1
+	gui:SetAttribute("FeedbackCount", count)
+	gui:SetAttribute("LastFeedbackType", tostring(payload.type or "Unknown"))
+	gui:SetAttribute("LastFeedbackTarget", tostring(payload.target or ""))
+	showWorldDamage(payload)
+	if payload.type == "Punch" then
+		performPunchAnimation()
+		pulseHaptic(0.28, 0.05)
+		playUISound(GameConfig.Audio.Punch, 0.28, 1.04)
+	elseif payload.type == "Reward" or payload.type == "LevelUp" then
+		playUISound(GameConfig.Audio.Reward, 0.38, payload.type == "LevelUp" and 1.1 or 1)
+	elseif payload.type == "Boss" or payload.type == "BossAttack" then
+		pulseHaptic(0.65, 0.14)
+		playUISound(GameConfig.Audio.BossRoar, 0.45, 0.92)
+	end
+
+	local color = payload.color or palette.Reward
+	local pop = Instance.new("TextLabel")
+	pop.Name = "FeedbackPop"
+	pop.AnchorPoint = Vector2.new(0.5, 0.5)
+	pop.BackgroundColor3 = palette.Panel
+	pop.BackgroundTransparency = 0.08
+	pop.BorderSizePixel = 0
+	pop.Font = Enum.Font.GothamBlack
+	pop.Text = feedbackText(payload)
+	pop.TextColor3 = color
+	pop.TextSize = payload.type == "Boss" and 28 or 22
+	pop.TextWrapped = true
+	pop.Position = UDim2.new(0.5, math.random(-70, 70), 0.62, math.random(-18, 18))
+	pop.Size = UDim2.fromOffset(320, 50)
+	pop.Parent = rewardHolder
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = pop
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = color
+	stroke.Transparency = 0.18
+	stroke.Thickness = 2
+	stroke.Parent = pop
+
+	local scale = Instance.new("UIScale")
+	scale.Scale = 0.72
+	scale.Parent = pop
+
+	TweenService:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(pop, TweenInfo.new(PolishConfig.Motion.RewardPopSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Position = pop.Position - UDim2.fromOffset(0, 66),
+		BackgroundTransparency = 1,
+		TextTransparency = 1,
+	}):Play()
+	TweenService:Create(stroke, TweenInfo.new(PolishConfig.Motion.RewardPopSeconds), { Transparency = 1 }):Play()
+
+	if clientSettings.motion and (payload.type == "Punch" or payload.type == "Boss" or payload.type == "BossAttack") then
+		local camera = workspace.CurrentCamera
+		if camera then
+			local baseFov = camera.FieldOfView
+			TweenService:Create(camera, TweenInfo.new(0.06), { FieldOfView = baseFov + 1.2 }):Play()
+			task.delay(0.07, function()
+				if camera then
+					TweenService:Create(camera, TweenInfo.new(0.12), { FieldOfView = baseFov }):Play()
+				end
+			end)
+		end
+	end
+
+	task.delay(PolishConfig.Motion.RewardPopSeconds + 0.08, function()
+		if pop.Parent then
+			pop:Destroy()
+		end
+	end)
+end
+
+local function showToast(message, color)
+	local toast = Instance.new("TextLabel")
+	toast.BackgroundColor3 = Color3.fromRGB(24, 30, 38)
+	toast.BackgroundTransparency = 0.05
+	toast.BorderSizePixel = 0
+	toast.Font = Enum.Font.GothamBold
+	toast.Text = message
+	toast.TextColor3 = color or Color3.fromRGB(255, 235, 140)
+	toast.TextSize = 17
+	toast.TextWrapped = true
+	toast.Size = UDim2.fromOffset(440, 46)
+	toast.Parent = toastHolder
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = toast
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = toast.TextColor3
+	stroke.Transparency = 0.35
+	stroke.Thickness = 1
+	stroke.Parent = toast
+
+	toast.TextTransparency = 1
+	toast.BackgroundTransparency = 1
+	TweenService:Create(toast, TweenInfo.new(0.18), {
+		TextTransparency = 0,
+		BackgroundTransparency = 0.05,
+	}):Play()
+
+	task.delay(3, function()
+		if toast.Parent then
+			local tween = TweenService:Create(toast, TweenInfo.new(0.22), {
+				TextTransparency = 1,
+				BackgroundTransparency = 1,
+			})
+			tween:Play()
+			tween.Completed:Wait()
+			toast:Destroy()
+		end
+	end)
+end
+
+local refreshCharacterVisuals = function() end
+local renderOpenPanel = function() end
+
+statRemote.OnClientEvent:Connect(function(payload)
+	latestStats = payload
+	clientSettings = decodeJSON(payload.SettingsJSON, clientSettings)
+	for _, key in ipairs(order) do
+		if labels[key] then
+			local value = payload[key]
+			if key == "WallLevel" then
+				labels[key].Text = ("Wall Lv: %s  XP %s/%s"):format(formatNumber(value), formatNumber(payload.WallXP or 0), formatNumber(payload.WallXPNeeded or 1))
+			elseif key == "EquippedFist" then
+				labels[key].Text = "Fist: " .. tostring(value or "Starter Glove")
+			elseif key == "Pet" then
+				labels[key].Text = ("Pets: %s  x%.2f"):format(tostring(value or "None"), 1 + (payload.PetMultiplier or 0))
+			elseif key == "Rebirths" then
+				labels[key].Text = ("Rebirths: %s  x%.2f"):format(formatNumber(value), payload.RebirthBonus or 1)
+			elseif typeof(value) == "number" then
+				labels[key].Text = key .. ": " .. formatNumber(value)
+			else
+				labels[key].Text = key .. ": " .. tostring(value or "None")
+			end
+		end
+	end
+	local tutorial = payload.Tutorial
+	if type(tutorial) == "table" then
+		help.Text = ("OBJECTIVE  |  %s\n%s"):format(tostring(tutorial.title or "Keep smashing"), tostring(tutorial.detail or ""))
+	end
+	refreshCharacterVisuals()
+	renderOpenPanel()
+end)
+
+notifyRemote.OnClientEvent:Connect(showToast)
+feedbackRemote.OnClientEvent:Connect(showFeedback)
+
+local menuButton = Instance.new("TextButton")
+menuButton.Name = "MenuButton"
+menuButton.AnchorPoint = Vector2.new(1, 0)
+menuButton.Position = UDim2.new(1, -18, 0, 18)
+menuButton.Size = UDim2.fromOffset(92, 42)
+menuButton.BackgroundColor3 = palette.Panel
+menuButton.BorderSizePixel = 0
+menuButton.Font = Enum.Font.GothamBlack
+menuButton.Text = "MENU"
+menuButton.TextColor3 = palette.Text
+menuButton.TextSize = 15
+menuButton.Parent = gui
+
+local menuCorner = Instance.new("UICorner")
+menuCorner.CornerRadius = UDim.new(0, 8)
+menuCorner.Parent = menuButton
+
+local mainPanel = Instance.new("Frame")
+mainPanel.Name = "GameMenu"
+mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
+mainPanel.Position = UDim2.fromScale(0.5, 0.52)
+mainPanel.Size = UDim2.fromOffset(660, 430)
+mainPanel.BackgroundColor3 = palette.Panel
+mainPanel.BackgroundTransparency = 0.02
+mainPanel.BorderSizePixel = 0
+mainPanel.Visible = false
+mainPanel.Parent = gui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8)
+mainCorner.Parent = mainPanel
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = palette.RoadLine
+mainStroke.Thickness = 2
+mainStroke.Parent = mainPanel
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "Close"
+closeButton.AnchorPoint = Vector2.new(1, 0)
+closeButton.Position = UDim2.new(1, -10, 0, 10)
+closeButton.Size = UDim2.fromOffset(40, 36)
+closeButton.BackgroundColor3 = palette.Fail
+closeButton.BorderSizePixel = 0
+closeButton.Font = Enum.Font.GothamBlack
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.TextSize = 18
+closeButton.Parent = mainPanel
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 7)
+closeCorner.Parent = closeButton
+
+local tabBar = Instance.new("Frame")
+tabBar.Name = "Tabs"
+tabBar.Position = UDim2.fromOffset(12, 12)
+tabBar.Size = UDim2.new(1, -68, 0, 42)
+tabBar.BackgroundTransparency = 1
+tabBar.Parent = mainPanel
+
+local tabLayout = Instance.new("UIListLayout")
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.Padding = UDim.new(0, 7)
+tabLayout.Parent = tabBar
+
+local content = Instance.new("ScrollingFrame")
+content.Name = "Content"
+content.Position = UDim2.fromOffset(12, 64)
+content.Size = UDim2.new(1, -24, 1, -76)
+content.BackgroundColor3 = palette.PanelSoft
+content.BackgroundTransparency = 0.35
+content.BorderSizePixel = 0
+content.ScrollBarThickness = 6
+content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+content.CanvasSize = UDim2.new()
+content.Parent = mainPanel
+
+local contentCorner = Instance.new("UICorner")
+contentCorner.CornerRadius = UDim.new(0, 7)
+contentCorner.Parent = content
+
+local contentPadding = Instance.new("UIPadding")
+contentPadding.PaddingTop = UDim.new(0, 10)
+contentPadding.PaddingBottom = UDim.new(0, 10)
+contentPadding.PaddingLeft = UDim.new(0, 10)
+contentPadding.PaddingRight = UDim.new(0, 10)
+contentPadding.Parent = content
+
+local contentLayout = Instance.new("UIListLayout")
+contentLayout.Padding = UDim.new(0, 7)
+contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+contentLayout.Parent = content
+
+local activeTab = "Fists"
+local tabButtons = {}
+local currentTarget
+
+local function setRounded(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius or 6)
+	corner.Parent = instance
+end
+
+local function makeMenuCommand(parent, name, textValue, color, callback)
+	local button = Instance.new("TextButton")
+	button.Name = name
+	button.Size = UDim2.fromOffset(112, 36)
+	button.BackgroundColor3 = color or palette.Use
+	button.BorderSizePixel = 0
+	button.Font = Enum.Font.GothamBold
+	button.Text = textValue
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.TextSize = 13
+	button.Parent = parent
+	setRounded(button, 6)
+	button.Activated:Connect(callback)
+	return button
+end
+
+for _, tabName in ipairs({ "Fists", "Pets", "Tasks", "Settings" }) do
+	local tab = makeMenuCommand(tabBar, tabName .. "Tab", string.upper(tabName), palette.PanelSoft, function()
+		activeTab = tabName
+		renderOpenPanel()
+	end)
+	tab.Size = UDim2.fromOffset(116, 38)
+	tabButtons[tabName] = tab
+end
+
+local function clearContent()
+	for _, child in ipairs(content:GetChildren()) do
+		if child:IsA("GuiObject") then child:Destroy() end
+	end
+end
+
+local function addSection(textValue, color)
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.new(1, -4, 0, 30)
+	label.Font = Enum.Font.GothamBlack
+	label.Text = textValue
+	label.TextColor3 = color or palette.Text
+	label.TextSize = 18
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Parent = content
+	return label
+end
+
+local function addRow(name, description, accent)
+	local row = Instance.new("Frame")
+	row.Name = name
+	row.Size = UDim2.new(1, -4, 0, 64)
+	row.BackgroundColor3 = Color3.fromRGB(38, 47, 55)
+	row.BorderSizePixel = 0
+	row.Parent = content
+	setRounded(row, 6)
+	local stripe = Instance.new("Frame")
+	stripe.Size = UDim2.fromOffset(5, 64)
+	stripe.BackgroundColor3 = accent or palette.Use
+	stripe.BorderSizePixel = 0
+	stripe.Parent = row
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Position = UDim2.fromOffset(15, 7)
+	titleLabel.Size = UDim2.new(1, -270, 0, 23)
+	titleLabel.Font = Enum.Font.GothamBold
+	titleLabel.Text = name
+	titleLabel.TextColor3 = palette.Text
+	titleLabel.TextSize = 15
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	titleLabel.Parent = row
+	local descLabel = Instance.new("TextLabel")
+	descLabel.BackgroundTransparency = 1
+	descLabel.Position = UDim2.fromOffset(15, 31)
+	descLabel.Size = UDim2.new(1, -270, 0, 22)
+	descLabel.Font = Enum.Font.Gotham
+	descLabel.Text = description
+	descLabel.TextColor3 = palette.MutedText
+	descLabel.TextSize = 12
+	descLabel.TextXAlignment = Enum.TextXAlignment.Left
+	descLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	descLabel.Parent = row
+	local actions = Instance.new("Frame")
+	actions.AnchorPoint = Vector2.new(1, 0.5)
+	actions.Position = UDim2.new(1, -8, 0.5, 0)
+	actions.Size = UDim2.fromOffset(238, 40)
+	actions.BackgroundTransparency = 1
+	actions.Parent = row
+	local actionsLayout = Instance.new("UIListLayout")
+	actionsLayout.FillDirection = Enum.FillDirection.Horizontal
+	actionsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	actionsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	actionsLayout.Padding = UDim.new(0, 6)
+	actionsLayout.Parent = actions
+	return row, actions
+end
+
+local function countNames(list)
+	local counts = {}
+	for _, name in ipairs(list) do counts[name] = (counts[name] or 0) + 1 end
+	return counts
+end
+
+local function renderFists()
+	addSection("FIST ARMORY", palette.RoadLine)
+	local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
+	for _, item in ipairs(GameConfig.Fists) do
+		local isOwned = table.find(owned, item.name) ~= nil
+		local equipped = latestStats.EquippedFist == item.name
+		local _, actions = addRow(item.name, ("Damage x%.1f  |  Speed +%.2f  |  Cost %s"):format(item.mult, item.speed, formatNumber(item.cost)), item.color)
+		local textValue = equipped and "EQUIPPED" or isOwned and "EQUIP" or "BUY"
+		local button = makeMenuCommand(actions, item.name .. "Action", textValue, equipped and palette.Reward or palette.Use, function()
+			if equipped then return end
+			actionRemote:FireServer({ action = isOwned and "EquipFist" or "BuyFist", target = item.name })
+		end)
+		button.Active = not equipped
+	end
+end
+
+local function renderPets()
+	addSection(("KAIJU PETS  |  Equipped %d/%d"):format(#decodeJSON(latestStats.EquippedPetsJSON, {}), GameConfig.MaxEquippedPets), palette.Use)
+	local hatchRow, hatchActions = addRow("DNA CAPSULE", ("Cost %s coins each  |  Luck %.2f"):format(formatNumber(350), latestStats.Luck or 1), palette.Reward)
+	makeMenuCommand(hatchActions, "HatchOne", "HATCH x1", palette.Reward, function() actionRemote:FireServer({ action = "HatchPet", value = 1 }) end)
+	makeMenuCommand(hatchActions, "HatchThree", "HATCH x3", palette.Use, function() actionRemote:FireServer({ action = "HatchPet", value = 3 }) end)
+	local chances = GameConfig.PetChances(latestStats.Luck or 1)
+	for _, pet in ipairs(GameConfig.Pets) do
+		local discovered = table.find(decodeJSON(latestStats.DiscoveredPetsJSON, {}), pet.name) ~= nil
+		local status = discovered and "DISCOVERED" or "UNKNOWN"
+		addRow(("[%s] %s"):format(pet.rarity, pet.name), ("%s  |  Power +%.0f%%  |  Chance %.2f%%"):format(status, pet.mult * 100, (chances[pet.name] or 0) * 100), pet.color)
+	end
+	addSection("INVENTORY", palette.Text)
+	local inventory = decodeJSON(latestStats.PetInventoryJSON, {})
+	local equipped = decodeJSON(latestStats.EquippedPetsJSON, {})
+	local locked = decodeJSON(latestStats.LockedPetsJSON, {})
+	local equippedCounts = countNames(equipped)
+	for index, petName in ipairs(inventory) do
+		local pet
+		for _, candidate in ipairs(GameConfig.Pets) do if candidate.name == petName then pet = candidate break end end
+		pet = pet or { rarity = "Unknown", mult = 0, color = palette.MutedText }
+		local _, actions = addRow(("#%02d  [%s] %s"):format(index, pet.rarity, petName), ("Power +%.0f%%"):format(pet.mult * 100), pet.color)
+		local equippedNow = (equippedCounts[petName] or 0) > 0
+		if equippedNow then equippedCounts[petName] -= 1 end
+		makeMenuCommand(actions, "Equip" .. index, equippedNow and "UNEQUIP" or "EQUIP", equippedNow and palette.Train or palette.Use, function()
+			actionRemote:FireServer({ action = equippedNow and "UnequipPet" or "EquipPet", target = petName })
+		end).Size = UDim2.fromOffset(86, 36)
+		local isLocked = table.find(locked, petName) ~= nil
+		makeMenuCommand(actions, "Lock" .. index, isLocked and "UNLOCK" or "LOCK", isLocked and palette.Train or palette.PanelSoft, function()
+			actionRemote:FireServer({ action = "LockPet", target = petName, value = not isLocked })
+		end).Size = UDim2.fromOffset(72, 36)
+		makeMenuCommand(actions, "Delete" .. index, "DELETE", isLocked and palette.PanelSoft or palette.Fail, function()
+			if isLocked then return end
+			actionRemote:FireServer({ action = "DeletePet", target = petName })
+		end).Size = UDim2.fromOffset(72, 36)
+	end
+	if #inventory == 0 then addSection("No pets yet. Hatch one at the DNA Lab.", palette.MutedText) end
+end
+
+local function renderTasks()
+	addSection("OBJECTIVES AND REWARDS", palette.RoadLine)
+	local tutorial = latestStats.Tutorial or {}
+	addRow("Tutorial", ("%s  |  %s"):format(tostring(tutorial.title or "Complete"), tostring(tutorial.detail or "")), palette.Train)
+	local _, dailyActions = addRow("Daily Supply", "Claim once per UTC day", palette.Reward)
+	makeMenuCommand(dailyActions, "ClaimDaily", "CLAIM", palette.Reward, function() actionRemote:FireServer({ action = "ClaimDaily" }) end)
+	local breaks = latestStats.DailyBreaks or 0
+	local questClaimed = (latestStats.DailyQuestClaimed or 0) >= 1
+	local _, questActions = addRow("City Cleanup", ("Break buildings %d/%d  |  Reward %s coins"):format(breaks, GameConfig.Rewards.QuestBreakTarget, formatNumber(GameConfig.Rewards.QuestCoins)), palette.Punch)
+	local questButton = makeMenuCommand(questActions, "ClaimQuest", questClaimed and "CLAIMED" or "CLAIM", questClaimed and palette.PanelSoft or palette.Reward, function() actionRemote:FireServer({ action = "ClaimQuest" }) end)
+	questButton.Active = not questClaimed
+	local played = latestStats.PlaytimeSeconds or 0
+	local playtimeClaimed = (latestStats.PlaytimeClaimed or 0) >= 1
+	local _, playActions = addRow("Five Minute Supply", ("Playtime %d/%d sec  |  Reward %s coins"):format(math.min(played, GameConfig.Rewards.PlaytimeSeconds), GameConfig.Rewards.PlaytimeSeconds, formatNumber(GameConfig.Rewards.PlaytimeCoins)), palette.Use)
+	local playButton = makeMenuCommand(playActions, "ClaimPlaytime", playtimeClaimed and "CLAIMED" or "CLAIM", playtimeClaimed and palette.PanelSoft or palette.Reward, function() actionRemote:FireServer({ action = "ClaimPlaytime" }) end)
+	playButton.Active = not playtimeClaimed
+	addRow("Rebirth Preview", ("Need Wall Lv 55 + 1M coins  |  Permanent bonus x%.2f"):format((latestStats.RebirthBonus or 1) + 0.25), Color3.fromRGB(171, 133, 219))
+end
+
+local function renderSettings()
+	addSection("ACCESSIBILITY AND FEEDBACK", palette.RoadLine)
+	local function settingRow(name, description, key)
+		local _, actions = addRow(name, description, palette.Use)
+		makeMenuCommand(actions, key, clientSettings[key] and "ON" or "OFF", clientSettings[key] and palette.Reward or palette.Fail, function()
+			clientSettings[key] = not clientSettings[key]
+			actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+			renderOpenPanel()
+		end)
+	end
+	settingRow("Motion Feedback", "Camera impulse, pop movement, and punch motion", "motion")
+	settingRow("Sound Feedback", "Punch, reward, collapse, and boss audio", "sound")
+	local _, scaleActions = addRow("UI Scale", ("Current %.0f%%"):format((clientSettings.uiScale or 1) * 100), palette.Train)
+	for _, value in ipairs({ 0.8, 1, 1.2 }) do
+		makeMenuCommand(scaleActions, "Scale" .. value, ("%.0f%%"):format(value * 100), value == clientSettings.uiScale and palette.Reward or palette.Use, function()
+			clientSettings.uiScale = value
+			actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+			renderOpenPanel()
+		end).Size = UDim2.fromOffset(70, 36)
+	end
+end
+
+renderOpenPanel = function()
+	if not mainPanel.Visible then return end
+	clearContent()
+	for name, button in pairs(tabButtons) do
+		button.BackgroundColor3 = name == activeTab and palette.RoadLine or palette.PanelSoft
+	end
+	if activeTab == "Fists" then renderFists()
+	elseif activeTab == "Pets" then renderPets()
+	elseif activeTab == "Tasks" then renderTasks()
+	else renderSettings() end
+end
+
+local function setMenuVisible(visible)
+	mainPanel.Visible = visible
+	mobileControls.Visible = UserInputService.TouchEnabled and not visible
+	contextLabel.Visible = not visible and (UserInputService.TouchEnabled or currentTarget ~= nil)
+	if visible then renderOpenPanel() end
+end
+
+local function toggleMenu()
+	setMenuVisible(not mainPanel.Visible)
+end
+
+menuButton.Activated:Connect(toggleMenu)
+closeButton.Activated:Connect(function() setMenuVisible(false) end)
+
+local companionsFolder = Instance.new("Folder")
+companionsFolder.Name = player.Name .. " Client Companions"
+companionsFolder.Parent = workspace
+local companionModels = {}
+local visualSignature = ""
+local currentGauntlet
+local currentTrail
+
+local function visualPart(parent, name, size, color, material, shape)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.Color = color
+	part.Material = material or Enum.Material.Metal
+	part.Shape = shape or Enum.PartType.Block
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CastShadow = true
+	part.Parent = parent
+	return part
+end
+
+local function petDefinition(name)
+	for _, pet in ipairs(GameConfig.Pets) do if pet.name == name then return pet end end
+	return GameConfig.Pets[1]
+end
+
+local function buildCompanion(name, index)
+	local definition = petDefinition(name)
+	local curated = workspace:FindFirstChild("CuratedVisualAssets")
+	local dragonTemplate = curated and curated:FindFirstChild("Sanitized Crimson Dragon Companion")
+	if dragonTemplate and (definition.rarity == "Legendary" or definition.rarity == "Secret") then
+		local clone = dragonTemplate:Clone()
+		clone.Name = name .. " Companion " .. index
+		clone.Parent = companionsFolder
+		clone:ScaleTo(clone:GetScale() * (definition.rarity == "Secret" and 0.58 or 0.44))
+		clone.PrimaryPart = clone.PrimaryPart or clone:FindFirstChildWhichIsA("BasePart", true)
+		for _, descendant in ipairs(clone:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				descendant.Anchored = true
+				descendant.CanCollide = false
+			end
+		end
+		table.insert(companionModels, clone)
+		return clone
+	end
+	local model = Instance.new("Model")
+	model.Name = name .. " Companion " .. index
+	model.Parent = companionsFolder
+	local body = visualPart(model, "Body", Vector3.new(2.4, 1.8, 3), definition.color, definition.rarity == "Secret" and Enum.Material.Metal or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+	local head = visualPart(model, "Head", Vector3.new(1.9, 1.9, 1.9), definition.color:Lerp(Color3.new(1, 1, 1), 0.08), definition.rarity == "Epic" and Enum.Material.Glass or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+	head.CFrame = body.CFrame * CFrame.new(0, 0.45, -1.7)
+	for side = -1, 1, 2 do
+		local ear = visualPart(model, "Ear", Vector3.new(0.55, 1.1, 0.45), definition.color, Enum.Material.Metal)
+		ear.CFrame = head.CFrame * CFrame.new(side * 0.55, 0.85, 0)
+		if definition.rarity == "Legendary" or definition.rarity == "Secret" then
+			local wing = visualPart(model, "Wing", Vector3.new(0.35, 1.7, 2.4), definition.color:Lerp(Color3.new(1, 1, 1), 0.22), Enum.Material.Neon)
+			wing.CFrame = body.CFrame * CFrame.new(side * 1.35, 0.35, 0.2) * CFrame.Angles(0, 0, math.rad(side * 24))
+		end
+	end
+	local core = visualPart(model, "Rarity Core", Vector3.new(0.65, 0.65, 0.65), definition.color, Enum.Material.Neon, Enum.PartType.Ball)
+	core.CFrame = body.CFrame * CFrame.new(0, 0.3, -1.45)
+	model.PrimaryPart = body
+	table.insert(companionModels, model)
+	return model
+end
+
+local function buildGauntlet(fistName)
+	if currentGauntlet then currentGauntlet:Destroy() end
+	currentGauntlet = nil
+	currentTrail = nil
+	local character = player.Character
+	local hand = character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
+	if not hand or not hand:IsA("BasePart") then return end
+	local definition = GameConfig.Fists[1]
+	for _, fist in ipairs(GameConfig.Fists) do if fist.name == fistName then definition = fist break end end
+	local model = Instance.new("Model")
+	model.Name = "Equipped Kaiju Gauntlet"
+	model.Parent = character
+	local palm = Instance.new("Part")
+	palm.Name = "Gauntlet Palm"
+	palm.Size = Vector3.new(hand.Size.X * 1.35, hand.Size.Y * 0.8, hand.Size.Z * 1.8)
+	palm.Color = definition.color
+	palm.Material = Enum.Material.Metal
+	palm.CanCollide = false
+	palm.Massless = true
+	palm.CFrame = hand.CFrame * CFrame.new(0, 0, -hand.Size.Z * 0.55)
+	palm.Parent = model
+	local palmWeld = Instance.new("WeldConstraint")
+	palmWeld.Part0 = palm
+	palmWeld.Part1 = hand
+	palmWeld.Parent = palm
+	for finger = 1, 4 do
+		local knuckle = Instance.new("Part")
+		knuckle.Name = "Knuckle " .. finger
+		knuckle.Size = Vector3.new(palm.Size.X * 0.22, palm.Size.Y * 0.42, palm.Size.Z * 0.3)
+		knuckle.Color = definition.color:Lerp(Color3.new(1, 1, 1), 0.12)
+		knuckle.Material = finger % 2 == 0 and Enum.Material.Neon or Enum.Material.Metal
+		knuckle.CanCollide = false
+		knuckle.Massless = true
+		knuckle.CFrame = palm.CFrame * CFrame.new(-palm.Size.X * 0.38 + finger * palm.Size.X * 0.19, palm.Size.Y * 0.45, -palm.Size.Z * 0.42)
+		knuckle.Parent = model
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = knuckle
+		weld.Part1 = hand
+		weld.Parent = knuckle
+	end
+	local a0 = Instance.new("Attachment")
+	a0.Position = Vector3.new(0, palm.Size.Y * 0.5, 0)
+	a0.Parent = palm
+	local a1 = Instance.new("Attachment")
+	a1.Position = Vector3.new(0, -palm.Size.Y * 0.5, 0)
+	a1.Parent = palm
+	local trail = Instance.new("Trail")
+	trail.Attachment0 = a0
+	trail.Attachment1 = a1
+	trail.Color = ColorSequence.new(definition.color, Color3.new(1, 1, 1))
+	trail.Lifetime = 0.16
+	trail.Enabled = false
+	trail.Parent = palm
+	currentGauntlet = model
+	currentTrail = trail
+end
+
+refreshCharacterVisuals = function()
+	local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
+	local signature = tostring(latestStats.EquippedFist or "Starter Glove") .. "|" .. table.concat(equippedPets, ",") .. "|" .. tostring(player.Character)
+	if signature == visualSignature then return end
+	visualSignature = signature
+	buildGauntlet(latestStats.EquippedFist or "Starter Glove")
+	companionsFolder:ClearAllChildren()
+	companionModels = {}
+	for index, petName in ipairs(equippedPets) do buildCompanion(petName, index) end
+end
+
+performPunchAnimation = function()
+	if currentTrail then
+		currentTrail.Enabled = true
+		task.delay(0.18, function() if currentTrail then currentTrail.Enabled = false end end)
+	end
+	if not clientSettings.motion then return end
+	local character = player.Character
+	local shoulder = character and character:FindFirstChild("RightShoulder", true)
+	if shoulder and shoulder:IsA("Motor6D") then
+		local strike = TweenService:Create(shoulder, TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Transform = CFrame.new(0, 0, -0.45) * CFrame.Angles(math.rad(-35), 0, math.rad(-12)) })
+		strike:Play()
+		task.delay(0.08, function()
+			if shoulder.Parent then TweenService:Create(shoulder, TweenInfo.new(0.13), { Transform = CFrame.new() }):Play() end
+		end)
+	end
+end
+
+player.CharacterAdded:Connect(function()
+	visualSignature = ""
+	task.delay(1, refreshCharacterVisuals)
+end)
+
+RunService.RenderStepped:Connect(function()
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if not rootPart then return end
+	local now = os.clock()
+	for index, model in ipairs(companionModels) do
+		if model.PrimaryPart then
+			local side = index % 2 == 0 and 1 or -1
+			local row = math.floor((index - 1) / 2)
+			local offset = CFrame.new(side * (3.1 + row), 1.4 + math.sin(now * 3 + index) * 0.35, 3.4 + row * 1.5)
+			model:PivotTo(rootPart.CFrame * offset * CFrame.Angles(0, math.rad(180), 0))
+		end
+	end
+end)
+
+local targetHighlight = Instance.new("Highlight")
+targetHighlight.Name = "Local Target Highlight"
+targetHighlight.FillColor = palette.RoadLine
+targetHighlight.FillTransparency = 0.82
+targetHighlight.OutlineColor = Color3.new(1, 1, 1)
+targetHighlight.OutlineTransparency = 0.1
+targetHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
+targetHighlight.Parent = workspace
+local targetTimer = 0
+
+RunService.Heartbeat:Connect(function(delta)
+	targetTimer += delta
+	if targetTimer < 0.15 then return end
+	targetTimer = 0
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	if not rootPart or not gameRoot then return end
+	local nearest
+	local nearestDistance = 44
+	for _, folderName in ipairs({ "Walls", "Interactables" }) do
+		local folder = gameRoot:FindFirstChild(folderName)
+		if folder then
+			for _, candidate in ipairs(folder:GetChildren()) do
+				if candidate:IsA("BasePart") then
+					local distance = (candidate.Position - rootPart.Position).Magnitude
+					if distance < nearestDistance then nearest, nearestDistance = candidate, distance end
+				end
+			end
+		end
+	end
+	currentTarget = nearest
+	local visualTarget = nearest
+	local polish = gameRoot:FindFirstChild("Polish")
+	local decor = polish and polish:FindFirstChild("City Decor")
+	if nearest and decor then
+		local visualName
+		if string.find(nearest.Name, " Stand$") then
+			visualName = string.gsub(nearest.Name, " Stand$", " Gauntlet Palm")
+		elseif nearest.Name == "Power Bag" then visualName = "Heavy Punch Bag Shell"
+		elseif nearest.Name == "Speed Dummy" then visualName = "Boxing Dummy Body"
+		elseif nearest.Name == "Focus Stone" then visualName = "Cracked Focus Concrete"
+		elseif nearest.Name == "Pet Egg Machine" then visualName = "DNA Containment Tube"
+		elseif nearest.Name == "Rebirth Shrine" then visualName = "Evac Portal Ring" end
+		visualTarget = visualName and decor:FindFirstChild(visualName) or nearest
+	end
+	targetHighlight.Adornee = visualTarget
+	contextLabel.Text = nearest and nearest.Name or "Move near a target"
+end)
+
+local bossHudTimer = 0
+RunService.Heartbeat:Connect(function(delta)
+	bossHudTimer += delta
+	if bossHudTimer < 0.2 then return end
+	bossHudTimer = 0
+	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	local walls = gameRoot and gameRoot:FindFirstChild("Walls")
+	local boss = walls and walls:FindFirstChild("Titan Server Wall")
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if not boss or not rootPart then bossHUD.Visible = false help.Visible = true return end
+	local hp = boss:GetAttribute("HP") or 0
+	local maxHP = math.max(1, boss:GetAttribute("MaxHP") or 1)
+	local broken = boss:GetAttribute("Broken") == true
+	local nearby = (boss.Position - rootPart.Position).Magnitude <= 85
+	bossHUD.Visible = broken or nearby or hp < maxHP
+	help.Visible = not bossHUD.Visible
+	if not bossHUD.Visible then return end
+	local phase = boss:GetAttribute("BossPhase") or 1
+	bossTitle.Text = ("TITAN HQ  |  PHASE %d  |  %d WEAK POINTS"):format(phase, boss:GetAttribute("WeakPointCount") or 0)
+	bossFill.Size = UDim2.fromScale(math.clamp(hp / maxHP, 0, 1), 1)
+	if broken then
+		local remaining = math.max(0, math.ceil((boss:GetAttribute("RespawnAt") or 0) - workspace:GetServerTimeNow()))
+		bossSubtitle.Text = ("RECONSTRUCTING IN %ds"):format(remaining)
+	else
+		bossSubtitle.Text = ("HP %s / %s  |  %d participant(s)"):format(formatNumber(hp), formatNumber(maxHP), boss:GetAttribute("ParticipantCount") or 0)
+	end
+end)
+
+local punchHeld = false
+local function setPunchHeld(value)
+	if punchHeld == value then return end
+	punchHeld = value
+	if value then
+		task.spawn(function()
+			while punchHeld do
+				actionRemote:FireServer("Punch")
+				task.wait(0.13)
+			end
+		end)
+	end
+end
+
+punchButton.MouseButton1Down:Connect(function() setPunchHeld(true) end)
+punchButton.MouseButton1Up:Connect(function() setPunchHeld(false) end)
+punchButton.MouseLeave:Connect(function() setPunchHeld(false) end)
+
+ContextActionService:BindAction("KaijuPunch", function(_, state)
+	if state == Enum.UserInputState.Begin then setPunchHeld(true)
+	elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then setPunchHeld(false) end
+	return Enum.ContextActionResult.Sink
+end, false, Enum.KeyCode.F, Enum.KeyCode.ButtonR2)
+
+ContextActionService:BindAction("KaijuTrain", function(_, state)
+	if state == Enum.UserInputState.Begin then actionRemote:FireServer("Train") end
+	return Enum.ContextActionResult.Sink
+end, false, Enum.KeyCode.R, Enum.KeyCode.ButtonX)
+
+ContextActionService:BindAction("KaijuUse", function(_, state)
+	if state == Enum.UserInputState.Begin then actionRemote:FireServer("Use") end
+	return Enum.ContextActionResult.Sink
+end, false, Enum.KeyCode.E, Enum.KeyCode.ButtonY)
+
+ContextActionService:BindAction("KaijuMenu", function(_, state)
+	if state == Enum.UserInputState.Begin then toggleMenu() end
+	return Enum.ContextActionResult.Sink
+end, false, Enum.KeyCode.B, Enum.KeyCode.ButtonSelect)
+
+local function applyResponsiveLayout()
+	local camera = workspace.CurrentCamera
+	if not camera then return end
+	local viewport = camera.ViewportSize
+	local compact = UserInputService.TouchEnabled or viewport.Y < 520
+	local userScale = math.clamp(tonumber(clientSettings.uiScale) or 1, 0.8, 1.2)
+	if compact then
+		panelScale.Scale = 0.72 * userScale
+		panel.Position = UDim2.fromOffset(12, 8)
+		help.AnchorPoint = Vector2.new(1, 0)
+		help.Position = UDim2.new(1, -12, 0, 8)
+		help.Size = UDim2.fromOffset(math.clamp(viewport.X * 0.34, 205, 255), 58)
+		help.TextSize = 12
+		mobileControls.Position = UDim2.new(1, -18, 1, -126)
+		contextLabel.Position = UDim2.new(1, -322, 1, -155)
+		contextLabel.Size = UDim2.fromOffset(180, 30)
+		menuButton.Position = UDim2.new(1, -12, 0, 72)
+		menuButton.Size = UDim2.fromOffset(78, 36)
+		mainPanel.AnchorPoint = Vector2.new(0.5, 0)
+		mainPanel.Size = UDim2.new(1, -34, 0, math.max(210, viewport.Y - 118))
+		mainPanel.Position = UDim2.new(0.5, 0, 0, 8)
+		bossHUD.Position = UDim2.new(0.58, 0, 0, 8)
+		bossHUD.Size = UDim2.fromOffset(280, 54)
+	else
+		panelScale.Scale = userScale
+		panel.Position = UDim2.fromOffset(18, 18)
+		help.AnchorPoint = Vector2.new(0.5, 0)
+		help.Position = UDim2.new(0.5, 0, 0, 18)
+		help.Size = UDim2.fromOffset(430, 54)
+		help.TextSize = 14
+		contextLabel.Position = UDim2.new(0.5, 0, 1, -32)
+		contextLabel.Size = UDim2.fromOffset(220, 30)
+		menuButton.Position = UDim2.new(1, -18, 0, 18)
+		menuButton.Size = UDim2.fromOffset(92, 42)
+		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
+		mainPanel.Size = UDim2.fromOffset(660, 430)
+		mainPanel.Position = UDim2.fromScale(0.5, 0.52)
+		bossHUD.Position = UDim2.new(0.5, 0, 0, 82)
+		bossHUD.Size = UDim2.fromOffset(420, 58)
+	end
+	mobileControls.Visible = UserInputService.TouchEnabled and not mainPanel.Visible
+	contextLabel.Visible = not mainPanel.Visible and (UserInputService.TouchEnabled or currentTarget ~= nil)
+end
+
+if workspace.CurrentCamera then
+	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(applyResponsiveLayout)
+end
+task.defer(function()
+	applyResponsiveLayout()
+	actionRemote:FireServer({ action = "RequestSync" })
+end)
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="Workspace" referent="9">
+    <Properties>
+      <string name="Name">Workspace</string>
+      <float name="FallenPartsDestroyHeight">-120</float>
+      <bool name="NeedsPivotMigration">false</bool>
+      <bool name="StreamingEnabled">true</bool>
+    </Properties>
+    <Item class="Folder" referent="10">
+      <Properties>
+        <string name="Name">PunchWallRPG</string>
+      </Properties>
+      <Item class="Part" referent="11">
+        <Properties>
+          <string name="Name">Main Training Island</string>
+          <bool name="Anchored">true</bool>
+          <Color3uint8 name="Color3uint8">4873835</Color3uint8>
+          <token name="Material">816</token>
+          <Vector3 name="Position">
+            <X>48</X>
+            <Y>-1.5</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3 name="size">
+            <X>210</X>
+            <Y>3</Y>
+            <Z>96</Z>
+          </Vector3>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="12">
+        <Properties>
+          <string name="Name">Preview Interactables</string>
+        </Properties>
+        <Item class="Part" referent="13">
+          <Properties>
+            <string name="Name">Focus Stone Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">12549631</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-15</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="14">
+          <Properties>
+            <string name="Name">Pet Egg Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16758105</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-72</X>
+              <Y>6</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>14</X>
+              <Y>11</Y>
+              <Z>14</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="15">
+          <Properties>
+            <string name="Name">Power Bag Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16766553</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-53</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="16">
+          <Properties>
+            <string name="Name">Rebirth Shrine Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16777215</Color3uint8>
+            <token name="Material">1584</token>
+            <Vector3 name="Position">
+              <X>160</X>
+              <Y>7</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>14</X>
+              <Y>13</Y>
+              <Z>14</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="17">
+          <Properties>
+            <string name="Name">Speed Dummy Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">6734591</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>-34</X>
+              <Y>4</Y>
+              <Z>24</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>9</X>
+              <Y>8</Y>
+              <Z>9</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="18">
+        <Properties>
+          <string name="Name">Preview Walls</string>
+        </Properties>
+        <Item class="Part" referent="19">
+          <Properties>
+            <string name="Name">Brick Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">11884869</Color3uint8>
+            <token name="Material">848</token>
+            <Vector3 name="Position">
+              <X>-2</X>
+              <Y>7</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>14</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="20">
+          <Properties>
+            <string name="Name">Concrete Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">9869729</Color3uint8>
+            <token name="Material">816</token>
+            <Vector3 name="Position">
+              <X>25</X>
+              <Y>8</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>16</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="21">
+          <Properties>
+            <string name="Name">Crystal Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">5889013</Color3uint8>
+            <token name="Material">1568</token>
+            <Vector3 name="Position">
+              <X>88</X>
+              <Y>10</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>20</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="22">
+          <Properties>
+            <string name="Name">Cyber Gate Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">4879359</Color3uint8>
+            <token name="Material">1584</token>
+            <Vector3 name="Position">
+              <X>164</X>
+              <Y>12</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>24</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="23">
+          <Properties>
+            <string name="Name">Iron Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">6385274</Color3uint8>
+            <token name="Material">1088</token>
+            <Vector3 name="Position">
+              <X>55</X>
+              <Y>9</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>18</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="24">
+          <Properties>
+            <string name="Name">Lava Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">16736558</Color3uint8>
+            <token name="Material">288</token>
+            <Vector3 name="Position">
+              <X>124</X>
+              <Y>11</Y>
+              <Z>-27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>18</X>
+              <Y>22</Y>
+              <Z>4</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+        <Item class="Part" referent="25">
+          <Properties>
+            <string name="Name">Titan Server Wall Preview</string>
+            <bool name="Anchored">true</bool>
+            <Color3uint8 name="Color3uint8">2499630</Color3uint8>
+            <token name="Material">800</token>
+            <Vector3 name="Position">
+              <X>82</X>
+              <Y>16</Y>
+              <Z>27</Z>
+            </Vector3>
+            <Vector3 name="size">
+              <X>34</X>
+              <Y>28</Y>
+              <Z>6</Z>
+            </Vector3>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="SpawnLocation" referent="26">
+        <Properties>
+          <string name="Name">Spawn Pad Preview</string>
+          <bool name="Anchored">true</bool>
+          <Color3uint8 name="Color3uint8">6940838</Color3uint8>
+          <token name="Material">288</token>
+          <bool name="Neutral">true</bool>
+          <Vector3 name="Position">
+            <X>-42</X>
+            <Y>2</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3 name="size">
+            <X>10</X>
+            <Y>1</Y>
+            <Z>10</Z>
+          </Vector3>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
