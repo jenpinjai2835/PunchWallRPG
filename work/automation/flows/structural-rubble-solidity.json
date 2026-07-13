@@ -1,6 +1,6 @@
 {
   "name": "structural-rubble-solidity",
-  "description": "Verify falling and settled structural blocks remain solid player-collidable obstacles without a runtime error.",
+  "description": "Verify detached structural blocks are solid while falling, then shatter into physical fragments on impact.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -43,12 +43,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local PS=game:GetService(\"PhysicsService\") local p=game.Players:GetPlayers()[1] local root=workspace.PunchWallRPG local settled,solid,playerCollision=0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralDetached\") then settled+=1 if not b:GetAttribute(\"StructuralFalling\") and b.CanCollide and b.CollisionGroup==\"Default\" then solid+=1 end if PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,b.CollisionGroup) then playerCollision+=1 end end end return H:JSONEncode({settled=settled,solid=solid,playerCollision=playerCollision})"
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local broken,detached,solid,fragments=0,0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"Broken\") then broken+=1 elseif b:GetAttribute(\"StructuralDetached\") then detached+=1 if b.CanCollide then solid+=1 end end end fragments=#root[\"Depth Physics Debris\"]:GetChildren() return H:JSONEncode({broken=broken,detached=detached,solid=solid,fragments=fragments})"
       },
+      "saveAs": "afterImpact",
       "expectRegex": [
-        "\"settled\"\\s*:\\s*4",
-        "\"solid\"\\s*:\\s*4",
-        "\"playerCollision\"\\s*:\\s*4"
+        "\"broken\"\\s*:\\s*6",
+        "\"detached\"\\s*:\\s*0",
+        "\"solid\"\\s*:\\s*0",
+        "\"fragments\"\\s*:\\s*[1-9][0-9]*"
       ],
       "label": "settled structural blocks become solid obstacles"
     },

@@ -2322,6 +2322,24 @@ function depthPunch.ClearCharactersFromStructuralBlock(block)
 	return totalPush
 end
 
+function depthPunch.ShatterDetached(block, player, impactDirection, impactForceScale)
+	if not block or not block.Parent or block:GetAttribute("Broken") then return false end
+	block:SetAttribute("Broken", true)
+	block:SetAttribute("StructuralDetached", false)
+	block:SetAttribute("StructuralFalling", false)
+	block:SetAttribute("StructuralFailure", true)
+	block:SetAttribute("HP", 0)
+	block:SetAttribute("DamageStage", 3)
+	block:SetAttribute("LastStructuralShatterAt", workspace:GetServerTimeNow())
+	block.CanCollide = false
+	block.CanQuery = false
+	block.Transparency = 1
+	block.CollisionGroup = "Default"
+	depthBlockContributions[block] = {}
+	spawnDepthBlockFragments(block, player, impactDirection, impactForceScale or 1.15)
+	return true
+end
+
 function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	if not block or block:GetAttribute("Broken") or block:GetAttribute("StructuralDetached") then return false end
 	local active = root:GetAttribute("ActiveStructuralFalling") or 0
@@ -2364,10 +2382,7 @@ function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	task.delay(2.8, function()
 		if block.Parent and block:GetAttribute("StructuralToken") == token and not block:GetAttribute("Broken") then
 			depthPunch.ClearCharactersFromStructuralBlock(block)
-			block:SetAttribute("StructuralFalling", false)
-			block.CollisionGroup = "Default"
-			block:SetAttribute("SettledCFrame", block.CFrame)
-			block:SetAttribute("SettledAt", workspace:GetServerTimeNow())
+			depthPunch.ShatterDetached(block, player, outward, ejectFromCharacter and 1.25 or 1.15)
 		end
 		root:SetAttribute("ActiveStructuralFalling", math.max(0, (root:GetAttribute("ActiveStructuralFalling") or 1) - 1))
 	end)
@@ -2401,9 +2416,7 @@ function depthPunch.BounceDetached(block, player, damage, impactDirection, impac
 	task.delay(1.8, function()
 		if block.Parent and not block:GetAttribute("Broken") and block:GetAttribute("DetachedImpactToken") == impactToken then
 			depthPunch.ClearCharactersFromStructuralBlock(block)
-			block:SetAttribute("StructuralFalling", false)
-			block.CollisionGroup = "Default"
-			block:SetAttribute("SettledCFrame", block.CFrame)
+			depthPunch.ShatterDetached(block, player, outward, powerForce)
 		end
 	end)
 end
