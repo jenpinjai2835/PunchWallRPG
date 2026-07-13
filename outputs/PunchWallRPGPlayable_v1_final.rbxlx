@@ -78740,8 +78740,10 @@ StarterPlayer.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Invisicam
 pcall(function() PhysicsService:RegisterCollisionGroup("PlayerCharacters") end)
 pcall(function() PhysicsService:RegisterCollisionGroup("DepthRubble") end)
 pcall(function() PhysicsService:RegisterCollisionGroup("FallingStructural") end)
-PhysicsService:CollisionGroupSetCollidable("PlayerCharacters", "DepthRubble", false)
-PhysicsService:CollisionGroupSetCollidable("PlayerCharacters", "FallingStructural", false)
+-- Rubble and detached wall blocks remain physical obstacles. Their low mass and
+-- server-side overlap clearance keep the character from being carried away.
+PhysicsService:CollisionGroupSetCollidable("PlayerCharacters", "DepthRubble", true)
+PhysicsService:CollisionGroupSetCollidable("PlayerCharacters", "FallingStructural", true)
 
 local function applyCharacterCollisionGroup(character)
 	for _, descendant in ipairs(character:GetDescendants()) do
@@ -80872,6 +80874,7 @@ for layer = 1, DEPTH_LAYERS do
 			local shade = ((row + column + layer) % 3) * 0.07
 			local color = config.color:Lerp(Color3.new(0, 0, 0), shade)
 			local block = makePart(("DepthBlock_L%03d_C%02d_R%02d"):format(layer, column, row), depthBlocksFolder, DEPTH_BLOCK_SIZE, Vector3.new(x, y, z), color, config.material)
+			block.CustomPhysicalProperties = PhysicalProperties.new(0.12, 0.82, 0.08, 1, 1)
 			block:SetAttribute("IsDepthBlock", true)
 			block:SetAttribute("Depth", layer)
 			block:SetAttribute("Tier", tier)
@@ -80923,6 +80926,7 @@ local function spawnDepthBlockFragments(block, player, impactDirection, forceSca
 		fragment.CFrame += outward * (block.Size.Z * 0.5 + fragment.Size.Z * 0.5 + 0.08)
 		fragment.Color = block.Color
 		fragment.Material = block.Material
+		fragment.CustomPhysicalProperties = PhysicalProperties.new(0.1, 0.78, 0.12, 1, 1)
 		fragment.Anchored = false
 		fragment.CanCollide = true
 		fragment.CollisionGroup = "DepthRubble"
@@ -81161,12 +81165,12 @@ function depthPunch.ResolveCharacterOverlaps()
 			local boxCFrame, boxSize = character:GetBoundingBox()
 			boxSize += Vector3.new(0.28, 0.28, 0.28)
 			for _, block in ipairs(workspace:GetPartBoundsInBox(boxCFrame, boxSize, overlap)) do
-				if block:GetAttribute("IsDepthBlock")
-					and not block:GetAttribute("Broken")
-					and not block:GetAttribute("StructuralDetached")
-					and block.Anchored
-					and depthPunch.DropStructural(block, player, true) then
-					ejected += 1
+				if block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
+					if not block:GetAttribute("StructuralDetached") and block.Anchored and depthPunch.DropStructural(block, player, true) then
+						ejected += 1
+					elseif block:GetAttribute("StructuralDetached") and depthPunch.ClearCharactersFromStructuralBlock(block) > 0 then
+						ejected += 1
+					end
 				end
 			end
 		end
