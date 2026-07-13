@@ -877,6 +877,8 @@ local function feedbackText(payload)
 		return "SHOCKWAVE INCOMING"
 	elseif payload.type == "StructuralCollapse" then
 		return ("STRUCTURE COLLAPSE!  %d BLOCKS"):format(tonumber(payload.count) or 0)
+	elseif payload.type == "WorldReset" then
+		return "WORLD RESET | RETURN TO SPAWN"
 	elseif payload.type == "LevelUp" then
 		return ("WALL LEVEL %s"):format(tostring(payload.target or "?"))
 	elseif payload.type == "Fail" then
@@ -889,7 +891,7 @@ local function feedbackIcon(payloadType)
 	local icons = {
 		Punch = "Punch", WeakPoint = "Punch", Reward = "Coin", Train = "Train",
 		Shop = "StarterFist", Pet = "Pet", Rebirth = "Rebirth", Boss = "Wall",
-		BossPhase = "Warning", BossAttack = "Warning", StructuralCollapse = "Wall", LevelUp = "Success", Fail = "Warning",
+		BossPhase = "Warning", BossAttack = "Warning", StructuralCollapse = "Wall", WorldReset = "Wall", LevelUp = "Success", Fail = "Warning",
 	}
 	return icons[payloadType] or "Success"
 end

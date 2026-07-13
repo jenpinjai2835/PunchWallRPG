@@ -1,0 +1,48 @@
+{
+  "name": "world-wall-reset",
+  "description": "Verify the five-minute world reset contract: wall blocks restore, physics debris clears, player stats remain, and all players return to spawn.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') c:Invoke('Reset') c:Invoke('SetStats',{Power=987,Coins=654,Depth=12,Score=3456,WallLevel=12}) local p=game.Players:GetPlayers()[1] local root=workspace.PunchWallRPG local blocks=root['Depth Blocks'] local target=blocks:FindFirstChild('DepthBlock_L001_C06_R01') assert(target,'missing reset target') c:Invoke('BreakDepthBlock',{layer=1,column=6,row=1},100) c:Invoke('SetStats',{Power=987,Coins=654,Depth=12,Score=3456,WallLevel=12}) p.Character.HumanoidRootPart.CFrame=CFrame.new(150,8,60) local result=c:Invoke('ResetWorld') task.wait(0.25) local intact,broken,detached=0,0,0 for _,b in ipairs(blocks:GetChildren()) do if b:GetAttribute('Broken') then broken+=1 elseif b:GetAttribute('StructuralDetached') then detached+=1 elseif b.Anchored and b.CanCollide then intact+=1 end end local hrp=p.Character.HumanoidRootPart local spawn=root:FindFirstChild('Punch Rookie Spawn') return H:JSONEncode({interval=root:GetAttribute('WorldResetInterval'),resetCount=root:GetAttribute('WorldResetCount'),teleported=result.teleportedPlayers,statsPower=p.leaderstats.Power.Value,statsCoins=p.leaderstats.Coins.Value,statsDepth=p.leaderstats.Depth.Value,broken=broken,detached=detached,intact=intact,fragments=#root['Depth Physics Debris']:GetChildren(),spawnDistance=(hrp.Position-spawn.Position).Magnitude})"
+      },
+      "expectRegex": [
+        "\"interval\"\\s*:\\s*300",
+        "\"resetCount\"\\s*:\\s*[1-9][0-9]*",
+        "\"teleported\"\\s*:\\s*1",
+        "\"statsPower\"\\s*:\\s*987",
+        "\"statsCoins\"\\s*:\\s*654",
+        "\"statsDepth\"\\s*:\\s*12",
+        "\"broken\"\\s*:\\s*0",
+        "\"detached\"\\s*:\\s*0",
+        "\"fragments\"\\s*:\\s*0",
+        "\"spawnDistance\"\\s*:\\s*[0-9.]+"
+      ],
+      "label": "reset blocks and return player without wiping stats"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') return H:JSONEncode({feedback=gui:GetAttribute('LastFeedbackType'),target=gui:GetAttribute('LastFeedbackTarget')})"
+      },
+      "expectRegex": ["\"feedback\"\\s*:\\s*\"WorldReset\"", "\"target\"\\s*:\\s*\"Spawn\""],
+      "label": "client receives reset feedback"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

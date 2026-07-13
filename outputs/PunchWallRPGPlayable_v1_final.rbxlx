@@ -63747,6 +63747,8 @@ local function feedbackText(payload)
 		return "SHOCKWAVE INCOMING"
 	elseif payload.type == "StructuralCollapse" then
 		return ("STRUCTURE COLLAPSE!  %d BLOCKS"):format(tonumber(payload.count) or 0)
+	elseif payload.type == "WorldReset" then
+		return "WORLD RESET | RETURN TO SPAWN"
 	elseif payload.type == "LevelUp" then
 		return ("WALL LEVEL %s"):format(tostring(payload.target or "?"))
 	elseif payload.type == "Fail" then
@@ -63759,7 +63761,7 @@ local function feedbackIcon(payloadType)
 	local icons = {
 		Punch = "Punch", WeakPoint = "Punch", Reward = "Coin", Train = "Train",
 		Shop = "StarterFist", Pet = "Pet", Rebirth = "Rebirth", Boss = "Wall",
-		BossPhase = "Warning", BossAttack = "Warning", StructuralCollapse = "Wall", LevelUp = "Success", Fail = "Warning",
+		BossPhase = "Warning", BossAttack = "Warning", StructuralCollapse = "Wall", WorldReset = "Wall", LevelUp = "Success", Fail = "Warning",
 	}
 	return icons[payloadType] or "Success"
 end
@@ -78728,6 +78730,7 @@ local ROOT_NAME = "PunchWallRPG"
 local WALL_RESPAWN_SECONDS = GameConfig.RegularWallRespawnSeconds
 local TRAINING_COOLDOWN = 0.45
 local WALL_HIT_COOLDOWN = 1
+WORLD_RESET_INTERVAL = 300
 local EGG_COST = 350
 local AUTOSAVE_SECONDS = 75
 local MOBILE_ACTION_DISTANCE = 38
@@ -80967,6 +80970,10 @@ root:SetAttribute("MaxStructuralFalling", depthPunch.MaxStructuralFalling)
 root:SetAttribute("ActiveStructuralFalling", 0)
 root:SetAttribute("LastStructuralCollapseCount", 0)
 root:SetAttribute("LastCharacterOverlapEjectCount", 0)
+root:SetAttribute("WorldResetInterval", WORLD_RESET_INTERVAL)
+root:SetAttribute("WorldResetCount", 0)
+root:SetAttribute("LastWorldResetAt", 0)
+root:SetAttribute("NextWorldResetAt", workspace:GetServerTimeNow() + WORLD_RESET_INTERVAL)
 
 function depthPunch.Shake(block, intensity)
 	local baseCFrame = block:GetAttribute("BaseCFrame") or block.CFrame
@@ -82667,6 +82674,88 @@ local function resetWallState(wall)
 	updateWallDamage(wall)
 end
 
+function resetWorldState()
+	for _, wall in ipairs(wallsFolder:GetChildren()) do
+		if wall:IsA("BasePart") then
+			resetWallState(wall)
+		end
+	end
+	for _, block in ipairs(depthBlocksFolder:GetChildren()) do
+		block:SetAttribute("HP", block:GetAttribute("MaxHP"))
+		block:SetAttribute("Broken", false)
+		block:SetAttribute("DamageStage", 0)
+		block:SetAttribute("LastRadiusDamageScale", 0)
+		block:SetAttribute("LastRadiusHitAt", 0)
+		block:SetAttribute("Shaking", false)
+		block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
+		block:SetAttribute("StructuralFalling", false)
+		block:SetAttribute("StructuralDetached", false)
+		block:SetAttribute("StructuralFailure", false)
+		block:SetAttribute("StructuralToken", (block:GetAttribute("StructuralToken") or 0) + 1)
+		block:SetAttribute("DetachedImpactToken", (block:GetAttribute("DetachedImpactToken") or 0) + 1)
+		block:SetAttribute("SettledCFrame", nil)
+		block:SetAttribute("DetachedImpactOrigin", nil)
+		block:SetAttribute("LastDetachedLaunchSpeed", nil)
+		block:SetAttribute("LastOverlapEjectAt", nil)
+		block:SetAttribute("LastOverlapEjectSpeed", nil)
+		block.Color = block:GetAttribute("OriginalColor") or block.Color
+		block.CFrame = block:GetAttribute("BaseCFrame") or block.CFrame
+		block.Transparency = 0
+		block.Anchored = true
+		block.CanCollide = true
+		block.CanQuery = true
+		block.CollisionGroup = "Default"
+		depthBlockContributions[block] = {}
+	end
+	depthDebrisFolder:ClearAllChildren()
+	root:SetAttribute("ActiveStructuralFalling", 0)
+	root:SetAttribute("LastStructuralCollapseCount", 0)
+	root:SetAttribute("LastCharacterOverlapEjectCount", 0)
+	resetWallState(boss)
+	bossContributions = {}
+	bossParticipants = {}
+	boss:SetAttribute("BossPhase", 1)
+	boss:SetAttribute("ParticipantCount", 0)
+	boss:SetAttribute("RespawnAt", 0)
+	boss:SetAttribute("NextAttackAt", 0)
+	local count = 0
+	for _, player in ipairs(Players:GetPlayers()) do
+		local character = player.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if character and rootPart then
+			rootPart.AssemblyLinearVelocity = Vector3.zero
+			rootPart.AssemblyAngularVelocity = Vector3.zero
+			character:PivotTo(spawn.CFrame + Vector3.new(0, 5, 0))
+			if humanoid then
+				humanoid.PlatformStand = false
+				humanoid.Sit = false
+				humanoid:ChangeState(Enum.HumanoidStateType.Running)
+			end
+			count += 1
+		end
+	end
+	local now = workspace:GetServerTimeNow()
+	root:SetAttribute("LastWorldResetAt", now)
+	root:SetAttribute("NextWorldResetAt", now + WORLD_RESET_INTERVAL)
+	root:SetAttribute("WorldResetCount", (root:GetAttribute("WorldResetCount") or 0) + 1)
+	for _, player in ipairs(Players:GetPlayers()) do
+		sendFeedback(player, {
+			type = "WorldReset",
+			target = "Spawn",
+			message = "WORLD RESET | RETURN TO SPAWN",
+			color = PolishConfig.Palette.HeroCyan,
+		})
+	end
+	return {
+		action = "WorldReset",
+		ok = true,
+		teleportedPlayers = count,
+		resetAt = now,
+		resetCount = root:GetAttribute("WorldResetCount"),
+	}
+end
+
 local function automationSnapshot(player, extra)
 	local result = collectPlayerData(player)
 	local brickBlock = depthBlockAliases["Brick Wall"]
@@ -82713,49 +82802,7 @@ local function resetAutomationState(player)
 	for _, config in ipairs(trainingConfigs) do
 		player:SetAttribute("LastTrain" .. config.stat, 0)
 	end
-	for _, wall in ipairs(wallsFolder:GetChildren()) do
-		if wall:IsA("BasePart") then
-			resetWallState(wall)
-		end
-	end
-	for _, block in ipairs(depthBlocksFolder:GetChildren()) do
-		block:SetAttribute("HP", block:GetAttribute("MaxHP"))
-		block:SetAttribute("Broken", false)
-		block:SetAttribute("DamageStage", 0)
-		block:SetAttribute("LastRadiusDamageScale", 0)
-		block:SetAttribute("LastRadiusHitAt", 0)
-		block:SetAttribute("Shaking", false)
-		block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
-		block:SetAttribute("StructuralFalling", false)
-		block:SetAttribute("StructuralDetached", false)
-		block:SetAttribute("StructuralFailure", false)
-		block:SetAttribute("StructuralToken", (block:GetAttribute("StructuralToken") or 0) + 1)
-		block:SetAttribute("DetachedImpactToken", (block:GetAttribute("DetachedImpactToken") or 0) + 1)
-		block:SetAttribute("SettledCFrame", nil)
-		block:SetAttribute("DetachedImpactOrigin", nil)
-		block:SetAttribute("LastDetachedLaunchSpeed", nil)
-		block:SetAttribute("LastOverlapEjectAt", nil)
-		block:SetAttribute("LastOverlapEjectSpeed", nil)
-		block.Color = block:GetAttribute("OriginalColor") or block.Color
-		block.CFrame = block:GetAttribute("BaseCFrame") or block.CFrame
-		block.Transparency = 0
-		block.Anchored = true
-		block.CanCollide = true
-		block.CanQuery = true
-		block.CollisionGroup = "Default"
-		depthBlockContributions[block] = {}
-	end
-	depthDebrisFolder:ClearAllChildren()
-	root:SetAttribute("ActiveStructuralFalling", 0)
-	root:SetAttribute("LastStructuralCollapseCount", 0)
-	root:SetAttribute("LastCharacterOverlapEjectCount", 0)
-	resetWallState(boss)
-	bossContributions = {}
-	bossParticipants = {}
-	boss:SetAttribute("BossPhase", 1)
-	boss:SetAttribute("ParticipantCount", 0)
-	boss:SetAttribute("RespawnAt", 0)
-	boss:SetAttribute("NextAttackAt", 0)
+	resetWorldState()
 	return automationSnapshot(player, { action = "Reset", ok = true })
 end
 
@@ -82775,6 +82822,8 @@ if RunService:IsStudio() then
 
 		if action == "Reset" then
 			return resetAutomationState(player)
+		elseif action == "ResetWorld" then
+			return automationSnapshot(player, resetWorldState())
 		elseif action == "SetStats" then
 			for name, value in pairs(target or {}) do
 				setStat(player, name, value)
@@ -82919,6 +82968,14 @@ end
 game:BindToClose(function()
 	for _, player in ipairs(Players:GetPlayers()) do
 		savePlayerData(player)
+	end
+end)
+
+task.spawn(function()
+	while root.Parent do
+		task.wait(WORLD_RESET_INTERVAL)
+		if not root.Parent then break end
+		resetWorldState()
 	end
 end)
 
