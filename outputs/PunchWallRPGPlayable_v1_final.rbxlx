@@ -65326,8 +65326,24 @@ if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.Camera
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 end
 local cameraOcclusionApplied = player.DevCameraOcclusionMode == Enum.DevCameraOcclusionMode.Invisicam
-gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "Invisicam" or "Unavailable")
+gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "OpaqueInvisicam" or "Unavailable")
+gui:SetAttribute("CameraOcclusionOpaque", cameraOcclusionApplied)
 gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
+
+-- Roblox Invisicam normally fades parts between the camera and the character.
+-- Keep the zoom-preserving occlusion mode, but restore the obscuring parts to
+-- full local opacity after the camera update so the world stays visually solid.
+if cameraOcclusionApplied then
+	RunService:BindToRenderStep("PunchWallOpaqueOcclusion", Enum.RenderPriority.Camera.Value + 1, function()
+		local camera = workspace.CurrentCamera
+		local character = player.Character
+		if not camera or not character then return end
+		local obscuringParts = camera:GetPartsObscuringTarget({ camera.Focus.Position }, { character })
+		for _, part in ipairs(obscuringParts) do
+			if part:IsA("BasePart") then part.LocalTransparencyModifier = 0 end
+		end
+	end)
+end
 
 local bossHudTimer = 0
 RunService.Heartbeat:Connect(function(delta)

@@ -1,6 +1,6 @@
 {
   "name": "camera-tunnel-zoom-preservation",
-  "description": "Verify Invisicam keeps the player-selected zoom distance while entering enclosed depth tunnels.",
+  "description": "Verify enclosed tunnels preserve player zoom while obscuring objects remain fully opaque.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -30,7 +30,7 @@
         "\"combat\"\\s*:\\s*false",
         "\"preserve\"\\s*:\\s*true",
         "\"serverFlag\"\\s*:\\s*true",
-        "\"attribute\"\\s*:\\s*\"Invisicam\""
+        "\"attribute\"\\s*:\\s*\"OpaqueInvisicam\""
       ],
       "label": "player camera uses non-zooming occlusion"
     },
@@ -43,10 +43,10 @@
       },
       "expectRegex": [
         "\"zoomPreserved\"\\s*:\\s*true",
-        "\"localTransparency\"\\s*:\\s*0\\.75",
+        "\"localTransparency\"\\s*:\\s*0",
         "\"mode\"\\s*:\\s*\"Invisicam\""
       ],
-      "label": "enclosure stays transparent without changing user zoom"
+      "label": "occluding object stays opaque without changing user zoom"
     },
     {
       "type": "call",
