@@ -1,6 +1,6 @@
 {
   "name": "structural-rubble-solidity",
-  "description": "Verify detached structural blocks are solid while falling, then shatter into physical fragments on impact.",
+  "description": "Verify detached structural blocks remain solid and punchable after settling, with no automatic shatter.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -47,10 +47,10 @@
       },
       "saveAs": "afterImpact",
       "expectRegex": [
-        "\"broken\"\\s*:\\s*6",
-        "\"detached\"\\s*:\\s*0",
-        "\"solid\"\\s*:\\s*0",
-        "\"fragments\"\\s*:\\s*[1-9][0-9]*"
+        "\"broken\"\\s*:\\s*[0-2]",
+        "\"detached\"\\s*:\\s*4",
+        "\"solid\"\\s*:\\s*4",
+        "\"fragments\"\\s*:\\s*[0-9]+"
       ],
       "label": "settled structural blocks become solid obstacles"
     },

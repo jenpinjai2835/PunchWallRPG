@@ -10,6 +10,13 @@ Captured from the same side camera after equipping each shop tier:
 - `work/qc-fist-arm-thunder-side.jpg`
 - `work/qc-fist-arm-titan-side.jpg`
 
+Latest wrist-angle captures after the CFrame correction:
+
+- `work/qc-fist-angle/starter.jpg`
+- `work/qc-fist-angle/iron.jpg`
+- `work/qc-fist-angle/thunder.jpg`
+- `work/qc-fist-angle/titan.jpg`
+
 ## Findings and fix
 
 The first capture showed the Creator Store mesh at roughly 1.4 studs while the
@@ -19,10 +26,11 @@ bounding box, normalizes the largest dimension against `RightHand`, and uses a
 shorter wrist grip offset before creating the welds. The player character model
 and the gameplay punch logic are unchanged.
 
-The follow-up captures show the equipped mesh staying at the wrist with no
-anchored visual parts and no visible gap between the hand and fist. Style color
-and mesh silhouette remain asset-specific and are intentionally not used for
-gameplay state.
+The latest captures show the equipped mesh centered over the hand, with the
+asset's knuckles rotated forward and the visual offset applied in hand space
+before rotation. There are no anchored visual parts and no visible gap between
+the hand and fist. Style color and mesh silhouette remain asset-specific and
+are intentionally not used for gameplay state.
 
 ## Automated acceptance
 

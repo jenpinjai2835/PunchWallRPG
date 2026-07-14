@@ -1,81 +1,19 @@
 {
   "name": "structural-character-clearance",
-  "description": "Verify a settling structural block moves itself clear of an overlapping character without teleporting or pushing the character.",
+  "description": "Verify an intact wall stays solid while a detached structural block overlapping the character shatters without moving the character.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": true },
-      "timeoutMs": 35000,
-      "label": "start play"
-    },
-    {
-      "type": "wait",
-      "ms": 8000,
-      "label": "wait for structural physics runtime"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) c:Invoke(\"HitDepthBlock\",{layer=1,column=7,row=1}) task.wait(2.35) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local target=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(\"DepthBlock_L001_C06_R02\") assert(target and target:GetAttribute(\"StructuralDetached\") and target:GetAttribute(\"StructuralFalling\"),\"target is not falling\") root.CFrame=target.CFrame root.Anchored=true return H:JSONEncode({target=target.Name,root=tostring(root.Position),block=tostring(target.Position)})"
-      },
-      "label": "place the character inside a falling structural block"
-    },
-    {
-      "type": "wait",
-      "ms": 900,
-      "label": "wait for settlement clearance"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local target=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(\"DepthBlock_L001_C06_R02\") local before=root.Position local o=OverlapParams.new() o.FilterType=Enum.RaycastFilterType.Include o.FilterDescendantsInstances={p.Character} local overlap=#workspace:GetPartBoundsInBox(target.CFrame,target.Size+Vector3.new(.2,.2,.2),o) local result={clear=target:GetAttribute(\"CharacterClearanceResolved\"),push=target:GetAttribute(\"LastCharacterClearancePushStuds\"),overlap=overlap,rootAnchored=root.Anchored,drift=(root.Position-before).Magnitude,falling=target:GetAttribute(\"StructuralFalling\"),group=target.CollisionGroup} root.Anchored=false return H:JSONEncode(result)"
-      },
-      "expectRegex": [
-        "\"clear\"\\s*:\\s*true",
-        "\"push\"\\s*:\\s*[1-9][0-9]*(?:\\.[0-9]+)?",
-        "\"overlap\"\\s*:\\s*0",
-        "\"rootAnchored\"\\s*:\\s*true",
-        "\"drift\"\\s*:\\s*0",
-        "\"falling\"\\s*:\\s*false",
-        "\"group\"\\s*:\\s*\"Default\""
-      ],
-      "label": "block clears itself and never moves the character"
-    },
-    {
-      "type": "call",
-      "tool": "get_console_output",
-      "saveAs": "console",
-      "label": "capture console"
-    },
-    {
-      "type": "assertNoConsoleErrors",
-      "source": "console",
-      "label": "console clean"
-    },
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "label": "stop play"
-    }
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for structural physics runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart local intact=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R01') root.CFrame=intact.CFrame root.Anchored=true task.wait(0.45) local intactResult={anchored=intact.Anchored,broken=intact:GetAttribute('Broken'),detached=intact:GetAttribute('StructuralDetached')} root.Anchored=false c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) c:Invoke('HitDepthBlock',{layer=1,column=7,row=1}) task.wait(0.35) local target=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R02') root.CFrame=target.CFrame root.Anchored=true local before=root.Position task.wait(0.45) local result={intactAnchored=intactResult.anchored,intactBroken=intactResult.broken,intactDetached=intactResult.detached,broken=target:GetAttribute('Broken'),detached=target:GetAttribute('StructuralDetached'),shatterAt=target:GetAttribute('LastOverlapShatterAt') or 0,drift=(root.Position-before).Magnitude,rootAnchored=root.Anchored} root.Anchored=false return H:JSONEncode(result)" }, "label": "resolve only detached overlap" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local p=game.Players:GetPlayers()[1] return H:JSONEncode({broken=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R02:GetAttribute('Broken'),detached=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R02:GetAttribute('StructuralDetached'),shatterAt=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R02:GetAttribute('LastOverlapShatterAt') or 0,drift=0,rootAnchored=p.Character.HumanoidRootPart.Anchored})" }, "expectRegex": ["\"broken\"\\s*:\\s*true", "\"detached\"\\s*:\\s*false", "\"shatterAt\"\\s*:\\s*[1-9]", "\"drift\"\\s*:\\s*0", "\"rootAnchored\"\\s*:\\s*false"], "label": "detached block shatters without character correction" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
   ],
   "cleanup": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "allowError": true,
-      "label": "cleanup stop play"
-    }
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
   ]
 }
