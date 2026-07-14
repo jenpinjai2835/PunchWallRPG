@@ -2194,6 +2194,38 @@ performPunchAnimation = function()
 	return true
 end
 
+local function beginPunchCamera(now)
+	local camera = workspace.CurrentCamera
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not camera or not root then return false end
+	local originalType = camera.CameraType
+	if originalType == Enum.CameraType.Scriptable then
+		originalType = Enum.CameraType.Custom
+	end
+	local motionState = punchMotionState
+	if not motionState then return false end
+	motionState.camera = {
+		startedAt = now,
+		delay = 0.24,
+		followDuration = 0.58,
+		baseCFrame = camera.CFrame,
+		baseFocus = camera.Focus,
+		startPosition = root.Position,
+		cameraType = originalType,
+		cameraSubject = camera.CameraSubject,
+	}
+	camera.CameraType = Enum.CameraType.Scriptable
+	gui:SetAttribute("PunchCameraFollowEnabled", true)
+	gui:SetAttribute("PunchCameraFollowDelaySeconds", motionState.camera.delay)
+	gui:SetAttribute("PunchCameraFollowPeakStuds", 0)
+	gui:SetAttribute("PunchCameraFollowActive", true)
+	gui:SetAttribute("PunchCameraScriptableActive", true)
+	gui:SetAttribute("PunchCameraMode", "DelayedScriptableFollow")
+	gui:SetAttribute("LastPunchCameraFollowAt", now)
+	return true
+end
+
 local function tryPunchAction()
 	local now = os.clock()
 	local interval = tonumber(gui:GetAttribute("PunchAttackInterval")) or 1
@@ -2205,18 +2237,12 @@ local function tryPunchAction()
 	gui:SetAttribute("PunchActionCooldownBlocked", false)
 	gui:SetAttribute("LastPunchActionAt", now)
 	performPunchAnimation()
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if clientSettings.motion and humanoid then
-		gui:SetAttribute("PunchCameraBaseOffset", humanoid.CameraOffset)
-		gui:SetAttribute("PunchCameraFollowEnabled", true)
-		gui:SetAttribute("PunchCameraFollowDelaySeconds", 0.24)
-		gui:SetAttribute("PunchCameraFollowPeakStuds", 0.36)
-		gui:SetAttribute("PunchCameraFollowActive", true)
-		gui:SetAttribute("LastPunchCameraFollowAt", now)
+	if clientSettings.motion then
+		beginPunchCamera(now)
 	else
 		gui:SetAttribute("PunchCameraFollowEnabled", false)
 		gui:SetAttribute("PunchCameraFollowActive", false)
+		gui:SetAttribute("PunchCameraScriptableActive", false)
 	end
 	actionRemote:FireServer("Punch")
 	return true
@@ -2245,30 +2271,44 @@ RunService.PreSimulation:Connect(function()
 		if state.leftShoulder and state.leftShoulder.Parent then state.leftShoulder.Transform = CFrame.new() end
 		if state.waist and state.waist.Parent then state.waist.Transform = CFrame.new() end
 		if state.neck and state.neck.Parent then state.neck.Transform = CFrame.new() end
-		punchMotionState = nil
+		state.animationFinished = true
+		if not state.camera then
+			punchMotionState = nil
+		end
 		gui:SetAttribute("CharacterPunchMotionActive", false)
 	end
 end)
 
-RunService.RenderStepped:Connect(function()
-	if gui:GetAttribute("PunchCameraFollowActive") ~= true then return end
+RunService:BindToRenderStep("PunchWallDelayedCameraFollow", Enum.RenderPriority.Camera.Value + 1, function()
+	local state = punchMotionState and punchMotionState.camera
+	if not state then return end
+	local camera = workspace.CurrentCamera
 	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
-	local elapsed = os.clock() - (gui:GetAttribute("LastPunchCameraFollowAt") or os.clock())
-	local delay = gui:GetAttribute("PunchCameraFollowDelaySeconds") or 0.24
-	local baseOffset = gui:GetAttribute("PunchCameraBaseOffset") or Vector3.zero
-	if elapsed < delay then
-		humanoid.CameraOffset = baseOffset
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not camera or not root then
+		punchMotionState.camera = nil
+		gui:SetAttribute("PunchCameraFollowActive", false)
+		gui:SetAttribute("PunchCameraScriptableActive", false)
 		return
 	end
-	local progress = math.clamp((elapsed - delay) / 0.58, 0, 1)
-	local eased = math.sin(progress * math.pi)
-	local peakOffset = Vector3.new(0, 0, gui:GetAttribute("PunchCameraFollowPeakStuds") or 0.36)
-	humanoid.CameraOffset = baseOffset + peakOffset * eased
-	if progress >= 1 then
-		humanoid.CameraOffset = baseOffset
+	local elapsed = os.clock() - state.startedAt
+	local alpha = 0
+	if elapsed >= state.delay then
+		local progress = math.clamp((elapsed - state.delay) / state.followDuration, 0, 1)
+		alpha = progress * progress * (3 - 2 * progress)
+	end
+	local rootDelta = root.Position - state.startPosition
+	local cameraPosition = state.baseCFrame.Position + rootDelta * alpha
+	camera.CFrame = CFrame.new(cameraPosition) * state.baseCFrame.Rotation
+	camera.Focus = state.baseFocus + rootDelta * alpha
+	if elapsed >= state.delay + state.followDuration then
+		camera.CameraType = state.cameraType
+		camera.CameraSubject = state.cameraSubject
+		punchMotionState.camera = nil
+		if punchMotionState.animationFinished then punchMotionState = nil end
 		gui:SetAttribute("PunchCameraFollowActive", false)
+		gui:SetAttribute("PunchCameraScriptableActive", false)
+		gui:SetAttribute("PunchCameraMode", "Custom")
 	end
 end)
 
@@ -2464,13 +2504,22 @@ gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
 -- Keep the zoom-preserving occlusion mode, but restore the obscuring parts to
 -- full local opacity after the camera update so the world stays visually solid.
 if cameraOcclusionApplied then
-	RunService:BindToRenderStep("PunchWallOpaqueOcclusion", Enum.RenderPriority.Camera.Value + 1, function()
+	RunService:BindToRenderStep("PunchWallOpaqueOcclusion", Enum.RenderPriority.Last.Value, function()
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if not camera or not character then return end
-		local obscuringParts = camera:GetPartsObscuringTarget({ camera.Focus.Position }, { character })
+		local targets = { camera.Focus.Position }
+		local head = character:FindFirstChild("Head")
+		local root = character:FindFirstChild("HumanoidRootPart")
+		local upperTorso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+		if head then table.insert(targets, head.Position) end
+		if root then table.insert(targets, root.Position) end
+		if upperTorso then table.insert(targets, upperTorso.Position) end
+		local obscuringParts = camera:GetPartsObscuringTarget(targets, { character })
 		for _, part in ipairs(obscuringParts) do
-			if part:IsA("BasePart") then part.LocalTransparencyModifier = 0 end
+			if part:IsA("BasePart") then
+				part.LocalTransparencyModifier = 0
+			end
 		end
 	end)
 end

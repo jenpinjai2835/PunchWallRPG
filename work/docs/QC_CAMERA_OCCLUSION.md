@@ -7,9 +7,22 @@ Objects between the camera and the player must stay visually solid. The camera m
 ## Implementation
 
 - Keep Roblox `Invisicam` so Roblox does not force the camera to zoom into enclosed spaces.
-- Bind a client render step after the camera update.
-- Query the parts obscuring the camera and set their `LocalTransparencyModifier` to `0`.
+- Bind a client render step at the final render priority so it runs after Roblox's built-in occlusion pass.
+- Query the parts obscuring the camera against the camera focus, head, root, and torso points.
+- Set every returned part's `LocalTransparencyModifier` to `0` so scenery stays fully opaque.
 - Do not change gameplay collision, server physics, or the character model.
+
+## Punch Camera Motion
+
+During the punch wind-up and lunge, the camera temporarily switches to `Scriptable`:
+
+- Hold the camera at its pre-punch transform while the character starts moving.
+- Interpolate the camera position toward the character's actual displacement.
+- Restore the original camera type and subject after the follow window.
+
+Flow: `F:\Roblox\PuchWall\work\automation\flows\punch-camera-smooth-follow.json`
+
+The flow verifies the character moves during the punch, the camera is held during the opening window, the camera follows afterward, and the camera returns to `Custom` without console errors.
 
 ## Regression Test
 
