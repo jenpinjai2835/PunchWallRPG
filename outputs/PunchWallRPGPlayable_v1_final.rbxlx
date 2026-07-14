@@ -65075,6 +65075,19 @@ local function tryPunchAction()
 	gui:SetAttribute("PunchActionCooldownBlocked", false)
 	gui:SetAttribute("LastPunchActionAt", now)
 	performPunchAnimation()
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if clientSettings.motion and humanoid then
+		gui:SetAttribute("PunchCameraBaseOffset", humanoid.CameraOffset)
+		gui:SetAttribute("PunchCameraFollowEnabled", true)
+		gui:SetAttribute("PunchCameraFollowDelaySeconds", 0.24)
+		gui:SetAttribute("PunchCameraFollowPeakStuds", 0.36)
+		gui:SetAttribute("PunchCameraFollowActive", true)
+		gui:SetAttribute("LastPunchCameraFollowAt", now)
+	else
+		gui:SetAttribute("PunchCameraFollowEnabled", false)
+		gui:SetAttribute("PunchCameraFollowActive", false)
+	end
 	actionRemote:FireServer("Punch")
 	return true
 end
@@ -65104,6 +65117,28 @@ RunService.PreSimulation:Connect(function()
 		if state.neck and state.neck.Parent then state.neck.Transform = CFrame.new() end
 		punchMotionState = nil
 		gui:SetAttribute("CharacterPunchMotionActive", false)
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if gui:GetAttribute("PunchCameraFollowActive") ~= true then return end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	local elapsed = os.clock() - (gui:GetAttribute("LastPunchCameraFollowAt") or os.clock())
+	local delay = gui:GetAttribute("PunchCameraFollowDelaySeconds") or 0.24
+	local baseOffset = gui:GetAttribute("PunchCameraBaseOffset") or Vector3.zero
+	if elapsed < delay then
+		humanoid.CameraOffset = baseOffset
+		return
+	end
+	local progress = math.clamp((elapsed - delay) / 0.58, 0, 1)
+	local eased = math.sin(progress * math.pi)
+	local peakOffset = Vector3.new(0, 0, gui:GetAttribute("PunchCameraFollowPeakStuds") or 0.36)
+	humanoid.CameraOffset = baseOffset + peakOffset * eased
+	if progress >= 1 then
+		humanoid.CameraOffset = baseOffset
+		gui:SetAttribute("PunchCameraFollowActive", false)
 	end
 end)
 
