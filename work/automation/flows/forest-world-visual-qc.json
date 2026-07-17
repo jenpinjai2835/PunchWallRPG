@@ -1,0 +1,68 @@
+{
+  "name": "forest-world-visual-qc",
+  "description": "Validate the sanitized Creator Store forest template, detailed World 1 trees, readable landmarks, and non-blocking decorative layout.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local a=game.ReplicatedStorage:FindFirstChild('PunchWallVisualAssets') local t=a and a:FindFirstChild('StylizedForestTreeTemplate') local m,s,b,badMesh,badSurface=0,0,0,0,0 if t then for _,d in ipairs(t:GetDescendants()) do if d:IsA('MeshPart') then m+=1 local id=d.MeshId if id~='rbxassetid://16460201079' and id~='rbxassetid://16460182102' then badMesh+=1 end elseif d:IsA('SurfaceAppearance') then s+=1 if d.ColorMap~='rbxassetid://16460182437' then badSurface+=1 end elseif d:IsA('LuaSourceContainer') then b+=1 end end end return H:JSONEncode({template=t~=nil,meshes=m,surfaces=s,scripts=b,badMesh=badMesh,badSurface=badSurface})"
+      },
+      "expectRegex": [
+        "\"template\"[ ]*:[ ]*true",
+        "\"meshes\"[ ]*:[ ]*7",
+        "\"surfaces\"[ ]*:[ ]*6",
+        "\"scripts\"[ ]*:[ ]*0",
+        "\"badMesh\"[ ]*:[ ]*0",
+        "\"badSurface\"[ ]*:[ ]*0"
+      ],
+      "label": "sanitized forest template is embedded"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8500, "label": "wait for forest bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local f=root.Polish['World 1 Forest'] local out={trees=0,canopies=0,spawnTrees=0,spawnCanopies=0,templateModels=0,scripts=0,unsafeCollision=0} for _,d in ipairs(f:GetDescendants()) do local r=d:GetAttribute('VisualRole') if r=='ForestTree' then out.trees+=1 elseif r=='ForestCanopy' then out.canopies+=1 elseif r=='ForestSpawnTree' then out.spawnTrees+=1 elseif r=='ForestSpawnCanopy' then out.spawnCanopies+=1 end if d:GetAttribute('CreatorStoreTemplateUsed') then out.templateModels+=1 end if d:IsA('LuaSourceContainer') then out.scripts+=1 end if d:IsA('BasePart') and d:GetAttribute('CreatorStoreAssetId') and (d.CanCollide or d.CanTouch or d.CanQuery) then out.unsafeCollision+=1 end end local sign=f['World 1 Forest Gateway'] local overlap=false for _,n in ipairs({'Forest Spawn Lantern -1','Forest Spawn Lantern 1'}) do local lamp=f:FindFirstChild(n) if lamp and math.abs(lamp.Position.X-sign.Position.X)<(lamp.Size.X+sign.Size.X)/2 and math.abs(lamp.Position.Y-sign.Position.Y)<(lamp.Size.Y+sign.Size.Y)/2 then overlap=true end end local training=root['Forest Training Camp Sign'] out.theme=f:GetAttribute('WorldTheme') out.version=f:GetAttribute('ForestVisualVersion') out.asset=f:GetAttribute('PrimaryTreeAssetId') out.signLampOverlap=overlap out.trainingSignClear=training.Position.Y-training.Size.Y/2>9 out.zoneDividers=0 for _,d in ipairs(f:GetDescendants()) do if d:GetAttribute('VisualRole')=='ForestZoneDivider' then out.zoneDividers+=1 end end return H:JSONEncode(out)"
+      },
+      "expectRegex": [
+        "\"theme\"[ ]*:[ ]*\"NaturalForest\"",
+        "\"version\"[ ]*:[ ]*2",
+        "\"asset\"[ ]*:[ ]*\"95555308270103\"",
+        "\"trees\"[ ]*:[ ]*36",
+        "\"canopies\"[ ]*:[ ]*108",
+        "\"spawnTrees\"[ ]*:[ ]*8",
+        "\"spawnCanopies\"[ ]*:[ ]*24",
+        "\"templateModels\"[ ]*:[ ]*44",
+        "\"scripts\"[ ]*:[ ]*0",
+        "\"unsafeCollision\"[ ]*:[ ]*0",
+        "\"signLampOverlap\"[ ]*:[ ]*false",
+        "\"trainingSignClear\"[ ]*:[ ]*true",
+        "\"zoneDividers\"[ ]*:[ ]*5"
+      ],
+      "label": "forest composition and sightline safeguards"
+    },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_ForestWorld_Automated",
+        "camera_position": [22, 14, 16],
+        "look_at_position": [-2, 5, -31]
+      },
+      "label": "capture forest world QC view"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

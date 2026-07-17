@@ -1,0 +1,18 @@
+{
+  "name": "pet-wall-drops-and-fusion",
+  "description": "Verify coin hatching is disabled, pet eggs drop from depth blocks with pity, deeper tiers unlock stronger pools, and star fusion follows 2 then 3 copies.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') a:Invoke('SetStats',{Coins=777,PetInventoryJSON='[]',EquippedPetsJSON='[]',PetDropPity=0}) return 'READY'" }, "expectRegex": ["READY"], "label": "prepare no-purchase state" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='HatchPet'}) task.wait(.35) return 'HATCH_REQUESTED'" }, "expectRegex": ["HATCH_REQUESTED"], "label": "attempt old coin hatch path" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local blocked=p.leaderstats.Coins.Value==777 and p.RPGStats.PetInventoryJSON.Value=='[]' a:Invoke('SetStats',{PetDropPity=44}) local drop=a:Invoke('BreakDepthBlock',{layer=1,column=6,row=2},2) local dropped=p.RPGStats.PetInventoryJSON.Value:find('Forest Pup',1,true)~=nil and p.RPGStats.PetDropPity.Value==0 a:Invoke('Reset') a:Invoke('GrantPet',{name='Forest Pup',stars=1}) a:Invoke('GrantPet',{name='Forest Pup',stars=1}) local f2=a:Invoke('FusePet','Forest Pup') a:Invoke('GrantPet',{name='Forest Pup',stars=2}) a:Invoke('GrantPet',{name='Forest Pup',stars=2}) local f3=a:Invoke('FusePet','Forest Pup#2') local inv=p.RPGStats.PetInventoryJSON.Value local cfg=require(game.ReplicatedStorage.GameConfig) local depth1,depth62=0,0 for _,pet in ipairs(cfg.Pets) do if pet.minDepth<=1 then depth1+=1 end if pet.minDepth<=62 then depth62+=1 end end return H:JSONEncode({ok=blocked and drop.ok==true and dropped and f2.ok==true and f3.ok==true and inv:find('Forest Pup#3',1,true)~=nil and depth1==1 and depth62==5,blocked=blocked,dropped=dropped,pity=p.RPGStats.PetDropPity.Value,fused2=f2.ok,fused3=f3.ok,inventory=inv,depth1Pool=depth1,depth62Pool=depth62})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"blocked\"\\s*:\\s*true", "\"dropped\"\\s*:\\s*true", "Forest Pup#3", "\"depth1Pool\"\\s*:\\s*1", "\"depth62Pool\"\\s*:\\s*5"], "label": "wall drop and fusion matrix" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

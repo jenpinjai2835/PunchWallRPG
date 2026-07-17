@@ -1,0 +1,57 @@
+{
+  "name": "final-rbxlx-build-validation",
+  "description": "Open a byte-for-byte validation copy of the rebuilt final RBXLX and verify the embedded scripts bootstrap the complete player-facing release.",
+  "studioName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+  "pollAttempts": 20,
+  "pollMs": 2500,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start rebuilt final copy" },
+    { "type": "wait", "ms": 8000, "label": "wait for embedded scripts to bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local r=workspace:WaitForChild('PunchWallRPG',5) local d=r and r:FindFirstChild('Depth Blocks') local p=r and r:FindFirstChild('Polish') local city=p and p:FindFirstChild('City Decor') local ring=city and city:FindFirstChild('Evac Portal Ring') local storage=game:GetService('ServerStorage') local command=storage:FindFirstChild('PunchWallAutomation') local harness=storage:FindFirstChild('PunchWallTestHarness') local replicated=game:GetService('ReplicatedStorage') local snap=command and command:Invoke('Reset') local contract=harness and harness:Invoke({command='Describe'}) return H:JSONEncode({ok=r~=nil and d~=nil and #d:GetChildren()>=5400 and command~=nil and snap and snap.Power==15 and snap.Coins==0 and harness~=nil and contract and contract.ok==true and contract.studioOnly==true and contract.productionSurface==false and replicated:FindFirstChild('PunchWallTestHarness')==nil,honor=city and city:FindFirstChild('Honor Keeper NPC')~=nil,portal=ring and ring:GetAttribute('SegmentCount')==18,rank=r and r:FindFirstChild('World 1 Hero Rank Board')~=nil,depth=d and #d:GetChildren() or 0,harnessVersion=contract and contract.version})"
+      },
+      "expectRegex": ["\"ok\":true", "\"honor\":true", "\"portal\":true", "\"rank\":true", "\"depth\":5400", "\"harnessVersion\":\"1.0.0\""],
+      "label": "embedded server release boots complete world"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD',5) local hud=g and g:FindFirstChild('PixelPerfectHeroCityHUD') local shop=g and g:FindFirstChild('FunctionalHeroShop',true) local spin=g and g:FindFirstChild('HeroSpinModal') local music=game:GetService('SoundService'):FindFirstChild('Hero Forest Music') return H:JSONEncode({ok=g~=nil and hud~=nil and shop~=nil and spin~=nil and music~=nil,music=music and music.SoundId,playing=music and music.IsPlaying,punch=hud and hud:FindFirstChild('ActionPunch')~=nil,jump=hud and hud:FindFirstChild('ActionJump')~=nil})"
+      },
+      "expectRegex": ["\"ok\":true", "\"music\":\"rbxassetid://1837768082\"", "\"playing\":true", "\"punch\":true", "\"jump\":true"],
+      "label": "embedded client release boots HUD shop spin and music"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local root=workspace:WaitForChild('PunchWallRPG') local deadline=os.clock()+5 local bag,premium repeat bag=root:FindFirstChild('Creator Store Hero Power Bag',true) premium=root:FindFirstChild('Premium Hero Robot Merchant NPC',true) if bag and premium then break end task.wait(.1) until os.clock()>=deadline local minV=Vector3.new(math.huge,math.huge,math.huge) local maxV=Vector3.new(-math.huge,-math.huge,-math.huge) if bag then for _,d in ipairs(bag:GetDescendants()) do if d:IsA('BasePart') then for xs=-1,1,2 do for ys=-1,1,2 do for zs=-1,1,2 do local v=d.CFrame:PointToWorldSpace(Vector3.new(d.Size.X*xs*.5,d.Size.Y*ys*.5,d.Size.Z*zs*.5)) minV=Vector3.new(math.min(minV.X,v.X),math.min(minV.Y,v.Y),math.min(minV.Z,v.Z)) maxV=Vector3.new(math.max(maxV.X,v.X),math.max(maxV.Y,v.Y),math.max(maxV.Z,v.Z)) end end end end end end local size=maxV-minV local prices,stands=0,0 for _,d in ipairs(root:GetDescendants()) do if d:GetAttribute('VisualRole')=='PremiumPetRobuxStand' then stands+=1 end if d:IsA('SurfaceGui') and d.Parent and d.Parent.Name:find('Premium Pet Price') and d.AlwaysOnTop and d.LightInfluence==0 then prices+=1 end end local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') local before=p.leaderstats.Power.Value local train=a:Invoke('Train','Power Bag') task.wait(1.15) local trained=train.ok==true and p.RPGStats.TrainingActive.Value==1 and p.leaderstats.Power.Value>before local stopped=a:Invoke('StopTraining') return H:JSONEncode({ok=bag~=nil and bag:GetAttribute('AssetId')==140653091179998 and bag:GetAttribute('RuntimeVisualClone')==true and size.Y>size.X and size.Y>size.Z and math.abs(minV.Y-.35)<.05 and premium~=nil and premium:GetAttribute('AssetId')==3162411898 and premium:GetAttribute('RuntimeVisualClone')==true and prices==6 and stands==3 and trained and stopped.ok==true,bagAsset=bag and bag:GetAttribute('AssetId') or 0,bagVertical=size.Y>size.X and size.Y>size.Z,bagBottom=minV.Y,premiumAsset=premium and premium:GetAttribute('AssetId') or 0,prices=prices,stands=stands,trained=trained})"
+      },
+      "expectRegex": ["\"ok\":true", "\"bagAsset\":140653091179998", "\"bagVertical\":true", "\"premiumAsset\":3162411898", "\"prices\":6", "\"stands\":3", "\"trained\":true"],
+      "label": "rebuilt final loads approved NPC bag training and premium pet displays"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenSpin') task.wait(.25) local modal=g.HeroSpinModal local panel=modal and modal:FindFirstChild('SpinPanel') local required={'SpinHeaderArt','CloseSpin','PrizeWheel','PrizePointer','WheelCenter','FreeSpinReadyArt','SpinNow','BuyBonusSpins'} local layers=0 for _,name in ipairs(required) do local x=panel and panel:FindFirstChild(name) if x and (x:IsA('ImageLabel') or x:IsA('ImageButton')) and x.Image:find('rbxassetid://',1,true)==1 then layers+=1 end end local hud=g.PixelPerfectHeroCityHUD local race=hud and hud:FindFirstChild('DepthRankHUD') local up=hud and hud:FindFirstChild('PunchUp') local down=hud and hud:FindFirstChild('PunchDown') return H:JSONEncode({ok=modal and modal.Visible and layers==8 and g:GetAttribute('SpinUsesSuppliedLayers')==true and race and race:GetAttribute('Layout')=='VerticalUnframed' and race.BackgroundTransparency==1 and up and up.Active and up:GetAttribute('PunchDirection')=='Up' and down and down.Active and down:GetAttribute('PunchDirection')=='Down',layers=layers,spinSupplied=g:GetAttribute('SpinUsesSuppliedLayers'),race=race and race:GetAttribute('Layout'),up=up and up:GetAttribute('PunchDirection'),down=down and down:GetAttribute('PunchDirection')})"
+      },
+      "expectRegex": ["\"ok\":true", "\"layers\":8", "\"spinSupplied\":true", "\"race\":\"VerticalUnframed\"", "\"up\":\"Up\"", "\"down\":\"Down\""],
+      "label": "rebuilt final uses supplied Spin vertical race and directional controls"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture rebuilt final console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "rebuilt final console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop rebuilt final copy" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup rebuilt final copy" }
+  ]
+}

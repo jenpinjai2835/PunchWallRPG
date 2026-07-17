@@ -1,0 +1,111 @@
+{
+  "name": "studio-test-harness-full-control",
+  "description": "Exercise the high-control Studio harness commands for catalog grants, bounded wall destruction, feedback, player attributes, lighting, generic GUI control, and production-surface isolation.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallTestHarness local remote=game.ReplicatedStorage:FindFirstChild('PunchWallTestHarness',true) local r=a:Invoke({command='Sequence',steps={{command='Reset'},{command='ApplyPreset',target='Stress'},{command='SetPlayerAttribute',target={name='HarnessQC',value='ACTIVE'}},{command='GrantAllFists',target='Celestial Titan Fist'},{command='GrantAllPets'},{command='GrantAllPremium',target='WithProducts'},{command='EmitFeedback',target={type='Reward',target='HARNESS QC',coins=123}},{command='BreakDepthRegion',target={layer=1,columnFrom=6,columnTo=7,row=1,force=true,attempts=1,limit=2}},{command='SetLighting',target={clockTime=14,brightness=2,globalShadows=true}}}}) return H:JSONEncode({ok=r.ok,count=r.count,failed=r.failedStep,remoteAbsent=remote==nil})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*9",
+        "\"remoteAbsent\"\\s*:\\s*true"
+      ],
+      "label": "run full server control sequence"
+    },
+    {
+      "type": "wait",
+      "ms": 500,
+      "label": "allow feedback and physics replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=p.RPGStats local blocks=workspace.PunchWallRPG['Depth Blocks'] local b1=blocks:FindFirstChild('DepthBlock_L001_C06_R01') local b2=blocks:FindFirstChild('DepthBlock_L001_C07_R01') return H:JSONEncode({ok=p:GetAttribute('HarnessQC')=='ACTIVE' and s.OwnedFistsJSON.Value:find('Titan Gauntlet',1,true)~=nil and s.OwnedPremiumFistsJSON.Value:find('Celestial Titan Fist',1,true)~=nil and s.OwnedPremiumPetsJSON.Value:find('Celestial Guardian',1,true)~=nil and s.PetInventoryJSON.Value~='[]' and b1:GetAttribute('Broken')==true and b2:GetAttribute('Broken')==true and game.Lighting.ClockTime==14 and game.Lighting.Brightness==2,attribute=p:GetAttribute('HarnessQC'),fist=s.EquippedFist.Value,fistMultiplier=s.FistMultiplier.Value,petMultiplier=s.PetMultiplier.Value,b1=b1:GetAttribute('Broken'),b2=b2:GetAttribute('Broken'),clock=game.Lighting.ClockTime})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"attribute\"\\s*:\\s*\"ACTIVE\"",
+        "\"fist\"\\s*:\\s*\"Celestial Titan Fist\"",
+        "\"b1\"\\s*:\\s*true",
+        "\"b2\"\\s*:\\s*true",
+        "\"clock\"\\s*:\\s*14"
+      ],
+      "label": "verify full server control state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientTestHarness local r=a:Invoke({command='Sequence',steps={{command='SetGuiAttribute',value={attribute='HarnessClientQC',value='ACTIVE'}},{command='SetGuiVisible',value={name='HeroSpinModal',visible=false}},{command='RequestAction',value={action='RequestSync'}},{command='GetGuiSummary'}}}) task.wait(.2) local summary=a:Invoke({command='GetGuiSummary'}).result return H:JSONEncode({ok=r.ok and r.count==4 and g:GetAttribute('HarnessClientQC')=='ACTIVE' and summary.ok and summary.total>40 and (g:GetAttribute('FeedbackCount') or 0)>0,count=r.count,total=summary.total,attribute=g:GetAttribute('HarnessClientQC'),feedback=g:GetAttribute('FeedbackCount') or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*4",
+        "\"total\"\\s*:\\s*[1-9][0-9]*",
+        "\"attribute\"\\s*:\\s*\"ACTIVE\"",
+        "\"feedback\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "exercise generic client controls"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local a=game.ServerStorage.PunchWallTestHarness local r=a:Invoke({command='Sequence',steps={{command='SetPlayerAttribute',target={name='HarnessQC',value=nil}},{command='SetWorldResetEnabled',target=true},{command='SetLighting',target={clockTime=14,brightness=2,globalShadows=true}},{command='Reset'}}}) return r.ok and r.count==4 and 'SERVER_RESTORED' or 'SERVER_RESTORE_FAILED'"
+      },
+      "expectRegex": ["SERVER_RESTORED"],
+      "label": "restore full-control server state"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "shop-coin-and-music",
+  "description": "Verify Heroic Adventure music plays in Studio and every Coin-priced shop card uses the supplied transparent coin image instead of the square atlas crop.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 12000, "label": "wait for music and shop art" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('SoundService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local music=S:FindFirstChild('Hero Forest Music') local before=music and music.TimePosition or 0 task.wait(1.1) local after=music and music.TimePosition or 0 local musicOk=music~=nil and music.SoundId=='rbxassetid://1837768082' and music.IsLoaded and music.IsPlaying and music.TimeLength>100 and after>before+.5 and music.Volume>=.2 and music:GetAttribute('MusicLoaded')==true local iconId='rbxassetid://72320637874093' local icons,failures=0,{} a:Invoke('OpenTab','Fists') for _,page in ipairs({'Fists','Boosts'}) do a:Invoke('OpenShopPage',page) task.wait(.35) local shop=g.GameMenu.FunctionalHeroShop for _,card in ipairs(shop:GetChildren()) do if card:IsA('Frame') and card.Name:match('ShopCard$') then local icon=card:FindFirstChild('PriceIcon') icons+=1 if not icon or not icon:IsA('ImageLabel') or icon.Image~=iconId or not icon.IsLoaded or icon.ImageRectSize~=Vector2.zero or icon.BackgroundTransparency<1 or icon:GetAttribute('ThemeIcon')~=nil then table.insert(failures,card.Name) end end end end return H:JSONEncode({ok=musicOk and icons==8 and #failures==0,musicOk=musicOk,isPlaying=music and music.IsPlaying,isLoaded=music and music.IsLoaded,timeLength=music and music.TimeLength,advanced=after-before,volume=music and music.Volume,icons=icons,failures=failures})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"musicOk\":true",
+        "\"isPlaying\":true",
+		"\"isLoaded\":true",
+		"\"icons\":8"
+      ],
+      "label": "music advances and transparent coin icons render"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

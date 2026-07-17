@@ -1,0 +1,17 @@
+{
+  "name": "vertical-depth-race-hud",
+  "description": "Verify the depth race is an unframed vertical avatar track with player face, compact name, and no visible title panel.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=55,Score=99999}) task.wait(.3) return 'DEPTH_SET'" }, "expectRegex": ["DEPTH_SET"], "label": "set visible race depth" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') task.wait(.5) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hud=g.PixelPerfectHeroCityHUD local rank=hud.DepthRankHUD local track=rank and rank:FindFirstChild('DepthRaceTrack') local marker=track and track:FindFirstChild('HeroDepthMarker1') local name=marker and marker:FindFirstChild('HeroName') local title=rank and rank:FindFirstChild('RankTitleData') return H:JSONEncode({ok=rank~=nil and rank:GetAttribute('Layout')=='VerticalUnframed' and rank.BackgroundTransparency==1 and rank.AbsoluteSize.Y>rank.AbsoluteSize.X*1.8 and title and not title.Visible and marker and marker.Visible and marker.Image~='' and name and name.Text~='',layout=rank and rank:GetAttribute('Layout'),width=rank and rank.AbsoluteSize.X or 0,height=rank and rank.AbsoluteSize.Y or 0,titleVisible=title and title.Visible or false,markerVisible=marker and marker.Visible or false,avatar=marker and marker.Image or '',hero=name and name.Text or ''})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"layout\"\\s*:\\s*\"VerticalUnframed\"", "\"titleVisible\"\\s*:\\s*false", "\"markerVisible\"\\s*:\\s*true", "rbxthumb://"], "label": "vertical unframed avatar race" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

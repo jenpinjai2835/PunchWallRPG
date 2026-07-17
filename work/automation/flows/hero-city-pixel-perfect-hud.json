@@ -1,7 +1,7 @@
 {
   "name": "hero-city-pixel-perfect-hud",
   "description": "Verify the approved Hero City pixel crops drive the live HUD, mobile input shell, fist shop, and punch feedback without draft UI duplication.",
-  "studioName": "PunchWallRPG",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -22,7 +22,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild(\"PunchWallHUD\",5) local r=g:WaitForChild(\"PixelPerfectHeroCityHUD\",5) local assets={PowerCard=\"rbxassetid://116369277219209\",CoinsCard=\"rbxassetid://129024701441116\",WallCard=\"rbxassetid://71796534980277\",QuestCard=\"rbxassetid://98132697706518\",DailyButton=\"rbxassetid://140223386174801\",SpinButton=\"rbxassetid://107739720698002\",RebirthButton=\"rbxassetid://129503393018469\",ShopButton=\"rbxassetid://104281527974467\",PetsButton=\"rbxassetid://94981950804472\",QuestsButton=\"rbxassetid://130173685908715\",ActionPunch=\"rbxassetid://86102957745205\",ActionJump=\"rbxassetid://113344820616843\",MovementJoystick=\"rbxassetid://105237841705957\",SoundTool=\"rbxassetid://91707047961392\",SettingsTool=\"rbxassetid://98048887733214\",MoreTool=\"rbxassetid://103143983649151\"} local exact=true for name,id in pairs(assets) do local item=r:FindFirstChild(name) exact=exact and item~=nil and item.Image==id and item:FindFirstChildOfClass(\"UIAspectRatioConstraint\")~=nil end local noShells=r:FindFirstChild(\"BottomShellLeft\")==nil and r:FindFirstChild(\"BottomShellRight\")==nil local touch=p.PlayerGui:FindFirstChild(\"TouchGui\") local controls=touch and touch:FindFirstChild(\"TouchControlFrame\") return H:JSONEncode({visible=r.Visible,exact=exact,noShells=noShells,powerValue=r.PowerCard:FindFirstChild(\"PowerValue\")~=nil,coinsValue=r.CoinsCard:FindFirstChild(\"CoinsValue\")~=nil,wallValue=r.WallCard:FindFirstChild(\"WallValue\")~=nil,oldStatus=g.HeroStatusDeck.Visible,oldControls=g.MobileControls.Visible,touchControls=controls~=nil and controls.Visible or false})"
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild(\"PunchWallHUD\",5) local r=g:WaitForChild(\"PixelPerfectHeroCityHUD\",5) local assets={PowerCard=\"rbxassetid://116369277219209\",CoinsCard=\"rbxassetid://129024701441116\",WallCard=\"rbxassetid://71796534980277\",QuestCard=\"rbxassetid://98132697706518\",DailyButton=\"rbxassetid://140223386174801\",SpinButton=\"rbxassetid://107739720698002\",RebirthButton=\"rbxassetid://129503393018469\",ShopButton=\"rbxassetid://104281527974467\",PetsButton=\"rbxassetid://94981950804472\",QuestsButton=\"rbxassetid://130173685908715\",ActionPunch=\"rbxassetid://86102957745205\",ActionJump=\"rbxassetid://113344820616843\",MovementJoystick=\"rbxassetid://105237841705957\",SoundTool=\"rbxassetid://91707047961392\",SettingsTool=\"rbxassetid://98048887733214\",MoreTool=\"rbxassetid://103143983649151\"} local exact=true for name,id in pairs(assets) do local item=r:FindFirstChild(name) exact=exact and item~=nil and item.Image==id and item:FindFirstChildOfClass(\"UIAspectRatioConstraint\")~=nil end local noShells=r:FindFirstChild(\"BottomShellLeft\")==nil and r:FindFirstChild(\"BottomShellRight\")==nil local touch=p.PlayerGui:FindFirstChild(\"TouchGui\") local controls=touch and touch:FindFirstChild(\"TouchControlFrame\") return H:JSONEncode({visible=r.Visible,exact=exact,noShells=noShells,powerValue=r.PowerCard:FindFirstChild(\"PowerValue\")~=nil,coinsValue=r.CoinsCard:FindFirstChild(\"CoinsValue\")~=nil,depthValue=r.WallCard:FindFirstChild(\"DepthValue\")~=nil,oldStatus=g.HeroStatusDeck.Visible,oldControls=g.MobileControls.Visible,touchControls=controls~=nil and controls.Visible or false})"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
@@ -30,7 +30,7 @@
         "\"noShells\"\\s*:\\s*true",
         "\"powerValue\"\\s*:\\s*true",
         "\"coinsValue\"\\s*:\\s*true",
-        "\"wallValue\"\\s*:\\s*true",
+        "\"depthValue\"\\s*:\\s*true",
         "\"oldStatus\"\\s*:\\s*false",
         "\"oldControls\"\\s*:\\s*false",
         "\"touchControls\"\\s*:\\s*false"
@@ -42,85 +42,94 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage:WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=120,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13) local count=0 for _,d in ipairs(workspace.PunchWallRPG:GetDescendants()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) then count+=1 end end local shopImages,smashImages=0,0 for _,d in ipairs(workspace.PunchWallRPG[\"Fist Shop Sign\"]:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Visible then if d.Image==\"rbxassetid://104014193600358\" then shopImages+=1 elseif d.Image==\"rbxassetid://111791716595528\" then smashImages+=1 end end end return H:JSONEncode({chunks=count,shopImages=shopImages,smashImages=smashImages})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage:WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local hrp=p.Character.HumanoidRootPart hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-200)) hrp.AssemblyLinearVelocity=Vector3.zero local root=workspace.PunchWallRPG local block=root[\"Depth Blocks\"]:WaitForChild(\"DepthBlock_L001_C06_R02\") local debris=root:WaitForChild(\"Depth Physics Debris\") return H:JSONEncode({blocks=#root[\"Depth Blocks\"]:GetChildren(),firstHP=block:GetAttribute(\"HP\"),fragments=#debris:GetChildren()})"
       },
       "expectRegex": [
-        "\"chunks\"\\s*:\\s*30",
-        "\"shopImages\"\\s*:\\s*1",
-        "\"smashImages\"\\s*:\\s*1"
+        "\"blocks\"\\s*:\\s*5400",
+        "\"firstHP\"\\s*:\\s*8",
+        "\"fragments\"\\s*:\\s*0"
       ],
-      "label": "prepare brick wall with layered rubble"
+      "label": "prepare first depth block"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
-        "datamodel_type": "Client",
-        "code": "return game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation:Invoke(\"Punch\")"
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local result=game.ServerStorage.PunchWallAutomation:Invoke(\"PunchRadius\") return H:JSONEncode({ok=result.ok,broken=result.brokenCount,hits=result.hitCount})"
       },
-      "label": "break wall through live client path"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"broken\"\\s*:\\s*[1-9][0-9]*",
+        "\"hits\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "break depth block through authoritative combat path"
     },
     {
       "type": "wait",
       "ms": 650,
-      "label": "wait for rubble spread"
+      "label": "wait for physics debris"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local visible=0 for _,d in ipairs(workspace.PunchWallRPG:GetDescendants()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) and d:IsA(\"BasePart\") and d.Transparency<0.2 then visible+=1 end end return H:JSONEncode({broken=workspace.PunchWallRPG.Walls[\"Brick Wall\"]:GetAttribute(\"Broken\"),visible=visible})"
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local blocks=root:WaitForChild(\"Depth Blocks\") local debris=root:WaitForChild(\"Depth Physics Debris\") local broken,passable,visible=0,0,0 for _,block in ipairs(blocks:GetChildren()) do if block:GetAttribute(\"Broken\") then broken+=1 if not block.CanCollide and not block.CanQuery and block.Transparency==1 then passable+=1 end end end for _,d in ipairs(debris:GetChildren()) do if d:IsA(\"BasePart\") and d.Transparency<0.2 then visible+=1 end end return H:JSONEncode({broken=broken,passable=passable,visible=visible})"
       },
       "expectRegex": [
-        "\"broken\"\\s*:\\s*true",
-        "\"visible\"\\s*:\\s*30"
+        "\"broken\"\\s*:\\s*[1-9][0-9]*",
+        "\"passable\"\\s*:\\s*[1-9][0-9]*",
+        "\"visible\"\\s*:\\s*[1-9][0-9]*"
       ],
-      "label": "rubble remains visible in front of breach"
+      "label": "depth breach is open with visible debris"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"PixelPerfectFistShop\",true) local cards=0 local icons=0 for _,d in ipairs(shop:GetChildren()) do if d:IsA(\"TextButton\") then if string.find(d.Name,\"Card\") then cards+=1 elseif string.find(d.Name,\"MenuIcon\") then icons+=1 end end end return H:JSONEncode({visible=shop.Visible,image=shop.Image,cards=cards,icons=icons})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"FunctionalHeroShop\",true) assert(shop,\"functional shop missing\") local cards,actions,art,tabs,minTouch=0,0,0,0,true for _,d in ipairs(shop:GetDescendants()) do if d:IsA(\"Frame\") and string.find(d.Name,\"ShopCard\",1,true) then cards+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"Action\",1,true) then actions+=1 elseif d:IsA(\"ImageLabel\") and d.Name==\"ProductArt\" and d.Image~=\"\" then art+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"ShopTab\",1,true) then tabs+=1 end if d:IsA(\"TextButton\") and (string.find(d.Name,\"Action\",1,true) or d.Name==\"CloseShop\" or string.find(d.Name,\"ShopTab\",1,true)) then minTouch=minTouch and d:FindFirstChildOfClass(\"UISizeConstraint\")~=nil end end return H:JSONEncode({visible=shop.Visible,cards=cards,actions=actions,art=art,tabs=tabs,close=shop:FindFirstChild(\"CloseShop\",true)~=nil,minTouch=minTouch})"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
-        "\"image\"\\s*:\\s*\"rbxassetid://104014193600358\"",
-        "\"cards\"\\s*:\\s*3",
-        "\"icons\"\\s*:\\s*9"
+        "\"cards\"\\s*:\\s*5",
+        "\"actions\"\\s*:\\s*5",
+        "\"art\"\\s*:\\s*5",
+        "\"tabs\"\\s*:\\s*4",
+        "\"close\"\\s*:\\s*true",
+        "\"minTouch\"\\s*:\\s*true"
       ],
-      "label": "fist shop uses approved full-pixel design"
+      "label": "fist shop is fully assembled and interactive"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local p=game.Players:GetPlayers()[1] game.ReplicatedStorage.PunchWallEvents.Feedback:FireClient(p,{type=\"Punch\",damage=15,target=\"Brick Wall\",material=\"Brick\"}) return true"
+        "code": "local p=game.Players:GetPlayers()[1] game.ReplicatedStorage.PunchWallEvents.Feedback:FireClient(p,{type=\"Punch\",damage=15,target=\"DepthBlock_L001_C06_R02\",material=\"Rock\"}) return true"
       },
       "label": "trigger punch feedback"
     },
     {
       "type": "wait",
       "ms": 80,
-      "label": "wait for spark burst"
+      "label": "wait for local punch feedback"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local burst=g:FindFirstChild(\"CombatDamageBurst\") local rays=g:FindFirstChild(\"CombatSparkRays\") return H:JSONEncode({burst=burst~=nil,transparent=burst and burst.BackgroundTransparency==1,rays=rays~=nil,rayCount=rays and #rays:GetChildren() or 0})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center=0 for _,d in ipairs(g:GetDescendants()) do if d.Name==\"FeedbackPop\" or d.Name==\"LocalDamageNumber\" or d.Name==\"CombatDamageBurst\" or d.Name==\"CombatImpactCore\" or d.Name==\"CombatSparkRays\" then center+=1 end end return H:JSONEncode({center=center,centerEnabled=g:GetAttribute(\"CenterActionFeedbackEnabled\"),feedbackCount=g:GetAttribute(\"FeedbackCount\") or 0,lastType=g:GetAttribute(\"LastFeedbackType\")})"
       },
       "expectRegex": [
-        "\"burst\"\\s*:\\s*true",
-        "\"transparent\"\\s*:\\s*true",
-        "\"rays\"\\s*:\\s*true",
-        "\"rayCount\"\\s*:\\s*20"
+        "\"center\"\\s*:\\s*0",
+        "\"centerEnabled\"\\s*:\\s*false",
+        "\"feedbackCount\"\\s*:\\s*[1-9][0-9]*",
+        "\"lastType\"\\s*:\\s*\"Punch\""
       ],
-      "label": "punch uses transparent damage number and sparks"
+      "label": "punch feedback avoids center-screen spam"
     },
     {
       "type": "call",

@@ -1,140 +1,19 @@
 {
   "name": "punchwall-depth-corridor",
-  "description": "Validate the deep corridor layout, sequential gates, depth score progression, passable destruction hole, and rank HUD.",
-  "studioName": "PunchWallRPG",
+  "description": "Validate the dense 75-layer shared excavation wall, closed side seams, two-character height, and authoritative rank HUD.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": true },
-      "timeoutMs": 35000,
-      "label": "start play"
-    },
-    {
-      "type": "wait",
-      "ms": 6500,
-      "label": "wait for runtime bootstrap"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local corridor=root.Polish:FindFirstChild(\"Depth Corridor\") local tier=root.Polish[\"Wall Tier Frames\"] local walls={} for _,w in ipairs(root.Walls:GetChildren()) do local depth=w:GetAttribute(\"Depth\") if depth and depth<=10 then table.insert(walls,{depth=depth,z=w.Position.Z,required=w:GetAttribute(\"RequiredDepth\"),level=w:GetAttribute(\"RequiredLevel\"),size=w.Size}) end end table.sort(walls,function(a,b)return a.depth<b.depth end) local ordered=#walls==10 local uniform=true local buildingMass=false for i,item in ipairs(walls) do ordered=ordered and item.depth==i and item.required==i-1 and (i==1 or item.z<walls[i-1].z) uniform=uniform and (item.size-Vector3.new(28,11,3.2)).Magnitude<0.01 and (i==1 or math.abs((walls[i-1].z-item.z)-30)<0.01) buildingMass=buildingMass or tier:FindFirstChild(({\"Brick Wall\",\"Concrete Wall\",\"Iron Wall\",\"Crystal Wall\",\"Lava Wall\",\"Cyber Gate\",\"Titan Alloy Gate\",\"Meteor Core Gate\",\"Void Crystal Gate\",\"Omega Barrier\"})[i]..\" Rear Building Mass\")~=nil end local markers,lights=0,0 for _,d in ipairs(corridor:GetDescendants()) do if d:GetAttribute(\"VisualRole\")==\"DepthRoadsideMarker\" then markers+=1 elseif d:GetAttribute(\"VisualRole\")==\"DepthGuideLight\" then lights+=1 end end local left=corridor:FindFirstChild(\"Depth Corridor Side -21\") local right=corridor:FindFirstChild(\"Depth Corridor Side 17\") return H:JSONEncode({walls=#walls,ordered=ordered,uniform=uniform,floor=corridor:FindFirstChild(\"Depth Corridor Floor\")~=nil,boundaries=left~=nil and right~=nil,curbsLow=left and right and math.abs(left.Size.Y-1.2)<0.01 and math.abs(right.Size.Y-1.2)<0.01,noBuildingMass=not buildingMass,markers=markers,lights=lights,lastZ=walls[#walls] and walls[#walls].z})"
-      },
-      "expectRegex": [
-        "\"walls\"\\s*:\\s*10",
-        "\"ordered\"\\s*:\\s*true",
-        "\"floor\"\\s*:\\s*true",
-        "\"boundaries\"\\s*:\\s*true",
-        "\"uniform\"\\s*:\\s*true",
-        "\"curbsLow\"\\s*:\\s*true",
-        "\"noBuildingMass\"\\s*:\\s*true",
-        "\"markers\"\\s*:\\s*10",
-        "\"lights\"\\s*:\\s*20",
-        "\"lastZ\"\\s*:\\s*-302"
-      ],
-      "label": "corridor has ten ordered depth gates"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage:WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{WallLevel=3,Depth=0,Power=1000}) return H:JSONEncode(c:Invoke(\"HitWall\",\"Concrete Wall\"))"
-      },
-      "expectRegex": [
-        "\"ok\"\\s*:\\s*false",
-        "\"reason\"\\s*:\\s*\"depth_gate\"",
-        "\"requiredDepth\"\\s*:\\s*1"
-      ],
-      "label": "cannot skip a cleared depth"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=1,Depth=0,Score=0,Power=500,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=c:Invoke(\"BreakWall\",\"Brick Wall\",2) local root=workspace.PunchWallRPG local w=root.Walls[\"Brick Wall\"] local hidden,solid=0,0 for _,d in ipairs(root.Polish[\"Wall Tier Frames\"]:GetDescendants()) do if d:GetAttribute(\"PolishRole\")==\"ModularDestructionBrick\" and string.find(d.Name,\"Brick Wall\",1,true) then if d.Transparency>=0.9 and not d.CanCollide then hidden+=1 else solid+=1 end end end local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-2,4,w.Position.Z-8) return H:JSONEncode({ok=r.ok,broken=w:GetAttribute(\"Broken\"),depth=r.Depth,score=r.Score,wallPassable=not w.CanCollide,hidden=hidden,solid=solid,playerZ=math.floor(p.Character.HumanoidRootPart.Position.Z+.5)})"
-      },
-      "expectRegex": [
-        "\"ok\"\\s*:\\s*true",
-        "\"broken\"\\s*:\\s*true",
-        "\"depth\"\\s*:\\s*1",
-        "\"score\"\\s*:\\s*120",
-        "\"wallPassable\"\\s*:\\s*true",
-        "\"hidden\"\\s*:\\s*[1-9][0-9]*",
-        "\"solid\"\\s*:\\s*[1-9][0-9]*",
-        "\"playerZ\"\\s*:\\s*-40"
-      ],
-      "label": "brick break opens a mixed rubble hole and advances depth"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=3,Depth=1,Power=2000,CritChance=0}) local r=c:Invoke(\"BreakWall\",\"Concrete Wall\",2) return H:JSONEncode({ok=r.ok,depth=r.Depth,score=r.Score})"
-      },
-      "expectRegex": [
-        "\"ok\"\\s*:\\s*true",
-        "\"depth\"\\s*:\\s*2",
-        "\"score\"\\s*:\\s*620"
-      ],
-      "label": "second wall advances cumulative score and depth"
-    },
-    {
-      "type": "wait",
-      "ms": 500,
-      "label": "wait for rank hud sync"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\") local panel=gui.PixelPerfectHeroCityHUD:WaitForChild(\"DepthRankHUD\") return H:JSONEncode({visible=panel.Visible,title=panel.RankTitle.Text,stats=panel.RankStats.Text,leaderboard=panel.Leaderboard1.Text,topTitle=panel.LeaderboardTitle.Text,cameraType=workspace.CurrentCamera.CameraType.Name,autoFocus=gui:GetAttribute(\"CombatCameraActive\")})"
-      },
-      "expectRegex": [
-        "\"visible\"\\s*:\\s*true",
-        "STREET HERO",
-        "DEPTH 2",
-        "SCORE 620",
-        "SERVER TOP 3",
-        "\"cameraType\"\\s*:\\s*\"Custom\"",
-        "\"autoFocus\"\\s*:\\s*false"
-      ],
-      "label": "rank and server placement are visible in HUD"
-    },
-    {
-      "type": "call",
-      "tool": "get_console_output",
-      "saveAs": "console",
-      "label": "capture console"
-    },
-    {
-      "type": "assertNoConsoleErrors",
-      "source": "console",
-      "label": "console clean"
-    },
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "label": "stop play"
-    }
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for excavation field" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local blocks=root['Depth Blocks'] local corridor=root.Polish['Depth Corridor'] local first=blocks.DepthBlock_L001_C01_R01 local last=blocks.DepthBlock_L075_C12_R03 local dense=true for _,name in ipairs({'DepthBlock_L001_C01_R01','DepthBlock_L001_C12_R03','DepthBlock_L002_C01_R01','DepthBlock_L075_C12_R03'}) do local b=blocks:FindFirstChild(name) dense=dense and b~=nil and b.Size==Vector3.new(4,4,4) and b.Anchored and b.CanCollide end local left=corridor:FindFirstChild('Depth Corridor Side -27.5') local right=corridor:FindFirstChild('Depth Corridor Side 23.5') local seamClosed=left and right and math.abs((left.Position.X+left.Size.X/2)-(first.Position.X-first.Size.X/2))<.01 and math.abs((right.Position.X-right.Size.X/2)-(last.Position.X+last.Size.X/2))<.01 return H:JSONEncode({count=#blocks:GetChildren(),declared=root:GetAttribute('DepthBlockCount'),cube=root:GetAttribute('DepthBlockSize')==Vector3.new(4,4,4),dense=dense,height=last.Position.Y+last.Size.Y/2,longDepth=math.abs(last.Position.Z-first.Position.Z),sideWalls=left~=nil and right~=nil,seamClosed=seamClosed,floor=corridor:FindFirstChild('Depth Corridor Floor')~=nil})" }, "expectRegex": ["\"count\"[ ]*:[ ]*2700", "\"declared\"[ ]*:[ ]*2700", "\"cube\"[ ]*:[ ]*true", "\"dense\"[ ]*:[ ]*true", "\"height\"[ ]*:[ ]*12[.]25", "\"longDepth\"[ ]*:[ ]*296", "\"sideWalls\"[ ]*:[ ]*true", "\"seamClosed\"[ ]*:[ ]*true", "\"floor\"[ ]*:[ ]*true"], "label": "continuous multiplayer wall dimensions are correct" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,Depth=0,Coins=0,Score=0,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local beforePower=p.leaderstats.Power.Value local beforeCoins=p.leaderstats.Coins.Value local r=c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) task.wait(.2) return H:JSONEncode({ok=r.ok,broken=r.outcome=='broken',depth=p.leaderstats.Depth.Value,score=p.leaderstats.Score.Value,coinsRaised=p.leaderstats.Coins.Value>beforeCoins,powerUnchanged=p.leaderstats.Power.Value==beforePower})" }, "expectRegex": ["\"ok\"[ ]*:[ ]*true", "\"broken\"[ ]*:[ ]*true", "\"depth\"[ ]*:[ ]*1", "\"coinsRaised\"[ ]*:[ ]*true", "\"powerUnchanged\"[ ]*:[ ]*true"], "label": "starter block opens and grants coins only" },
+    { "type": "wait", "ms": 500, "label": "wait for rank HUD sync" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local panel=h.DepthRankHUD local depth=h:FindFirstChild('DepthValue',true) return H:JSONEncode({visible=panel.Visible,title=panel.RankTitle.Text,stats=panel.RankStats.Text,topTitle=panel.LeaderboardTitle.Text,leaderboard=panel.Leaderboard1.Text,depthText=depth and depth.Text,cameraType=workspace.CurrentCamera.CameraType.Name,autoFocus=g:GetAttribute('CombatCameraActive')})" }, "expectRegex": ["\"visible\"[ ]*:[ ]*true", "ROOKIE", "DEPTH 1", "SERVER TOP 3", "\"cameraType\"[ ]*:[ ]*\"Custom\"", "\"autoFocus\"[ ]*:[ ]*false"], "label": "rank and depth HUD use server state" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
   ],
-  "cleanup": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "allowError": true,
-      "label": "cleanup stop play"
-    }
-  ]
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
 }

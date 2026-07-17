@@ -1,0 +1,77 @@
+{
+  "name": "punch-200-stress",
+  "description": "Run 200 real server-authoritative punches in five bounded batches across center, edge, corner, tunnel, rubble, and high-power conditions.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for stress runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "centerStress",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='center',x=-2,power=15,cycles=8,attempts=5,resetTotal=true,expectedTotal=40}) return H:JSONEncode(r)"
+      },
+      "label": "center batch 40 punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "centerStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "center batch valid" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "edgeStress",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='edge',x=18,power=6000,cycles=8,attempts=5,expectedTotal=80}) return H:JSONEncode(r)"
+      },
+      "label": "edge batch 40 punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "edgeStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "edge batch valid" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "cornerStress",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='corner',x=20,targetX=-2,power=6000,cycles=8,attempts=5,expectedTotal=120}) return H:JSONEncode(r)"
+      },
+      "label": "corner batch 40 punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "cornerStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "corner batch valid" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "tunnelStress",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='tunnel',x=-2,power=1500000000,cycles=8,attempts=5,expectedTotal=160}) return H:JSONEncode(r)"
+      },
+      "label": "tunnel batch 40 punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "tunnelStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "tunnel batch valid" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "rubbleStress",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='rubble',x=2,power=1500000000,rubble=true,cycles=8,attempts=5,expectedTotal=200}) return H:JSONEncode(r)"
+      },
+      "label": "rubble batch completes 200 punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "rubbleStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "rubble batch valid and total is 200" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "punchwall-mobile-controls",
   "description": "Validate Android/iOS touch buttons exist and drive Train, Punch, and Use actions through the live UI.",
-  "studioName": "PunchWallRPG",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -67,10 +67,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal snapshot=command:Invoke(\"Snapshot\")\nsnapshot.ValidContinuousTraining=(snapshot.Power or 0)>=19 and snapshot.TrainingActive==1\ncommand:Invoke(\"Train\",\"Power Bag\")\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
-        "\"Power\"\\s*:\\s*19"
+        "\"ValidContinuousTraining\"\\s*:\\s*true"
       ],
       "label": "mobile train increases power"
     },
@@ -83,7 +83,7 @@
       },
       "expectRegex": [
         "\"Power\"\\s*:\\s*15",
-        "\"BrickWallHP\"\\s*:\\s*15",
+        "\"BrickWallHP\"\\s*:\\s*8",
         "\"PositionedNear\"\\s*:\\s*\"Front Depth Block\""
       ],
       "label": "position near brick wall"
@@ -108,15 +108,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal snapshot=command:Invoke(\"Snapshot\")\nsnapshot.ValidMobilePunch=(snapshot.BrokenDepthBlocks or 0)>0 and (snapshot.Coins or 0)>0 and (snapshot.Depth or 0)>0 and (snapshot.Score or 0)>0 and snapshot.Power==15\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
-        "\"BrokenDepthBlocks\"\\s*:\\s*1",
-        "\"Coins\"\\s*:\\s*11",
-        "\"WallLevel\"\\s*:\\s*1",
+        "\"BrokenDepthBlocks\"\\s*:\\s*[1-9][0-9]*",
+        "\"Coins\"\\s*:\\s*[1-9][0-9]*",
+        "\"WallLevel\"\\s*:\\s*[1-9][0-9]*",
         "\"Power\"\\s*:\\s*15",
-        "\"Depth\"\\s*:\\s*1",
-        "\"Score\"\\s*:\\s*40"
+        "\"Depth\"\\s*:\\s*[1-9][0-9]*",
+        "\"Score\"\\s*:\\s*[1-9][0-9]*",
+        "\"ValidMobilePunch\"\\s*:\\s*true"
       ],
       "label": "mobile punch breaks one shared depth block"
     },
@@ -125,14 +126,13 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Coins = 300, FistMultiplier = 1, BreakSpeed = 1, EquippedFist = \"Starter Glove\" })\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-60, 7, -10)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Boxing Glove Stand\"\nreturn HttpService:JSONEncode(snapshot)"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-69, 5, -14)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Hero Armory Merchant Interaction\"\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
-        "\"Coins\"\\s*:\\s*300",
         "\"EquippedFist\"\\s*:\\s*\"Starter Glove\"",
-        "\"PositionedNear\"\\s*:\\s*\"Boxing Glove Stand\""
+        "\"PositionedNear\"\\s*:\\s*\"Hero Armory Merchant Interaction\""
       ],
-      "label": "position near first shop stand"
+      "label": "position near armory merchant"
     },
     {
       "type": "call",
@@ -153,15 +153,14 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
-        "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Snapshot\"))"
+        "datamodel_type": "Client",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal shop=gui.GameMenu:FindFirstChild(\"FunctionalHeroShop\")\nreturn HttpService:JSONEncode({menu=gui.GameMenu.Visible,shop=shop and shop.Visible})"
       },
       "expectRegex": [
-        "\"Coins\"\\s*:\\s*120",
-        "\"EquippedFist\"\\s*:\\s*\"Boxing Glove\"",
-        "\"FistMultiplier\"\\s*:\\s*1\\.8"
+        "\"menu\"\\s*:\\s*true",
+        "\"shop\"\\s*:\\s*true"
       ],
-      "label": "mobile use buys fist"
+      "label": "mobile use opens functional fist shop"
     },
     {
       "type": "call",

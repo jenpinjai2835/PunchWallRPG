@@ -1,0 +1,159 @@
+{
+  "name": "device-matrix-hud-shop",
+  "description": "Regression matrix for the gameplay HUD and functional Hero Fist Shop at five landscape desktop, tablet, and phone resolutions.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Desktop 1920x1080' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1920,Height=1080,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({name=n,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*1920", "\"height\"[ ]*:[ ]*1080", "\"active\"[ ]*:[ ]*true"],
+      "label": "set 1920x1080 desktop"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start 1920 play" },
+    { "type": "wait", "ms": 8000, "label": "wait 1920 runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerValue','CoinsValue','DepthValue','ObjectiveText'} local fit=true for _,n in ipairs(names) do local x=h:FindFirstChild(n,true) fit=fit and x~=nil and x.TextFits end local p=h.ActionPunch local j=h.ActionJump return H:JSONEncode({fit=fit,punch=math.min(p.AbsoluteSize.X,p.AbsoluteSize.Y)>=44,jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y)>=44,menu=not g.GameMenu.Visible})" },
+      "expectRegex": ["\"fit\"[ ]*:[ ]*true", "\"punch\"[ ]*:[ ]*true", "\"jump\"[ ]*:[ ]*true", "\"menu\"[ ]*:[ ]*true"],
+      "label": "1920 HUD fits"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true g:SetAttribute('AutomationTab','Fists') task.wait(2) local s=g.GameMenu.FunctionalHeroShop local small,notFit,cards=0,0,0 local tabBottom=-math.huge local cardTop=math.huge for _,d in ipairs(s:GetDescendants()) do if d:IsA('GuiButton') and d.Visible and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)<44 then small+=1 end if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then notFit+=1 end if d:IsA('Frame') and string.find(d.Name,'ShopCard',1,true) then cards+=1 cardTop=math.min(cardTop,d.AbsolutePosition.Y) end if d.Name=='FistsShopTab' or d.Name=='BoostsShopTab' then tabBottom=math.max(tabBottom,d.AbsolutePosition.Y+d.AbsoluteSize.Y) end end return H:JSONEncode({visible=s.Visible,small=small,notFit=notFit,cards=cards,gap=cardTop>=tabBottom})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0", "\"cards\"[ ]*:[ ]*5", "\"gap\"[ ]*:[ ]*true"],
+      "label": "1920 shop fits"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Matrix_1920x1080_Shop" }, "label": "capture 1920 shop" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop 1920 play" },
+
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Desktop 1366x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1366,Height=768,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({name=n,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*1366", "\"height\"[ ]*:[ ]*768", "\"active\"[ ]*:[ ]*true"],
+      "label": "set 1366x768 desktop"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start 1366 play" },
+    { "type": "wait", "ms": 8000, "label": "wait 1366 runtime" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerValue','CoinsValue','DepthValue','ObjectiveText'} local fit=true for _,n in ipairs(names) do local x=h:FindFirstChild(n,true) fit=fit and x~=nil and x.TextFits end local p=h.ActionPunch local j=h.ActionJump return H:JSONEncode({fit=fit,punch=math.min(p.AbsoluteSize.X,p.AbsoluteSize.Y)>=44,jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y)>=44,menu=not g.GameMenu.Visible})" },
+      "expectRegex": ["\"fit\"[ ]*:[ ]*true", "\"punch\"[ ]*:[ ]*true", "\"jump\"[ ]*:[ ]*true", "\"menu\"[ ]*:[ ]*true"],
+      "label": "1366 HUD fits"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true g:SetAttribute('AutomationTab','Fists') task.wait(2) local s=g.GameMenu.FunctionalHeroShop local small,notFit,cards=0,0,0 local tabBottom=-math.huge local cardTop=math.huge for _,d in ipairs(s:GetDescendants()) do if d:IsA('GuiButton') and d.Visible and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)<44 then small+=1 end if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then notFit+=1 end if d:IsA('Frame') and string.find(d.Name,'ShopCard',1,true) then cards+=1 cardTop=math.min(cardTop,d.AbsolutePosition.Y) end if d.Name=='FistsShopTab' or d.Name=='BoostsShopTab' then tabBottom=math.max(tabBottom,d.AbsolutePosition.Y+d.AbsoluteSize.Y) end end return H:JSONEncode({visible=s.Visible,small=small,notFit=notFit,cards=cards,gap=cardTop>=tabBottom})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0", "\"cards\"[ ]*:[ ]*5", "\"gap\"[ ]*:[ ]*true"],
+      "label": "1366 shop fits"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Matrix_1366x768_Shop" }, "label": "capture 1366 shop" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop 1366 play" },
+
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Tablet 1024x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1024,Height=768,PixelDensity=160,DeviceForm=Enum.DeviceForm.Tablet} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({name=n,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*1024", "\"height\"[ ]*:[ ]*768", "\"active\"[ ]*:[ ]*true"],
+      "label": "set 1024x768 tablet"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start 1024 play" },
+    { "type": "wait", "ms": 8000, "label": "wait 1024 runtime" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerValue','CoinsValue','DepthValue','ObjectiveText'} local fit=true for _,n in ipairs(names) do local x=h:FindFirstChild(n,true) fit=fit and x~=nil and x.TextFits end local p=h.ActionPunch local j=h.ActionJump return H:JSONEncode({fit=fit,punch=math.min(p.AbsoluteSize.X,p.AbsoluteSize.Y)>=44,jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y)>=44,menu=not g.GameMenu.Visible})" },
+      "expectRegex": ["\"fit\"[ ]*:[ ]*true", "\"punch\"[ ]*:[ ]*true", "\"jump\"[ ]*:[ ]*true", "\"menu\"[ ]*:[ ]*true"],
+      "label": "1024 HUD fits"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true g:SetAttribute('AutomationTab','Fists') task.wait(2) local s=g.GameMenu.FunctionalHeroShop local small,notFit,cards=0,0,0 local tabBottom=-math.huge local cardTop=math.huge for _,d in ipairs(s:GetDescendants()) do if d:IsA('GuiButton') and d.Visible and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)<44 then small+=1 end if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then notFit+=1 end if d:IsA('Frame') and string.find(d.Name,'ShopCard',1,true) then cards+=1 cardTop=math.min(cardTop,d.AbsolutePosition.Y) end if d.Name=='FistsShopTab' or d.Name=='BoostsShopTab' then tabBottom=math.max(tabBottom,d.AbsolutePosition.Y+d.AbsoluteSize.Y) end end return H:JSONEncode({visible=s.Visible,small=small,notFit=notFit,cards=cards,gap=cardTop>=tabBottom})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0", "\"cards\"[ ]*:[ ]*5", "\"gap\"[ ]*:[ ]*true"],
+      "label": "1024 shop fits"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Matrix_1024x768_Shop" }, "label": "capture 1024 shop" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop 1024 play" },
+
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Phone 844x390' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=844,Height=390,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({name=n,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*844", "\"height\"[ ]*:[ ]*390", "\"active\"[ ]*:[ ]*true"],
+      "label": "set 844x390 phone"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start 844 play" },
+    { "type": "wait", "ms": 8000, "label": "wait 844 runtime" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerValue','CoinsValue','DepthValue','ObjectiveText'} local fit=true for _,n in ipairs(names) do local x=h:FindFirstChild(n,true) fit=fit and x~=nil and x.TextFits end local p=h.ActionPunch local j=h.ActionJump return H:JSONEncode({fit=fit,punch=math.min(p.AbsoluteSize.X,p.AbsoluteSize.Y)>=44,jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y)>=44,menu=not g.GameMenu.Visible})" },
+      "expectRegex": ["\"fit\"[ ]*:[ ]*true", "\"punch\"[ ]*:[ ]*true", "\"jump\"[ ]*:[ ]*true", "\"menu\"[ ]*:[ ]*true"],
+      "label": "844 HUD fits"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true g:SetAttribute('AutomationTab','Fists') task.wait(2) local s=g.GameMenu.FunctionalHeroShop local small,notFit,cards=0,0,0 local tabBottom=-math.huge local cardTop=math.huge for _,d in ipairs(s:GetDescendants()) do if d:IsA('GuiButton') and d.Visible and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)<44 then small+=1 end if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then notFit+=1 end if d:IsA('Frame') and string.find(d.Name,'ShopCard',1,true) then cards+=1 cardTop=math.min(cardTop,d.AbsolutePosition.Y) end if d.Name=='FistsShopTab' or d.Name=='BoostsShopTab' then tabBottom=math.max(tabBottom,d.AbsolutePosition.Y+d.AbsoluteSize.Y) end end return H:JSONEncode({visible=s.Visible,small=small,notFit=notFit,cards=cards,gap=cardTop>=tabBottom})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0", "\"cards\"[ ]*:[ ]*5", "\"gap\"[ ]*:[ ]*true"],
+      "label": "844 shop fits"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Matrix_844x390_Shop" }, "label": "capture 844 shop" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop 844 play" },
+
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Phone 740x360' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=740,Height=360,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({name=n,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*740", "\"height\"[ ]*:[ ]*360", "\"active\"[ ]*:[ ]*true"],
+      "label": "set 740x360 phone"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start 740 play" },
+    { "type": "wait", "ms": 8000, "label": "wait 740 runtime" },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerValue','CoinsValue','DepthValue','ObjectiveText'} local fit=true for _,n in ipairs(names) do local x=h:FindFirstChild(n,true) fit=fit and x~=nil and x.TextFits end local p=h.ActionPunch local j=h.ActionJump return H:JSONEncode({fit=fit,punch=math.min(p.AbsoluteSize.X,p.AbsoluteSize.Y)>=44,jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y)>=44,menu=not g.GameMenu.Visible})" },
+      "expectRegex": ["\"fit\"[ ]*:[ ]*true", "\"punch\"[ ]*:[ ]*true", "\"jump\"[ ]*:[ ]*true", "\"menu\"[ ]*:[ ]*true"],
+      "label": "740 HUD fits"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=true g:SetAttribute('AutomationTab','Fists') task.wait(2) local s=g.GameMenu.FunctionalHeroShop local small,notFit,cards=0,0,0 local tabBottom=-math.huge local cardTop=math.huge for _,d in ipairs(s:GetDescendants()) do if d:IsA('GuiButton') and d.Visible and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)<44 then small+=1 end if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then notFit+=1 end if d:IsA('Frame') and string.find(d.Name,'ShopCard',1,true) then cards+=1 cardTop=math.min(cardTop,d.AbsolutePosition.Y) end if d.Name=='FistsShopTab' or d.Name=='BoostsShopTab' then tabBottom=math.max(tabBottom,d.AbsolutePosition.Y+d.AbsoluteSize.Y) end end return H:JSONEncode({visible=s.Visible,small=small,notFit=notFit,cards=cards,gap=cardTop>=tabBottom})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0", "\"cards\"[ ]*:[ ]*5", "\"gap\"[ ]*:[ ]*true"],
+      "label": "740 shop fits"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Matrix_740x360_Shop" }, "label": "capture 740 shop" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture matrix console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "matrix console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop 740 play" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() task.wait(.2) local names={['VQC Desktop 1920x1080']=true,['VQC Desktop 1366x768']=true,['VQC Tablet 1024x768']=true,['VQC Phone 844x390']=true,['VQC Phone 740x360']=true} local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return {default=S:GetDeviceAsync()=='default',removed=removed}"
+      },
+      "expectRegex": ["\"default\"[ ]*:[ ]*true", "\"removed\"[ ]*:[ ]*5"],
+      "label": "restore default viewport"
+    }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true" }, "allowError": true, "label": "cleanup viewport" }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "name": "full-game-tester-critical-ui-and-models",
+  "description": "Regression recorded from full player-view QC: mobile modal safe areas, supplied Spin layers, live sound controls, jump, music, upright fist showcases, the sanitized Creator Store Power Bag, Honor item silhouettes, portal clearance, premium ad scale, and rank-board placement.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 2500,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Critical Phone 844x390' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=844,Height=390,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\":844", "\"height\":390", "\"active\":true"],
+      "label": "lock critical mobile viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for world, client UI, and media" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('SoundService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local sound=g:FindFirstChild('SoundTool',true) local more=g:FindFirstChild('MoreTool',true) a:Invoke('OpenMore') task.wait(.25) local menu=g:FindFirstChild('GameMenu',true) local tabs=menu and menu:FindFirstChild('Tabs') local close=menu and menu:FindFirstChild('Close') local fist=tabs and tabs:FindFirstChild('FistsTab') local content=menu and menu:FindFirstChild('Content') local modalOk=menu and menu.Visible and menu.ZIndex==1 and tabs and close and fist and content and fist.AbsolutePosition.X>=tabs.AbsolutePosition.X and fist.AbsolutePosition.X+fist.AbsoluteSize.X<=close.AbsolutePosition.X+2 and content.AbsoluteSize.X>300 and content.AbsoluteSize.Y>120 local music=S:FindFirstChild('Hero Forest Music') local off=a:Invoke('ToggleSound') task.wait(.25) local offOk=off==false and g:GetAttribute('SoundEnabled')==false and music and music.Volume==0 local on=a:Invoke('ToggleSound') task.wait(.25) local onOk=on==true and g:GetAttribute('SoundEnabled')==true and music and music.IsLoaded and music.IsPlaying and music.Volume>=.2 and music.SoundId=='rbxassetid://1837768082' a:Invoke('CloseMenus') a:Invoke('OpenSpin') task.wait(.25) local spin=g:FindFirstChild('HeroSpinModal') local panel=spin and spin:FindFirstChild('SpinPanel') local required={'SpinHeaderArt','CloseSpin','PrizeWheel','PrizePointer','WheelCenter','FreeSpinReadyArt','SpinNow','BuyBonusSpins'} local spinLayers=0 for _,name in ipairs(required) do local layer=panel and panel:FindFirstChild(name) if layer and (layer:IsA('ImageLabel') or layer:IsA('ImageButton')) and layer.Image:find('rbxassetid://',1,true)==1 then spinLayers+=1 end end local spinOk=spin and spin.Visible and panel and panel.AbsoluteSize.X<=spin.AbsoluteSize.X+2 and panel.AbsoluteSize.Y<=spin.AbsoluteSize.Y+2 and spinLayers==8 and g:GetAttribute('SpinUsesSuppliedLayers')==true and g:GetAttribute('SpinLayerCount')==9 a:Invoke('CloseMenus') local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local y0=root and root.Position.Y or 0 local jump=a:Invoke('Jump') task.wait(.16) local jumpOk=jump==true and root and (root.Position.Y>y0+.3 or root.AssemblyLinearVelocity.Y>1) return H:JSONEncode({ok=modalOk and offOk and onOk and spinOk and jumpOk and sound and sound:IsA('ImageButton') and more and more:IsA('ImageButton'),modalOk=modalOk,offOk=offOk,onOk=onOk,spinOk=spinOk,spinLayers=spinLayers,jumpOk=jumpOk,soundClass=sound and sound.ClassName,moreClass=more and more.ClassName,musicId=music and music.SoundId})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"modalOk\":true",
+        "\"offOk\":true",
+        "\"onOk\":true",
+        "\"spinOk\":true",
+        "\"spinLayers\":8",
+        "\"jumpOk\":true",
+        "\"soundClass\":\"ImageButton\"",
+        "\"moreClass\":\"ImageButton\""
+      ],
+      "label": "mobile UI controls and media behave as player-facing functions"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local root=workspace:WaitForChild('PunchWallRPG') local decor=root.Polish['City Decor'] local interact=root.Interactables local showcases=0 local showcaseBad={} for _,m in ipairs(decor:GetChildren()) do if m:IsA('Model') and m:GetAttribute('VisualRole')=='PremiumFistShowcase' then showcases+=1 local _,s=m:GetBoundingBox() if s.Y<=s.X or m:GetAttribute('ShowcaseFacing')~='KnucklesTowardPlaza' then table.insert(showcaseBad,m.Name) end end end local ring=decor:FindFirstChild('Evac Portal Ring') local energy=decor:FindFirstChild('Evac Portal Energy') local portalOk=ring and ring:IsA('Model') and ring:GetAttribute('SegmentCount')==18 and #ring:GetChildren()==18 and energy and energy.Transparency>=.7 and energy.CanCollide==false local portalCenter=Vector3.new(67,7,24) local treeClear=true for _,d in ipairs(root:GetDescendants()) do if d:IsA('BasePart') and d.Name=='Meshes/Jungle tree trunks_Plane.006' and (d.Position-portalCenter).Magnitude<10 then treeClear=false end end local honorOk=decor:FindFirstChild('Crown of the Deep Crown Band')~=nil and decor:FindFirstChild('Relic Sidekick Core Relic Crystal')~=nil and decor:FindFirstChild('Storm Hero Aura Storm Halo')~=nil and decor:FindFirstChild('Vanguard Trail Dash Boot 1')~=nil local bag=decor:FindFirstChild('Creator Store Hero Power Bag') local bagOk=bag and bag:GetAttribute('RuntimeVisualClone')==true and bag:GetAttribute('AssetId')==140653091179998 and bag:GetAttribute('VisualRole')=='PowerTrainingModel' local ads,adsOk=0,true for _,d in ipairs(interact:GetChildren()) do if d:GetAttribute('VisualRole')=='RobuxShortcutAdvertisement' then ads+=1 if d.Size.X>10 or d.Size.Y>4.6 or d.CanCollide then adsOk=false end end end local board=root:FindFirstChild('World 1 Hero Rank Board') local boardOk=board and math.abs(board.Position.X-62)<.01 and board:GetAttribute('LeaderboardKind')=='DepthAndScore' return H:JSONEncode({ok=showcases==3 and #showcaseBad==0 and portalOk and treeClear and honorOk and bagOk and ads==4 and adsOk and boardOk,showcases=showcases,showcaseBad=showcaseBad,portalOk=portalOk,treeClear=treeClear,honorOk=honorOk,bagOk=bagOk,bagAsset=bag and bag:GetAttribute('AssetId') or 0,ads=ads,adsOk=adsOk,boardOk=boardOk})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"showcases\":3",
+        "\"portalOk\":true",
+        "\"treeClear\":true",
+        "\"honorOk\":true",
+        "\"bagOk\":true",
+        "\"bagAsset\":140653091179998",
+        "\"ads\":4",
+        "\"adsOk\":true",
+        "\"boardOk\":true"
+      ],
+      "label": "world models match the approved visual silhouettes and placement"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() task.wait(.2) for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='VQC Critical Phone 844x390' and info.IsCustom then S:RemoveDeviceAsync(id) end end return true"
+      },
+      "label": "restore viewport"
+    }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true" }, "allowError": true, "label": "cleanup viewport" }
+  ]
+}

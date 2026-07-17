@@ -459,3 +459,282 @@ is logged in `docs/iterations/ITERATION_01_QC_BACKLOG.md`.
 # Gamer QC loop - 2026-07-13
 
 Live playtest captures exposed that the first Forest Stone block survived a default punch, contradicting the intended immediate break-and-reward onboarding. Its HP has been reduced from 15 to 8 so a fresh 15 Power player gets a successful first breach. The detailed remaining visual, UX, destruction, mobile, and regression backlog is tracked in `QC_GAMER_LOOP_20260713.md`.
+
+# Final Video-QC Release Gate - 2026-07-14
+
+## Release Status
+
+- VQC backlog: **16/16 closed**.
+- Actual delivery regression: **30/30 passed** (`P0 11/11`, `P1 10/10`,
+  `P2 9/9`).
+- Console: clean across all final-file release flows.
+- Open P0/P1 findings: **none**.
+- Final place size: `4,283,937` bytes.
+- Final SHA-256:
+  `936742B61C96AA3211709640012E3FE7221AEAC9449DB55BD9DDC3FBF3E64615`.
+
+## Final Visual Evidence
+
+- Recording:
+  `F:\Roblox\PuchWall\work\qc\videos\smash-wall-final-file-qc-20260714.mp4`
+- Contact sheet:
+  `F:\Roblox\PuchWall\work\qc\video-review\20260714-final-file\contact-sheet.jpg`
+- Metadata:
+  `F:\Roblox\PuchWall\work\qc\video-review\20260714-final-file\frames\recording-metadata.json`
+
+The contact sheet was reviewed as a player-view timeline through Forest Stone
+and deeper material tiers. It shows a continuous punched route, persistent
+rubble, stable HUD composition, readable avatar framing, and distinct material
+progression. MCP visual capture averages approximately 1 fps, so temporal
+smoothness and collision correctness are accepted from the 30 Hz camera
+sampling and 200-punch automated stress flows rather than inferred from the
+contact sheet alone.
+
+## Build Reproducibility
+
+`embed-source-into-rbxlx.ps1` now embeds all six current source scripts,
+constructs the sanitized forest and fist visual templates, renews unique Roblox
+referents, validates the generated XML, and only then replaces the target. The
+result was opened in a new Studio process before all three release profiles
+were run.
+
+# Release Expansion Acceptance - 2026-07-16
+
+## Functional Results
+
+- Equipped fist uses a wrist-relative weld and the gold closed-fist mesh sits
+  within 0.18 studs of the right-hand reference point.
+- Equipping Celestial Titan changes displayed effective Power from 15 to 901
+  in the deterministic test profile; combat damage reads the same authoritative
+  effective-Power calculation.
+- Touch JUMP moved the Humanoid by 7.12 studs and reached `Freefall`.
+- One training tap stayed active and granted 12 Power across approximately
+  2.25 seconds; persisted offline training is capped at eight hours and uses
+  35% efficiency.
+- Spin granted one weighted server result; a three-spin product test grant
+  added exactly three credits.
+- Crown of the Deep debited Honor from 100 to 35 and applied its 25% Power
+  bonus. Breaking depth 75 granted five Honor once in the active reset cycle.
+- All 2,700 depth blocks and visible hub boundaries are collidable. The rank
+  board is unobstructed and displays avatar, depth, and score rows.
+- Imported visual folders contained zero scripts, tools, remotes, or prompts.
+
+## Automation Results
+
+| Flow | Result | Checks |
+| --- | --- | ---: |
+| `release-expansion-economy` | PASS | 10 |
+| `release-expansion-ui` | PASS | 11 |
+| `release-expansion-world` | PASS | 8 |
+| `punchwall-smoke` | PASS | current smoke contract |
+| `punchwall-mobile-controls` | PASS | touch controls and NPC use |
+| `punchwall-hybrid-physics-lunge` | PASS | 16 |
+| `punch-camera-smooth-follow` | PASS | 7 |
+| `world-wall-reset` | PASS | 7 |
+
+Console output was clean apart from the expected local DataStore-disabled
+notice. Structural rubble now falls under server physics, settles at its real
+landing position, remains visible/collidable/queryable, and only disappears
+after a finishing punch.
+
+## External Release Dependency
+
+The local place is unpublished (`GameId = 0`, `PlaceId = 0`). Robux layouts,
+price labels, ownership checks, purchase prompts, and receipt handlers are
+implemented, but live checkout cannot be accepted until the owner publishes
+the experience and fills the seven non-zero IDs listed in
+`MONETIZATION_SETUP.md`.
+
+## Final Expansion Artifact
+
+- Place: `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`
+- Size: `4,359,242` bytes.
+- SHA-256: `97B7A75A7A3B500BEC1C22A7FEB1C81AEEC8FBF6899959D4DF47FDA596951FDA`.
+- XML validation: PASS.
+
+- `AssetService.AllowInsertFreeAssets`: `true`.
+- Reopened in Studio version `a81df5431d244cc0` before final acceptance.
+- Final-file flows passed: `release-expansion-economy`,
+  `release-expansion-ui`, `release-expansion-world`, `punchwall-smoke`, and
+  `punchwall-hybrid-physics-lunge`.
+
+# Hero Shop Reference Polish - 2026-07-16
+
+## Visual Acceptance
+
+- Rebuilt the functional shop as a near-full-screen Hero City metal panel with
+  a large red/blue `SHOP MENU` header, four segmented category tabs, two-column
+  product cards, rarity accents, supplied transparent product art, beveled
+  buy/equip controls, top and bottom close actions, and a synchronized dimmer.
+- Desktop viewport `1452x801`: shop measured `1147x765`; every card stayed
+  inside the panel and all visible text reported `TextFits = true`.
+- iPhone 17 Pro landscape simulation viewport `749x361`: shop measured
+  `551x349`; all four pages fit without clipping. Compact product names are
+  used only on narrow touch viewports so full desktop names remain intact.
+- Removed the legacy atlas placeholder beneath uploaded transparent art after
+  screenshot QC exposed old `TRAIN`, `COINS`, and tier labels bleeding through.
+- Visual review captures: `ShopFistsPolishClean_20260716`,
+  `ShopBoostsPolishClean_20260716`, and `ShopIPhone17Final_20260716`.
+- Studio Device Simulator was returned to the default `1452x801` viewport.
+
+## Functional Acceptance
+
+| Flow | Result | Coverage |
+| --- | --- | --- |
+| `hero-shop-reference-polish` | PASS | 11 checks; page geometry, 14 supplied-art uses, real UI purchase, close/dimmer, console |
+| `functional-hero-shop` | PASS | glove purchase/equip plus coin, speed, and damage boosts |
+| `release-expansion-ui` | PASS | mobile jump, fist visual, all shop pages, pets, Honor, tasks, Spin, Daily mask |
+
+The new flow invokes the exact callback bound to the visible Boxing Glove
+button, avoiding Studio-window focus flakiness while preserving the real UI
+purchase path. Server state verified Coins `500 -> 320`, equipped fist
+`Boxing Glove`, and multiplier `1.8`. Console output remained clean apart from
+the expected local unpublished-DataStore notice.
+
+## Final Shop Artifact
+
+- Rebuilt place: `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`
+- Size: `4,369,543` bytes.
+- SHA-256: `063E622A52C4FBE59940011D051A970F45B35B5E3E7C39E8F827E7E68BBBDAB7`.
+- XML validation: PASS.
+- The rebuilt file was closed, reopened in a fresh Studio process, maximized to
+  a stable desktop viewport, and passed `hero-shop-reference-polish` plus
+  `functional-hero-shop` from the actual delivery file.
+
+# Music And Shop Coin Polish - 2026-07-16
+
+## Acceptance
+
+- Removed the Studio-only music suppression. `Heroic Adventure`
+  (`rbxassetid://1837768082`) now preloads and loops at base volume `0.22` in
+  Studio and published play.
+- Live final-file validation reported `IsLoaded = true`, `IsPlaying = true`,
+  duration `145.08` seconds, and playback advanced by more than one second
+  during the timed assertion.
+- Replaced the square atlas Coin crop on every Coin-priced Shop card with the
+  supplied transparent icon `rbxassetid://72320637874093`.
+- The icon is preloaded during the loading screen. Fists and Boosts pages
+  reported 8/8 correct standalone `ImageLabel` instances, no atlas crop, and
+  no failed image loads.
+
+## Final-File Automation
+
+| Flow | Result | Coverage |
+| --- | --- | --- |
+| `shop-coin-and-music` | PASS | music load/play/time advance, volume, 8 Coin icons, console |
+| `hero-shop-reference-polish` | PASS | visual matrix, real button callback, authoritative purchase, close/dimmer |
+| `functional-hero-shop` | PASS | glove economy and all three timed boosts |
+
+The delivery file was rebuilt, closed, reopened in a fresh Studio process, and
+all three flows above passed against that actual final file.
+
+## Final Artifact
+
+- Place: `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`
+- Size: `4,371,082` bytes.
+- SHA-256: `86D18A776AAC703843CEC5FB6757252FB93E0B32A20440EE289853FE05452DBC`.
+- XML validation: PASS.
+
+# Full Game Tester Closure - 2026-07-16
+
+## Player-View Fixes
+
+- Made all generic menu pages render above the opaque menu surface and reserved the Roblox mobile CoreGui safe area.
+- Made Sound and More real buttons, restored audible looping music, and verified mute/unmute persistence.
+- Reflowed Spin and the full Hero Shop for landscape phones. All visible tabs, buy/equip actions, close controls, PUNCH, and JUMP meet the 44 px minimum in the five-device matrix.
+- Reworked the mobile shop cards so compact screens retain product art, name, rarity, price, and action without overlapping text.
+- Corrected starter/equipped fist wrist alignment and color, made all premium fist showcases upright, and kept tier-specific aura/readability.
+- Replaced prototype Honor item balls with Crown, Relic, Storm, and Vanguard silhouettes; rebuilt the Rebirth portal as an 18-segment vertical ring; upgraded the Power Bag and Honor Keeper.
+- Cleared the Rebirth/rank sightlines, reduced premium billboard obstruction, and retained an intentional forest boundary around the playable hub.
+
+## Gameplay And Physics Acceptance
+
+- Free-aim radial punching remains body-direction based with no target lock or block highlight.
+- Attack/action timing is one second; safe endpoint planning prevents embedding or correction snapback.
+- Camera follow, long-tunnel occlusion, route navigation, rubble solidity, detached-block collision restoration, player overlap shattering, and 200-punch stress all passed.
+- Training increases Power continuously/offline; wall breaking grants Coins without directly granting Power.
+- Shop/pets, Spin, Daily/Tasks, Honor, Rebirth/Boss, high-power test mode, world reset, and the authoritative depth/rank HUD all passed.
+
+## Final Test Results
+
+| Suite | Result | Coverage |
+| --- | --- | --- |
+| Core full-game regression | PASS 15/15 | gameplay, economy, UI, models, devices, audio |
+| Supplemental high-risk regression | PASS 13/13 | stress, collision, route, camera, feedback, long values |
+| Rebuilt RBXLX validation | PASS 1/1 | fresh Studio process, embedded server/client bootstrap |
+
+The console was clean apart from the expected DataStore-disabled notice for an unpublished local place. Studio finished in Edit mode and Device Simulator was restored to `default`.
+
+## Final Artifact
+
+- Place: `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`
+- Size: `4,389,835` bytes.
+- SHA-256: `2C2917D67A71F37E2F7A24FCBBA2C78F5B53B88FD7A051FCF5B727ADED4402D7`.
+- XML version 4 parse validation: PASS.
+- Fresh-file flow: `final-rbxlx-build-validation` PASS.
+
+The only remaining release dependency is external: publish the experience and enter non-zero Game Pass/Developer Product IDs before validating live checkout and production DataStore persistence.
+
+# Requested Feature Matrix Closure - 2026-07-17
+
+Player-view QC found three defects that structural tests alone did not catch:
+the Premium merchant was sideways, the replacement Power Bag was horizontal
+and oversized, and Premium Pet price text could disappear against its metal
+plate. All three are fixed and covered by stronger visual-structure assertions.
+
+Final captures:
+
+- `FinalQC_Merchants`
+- `FinalQC_Training`
+- `FinalQC_TrainingActive`
+- `FinalQC_PremiumPets_SecondFrame`
+- `FinalQC_DepthWallAndRace`
+- `FinalQC_SpinUI`
+
+Fresh result: 15/15 targeted flows passed, including a fresh-process validation
+of the rebuilt final RBXLX. See `FEATURE_COMPLETION_20260717.md` for the exact
+requirement-to-test matrix.
+
+Final artifact:
+
+- Size: `4,458,055` bytes
+- SHA-256: `CC6258124F2D72E82AB27C1E4A90F4992F2F78BDE19C184664061AB96B83F34D`
+- XML version 4: PASS
+
+# Studio Test Harness Acceptance - 2026-07-17
+
+## Test-Control Surface
+
+- Added `PunchWallTestHarness` under `ServerStorage` and a client harness under
+  `PlayerGui.PunchWallHUD`; both are created only when `RunService:IsStudio()`.
+- No harness `RemoteEvent` or `RemoteFunction` is exposed through
+  `ReplicatedStorage`. The harness reports `StudioOnly = true` and
+  `ProductionSurface = false`.
+- Deterministic commands cover player presets and stats, teleports, cooldowns,
+  training, punching, depth destruction, world reset, Spin, shops, pets,
+  premium test grants, feedback, lighting, camera, settings, and GUI state.
+- Multi-command sequences are capped at 50 steps and always return structured
+  snapshots suitable for automation assertions.
+
+## Regression Results
+
+| Suite | Result | Coverage |
+| --- | --- | --- |
+| `studio-test-harness-control` | PASS | reset, preset, teleport, Spin, pet drop, UI, settings, camera |
+| `studio-test-harness-full-control` | PASS | catalogs, premium grants, depth region, feedback, lighting, GUI |
+| Fast gameplay profile | PASS 4/4 | smoke, train/break, shop/pet, rebirth/boss |
+| Fast UI profile | PASS 3/3 | Hero HUD, responsive inputs, mobile controls |
+
+The harness regression exposed and closed two real defects: stale mobile action
+state surviving a reset and undersized Shop touch targets. All harness flows
+finish in Edit mode with a clean console.
+
+## Rebuilt Delivery
+
+- Place: `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`
+- Size: `4,456,837` bytes.
+- SHA-256: `C92BF77FDAFBAB1340AF321ADA489608AD82970B26E5AE13C1F20ED98E0B77F1`.
+- XML parse validation: PASS.
+- Fresh-process `final-rbxlx-build-validation`: PASS, including 5,400 depth
+  blocks, server/client bootstrap, music, clean console, and the Studio-only
+  harness security contract.

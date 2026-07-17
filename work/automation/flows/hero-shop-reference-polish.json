@@ -1,0 +1,50 @@
+{
+  "name": "hero-shop-reference-polish",
+  "description": "Validate the Hero City shop reference styling, supplied transparent art, responsive geometry, page matrix, real UI purchase wiring, and close behavior.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for runtime shop assets" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=500,Power=15,WallLevel=1}) return true" }, "expectRegex": ["true"], "label": "prepare affordable UI purchase" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') a:Invoke('OpenTab','Fists') task.wait(.5) local s=g.GameMenu.FunctionalHeroShop local expected={Fists=5,Premium=3,Boosts=3,Robux=4} local pages={} local allOk=true local realArtTotal=0 for _,page in ipairs({'Fists','Premium','Boosts','Robux'}) do a:Invoke('OpenShopPage',page) task.wait(.35) local cards,textFailures,boundsFailures,fallbackFailures,unloaded=0,0,0,0,0 local l,t=s.AbsolutePosition.X,s.AbsolutePosition.Y local r,b=l+s.AbsoluteSize.X,t+s.AbsoluteSize.Y for _,card in ipairs(s:GetChildren()) do if card:IsA('Frame') and card.Name:match('ShopCard$') then cards+=1 local cl,ct=card.AbsolutePosition.X,card.AbsolutePosition.Y local cr,cb=cl+card.AbsoluteSize.X,ct+card.AbsoluteSize.Y if cl<l-2 or ct<t-2 or cr>r+2 or cb>b+2 then boundsFailures+=1 end local art=card:FindFirstChild('ProductArt') local fallback=card:FindFirstChild('ProductArtFallback') if art and art.Image~='' then realArtTotal+=1 if not art.IsLoaded then unloaded+=1 end if fallback and fallback.Visible then fallbackFailures+=1 end elseif fallback and not fallback.Visible then fallbackFailures+=1 end for _,d in ipairs(card:GetDescendants()) do if (d:IsA('TextLabel') or d:IsA('TextButton')) and d.Visible and not d.TextFits then textFailures+=1 end end end end local ok=cards==expected[page] and textFailures==0 and boundsFailures==0 and fallbackFailures==0 and unloaded==0 pages[page]={ok=ok,cards=cards,textFailures=textFailures,boundsFailures=boundsFailures,fallbackFailures=fallbackFailures,unloaded=unloaded} allOk=allOk and ok end local tabs=0 for _,x in ipairs(s.ShopTabs:GetChildren()) do if x:IsA('TextButton') then tabs+=1 end end local vp=workspace.CurrentCamera.ViewportSize local coverage=s.AbsoluteSize.X>=vp.X*.72 and s.AbsoluteSize.Y>=vp.Y*.88 local chrome=s.ShopHeader.Title.TextSize>=48 and s.ShopHeader:FindFirstChild('CloseShop')~=nil and s.ShopFooter:FindFirstChild('CloseShopBottom')~=nil and tabs==4 local layerSource=tostring(s:GetAttribute('LayerSource') or '') local style=s:GetAttribute('ReferenceStyle')=='HeroCityShopMenu' and layerSource:find('Temp',1,true)~=nil and layerSource:find('Shop',1,true)~=nil local dimmer=g.HeroShopDimmer.Visible a:Invoke('OpenShopPage','Fists') task.wait(.2) return H:JSONEncode({ok=allOk and coverage and chrome and style and dimmer and realArtTotal>=14,pages=pages,coverage=coverage,chrome=chrome,style=style,dimmer=dimmer,tabs=tabs,realArtTotal=realArtTotal,size={s.AbsoluteSize.X,s.AbsoluteSize.Y},viewport={vp.X,vp.Y}})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"coverage\":true",
+        "\"chrome\":true",
+        "\"style\":true",
+        "\"dimmer\":true",
+        "\"tabs\":4",
+        "\"realArtTotal\":14"
+      ],
+      "label": "shop reference visual and page matrix"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return g.PunchWallClientAutomation:Invoke('InvokeShopAction','Boxing Glove')" }, "expectRegex": ["true"], "label": "invoke the visible boxing glove button handler" },
+    { "type": "wait", "ms": 700, "label": "wait for authoritative shop update" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value) return H:JSONEncode({ok=p.leaderstats.Coins.Value==320 and p.RPGStats.EquippedFist.Value=='Boxing Glove' and p.RPGStats.FistMultiplier.Value==1.8 and table.find(owned,'Boxing Glove')~=nil,coins=p.leaderstats.Coins.Value,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value})"
+      },
+      "expectRegex": ["\"ok\":true", "\"coins\":320", "\"equipped\":\"Boxing Glove\"", "\"mult\":1.8"],
+      "label": "UI purchase reaches authoritative economy"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return g.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close shop through shared close handler" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(.2) return H:JSONEncode({ok=not g.GameMenu.Visible and not g.HeroShopDimmer.Visible,menu=g.GameMenu.Visible,dimmer=g.HeroShopDimmer.Visible})" }, "expectRegex": ["\"ok\":true", "\"menu\":false", "\"dimmer\":false"], "label": "shop and dimmer close together" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "directional-punch-controls",
+  "description": "Verify independent up/down punch controls, one-second attack cadence, character action motion, and non-overlapping action UI.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') a:Invoke('SetStats',{Power=250,WallLevel=99}) local hrp=p.Character and p.Character:FindFirstChild('HumanoidRootPart') hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-80)) return 'POSITIONED'" }, "expectRegex": ["POSITIONED"], "label": "position hero at wall" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('Punch','Up') task.wait(.35) return 'UP'" }, "expectRegex": ["UP"], "label": "punch upward" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local up=p:GetAttribute('LastPunchDirection') task.wait(.75) local hrp=p.Character.HumanoidRootPart hrp.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-80)) return H:JSONEncode({ok=up=='Up',direction=up,interval=workspace.PunchWallRPG:GetAttribute('PunchAttackInterval')})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"direction\"\\s*:\\s*\"Up\"", "\"interval\"\\s*:\\s*1"], "label": "up direction reaches server" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('Punch','Down') task.wait(.35) return 'DOWN'" }, "expectRegex": ["DOWN"], "label": "punch downward" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local up=h:FindFirstChild('PunchUp') local down=h:FindFirstChild('PunchDown') local nextCard=h:FindFirstChild('NextWorldCard') local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return ap.X<bp.X+bs.X and ap.X+as.X>bp.X and ap.Y<bp.Y+bs.Y and ap.Y+as.Y>bp.Y end return H:JSONEncode({ok=up~=nil and down~=nil and up.Active and down.Active and not overlap(up,down) and not overlap(up,nextCard) and not overlap(down,nextCard) and (g:GetAttribute('CharacterPunchCount') or 0)>=2,count=g:GetAttribute('CharacterPunchCount') or 0,upDirection=up and up:GetAttribute('PunchDirection'),downDirection=down and down:GetAttribute('PunchDirection')})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*[2-9]", "\"upDirection\"\\s*:\\s*\"Up\"", "\"downDirection\"\\s*:\\s*\"Down\""], "label": "direction controls and action layout" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] return H:JSONEncode({ok=p:GetAttribute('LastPunchDirection')=='Down',direction=p:GetAttribute('LastPunchDirection')})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"direction\"\\s*:\\s*\"Down\""], "label": "down direction reaches server" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

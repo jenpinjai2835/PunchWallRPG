@@ -84,6 +84,42 @@ PolishConfig.WallTiers = {
 		label = "Defense Grid",
 		window = Color3.fromRGB(67, 198, 230),
 	},
+	["Titan Alloy Gate"] = {
+		color = Color3.fromRGB(82, 92, 105),
+		accent = Color3.fromRGB(229, 189, 79),
+		pad = Color3.fromRGB(44, 48, 54),
+		crack = Color3.fromRGB(28, 31, 36),
+		material = Enum.Material.DiamondPlate,
+		label = "Titan Alloy Rampart",
+		window = Color3.fromRGB(229, 189, 79),
+	},
+	["Meteor Core Gate"] = {
+		color = Color3.fromRGB(185, 66, 42),
+		accent = Color3.fromRGB(255, 159, 58),
+		pad = Color3.fromRGB(54, 39, 36),
+		crack = Color3.fromRGB(61, 24, 19),
+		material = Enum.Material.Basalt,
+		label = "Meteor Core Bastion",
+		window = Color3.fromRGB(255, 139, 53),
+	},
+	["Void Crystal Gate"] = {
+		color = Color3.fromRGB(88, 118, 212),
+		accent = Color3.fromRGB(179, 116, 255),
+		pad = Color3.fromRGB(39, 43, 62),
+		crack = Color3.fromRGB(33, 29, 69),
+		material = Enum.Material.Glacier,
+		label = "Void Crystal Citadel",
+		window = Color3.fromRGB(157, 113, 245),
+	},
+	["Omega Barrier"] = {
+		color = Color3.fromRGB(83, 63, 153),
+		accent = Color3.fromRGB(80, 222, 247),
+		pad = Color3.fromRGB(35, 35, 53),
+		crack = Color3.fromRGB(25, 20, 49),
+		material = Enum.Material.Foil,
+		label = "Omega Command Barrier",
+		window = Color3.fromRGB(80, 222, 247),
+	},
 	["Titan Server Wall"] = {
 		color = Color3.fromRGB(22, 27, 37),
 		accent = Color3.fromRGB(231, 48, 43),
@@ -120,6 +156,7 @@ PolishConfig.Environment = {
 }
 
 PolishConfig.FreeAssetCandidates = {
+	{ use = "Sanitized stylized forest trees", assetId = "95555308270103", name = "Stylized Anime Tree Cartoon Plant Forest Nature", creator = "SwitchpmPixeld111933", hasScripts = true, fallback = "Source-built wood trunks and leafy canopies; imported scripts are never retained" },
 	{ use = "Sanitized detailed Hero City skyline", assetId = "3346479763", name = "City Buildings", creator = "Zackgamer_awesome1", hasScripts = false, fallback = "Existing source-built skyline remains when runtime insertion is unavailable" },
 	{ use = "Modular downtown buildings", assetId = "6418277837", name = "City Building Pack", creator = "Roblox", hasScripts = false, fallback = "Source-built city facade blocks with windows" },
 	{ use = "Skyscraper decor", assetId = "44147935", name = "skyscraper", creator = "coolman104531", hasScripts = false, fallback = "Source-built background skyscraper blocks" },
@@ -129,6 +166,20 @@ PolishConfig.FreeAssetCandidates = {
 	{ use = "Textured wrecked city vehicles", assetId = "74466546814963", name = "Abandoned car pack vehicle city roleplay RP", creator = "benr3al2015", hasScripts = true, fallback = "Source-built road barricades; all scripts removed when kept" },
 	{ use = "Legendary kaiju companion display", assetId = "5618903358", name = "Crimson Claw Dragon Ally", creator = "Josegamer941", hasScripts = true, fallback = "Client-built companion geometry; all scripts and behavior removed when kept" },
 	{ use = "Detailed city landmark", assetId = "135834344041946", name = "Buildings 3", creator = "TenTsuDev", hasScripts = false, fallback = "Source-built distant skyline blocks" },
+}
+
+-- Exact Creator Store models used by core interaction landmarks. These are
+-- loaded through AssetService's sandbox and sanitized to visual classes only.
+PolishConfig.ExternalVisualTemplates = {
+	{ templateName = "Sanitized_VoidFistAura", assetId = 116284795259865, name = "Void Fist Aura", creator = "MysticHvNightO1592", use = "Premium void-fist showcase aura" },
+	{ templateName = "Sanitized_HeroPowerBag", assetId = 140653091179998, name = "Hero Power Bag", creator = "Lucy896Miner", use = "Power training landmark" },
+	{ templateName = "Sanitized_ArmoryMerchantNPC", assetId = 2841100862, name = "Rad Robo", creator = "L4UNDRY_BE4R", use = "Fist shop NPC" },
+	{ templateName = "Sanitized_PremiumBionicHeroNPC", assetId = 3162411898, name = "Bionic Ninja Size Corrected", creator = "Mario5697", use = "Premium Robux fist and pet merchant NPC" },
+	{ templateName = "Sanitized_PetLabScientistNPC", assetId = 103629315510813, name = "Pet Lab Scientist", creator = "XxWillowV3nomxX2016", use = "Pet shop NPC" },
+	{ templateName = "Sanitized_ForestTreeSingle", assetId = 10042451801, name = "low poly tree", creator = "ScriptedNex", use = "Single-tree forest scenery without pack-sized canopies" },
+	{ templateName = "Sanitized_CrimsonPhoenixPet", assetId = 86478691482535, name = "Mythical Phoenix pet", creator = "IAmASwedishMale", use = "Crimson Phoenix premium pet showcase" },
+	{ templateName = "Sanitized_StormWyvernPet", assetId = 83562531232957, name = "Adopt Me! Wyvern Dragon Pet Fantasy Roleplay", creator = "XzG0ldeneJGlitchQJCy", use = "Storm Wyvern premium pet showcase" },
+	{ templateName = "Sanitized_CelestialGuardianPet", assetId = 121956330907081, name = "Innovation Robot Dog", creator = "SirRioter", use = "Celestial Guardian premium pet showcase" },
 }
 
 return PolishConfig

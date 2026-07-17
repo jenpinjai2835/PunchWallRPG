@@ -23,6 +23,20 @@ const SCRIPT_MAPPINGS = [
     name: "PolishConfig",
   },
   {
+    source: path.join(PROJECT_ROOT, "src", "shared", "ForestVisualBuilder.lua"),
+    datamodelType: "Edit",
+    className: "ModuleScript",
+    service: "ReplicatedStorage",
+    name: "ForestVisualBuilder",
+  },
+  {
+    source: path.join(PROJECT_ROOT, "src", "shared", "FistVisualBuilder.lua"),
+    datamodelType: "Edit",
+    className: "ModuleScript",
+    service: "ReplicatedStorage",
+    name: "FistVisualBuilder",
+  },
+  {
     source: path.join(PROJECT_ROOT, "src", "server", "PunchWallBootstrap.server.lua"),
     datamodelType: "Edit",
     className: "Script",
@@ -205,6 +219,64 @@ return "synced ${mapping.name}"
 `;
 }
 
+function targetPath(mapping) {
+  return `game.${mapping.service}.${mapping.name}`;
+}
+
+async function syncMapping(client, mapping, source) {
+  const directLimit = 165000;
+  const chunkSize = 110000;
+  if (source.length <= directLimit) {
+    const result = await client.callTool("execute_luau", {
+      datamodel_type: mapping.datamodelType,
+      code: syncCode(mapping, source),
+    }, 45000);
+    if (result.isError || !/synced/i.test(result.text)) {
+      throw new Error(`Failed to sync ${mapping.name}: ${result.text}`);
+    }
+    return result;
+  }
+
+  const sentinel = `\n--[[CODEX_CHUNK_SYNC_${mapping.name}_SENTINEL]]`;
+  const chunks = [];
+  for (let offset = 0; offset < source.length; offset += chunkSize) {
+    chunks.push(source.slice(offset, offset + chunkSize));
+  }
+  const initial = await client.callTool("execute_luau", {
+    datamodel_type: mapping.datamodelType,
+    code: syncCode(mapping, chunks[0] + sentinel),
+  }, 45000);
+  if (initial.isError || !/synced/i.test(initial.text)) {
+    throw new Error(`Failed to initialize chunked sync for ${mapping.name}: ${initial.text}`);
+  }
+  for (let index = 1; index < chunks.length; index += 1) {
+    const append = await client.callTool("multi_edit", {
+      datamodel_type: mapping.datamodelType,
+      file_path: targetPath(mapping),
+      edits: [{ old_string: sentinel, new_string: chunks[index] + sentinel }],
+    }, 45000);
+    if (append.isError) {
+      throw new Error(`Failed chunk ${index + 1}/${chunks.length} for ${mapping.name}: ${append.text}`);
+    }
+  }
+  const finalize = await client.callTool("multi_edit", {
+    datamodel_type: mapping.datamodelType,
+    file_path: targetPath(mapping),
+    edits: [{ old_string: sentinel, new_string: "" }],
+  }, 45000);
+  if (finalize.isError) {
+    throw new Error(`Failed to finalize chunked sync for ${mapping.name}: ${finalize.text}`);
+  }
+  const verify = await client.callTool("execute_luau", {
+    datamodel_type: mapping.datamodelType,
+    code: `local value = ${targetPath(mapping)}.Source\nreturn {length = #value, hasSentinel = string.find(value, "CODEX_CHUNK_SYNC", 1, true) ~= nil}`,
+  }, 45000);
+  if (verify.isError || !verify.text.includes(`"length":${source.length}`) || !verify.text.includes('"hasSentinel":false')) {
+    throw new Error(`Chunked sync verification failed for ${mapping.name}: ${verify.text}`);
+  }
+  return { text: `synced ${mapping.name} in ${chunks.length} chunks`, isError: false };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const studioMcp = findStudioMcp(args.studioMcp);
@@ -220,13 +292,7 @@ async function main() {
     }
     for (const mapping of SCRIPT_MAPPINGS) {
       const source = fs.readFileSync(mapping.source, "utf8");
-      const result = await client.callTool("execute_luau", {
-        datamodel_type: mapping.datamodelType,
-        code: syncCode(mapping, source),
-      }, 45000);
-      if (result.isError || !/synced/i.test(result.text)) {
-        throw new Error(`Failed to sync ${mapping.name}: ${result.text}`);
-      }
+	  const result = await syncMapping(client, mapping, source);
       synced.push({ name: mapping.name, source: mapping.source, result: result.text });
     }
 

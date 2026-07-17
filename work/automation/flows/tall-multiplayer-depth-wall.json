@@ -1,0 +1,16 @@
+{
+  "name": "tall-multiplayer-depth-wall",
+  "description": "Verify the excavation wall is doubled to six player-scale rows while retaining dense contiguous 4x4x4 cubes and the expected bounded block count.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for wall build" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local f=workspace.PunchWallRPG['Depth Blocks'] local total=#f:GetChildren() local xs,ys,l1={}, {},0 local collidable,cubes=0,0 for _,b in ipairs(f:GetChildren()) do if b.CanCollide then collidable+=1 end if math.abs(b.Size.X-4)<.01 and math.abs(b.Size.Y-4)<.01 and math.abs(b.Size.Z-4)<.01 then cubes+=1 end if b:GetAttribute('Depth')==1 then l1+=1 xs[math.floor(b.Position.X*100+.5)/100]=true ys[math.floor(b.Position.Y*100+.5)/100]=true end end local xc,yc=0,0 for _ in pairs(xs) do xc+=1 end for _ in pairs(ys) do yc+=1 end return H:JSONEncode({ok=total==5400 and collidable==5400 and cubes==5400 and l1==72 and xc==12 and yc==6 and workspace.PunchWallRPG:GetAttribute('DepthBlockCount')==5400,total=total,collidable=collidable,cubes=cubes,layerOne=l1,columns=xc,rows=yc,blockSize=tostring(workspace.PunchWallRPG:GetAttribute('DepthBlockSize'))})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"total\"\\s*:\\s*5400", "\"layerOne\"\\s*:\\s*72", "\"columns\"\\s*:\\s*12", "\"rows\"\\s*:\\s*6", "4, 4, 4"], "label": "tall contiguous wall matrix" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

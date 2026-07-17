@@ -1,0 +1,104 @@
+{
+  "name": "punch-camera-device-20",
+  "description": "Sample 20 real punch camera actions across desktop, tablet, and phone landscape viewports while preserving zoom, orientation, visibility, and geometry clearance.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Camera Desktop 1366x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1366,Height=768,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({active=S:GetDeviceAsync()==id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": ["\"active\"[ ]*:[ ]*true", "\"width\"[ ]*:[ ]*1366", "\"height\"[ ]*:[ ]*768"],
+      "label": "set desktop camera viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start desktop play" },
+    { "type": "wait", "ms": 7500, "label": "wait desktop runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=6000,WallLevel=99,Depth=0,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-240)) p:SetAttribute('LastWallHit',0) return true" }, "label": "prepare desktop punches" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 60000,
+      "saveAs": "desktopCamera",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode(g.PunchWallClientAutomation:Invoke('__RunCamera',8))"
+      },
+      "expectRegex": ["\"actions\"[ ]*:[ ]*8"],
+      "label": "sample eight desktop punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "desktopCamera", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "desktop camera metrics valid" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop desktop play" },
+
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Camera Tablet 1024x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1024,Height=768,PixelDensity=160,DeviceForm=Enum.DeviceForm.Tablet} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({active=S:GetDeviceAsync()==id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": ["\"active\"[ ]*:[ ]*true", "\"width\"[ ]*:[ ]*1024", "\"height\"[ ]*:[ ]*768"],
+      "label": "set tablet camera viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start tablet play" },
+    { "type": "wait", "ms": 7500, "label": "wait tablet runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=6000,WallLevel=99,Depth=0,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-240)) p:SetAttribute('LastWallHit',0) return true" }, "label": "prepare tablet punches" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 60000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode(g.PunchWallClientAutomation:Invoke('__RunCamera',6))"
+      },
+      "expectRegex": ["\"valid\"[ ]*:[ ]*true", "\"actions\"[ ]*:[ ]*6", "\"inside\"[ ]*:[ ]*0", "\"type\"[ ]*:[ ]*\"Custom\"", "\"mode\"[ ]*:[ ]*\"CustomPreserved\""],
+      "label": "sample six tablet punches"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop tablet play" },
+
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='VQC Camera Phone 844x390' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=844,Height=390,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({active=S:GetDeviceAsync()==id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": ["\"active\"[ ]*:[ ]*true", "\"width\"[ ]*:[ ]*844", "\"height\"[ ]*:[ ]*390"],
+      "label": "set phone camera viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start phone play" },
+    { "type": "wait", "ms": 7500, "label": "wait phone runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=6000,WallLevel=99,Depth=0,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-240)) p:SetAttribute('LastWallHit',0) return true" }, "label": "prepare phone punches" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 60000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode(g.PunchWallClientAutomation:Invoke('__RunCamera',6))"
+      },
+      "expectRegex": ["\"valid\"[ ]*:[ ]*true", "\"actions\"[ ]*:[ ]*6", "\"inside\"[ ]*:[ ]*0", "\"type\"[ ]*:[ ]*\"Custom\"", "\"mode\"[ ]*:[ ]*\"CustomPreserved\""],
+      "label": "sample six phone punches"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture camera console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "camera console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop phone play" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() task.wait(.2) local names={['VQC Camera Desktop 1366x768']=true,['VQC Camera Tablet 1024x768']=true,['VQC Camera Phone 844x390']=true} local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return {default=S:GetDeviceAsync()=='default',removed=removed}"
+      },
+      "expectRegex": ["\"default\"[ ]*:[ ]*true", "\"removed\"[ ]*:[ ]*3"],
+      "label": "restore default camera viewport"
+    }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true" }, "allowError": true, "label": "cleanup viewport" }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "punchwall-smoke",
   "description": "Existing smoke flow for the Punch Wall RPG prototype.",
-  "studioName": "PunchWallRPGPrototype",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -61,58 +61,20 @@
     },
     {
       "type": "call",
-      "tool": "search_game_tree",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG",
-        "max_depth": 2,
-        "head_limit": 180
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local r=workspace.PunchWallRPG local w=r.Walls local d=r['Depth Blocks'] local i=r.Interactables local required={'Power Bag','Pet Egg Machine','Rebirth Shrine','Hero Armory Merchant Interaction','Hero Sidekick Scientist Interaction','Honor Keeper Interaction'} local found=0 for _,n in ipairs(required) do if i:FindFirstChild(n) then found+=1 end end return H:JSONEncode({walls=#w:GetChildren(),depthBlocks=#d:GetChildren(),interactables=#i:GetChildren(),requiredInteractables=found,powerOnly=i:FindFirstChild('Speed Dummy')==nil and i:FindFirstChild('Focus Stone')==nil,titan=w:FindFirstChild('Titan Server Wall')~=nil})"
       },
-      "saveAs": "playTree",
-      "timeoutMs": 35000,
-      "label": "capture runtime tree"
-    },
-    {
-      "type": "assertTreeMinChildren",
-      "source": "playTree",
-      "parentName": "Walls",
-      "min": 1,
-      "label": "runtime boss wall count"
-    },
-    {
-      "type": "assertTreeMinChildren",
-      "source": "playTree",
-      "parentName": "Depth Blocks",
-      "min": 4320,
-      "label": "runtime shared depth block count"
-    },
-    {
-      "type": "assertTreeMinChildren",
-      "source": "playTree",
-      "parentName": "Interactables",
-      "min": 9,
-      "label": "runtime interactable count"
-    },
-    {
-      "type": "assertTreeNames",
-      "source": "playTree",
-      "parentName": "Walls",
-      "names": [
-        "Titan Server Wall"
+      "expectRegex": [
+        "\"walls\"[ ]*:[ ]*[1-9][0-9]*",
+        "\"depthBlocks\"[ ]*:[ ]*5400",
+        "\"interactables\"[ ]*:[ ]*[9-9][0-9]*|\"interactables\"[ ]*:[ ]*[1-9][0-9]+",
+        "\"requiredInteractables\"[ ]*:[ ]*6",
+        "\"powerOnly\"[ ]*:[ ]*true",
+        "\"titan\"[ ]*:[ ]*true"
       ],
-      "label": "runtime boss wall name"
-    },
-    {
-      "type": "assertTreeNames",
-      "source": "playTree",
-      "parentName": "Interactables",
-      "names": [
-        "Power Bag",
-        "Speed Dummy",
-        "Focus Stone",
-        "Pet Egg Machine",
-        "Rebirth Shrine"
-      ],
-      "label": "runtime interactable names"
+      "label": "runtime folders and key objects detected"
     },
     {
       "type": "call",
@@ -122,7 +84,7 @@
       },
       "saveAs": "brickWall",
       "expectRegex": [
-        "\"MaxHP\"\\s*:\\s*15",
+        "\"MaxHP\"\\s*:\\s*8",
         "\"IsDepthBlock\"\\s*:\\s*true",
         "\"Tier\"\\s*:\\s*1"
       ],

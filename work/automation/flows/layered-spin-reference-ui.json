@@ -1,0 +1,17 @@
+{
+  "name": "layered-spin-reference-ui",
+  "description": "Verify the supplied Spin artwork layers compose into a responsive modal and one click produces exactly one server reward/result.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "game.ServerStorage.PunchWallAutomation:Invoke('Reset') return 'RESET'" }, "expectRegex": ["RESET"], "label": "reset spin timer" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local before=g:GetAttribute('SpinResultCount') or 0 a:Invoke('OpenSpin') task.wait(.2) local m=g.HeroSpinModal local p=m and m:FindFirstChild('SpinPanel') local required={'SpinHeaderArt','CloseSpin','PrizeWheel','PrizePointer','WheelCenter','FreeSpinReadyArt','SpinNow','BuyBonusSpins'} local layers,valid=0,true for _,n in ipairs(required) do local x=p and p:FindFirstChild(n) if x and x:IsA('GuiObject') and x:IsA('ImageLabel') or x and x:IsA('ImageButton') then layers+=1 valid=valid and x.Image:find('rbxassetid://',1,true)==1 else valid=false end end local vp=workspace.CurrentCamera.ViewportSize local inside=p and p.AbsolutePosition.X>=0 and p.AbsolutePosition.Y>=0 and p.AbsolutePosition.X+p.AbsoluteSize.X<=vp.X+2 and p.AbsolutePosition.Y+p.AbsoluteSize.Y<=vp.Y+2 local started=a:Invoke('SpinNow') task.wait(1.35) local after=g:GetAttribute('SpinResultCount') or 0 return H:JSONEncode({ok=m and m.Visible and g:GetAttribute('SpinUsesSuppliedLayers')==true and g:GetAttribute('SpinLayerCount')==9 and layers==8 and valid and inside and started==true and after==before+1 and (g:GetAttribute('LastSpinReward') or '')~='',layers=layers,inside=inside,started=started==true,before=before,after=after,reward=g:GetAttribute('LastSpinReward') or '',scale=g:GetAttribute('SpinPanelScale') or 0})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"layers\"\\s*:\\s*8", "\"inside\"\\s*:\\s*true", "\"started\"\\s*:\\s*true", "\"after\"\\s*:\\s*1"], "label": "supplied spin layers and single reward" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

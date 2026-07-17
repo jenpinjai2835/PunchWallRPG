@@ -1,0 +1,17 @@
+{
+  "name": "support-loss-matrix",
+  "description": "Validate bridge support, two-column ceiling loss, edge/corner collapse, cascading columns, and solid settled rubble.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for structure runtime" },
+    { "type": "call", "tool": "execute_luau", "timeoutMs": 60000, "saveAs": "supportMatrix", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local root=workspace.PunchWallRPG local blocks=root['Depth Blocks'] local function b(col,row) return blocks:FindFirstChild(('DepthBlock_L001_C%02d_R%02d'):format(col,row)) end c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) task.wait(.34) local bridge=b(6,2) local bridgeSupported=bridge.Anchored and not bridge:GetAttribute('StructuralDetached') c:Invoke('HitDepthBlock',{layer=1,column=7,row=1}) task.wait(.34) local ceilingA,ceilingB=b(6,2),b(7,2) local ceilingDropped=ceilingA:GetAttribute('StructuralDetached') and ceilingB:GetAttribute('StructuralDetached') and not ceilingA.Anchored and not ceilingB.Anchored task.wait(.5) local columnCascade=b(6,3):GetAttribute('StructuralDetached') or b(7,3):GetAttribute('StructuralDetached') c:Invoke('Reset') c:Invoke('HitDepthBlock',{layer=1,column=1,row=1}) task.wait(.38) local corner=b(1,2) local cornerDropped=corner:GetAttribute('StructuralDetached') and not corner.Anchored c:Invoke('Reset') c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) c:Invoke('HitDepthBlock',{layer=1,column=7,row=1}) task.wait(3.5) local settled,solid,punchable,unsupported,settledAnchored=0,0,0,0,0 for _,x in ipairs(blocks:GetChildren()) do if x:GetAttribute('StructuralDetached') and not x:GetAttribute('Broken') then settled+=1 if x.CanCollide and x.CollisionGroup=='DepthRubble' then solid+=1 end if x.CanQuery and (x:GetAttribute('HP') or 0)>0 then punchable+=1 end if x.Anchored and x:GetAttribute('StructuralSettled') then settledAnchored+=1 elseif x.Anchored then unsupported+=1 end end end return H:JSONEncode({bridgeSupported=bridgeSupported,ceilingDropped=ceilingDropped,columnCascade=columnCascade,cornerDropped=cornerDropped,settled=settled,solid=solid,punchable=punchable,settledAnchored=settledAnchored,unsupportedAnchored=unsupported,valid=bridgeSupported and ceilingDropped and columnCascade and cornerDropped and settled>0 and solid==settled and punchable==settled and settledAnchored==settled and unsupported==0})" }, "label": "measure support-loss cases" },
+    { "type": "assertNoConsoleErrors", "source": "supportMatrix", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "support-loss cases behave physically" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

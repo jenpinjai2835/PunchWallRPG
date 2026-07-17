@@ -1,0 +1,137 @@
+{
+  "name": "studio-test-harness-control",
+  "description": "Verify the Studio-only server and client test harnesses can deterministically control gameplay, world state, UI, camera, and settings without Windows input automation.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage:WaitForChild('PunchWallTestHarness',5) local r=a:Invoke({command='Describe'}) return H:JSONEncode({ok=r.ok,version=r.version,studioOnly=r.studioOnly,productionSurface=r.productionSurface,commands=#r.commands,locations=#r.catalog.locations,presets=#r.catalog.presets,ready=a:GetAttribute('Ready')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"studioOnly\"\\s*:\\s*true",
+        "\"productionSurface\"\\s*:\\s*false",
+        "\"commands\"\\s*:\\s*[3-9][0-9]",
+        "\"locations\"\\s*:\\s*[7-9]",
+        "\"presets\"\\s*:\\s*4",
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "describe secure server harness"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallTestHarness local r=a:Invoke({command='Sequence',steps={{command='Reset'},{command='SetWorldResetEnabled',target=false},{command='ApplyPreset',target='Midgame'},{command='ClearCooldowns'},{command='Teleport',target='Training'},{command='SetSpinReady',amount=2},{command='ForcePetEggDrop',target=30},{command='Snapshot'}}}) return H:JSONEncode({ok=r.ok,count=r.count,failed=r.failedStep})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*8"
+      ],
+      "label": "run deterministic server sequence"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=p.RPGStats local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local inv=s.PetInventoryJSON.Value local map=workspace.PunchWallRPG return H:JSONEncode({ok=p.leaderstats.Power.Value==25000 and p.leaderstats.Coins.Value==500000 and p.leaderstats.Depth.Value==25 and s.FistMultiplier.Value==13 and s.SpinCredits.Value==2 and inv~='[]' and root and (root.Position-Vector3.new(-42,3,31)).Magnitude<2 and map:GetAttribute('AutomationWorldResetEnabled')==false,power=p.leaderstats.Power.Value,coins=p.leaderstats.Coins.Value,depth=p.leaderstats.Depth.Value,spin=s.SpinCredits.Value,petInventory=inv,position=root and tostring(root.Position) or 'missing',worldReset=map:GetAttribute('AutomationWorldResetEnabled')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*25000",
+        "\"coins\"\\s*:\\s*500000",
+        "\"depth\"\\s*:\\s*25",
+        "\"spin\"\\s*:\\s*2",
+        "\"worldReset\"\\s*:\\s*false"
+      ],
+      "label": "server state matches commands"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD',5) local a=g:WaitForChild('PunchWallClientTestHarness',5) local d=a:Invoke({command='Describe'}) local r=a:Invoke({command='Sequence',steps={{command='SetSettings',value={sound=false,motion=false,uiScale=.8}},{command='OpenTab',value='Fists'},{command='OpenShopPage',value='Premium'},{command='CloseMenus'},{command='OpenSpin'},{command='SetCamera',value={position={-26,11,43},lookAt={-42,4,24}}},{command='Snapshot'}}}) local s=a:Invoke({command='Snapshot'}).result return H:JSONEncode({ok=d.ok and d.studioOnly and d.productionSurface==false and r.ok and r.count==7 and s.spinVisible and s.sound==false and s.motion==false and s.uiScale==.8 and s.cameraType=='Scriptable',commands=#d.commands,count=r.count,spin=s.spinVisible,sound=s.sound,motion=s.motion,uiScale=s.uiScale,camera=s.cameraType,ready=a:GetAttribute('Ready')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"commands\"\\s*:\\s*[1-9][0-9]",
+        "\"count\"\\s*:\\s*7",
+        "\"spin\"\\s*:\\s*true",
+        "\"sound\"\\s*:\\s*false",
+        "\"motion\"\\s*:\\s*false",
+        "\"uiScale\"\\s*:\\s*0\\.8",
+        "\"camera\"\\s*:\\s*\"Scriptable\"",
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "control UI settings and camera through client harness"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientTestHarness local r=a:Invoke({command='Sequence',steps={{command='CloseMenus'},{command='SetSettings',value={sound=true,motion=true,uiScale=1}},{command='ResetCamera'}}}) return r.ok and r.count==3 and 'CLIENT_RESTORED' or 'CLIENT_RESTORE_FAILED'"
+      },
+      "expectRegex": ["CLIENT_RESTORED"],
+      "label": "restore client state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local a=game.ServerStorage.PunchWallTestHarness local r=a:Invoke({command='Sequence',steps={{command='SetWorldResetEnabled',target=true},{command='Reset'}}}) return r.ok and r.count==2 and 'SERVER_RESTORED' or 'SERVER_RESTORE_FAILED'"
+      },
+      "expectRegex": ["SERVER_RESTORED"],
+      "label": "restore server state"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

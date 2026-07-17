@@ -237,3 +237,57 @@ Date: 2026-07-12
   glyph-only crops to avoid conflicting embedded labels.
 - `hero-city-reference-ui` and the complete 26-flow matrix pass with clean
   console output.
+
+## Video QC 16-Task Final Acceptance
+
+Date: 2026-07-14
+
+- Closed all VQC-001 through VQC-016 tasks in
+  `VIDEO_QC_FIX_BACKLOG_20260714.md`.
+- Rebuilt and reopened the actual delivery
+  `F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx`.
+- Final-file P0 result: 11/11 pass, including 200-punch stress, safe endpoint,
+  no snapback, collision restoration, device camera, long tunnel camera,
+  support loss, structural clearance, rubble solidity, and depth corridor.
+- Final-file P1 result: 10/10 pass, including one-second action timing,
+  full-body motion, destruction feedback, all five fist visuals, progression,
+  material tiers, route navigation, and normal starter balance.
+- Final-file P2 result: 9/9 pass, including forest assets, five-viewport
+  HUD/shop matrix, onboarding, world transition, functional shop, center
+  feedback suppression, five-minute reset, and inventory persistence.
+- Fresh final-file recording contains 25 timeline frames over 24.5 seconds,
+  with zero capture errors and zero console warnings. Contact sheet:
+  `F:\Roblox\PuchWall\work\qc\video-review\20260714-final-file\contact-sheet.jpg`.
+- No P0 or P1 visual/motion finding remains open.
+
+## Studio Test Harness Addendum
+
+Date: 2026-07-17
+
+- Added a Studio-only deterministic test-control layer for server gameplay,
+  client UI, camera, settings, motion triggers, rewards, and visual state.
+- Added bounded sequence execution so full scenarios run through one MCP call
+  instead of slow Windows input automation.
+- Added snapshots and GUI summaries for assertion-based QC without relying on
+  cursor position or OCR.
+- Mobile regression found and fixed undersized Shop tab, product action, and
+  Close touch targets; all now enforce at least 44 by 44 pixels.
+- Gameplay and UI fast profiles plus both dedicated harness flows pass with a
+  clean console.
+
+## NPC, Training, Pet, And Spin Addendum
+
+Date: 2026-07-17
+
+- Replaced the sprawled Premium merchant with a sanitized upright bionic Hero
+  NPC and retained the sanitized Rad Robo Armory merchant.
+- Replaced the mannequin landmark with a Creator Store freestanding Power Bag,
+  corrected its source axis and world-ground alignment, and retained impact
+  burst, audio, light, shake, continuous training motion, and the Exit state.
+- Premium Pet plinths now retain readable front/back Robux price surfaces under
+  every lighting angle. Their high-tier particles, lights, and outlines remain
+  active.
+- Supplied Honor and Spin layers render as the approved nine-image composition
+  at the tested mobile and desktop layouts.
+- Final player-view captures and all targeted automation are recorded in
+  `FEATURE_COMPLETION_20260717.md`.

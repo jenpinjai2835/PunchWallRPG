@@ -1,0 +1,80 @@
+{
+  "name": "milestone-world-transition",
+  "description": "Validate depth, rank, quest, and material-tier milestones plus tier-specific lighting, particles, landmarks, and music behavior.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for milestone runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=1500000000,WallLevel=99,Depth=8,DailyBreaks=9,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=c:Invoke('HitDepthBlock',{layer=10,column=6,row=1}) task.wait(.5) return H:JSONEncode({ok=r.ok,depth=r.Depth,landmarks=workspace.PunchWallRPG:GetAttribute('DepthTierLandmarkCount')})"
+      },
+      "expectRegex": [
+        "\"ok\"[ ]*:[ ]*true",
+        "\"depth\"[ ]*:[ ]*10",
+        "\"landmarks\"[ ]*:[ ]*10"
+      ],
+      "label": "cross rank and material tier naturally"
+    },
+    { "type": "wait", "ms": 1200, "label": "wait for milestone queue and atmosphere tween" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local root=workspace.PunchWallRPG local f=root['Depth Tier Landmarks'] local enabledByTier={} for _,m in ipairs(f:GetChildren()) do local n=0 for _,d in ipairs(m:GetDescendants()) do if d:IsA('ParticleEmitter') and d.Enabled then n+=1 end end enabledByTier[tostring(m:GetAttribute('MaterialTier'))]=n end local center=0 for _,d in ipairs(g:GetDescendants()) do if d.Name=='FeedbackPop' or d.Name=='LocalDamageNumber' or d.Name=='CombatDamageBurst' then center+=1 end end return H:JSONEncode({depth=g:GetAttribute('MilestoneSeenDepthRecord') or 0,rank=g:GetAttribute('MilestoneSeenRankChange') or 0,tier=g:GetAttribute('MilestoneSeenTierEntry') or 0,quest=g:GetAttribute('MilestoneSeenQuestComplete') or 0,toasts=g:GetAttribute('MilestoneToastCount') or 0,activeTier=g:GetAttribute('ActiveMaterialTier'),activeLandmarks=g:GetAttribute('ActiveTierLandmarkCount'),musicVariant=g:GetAttribute('TierMusicVariant'),tierOneParticles=enabledByTier['1'] or 0,tierTwoParticles=enabledByTier['2'] or 0,center=center,centerEnabled=g:GetAttribute('CenterActionFeedbackEnabled')})"
+      },
+      "expectRegex": [
+        "\"depth\"[ ]*:[ ]*[1-9]",
+        "\"rank\"[ ]*:[ ]*[1-9]",
+        "\"tier\"[ ]*:[ ]*[1-9]",
+        "\"quest\"[ ]*:[ ]*[1-9]",
+        "\"toasts\"[ ]*:[ ]*[4-9]",
+        "\"activeTier\"[ ]*:[ ]*2",
+        "\"activeLandmarks\"[ ]*:[ ]*1",
+        "\"musicVariant\"[ ]*:[ ]*2",
+        "\"tierOneParticles\"[ ]*:[ ]*0",
+        "\"tierTwoParticles\"[ ]*:[ ]*2",
+        "\"center\"[ ]*:[ ]*0",
+        "\"centerEnabled\"[ ]*:[ ]*false"
+      ],
+      "label": "all milestone and tier feedback channels update"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Milestones_Tier2" }, "label": "capture milestone stack" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] p:SetAttribute('LastWallHit',0) return c:Invoke('HitDepthBlock',{layer=10,column=7,row=1})"
+      },
+      "label": "break ordinary block in current tier"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for normal feedback" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center=0 for _,d in ipairs(g:GetDescendants()) do if d.Name=='FeedbackPop' or d.Name=='LocalDamageNumber' or d.Name=='CombatDamageBurst' then center+=1 end end return H:JSONEncode({center=center,centerEnabled=g:GetAttribute('CenterActionFeedbackEnabled'),tier=g:GetAttribute('ActiveMaterialTier')})"
+      },
+      "expectRegex": [
+        "\"center\"[ ]*:[ ]*0",
+        "\"centerEnabled\"[ ]*:[ ]*false",
+        "\"tier\"[ ]*:[ ]*2"
+      ],
+      "label": "normal block destruction does not spam center screen"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

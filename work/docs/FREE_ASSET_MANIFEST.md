@@ -2,7 +2,7 @@
 
 ## Policy
 
-Polish direction: Kaiju City Smash.
+Polish direction: Hero City Smash, with a natural forest opening world.
 
 Integration mode: Hybrid Source-first with optional visual-only Creator Store inserts.
 
@@ -171,9 +171,82 @@ These free Creator Store models were selected for the current Hero Fist shop and
 
 | Shop tier/style | Asset | Creator | Asset ID | Kept visual | Fallback |
 |---|---|---|---:|---|---|
-| Starter / Boxing | boxing gloves | adamcool0106 | `124838246751652` | Right glove MeshPart | Existing procedural glove |
-| Iron | Power Boxing Gloves | Kid_dynomite20052 | `2837181164` | RightGlove mesh visual | Existing procedural gauntlet |
-| Thunder | Void Fists Punch Power Gloves Energy Dark | MysticHvNightO1592 | `116284795259865` | Right fist + particles | Existing procedural gauntlet |
-| Titan | Vargas's Gauntlets | BlazeChillNinja4799 | `90276119548098` | Right gauntlet mesh/parts | Existing procedural gauntlet |
+| Starter through Titan | Fist | Penguin9805 | `1622087753` | Approved closed-fist SpecialMesh, recolored and fitted to the wrist for every tier; source-built cuffs, core plates, materials, and lights distinguish the five shop tiers | Existing procedural closed-fist gauntlet |
 
 Sanitation removed `Script`, `LocalScript`, `ModuleScript`, `RemoteEvent`, `RemoteFunction`, `BindableEvent`, `BindableFunction`, and Tool wrappers. Parts are welded to the player's right hand, non-collidable, massless, and controlled by the project's own punch animation and combat code.
+
+The replaced `boxing gloves` asset `124838246751652` remains embedded only as a fallback for older place files. `Power Boxing Gloves` (`2837181164`), `Void Fists` (`116284795259865`), and `Vargas's Gauntlets` (`90276119548098`) are retained only as sanitized legacy fallbacks: screenshot QC showed inconsistent wrist alignment and silhouettes that did not match the shop art. Candidate `89377193377537` was rejected because its open glove read as a cuff, while `10036139093` read as a ring-shaped hand pose instead of a punch. Runtime selection now standardizes all tiers on the approved armored closed-fist `1622087753` visual.
+
+# Final Source-Embedded Forest And Fist Assets - 2026-07-14
+
+| Use | Asset | Asset ID | Creator | Kept visual | Source fallback |
+| --- | --- | ---: | --- | --- | --- |
+| World 1 forest trees | Stylized Forest Tree | `95555308270103` | `SwitchpmPixeld111933` | 7 MeshParts and 6 SurfaceAppearances | `ForestVisualBuilder.lua` retains a non-blocking procedural tree fallback |
+| All five glove tiers | Armored Closed Hero Fist | `1622087753` | `Penguin9805` | 1 Part with approved closed-fist SpecialMesh and texture | `FistVisualBuilder.lua` recreates the sanitized mesh template from source |
+
+The final `.rbxlx` builder embeds both visual templates with XML APIs. It also
+embeds `ForestVisualBuilder` and `FistVisualBuilder`, validates the generated
+XML, and replaces the delivery file only after validation. The embedded tree
+and fist templates contain zero `Script`, `LocalScript`, or `ModuleScript`
+descendants. Decorative forest instances are anchored and non-collidable;
+equipped fist clones are welded, massless, and non-collidable.
+
+# Release Expansion Visual Assets - 2026-07-16
+
+Core gameplay remains source-owned. Every Creator Store model in this section
+is either embedded as a visual template or loaded through `AssetService`, then
+copied through an exact visual-class allowlist. Third-party scripts, tools,
+prompts, remotes, and behavior objects are discarded.
+
+| Use | Asset | Asset ID | Creator | Kept visual | Fallback |
+| --- | --- | ---: | --- | --- | --- |
+| Celestial premium fist | PowerFist (x6 Dmg) | `65566767` | `xFrimble` | Part, SpecialMesh, and texture; embedded in the final place | Source-built armored fist |
+| Storm premium display | Void Fist Aura | `116284795259865` | `MysticHvNightO1592` | Sanitized parts, meshes, attachments, particles, and lights | Source-built energy aura |
+| Power training landmark | Hero Power Bag | `140653091179998` | `Lucy896Miner` | Sanitized visual hierarchy only | Source-built heavy bag |
+| Fist shop NPC | Rad Robo | `2841100862` | `L4UNDRY_BE4R` | Sanitized character visuals only; all scripts, prompts, and behavior removed | Procedural Hero Armorer NPC |
+| Premium Robux merchant NPC | Bionic Ninja Size Corrected | `3162411898` | `Mario5697` | Sanitized upright bionic-hero visuals only; all scripts, prompts, tools, and behavior removed | Procedural Premium Hero NPC |
+| Pet shop NPC | Pet Lab Scientist | `103629315510813` | `XxWillowV3nomxX2016` | Sanitized character visuals only | Procedural Pet Scientist NPC |
+
+Runtime-loaded assets are restricted to the exact IDs above and are skipped in
+Studio playtests to avoid local third-party insertion warnings. The published
+place has free-asset loading enabled; any load or sanitation failure immediately
+uses the procedural fallback. Decorative parts are anchored and non-colliding.
+Equipped fist parts are massless, non-colliding, and welded by project code.
+
+`narwhal warrior upgraded` (`15949563425`) was rejected after in-game screenshot
+QC because its sanitized visual imported in a sprawled, sideways pose that did
+not read as a merchant. The upright bionic hero replaces it.
+
+## Release Audio
+
+| Use | Asset ID | Runtime policy |
+| --- | ---: | --- |
+| Forest Hero background music (`Winning Spirit (c)`, APMOfficial) | `1837768082` | Free Creator Store audio; looped at volume `0.22`, preloaded, and controlled by the live Sound HUD button in Studio and published runtime |
+
+# User-Supplied Hero Shop Product Art - 2026-07-16
+
+These six transparent PNG layers came from `C:\Temp\Shop`. They are raster
+art only and contain no scripts, prompts, remotes, sounds, or behavior. The
+remaining checkerboard-backed frame exports are retained as layout references;
+their backgrounds are baked into RGB pixels, so the live shop recreates those
+metal frames and buttons with native Roblox UI instead of displaying white
+checkerboard corners.
+
+| Runtime use | Source file suffix | Roblox asset ID |
+| --- | --- | ---: |
+| Starter red fist | `02_08_00 (1).png` | `102627532847126` |
+| Titan gold fist | `02_08_00 (2).png` | `97597870943935` |
+| Champion black fist | `02_08_00 (3).png` | `123648606849968` |
+| Coin boost x2 | `02_08_01 (4).png` | `124043136175492` |
+| Speed boost lightning | `02_08_01 (5).png` | `110700899933892` |
+| Damage boost burst | `02_08_01 (6).png` | `140286541155994` |
+| Shop Coin price icon | `C:\Temp\RMBG\ChatGPT Image 13 ก.ค. 2569 01_49_21 (3).png` | `72320637874093` |
+
+The client shows the atlas fallback only when a product has no supplied image.
+This prevents legacy labels and frames from bleeding through the transparent
+pixels of the uploaded art.
+
+The Coin price icon is also copied into
+`F:\Roblox\PuchWall\work\assets\user-supplied\shop-coin-icon.png` and is
+preloaded during the client loading screen. It is rendered as a standalone
+transparent `ImageLabel`, so no square atlas frame or crop can overlap prices.

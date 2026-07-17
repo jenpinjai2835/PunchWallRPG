@@ -10,9 +10,12 @@ work/docs/full-matrix-latest.json
 
 # Temporary screenshots generated during local work
 work/qc-screenshots/
+work/qc/
+
+# Downloaded local tooling; automation should install or locate these locally
+work/tools/
 
 # OS/editor noise
 .DS_Store
 Thumbs.db
 .vscode/
-

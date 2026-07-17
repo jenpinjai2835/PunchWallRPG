@@ -1,0 +1,16 @@
+{
+  "name": "punch-safe-endpoint",
+  "description": "Validate damage-first swept-volume punches finish outside every intact collider across center, edge, repeated tunnel, rubble, and high-power cases.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for depth runtime" },
+    { "type": "call", "tool": "execute_luau", "timeoutMs": 60000, "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local function overlap(root) local q=OverlapParams.new() q.FilterType=Enum.RaycastFilterType.Include q.FilterDescendantsInstances={workspace.PunchWallRPG['Depth Blocks']} local n=0 for _,b in ipairs(workspace:GetPartBoundsInBox(root.CFrame,Vector3.new(2.8,5.2,2.8),q)) do if b.CanCollide and not b:GetAttribute('Broken') and not b:GetAttribute('StructuralDetached') then n+=1 end end return n end local function run(name,x,power,repeats) c:Invoke('Reset') c:Invoke('SetStats',{Power=power,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local root=p.Character.HumanoidRootPart root.AssemblyLinearVelocity=Vector3.zero root.CFrame=CFrame.lookAt(Vector3.new(x,3,-20),Vector3.new(x,3,-200)) local dir=root.CFrame.LookVector local start=root.Position local minForward=0 local previous=0 local maxBack=0 local ok=true for i=1,repeats do p:SetAttribute('LastWallHit',0) local r=c:Invoke('PunchRadius') ok=ok and r.ok local now=(root.Position-start):Dot(dir) maxBack=math.max(maxBack,previous-now) previous=now task.wait(.12) end task.wait(.4) local result={name=name,ok=ok,overlap=overlap(root),forward=(root.Position-start):Dot(dir),maxBack=maxBack,safe=p:GetAttribute('LastPunchSafeTravel') or -1,correction=p:GetAttribute('LastPunchCollisionCorrectionStuds') or -1} result.valid=result.ok and result.overlap==0 and result.forward>=minForward and result.maxBack<.5 and result.correction==0 return result end local cases={run('center',-2,15,1),run('edge',18,15,1),run('tunnel',-2,1500000000,3),run('rubble',2,6000,2),run('high',-2,1500000000,1)} local all=true for _,v in ipairs(cases) do all=all and v.valid end return H:JSONEncode({allValid=all,cases=cases})" }, "expectRegex": ["\"allValid\"[ ]*:[ ]*true", "\"name\"[ ]*:[ ]*\"center\"", "\"name\"[ ]*:[ ]*\"edge\"", "\"name\"[ ]*:[ ]*\"tunnel\"", "\"name\"[ ]*:[ ]*\"rubble\"", "\"name\"[ ]*:[ ]*\"high\"", "\"overlap\"[ ]*:[ ]*0", "\"correction\"[ ]*:[ ]*0"], "label": "all endpoints remain valid" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

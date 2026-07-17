@@ -1,86 +1,18 @@
 {
   "name": "structural-rubble-solidity",
-  "description": "Verify detached structural blocks remain solid and punchable after settling, with no automatic shatter.",
+  "description": "Verify support loss, non-pushing falling state, and solid punchable settled rubble.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": true },
-      "timeoutMs": 35000,
-      "label": "start play"
-    },
-    {
-      "type": "wait",
-      "ms": 8000,
-      "label": "wait for structural physics runtime"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local PS=game:GetService(\"PhysicsService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) c:Invoke(\"HitDepthBlock\",{layer=1,column=7,row=1}) local p=game.Players:GetPlayers()[1] local root=workspace.PunchWallRPG local falling,playerCollision=0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralDetached\") then falling+=1 if b:GetAttribute(\"StructuralFalling\") and b.CanCollide and b.CollisionGroup==\"FallingStructural\" and PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,b.CollisionGroup) then playerCollision+=1 end end end local chunks=root[\"Depth Physics Debris\"]:GetChildren() local chunkGroup=chunks[1] and chunks[1].CollisionGroup or \"none\" local chunkCollision=chunks[1] and PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,chunks[1].CollisionGroup) or false return H:JSONEncode({falling=falling,playerCollision=playerCollision,characterGroup=p.Character.HumanoidRootPart.CollisionGroup,chunkGroup=chunkGroup,chunkCollision=chunkCollision})"
-      },
-      "expectRegex": [
-        "\"falling\"\\s*:\\s*4",
-        "\"playerCollision\"\\s*:\\s*4",
-        "\"characterGroup\"\\s*:\\s*\"PlayerCharacters\"",
-        "\"chunkGroup\"\\s*:\\s*\"DepthRubble\"",
-        "\"chunkCollision\"\\s*:\\s*true"
-      ],
-      "label": "falling structural blocks preserve player position"
-    },
-    {
-      "type": "wait",
-      "ms": 3200,
-      "label": "wait for structural blocks to settle"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local broken,detached,solid,fragments=0,0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"Broken\") then broken+=1 elseif b:GetAttribute(\"StructuralDetached\") then detached+=1 if b.CanCollide then solid+=1 end end end fragments=#root[\"Depth Physics Debris\"]:GetChildren() return H:JSONEncode({broken=broken,detached=detached,solid=solid,fragments=fragments})"
-      },
-      "saveAs": "afterImpact",
-      "expectRegex": [
-        "\"broken\"\\s*:\\s*[0-2]",
-        "\"detached\"\\s*:\\s*4",
-        "\"solid\"\\s*:\\s*4",
-        "\"fragments\"\\s*:\\s*[0-9]+"
-      ],
-      "label": "settled structural blocks become solid obstacles"
-    },
-    {
-      "type": "call",
-      "tool": "get_console_output",
-      "saveAs": "console",
-      "label": "capture console"
-    },
-    {
-      "type": "assertNoConsoleErrors",
-      "source": "console",
-      "label": "console clean"
-    },
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "label": "stop play"
-    }
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for structural runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local PS=game:GetService('PhysicsService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) c:Invoke('HitDepthBlock',{layer=1,column=7,row=1}) task.wait(.34) local p=game.Players:GetPlayers()[1] local root=workspace.PunchWallRPG local falling,playerCollision=0,0 for _,b in ipairs(root['Depth Blocks']:GetChildren()) do if b:GetAttribute('StructuralDetached') then falling+=1 if PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,b.CollisionGroup) then playerCollision+=1 end end end local fragment=root['Depth Physics Debris']:FindFirstChildWhichIsA('BasePart') return H:JSONEncode({falling=falling,playerCollision=playerCollision,characterGroup=p.Character.HumanoidRootPart.CollisionGroup,fragmentGroup=fragment and fragment.CollisionGroup or 'none',fragmentPlayerCollision=fragment and PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,fragment.CollisionGroup) or false})" }, "expectRegex": ["\"falling\"[ ]*:[ ]*4", "\"playerCollision\"[ ]*:[ ]*0", "\"characterGroup\"[ ]*:[ ]*\"PlayerCharacters\"", "\"fragmentGroup\"[ ]*:[ ]*\"DepthFragments\"", "\"fragmentPlayerCollision\"[ ]*:[ ]*false"], "label": "falling structure yields to player" },
+    { "type": "wait", "ms": 3200, "label": "wait for rubble settlement" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local PS=game:GetService('PhysicsService') local p=game.Players:GetPlayers()[1] local root=workspace.PunchWallRPG local detached,solid,punchable,grouped,settledAnchored=0,0,0,0,0 for _,b in ipairs(root['Depth Blocks']:GetChildren()) do if b:GetAttribute('StructuralDetached') and not b:GetAttribute('Broken') then detached+=1 if b.CanCollide then solid+=1 end if b.CanQuery and (b:GetAttribute('HP') or 0)>0 then punchable+=1 end if b.CollisionGroup=='DepthRubble' and PS:CollisionGroupsAreCollidable(p.Character.HumanoidRootPart.CollisionGroup,b.CollisionGroup) then grouped+=1 end if b.Anchored and b:GetAttribute('StructuralSettled') then settledAnchored+=1 end end end return H:JSONEncode({detached=detached,solid=solid,punchable=punchable,playerSolid=grouped,settledAnchored=settledAnchored})" }, "expectRegex": ["\"detached\"[ ]*:[ ]*4", "\"solid\"[ ]*:[ ]*4", "\"punchable\"[ ]*:[ ]*4", "\"playerSolid\"[ ]*:[ ]*4", "\"settledAnchored\"[ ]*:[ ]*4"], "label": "settled rubble remains stable and punchable" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
   ],
-  "cleanup": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "allowError": true,
-      "label": "cleanup stop play"
-    }
-  ]
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
 }

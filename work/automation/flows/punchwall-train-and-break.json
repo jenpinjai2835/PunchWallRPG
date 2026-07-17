@@ -1,7 +1,7 @@
 {
   "name": "punchwall-train-and-break",
   "description": "Validate the early gameplay loop through the same server functions used by ClickDetectors.",
-  "studioName": "PunchWallRPG",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -30,7 +30,7 @@
         "\"Power\"\\s*:\\s*15",
         "\"Coins\"\\s*:\\s*0",
         "\"WallLevel\"\\s*:\\s*1",
-        "\"BrickWallHP\"\\s*:\\s*15",
+        "\"BrickWallHP\"\\s*:\\s*8",
         "\"BrickWallBroken\"\\s*:\\s*false"
       ],
       "label": "reset deterministic state"
@@ -45,7 +45,8 @@
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"stat\"\\s*:\\s*\"Power\"",
-        "\"Power\"\\s*:\\s*19"
+        "\"gain\"\\s*:\\s*4",
+        "\"value\"\\s*:\\s*19"
       ],
       "label": "power bag increases power"
     },
@@ -54,13 +55,26 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"BreakWall\", \"Brick Wall\", 8))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"SetStats\", { TrainingActive = 0 }))"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"TrainingActive\"\\s*:\\s*0"
+      ],
+      "label": "pause continuous training before wall reward assertion"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal before = command:Invoke(\"SetStats\", { TrainingActive = 0 }).Power\nlocal result = command:Invoke(\"BreakWall\", \"Brick Wall\", 8)\nreturn HttpService:JSONEncode({ ok = result.ok, outcome = result.outcome, before = before, after = result.Power, unchanged = result.Power == before, Coins = result.Coins, WallLevel = result.WallLevel, BrickWallBroken = result.BrickWallBroken })"
       },
       "saveAs": "afterBreak",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"outcome\"\\s*:\\s*\"broken\"",
-        "\"Power\"\\s*:\\s*19",
+        "\"unchanged\"\\s*:\\s*true",
         "\"Coins\"\\s*:\\s*11",
         "\"WallLevel\"\\s*:\\s*1",
         "\"BrickWallBroken\"\\s*:\\s*true"

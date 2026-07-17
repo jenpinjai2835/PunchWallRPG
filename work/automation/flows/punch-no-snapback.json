@@ -1,0 +1,29 @@
+{
+  "name": "punch-no-snapback",
+  "description": "Run 20 repeated high-power tunnel punches through the same full-bounds endpoint validator used by the 200-punch stress matrix.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for lunge runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "saveAs": "snapback",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='no-snapback',x=-2,power=1500000000,cycles=4,attempts=5,resetTotal=true,expectedTotal=20}) return H:JSONEncode(r)"
+      },
+      "label": "measure twenty repeated high-power punches"
+    },
+    { "type": "assertNoConsoleErrors", "source": "snapback", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "twenty repeated punches never snap back" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

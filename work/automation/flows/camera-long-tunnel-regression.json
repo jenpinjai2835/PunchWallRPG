@@ -1,0 +1,54 @@
+{
+  "name": "camera-long-tunnel-regression",
+  "description": "Verify repeated high-power Titan punches keep the avatar visible, preserve zoom/rotation, and never place the camera inside tunnel geometry.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for gameplay runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 45000,
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=1000000000,Power=6000,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('BuyFist','Titan Gauntlet') local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-400)) p:SetAttribute('LastWallHit',0) return true"
+      },
+      "label": "prepare long high-power tunnel run"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 90000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') g.PunchWallClientAutomation:Invoke('__HideLoading') shared.LongTunnelCameraResult=g.PunchWallClientAutomation:Invoke('__RunCamera',18) return H:JSONEncode(shared.LongTunnelCameraResult)"
+      },
+      "saveAs": "cameraDiagnostics",
+      "label": "sample eighteen high-power punches"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "return game:GetService('HttpService'):JSONEncode(shared.LongTunnelCameraResult)"
+      },
+      "expectRegex": [
+        "\"valid\"[ ]*:[ ]*true",
+        "\"visualValid\"[ ]*:[ ]*true",
+        "\"actions\"[ ]*:[ ]*18",
+        "\"inside\"[ ]*:[ ]*0",
+        "\"type\"[ ]*:[ ]*\"Custom\""
+      ],
+      "label": "avatar remains visible through eighteen punches"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

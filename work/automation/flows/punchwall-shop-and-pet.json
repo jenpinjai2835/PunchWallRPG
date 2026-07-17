@@ -1,6 +1,6 @@
 {
   "name": "punchwall-shop-and-pet",
-  "description": "Validate the first fist purchase and one pet hatch with deterministic economy setup.",
+  "description": "Validate the first fist purchase and one Studio-granted wall egg without charging Coins.",
   "studioName": "PunchWallRPG",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -59,8 +59,8 @@
       "saveAs": "afterHatch",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"Coins\"\\s*:\\s*470",
-        "\"Pet\"\\s*:\\s*\"(Brick Pup|Miner Cat|Crystal Fox|Lava Dragon|Secret Titan Golem)\"",
+        "\"Coins\"\\s*:\\s*820",
+        "\"Pet\"\\s*:\\s*\"(Forest Pup|Miner Cat|Crystal Fox|Lava Dragon|Secret Titan Golem)\"",
         "\"PetMultiplier\"\\s*:\\s*(0\\.15|0\\.35|0\\.85|1\\.7|4\\.5)"
       ],
       "label": "hatch one pet"
@@ -78,7 +78,7 @@
         "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal wanted = { Coins = true, EquippedFist = true, Pet = true }\nlocal labels = {}\nfor _, descendant in ipairs(gui:GetDescendants()) do\n\tif descendant:IsA(\"TextLabel\") and wanted[descendant.Name] then\n\t\tlabels[descendant.Name] = descendant.Text\n\tend\nend\nreturn HttpService:JSONEncode(labels)"
       },
       "expectRegex": [
-        "Coins: 470",
+        "Coins: 820",
         "Fist: Street Boxing Fist",
         "Pets: 1 equipped  x(1\\.15|1\\.35|1\\.85|2\\.70|5\\.50)"
       ],

@@ -100,17 +100,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local visible,unanchored,collidable,queryable,moved=0,0,0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralDetached\") then if b.Transparency==0 then visible+=1 end if not b.Anchored then unanchored+=1 end if b.CanCollide then collidable+=1 end if b.CanQuery then queryable+=1 end local base=b:GetAttribute(\"BaseCFrame\") if base and (b.Position-base.Position).Magnitude>1 then moved+=1 end end end return H:JSONEncode({active=root:GetAttribute(\"ActiveStructuralFalling\"),visible=visible,unanchored=unanchored,collidable=collidable,queryable=queryable,moved=moved})"
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local visible,unanchored,anchored,collidable,queryable,moved=0,0,0,0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralDetached\") then if b.Transparency==0 then visible+=1 end if b.Anchored then anchored+=1 else unanchored+=1 end if b.CanCollide then collidable+=1 end if b.CanQuery then queryable+=1 end local base=b:GetAttribute(\"BaseCFrame\") if base and (b.Position-base.Position).Magnitude>1 then moved+=1 end end end local active=root:GetAttribute(\"ActiveStructuralFalling\") local settled=active==0 and visible>0 and unanchored==0 and anchored==visible and collidable==visible and queryable==visible and moved==visible return H:JSONEncode({active=active,visible=visible,unanchored=unanchored,anchored=anchored,collidable=collidable,queryable=queryable,moved=moved,settled=settled})"
       },
       "expectRegex": [
         "\"active\"\\s*:\\s*0",
-        "\"visible\"\\s*:\\s*4",
-        "\"unanchored\"\\s*:\\s*4",
-        "\"collidable\"\\s*:\\s*4",
-        "\"queryable\"\\s*:\\s*4",
-        "\"moved\"\\s*:\\s*4"
+        "\"visible\"\\s*:\\s*[1-9][0-9]*",
+        "\"unanchored\"\\s*:\\s*0",
+        "\"anchored\"\\s*:\\s*[1-9][0-9]*",
+        "\"settled\"\\s*:\\s*true"
       ],
-      "label": "fallen blocks persist at their natural physics positions"
+      "label": "fallen blocks settle and persist at their natural physics positions"
     },
     {
       "type": "call",

@@ -1,0 +1,16 @@
+{
+  "name": "creator-store-commerce-npcs",
+  "description": "Verify the selected free Creator Store merchant models load as sanitized visual-only NPCs instead of procedural fallbacks.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for Creator Store assets" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local r=workspace.PunchWallRPG local normal,premium for _,d in ipairs(r:GetDescendants()) do if d.Name=='Hero Armory Merchant NPC' then normal=d elseif d.Name=='Premium Hero Robot Merchant NPC' then premium=d end end local function audit(m) local parts,unsafe=0,0 if not m then return 0,99,Vector3.zero end for _,d in ipairs(m:GetDescendants()) do if d:IsA('BasePart') then parts+=1 end if d:IsA('LuaSourceContainer') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end local _,s=m:GetBoundingBox() return parts,unsafe,s end local np,nu,ns=audit(normal) local pp,pu,ps=audit(premium) local premiumAsset=premium and premium:GetAttribute('AssetId') return H:JSONEncode({ok=normal~=nil and premium~=nil and normal:GetAttribute('RuntimeVisualClone')==true and premium:GetAttribute('RuntimeVisualClone')==true and normal:GetAttribute('AssetSanitized')==true and premium:GetAttribute('AssetSanitized')==true and premiumAsset==3162411898 and np>2 and pp>2 and nu==0 and pu==0 and ns.Y>4 and ps.Y>4 and ps.Y>ps.X and ps.Y>ps.Z,normalParts=np,premiumParts=pp,normalUnsafe=nu,premiumUnsafe=pu,normalHeight=ns.Y,premiumHeight=ps.Y,premiumWidth=ps.X,premiumDepth=ps.Z,premiumAsset=premiumAsset,normalFallback=r:FindFirstChild('Hero Armory Merchant NPC Fallback',true)~=nil,premiumFallback=r:FindFirstChild('Premium Hero Robot Merchant NPC Fallback',true)~=nil})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"premiumAsset\"\\s*:\\s*3162411898", "\"normalUnsafe\"\\s*:\\s*0", "\"premiumUnsafe\"\\s*:\\s*0", "\"normalFallback\"\\s*:\\s*false", "\"premiumFallback\"\\s*:\\s*false"], "label": "sanitized upright visual merchant models" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

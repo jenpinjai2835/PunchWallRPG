@@ -1,0 +1,20 @@
+{
+  "name": "coin-burst-reward-feedback",
+  "description": "Verify a broken depth block emits a bounded local coin burst that flies toward the hero and records reward audio feedback.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') a:Invoke('SetStats',{Power=15,WallLevel=99}) local r=a:Invoke('BreakDepthBlock',{layer=1,column=6,row=2},3) local b=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R02') task.wait(.12) local broken=b and b:GetAttribute('Broken')==true return game:GetService('HttpService'):JSONEncode({ok=r.ok==true and broken,coins=r.Coins,broken=broken,target=b and b.Name or ''})" }, "expectRegex": ["\"broken\"\\s*:\\s*true", "\"coins\"\\s*:\\s*[1-9][0-9]*", "DepthBlock_L001_C06_R02"], "label": "break reward block" },
+    { "type": "wait", "ms": 500, "label": "allow client reward event" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local deadline=os.clock()+3 repeat task.wait(.05) until os.clock()>=deadline or (g:GetAttribute('LastCoinBurstCount') or 0)>0 local f=workspace:FindFirstChild('Local Coin Rewards') local count=f and #f:GetChildren() or 0 return H:JSONEncode({ok=(g:GetAttribute('LastCoinBurstCount') or 0)>0 and (g:GetAttribute('LastCoinBurstCount') or 0)<=7 and (g:GetAttribute('CoinBurstTotal') or 0)>0 and count<=30,last=g:GetAttribute('LastCoinBurstCount') or 0,total=g:GetAttribute('CoinBurstTotal') or 0,live=count})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"last\"\\s*:\\s*[1-7]", "\"total\"\\s*:\\s*[1-9][0-9]*"], "label": "coin burst reaches client" },
+    { "type": "wait", "ms": 1400, "label": "wait for local reward cleanup" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local f=workspace:FindFirstChild('Local Coin Rewards') return tostring(f and #f:GetChildren() or 0)" }, "expectRegex": ["^0$"], "label": "coin visuals clean up" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

@@ -1,134 +1,23 @@
 {
   "name": "studio-high-power-test-mode",
-  "description": "Verify Studio-only high-power test mode grants temporary combat values and restores the original player values when disabled.",
+  "description": "Verify no release-facing debug controls while Studio settings can enable and restore temporary QA values.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": true },
-      "timeoutMs": 35000,
-      "label": "start play"
-    },
-    {
-      "type": "wait",
-      "ms": 8000,
-      "label": "wait for Studio test runtime"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hud=gui.PixelPerfectHeroCityHUD local test=hud:FindFirstChild(\"StudioTestModeButton\") local gear=hud:FindFirstChild(\"SettingsTool\") return H:JSONEncode({test=test and test.Visible,testText=test and test.Text,gear=gear and gear.ClassName})"
-      },
-      "expectRegex": [
-        "\"test\"\\s*:\\s*true",
-        "\"testText\"\\s*:\\s*\"TEST POWER\"",
-        "\"gear\"\\s*:\\s*\"ImageButton\""
-      ],
-      "label": "visible Studio test control and settings gear"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") return c:Invoke(\"SetStats\",{Power=321,Coins=654,WallLevel=7,FistMastery=11,CritChance=3})"
-      },
-      "label": "set known player values"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"ToggleStudioHighPowerTest\",value=true}) return true"
-      },
-      "label": "enable high-power test mode"
-    },
-    {
-      "type": "wait",
-      "ms": 500,
-      "label": "wait for temporary values"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local s,l=p.RPGStats,p.leaderstats return H:JSONEncode({mode=p:GetAttribute(\"StudioHighPowerTestMode\"),power=l.Power.Value,coins=l.Coins.Value,level=l.WallLevel.Value,mastery=s.FistMastery.Value,crit=s.CritChance.Value})"
-      },
-      "expectRegex": [
-        "\"mode\"\\s*:\\s*true",
-        "\"power\"\\s*:\\s*1500000000",
-        "\"coins\"\\s*:\\s*1000000000",
-        "\"level\"\\s*:\\s*99",
-        "\"mastery\"\\s*:\\s*500",
-        "\"crit\"\\s*:\\s*25"
-      ],
-      "label": "high-power values are active"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"ToggleStudioHighPowerTest\",value=false}) return true"
-      },
-      "label": "restore normal values"
-    },
-    {
-      "type": "wait",
-      "ms": 500,
-      "label": "wait for value restoration"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local s,l=p.RPGStats,p.leaderstats return H:JSONEncode({mode=p:GetAttribute(\"StudioHighPowerTestMode\"),power=l.Power.Value,coins=l.Coins.Value,level=l.WallLevel.Value,mastery=s.FistMastery.Value,crit=s.CritChance.Value})"
-      },
-      "expectRegex": [
-        "\"mode\"\\s*:\\s*false",
-        "\"power\"\\s*:\\s*321",
-        "\"coins\"\\s*:\\s*654",
-        "\"level\"\\s*:\\s*7",
-        "\"mastery\"\\s*:\\s*11",
-        "\"crit\"\\s*:\\s*3"
-      ],
-      "label": "original values are restored"
-    },
-    {
-      "type": "call",
-      "tool": "get_console_output",
-      "saveAs": "console",
-      "label": "capture console"
-    },
-    {
-      "type": "assertNoConsoleErrors",
-      "source": "console",
-      "label": "console clean"
-    },
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "label": "stop play"
-    }
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 8000, "label": "wait for Studio test runtime" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hud=gui.PixelPerfectHeroCityHUD local found=false for _,d in ipairs(hud:GetDescendants()) do if d:IsA('TextLabel') or d:IsA('TextButton') then local t=string.upper(d.Text or '') if string.find(t,'TEST POWER',1,true) or t=='RESTORE' then found=true break end end end return H:JSONEncode({topDebugFound=found,legacyButton=hud:FindFirstChild('StudioTestModeButton',true)~=nil,settingsTool=hud:FindFirstChild('SettingsTool',true)~=nil})" }, "expectRegex": ["\"topDebugFound\"[ ]*:[ ]*false", "\"legacyButton\"[ ]*:[ ]*false", "\"settingsTool\"[ ]*:[ ]*true"], "label": "release HUD has no debug controls" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('SetStats',{Power=321,Coins=654,WallLevel=7,FistMastery=11,CritChance=3})" }, "label": "set known values" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='ToggleStudioHighPowerTest',value=true}) return true" }, "label": "enable QA values through Studio-only request" },
+    { "type": "wait", "ms": 500, "label": "wait for QA values" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] return H:JSONEncode({mode=p:GetAttribute('StudioHighPowerTestMode'),power=p.leaderstats.Power.Value,coins=p.leaderstats.Coins.Value,level=p.leaderstats.WallLevel.Value,mastery=p.RPGStats.FistMastery.Value,crit=p.RPGStats.CritChance.Value})" }, "expectRegex": ["\"mode\"[ ]*:[ ]*true", "\"power\"[ ]*:[ ]*1500000000", "\"coins\"[ ]*:[ ]*1000000000", "\"level\"[ ]*:[ ]*99", "\"mastery\"[ ]*:[ ]*500", "\"crit\"[ ]*:[ ]*25"], "label": "QA values active" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='ToggleStudioHighPowerTest',value=false}) return true" }, "label": "restore values" },
+    { "type": "wait", "ms": 500, "label": "wait for restoration" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] return H:JSONEncode({mode=p:GetAttribute('StudioHighPowerTestMode'),power=p.leaderstats.Power.Value,coins=p.leaderstats.Coins.Value,level=p.leaderstats.WallLevel.Value,mastery=p.RPGStats.FistMastery.Value,crit=p.RPGStats.CritChance.Value})" }, "expectRegex": ["\"mode\"[ ]*:[ ]*false", "\"power\"[ ]*:[ ]*321", "\"coins\"[ ]*:[ ]*654", "\"level\"[ ]*:[ ]*7", "\"mastery\"[ ]*:[ ]*11", "\"crit\"[ ]*:[ ]*3"], "label": "original values restored" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
   ],
-  "cleanup": [
-    {
-      "type": "call",
-      "tool": "start_stop_play",
-      "args": { "is_start": false },
-      "timeoutMs": 35000,
-      "allowError": true,
-      "label": "cleanup stop play"
-    }
-  ]
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
 }

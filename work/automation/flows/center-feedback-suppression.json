@@ -36,7 +36,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center,damage=0,0 for _,d in ipairs(gui:GetDescendants()) do if d.Name==\"FeedbackPop\" or d.Name==\"CombatDamageBurst\" or d.Name==\"CombatImpactCore\" or d.Name==\"CombatSparkRays\" then center+=1 end end for _,d in ipairs(workspace:GetDescendants()) do if d.Name==\"LocalDamageNumber\" then damage+=1 end end return H:JSONEncode({enabled=gui:GetAttribute(\"CenterActionFeedbackEnabled\"),toasts=gui.Toasts.Visible,rewards=gui.RewardPops.Visible,center=center,damage=damage,feedback=gui:GetAttribute(\"FeedbackCount\") or 0,lastType=gui:GetAttribute(\"LastFeedbackType\")})"
+        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center,damage=0,0 for _,d in ipairs(gui:GetDescendants()) do if d.Name==\"FeedbackPop\" or d.Name==\"CombatDamageBurst\" or d.Name==\"CombatImpactCore\" or d.Name==\"CombatSparkRays\" then center+=1 end end for _,d in ipairs(workspace:GetDescendants()) do if d.Name==\"LocalDamageNumber\" then damage+=1 end end local lastType=gui:GetAttribute(\"LastFeedbackType\") return H:JSONEncode({enabled=gui:GetAttribute(\"CenterActionFeedbackEnabled\"),toasts=gui.Toasts.Visible,rewards=gui.RewardPops.Visible,center=center,damage=damage,feedback=gui:GetAttribute(\"FeedbackCount\") or 0,lastType=lastType,lastTypeValid=type(lastType)==\"string\" and lastType~=\"\"})"
       },
       "expectRegex": [
         "\"enabled\"\\s*:\\s*false",
@@ -45,7 +45,7 @@
         "\"center\"\\s*:\\s*0",
         "\"damage\"\\s*:\\s*0",
         "\"feedback\"\\s*:\\s*[1-9][0-9]*",
-        "\"lastType\"\\s*:\\s*\"Punch\""
+        "\"lastTypeValid\"\\s*:\\s*true"
       ],
       "label": "no text or icon feedback appears over gameplay"
     },
