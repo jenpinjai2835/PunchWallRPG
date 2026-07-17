@@ -2303,6 +2303,7 @@ local companionsFolder = Instance.new("Folder")
 companionsFolder.Name = player.Name .. " Client Companions"
 companionsFolder.Parent = workspace
 local companionModels = {}
+local companionMotionVersion = "DampedFollowV2"
 local visualSignature = ""
 local currentGauntlet
 local currentTrail
@@ -2351,32 +2352,149 @@ local function addCompanionAura(model, targetPart, definition, stars)
 	model:SetAttribute("AuraTier", stars + (definition.rarity == "Premium" and 5 or 0))
 end
 
+local function premiumCompanionTemplate(definition)
+	if definition.rarity ~= "Premium" or not definition.templateName then return nil, nil end
+	local externalAssets = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
+	local externalTemplate = externalAssets and externalAssets:FindFirstChild(definition.templateName)
+	if externalTemplate and externalTemplate:IsA("Model") then
+		return externalTemplate, "ExternalTemplate"
+	end
+	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	if gameRoot then
+		for _, candidate in ipairs(gameRoot:GetDescendants()) do
+			if candidate:IsA("Model")
+				and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
+				and candidate:GetAttribute("PetTemplate") == definition.templateName then
+				return candidate, "ShowcaseClone"
+			end
+		end
+	end
+	return nil, nil
+end
+
+local function initialCompanionBoundsCFrame(rootPart, index, followHeight)
+	local side = index % 2 == 0 and 1 or -1
+	local row = math.floor((index - 1) / 2)
+	return rootPart.CFrame
+		* CFrame.new(side * (2.65 + row * 0.85), followHeight or 1.05, 3.0 + row * 1.3)
+		* CFrame.Angles(0, math.pi, 0)
+end
+
+local function registerCompanion(model, token, index, definition, stars, visualSource)
+	model.Name = token .. " Companion " .. index
+	model:SetAttribute("PetStars", stars)
+	model:SetAttribute("PetDefinitionName", definition.name)
+	model:SetAttribute("PetTemplate", definition.templateName or "")
+	model:SetAttribute("PetVisualIdentity", definition.templateName or ("Procedural:" .. definition.name))
+	model:SetAttribute("VisualRole", "EquippedPetCompanion")
+	model:SetAttribute("VisualSource", visualSource)
+	model:SetAttribute("MotionSystem", companionMotionVersion)
+	model:SetAttribute("MotionClock", "Heartbeat")
+	model.Parent = companionsFolder
+
+	local primaryPart = model.PrimaryPart
+	local partCount = 0
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("LuaSourceContainer")
+			or descendant:IsA("RemoteEvent") or descendant:IsA("RemoteFunction")
+			or descendant:IsA("ClickDetector") or descendant:IsA("ProximityPrompt")
+			or descendant:IsA("Tool") or descendant:IsA("Humanoid") then
+			descendant:Destroy()
+		elseif descendant:IsA("BasePart") then
+			partCount += 1
+			primaryPart = primaryPart or descendant
+			descendant.Anchored = true
+			descendant.CanCollide = false
+			descendant.CanTouch = false
+			descendant.CanQuery = false
+			descendant.Massless = true
+			descendant.AssemblyLinearVelocity = Vector3.zero
+			descendant.AssemblyAngularVelocity = Vector3.zero
+		elseif descendant:IsA("ParticleEmitter") then
+			descendant.Enabled = definition.rarity == "Premium" or descendant.Enabled
+			descendant.Rate = math.min(descendant.Rate, 14)
+		elseif descendant:IsA("Trail") or descendant:IsA("Beam") then
+			descendant.Enabled = definition.rarity == "Premium" or descendant.Enabled
+		end
+	end
+	if not primaryPart or not primaryPart.Parent then
+		model:Destroy()
+		return nil
+	end
+	model.PrimaryPart = primaryPart
+
+	local _, initialSize = model:GetBoundingBox()
+	local targetHeight = tonumber(definition.companionHeight)
+		or (definition.rarity == "Premium" and 2.8)
+		or (definition.rarity == "Secret" and 2.55)
+		or (definition.rarity == "Legendary" and 2.35)
+		or 2.1
+	if initialSize.Y > 0.01 then
+		pcall(function()
+			model:ScaleTo(model:GetScale() * (targetHeight / initialSize.Y))
+		end)
+	end
+	local boundsCFrame, boundsSize = model:GetBoundingBox()
+	local pivotToBounds = model:GetPivot():ToObjectSpace(boundsCFrame)
+	local assetId = tonumber(model:GetAttribute("AssetId")) or 0
+	local premiumParity = definition.rarity == "Premium"
+		and definition.templateName ~= nil
+		and visualSource ~= "ProceduralFallback"
+	model:SetAttribute("PremiumVisualParity", premiumParity)
+	model:SetAttribute("SourceAssetId", assetId)
+	model:SetAttribute("VisualPartCount", partCount)
+	model:SetAttribute("CompanionTargetHeight", targetHeight)
+	model:SetAttribute("FollowResponsiveness", tonumber(definition.followResponsiveness) or 8)
+	model:SetAttribute("FollowSmoothing", "ExponentialCFrame")
+	model:SetAttribute("ModelBoundsHeight", boundsSize.Y)
+	addCompanionAura(model, primaryPart, definition, stars)
+
+	local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	local initialBounds = rootPart
+		and initialCompanionBoundsCFrame(rootPart, index, definition.followHeight)
+		or boundsCFrame
+	model:PivotTo(initialBounds * pivotToBounds:Inverse())
+	table.insert(companionModels, {
+		model = model,
+		pivotToBounds = pivotToBounds,
+		currentBoundsCFrame = initialBounds,
+		followHeight = tonumber(definition.followHeight) or 1.05,
+		followResponsiveness = tonumber(definition.followResponsiveness) or 8,
+		hoverAmplitude = tonumber(definition.hoverAmplitude) or 0.22,
+		phase = index * 1.73,
+		premium = definition.rarity == "Premium",
+		motionFrames = 0,
+	})
+	return model
+end
+
 local function buildCompanion(token, index)
 	local name, stars = GameConfig.ParsePetToken(token)
 	local definition = petDefinition(name)
+	if definition.rarity == "Premium" then
+		local premiumTemplate, visualSource = premiumCompanionTemplate(definition)
+		if premiumTemplate then
+			local premiumClone = premiumTemplate:Clone()
+			local registered = registerCompanion(premiumClone, token, index, definition, stars, visualSource)
+			if registered then return registered end
+		end
+	end
 	local curated = workspace:FindFirstChild("CuratedVisualAssets")
 	local dragonTemplate = curated and curated:FindFirstChild("Sanitized Crimson Dragon Companion")
-	if dragonTemplate and (definition.rarity == "Legendary" or definition.rarity == "Secret" or definition.rarity == "Premium") then
+	if dragonTemplate and (definition.rarity == "Legendary" or definition.rarity == "Secret") then
 		local clone = dragonTemplate:Clone()
-		clone.Name = token .. " Companion " .. index
-		clone.Parent = companionsFolder
 		clone:ScaleTo(clone:GetScale() * (definition.rarity == "Premium" and 0.42 or definition.rarity == "Secret" and 0.36 or 0.28))
-		clone.PrimaryPart = clone.PrimaryPart or clone:FindFirstChildWhichIsA("BasePart", true)
-		for _, descendant in ipairs(clone:GetDescendants()) do
-			if descendant:IsA("BasePart") then
-				descendant.Anchored = true
-				descendant.CanCollide = false
-			end
-		end
-		clone:SetAttribute("PetStars", stars)
-		addCompanionAura(clone, clone.PrimaryPart, definition, stars)
-		table.insert(companionModels, clone)
-		return clone
+		local registered = registerCompanion(clone, token, index, definition, stars, "CuratedDragon")
+		if registered then return registered end
 	end
 	local model = Instance.new("Model")
-	model.Name = token .. " Companion " .. index
-	model:SetAttribute("PetStars", stars)
-	model.Parent = companionsFolder
+	if definition.rarity == "Premium" then
+		local body = visualPart(model, "Fallback Pet Body", Vector3.new(3.4, 3.0, 4.0), definition.color, Enum.Material.Metal, Enum.PartType.Ball)
+		local head = visualPart(model, "Fallback Pet Head", Vector3.new(2.4, 2.2, 2.5), definition.accent or definition.color, Enum.Material.Neon, Enum.PartType.Ball)
+		head.CFrame = body.CFrame * CFrame.new(0, 1.5, -1.6)
+		model.PrimaryPart = body
+		return registerCompanion(model, token, index, definition, stars, "ProceduralFallback")
+	end
 	local body = visualPart(model, "Body", Vector3.new(1.55, 1.1, 1.9), definition.color, definition.rarity == "Secret" and Enum.Material.Metal or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
 	local head = visualPart(model, "Head", Vector3.new(1.15, 1.15, 1.15), definition.color:Lerp(Color3.new(1, 1, 1), 0.08), definition.rarity == "Epic" and Enum.Material.Glass or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
 	head.CFrame = body.CFrame * CFrame.new(0, 0.25, -1.05)
@@ -2401,9 +2519,7 @@ local function buildCompanion(token, index)
 	local core = visualPart(model, "Rarity Core", Vector3.new(0.38, 0.38, 0.38), definition.color, Enum.Material.Neon, Enum.PartType.Ball)
 	core.CFrame = body.CFrame * CFrame.new(0, 0.18, -0.9)
 	model.PrimaryPart = body
-	addCompanionAura(model, body, definition, stars)
-	table.insert(companionModels, model)
-	return model
+	return registerCompanion(model, token, index, definition, stars, "ProceduralPet")
 end
 
 local function buildGauntlet(fistName)
@@ -3013,7 +3129,22 @@ refreshCharacterVisuals = function()
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
 	companionsFolder:ClearAllChildren()
 	companionModels = {}
-	for index, petName in ipairs(equippedPets) do buildCompanion(petName, index) end
+	local premiumCount = 0
+	local premiumParityCount = 0
+	for index, petName in ipairs(equippedPets) do
+		local petNameOnly = GameConfig.ParsePetToken(petName)
+		local definition = GameConfig.PetDefinition(petNameOnly)
+		local companion = buildCompanion(petName, index)
+		if definition and definition.rarity == "Premium" then
+			premiumCount += 1
+			if companion and companion:GetAttribute("PremiumVisualParity") == true then
+				premiumParityCount += 1
+			end
+		end
+	end
+	gui:SetAttribute("CompanionMotionSystem", companionMotionVersion)
+	gui:SetAttribute("PremiumCompanionCount", premiumCount)
+	gui:SetAttribute("PremiumPetVisualParity", premiumCount == premiumParityCount)
 end
 
 -- Apply the pose after Animator updates so Motor6D and AnimationConstraint rigs both move.
@@ -3840,17 +3971,44 @@ task.defer(function()
 	refreshCharacterVisuals()
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.Heartbeat:Connect(function(deltaTime)
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	if not rootPart then return end
 	local now = os.clock()
-	for index, model in ipairs(companionModels) do
-		if model.PrimaryPart then
+	deltaTime = math.clamp(tonumber(deltaTime) or (1 / 60), 1 / 240, 0.1)
+	local rootVelocity = rootPart.AssemblyLinearVelocity
+	local forwardSpeed = rootVelocity:Dot(rootPart.CFrame.LookVector)
+	local sideSpeed = rootVelocity:Dot(rootPart.CFrame.RightVector)
+	for index, state in ipairs(companionModels) do
+		local model = state.model
+		if model and model.Parent and model.PrimaryPart then
 			local side = index % 2 == 0 and 1 or -1
 			local row = math.floor((index - 1) / 2)
-			local offset = CFrame.new(side * (2.5 + row * 0.8), 0.95 + math.sin(now * 3 + index) * 0.22, 2.8 + row * 1.2)
-			model:PivotTo(rootPart.CFrame * offset * CFrame.Angles(0, math.rad(180), 0))
+			local hover = math.sin(now * (state.premium and 2.25 or 2.8) + state.phase) * state.hoverAmplitude
+			local sway = math.sin(now * 1.35 + state.phase * 0.7) * 0.14
+			local pitch = math.rad(math.clamp(-forwardSpeed * 0.16, -6, 6))
+			local roll = math.rad(math.clamp(-sideSpeed * 0.2, -8, 8))
+				+ math.rad(math.sin(now * 1.8 + state.phase) * 1.7)
+			local targetBounds = rootPart.CFrame
+				* CFrame.new(
+					side * (2.65 + row * 0.85) + sway,
+					state.followHeight + hover,
+					3.0 + row * 1.3
+				)
+				* CFrame.Angles(pitch, math.pi, roll)
+			local distance = (state.currentBoundsCFrame.Position - targetBounds.Position).Magnitude
+			if distance > 36 then
+				state.currentBoundsCFrame = targetBounds
+			else
+				local alpha = 1 - math.exp(-state.followResponsiveness * deltaTime)
+				state.currentBoundsCFrame = state.currentBoundsCFrame:Lerp(targetBounds, alpha)
+			end
+			model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
+			state.motionFrames += 1
+			if state.motionFrames >= 3 and model:GetAttribute("SmoothFollowReady") ~= true then
+				model:SetAttribute("SmoothFollowReady", true)
+			end
 		end
 	end
 end)

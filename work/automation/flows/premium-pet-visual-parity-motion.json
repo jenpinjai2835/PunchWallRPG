@@ -1,0 +1,47 @@
+{
+  "name": "premium-pet-visual-parity-motion",
+  "description": "Verify every equipped premium pet uses the exact Creator Store template shown on its Robux stand and follows the player with damped motion instead of frame-snapping.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for runtime assets" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') local names={'Crimson Phoenix','Storm Wyvern','Celestial Guardian'} local granted=0 for _,name in ipairs(names) do local r=a:Invoke('GrantPremiumPet',name) if r.ok then granted+=1 end end local p=game.Players:GetPlayers()[1] local equipped=p.RPGStats.EquippedPetsJSON.Value return H:JSONEncode({ok=granted==3 and equipped:find('Crimson Phoenix',1,true)~=nil and equipped:find('Storm Wyvern',1,true)~=nil and equipped:find('Celestial Guardian',1,true)~=nil,granted=granted,equipped=equipped})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"granted\"\\s*:\\s*3", "Crimson Phoenix", "Storm Wyvern", "Celestial Guardian"],
+      "label": "grant and equip all premium pets"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:WaitForChild(p.Name..' Client Companions',5) local cfg=require(game.ReplicatedStorage.GameConfig) local root=workspace:WaitForChild('PunchWallRPG') local deadline=os.clock()+4 repeat task.wait(.05) until os.clock()>deadline or #folder:GetChildren()>=3 local matched,details=0,{} for _,pet in ipairs(cfg.PremiumPets) do local companion,showcase for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and m:GetAttribute('PetDefinitionName')==pet.name then companion=m break end end for _,m in ipairs(root:GetDescendants()) do if m:IsA('Model') and m:GetAttribute('VisualRole')=='PremiumPetShowcase' and m:GetAttribute('PetDefinitionName')==pet.name then showcase=m break end end local companionParts=companion and companion:GetAttribute('VisualPartCount') or 0 local showcaseParts=showcase and showcase:GetAttribute('VisualPartCount') or -1 local same=companion and showcase and companion:GetAttribute('PetTemplate')==showcase:GetAttribute('PetTemplate') and companion:GetAttribute('PetVisualIdentity')==showcase:GetAttribute('PetVisualIdentity') and companionParts==showcaseParts and companion:GetAttribute('PremiumVisualParity')==true and companion:GetAttribute('VisualSource')~='ProceduralFallback' if same then matched+=1 end details[pet.name]={same=same,template=companion and companion:GetAttribute('PetTemplate'),source=companion and companion:GetAttribute('VisualSource'),parts=companionParts,showcaseParts=showcaseParts,asset=companion and companion:GetAttribute('SourceAssetId')} end local gui=p.PlayerGui:WaitForChild('PunchWallHUD') return H:JSONEncode({ok=matched==3 and gui:GetAttribute('PremiumPetVisualParity')==true and gui:GetAttribute('CompanionMotionSystem')=='DampedFollowV2',matched=matched,motion=gui:GetAttribute('CompanionMotionSystem'),details=details})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"matched\"\\s*:\\s*3", "\"motion\"\\s*:\\s*\"DampedFollowV2\"", "Sanitized_CrimsonPhoenixPet", "Sanitized_StormWyvernPet", "Sanitized_CelestialGuardianPet"],
+      "label": "equipped pets match all three showcase models"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local pet for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and m:GetAttribute('PetDefinitionName')=='Celestial Guardian' then pet=m break end end task.wait(.2) local before=pet:GetBoundingBox().Position root.Anchored=true root.CFrame=root.CFrame+root.CFrame.RightVector*10 task.wait() local early=pet:GetBoundingBox().Position task.wait(.75) local late=pet:GetBoundingBox().Position root.Anchored=false local earlyMove=(early-before).Magnitude local lateMove=(late-before).Magnitude return H:JSONEncode({ok=pet:GetAttribute('SmoothFollowReady')==true and pet:GetAttribute('MotionSystem')=='DampedFollowV2' and earlyMove>0.05 and earlyMove<8.5 and lateMove>earlyMove+1 and lateMove<13,earlyMove=earlyMove,lateMove=lateMove,ready=pet:GetAttribute('SmoothFollowReady'),motion=pet:GetAttribute('MotionSystem')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"ready\"\\s*:\\s*true", "\"motion\"\\s*:\\s*\"DampedFollowV2\""],
+      "label": "premium pet follows with visible interpolation"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

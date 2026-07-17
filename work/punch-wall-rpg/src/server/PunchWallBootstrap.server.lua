@@ -4722,6 +4722,14 @@ shared.PunchWallBuildPremiumPetStand = function(index, item, position)
 		display:SetAttribute("AuraTier", index + 5)
 		display:SetAttribute("SourceFallback", false)
 		display:SetAttribute("PetTemplate", item.templateName)
+		display:SetAttribute("PetDefinitionName", item.name)
+		display:SetAttribute("PetVisualIdentity", item.templateName)
+		local visualPartCount = 0
+		for _, descendant in ipairs(display:GetDescendants()) do
+			if descendant:IsA("BasePart") then visualPartCount += 1 end
+		end
+		display:SetAttribute("VisualPartCount", visualPartCount)
+		display:SetAttribute("CompanionCompatible", true)
 		local outline = Instance.new("Highlight")
 		outline.Name = "Premium Pet Hero Outline"
 		outline.FillColor = item.color
@@ -4736,6 +4744,11 @@ shared.PunchWallBuildPremiumPetStand = function(index, item, position)
 		display:SetAttribute("VisualRole", "PremiumPetShowcase")
 		display:SetAttribute("AuraTier", index + 5)
 		display:SetAttribute("SourceFallback", true)
+		display:SetAttribute("PetTemplate", item.templateName)
+		display:SetAttribute("PetDefinitionName", item.name)
+		display:SetAttribute("PetVisualIdentity", item.templateName)
+		display:SetAttribute("VisualPartCount", 2)
+		display:SetAttribute("CompanionCompatible", true)
 		display.Parent = decorFolder
 		makeBall("Fallback Pet Body", display, Vector3.new(3.4, 3.0, 4.0), position + Vector3.new(0, 2.0, 0), item.color, Enum.Material.Metal)
 		makeBall("Fallback Pet Head", display, Vector3.new(2.4, 2.2, 2.5), position + Vector3.new(0, 3.5, -1.6), item.accent, Enum.Material.Neon)

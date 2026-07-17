@@ -107,9 +107,9 @@ GameConfig.PremiumFists = {
 }
 
 GameConfig.PremiumPets = {
-	{ name = "Crimson Phoenix", rarity = "Premium", robux = 79, gamePassId = 0, mult = 2.8, luckGain = 0.2, color = Color3.fromRGB(255, 61, 54), accent = Color3.fromRGB(255, 190, 47), visual = "Phoenix", templateName = "Sanitized_CrimsonPhoenixPet" },
-	{ name = "Storm Wyvern", rarity = "Premium", robux = 169, gamePassId = 0, mult = 6.5, luckGain = 0.4, color = Color3.fromRGB(34, 105, 190), accent = Color3.fromRGB(67, 224, 255), visual = "Wyvern", templateName = "Sanitized_StormWyvernPet" },
-	{ name = "Celestial Guardian", rarity = "Premium", robux = 349, gamePassId = 0, mult = 15, luckGain = 0.8, color = Color3.fromRGB(231, 166, 35), accent = Color3.fromRGB(255, 239, 130), visual = "Celestial", templateName = "Sanitized_CelestialGuardianPet" },
+	{ name = "Crimson Phoenix", rarity = "Premium", robux = 79, gamePassId = 0, mult = 2.8, luckGain = 0.2, color = Color3.fromRGB(255, 61, 54), accent = Color3.fromRGB(255, 190, 47), visual = "Phoenix", templateName = "Sanitized_CrimsonPhoenixPet", companionHeight = 3.0, followHeight = 1.75, followResponsiveness = 6.4, hoverAmplitude = 0.32 },
+	{ name = "Storm Wyvern", rarity = "Premium", robux = 169, gamePassId = 0, mult = 6.5, luckGain = 0.4, color = Color3.fromRGB(34, 105, 190), accent = Color3.fromRGB(67, 224, 255), visual = "Wyvern", templateName = "Sanitized_StormWyvernPet", companionHeight = 2.55, followHeight = 1.45, followResponsiveness = 7.0, hoverAmplitude = 0.28 },
+	{ name = "Celestial Guardian", rarity = "Premium", robux = 349, gamePassId = 0, mult = 15, luckGain = 0.8, color = Color3.fromRGB(231, 166, 35), accent = Color3.fromRGB(255, 239, 130), visual = "Celestial", templateName = "Sanitized_CelestialGuardianPet", companionHeight = 2.85, followHeight = 1.3, followResponsiveness = 7.5, hoverAmplitude = 0.2 },
 }
 
 GameConfig.PremiumProducts = {
