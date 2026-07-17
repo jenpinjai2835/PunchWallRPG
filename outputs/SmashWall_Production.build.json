@@ -2,12 +2,12 @@
     "ok":  true,
     "game":  "Smash Wall",
     "branch":  "production",
-    "sourceCommit":  "4f8ac1bf3cfb3ab208205123c1dc4d337bb3335b",
+    "sourceCommit":  "eec730b0a206037b984c2d764dded31ad54480f2",
     "sourcePlace":  "F:\\Roblox\\PuchWall\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
     "outputPlace":  "F:\\Roblox\\PuchWall\\outputs\\SmashWall_Production.rbxlx",
     "sourceRoot":  "F:\\Roblox\\PuchWall\\work\\punch-wall-rpg\\src",
-    "bytes":  4458055,
-    "sha256":  "E49BD4771E3CB083029398A3333C09E988CC8D7EABA7364645A110CCE6D1F703",
+    "bytes":  4466092,
+    "sha256":  "9C85967133D08E9C2E150A352A06A1E3A3460DDBFC2F3D3E49F4DF7A5BF3CF26",
     "embeddedScripts":  [
                             "GameConfig",
                             "PolishConfig",
@@ -19,5 +19,5 @@
     "configuredGamePasses":  0,
     "configuredDeveloperProducts":  0,
     "studioHarnessGuarded":  true,
-    "generatedAtUtc":  "2026-07-17T11:07:46.8617690Z"
+    "generatedAtUtc":  "2026-07-17T12:17:32.6394150Z"
 }
