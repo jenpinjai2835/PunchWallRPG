@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
 local ContentProvider = game:GetService("ContentProvider")
@@ -179,6 +178,8 @@ shared.PunchWallSetModalCoreGuiHidden = function(hidden)
 	if gui then gui:SetAttribute("ModalCoreGuiHidden", hidden == true) end
 end
 
+do
+local Lighting = game:GetService("Lighting")
 local TIER_ATMOSPHERE_COLORS = {
 	Color3.fromRGB(225, 246, 226), Color3.fromRGB(231, 239, 242),
 	Color3.fromRGB(211, 226, 239), Color3.fromRGB(201, 242, 249),
@@ -367,6 +368,7 @@ shared.PunchWallUpdateTierAtmosphere = function(depth)
 	gui:SetAttribute("TierMusicVariant", tier)
 	gui:SetAttribute("TierAtmosphereApplied", true)
 	return true
+end
 end
 gui:SetAttribute("FreeAimPunch", true)
 gui:SetAttribute("TargetBlockHUDEnabled", false)
@@ -3384,6 +3386,7 @@ performPunchAnimation = function(directionName)
 	return true
 end
 
+do
 local trainingAnimationGeneration = 0
 local trainingAnimationActive = nil
 local trainingAnimationLoopStartCount = 0
@@ -3424,6 +3427,7 @@ shared.PunchWallSetTrainingAnimation = function(active)
 		end
 	end)
 	return true
+end
 end
 
 local function beginPunchCamera(now)
@@ -5215,7 +5219,7 @@ trainingOverlay.Position, trainingOverlay.Size = designRect(570, 788, 440, 104)
 trainingOverlay.BackgroundColor3 = Color3.fromRGB(7, 17, 24)
 trainingOverlay.BackgroundTransparency = 0.03
 trainingOverlay.BorderSizePixel = 0
-trainingOverlay.Visible = trainingAnimationActive == true
+trainingOverlay.Visible = gui:GetAttribute("ContinuousTrainingAnimation") == true
 trainingOverlay.ZIndex = 40
 trainingOverlay.Parent = referenceHUD
 setRounded(trainingOverlay, 6)

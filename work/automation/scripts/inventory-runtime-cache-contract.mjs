@@ -46,6 +46,14 @@ const training = block(
   "shared.PunchWallSetTrainingAnimation = function(active)",
   "local function beginPunchCamera",
 );
+check(
+  "runtime_state_uses_bounded_local_scopes",
+  client.includes('do\nlocal Lighting = game:GetService("Lighting")')
+    && client.includes("end\nend\ngui:SetAttribute(\"FreeAimPunch\", true)")
+    && client.includes("do\nlocal trainingAnimationGeneration = 0")
+    && client.includes("end\nend\n\nlocal function beginPunchCamera"),
+  "Atmosphere and training state must release top-level local registers before camera compilation.",
+);
 const trainingGuard = training.indexOf("if trainingAnimationActive == active then");
 const trainingGeneration = training.indexOf("trainingAnimationGeneration += 1");
 const trainingSpawn = training.indexOf("task.spawn(function()");
