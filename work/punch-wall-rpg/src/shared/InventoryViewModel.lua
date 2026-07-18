@@ -4,6 +4,19 @@ local InventoryViewModel = {}
 
 local CATEGORY_ORDER = { "Fists", "Pets", "Honor", "Boosts" }
 local RARITY_ORDER = { "Common", "Rare", "Epic", "Legendary", "Secret", "Premium", "Unknown" }
+local SIGNATURE_STATS_FIELDS = {
+	"OwnedFistsJSON",
+	"OwnedPremiumFistsJSON",
+	"EquippedFist",
+	"PetInventoryJSON",
+	"EquippedPetsJSON",
+	"LockedPetsJSON",
+	"OwnedHonorItemsJSON",
+	"EquippedHonorItem",
+	"ShopBoosts",
+}
+local EMPTY_TABLE = {}
+local CONFIG_SIGNATURE_CACHE = setmetatable({}, { __mode = "k" })
 local RARITY_NAMES = {
 	common = "Common",
 	rare = "Rare",
@@ -584,40 +597,235 @@ local function canonical(value, seen)
 	return table.concat(parts)
 end
 
+local function signatureValueEqual(left, right)
+	local valueType = typeof(left)
+	if valueType ~= typeof(right) then
+		return false
+	end
+	if valueType == "number" then
+		if left ~= left then
+			return right ~= right
+		end
+		if left == 0 and right == 0 then
+			return 1 / left == 1 / right
+		end
+	end
+	return left == right
+end
+
+local function cloneAcyclic(value, visiting)
+	if typeof(value) ~= "table" then
+		return value, true
+	end
+	visiting = visiting or {}
+	if visiting[value] then
+		return nil, false
+	end
+	visiting[value] = true
+	local copy = {}
+	for key, child in pairs(value) do
+		if typeof(key) == "table" then
+			visiting[value] = nil
+			return nil, false
+		end
+		local cloned, acyclic = cloneAcyclic(child, visiting)
+		if not acyclic then
+			visiting[value] = nil
+			return nil, false
+		end
+		copy[key] = cloned
+	end
+	visiting[value] = nil
+	return copy, true
+end
+
+local function deepEqualAcyclic(left, right, depth)
+	local valueType = typeof(left)
+	if valueType ~= typeof(right) then
+		return false
+	end
+	if valueType ~= "table" then
+		return signatureValueEqual(left, right)
+	end
+	if depth > 64 then
+		return false
+	end
+
+	local leftCount = 0
+	for key, value in pairs(left) do
+		if typeof(key) == "table" then
+			return false
+		end
+		leftCount = leftCount + 1
+		local other = right[key]
+		if other == nil or not deepEqualAcyclic(value, other, depth + 1) then
+			return false
+		end
+	end
+	local rightCount = 0
+	for _ in pairs(right) do
+		rightCount = rightCount + 1
+	end
+	return leftCount == rightCount
+end
+
+local function selectedConfig(GameConfig)
+	local graphics = type(GameConfig.GeneratedGraphics) == "table" and GameConfig.GeneratedGraphics or EMPTY_TABLE
+	return {
+		DataVersion = GameConfig.DataVersion,
+		MaxPetInventory = GameConfig.MaxPetInventory,
+		MaxEquippedPets = GameConfig.MaxEquippedPets,
+		MaxPetStars = GameConfig.MaxPetStars,
+		Fists = GameConfig.Fists,
+		PremiumFists = GameConfig.PremiumFists,
+		Pets = GameConfig.Pets,
+		PremiumPets = GameConfig.PremiumPets,
+		HonorItems = GameConfig.HonorItems,
+		ShopArt = GameConfig.ShopArt,
+		PetArt = graphics.Iteration02PetIcon,
+	}
+end
+
+local function configEntryMatches(entry, GameConfig)
+	local graphics = type(GameConfig.GeneratedGraphics) == "table" and GameConfig.GeneratedGraphics or EMPTY_TABLE
+	if not entry
+		or not signatureValueEqual(entry.DataVersion, GameConfig.DataVersion)
+		or not signatureValueEqual(entry.MaxPetInventory, GameConfig.MaxPetInventory)
+		or not signatureValueEqual(entry.MaxEquippedPets, GameConfig.MaxEquippedPets)
+		or not signatureValueEqual(entry.MaxPetStars, GameConfig.MaxPetStars)
+		or not signatureValueEqual(entry.PetArt, graphics.Iteration02PetIcon)
+		or entry.Fists ~= GameConfig.Fists
+		or entry.PremiumFists ~= GameConfig.PremiumFists
+		or entry.Pets ~= GameConfig.Pets
+		or entry.PremiumPets ~= GameConfig.PremiumPets
+		or entry.HonorItems ~= GameConfig.HonorItems
+		or entry.ShopArt ~= GameConfig.ShopArt
+	then
+		return false
+	end
+	return true
+end
+
+local function configSignatureEntry(GameConfig)
+	local entry = CONFIG_SIGNATURE_CACHE[GameConfig]
+	if configEntryMatches(entry, GameConfig) then
+		return entry
+	end
+
+	local current = selectedConfig(GameConfig)
+	entry = {
+		canonical = canonical(current),
+		DataVersion = current.DataVersion,
+		MaxPetInventory = current.MaxPetInventory,
+		MaxEquippedPets = current.MaxEquippedPets,
+		MaxPetStars = current.MaxPetStars,
+		PetArt = current.PetArt,
+		Fists = current.Fists,
+		PremiumFists = current.PremiumFists,
+		Pets = current.Pets,
+		PremiumPets = current.PremiumPets,
+		HonorItems = current.HonorItems,
+		ShopArt = current.ShopArt,
+	}
+	CONFIG_SIGNATURE_CACHE[GameConfig] = entry
+	return entry
+end
+
+local function encodeSignatureValue(value)
+	local valueType = typeof(value)
+	local payload
+	if valueType == "nil" then
+		payload = ""
+	elseif valueType == "string" then
+		payload = value
+	elseif valueType == "boolean" then
+		payload = value and "true" or "false"
+	elseif valueType == "number" or valueType == "table" then
+		payload = canonical(value)
+	else
+		payload = tostring(value)
+	end
+	return valueType .. "#" .. tostring(#payload) .. ":" .. payload
+end
+
+local function appendSignatureFrame(parts, name, payload)
+	parts[#parts + 1] = "|"
+	parts[#parts + 1] = name
+	parts[#parts + 1] = "#"
+	parts[#parts + 1] = tostring(#payload)
+	parts[#parts + 1] = ":"
+	parts[#parts + 1] = payload
+end
+
+local function snapshotStatsInputs(stats)
+	local snapshot = {}
+	for index, field in ipairs(SIGNATURE_STATS_FIELDS) do
+		local value = stats[field]
+		if typeof(value) == "table" then
+			local cloned, cacheable = cloneAcyclic(value)
+			if not cacheable then
+				return nil
+			end
+			snapshot[index] = { valueType = "table", value = cloned }
+		else
+			snapshot[index] = { valueType = typeof(value), value = value }
+		end
+	end
+	return snapshot
+end
+
+local function statsInputsMatch(snapshot, stats)
+	if not snapshot then
+		return false
+	end
+	for index, field in ipairs(SIGNATURE_STATS_FIELDS) do
+		local expected = snapshot[index]
+		local current = stats[field]
+		if not expected or expected.valueType ~= typeof(current) then
+			return false
+		end
+		if expected.valueType == "table" then
+			if not deepEqualAcyclic(current, expected.value, 0) then
+				return false
+			end
+		elseif not signatureValueEqual(current, expected.value) then
+			return false
+		end
+	end
+	return true
+end
+
 -- Current time is intentionally excluded: while visible, consumers should derive the
 -- countdown from each boost's endsAt and rebuild at expiry (or once per visible second).
 function InventoryViewModel.Signature(GameConfig, stats)
-	GameConfig = type(GameConfig) == "table" and GameConfig or {}
-	stats = type(stats) == "table" and stats or {}
-	local graphics = type(GameConfig.GeneratedGraphics) == "table" and GameConfig.GeneratedGraphics or {}
-	local relevant = {
-		version = 1,
-		config = {
-			DataVersion = GameConfig.DataVersion,
-			MaxPetInventory = GameConfig.MaxPetInventory,
-			MaxEquippedPets = GameConfig.MaxEquippedPets,
-			MaxPetStars = GameConfig.MaxPetStars,
-			Fists = GameConfig.Fists,
-			PremiumFists = GameConfig.PremiumFists,
-			Pets = GameConfig.Pets,
-			PremiumPets = GameConfig.PremiumPets,
-			HonorItems = GameConfig.HonorItems,
-			ShopArt = GameConfig.ShopArt,
-			PetArt = graphics.Iteration02PetIcon,
-		},
-		stats = {
-			OwnedFists = decodeTable(stats.OwnedFistsJSON),
-			OwnedPremiumFists = decodeTable(stats.OwnedPremiumFistsJSON),
-			EquippedFist = stats.EquippedFist,
-			PetInventory = decodeTable(stats.PetInventoryJSON),
-			EquippedPets = decodeTable(stats.EquippedPetsJSON),
-			LockedPets = decodeTable(stats.LockedPetsJSON),
-			OwnedHonorItems = decodeTable(stats.OwnedHonorItemsJSON),
-			EquippedHonorItem = stats.EquippedHonorItem,
-			ShopBoosts = decodeTable(stats.ShopBoosts),
-		},
-	}
-	return "inventory-v1|" .. canonical(relevant)
+	GameConfig = type(GameConfig) == "table" and GameConfig or EMPTY_TABLE
+	stats = type(stats) == "table" and stats or EMPTY_TABLE
+
+	local configEntry = configSignatureEntry(GameConfig)
+	if configEntry.lastSignature and statsInputsMatch(configEntry.lastStats, stats) then
+		return configEntry.lastSignature
+	end
+
+	local parts = { "inventory-v2" }
+	appendSignatureFrame(parts, "config", configEntry.canonical)
+	for _, field in ipairs(SIGNATURE_STATS_FIELDS) do
+		appendSignatureFrame(parts, field, encodeSignatureValue(stats[field]))
+	end
+	local signature = table.concat(parts)
+	configEntry.lastStats = snapshotStatsInputs(stats)
+	configEntry.lastSignature = configEntry.lastStats and signature or nil
+	return signature
+end
+
+-- GameConfig.lua constructs its catalog once and runtime code treats it as immutable.
+-- Replacing a relevant table or scalar invalidates automatically. A Studio test or
+-- future caller that mutates a relevant table in place must call this hook.
+function InventoryViewModel.InvalidateSignatureCache(GameConfig)
+	if type(GameConfig) == "table" then
+		CONFIG_SIGNATURE_CACHE[GameConfig] = nil
+		return
+	end
+	table.clear(CONFIG_SIGNATURE_CACHE)
 end
 
 return InventoryViewModel
