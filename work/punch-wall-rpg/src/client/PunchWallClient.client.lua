@@ -1541,6 +1541,7 @@ end
 
 local refreshCharacterVisuals = function() end
 local renderOpenPanel = function() end
+local applyReferenceHUDState = function() end
 
 statRemote.OnClientEvent:Connect(function(payload)
 	latestStats = payload
@@ -2176,20 +2177,20 @@ local function renderSettings()
 end
 
 renderOpenPanel = function()
+	applyReferenceHUDState()
 	if not mainPanel.Visible then
-		if shared.PunchWallInventoryController then shared.PunchWallInventoryController:SetVisible(false) end
 		return
 	end
 	if activeTab == "Inventory" then
 		clearContent()
 		for _, button in pairs(tabButtons) do button.BackgroundColor3 = palette.PanelSoft end
-		if shared.PunchWallInventoryController then
-			shared.PunchWallInventoryController:SetVisible(true)
-			shared.PunchWallInventoryController:Refresh()
-		end
 		return
 	end
-	if shared.PunchWallInventoryController then shared.PunchWallInventoryController:SetVisible(false) end
+	if activeTab == "Fists" and shared.PunchWallShopReference then
+		clearContent()
+		gui:SetAttribute("ReferenceShopLegacyRenderSuppressed", true)
+		return
+	end
 	clearContent()
 	addGeneratedBanner()
 	for name, button in pairs(tabButtons) do
@@ -2271,19 +2272,9 @@ createDockButton(rightDock, "QuestsButton", "QUESTS", "Quest", palette.Reward, f
 
 local function setMenuVisible(visible)
 	mainPanel.Visible = visible
-	mobileControls.Visible = not visible
-	statusDeck.Visible = not visible
-	leftDock.Visible = not visible
-	rightDock.Visible = not visible
-	nextWorld.Visible = not visible
 	panel.Visible = false
-	help.Visible = not visible
 	menuButton.Visible = false
-	contextLabel.Visible = false
-	if visible then
-		targetHUD.Visible = false
-		bossHUD.Visible = false
-	end
+	applyReferenceHUDState()
 	if visible then renderOpenPanel() end
 end
 
@@ -2303,17 +2294,9 @@ mainPanel:GetPropertyChangedSignal("Visible"):Connect(function()
 	local visible = mainPanel.Visible
 	shared.PunchWallSetModalCoreGuiHidden(visible)
 	panel.Visible = false
-	statusDeck.Visible = not visible
-	leftDock.Visible = not visible
-	rightDock.Visible = not visible
-	nextWorld.Visible = not visible
-	help.Visible = not visible
 	menuButton.Visible = false
-	mobileControls.Visible = not visible
-	if visible then
-		targetHUD.Visible = false
-		bossHUD.Visible = false
-	end
+	applyReferenceHUDState()
+	task.defer(applyResponsiveLayout)
 end)
 
 local companionsFolder = Instance.new("Folder")
@@ -4282,7 +4265,11 @@ if RunService:IsStudio() then
 			end
 			if action == "OpenTab" then openGameTab(tostring(value or "Fists")) return true end
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
-			if action == "OpenMore" or action == "OpenInventory" then
+			if action == "OpenMore" then
+				openGameTab("Tasks")
+				return true
+			end
+			if action == "OpenInventory" then
 				openGameTab("Inventory")
 				return shared.PunchWallInventoryController and shared.PunchWallInventoryController:GetSnapshot() or true
 			end
@@ -4669,7 +4656,7 @@ RunService.Heartbeat:Connect(function(delta)
 	local nearbyAction = not focusedWall and nearest and nearestDistance <= 12 and (tutorialStep > 1 or isTutorialAction)
 	trainButton.Visible = nearbyAction and (nearest.Name == "Power Bag" or nearest.Name == "Speed Dummy" or nearest.Name == "Focus Stone")
 	useButton.Visible = nearbyAction and not trainButton.Visible
-	contextLabel.Visible = nearbyAction and not mainPanel.Visible
+	contextLabel.Visible = gui:GetAttribute("PixelReferenceHUDActive") ~= true and nearbyAction and not mainPanel.Visible
 	if nearbyAction then
 		contextLabel.Text = nearest.Name
 	end
@@ -4719,6 +4706,11 @@ RunService.Heartbeat:Connect(function(delta)
 	bossHudTimer += delta
 	if bossHudTimer < 0.2 then return end
 	bossHudTimer = 0
+	if gui:GetAttribute("PixelReferenceHUDActive") == true then
+		bossHUD.Visible = false
+		help.Visible = false
+		return
+	end
 	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
 	local walls = gameRoot and gameRoot:FindFirstChild("Walls")
 	local boss = walls and walls:FindFirstChild("Titan Server Wall")
@@ -4775,6 +4767,7 @@ referenceHUD.BackgroundTransparency = 1
 referenceHUD.Size = UDim2.fromScale(1, 1)
 referenceHUD.ZIndex = 30
 referenceHUD.Parent = gui
+gui:SetAttribute("PixelReferenceHUDActive", true)
 
 local function designRect(x, y, width, height)
 	return UDim2.fromScale(x / 1672, y / 941), UDim2.fromScale(width / 1672, height / 941)
@@ -4961,9 +4954,9 @@ end)
 shared.PunchWallSoundToolButton:SetAttribute("ToolAction", "ToggleSound")
 referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() openGameTab("Settings") end)
 shared.PunchWallMoreToolButton = referenceButton("MoreTool", pixel.MoreTool, 1587, 22, 64, 64, function()
-	openGameTab("Inventory")
+	openGameTab("Tasks")
 end)
-shared.PunchWallMoreToolButton:SetAttribute("ToolAction", "OpenInventory")
+shared.PunchWallMoreToolButton:SetAttribute("ToolAction", "OpenGameMenu")
 shared.PunchWallApplySoundSetting(clientSettings.sound, false)
 
 referenceHUD:SetAttribute("StudioTestControlLocation", RunService:IsStudio() and "SettingsOnly" or "Unavailable")
@@ -6204,6 +6197,57 @@ shared.PunchWallInventoryController = InventoryUI.new({
 })
 shared.PunchWallInventoryController:SetVisible(false)
 
+local referenceHUDStateKey
+local referenceHUDStateApplications = 0
+local function setVisibleIfChanged(object, visible)
+	if object and object.Visible ~= visible then
+		object.Visible = visible
+	end
+end
+
+applyReferenceHUDState = function(force)
+	local menuVisible = mainPanel.Visible
+	local shopVisible = menuVisible and activeTab == "Fists"
+	local inventoryVisible = menuVisible and activeTab == "Inventory"
+	local stateKey = ("%s:%s"):format(menuVisible and "open" or "closed", tostring(activeTab))
+	if force ~= true and stateKey == referenceHUDStateKey then
+		return false
+	end
+	referenceHUDStateKey = stateKey
+	referenceHUDStateApplications += 1
+
+	setVisibleIfChanged(statusDeck, false)
+	setVisibleIfChanged(leftDock, false)
+	setVisibleIfChanged(rightDock, false)
+	setVisibleIfChanged(nextWorld, false)
+	setVisibleIfChanged(help, false)
+	setVisibleIfChanged(mobileControls, false)
+	setVisibleIfChanged(bossHUD, false)
+	setVisibleIfChanged(contextLabel, false)
+	setVisibleIfChanged(referenceHUD, not menuVisible)
+
+	local shopWasVisible = shared.PunchWallShopReference.Visible
+	setVisibleIfChanged(shared.PunchWallShopReference, shopVisible)
+	setVisibleIfChanged(shared.PunchWallShopDimmer, shopVisible)
+	if shopVisible and not shopWasVisible and shared.PunchWallHeroShopRefresh then
+		shared.PunchWallHeroShopRefresh()
+	end
+
+	if shared.PunchWallInventoryController:IsVisible() ~= inventoryVisible then
+		shared.PunchWallInventoryController:SetVisible(inventoryVisible)
+	end
+	setVisibleIfChanged(closeButton, menuVisible and not shopVisible and not inventoryVisible)
+	local backgroundTransparency = (shopVisible or inventoryVisible) and 1 or 0.03
+	if mainPanel.BackgroundTransparency ~= backgroundTransparency then
+		mainPanel.BackgroundTransparency = backgroundTransparency
+	end
+
+	gui:SetAttribute("HUDVisibilitySyncMode", "EventDrivenV2")
+	gui:SetAttribute("HUDVisibilityApplyCount", referenceHUDStateApplications)
+	gui:SetAttribute("HUDIdleRenderWrites", 0)
+	return true
+end
+
 shared.PunchWallJoystickVector = Vector2.zero
 shared.PunchWallBuildJoystickInput = function()
 	local joystickTouch
@@ -6281,48 +6325,65 @@ statRemote.OnClientEvent:Connect(function(payload)
 			marker.avatar.Visible = false
 		end
 	end
-	if shared.PunchWallHeroShopRefresh then shared.PunchWallHeroShopRefresh() end
-	if shared.PunchWallInventoryController then shared.PunchWallInventoryController:Refresh() end
+	if shared.PunchWallHeroShopRefresh and shared.PunchWallShopReference.Visible then
+		shared.PunchWallHeroShopRefresh()
+	end
+	if shared.PunchWallInventoryController and shared.PunchWallInventoryController:IsVisible() then
+		shared.PunchWallInventoryController:Refresh()
+	end
 	if shared.PunchWallRefreshSpin then shared.PunchWallRefreshSpin() end
 	if shared.PunchWallSetTrainingAnimation then shared.PunchWallSetTrainingAnimation((payload.TrainingActive or 0) >= 1) end
 end)
 
-mainPanel:GetPropertyChangedSignal("Visible"):Connect(function()
-	referenceHUD.Visible = not mainPanel.Visible
-	shared.PunchWallShopReference.Visible = mainPanel.Visible and activeTab == "Fists"
-	shared.PunchWallShopDimmer.Visible = shared.PunchWallShopReference.Visible
-	shared.PunchWallInventoryController:SetVisible(mainPanel.Visible and activeTab == "Inventory")
-	task.defer(applyResponsiveLayout)
+applyReferenceHUDState(true)
+
+local boundTouchGuis = setmetatable({}, { __mode = "k" })
+local boundTouchControlFrames = setmetatable({}, { __mode = "k" })
+local function bindTouchControlFrame(frame)
+	if not frame or not frame:IsA("GuiObject") or boundTouchControlFrames[frame] then return end
+	boundTouchControlFrames[frame] = true
+	local function keepHidden()
+		if frame.Parent and frame.Visible then
+			frame.Visible = false
+		end
+	end
+	keepHidden()
+	frame:GetPropertyChangedSignal("Visible"):Connect(keepHidden)
+end
+local function bindTouchGui(touchGui)
+	if not touchGui or not touchGui:IsA("ScreenGui") or boundTouchGuis[touchGui] then return end
+	boundTouchGuis[touchGui] = true
+	local function keepEnabled()
+		if touchGui.Parent and not touchGui.Enabled then
+			touchGui.Enabled = true
+		end
+	end
+	keepEnabled()
+	touchGui:GetPropertyChangedSignal("Enabled"):Connect(keepEnabled)
+	for _, descendant in ipairs(touchGui:GetDescendants()) do
+		if descendant.Name == "TouchControlFrame" then
+			bindTouchControlFrame(descendant)
+		end
+	end
+	touchGui.DescendantAdded:Connect(function(descendant)
+		if descendant.Name == "TouchControlFrame" then
+			bindTouchControlFrame(descendant)
+		end
+	end)
+end
+local existingTouchGui = player.PlayerGui:FindFirstChild("TouchGui")
+if existingTouchGui then bindTouchGui(existingTouchGui) end
+player.PlayerGui.ChildAdded:Connect(function(child)
+	if child.Name == "TouchGui" then bindTouchGui(child) end
 end)
+gui:SetAttribute("TouchControlSuppressionMode", "EventDriven")
 
 RunService.RenderStepped:Connect(function()
-	statusDeck.Visible = false
-	leftDock.Visible = false
-	rightDock.Visible = false
-	nextWorld.Visible = false
-	help.Visible = false
-	mobileControls.Visible = false
-	bossHUD.Visible = false
-	contextLabel.Visible = false
-	referenceHUD.Visible = not mainPanel.Visible
-	shared.PunchWallShopReference.Visible = mainPanel.Visible and activeTab == "Fists"
-	shared.PunchWallShopDimmer.Visible = shared.PunchWallShopReference.Visible
-	local inventoryVisible = mainPanel.Visible and activeTab == "Inventory"
-	if shared.PunchWallInventoryController.Root then
-		shared.PunchWallInventoryController.Root.Visible = inventoryVisible
-	end
-	closeButton.Visible = mainPanel.Visible and not shared.PunchWallShopReference.Visible and not inventoryVisible
-	mainPanel.BackgroundTransparency = (shared.PunchWallShopReference.Visible or inventoryVisible) and 1 or 0.03
-	local touchGui = player.PlayerGui:FindFirstChild("TouchGui")
-	if touchGui and touchGui:IsA("ScreenGui") then
-		touchGui.Enabled = true
-		local touchControlFrame = touchGui:FindFirstChild("TouchControlFrame")
-		if touchControlFrame then touchControlFrame.Visible = false end
-	end
-	if shared.PunchWallJoystickVector.Magnitude > 0 then
-		local character = player.Character
-		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		if humanoid then humanoid:Move(Vector3.new(shared.PunchWallJoystickVector.X, 0, shared.PunchWallJoystickVector.Y), true) end
+	if shared.PunchWallJoystickVector.Magnitude <= 0 then return end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid:Move(Vector3.new(shared.PunchWallJoystickVector.X, 0, shared.PunchWallJoystickVector.Y), true)
 	end
 end)
 
@@ -6389,8 +6450,16 @@ applyResponsiveLayout = function()
 		menuButton.Position = UDim2.new(0.5, 0, 0, 8)
 		menuButton.Size = UDim2.fromOffset(78, 44)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-		if shopOpen or inventoryOpen then
-			local aspect = inventoryOpen and (1672 / 941) or 1.58
+		if inventoryOpen then
+			local availableWidth = math.max(1, viewport.X - 20)
+			local availableHeight = math.max(1, viewport.Y - 12)
+			local compactAspect = math.clamp(availableWidth / availableHeight, 1.5, 2.1)
+			local modalWidth = math.min(availableWidth, availableHeight * compactAspect)
+			local modalHeight = math.min(availableHeight, modalWidth / compactAspect)
+			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
+			mainPanel:SetAttribute("InventoryModalSizing", "CompactSafeFill")
+		elseif shopOpen then
+			local aspect = 1.58
 			local modalHeight = math.max(280, math.min(viewport.Y - 12, (viewport.X - 20) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 		else
@@ -6478,8 +6547,18 @@ applyResponsiveLayout = function()
 		menuButton.Position = UDim2.new(1, -18, 0, 18)
 		menuButton.Size = UDim2.fromOffset(92, 42)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-		if shopOpen or inventoryOpen then
-			local aspect = inventoryOpen and (1672 / 941) or 1.5
+		if inventoryOpen then
+			local referenceAspect = 1.5
+			local availableWidth = math.max(1, viewport.X - 48)
+			local availableHeight = math.max(1, viewport.Y - 36)
+			local modalWidth = math.min(viewport.X * 0.72, viewport.Y * 0.84 * referenceAspect, availableWidth)
+			local modalHeight = math.min(modalWidth / referenceAspect, availableHeight)
+			modalWidth = modalHeight * referenceAspect
+			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
+			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+			mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
+		elseif shopOpen then
+			local aspect = 1.5
 			local modalHeight = math.max(460, math.min(viewport.Y - 36, 860, (viewport.X - 48) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
@@ -6537,9 +6616,7 @@ applyResponsiveLayout = function()
 	end
 	panel.Visible = false
 	menuButton.Visible = false
-	statusDeck.Visible = false
-	mobileControls.Visible = false
-	contextLabel.Visible = false
+	applyReferenceHUDState(true)
 end
 
 if workspace.CurrentCamera then

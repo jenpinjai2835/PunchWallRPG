@@ -57,10 +57,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local r=g:WaitForChild('PixelPerfectHeroCityHUD') local b=r:FindFirstChild('InventoryButton') local shop=r:FindFirstChild('ShopButton') local punch=r:FindFirstChild('ActionPunch') local jump=r:FindFirstChild('ActionJump') local cfg=require(game.ReplicatedStorage:WaitForChild('GameConfig')) local function intersects(x,y) if not x or not y then return true end local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local centerDelta=b and shop and math.abs((b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y*.5)) or 999 local gap=b and shop and shop.AbsolutePosition.X-(b.AbsolutePosition.X+b.AbsoluteSize.X) or -999 local sourceMode=b and b:GetAttribute('IconSourceMode') local exactIcon=cfg.HeroCityPixelUI.Inventory=='rbxassetid://123409223461276' local sourceOk=b and sourceMode=='UploadedUserAsset' and exactIcon and b.Image==cfg.HeroCityPixelUI.Inventory and b:GetAttribute('PendingAssetUpload')==false and b:GetAttribute('IconSourceSHA256')=='06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A' local placementOk=b and shop and centerDelta<=16 and gap>=-1 and gap<=40 and not intersects(b,punch) and not intersects(b,jump) local targetOk=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=b and pcall(function() b:Activate() end) task.wait(.3) local s=a:Invoke('InventorySnapshot') return H:JSONEncode({ok=b~=nil and b:IsA('ImageButton') and b:GetAttribute('ToolAction')=='OpenInventory' and b:GetAttribute('MenuRow')=='Shop' and sourceOk and placementOk and targetOk and activated and s.visible==true,sourceMode=sourceMode,exactIcon=exactIcon,pending=b and b:GetAttribute('PendingAssetUpload'),target=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0,centerDelta=centerDelta,gap=gap,noPunchOverlap=b and not intersects(b,punch),noJumpOverlap=b and not intersects(b,jump),activated=activated,visible=s.visible})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local r=g:WaitForChild('PixelPerfectHeroCityHUD') local b=r:FindFirstChild('InventoryButton') local more=r:FindFirstChild('MoreTool') local shop=r:FindFirstChild('ShopButton') local punch=r:FindFirstChild('ActionPunch') local jump=r:FindFirstChild('ActionJump') local cfg=require(game.ReplicatedStorage:WaitForChild('GameConfig')) local function intersects(x,y) if not x or not y then return true end local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local centerDelta=b and shop and math.abs((b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y*.5)) or 999 local gap=b and shop and shop.AbsolutePosition.X-(b.AbsolutePosition.X+b.AbsoluteSize.X) or -999 local sourceMode=b and b:GetAttribute('IconSourceMode') local exactIcon=cfg.HeroCityPixelUI.Inventory=='rbxassetid://123409223461276' local sourceOk=b and sourceMode=='UploadedUserAsset' and exactIcon and b.Image==cfg.HeroCityPixelUI.Inventory and b:GetAttribute('PendingAssetUpload')==false and b:GetAttribute('IconSourceSHA256')=='06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A' local placementOk=b and shop and centerDelta<=16 and gap>=-1 and gap<=40 and not intersects(b,punch) and not intersects(b,jump) local targetOk=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local moreActivated=more and pcall(function() more:Activate() end) task.wait(.2) local moreState=a:Invoke('Snapshot') local moreOk=moreActivated and more:GetAttribute('ToolAction')=='OpenGameMenu' and moreState.menuVisible==true and moreState.activeTab=='Tasks' and moreState.inventoryVisible==false a:Invoke('CloseMenus') task.wait(.1) local activated=b and pcall(function() b:Activate() end) task.wait(.3) local s=a:Invoke('InventorySnapshot') return H:JSONEncode({ok=b~=nil and b:IsA('ImageButton') and b:GetAttribute('ToolAction')=='OpenInventory' and b:GetAttribute('MenuRow')=='Shop' and moreOk and sourceOk and placementOk and targetOk and activated and s.visible==true,moreOk=moreOk,moreAction=more and more:GetAttribute('ToolAction'),moreTab=moreState.activeTab,moreInventory=moreState.inventoryVisible,sourceMode=sourceMode,exactIcon=exactIcon,pending=b and b:GetAttribute('PendingAssetUpload'),target=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0,centerDelta=centerDelta,gap=gap,noPunchOverlap=b and not intersects(b,punch),noJumpOverlap=b and not intersects(b,jump),activated=activated,visible=s.visible})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
+        "\"moreOk\"\\s*:\\s*true",
+        "\"moreAction\"\\s*:\\s*\"OpenGameMenu\"",
+        "\"moreTab\"\\s*:\\s*\"Tasks\"",
+        "\"moreInventory\"\\s*:\\s*false",
         "\"sourceMode\"\\s*:\\s*\"UploadedUserAsset\"",
         "\"exactIcon\"\\s*:\\s*true",
         "\"target\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
@@ -70,6 +74,29 @@
         "\"visible\"\\s*:\\s*true"
       ],
       "label": "dedicated desktop Inventory button sits beside Shop and opens the modal"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.1) local moreResult=a:Invoke('OpenMore') task.wait(.15) local moreState=a:Invoke('Snapshot') local moreOk=moreResult==true and moreState.menuVisible==true and moreState.activeTab=='Tasks' and moreState.inventoryVisible==false a:Invoke('CloseMenus') task.wait(.1) local inventoryResult=a:Invoke('OpenInventory') task.wait(.3) local inventoryState=a:Invoke('Snapshot') local menu=g:FindFirstChild('GameMenu') local vp=workspace.CurrentCamera.ViewportSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,vp.X) local heightRatio=size.Y/math.max(1,vp.Y) local aspect=size.X/math.max(1,size.Y) local safe=menu and menu.AbsolutePosition.X>=-1 and menu.AbsolutePosition.Y>=-1 and menu.AbsolutePosition.X+size.X<=vp.X+2 and menu.AbsolutePosition.Y+size.Y<=vp.Y+2 local centered=menu and menu.AnchorPoint==Vector2.new(.5,.5) and menu.Position.X.Scale==.5 and menu.Position.Y.Scale==.5 and menu.Position.X.Offset==0 and menu.Position.Y.Offset==0 local sizing=menu and menu:GetAttribute('InventoryModalSizing') local perf=g:GetAttribute('HUDVisibilitySyncMode') local touch=g:GetAttribute('TouchControlSuppressionMode') local idle=g:GetAttribute('HUDIdleRenderWrites') return H:JSONEncode({ok=moreOk and type(inventoryResult)=='table' and inventoryState.activeTab=='Inventory' and inventoryState.inventoryVisible==true and sizing=='CenteredReference1.50' and widthRatio>=.68 and widthRatio<=.73 and heightRatio>=.80 and heightRatio<=.85 and aspect>=1.49 and aspect<=1.51 and safe and centered and perf=='EventDrivenV2' and touch=='EventDriven' and idle==0,moreOk=moreOk,moreTab=moreState.activeTab,moreInventory=moreState.inventoryVisible,inventoryTab=inventoryState.activeTab,inventoryVisible=inventoryState.inventoryVisible,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,aspect=aspect,safe=safe,centered=centered,perf=perf,touch=touch,idle=idle})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"moreOk\"\\s*:\\s*true",
+        "\"moreTab\"\\s*:\\s*\"Tasks\"",
+        "\"moreInventory\"\\s*:\\s*false",
+        "\"inventoryTab\"\\s*:\\s*\"Inventory\"",
+        "\"inventoryVisible\"\\s*:\\s*true",
+        "\"sizing\"\\s*:\\s*\"CenteredReference1.50\"",
+        "\"safe\"\\s*:\\s*true",
+        "\"centered\"\\s*:\\s*true",
+        "\"perf\"\\s*:\\s*\"EventDrivenV2\"",
+        "\"touch\"\\s*:\\s*\"EventDriven\"",
+        "\"idle\"\\s*:\\s*0"
+      ],
+      "label": "automation actions stay distinct and desktop modal uses the centered reference envelope"
     },
     {
       "type": "call",
@@ -364,6 +391,20 @@
         "\"sourceMode\"\\s*:\\s*\"UploadedUserAsset\""
       ],
       "label": "compact Inventory button keeps a 44px target beside Shop without action overlap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local menu=g:FindFirstChild('GameMenu') local vp=workspace.CurrentCamera.ViewportSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,vp.X) local heightRatio=size.Y/math.max(1,vp.Y) local safe=menu and menu.AbsolutePosition.X>=-1 and menu.AbsolutePosition.Y>=-1 and menu.AbsolutePosition.X+size.X<=vp.X+2 and menu.AbsolutePosition.Y+size.Y<=vp.Y+2 local sizing=menu and menu:GetAttribute('InventoryModalSizing') return H:JSONEncode({ok=sizing=='CompactSafeFill' and widthRatio>=.85 and heightRatio>=.85 and safe,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,safe=safe})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"sizing\"\\s*:\\s*\"CompactSafeFill\"",
+        "\"safe\"\\s*:\\s*true"
+      ],
+      "label": "compact Inventory modal fills the safe phone viewport"
     },
     {
       "type": "call",
