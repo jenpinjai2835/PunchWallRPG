@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local ContextActionService = game:GetService("ContextActionService")
 local ContentProvider = game:GetService("ContentProvider")
@@ -177,41 +178,180 @@ shared.PunchWallSetModalCoreGuiHidden = function(hidden)
 	pcall(function() StarterGui:SetCore("TopbarEnabled", not hidden) end)
 	if gui then gui:SetAttribute("ModalCoreGuiHidden", hidden == true) end
 end
+
+local TIER_ATMOSPHERE_COLORS = {
+	Color3.fromRGB(225, 246, 226), Color3.fromRGB(231, 239, 242),
+	Color3.fromRGB(211, 226, 239), Color3.fromRGB(201, 242, 249),
+	Color3.fromRGB(255, 222, 207), Color3.fromRGB(203, 234, 250),
+	Color3.fromRGB(224, 226, 239), Color3.fromRGB(255, 207, 188),
+	Color3.fromRGB(216, 211, 251), Color3.fromRGB(195, 228, 249),
+}
+local tierAtmosphereCache = {
+	tier = nil,
+	motion = nil,
+	sound = nil,
+	colorEffect = nil,
+	atmosphere = nil,
+	gameRoot = nil,
+	landmarks = nil,
+	dirty = true,
+	rootConnections = {},
+	landmarkConnections = {},
+}
+local tierAtmosphereApplyCount = 0
+local tierAtmosphereLandmarkScanCount = 0
+local latestTierAtmosphereDepth = nil
+local tierAtmosphereRefreshScheduled = false
+
+local function invalidateTierAtmosphere(reason, scheduleRefresh)
+	local becameDirty = not tierAtmosphereCache.dirty
+	tierAtmosphereCache.dirty = true
+	if becameDirty then
+		gui:SetAttribute("TierAtmosphereCacheDirty", true)
+		gui:SetAttribute("TierAtmosphereInvalidationReason", tostring(reason or "manual"))
+	end
+	if scheduleRefresh == false
+		or latestTierAtmosphereDepth == nil
+		or tierAtmosphereRefreshScheduled
+	then
+		return
+	end
+	tierAtmosphereRefreshScheduled = true
+	gui:SetAttribute("TierAtmosphereRefreshScheduled", true)
+	task.defer(function()
+		tierAtmosphereRefreshScheduled = false
+		gui:SetAttribute("TierAtmosphereRefreshScheduled", false)
+		if shared.PunchWallUpdateTierAtmosphere then
+			shared.PunchWallUpdateTierAtmosphere(latestTierAtmosphereDepth)
+		end
+	end)
+end
+
+local function disconnectTierAtmosphereConnections(connections)
+	for _, connection in ipairs(connections) do
+		connection:Disconnect()
+	end
+	table.clear(connections)
+end
+
+local function useTierAtmosphereRoot(gameRoot)
+	if tierAtmosphereCache.gameRoot == gameRoot then return end
+	disconnectTierAtmosphereConnections(tierAtmosphereCache.rootConnections)
+	tierAtmosphereCache.gameRoot = gameRoot
+	invalidateTierAtmosphere("game_root_changed", false)
+	if not gameRoot then return end
+	local function invalidateForLandmarkFolder(child)
+		if child.Name == "Depth Tier Landmarks" then
+			invalidateTierAtmosphere("landmark_source_replaced")
+		end
+	end
+	table.insert(tierAtmosphereCache.rootConnections, gameRoot.ChildAdded:Connect(invalidateForLandmarkFolder))
+	table.insert(tierAtmosphereCache.rootConnections, gameRoot.ChildRemoved:Connect(invalidateForLandmarkFolder))
+	table.insert(tierAtmosphereCache.rootConnections, gameRoot.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			invalidateTierAtmosphere("game_root_removed")
+		end
+	end))
+end
+
+local function useTierAtmosphereLandmarks(landmarks)
+	if tierAtmosphereCache.landmarks == landmarks then return end
+	disconnectTierAtmosphereConnections(tierAtmosphereCache.landmarkConnections)
+	tierAtmosphereCache.landmarks = landmarks
+	invalidateTierAtmosphere("landmark_source_changed", false)
+	if not landmarks then return end
+	table.insert(tierAtmosphereCache.landmarkConnections, landmarks.DescendantAdded:Connect(function()
+		invalidateTierAtmosphere("landmark_descendant_added")
+	end))
+	table.insert(tierAtmosphereCache.landmarkConnections, landmarks.DescendantRemoving:Connect(function()
+		invalidateTierAtmosphere("landmark_descendant_removing")
+	end))
+	table.insert(tierAtmosphereCache.landmarkConnections, landmarks.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			invalidateTierAtmosphere("landmark_source_removed")
+		end
+	end))
+end
+
+workspace.ChildAdded:Connect(function(child)
+	if child.Name == "PunchWallRPG" then
+		invalidateTierAtmosphere("game_root_added")
+	end
+end)
+workspace.ChildRemoved:Connect(function(child)
+	if child.Name == "PunchWallRPG" then
+		invalidateTierAtmosphere("game_root_removed")
+	end
+end)
+Lighting.ChildAdded:Connect(function(child)
+	if child.Name == "Hero City Color" or child.Name == "Hero City Atmosphere" then
+		invalidateTierAtmosphere("lighting_effect_added")
+	end
+end)
+Lighting.ChildRemoved:Connect(function(child)
+	if child.Name == "Hero City Color" or child.Name == "Hero City Atmosphere" then
+		invalidateTierAtmosphere("lighting_effect_removed")
+	end
+end)
+
+shared.PunchWallInvalidateTierAtmosphere = invalidateTierAtmosphere
 shared.PunchWallUpdateTierAtmosphere = function(depth)
-	local lighting = game:GetService("Lighting")
 	local normalizedDepth = math.max(0, tonumber(depth) or 0)
+	latestTierAtmosphereDepth = normalizedDepth
 	local tier = math.clamp(math.floor(math.max(0, normalizedDepth - 1) / 8) + 1, 1, 10)
-	local colors = {
-		Color3.fromRGB(225, 246, 226), Color3.fromRGB(231, 239, 242),
-		Color3.fromRGB(211, 226, 239), Color3.fromRGB(201, 242, 249),
-		Color3.fromRGB(255, 222, 207), Color3.fromRGB(203, 234, 250),
-		Color3.fromRGB(224, 226, 239), Color3.fromRGB(255, 207, 188),
-		Color3.fromRGB(216, 211, 251), Color3.fromRGB(195, 228, 249),
-	}
-	local colorEffect = lighting:FindFirstChild("Hero City Color")
+	local motionEnabled = clientSettings.motion == true
+	local soundEnabled = clientSettings.sound == true
+	local colorEffect = Lighting:FindFirstChild("Hero City Color")
+	local atmosphere = Lighting:FindFirstChild("Hero City Atmosphere")
+	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	local landmarks = gameRoot and gameRoot:FindFirstChild("Depth Tier Landmarks")
+	useTierAtmosphereRoot(gameRoot)
+	useTierAtmosphereLandmarks(landmarks)
+	if not tierAtmosphereCache.dirty
+		and tierAtmosphereCache.tier == tier
+		and tierAtmosphereCache.motion == motionEnabled
+		and tierAtmosphereCache.sound == soundEnabled
+		and tierAtmosphereCache.colorEffect == colorEffect
+		and tierAtmosphereCache.atmosphere == atmosphere
+	then
+		return false
+	end
+
+	tierAtmosphereCache.tier = tier
+	tierAtmosphereCache.motion = motionEnabled
+	tierAtmosphereCache.sound = soundEnabled
+	tierAtmosphereCache.colorEffect = colorEffect
+	tierAtmosphereCache.atmosphere = atmosphere
+	tierAtmosphereCache.dirty = false
+	tierAtmosphereApplyCount += 1
+	gui:SetAttribute("TierAtmosphereApplyCount", tierAtmosphereApplyCount)
+	gui:SetAttribute("TierAtmosphereCacheDirty", false)
+	gui:SetAttribute(
+		"TierAtmosphereCacheKey",
+		("%d:%s:%s"):format(tier, motionEnabled and "motion" or "reduced", soundEnabled and "sound" or "muted")
+	)
+
 	if colorEffect and colorEffect:IsA("ColorCorrectionEffect") then
 		TweenService:Create(colorEffect, TweenInfo.new(0.8), {
-			TintColor = colors[tier],
+			TintColor = TIER_ATMOSPHERE_COLORS[tier],
 			Saturation = 0.12 + math.min(tier, 6) * 0.012,
 		}):Play()
 	end
-	local atmosphere = lighting:FindFirstChild("Hero City Atmosphere")
 	if atmosphere and atmosphere:IsA("Atmosphere") then
-		TweenService:Create(atmosphere, TweenInfo.new(0.8), { Color = colors[tier] }):Play()
+		TweenService:Create(atmosphere, TweenInfo.new(0.8), { Color = TIER_ATMOSPHERE_COLORS[tier] }):Play()
 	end
 	backgroundMusic.PlaybackSpeed = 1 + (tier - 1) * 0.012
-	backgroundMusic.Volume = clientSettings.sound and ((GameConfig.Audio.MusicVolume or 0.22) + math.min(tier - 1, 5) * 0.008) or 0
-	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
-	local landmarks = gameRoot and gameRoot:FindFirstChild("Depth Tier Landmarks")
+	backgroundMusic.Volume = soundEnabled and ((GameConfig.Audio.MusicVolume or 0.22) + math.min(tier - 1, 5) * 0.008) or 0
 	local activeLandmarks = 0
 	if landmarks then
+		tierAtmosphereLandmarkScanCount += 1
 		for _, landmark in ipairs(landmarks:GetChildren()) do
 			local active = landmark:GetAttribute("MaterialTier") == tier
 			landmark:SetAttribute("ClientActiveTier", active)
 			if active then activeLandmarks += 1 end
 			for _, descendant in ipairs(landmark:GetDescendants()) do
 				if descendant:IsA("ParticleEmitter") and descendant.Name == "TierParticles" then
-					descendant.Enabled = active and clientSettings.motion
+					descendant.Enabled = active and motionEnabled
 				elseif descendant:IsA("BasePart") and descendant:GetAttribute("TierLandmarkPart") then
 					local baseColor = descendant:GetAttribute("BaseColor")
 					if typeof(baseColor) == "Color3" then
@@ -223,8 +363,10 @@ shared.PunchWallUpdateTierAtmosphere = function(depth)
 	end
 	gui:SetAttribute("ActiveMaterialTier", tier)
 	gui:SetAttribute("ActiveTierLandmarkCount", activeLandmarks)
+	gui:SetAttribute("TierAtmosphereLandmarkScanCount", tierAtmosphereLandmarkScanCount)
 	gui:SetAttribute("TierMusicVariant", tier)
 	gui:SetAttribute("TierAtmosphereApplied", true)
+	return true
 end
 gui:SetAttribute("FreeAimPunch", true)
 gui:SetAttribute("TargetBlockHUDEnabled", false)
@@ -3243,14 +3385,32 @@ performPunchAnimation = function(directionName)
 end
 
 local trainingAnimationGeneration = 0
+local trainingAnimationActive = nil
+local trainingAnimationLoopStartCount = 0
 shared.PunchWallSetTrainingAnimation = function(active)
+	active = active == true
+	if gui:GetAttribute("ContinuousTrainingAnimation") ~= active then
+		gui:SetAttribute("ContinuousTrainingAnimation", active)
+	end
+	if shared.PunchWallTrainingOverlay and shared.PunchWallTrainingOverlay.Visible ~= active then
+		shared.PunchWallTrainingOverlay.Visible = active
+	end
+	if trainingAnimationActive == active then
+		return false
+	end
+	trainingAnimationActive = active
 	trainingAnimationGeneration += 1
 	local generation = trainingAnimationGeneration
-	gui:SetAttribute("ContinuousTrainingAnimation", active == true)
-	if shared.PunchWallTrainingOverlay then shared.PunchWallTrainingOverlay.Visible = active == true end
-	if not active then return end
+	gui:SetAttribute("TrainingAnimationGeneration", trainingAnimationGeneration)
+	gui:SetAttribute("TrainingAnimationDesiredState", active)
+	if not active then return true end
+	trainingAnimationLoopStartCount += 1
+	gui:SetAttribute("TrainingAnimationLoopStartCount", trainingAnimationLoopStartCount)
 	task.spawn(function()
-		while generation == trainingAnimationGeneration and latestStats.TrainingActive == 1 do
+		while generation == trainingAnimationGeneration
+			and trainingAnimationActive
+			and latestStats.TrainingActive == 1
+		do
 			local character = player.Character
 			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 			local world = workspace:FindFirstChild("PunchWallRPG")
@@ -3263,6 +3423,7 @@ shared.PunchWallSetTrainingAnimation = function(active)
 			task.wait(1)
 		end
 	end)
+	return true
 end
 
 local function beginPunchCamera(now)
@@ -4282,23 +4443,19 @@ if RunService:IsStudio() then
 			end
 			if action == "SelectInventoryCategory" then
 				if not shared.PunchWallInventoryController then return false end
-				shared.PunchWallInventoryController:SetCategory(tostring(value or "All"))
-				return shared.PunchWallInventoryController:GetSnapshot()
+				return shared.PunchWallInventoryController:SetCategory(tostring(value or "All"))
 			end
 			if action == "SetInventorySearch" then
 				if not shared.PunchWallInventoryController then return false end
-				shared.PunchWallInventoryController:SetSearch(tostring(value or ""))
-				return shared.PunchWallInventoryController:GetSnapshot()
+				return shared.PunchWallInventoryController:SetSearch(tostring(value or ""))
 			end
 			if action == "SetInventoryRarity" then
 				if not shared.PunchWallInventoryController then return false end
-				shared.PunchWallInventoryController:SetRarity(tostring(value or "All"))
-				return shared.PunchWallInventoryController:GetSnapshot()
+				return shared.PunchWallInventoryController:SetRarity(tostring(value or "All"))
 			end
 			if action == "SelectInventoryItem" then
 				if not shared.PunchWallInventoryController then return false end
-				shared.PunchWallInventoryController:SelectItem(tostring(value or ""))
-				return shared.PunchWallInventoryController:GetSnapshot()
+				return shared.PunchWallInventoryController:SelectItem(tostring(value or ""))
 			end
 			if action == "InvokeInventoryAction" then
 				if not shared.PunchWallInventoryController then return false end
@@ -5058,7 +5215,7 @@ trainingOverlay.Position, trainingOverlay.Size = designRect(570, 788, 440, 104)
 trainingOverlay.BackgroundColor3 = Color3.fromRGB(7, 17, 24)
 trainingOverlay.BackgroundTransparency = 0.03
 trainingOverlay.BorderSizePixel = 0
-trainingOverlay.Visible = false
+trainingOverlay.Visible = trainingAnimationActive == true
 trainingOverlay.ZIndex = 40
 trainingOverlay.Parent = referenceHUD
 setRounded(trainingOverlay, 6)
@@ -6329,10 +6486,9 @@ statRemote.OnClientEvent:Connect(function(payload)
 		shared.PunchWallHeroShopRefresh()
 	end
 	if shared.PunchWallInventoryController and shared.PunchWallInventoryController:IsVisible() then
-		shared.PunchWallInventoryController:Refresh()
+		shared.PunchWallInventoryController:Refresh(false, false)
 	end
 	if shared.PunchWallRefreshSpin then shared.PunchWallRefreshSpin() end
-	if shared.PunchWallSetTrainingAnimation then shared.PunchWallSetTrainingAnimation((payload.TrainingActive or 0) >= 1) end
 end)
 
 applyReferenceHUDState(true)

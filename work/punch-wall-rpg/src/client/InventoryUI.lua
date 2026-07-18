@@ -219,6 +219,8 @@ function InventoryUI.new(options)
 	self._lastTimedRefreshAt = 0
 	self._hasTimedItem = false
 	self._timerConnection = nil
+	self._diagnosticSnapshotCount = 0
+	self._diagnosticSnapshotSkipCount = 0
 	self._layout = {
 		compact = false,
 		columns = 4,
@@ -666,7 +668,7 @@ function InventoryUI:_build(parent)
 			arrow = arrow,
 		}
 		self:_connect(button.Activated, function()
-			self:SetCategory(category)
+			self:SetCategory(category, false)
 		end)
 	end
 
@@ -808,7 +810,7 @@ function InventoryUI:_build(parent)
 		})
 		self._rarityButtons[rarity] = option
 		self:_connect(option.Activated, function()
-			self:SetRarity(rarity)
+			self:SetRarity(rarity, false)
 			self:_setRarityMenu(false)
 		end)
 	end
@@ -1142,7 +1144,7 @@ function InventoryUI:_build(parent)
 	end)
 	self:_connect(self.Search:GetPropertyChangedSignal("Text"), function()
 		if not self._updatingSearch then
-			self:SetSearch(self.Search.Text)
+			self:SetSearch(self.Search.Text, false)
 		end
 	end)
 	self:_connect(self.Root:GetPropertyChangedSignal("AbsoluteSize"), function()
@@ -1544,7 +1546,7 @@ function InventoryUI:_renderGrid()
 			end
 		end)
 		self:_connectScoped(self._cardConnections, card.Activated, function()
-			self:SelectItem(key)
+			self:SelectItem(key, false)
 		end)
 		table.insert(self._cards, card)
 	end
@@ -1736,7 +1738,7 @@ end
 function InventoryUI:SetVisible(visible)
 	visible = visible == true
 	if visible then
-		self:Refresh(true)
+		self:Refresh(true, false)
 		self:_setRarityMenu(false)
 		local viewport = self.Root.AbsoluteSize
 		if viewport.X < 1 or viewport.Y < 1 then
@@ -1757,7 +1759,17 @@ function InventoryUI:IsVisible()
 	return self.Root.Visible
 end
 
-function InventoryUI:Refresh(force)
+function InventoryUI:_snapshotResult(includeDiagnostics)
+	-- Public calls keep the full automation snapshot by default; native callbacks
+	-- explicitly pass false because they do not consume diagnostic layout scans.
+	if includeDiagnostics == false then
+		self._diagnosticSnapshotSkipCount = self._diagnosticSnapshotSkipCount + 1
+		return nil
+	end
+	return self:GetSnapshot()
+end
+
+function InventoryUI:Refresh(force, includeDiagnostics)
 	local stats = self:_getStats()
 	local ok, signature = pcall(InventoryViewModel.Signature, self.GameConfig, stats)
 	if not ok then
@@ -1774,10 +1786,10 @@ function InventoryUI:Refresh(force)
 		end
 	end
 	self:_syncTimedRefresh()
-	return self:GetSnapshot()
+	return self:_snapshotResult(includeDiagnostics)
 end
 
-function InventoryUI:SetCategory(name)
+function InventoryUI:SetCategory(name, includeDiagnostics)
 	local requested = normalize(name)
 	for _, category in ipairs(CATEGORIES) do
 		if normalize(category) == requested then
@@ -1786,13 +1798,13 @@ function InventoryUI:SetCategory(name)
 			self._deleteConfirmUntil = 0
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
-			return self:GetSnapshot()
+			return self:_snapshotResult(includeDiagnostics)
 		end
 	end
-	return self:GetSnapshot()
+	return self:_snapshotResult(includeDiagnostics)
 end
 
-function InventoryUI:SetSearch(text)
+function InventoryUI:SetSearch(text, includeDiagnostics)
 	self._search = tostring(text or "")
 	if self.Search.Text ~= self._search then
 		self._updatingSearch = true
@@ -1803,10 +1815,10 @@ function InventoryUI:SetSearch(text)
 	self._deleteConfirmUntil = 0
 	self:_applyFilter(true)
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
-	return self:GetSnapshot()
+	return self:_snapshotResult(includeDiagnostics)
 end
 
-function InventoryUI:SetRarity(name)
+function InventoryUI:SetRarity(name, includeDiagnostics)
 	local requested = normalize(name)
 	for _, rarity in ipairs(RARITIES) do
 		if normalize(rarity) == requested then
@@ -1815,16 +1827,16 @@ function InventoryUI:SetRarity(name)
 			self._deleteConfirmUntil = 0
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
-			return self:GetSnapshot()
+			return self:_snapshotResult(includeDiagnostics)
 		end
 	end
-	return self:GetSnapshot()
+	return self:_snapshotResult(includeDiagnostics)
 end
 
-function InventoryUI:SelectItem(key)
+function InventoryUI:SelectItem(key, includeDiagnostics)
 	local item = self:_findItem(key)
 	if not item then
-		return self:GetSnapshot()
+		return self:_snapshotResult(includeDiagnostics)
 	end
 	self._selectedKey = tostring(item.key)
 	self._selectedItem = item
@@ -1835,7 +1847,7 @@ function InventoryUI:SelectItem(key)
 	self:_renderDetail()
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey)
-	return self:GetSnapshot()
+	return self:_snapshotResult(includeDiagnostics)
 end
 
 function InventoryUI:_findAction(item, requestedName)
@@ -1860,7 +1872,7 @@ function InventoryUI:InvokeAction(request)
 				return false, "item_not_found"
 			end
 			if requestedKey ~= tostring(self._selectedKey) then
-				self:SelectItem(requestedKey)
+				self:SelectItem(requestedKey, false)
 			end
 		end
 		requestedName = request.action or request.name
@@ -2296,6 +2308,7 @@ function InventoryUI:_minimumTouchTarget()
 end
 
 function InventoryUI:GetSnapshot()
+	self._diagnosticSnapshotCount = self._diagnosticSnapshotCount + 1
 	local visibleKeys = {}
 	local visibleNames = {}
 	for _, item in ipairs(self._visibleItems) do
@@ -2361,6 +2374,10 @@ function InventoryUI:GetSnapshot()
 			mode = hasUploadedArt and "UploadedItemArt" or "NativeFallback",
 			magentaFree = true,
 			checkerboardFree = true,
+		},
+		performance = {
+			diagnosticSnapshots = self._diagnosticSnapshotCount,
+			diagnosticSnapshotSkips = self._diagnosticSnapshotSkipCount,
 		},
 	}
 end
