@@ -12,6 +12,75 @@ local HapticService = game:GetService("HapticService")
 local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
+do
+	local scheduledCharacter
+	local function ensureDefaultAnimateEmoteHook(character)
+		if not character then return end
+		local animate = character:FindFirstChild("Animate")
+			or character:WaitForChild("Animate", 4)
+		if not animate
+			or not animate:IsA("LocalScript")
+		then
+			return
+		end
+		local existingPlayEmote = animate:FindFirstChild("PlayEmote")
+		if existingPlayEmote then
+			if not existingPlayEmote:IsA("BindableFunction") then
+				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
+			end
+			return
+		end
+		-- The engine normally parents this BindableFunction with Animate. Give
+		-- that replication one short scheduling window before repairing a rare
+		-- partial bootstrap, well before Animate's infinite-yield warning.
+		existingPlayEmote = animate:WaitForChild("PlayEmote", 0.25)
+		if existingPlayEmote then
+			if not existingPlayEmote:IsA("BindableFunction") then
+				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
+			end
+			return
+		end
+		if player.Character ~= character
+			or not character.Parent
+			or animate.Parent ~= character
+			or animate:FindFirstChild("PlayEmote") then
+			return
+		end
+		local playEmote = Instance.new("BindableFunction")
+		playEmote.Name = "PlayEmote"
+		-- BindableFunction:Invoke waits for a callback. Keep the repaired hook
+		-- responsive during the tiny window before Animate installs its handler.
+		playEmote.OnInvoke = function()
+			return false
+		end
+		local duplicateConnection = animate.ChildAdded:Connect(function(child)
+			if child ~= playEmote
+				and child.Name == "PlayEmote"
+				and playEmote.Parent == animate then
+				child:Destroy()
+				character:SetAttribute("PunchWallRemovedDuplicatePlayEmoteHook", true)
+			end
+		end)
+		existingPlayEmote = animate:FindFirstChild("PlayEmote")
+		if existingPlayEmote then
+			duplicateConnection:Disconnect()
+			playEmote:Destroy()
+			if not existingPlayEmote:IsA("BindableFunction") then
+				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
+			end
+			return
+		end
+		playEmote.Parent = animate
+		character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
+	end
+	local function scheduleDefaultAnimateRepair(character)
+		if not character or scheduledCharacter == character then return end
+		scheduledCharacter = character
+		task.spawn(ensureDefaultAnimateEmoteHook, character)
+	end
+	player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
+	scheduleDefaultAnimateRepair(player.Character)
+end
 pcall(function()
 	player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom
 end)
