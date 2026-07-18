@@ -77,7 +77,8 @@ commands. They are test controls, not player-facing production controls.
 | `CloseInventory` | none | Close the Inventory, restore gameplay HUD/input, and return an updated snapshot or `true`. |
 | `SelectInventoryCategory` | `All`, `Fists`, `Pets`, `Honor`, or `Boosts` | Change category, preserve only valid selection, refresh visible items. |
 | `SetInventorySearch` | string | Apply trimmed case-insensitive search to authoritative names/display names. |
-| `SetInventoryRarity` | `All`, `Common`, `Rare`, `Epic`, `Legendary`, or `Premium` | Apply rarity filtering without mutating inventory. |
+| `SetInventoryRarity` | `All`, `Common`, `Rare`, `Epic`, `Legendary`, `Secret`, or `Premium` | Apply rarity filtering without mutating inventory. |
+| `SetInventoryRarityMenuOpen` | boolean | Open or close the same bounded rarity menu used by the player UI; return the resulting visible state. |
 | `SelectInventoryItem` | stable item key | Select exactly one owned/active item. Duplicate pets must be selected by slot key. |
 | `InvokeInventoryAction` | `{action=<name>, key=<stable key>}` | Send the normal server request for that exact owned item. An unknown key must return `false, "item_not_found"`, preserve the prior selection, and dispatch nothing. Never mutate ownership locally. |
 | `InventorySnapshot` | none | Return the deterministic state contract below without changing gameplay. |
@@ -181,6 +182,15 @@ The flow verifies:
     unchanged.
 13. The test invokes `Reset` immediately after the destructive and stale-index
     assertions, then closing the modal restores the live Hero City gameplay HUD.
+14. A selected visible timed boost updates only its detail countdown while the
+    grid, live-card pool, and card connections remain stable.
+15. A hidden compact timed detail uses one expiry delay and performs no
+    per-second hidden-detail mutation; staggered expiries rebuild once and
+    reschedule for the next authoritative expiry.
+16. Delete confirmation visibly expires back to `DELETE` without dispatching
+    a destructive action, and stale confirmation work is cancellable.
+17. All seven rarity options remain touch-safe and reachable through the
+    bounded compact scrolling menu, including `Premium`.
 
 Deletion is permitted only inside this isolated, deterministic test state. The
 flow deletes the unequipped duplicate only after explicitly unlocking its slot,
@@ -307,10 +317,12 @@ The integrated source was synchronized to the open Studio place
 `PunchWallRPGPlayable_v1_final.rbxlx` (Studio instance
 `597f195a-a442-457a-8e13-6627c44e58bf`) before validation.
 
-### Inventory Gate
+### Initial Inventory Gate
 
-- `inventory-menu-ui`: **36/36 PASS** for three consecutive runs after the
-  authoritative duplicate-pet wait was made deterministic.
+- At the initial integration checkpoint, `inventory-menu-ui` passed **36/36**
+  for three consecutive runs after the authoritative duplicate-pet wait was
+  made deterministic. Later checkpoints expand this flow; see the final
+  validation record below.
 - The dedicated flow's console-error assertion passed. No Inventory runtime
   error remained.
 - `inventory-persistence`, `luck-distribution`, `responsive-ui-inputs`,
@@ -387,3 +399,41 @@ re-baselined through normal review.
 
 The Inventory is ready only after integration, the relevant regression, the
 full required suite, and visual review report no known in-scope defect.
+
+## Final Inventory Validation — 2026-07-19
+
+Final production checkpoint:
+`375913872fff9cb351b0d2ca550ba9d55f74ce23`.
+
+The final dedicated flow contains 51 unique labels and no cross-context
+`shared` state. Three fresh consecutive runs passed **51/51** with identical
+SHA-256
+`64F37632B20F6CEF47205ACAA34E508B244C2B9393EB8D63ABABE2BE340A6166`:
+
+- `C:\Temp\inventory-final51-menu-stable-run1.stdout.json`;
+- `C:\Temp\inventory-final51-menu-stable-run2.stdout.json`;
+- `C:\Temp\inventory-final51-menu-stable-run3.stdout.json`.
+
+The final checks include the adaptive seven-option rarity menu, staggered
+boost expiry, selected visible countdown updates without grid churn, hidden
+compact detail with no per-second mutation, delete-confirmation timeout, exact
+duplicate-pet boundaries, desktop/compact geometry, console cleanliness, and
+viewport restoration.
+
+Additional final evidence:
+
+- Inventory card-render contract: 17/17;
+- Inventory runtime cache contract: 16/16;
+- client runtime performance contract: 19/19;
+- signature performance contract: 18/18 at 10,000 iterations;
+- `punchwall-smoke`: 12/12, artifact
+  `C:\Temp\inventory-final51-punchwall-smoke.stdout.json`, SHA-256
+  `98486B39832536F7F3F33E74BF65A102B607FAF0AA6452053C0DD82D518469A1`.
+
+The frozen final 84-flow aggregate at `3759138` completed with **62 PASS /
+22 FAIL**. Inventory passed all 51 checks. The failure set contains the 21
+recorded-baseline flows plus `punch-camera-device-20`; three targeted camera
+diagnostics also failed with a varying device/predicate and are classified as
+a known P2 test/sequence/physics-sampling instability, not as an Inventory
+pass or an Inventory-caused regression. Exact artifacts, hashes, metrics, and
+follow-up guidance are recorded in `INVENTORY_PERFORMANCE_QC.md`.
