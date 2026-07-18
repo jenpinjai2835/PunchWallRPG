@@ -200,6 +200,7 @@ function InventoryUI.new(options)
 	self._cardConnections = {}
 	self._actionConnections = {}
 	self._cards = {}
+	self._cardRefsByKey = {}
 	self._actionButtons = {}
 	self._categoryButtons = {}
 	self._rarityButtons = {}
@@ -221,6 +222,8 @@ function InventoryUI.new(options)
 	self._timerConnection = nil
 	self._diagnosticSnapshotCount = 0
 	self._diagnosticSnapshotSkipCount = 0
+	self._gridRebuildCount = 0
+	self._selectionVisualUpdateCount = 0
 	self._layout = {
 		compact = false,
 		columns = 4,
@@ -231,6 +234,10 @@ function InventoryUI.new(options)
 	}
 
 	self:_build(options.Parent)
+	self.Root:SetAttribute("InventoryGridRebuildCount", 0)
+	self.Root:SetAttribute("InventorySelectionVisualUpdateCount", 0)
+	self.Root:SetAttribute("InventoryLiveCardCount", 0)
+	self.Root:SetAttribute("InventoryCardConnectionCount", 0)
 	self:ApplyResponsive(self.Root.AbsoluteSize, false, 1)
 	return self
 end
@@ -1353,13 +1360,44 @@ end
 
 function InventoryUI:_clearCards()
 	self:_disconnectPool(self._cardConnections)
+	table.clear(self._cardRefsByKey)
 	for _, card in ipairs(self._cards) do
 		card:Destroy()
 	end
 	table.clear(self._cards)
 end
 
+function InventoryUI:_applyCardSelectionVisual(key, selected)
+	local refs = self._cardRefsByKey[tostring(key or "")]
+	if type(refs) ~= "table" then
+		return 0
+	end
+	local updated = 0
+	for _, ref in ipairs(refs) do
+		local card = ref.card
+		local stroke = ref.stroke
+		if card and card.Parent and stroke and stroke.Parent then
+			if selected then
+				card.BackgroundColor3 = PALETTE.CardHover
+				stroke.Color = PALETTE.Gold
+				stroke.Thickness = 3
+			elseif ref.hovered then
+				card.BackgroundColor3 = PALETTE.CardHover
+				stroke.Color = ref.accent
+				stroke.Thickness = 2
+			else
+				card.BackgroundColor3 = PALETTE.Card
+				stroke.Color = ref.accent
+				stroke.Thickness = 1.5
+			end
+			updated = updated + 1
+		end
+	end
+	return updated
+end
+
 function InventoryUI:_renderGrid()
+	self._gridRebuildCount = self._gridRebuildCount + 1
 	self:_clearCards()
 	self.Empty.Visible = #self._visibleItems == 0
 	for index, item in ipairs(self._visibleItems) do
@@ -1383,6 +1421,18 @@ function InventoryUI:_renderGrid()
 		card:SetAttribute("InventoryLocked", item.locked == true)
 		addCorner(card, 3)
 		local cardStroke = addStroke(card, selected and PALETTE.Gold or accent, selected and 3 or 1.5)
+		local cardRef = {
+			card = card,
+			stroke = cardStroke,
+			accent = accent,
+			hovered = false,
+		}
+		local keyedRefs = self._cardRefsByKey[key]
+		if not keyedRefs then
+			keyedRefs = {}
+			self._cardRefsByKey[key] = keyedRefs
+		end
+		table.insert(keyedRefs, cardRef)
 		addGradient(card, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(7, 20, 29), 0.82)),
 			ColorSequenceKeypoint.new(0.4, Color3.fromRGB(5, 17, 26)),
@@ -1534,22 +1584,21 @@ function InventoryUI:_renderGrid()
 		end
 
 		self:_connectScoped(self._cardConnections, card.MouseEnter, function()
-			if key ~= self._selectedKey then
-				card.BackgroundColor3 = PALETTE.CardHover
-				cardStroke.Thickness = 2
-			end
+			cardRef.hovered = true
+			self:_applyCardSelectionVisual(key, key == self._selectedKey)
 		end)
 		self:_connectScoped(self._cardConnections, card.MouseLeave, function()
-			if key ~= self._selectedKey then
-				card.BackgroundColor3 = PALETTE.Card
-				cardStroke.Thickness = 1.5
-			end
+			cardRef.hovered = false
+			self:_applyCardSelectionVisual(key, key == self._selectedKey)
 		end)
 		self:_connectScoped(self._cardConnections, card.Activated, function()
 			self:SelectItem(key, false)
 		end)
 		table.insert(self._cards, card)
 	end
+	self.Root:SetAttribute("InventoryGridRebuildCount", self._gridRebuildCount)
+	self.Root:SetAttribute("InventoryLiveCardCount", #self._cards)
+	self.Root:SetAttribute("InventoryCardConnectionCount", #self._cardConnections)
 end
 
 function InventoryUI:_clearActionButtons()
@@ -1838,12 +1887,18 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 	if not item then
 		return self:_snapshotResult(includeDiagnostics)
 	end
+	local previousKey = self._selectedKey
 	self._selectedKey = tostring(item.key)
 	self._selectedItem = item
 	self._deleteConfirmKey = nil
 	self._deleteConfirmUntil = 0
 	self._detailExpanded = true
-	self:_renderGrid()
+	if tostring(previousKey or "") ~= self._selectedKey then
+		self:_applyCardSelectionVisual(previousKey, false)
+		self:_applyCardSelectionVisual(self._selectedKey, true)
+		self._selectionVisualUpdateCount = self._selectionVisualUpdateCount + 1
+		self.Root:SetAttribute("InventorySelectionVisualUpdateCount", self._selectionVisualUpdateCount)
+	end
 	self:_renderDetail()
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey)
@@ -2378,6 +2433,11 @@ function InventoryUI:GetSnapshot()
 		performance = {
 			diagnosticSnapshots = self._diagnosticSnapshotCount,
 			diagnosticSnapshotSkips = self._diagnosticSnapshotSkipCount,
+			gridRebuilds = self._gridRebuildCount,
+			selectionVisualUpdates = self._selectionVisualUpdateCount,
+			liveCards = #self._cards,
+			cardConnections = #self._cardConnections,
+			cardConnectionBounded = #self._cardConnections <= (#self._cards * 3),
 		},
 	}
 end
@@ -2390,6 +2450,8 @@ function InventoryUI:Destroy()
 	table.clear(self._connections)
 	self:_disconnectPool(self._cardConnections)
 	self:_disconnectPool(self._actionConnections)
+	table.clear(self._cardRefsByKey)
+	table.clear(self._cards)
 	if self.Root then
 		self.Root:Destroy()
 	end
