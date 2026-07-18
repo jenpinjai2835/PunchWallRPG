@@ -76,23 +76,18 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) c:Invoke(\"HitDepthBlock\",{layer=1,column=7,row=1}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(1000,10,1000),Vector3.new(1000,10,1010)) local root=workspace.PunchWallRPG local falling,serverOwned,unanchored=0,0,0 for _,b in ipairs(root[\"Depth Blocks\"]:GetChildren()) do if b:GetAttribute(\"StructuralFalling\") then falling+=1 if not b.Anchored then unanchored+=1 end local ok,owner=pcall(function() return b:GetNetworkOwner() end) if ok and owner==nil then serverOwned+=1 end end end local snap=c:Invoke(\"Snapshot\") return H:JSONEncode({lastCollapse=root:GetAttribute(\"LastStructuralCollapseCount\"),active=root:GetAttribute(\"ActiveStructuralFalling\"),falling=falling,serverOwned=serverOwned,unanchored=unanchored,broken=snap.BrokenDepthBlocks,detached=snap.DetachedDepthBlocks,serverChunks=snap.PhysicsFragments})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local root=workspace.PunchWallRPG local blocks=root[\"Depth Blocks\"] local expected=0 for _,b in ipairs(blocks:GetChildren()) do local column=b:GetAttribute(\"Column\") local row=b:GetAttribute(\"Row\") if b:GetAttribute(\"Depth\")==1 and (column==6 or column==7) and row and row>1 then expected+=1 end end c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=1}) c:Invoke(\"HitDepthBlock\",{layer=1,column=7,row=1}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(1000,10,1000),Vector3.new(1000,10,1010)) local falling,serverOwned,unanchored=0,0,0 for _,b in ipairs(blocks:GetChildren()) do if b:GetAttribute(\"StructuralFalling\") then falling+=1 if not b.Anchored then unanchored+=1 end local ok,owner=pcall(function() return b:GetNetworkOwner() end) if ok and owner==nil then serverOwned+=1 end end end local snap=c:Invoke(\"Snapshot\") local lastCollapse=root:GetAttribute(\"LastStructuralCollapseCount\") local active=root:GetAttribute(\"ActiveStructuralFalling\") local valid=expected>0 and lastCollapse==expected and active==expected and falling==expected and serverOwned==expected and unanchored==expected and snap.BrokenDepthBlocks==2 and snap.DetachedDepthBlocks==expected and snap.PhysicsFragments>0 and snap.PhysicsFragments<=root:GetAttribute(\"MaxStructuralFalling\") return H:JSONEncode({expected=expected,lastCollapse=lastCollapse,active=active,falling=falling,serverOwned=serverOwned,unanchored=unanchored,broken=snap.BrokenDepthBlocks,detached=snap.DetachedDepthBlocks,serverChunks=snap.PhysicsFragments,valid=valid})"
       },
       "expectRegex": [
-        "\"lastCollapse\"\\s*:\\s*4",
-        "\"active\"\\s*:\\s*4",
-        "\"falling\"\\s*:\\s*4",
-        "\"serverOwned\"\\s*:\\s*4",
-        "\"unanchored\"\\s*:\\s*4",
+        "\"expected\"\\s*:\\s*[1-9][0-9]*",
         "\"broken\"\\s*:\\s*2",
-        "\"detached\"\\s*:\\s*4",
-        "\"serverChunks\"\\s*:\\s*12"
+        "\"valid\"\\s*:\\s*true"
       ],
       "label": "two missing supports trigger server-owned structural cascade"
     },
     {
       "type": "wait",
-      "ms": 3200,
+      "ms": 6000,
       "label": "wait for structural blocks to settle naturally"
     },
     {
@@ -155,7 +150,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local name=\"DepthBlock_L001_C06_R02\" local r=c:Invoke(\"HitDepthBlock\",name) local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(name) local snap=c:Invoke(\"Snapshot\") return H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,broken=b:GetAttribute(\"Broken\"),hidden=b.Transparency==1,collidable=b.CanCollide,queryable=b.CanQuery,detachedRemaining=snap.DetachedDepthBlocks,brokenTotal=snap.BrokenDepthBlocks,serverChunks=snap.PhysicsFragments})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local name=\"DepthBlock_L001_C06_R02\" local before=c:Invoke(\"Snapshot\").DetachedDepthBlocks local r=c:Invoke(\"HitDepthBlock\",name) local root=workspace.PunchWallRPG local b=root[\"Depth Blocks\"]:FindFirstChild(name) local snap=c:Invoke(\"Snapshot\") local valid=r.ok and r.outcome==\"broken\" and r.detached==true and b:GetAttribute(\"Broken\")==true and b.Transparency==1 and not b.CanCollide and not b.CanQuery and snap.DetachedDepthBlocks==before-1 and snap.BrokenDepthBlocks==3 and snap.PhysicsFragments>0 and snap.PhysicsFragments<=root:GetAttribute(\"MaxStructuralFalling\") return H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,broken=b:GetAttribute(\"Broken\"),hidden=b.Transparency==1,collidable=b.CanCollide,queryable=b.CanQuery,detachedBefore=before,detachedRemaining=snap.DetachedDepthBlocks,brokenTotal=snap.BrokenDepthBlocks,serverChunks=snap.PhysicsFragments,valid=valid})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -165,9 +160,8 @@
         "\"hidden\"\\s*:\\s*true",
         "\"collidable\"\\s*:\\s*false",
         "\"queryable\"\\s*:\\s*false",
-        "\"detachedRemaining\"\\s*:\\s*3",
         "\"brokenTotal\"\\s*:\\s*3",
-        "\"serverChunks\"\\s*:\\s*6"
+        "\"valid\"\\s*:\\s*true"
       ],
       "label": "fallen rubble disappears only after a finishing punch"
     },

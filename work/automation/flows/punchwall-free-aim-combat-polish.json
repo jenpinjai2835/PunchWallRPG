@@ -25,9 +25,9 @@
         "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local f=root[\"Depth Blocks\"] local first=f:GetChildren()[1] local buildings,overlays,curatedSkyline=0,0,0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then if d:GetAttribute(\"TextureStyle\")==\"BuildingFacadeWindows\" or d:GetAttribute(\"VisualRole\")==\"DistantSkyline\" then buildings+=1 end if d:GetAttribute(\"VisualRole\")==\"CombatPlazaPaver\" or d.Name==\"City Lane Paint\" or string.find(d.Name,\"Checkpoint\") then overlays+=1 end end end local curated=workspace:FindFirstChild(\"CuratedVisualAssets\") if curated then for _,v in ipairs(curated:GetChildren()) do if string.find(v.Name,\"Skyline\") or string.find(v.Name,\"City Landmark\") then curatedSkyline+=1 end end end return H:JSONEncode({count=#f:GetChildren(),size=tostring(first.Size),fieldCount=root:GetAttribute(\"DepthBlockCount\"),radius=root:GetAttribute(\"PunchRadius\"),mode=root:GetAttribute(\"PunchTargetMode\"),buildings=buildings,curatedSkyline=curatedSkyline,overlays=overlays})"
       },
       "expectRegex": [
-        "\"count\"\\s*:\\s*2700",
+        "\"count\"\\s*:\\s*5400",
         "\"size\"\\s*:\\s*\"4, 4, 4\"",
-        "\"fieldCount\"\\s*:\\s*2700",
+        "\"fieldCount\"\\s*:\\s*5400",
         "\"radius\"\\s*:\\s*3\\.25",
         "\"mode\"\\s*:\\s*\"BodyDirectionFreeAim\"",
         "\"buildings\"\\s*:\\s*0",

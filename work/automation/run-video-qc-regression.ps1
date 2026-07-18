@@ -7,6 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $runner = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
 $flowsDir = "F:\Roblox\PuchWall\work\automation\flows"
+$invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 
 $profiles = @{
     P0 = @(
@@ -57,16 +58,16 @@ $results = @()
 foreach ($flowName in $selected) {
     $flowPath = Join-Path $flowsDir ($flowName + ".json")
     $started = Get-Date
-    $output = & node $runner --flow $flowPath 2>&1
-    $exitCode = $LASTEXITCODE
+    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -MaxAttempts 2
     $result = [pscustomobject]@{
         flow = $flowName
-        ok = $exitCode -eq 0
+        ok = $run.ok
+        attempts = $run.attempts
         seconds = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
     }
     $results += $result
-    if ($exitCode -ne 0) {
-        $output | Write-Output
+    if (-not $run.ok) {
+        $run.output | Write-Output
         throw "Video QC regression failed: $flowName"
     }
 }

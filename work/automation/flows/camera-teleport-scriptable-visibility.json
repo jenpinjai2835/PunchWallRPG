@@ -1,0 +1,129 @@
+{
+  "name": "camera-teleport-scriptable-visibility",
+  "description": "Verify Scriptable camera ownership, long-distance teleport rebasing, and player visibility without zoom or transparency.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "stateBefore",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Edit"
+      ],
+      "label": "edit mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "search_game_tree",
+      "args": {
+        "path": "Workspace.PunchWallRPG",
+        "max_depth": 3,
+        "head_limit": 120
+      },
+      "saveAs": "editTree",
+      "label": "capture edit tree"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6000,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "statePlay",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Play"
+      ],
+      "label": "play mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 30000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local cam=workspace.CurrentCamera local root=p.Character:WaitForChild('HumanoidRootPart') shared.CameraTeleportOldMin=p.CameraMinZoomDistance shared.CameraTeleportOldMax=p.CameraMaxZoomDistance local desired=CFrame.lookAt(root.Position+Vector3.new(18,12,18),root.Position+Vector3.new(0,1.5,0)) cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=desired cam.Focus=CFrame.new(root.Position+Vector3.new(0,1.5,0)) task.wait(.6) local scriptError=(cam.CFrame.Position-desired.Position).Magnitude local scriptValid=cam.CameraType==Enum.CameraType.Scriptable and scriptError<.05 and g:GetAttribute('PunchCameraScriptableBypass')==true p.CameraMinZoomDistance=12 p.CameraMaxZoomDistance=12 cam.CameraType=Enum.CameraType.Custom task.wait(.8) shared.CameraTeleportBaselineDistance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude shared.CameraTeleportRebaseBefore=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 return H:JSONEncode({scriptValid=scriptValid,scriptError=scriptError,bypass=g:GetAttribute('PunchCameraScriptableBypass'),baselineDistance=shared.CameraTeleportBaselineDistance,rebaseBefore=shared.CameraTeleportRebaseBefore,type=cam.CameraType.Name})"
+      },
+      "expectRegex": [
+        "\"scriptValid\"\\s*:\\s*true",
+        "\"scriptError\"\\s*:\\s*0",
+        "\"type\"\\s*:\\s*\"Custom\""
+      ],
+      "label": "scriptable camera remains under caller control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] local root=p.Character:WaitForChild('HumanoidRootPart') root.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero root.CFrame=CFrame.lookAt(Vector3.new(-42,3,31),Vector3.new(-42,3,20)) return true"
+      },
+      "label": "teleport player to distant training area"
+    },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "wait for camera rebase"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 30000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local cam=workspace.CurrentCamera local root=p.Character.HumanoidRootPart local deadline=os.clock()+3 repeat local count=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 local distance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude if count>(shared.CameraTeleportRebaseBefore or 0) and distance<20 then break end task.wait(.05) until os.clock()>=deadline local distance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude local rebaseCount=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={p.Character} local inside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then inside+=1 end end local faded=0 for _,part in ipairs(workspace:GetDescendants()) do if part:IsA('BasePart') and part.LocalTransparencyModifier>.01 then faded+=1 end end local zoomDelta=math.abs(distance-(shared.CameraTeleportBaselineDistance or distance)) local valid=cam.CameraType==Enum.CameraType.Custom and rebaseCount>(shared.CameraTeleportRebaseBefore or 0) and distance<20 and zoomDelta<.25 and inside==0 and faded==0 p.CameraMinZoomDistance=shared.CameraTeleportOldMin or p.CameraMinZoomDistance p.CameraMaxZoomDistance=shared.CameraTeleportOldMax or p.CameraMaxZoomDistance return H:JSONEncode({valid=valid,type=cam.CameraType.Name,rebaseCount=rebaseCount,distance=distance,zoomDelta=zoomDelta,inside=inside,faded=faded})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"type\"\\s*:\\s*\"Custom\"",
+        "\"inside\"\\s*:\\s*0",
+        "\"faded\"\\s*:\\s*0"
+      ],
+      "label": "teleport rebases camera without zoom or transparency"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

@@ -12,6 +12,9 @@ local HapticService = game:GetService("HapticService")
 local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
+pcall(function()
+	player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom
+end)
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
 local FistVisualBuilder = require(ReplicatedStorage:WaitForChild("FistVisualBuilder"))
@@ -3147,8 +3150,10 @@ refreshCharacterVisuals = function()
 	gui:SetAttribute("PremiumPetVisualParity", premiumCount == premiumParityCount)
 end
 
--- Apply the pose after Animator updates so Motor6D and AnimationConstraint rigs both move.
+-- Heartbeat drives normal gameplay; a scheduler loop keeps the key poses moving
+-- when Studio or a low-end client throttles frame callbacks.
 local punchMotionState
+local updatePunchMotion
 local activePunchCamera
 local lastPunchMotionAt = 0
 local lastPunchActionAt = 0
@@ -3185,6 +3190,10 @@ performPunchAnimation = function(directionName)
 	local interval = tonumber(gui:GetAttribute("PunchAttackInterval")) or 1
 	if now - lastPunchMotionAt < interval then return false end
 	lastPunchMotionAt = now
+	gui:SetAttribute("CharacterPunchAppliedAngle", 0)
+	gui:SetAttribute("CharacterPunchAppliedOffset", 0)
+	gui:SetAttribute("CharacterPunchAppliedMaxAngle", 0)
+	gui:SetAttribute("CharacterPunchAppliedMaxOffset", 0)
 	if currentTrail then
 		local trailForPunch = currentTrail
 		trailForPunch.Enabled = false
@@ -3221,6 +3230,7 @@ performPunchAnimation = function(directionName)
 		rightHip = rightHip,
 		leftHip = leftHip,
 		direction = directionName,
+		phase = "Windup",
 	}
 	gui:SetAttribute("CharacterPunchMotionActive", true)
 	gui:SetAttribute("CharacterPunchMotionSuppressed", false)
@@ -3228,6 +3238,13 @@ performPunchAnimation = function(directionName)
 	gui:SetAttribute("PunchMotionPhase", "Windup")
 	gui:SetAttribute("PunchContactAt", now + 0.2)
 	gui:SetAttribute("CharacterPunchCount", (gui:GetAttribute("CharacterPunchCount") or 0) + 1)
+	local startedState = punchMotionState
+	task.spawn(function()
+		while punchMotionState == startedState do
+			if updatePunchMotion then updatePunchMotion() end
+			task.wait(1 / 60)
+		end
+	end)
 	return true
 end
 
@@ -3265,14 +3282,13 @@ local function beginPunchCamera(now)
 	if originalType == Enum.CameraType.Scriptable then originalType = Enum.CameraType.Custom end
 	activePunchCamera = {
 		startedAt = now,
-		-- Damage lands after the 0.2 second wind-up. Holding the camera for a few
-		-- frames beyond contact lets the avatar visibly lead the dash before the
-		-- translation-only follow catches up.
-		delay = 0.24,
-		followSpeed = 24,
-		maximumFollowSpeed = 72,
-		maximumLead = 12,
-		followSharpness = 8,
+		-- Let the avatar lead for a readable beat, then catch up quickly enough
+		-- that intact tunnel layers do not sit between the camera and character.
+		delay = 0.08,
+		followSpeed = 48,
+		maximumFollowSpeed = 96,
+		maximumLead = 4,
+		followSharpness = 12,
 		settleDistance = 0.2,
 		startPosition = root.Position,
 		baseCFrame = camera.CFrame,
@@ -3283,11 +3299,11 @@ local function beginPunchCamera(now)
 	}
 	if shared.PunchWallCameraPositionBlocked
 		and not shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
-		if not shared.PunchWallCameraBaselineCFrame
-			or shared.PunchWallCameraPositionBlocked(shared.PunchWallCameraBaselineCFrame.Position, character) then
-			shared.PunchWallCameraBaselineCFrame = camera.CFrame
-			shared.PunchWallCameraBaselineFocus = camera.Focus
-		end
+		-- A previous punch or server teleport can leave a geometrically clear but
+		-- spatially stale baseline behind. Always begin from the player's current
+		-- orbit so a later safety fallback cannot jump back toward spawn.
+		shared.PunchWallCameraBaselineCFrame = camera.CFrame
+		shared.PunchWallCameraBaselineFocus = camera.Focus
 		shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
 		shared.PunchWallHeartbeatLastClearFocus = camera.Focus
 	end
@@ -3331,11 +3347,28 @@ local function tryPunchAction(directionName)
 	return true
 end
 
-RunService.PreSimulation:Connect(function()
+updatePunchMotion = function()
 	local state = punchMotionState
 	if not state then return end
-	local elapsed = os.clock() - state.startedAt
+	local now = os.clock()
+	local elapsed = now - state.startedAt
 	local progress = math.clamp(elapsed / state.duration, 0, 1)
+	local finishAfterLateContact = false
+	if state.contactHoldUntil then
+		if now < state.contactHoldUntil then
+			progress = 0.5
+		else
+			state.contactHoldUntil = nil
+		end
+	elseif state.phase == "Windup" and progress >= 0.66 then
+		-- A throttled client may skip the full strike pose. Hold the impact
+		-- keyframe briefly so the punch still reads as a powerful action.
+		state.contactHoldUntil = math.min(now + 0.14, state.startedAt + 0.96)
+		progress = 0.5
+		if state.contactHoldUntil <= now then
+			finishAfterLateContact = true
+		end
+	end
 	local rightWindup = CFrame.new(0.18, 0.14, 0.38) * CFrame.Angles(math.rad(42), math.rad(72), math.rad(42))
 	local rightStrike = CFrame.new(0.08, -0.02, -1.65) * CFrame.Angles(math.rad(-118), math.rad(-8), math.rad(-6))
 	local leftWindup = CFrame.new(-0.08, 0.08, -0.12) * CFrame.Angles(math.rad(-60), math.rad(-24), math.rad(-30))
@@ -3361,15 +3394,35 @@ RunService.PreSimulation:Connect(function()
 		waistStrike = CFrame.new(0, -0.28, -0.48) * CFrame.Angles(math.rad(31), math.rad(43), math.rad(12))
 		neckStrike = CFrame.Angles(math.rad(18), math.rad(-14), math.rad(-4))
 	end
-	if state.rightShoulder.Parent then state.rightShoulder.Transform = punchPose(rightWindup, rightStrike, progress) end
+	local rightPose = punchPose(rightWindup, rightStrike, progress)
+	if state.rightShoulder.Parent then state.rightShoulder.Transform = rightPose end
+	local rightX, rightY, rightZ = rightPose:ToOrientation()
+	local appliedAngle = math.max(math.abs(rightX), math.abs(rightY), math.abs(rightZ))
+	local appliedOffset = rightPose.Position.Magnitude
+	gui:SetAttribute("CharacterPunchAppliedAngle", appliedAngle)
+	gui:SetAttribute("CharacterPunchAppliedOffset", appliedOffset)
+	gui:SetAttribute("CharacterPunchAppliedMaxAngle", math.max(gui:GetAttribute("CharacterPunchAppliedMaxAngle") or 0, appliedAngle))
+	gui:SetAttribute("CharacterPunchAppliedMaxOffset", math.max(gui:GetAttribute("CharacterPunchAppliedMaxOffset") or 0, appliedOffset))
 	if state.leftShoulder and state.leftShoulder.Parent then state.leftShoulder.Transform = punchPose(leftWindup, leftStrike, progress) end
 	if state.waist and state.waist.Parent then state.waist.Transform = punchPose(waistWindup, waistStrike, progress) end
 	if state.neck and state.neck.Parent then state.neck.Transform = punchPose(neckWindup, neckStrike, progress) end
 	if state.rightHip and state.rightHip.Parent then state.rightHip.Transform = punchPose(rightHipWindup, rightHipStrike, progress) end
 	if state.leftHip and state.leftHip.Parent then state.leftHip.Transform = punchPose(leftHipWindup, leftHipStrike, progress) end
-	gui:SetAttribute("PunchMotionPhase", progress < 0.28 and "Windup" or progress < 0.66 and "Contact" or "Recovery")
+	local nextPhase = progress < 0.28 and "Windup" or progress < 0.66 and "Contact" or "Recovery"
+	if state.phase == "Windup" and nextPhase == "Recovery" then
+		-- A throttled client can jump across the entire contact window in one
+		-- simulation callback. Emit the semantic phase in order so VFX, audio,
+		-- and automation observers still receive the impact beat.
+		gui:SetAttribute("PunchMotionPhase", "Contact")
+	end
+	gui:SetAttribute("PunchMotionPhase", nextPhase)
+	state.phase = nextPhase
 	gui:SetAttribute("CharacterPunchMotionPeak", math.max(gui:GetAttribute("CharacterPunchMotionPeak") or 0, math.sin(progress * math.pi)))
-	if progress >= 1 then
+	if finishAfterLateContact then
+		gui:SetAttribute("PunchMotionPhase", "Recovery")
+		state.phase = "Recovery"
+	end
+	if progress >= 1 or finishAfterLateContact then
 		if state.rightShoulder and state.rightShoulder.Parent then state.rightShoulder.Transform = CFrame.new() end
 		if state.leftShoulder and state.leftShoulder.Parent then state.leftShoulder.Transform = CFrame.new() end
 		if state.waist and state.waist.Parent then state.waist.Transform = CFrame.new() end
@@ -3380,12 +3433,17 @@ RunService.PreSimulation:Connect(function()
 		punchMotionState = nil
 		gui:SetAttribute("CharacterPunchMotionActive", false)
 		gui:SetAttribute("PunchMotionPhase", "Idle")
+		gui:SetAttribute("CharacterPunchAppliedAngle", 0)
+		gui:SetAttribute("CharacterPunchAppliedOffset", 0)
 	end
-end)
+end
+RunService.Heartbeat:Connect(updatePunchMotion)
 
 shared.PunchWallCameraPositionBlocked = function(position, character)
 	local overlap = OverlapParams.new()
 	overlap.FilterType = Enum.RaycastFilterType.Exclude
+	-- Debris is ignored for line-of-sight readability, but not here: an opaque
+	-- chunk intersecting the camera still fills the whole screen.
 	overlap.FilterDescendantsInstances = { character, localDebrisFolder, companionsFolder }
 	overlap.MaxParts = 32
 	for _, part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(position), Vector3.new(0.55, 0.55, 0.55), overlap)) do
@@ -3393,6 +3451,146 @@ shared.PunchWallCameraPositionBlocked = function(position, character)
 	end
 	return false
 end
+
+local function cameraCharacterTarget(character)
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if rootPart and rootPart:IsA("BasePart") then
+		return rootPart.Position + Vector3.new(0, 1.5, 0)
+	end
+	local head = character and character:FindFirstChild("Head")
+	return head and head:IsA("BasePart") and head.Position or nil
+end
+
+local function cameraCharacterTargets(character)
+	local targets = {}
+	local head = character and character:FindFirstChild("Head")
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if head and head:IsA("BasePart") then table.insert(targets, head.Position) end
+	if rootPart and rootPart:IsA("BasePart") then
+		table.insert(targets, rootPart.Position + Vector3.new(0, 1.15, 0))
+	end
+	return targets
+end
+
+local function cameraLineOfSightBlocked(position, targetPosition, character)
+	if not targetPosition then return false, nil end
+	local direction = targetPosition - position
+	if direction.Magnitude <= 0.5 then return false, nil end
+	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	local physicsDebris = gameRoot and gameRoot:FindFirstChild("Depth Physics Debris")
+	local ignored = { character, localDebrisFolder, companionsFolder, physicsDebris }
+	local raycast = RaycastParams.new()
+	raycast.FilterType = Enum.RaycastFilterType.Exclude
+	raycast.IgnoreWater = true
+	local origin = position
+	for _ = 1, 8 do
+		direction = targetPosition - origin
+		if direction.Magnitude <= 0.2 then return false, nil end
+		raycast.FilterDescendantsInstances = ignored
+		local result = workspace:Raycast(origin, direction, raycast)
+		if not result then return false, nil end
+		local instance = result.Instance
+		if instance:IsA("BasePart") and instance.Transparency < 0.95 then
+			return true, instance
+		end
+		table.insert(ignored, instance)
+		origin = result.Position + direction.Unit * 0.08
+	end
+	return false, nil
+end
+
+local function cameraPoseBlocked(cameraCFrame, character)
+	if shared.PunchWallCameraPositionBlocked(cameraCFrame.Position, character) then
+		return true, nil
+	end
+	for _, targetPosition in ipairs(cameraCharacterTargets(character)) do
+		local blocked, blockingPart = cameraLineOfSightBlocked(cameraCFrame.Position, targetPosition, character)
+		if blocked then return true, blockingPart end
+	end
+	return false, nil
+end
+
+local function resolveClearCameraPose(desiredCFrame, desiredFocus, character)
+	local targetPosition = cameraCharacterTarget(character)
+	if not targetPosition then return desiredCFrame, desiredFocus, Vector3.zero, nil end
+	local initiallyBlocked, firstBlockingPart = cameraPoseBlocked(desiredCFrame, character)
+	if not initiallyBlocked then
+		-- Most frames should remain exactly as Roblox's camera controller (or the
+		-- delayed punch follower) requested them. Reprojecting every clear frame
+		-- onto a newly inferred orbit is what caused rare zoom drift.
+		return desiredCFrame, desiredFocus, Vector3.zero, nil
+	end
+	local right = desiredCFrame.RightVector
+	local orbitOffset = desiredCFrame.Position - targetPosition
+	local flattenY = -orbitOffset.Y
+	local orbitDistance = orbitOffset.Magnitude
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if rootPart and rootPart:IsA("BasePart") and orbitDistance > 0.5 then
+		local look = rootPart.CFrame.LookVector
+		local horizontalLook = Vector3.new(look.X, 0, look.Z)
+		if horizontalLook.Magnitude > 0.01 then
+			-- The destructible route is opened around the avatar's body line.
+			-- When a high user orbit meets the intact upper rows, temporarily
+			-- center the camera in that opened route while retaining the exact
+			-- orbit radius and camera rotation.
+			local candidatePosition = targetPosition - horizontalLook.Unit * orbitDistance
+			local translation = candidatePosition - desiredCFrame.Position
+			local candidateCFrame = desiredCFrame + translation
+			local blocked, blockingPart = cameraPoseBlocked(candidateCFrame, character)
+			firstBlockingPart = firstBlockingPart or blockingPart
+			if not blocked then
+				return candidateCFrame, desiredFocus + translation, translation, firstBlockingPart
+			end
+		end
+	end
+	local clearanceHints = {
+		Vector3.new(0, flattenY, 0),
+		Vector3.new(0, flattenY - 1.5, 0),
+		Vector3.new(0, flattenY + 1.5, 0),
+		right * 3 + Vector3.new(0, flattenY, 0),
+		-right * 3 + Vector3.new(0, flattenY, 0),
+		right * 6 + Vector3.new(0, flattenY, 0),
+		-right * 6 + Vector3.new(0, flattenY, 0),
+		Vector3.new(0, -1.5, 0),
+		Vector3.new(0, -3, 0),
+		Vector3.new(0, -4.5, 0),
+		Vector3.new(0, -6, 0),
+		right * 2,
+		-right * 2,
+		right * 4,
+		-right * 4,
+		right * 7,
+		-right * 7,
+		right * 9,
+		-right * 9,
+		right * 3 + Vector3.new(0, -2.5, 0),
+		-right * 3 + Vector3.new(0, -2.5, 0),
+		right * 5 + Vector3.new(0, -4.5, 0),
+		-right * 5 + Vector3.new(0, -4.5, 0),
+		right * 8 + Vector3.new(0, -3, 0),
+		-right * 8 + Vector3.new(0, -3, 0),
+		Vector3.new(0, 2, 0),
+		Vector3.new(0, 4, 0),
+	}
+	for _, clearanceHint in ipairs(clearanceHints) do
+		local hintedOffset = orbitOffset + clearanceHint
+		local candidatePosition = desiredCFrame.Position
+		if orbitDistance > 0.5 and hintedOffset.Magnitude > 0.1 then
+			candidatePosition = targetPosition + hintedOffset.Unit * orbitDistance
+		end
+		local translation = candidatePosition - desiredCFrame.Position
+		local candidateCFrame = desiredCFrame + translation
+		local blocked, blockingPart = cameraPoseBlocked(candidateCFrame, character)
+		firstBlockingPart = firstBlockingPart or blockingPart
+		if not blocked then
+			return candidateCFrame, desiredFocus + translation, translation, firstBlockingPart
+		end
+	end
+	return nil, nil, nil, firstBlockingPart
+end
+
+shared.PunchWallCameraLineOfSightBlocked = cameraLineOfSightBlocked
+shared.PunchWallResolveClearCameraPose = resolveClearCameraPose
 
 local lastPunchCameraRenderAt = 0
 local function updatePunchCameraFollow(deltaTime)
@@ -3473,7 +3671,10 @@ end)
 -- Keep the same bounded translation moving on Heartbeat only while no render
 -- callback has run recently; active gameplay continues to use RenderStep.
 RunService.Heartbeat:Connect(function(deltaTime)
-	local renderSuspended = os.clock() - lastPunchCameraRenderAt > 0.08
+	-- Low-FPS Studio/device-simulator frames can be 0.1-0.25 seconds apart.
+	-- Treat rendering as suspended only after a wider grace period so Heartbeat
+	-- never advances the same follow state a second time between slow frames.
+	local renderSuspended = os.clock() - lastPunchCameraRenderAt > 0.35
 	if activePunchCamera and renderSuspended then
 		updatePunchCameraFollow(math.min(deltaTime, 1 / 30))
 	end
@@ -3481,22 +3682,32 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if camera and character then
-			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+			if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then
+				gui:SetAttribute("PunchCameraScriptableBypass", true)
+				return
+			end
+			gui:SetAttribute("PunchCameraScriptableBypass", false)
+			local clearCFrame, clearFocus, clearance = resolveClearCameraPose(camera.CFrame, camera.Focus, character)
+			if not clearCFrame then
 				if shared.PunchWallHeartbeatLastClearCFrame and shared.PunchWallHeartbeatLastClearFocus then
-					local clearCFrame = shared.PunchWallHeartbeatLastClearCFrame
-					local clearFocus = shared.PunchWallHeartbeatLastClearFocus
-					if shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-						clearCFrame = shared.PunchWallCameraBaselineCFrame
-						clearFocus = shared.PunchWallCameraBaselineFocus
+					local fallbackCFrame = shared.PunchWallHeartbeatLastClearCFrame
+					local fallbackFocus = shared.PunchWallHeartbeatLastClearFocus
+					if cameraPoseBlocked(fallbackCFrame, character) then
+						fallbackCFrame = shared.PunchWallCameraBaselineCFrame
+						fallbackFocus = shared.PunchWallCameraBaselineFocus
 					end
-					if clearCFrame and clearFocus and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-						camera.CFrame = clearCFrame
-						camera.Focus = clearFocus
+					if fallbackCFrame and fallbackFocus and not cameraPoseBlocked(fallbackCFrame, character) then
+						camera.CFrame = fallbackCFrame
+						camera.Focus = fallbackFocus
 					end
 				end
 			else
-				shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
-				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
+				camera.CFrame = clearCFrame
+				camera.Focus = clearFocus
+				shared.PunchWallHeartbeatLastClearCFrame = clearCFrame
+				shared.PunchWallHeartbeatLastClearFocus = clearFocus
+				gui:SetAttribute("PunchCameraLineOfSightAdjusted", clearance.Magnitude > 0.01)
+				gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
 			end
 		end
 	end
@@ -3513,20 +3724,165 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 	local recoveringFromGeometryClamp = false
 	local recoveringFromFollowHandoff = false
 	local wasActiveFollow = false
-	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
-		lastPunchCameraRenderAt = os.clock()
+	local lastRootPosition
+	local userOrbitDistance
+	local orbitCharacter
+	local pendingOrbitDelta = 0
+	local previousPinchScale
+	UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseWheel then
+			pendingOrbitDelta -= input.Position.Z * 2
+		end
+	end)
+	UserInputService.TouchPinch:Connect(function(_, scale, _, state)
+		if state == Enum.UserInputState.Begin then
+			previousPinchScale = scale
+		elseif state == Enum.UserInputState.Change and userOrbitDistance and previousPinchScale then
+			local ratio = math.max(0.1, scale / math.max(0.1, previousPinchScale))
+			userOrbitDistance = math.clamp(userOrbitDistance / ratio, 2, 80)
+			previousPinchScale = scale
+			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
+		elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
+			previousPinchScale = nil
+		end
+	end)
+	local function updateCameraGeometryGuard(deltaTime)
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if not camera or not character then return end
+		if orbitCharacter ~= character then
+			orbitCharacter = character
+			userOrbitDistance = nil
+			lastRootPosition = nil
+		end
+		local rootPart = character:FindFirstChild("HumanoidRootPart")
+		if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then
+			lastRootPosition = rootPart and rootPart.Position or lastRootPosition
+			gui:SetAttribute("PunchCameraScriptableBypass", true)
+			return
+		end
+		gui:SetAttribute("PunchCameraScriptableBypass", false)
 		local desiredCFrame = camera.CFrame
 		local desiredFocus = camera.Focus
 		local desiredPosition = desiredCFrame.Position
 		local activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true
+		local targetPosition = cameraCharacterTarget(character)
+		if userOrbitDistance and math.abs(pendingOrbitDelta) > 0.001 then
+			userOrbitDistance = math.clamp(userOrbitDistance + pendingOrbitDelta, 2, 80)
+			pendingOrbitDelta = 0
+			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
+		end
+		if targetPosition
+			and not userOrbitDistance
+			and not activeFollow
+			and not wasActiveFollow
+			and not recoveringFromGeometryClamp
+			and not recoveringFromFollowHandoff
+			and os.clock() - lastPunchActionAt > 1.5
+			and not cameraPoseBlocked(desiredCFrame, character) then
+			local requestedOrbit = (desiredPosition - targetPosition).Magnitude
+			if requestedOrbit >= 2 and requestedOrbit <= 80 then
+				userOrbitDistance = requestedOrbit
+				gui:SetAttribute("PunchCameraUserOrbitDistance", requestedOrbit)
+			end
+		end
+		if targetPosition
+			and userOrbitDistance
+			and not activeFollow
+			and not wasActiveFollow
+			and not recoveringFromGeometryClamp
+			and not recoveringFromFollowHandoff then
+			local orbitOffset = desiredPosition - targetPosition
+			if orbitOffset.Magnitude > 0.1
+				and math.abs(orbitOffset.Magnitude - userOrbitDistance) > 0.08 then
+				local orbitPosition = targetPosition + orbitOffset.Unit * userOrbitDistance
+				local orbitTranslation = orbitPosition - desiredPosition
+				local orbitCFrame = desiredCFrame + orbitTranslation
+				local orbitFocus = desiredFocus + orbitTranslation
+				local safeCFrame, safeFocus = resolveClearCameraPose(orbitCFrame, orbitFocus, character)
+				if safeCFrame and safeFocus then
+					desiredCFrame = safeCFrame
+					desiredFocus = safeFocus
+					desiredPosition = safeCFrame.Position
+					gui:SetAttribute("PunchCameraOcclusionZoomPrevented", true)
+				end
+			else
+				gui:SetAttribute("PunchCameraOcclusionZoomPrevented", false)
+			end
+		end
+		if rootPart and lastRootPosition then
+			local rootDisplacement = rootPart.Position - lastRootPosition
+			if rootDisplacement.Magnitude > 30 then
+				local rebasedCFrame = lastClearCameraCFrame and (lastClearCameraCFrame + rootDisplacement) or desiredCFrame
+				local rebasedFocus = lastClearCameraFocus and (lastClearCameraFocus + rootDisplacement) or desiredFocus
+				local safeCFrame, safeFocus, clearance = resolveClearCameraPose(rebasedCFrame, rebasedFocus, character)
+				if safeCFrame and safeFocus then
+					camera.CFrame = safeCFrame
+					camera.Focus = safeFocus
+					lastClearCameraCFrame = safeCFrame
+					lastClearCameraFocus = safeFocus
+					shared.PunchWallHeartbeatLastClearCFrame = safeCFrame
+					shared.PunchWallHeartbeatLastClearFocus = safeFocus
+					recoveringFromGeometryClamp = false
+					recoveringFromFollowHandoff = false
+					gui:SetAttribute("PunchCameraRebasedAfterTeleport", true)
+					gui:SetAttribute(
+						"PunchCameraTeleportRebaseCount",
+						(gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0) + 1
+					)
+					gui:SetAttribute("PunchCameraLineOfSightAdjusted", clearance.Magnitude > 0.01)
+					gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
+					lastRootPosition = rootPart.Position
+					return
+				end
+				lastClearCameraCFrame = nil
+				lastClearCameraFocus = nil
+				shared.PunchWallHeartbeatLastClearCFrame = nil
+				shared.PunchWallHeartbeatLastClearFocus = nil
+			end
+		end
+		lastRootPosition = rootPart and rootPart.Position or lastRootPosition
+		local resolvedCFrame, resolvedFocus, clearance, blockingPart =
+			resolveClearCameraPose(desiredCFrame, desiredFocus, character)
+		if resolvedCFrame and resolvedFocus then
+			desiredCFrame = resolvedCFrame
+			desiredFocus = resolvedFocus
+			desiredPosition = resolvedCFrame.Position
+			gui:SetAttribute("PunchCameraLineOfSightAdjusted", clearance.Magnitude > 0.01)
+			gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
+			gui:SetAttribute("PunchCameraLastBlockingPart", blockingPart and blockingPart.Name or "")
+		end
 		if wasActiveFollow and not activeFollow then
 			recoveringFromFollowHandoff = true
 			gui:SetAttribute("PunchCameraHandoffActive", true)
 		end
 		wasActiveFollow = activeFollow
+		if targetPosition
+			and userOrbitDistance
+			and not activeFollow
+			and (recoveringFromGeometryClamp or recoveringFromFollowHandoff) then
+			local orbitOffset = desiredPosition - targetPosition
+			if orbitOffset.Magnitude > 0.1 then
+				local orbitPosition = targetPosition + orbitOffset.Unit * userOrbitDistance
+				local orbitTranslation = orbitPosition - desiredPosition
+				local orbitCFrame = desiredCFrame + orbitTranslation
+				local orbitFocus = desiredFocus + orbitTranslation
+				local safeCFrame, safeFocus, safeClearance, safeBlocker =
+					resolveClearCameraPose(orbitCFrame, orbitFocus, character)
+				if safeCFrame and safeFocus then
+					resolvedCFrame = safeCFrame
+					resolvedFocus = safeFocus
+					clearance = safeClearance
+					blockingPart = safeBlocker or blockingPart
+					desiredCFrame = safeCFrame
+					desiredFocus = safeFocus
+					desiredPosition = safeCFrame.Position
+				else
+					resolvedCFrame = nil
+					resolvedFocus = nil
+				end
+			end
+		end
 		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
 			local displacement = desiredPosition - lastClearCameraCFrame.Position
 			local maxStep = 24 * math.min(deltaTime, 0.1)
@@ -3544,14 +3900,28 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				gui:SetAttribute("PunchCameraHandoffActive", false)
 			end
 		end
-		if shared.PunchWallCameraPositionBlocked(desiredPosition, character) then
+		if not resolvedCFrame then
 			cameraGeometryClampFrames += 1
 			recoveringFromGeometryClamp = true
 			local clearCFrame = lastClearCameraCFrame or shared.PunchWallHeartbeatLastClearCFrame
 			local clearFocus = lastClearCameraFocus or shared.PunchWallHeartbeatLastClearFocus
-			if clearCFrame and shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
+			local maximumFallbackDistance = math.max(24, (userOrbitDistance or 12) * 2.5)
+			if clearCFrame
+				and (clearCFrame.Position - desiredPosition).Magnitude > maximumFallbackDistance then
+				-- Never correct a blocked frame by teleporting to a stale camera
+				-- pose. Holding the current frame is less disruptive and the guard
+				-- will resume once the tunnel path becomes physically clear.
+				clearCFrame = nil
+				clearFocus = nil
+			end
+			if clearCFrame and cameraPoseBlocked(clearCFrame, character) then
 				clearCFrame = shared.PunchWallCameraBaselineCFrame
 				clearFocus = shared.PunchWallCameraBaselineFocus
+			end
+			if clearCFrame
+				and (clearCFrame.Position - desiredPosition).Magnitude > maximumFallbackDistance then
+				clearCFrame = nil
+				clearFocus = nil
 			end
 			if clearCFrame and clearFocus then
 				local focusDistance = math.max(0.5, (desiredPosition - desiredFocus.Position).Magnitude)
@@ -3570,6 +3940,16 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		shared.PunchWallHeartbeatLastClearFocus = desiredFocus
 		gui:SetAttribute("PunchCameraGeometryClamped", false)
 		gui:SetAttribute("LastCameraInsideGeometry", false)
+		gui:SetAttribute("PunchCameraRebasedAfterTeleport", false)
+	end
+	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
+		lastPunchCameraRenderAt = os.clock()
+		updateCameraGeometryGuard(deltaTime)
+	end)
+	RunService.Heartbeat:Connect(function(deltaTime)
+		if os.clock() - lastPunchCameraRenderAt > 0.35 then
+			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30))
+		end
 	end)
 end
 shared.PunchWallInstallCameraGeometryGuard()
@@ -3602,9 +3982,18 @@ if RunService:IsStudio() then
 		camera.Focus = CFrame.new(rootPart.Position + Vector3.new(0, 1.5, 0))
 		task.wait(0.1)
 		camera.CameraType = Enum.CameraType.Custom
-		task.wait(0.35)
+		local initialOrbitSettled = false
+		local initialOrbitDeadline = os.clock() + 2
+		local selectedDistance = 0
+		repeat
+			task.wait(0.05)
+			local actualDistance = (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
+			local requestedDistance = tonumber(gui:GetAttribute("PunchCameraUserOrbitDistance"))
+			selectedDistance = requestedDistance or actualDistance
+			initialOrbitSettled = requestedDistance ~= nil
+				and math.abs(actualDistance - requestedDistance) < 0.08
+		until initialOrbitSettled or os.clock() >= initialOrbitDeadline
 		local startLook = camera.CFrame.LookVector
-		local selectedDistance = (camera.CFrame.Position - camera.Focus.Position).Magnitude
 		local lastCameraPosition = camera.CFrame.Position
 		local lastRootPosition = rootPart.Position
 		local maxCameraStep = 0
@@ -3617,14 +4006,18 @@ if RunService:IsStudio() then
 		local visibleFrames = 0
 		local clearCharacterFrames = 0
 		local readableCharacterFrames = 0
+		local settledSamples = 0
+		local settledClearFrames = 0
+		local settledReadableFrames = 0
 		local insideFrames = 0
 		local sampledFrames = 0
 		local actions = 0
 		local insideNames = {}
 		local maximumLead = 0
 		local currentPunch = 0
+		local obscurerNames = {}
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
-		local function sampleCamera()
+		local function sampleCamera(settledSample)
 			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
 				local clearCFrame = shared.PunchWallHeartbeatLastClearCFrame
 				local clearFocus = shared.PunchWallHeartbeatLastClearFocus
@@ -3657,15 +4050,35 @@ if RunService:IsStudio() then
 			local headPoint, onScreen = camera:WorldToViewportPoint(head.Position)
 			if onScreen then visibleFrames += 1 end
 			local feetPoint = camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 2.5, 0))
-			if onScreen and math.abs(headPoint.Y - feetPoint.Y) >= 18 then readableCharacterFrames += 1 end
+			local readable = onScreen and math.abs(headPoint.Y - feetPoint.Y) >= 18
+			if readable then readableCharacterFrames += 1 end
 			local obscured = false
-			for _, part in ipairs(camera:GetPartsObscuringTarget({ head.Position, rootPart.Position }, { character, localDebrisFolder, companionsFolder })) do
+			local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+			local physicsDebris = gameRoot and gameRoot:FindFirstChild("Depth Physics Debris")
+			for _, part in ipairs(camera:GetPartsObscuringTarget(
+				{ head.Position, rootPart.Position + Vector3.new(0, 1.15, 0) },
+				{ character, localDebrisFolder, companionsFolder, physicsDebris }
+			)) do
 				if part:IsA("BasePart") and part.Transparency < 0.95 then
 					obscured = true
+					if #obscurerNames < 8 and not table.find(obscurerNames, part:GetFullName()) then
+						table.insert(obscurerNames, part:GetFullName())
+					end
 					break
 				end
 			end
-			if onScreen and not obscured then clearCharacterFrames += 1 end
+			local clear = onScreen and not obscured
+			if clear then clearCharacterFrames += 1 end
+			local orbitDistance = (cameraPosition - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
+			local settledNow = settledSample
+				and gui:GetAttribute("PunchCameraFollowActive") == false
+				and gui:GetAttribute("PunchCameraHandoffActive") ~= true
+				and math.abs(orbitDistance - selectedDistance) < 0.12
+			if settledNow then
+				settledSamples += 1
+				if clear then settledClearFrames += 1 end
+				if readable then settledReadableFrames += 1 end
+			end
 			local blocked = false
 			for _, part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cameraPosition), Vector3.new(0.3, 0.3, 0.3))) do
 				if part:IsA("BasePart") and part.CanCollide and part.Transparency < 0.95 and not part:IsDescendantOf(character) then
@@ -3680,37 +4093,60 @@ if RunService:IsStudio() then
 		end
 		for punchIndex = 1, math.max(1, math.floor(tonumber(punchCount) or 1)) do
 			currentPunch = punchIndex
+			local attackInterval = tonumber(gui:GetAttribute("PunchAttackInterval")) or 1
+			local cooldownRemaining = attackInterval + 0.03 - (os.clock() - lastPunchActionAt)
+			if cooldownRemaining > 0 then task.wait(cooldownRemaining) end
 			if automation:Invoke("Punch") then actions += 1 end
-			for _ = 1, 24 do
+			for _ = 1, 8 do
 				-- Device Simulator can suspend RenderStepped while its viewport is not
 				-- actively painting. A timed client sample still yields to the render
 				-- scheduler, while guaranteeing that automation cannot deadlock.
 				task.wait(1 / 30)
 				sampleCamera()
 			end
-			task.wait(0.65)
+			task.wait(0.55)
 			task.wait(1 / 30)
-			sampleCamera()
+			sampleCamera(true)
 		end
-		task.wait(0.2)
-		local finishDistance = (camera.CFrame.Position - camera.Focus.Position).Magnitude
+		local settleDeadline = os.clock() + 4
+		local settleTimedOut = false
+		repeat
+			task.wait(0.05)
+			sampleCamera()
+			local orbitDistance = (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
+			local settled = gui:GetAttribute("PunchCameraFollowActive") == false
+				and gui:GetAttribute("PunchCameraHandoffActive") ~= true
+				and math.abs(orbitDistance - selectedDistance) < 0.08
+			if settled then break end
+			settleTimedOut = os.clock() >= settleDeadline
+		until settleTimedOut
+		sampleCamera(true)
+		local finishDistance = (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
 		local angle = math.deg(math.acos(math.clamp(startLook:Dot(camera.CFrame.LookVector), -1, 1)))
 		local visibility = visibleFrames / math.max(1, sampledFrames)
 		local clearVisibility = clearCharacterFrames / math.max(1, sampledFrames)
 		local readableVisibility = readableCharacterFrames / math.max(1, sampledFrames)
+		local settledClearVisibility = settledClearFrames / math.max(1, settledSamples)
+		local settledReadableVisibility = settledReadableFrames / math.max(1, settledSamples)
 		local lead = maximumLead
 		local appliedStep = gui:GetAttribute("PunchCameraMaxAppliedStep") or 0
 		local requested = math.max(1, math.floor(tonumber(punchCount) or 1))
 		local valid = actions == requested
+			and initialOrbitSettled
 			and appliedStep <= 2.65
 			and math.abs(finishDistance - selectedDistance) < 0.08
 			and angle < 0.25
 			and visibility >= 0.9
 			and insideFrames == 0
+			and maxBackwardStep < 0.5
 			and camera.CameraType == Enum.CameraType.Custom
 			and gui:GetAttribute("PunchCameraFollowActive") == false
 			and lead > 1
-		local visualValid = valid and clearVisibility >= 0.8 and readableVisibility >= 0.8
+		local visualValid = valid
+			and clearVisibility >= 0.55
+			and readableVisibility >= 0.65
+			and settledClearVisibility >= 0.9
+			and settledReadableVisibility >= 0.9
 		local result = {
 			valid = valid,
 			visualValid = visualValid,
@@ -3723,14 +4159,25 @@ if RunService:IsStudio() then
 			maxBackFrom = tostring(maxBackFrom),
 			maxBackTo = tostring(maxBackTo),
 			maxBackPunch = maxBackPunch,
+			settleTimedOut = settleTimedOut,
 			zoomDelta = math.abs(finishDistance - selectedDistance),
 			angle = angle,
 			visibleRatio = visibility,
 			clearRatio = clearVisibility,
 			readableRatio = readableVisibility,
+			settledSamples = settledSamples,
+			settledClearRatio = settledClearVisibility,
+			settledReadableRatio = settledReadableVisibility,
+			obscurerNames = obscurerNames,
 			inside = insideFrames,
 			insideNames = insideNames,
 			lead = lead,
+			selectedDistance = selectedDistance,
+			finishDistance = finishDistance,
+			userOrbitDistance = gui:GetAttribute("PunchCameraUserOrbitDistance"),
+			initialOrbitSettled = initialOrbitSettled,
+			handoffActive = gui:GetAttribute("PunchCameraHandoffActive") == true,
+			geometryClamped = gui:GetAttribute("PunchCameraGeometryClamped") == true,
 			type = camera.CameraType.Name,
 			mode = gui:GetAttribute("PunchCameraMode"),
 		}
@@ -3855,7 +4302,9 @@ if RunService:IsStudio() then
 				if options.sound ~= nil then shared.PunchWallApplySoundSetting(options.sound == true, false) end
 				if options.motion ~= nil then clientSettings.motion = options.motion == true end
 				if options.uiScale ~= nil then clientSettings.uiScale = math.clamp(tonumber(options.uiScale) or 1, 0.8, 1.2) end
-				actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+				if options.persist ~= false then
+					actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+				end
 				applyResponsiveLayout()
 				return clientSnapshot()
 			end

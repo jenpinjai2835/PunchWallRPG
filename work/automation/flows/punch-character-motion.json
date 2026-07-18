@@ -34,9 +34,10 @@
     {
       "type": "call",
       "tool": "execute_luau",
+      "saveAs": "motionDiagnostics",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local joint for _,d in ipairs(p.Character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(joint,\"right shoulder joint missing\") local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") local maxAngle,maxPosition=0,0 for _=1,32 do task.wait(1/30) local x,y,z=joint.Transform:ToOrientation() maxAngle=math.max(maxAngle,math.abs(x),math.abs(y),math.abs(z)) maxPosition=math.max(maxPosition,joint.Transform.Position.Magnitude) end task.wait(.2) local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local dramatic=maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and not active return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,active=active,dramatic=dramatic})"
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local joint for _,d in ipairs(p.Character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(joint,\"right shoulder joint missing\") local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(1.1) local maxAngle=g:GetAttribute(\"CharacterPunchAppliedMaxAngle\") or 0 local maxPosition=g:GetAttribute(\"CharacterPunchAppliedMaxOffset\") or 0 local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local dramatic=maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and not active return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,active=active,dramatic=dramatic})"
       },
       "expectRegex": [
         "\"class\"\\s*:\\s*\"(AnimationConstraint|Motor6D)\"",
@@ -52,7 +53,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) return true"
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local snapshot=g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) return snapshot and snapshot.motion==false"
       },
       "label": "disable motion feedback"
     },
@@ -66,7 +67,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),active=g:GetAttribute(\"CharacterPunchMotionActive\")}) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return result"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),active=g:GetAttribute(\"CharacterPunchMotionActive\")}) g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=true,sound=true,uiScale=1,persist=false}) return result"
       },
       "expectRegex": [
         "\"count\"\\s*:\\s*0",

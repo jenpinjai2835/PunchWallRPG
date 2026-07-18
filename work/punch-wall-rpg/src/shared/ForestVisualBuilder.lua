@@ -1,21 +1,35 @@
 local ForestVisualBuilder = {}
 
-local TREE_ASSET_ID = "10042451801"
-local TREE_CREATOR = "ScriptedNex"
+local PRIMARY_TREE_ASSET_ID = "10042451801"
+local PRIMARY_TREE_CREATOR = "ScriptedNex"
+local FALLBACK_TREE_ASSET_ID = "95555308270103"
+local FALLBACK_TREE_CREATOR = "SwitchpmPixeld111933"
 local TRUNK_MESH_ID = "rbxassetid://16460201079"
 local LEAF_MESH_ID = "rbxassetid://16460182102"
 local LEAF_TEXTURE_ID = "rbxassetid://16460182437"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local function activeTreeMetadata()
+	local externalAssets = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
+	local external = externalAssets and externalAssets:FindFirstChild("Sanitized_ForestTreeSingle")
+	if external and external:IsA("Model") then
+		return PRIMARY_TREE_ASSET_ID, PRIMARY_TREE_CREATOR, external
+	end
+	local legacyAssets = ReplicatedStorage:FindFirstChild("PunchWallVisualAssets")
+	local legacy = legacyAssets and legacyAssets:FindFirstChild("StylizedForestTreeTemplate")
+	return FALLBACK_TREE_ASSET_ID, FALLBACK_TREE_CREATOR, legacy
+end
+
 local function markVisual(part, role)
+	local assetId, creator = activeTreeMetadata()
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
 	part.CanQuery = false
 	part.CastShadow = true
 	part:SetAttribute("VisualRole", role)
-	part:SetAttribute("CreatorStoreAssetId", TREE_ASSET_ID)
-	part:SetAttribute("CreatorStoreCreator", TREE_CREATOR)
+	part:SetAttribute("CreatorStoreAssetId", assetId)
+	part:SetAttribute("CreatorStoreCreator", creator)
 	part:SetAttribute("AssetSanitized", true)
 	return part
 end
@@ -35,15 +49,12 @@ local function meshPart(name, parent, meshId, textureId, size, cframe, color, ro
 end
 
 local function detailedTree(parent, name, groundPosition, height, yaw, leafColor, trunkRole, canopyRole)
-	local externalAssets = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
-	local legacyAssets = ReplicatedStorage:FindFirstChild("PunchWallVisualAssets")
-	local template = (externalAssets and externalAssets:FindFirstChild("Sanitized_ForestTreeSingle"))
-		or (legacyAssets and legacyAssets:FindFirstChild("StylizedForestTreeTemplate"))
+	local assetId, creator, template = activeTreeMetadata()
 	if template and template:IsA("Model") then
 		local model = template:Clone()
 		model.Name = name
-		model:SetAttribute("CreatorStoreAssetId", TREE_ASSET_ID)
-		model:SetAttribute("CreatorStoreCreator", TREE_CREATOR)
+		model:SetAttribute("CreatorStoreAssetId", assetId)
+		model:SetAttribute("CreatorStoreCreator", creator)
 		model:SetAttribute("AssetSanitized", true)
 		model:SetAttribute("CreatorStoreTemplateUsed", true)
 		model:SetAttribute("VisualRole", "SanitizedForestTreeModel")
@@ -65,8 +76,8 @@ local function detailedTree(parent, name, groundPosition, height, yaw, leafColor
 				part.CanTouch = false
 				part.CanQuery = false
 				part.CastShadow = true
-				part:SetAttribute("CreatorStoreAssetId", TREE_ASSET_ID)
-				part:SetAttribute("CreatorStoreCreator", TREE_CREATOR)
+				part:SetAttribute("CreatorStoreAssetId", assetId)
+				part:SetAttribute("CreatorStoreCreator", creator)
 				part:SetAttribute("AssetSanitized", true)
 				local lowerName = string.lower(part.Name)
 				if not string.find(lowerName, "trunk") and not string.find(lowerName, "branch") and not string.find(lowerName, "stem") then
@@ -84,8 +95,8 @@ local function detailedTree(parent, name, groundPosition, height, yaw, leafColor
 
 	local model = Instance.new("Model")
 	model.Name = name
-	model:SetAttribute("CreatorStoreAssetId", TREE_ASSET_ID)
-	model:SetAttribute("CreatorStoreCreator", TREE_CREATOR)
+	model:SetAttribute("CreatorStoreAssetId", assetId)
+	model:SetAttribute("CreatorStoreCreator", creator)
 	model:SetAttribute("AssetSanitized", true)
 	model:SetAttribute("VisualRole", "SanitizedForestTreeModel")
 	model.Parent = parent
@@ -133,9 +144,10 @@ local function setDecor(part, role)
 end
 
 function ForestVisualBuilder.Build(forestFolder, makePart, makeBall, makeText)
+	local activeAssetId, activeCreator = activeTreeMetadata()
 	forestFolder:SetAttribute("ForestVisualVersion", 2)
-	forestFolder:SetAttribute("PrimaryTreeAssetId", TREE_ASSET_ID)
-	forestFolder:SetAttribute("PrimaryTreeAssetCreator", TREE_CREATOR)
+	forestFolder:SetAttribute("PrimaryTreeAssetId", activeAssetId)
+	forestFolder:SetAttribute("PrimaryTreeAssetCreator", activeCreator)
 	forestFolder:SetAttribute("ImportedScriptsKept", 0)
 
 	local clearing = makePart("Forest Spawn Clearing", forestFolder, Vector3.new(60, 0.3, 150), Vector3.new(-2, -0.16, 0), Color3.fromRGB(70, 124, 65), Enum.Material.Grass)

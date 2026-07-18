@@ -50,6 +50,7 @@
       "type": "call",
       "tool": "execute_luau",
       "timeoutMs": 60000,
+      "saveAs": "tabletCamera",
       "args": {
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode(g.PunchWallClientAutomation:Invoke('__RunCamera',6))"
@@ -76,6 +77,7 @@
       "type": "call",
       "tool": "execute_luau",
       "timeoutMs": 60000,
+      "saveAs": "phoneCamera",
       "args": {
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode(g.PunchWallClientAutomation:Invoke('__RunCamera',6))"

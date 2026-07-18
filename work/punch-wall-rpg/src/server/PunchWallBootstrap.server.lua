@@ -27,7 +27,7 @@ local MOBILE_ACTION_DISTANCE = 38
 local MOBILE_ACTION_COOLDOWN = 0.12
 local tryDropPetEgg
 
-StarterPlayer.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Invisicam
+StarterPlayer.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom
 pcall(function() PhysicsService:RegisterCollisionGroup("PlayerCharacters") end)
 pcall(function() PhysicsService:RegisterCollisionGroup("PunchingCharacters") end)
 pcall(function() PhysicsService:RegisterCollisionGroup("DepthRubble") end)
@@ -1337,6 +1337,10 @@ local function ensureStats(player)
 	end
 	stats.TrainingUpdatedAt.Value = nowEpoch
 	player:SetAttribute("AutoTrainingActive", stats.TrainingActive.Value >= 1)
+	player:SetAttribute(
+		"TrainingTickAnchor",
+		stats.TrainingActive.Value >= 1 and workspace:GetServerTimeNow() or nil
+	)
 	player:SetAttribute("OfflineTrainingGain", offlineTrainingGain)
 	local dailyQuestDate = stats:FindFirstChild("DailyQuestDate")
 	if dailyQuestDate and dailyQuestDate.Value ~= os.date("!%Y-%m-%d") then
@@ -1706,7 +1710,7 @@ spawn.Name = "Punch Rookie Spawn"
 spawn.Anchored = true
 spawn.Size = Vector3.new(10, 1, 10)
 spawn.Position = Vector3.new(-2, 2, -18)
-spawn.Orientation = Vector3.new(0, 0, 0)
+spawn.Orientation = Vector3.new(0, 180, 0)
 spawn.Color = PolishConfig.Palette.HeroCyan
 spawn.Material = Enum.Material.Slate
 spawn.Transparency = 1
@@ -2427,7 +2431,14 @@ local DEPTH_ROWS = GameConfig.DepthWall.Rows
 local DEPTH_LAYERS = GameConfig.DepthWall.Layers
 local DEPTH_LAYERS_PER_TIER = GameConfig.DepthWall.LayersPerTier
 local depthBlockContributions = {}
+local depthBlocksNeedingReset = {}
 local depthBlockAliases = {}
+
+local function markDepthBlockDirty(block)
+	if block and block.Parent == depthBlocksFolder then
+		depthBlocksNeedingReset[block] = true
+	end
+end
 
 for layer = 1, DEPTH_LAYERS do
 	local tier = math.clamp(math.ceil(layer / DEPTH_LAYERS_PER_TIER), 1, #wallConfigs)
@@ -2574,7 +2585,10 @@ local function spawnDepthBlockFragments(block, player, impactDirection, forceSca
 		fragment.CastShadow = true
 		fragment.Parent = depthDebrisFolder
 		pcall(function() fragment:SetNetworkOwner(nil) end)
-		local side = sideAxis * ((index % 2 == 0 and 1 or -1) * (6 + index * 0.9) * strength)
+		-- Fan chunks away from the center camera corridor. They still carry a
+		-- strong forward impulse, but the wider cone prevents a large opaque
+		-- fragment from crossing through the player's camera after a lunge.
+		local side = sideAxis * ((index % 2 == 0 and 1 or -1) * (14 + index * 1.6) * strength)
 		local lift = Vector3.new(0, (8 + (index % 4) * 2.8) * (0.75 + strength * 0.25), 0)
 		local launchVelocity = outward * ((26 + index * 2.4) * strength) + side + lift
 		fragment:ApplyImpulse(launchVelocity * fragment.AssemblyMass)
@@ -2599,9 +2613,15 @@ local depthPunch = {
 	LungeClearance = 2.6,
 	EndpointMargin = 1,
 	WindupSeconds = 0.2,
-	LungeSeconds = 0.16,
+	LungeSeconds = 0.42,
+	OwnershipHoldSeconds = 0.35,
 	MaxStructuralFalling = 60,
 }
+local structuralDirtyLayers = {}
+local function markStructuralLayerDirty(layer)
+	layer = math.floor(tonumber(layer) or 0)
+	if layer >= 1 and layer <= DEPTH_LAYERS then structuralDirtyLayers[layer] = true end
+end
 root:SetAttribute("PunchRadius", depthPunch.Radius)
 root:SetAttribute("PunchTargetMode", "BodyDirectionFreeAim")
 root:SetAttribute("DepthBlockSize", DEPTH_BLOCK_SIZE)
@@ -2613,6 +2633,7 @@ root:SetAttribute("PunchMaxLungeDistance", depthPunch.MaxLungeDistance)
 root:SetAttribute("PunchPenetrationMode", "PowerScaledSweptVolume")
 root:SetAttribute("MaxDepthPhysicsFragments", MAX_DEPTH_PHYSICS_FRAGMENTS)
 root:SetAttribute("PunchWindupSeconds", depthPunch.WindupSeconds)
+root:SetAttribute("PunchOwnershipHoldSeconds", depthPunch.OwnershipHoldSeconds)
 root:SetAttribute("MaxStructuralFalling", depthPunch.MaxStructuralFalling)
 root:SetAttribute("ActiveStructuralFalling", 0)
 root:SetAttribute("LastStructuralCollapseCount", 0)
@@ -2695,8 +2716,8 @@ end
 
 function depthPunch.StepDetachedPhysics()
 	local now = workspace:GetServerTimeNow()
-	for _, block in ipairs(depthBlocksFolder:GetChildren()) do
-		if depthPunch.IsStructuralDetachedBlock(block) and not block:GetAttribute("Broken") then
+	for block in pairs(depthBlocksNeedingReset) do
+		if block.Parent and depthPunch.IsStructuralDetachedBlock(block) and not block:GetAttribute("Broken") then
 			if block:GetAttribute("StructuralFalling") then
 				local startedAt = math.max(
 					tonumber(block:GetAttribute("LastStructuralCollapseAt")) or 0,
@@ -2741,6 +2762,7 @@ end
 
 function depthPunch.ShatterDetached(block, player, impactDirection, impactForceScale)
 	if not block or not block.Parent or block:GetAttribute("Broken") then return false end
+	markDepthBlockDirty(block)
 	depthPunch.ReleaseStructuralSlot(block)
 	block:SetAttribute("Broken", true)
 	block:SetAttribute("StructuralDetached", false)
@@ -2758,6 +2780,7 @@ function depthPunch.ShatterDetached(block, player, impactDirection, impactForceS
 	block.Transparency = 1
 	block.CollisionGroup = "Default"
 	depthBlockContributions[block] = {}
+	markStructuralLayerDirty(block:GetAttribute("Depth"))
 	spawnDepthBlockFragments(block, player, impactDirection, impactForceScale or 1.15)
 	return true
 end
@@ -2766,6 +2789,7 @@ function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	if not block or block:GetAttribute("Broken") or block:GetAttribute("StructuralDetached") then return false end
 	local active = root:GetAttribute("ActiveStructuralFalling") or 0
 	if active >= depthPunch.MaxStructuralFalling then return false end
+	markDepthBlockDirty(block)
 	local token = (block:GetAttribute("StructuralToken") or 0) + 1
 	block:SetAttribute("StructuralToken", token)
 	block:SetAttribute("StructuralFalling", true)
@@ -2777,6 +2801,7 @@ function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	block:SetAttribute("HP", math.max(1, (block:GetAttribute("MaxHP") or 1) * 0.35))
 	block:SetAttribute("DamageStage", 2)
 	block:SetAttribute("LastStructuralCollapseAt", workspace:GetServerTimeNow())
+	markStructuralLayerDirty(block:GetAttribute("Depth"))
 	block.Anchored = false
 	block.CanCollide = true
 	block.CanQuery = true
@@ -2792,7 +2817,8 @@ function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	local sideBias = Vector3.new(sideSign, 0, 0)
 	local biasedOutward = outward + sideBias * 0.85
 	if biasedOutward.Magnitude > 0.01 then outward = biasedOutward.Unit end
-	block.AssemblyLinearVelocity = outward * 5 + Vector3.new(0, -7, 0)
+	local row = math.max(1, tonumber(block:GetAttribute("Row")) or 1)
+	block.AssemblyLinearVelocity = outward * (10 + row * 0.9) + Vector3.new(0, -7, 0)
 	block.AssemblyAngularVelocity = Vector3.new(math.random(-5, 5), math.random(-7, 7), math.random(-5, 5))
 	root:SetAttribute("ActiveStructuralFalling", active + 1)
 	return true
@@ -2803,7 +2829,11 @@ function depthPunch.AuditUnsupportedBlocks(player, maxDrops)
 	local remaining = math.min(capacity, math.max(0, tonumber(maxDrops) or 12))
 	if remaining <= 0 then return 0 end
 	local dropped = 0
-	for layer = 1, DEPTH_LAYERS do
+	local dirtyLayers = {}
+	for layer in pairs(structuralDirtyLayers) do table.insert(dirtyLayers, layer) end
+	table.sort(dirtyLayers)
+	for _, layer in ipairs(dirtyLayers) do
+		local layerDropped = 0
 		for row = 2, DEPTH_ROWS do
 			for column = 1, DEPTH_COLUMNS do
 				if remaining <= 0 then return dropped end
@@ -2816,11 +2846,13 @@ function depthPunch.AuditUnsupportedBlocks(player, maxDrops)
 					if not (depthPunch.HasSideSupport(layer, column - 1, row) and depthPunch.HasSideSupport(layer, column + 1, row))
 						and depthPunch.DropStructural(block, player) then
 						dropped += 1
+						layerDropped += 1
 						remaining -= 1
 					end
 				end
 			end
 		end
+		if layerDropped == 0 then structuralDirtyLayers[layer] = nil end
 	end
 	return dropped
 end
@@ -3149,20 +3181,21 @@ function depthPunch.Lunge(player, rootPart, profile)
 		ownershipToken = (player:GetAttribute("PunchOwnershipToken") or 0) + 1
 		player:SetAttribute("PunchOwnershipToken", ownershipToken)
 	end
-	player:SetAttribute("LastPunchOwnershipHoldSeconds", 0.22)
+	player:SetAttribute("LastPunchOwnershipHoldSeconds", depthPunch.OwnershipHoldSeconds)
 	pcall(function() rootPart:SetNetworkOwner(nil) end)
 	if travel > 0.05 then
-		local tween = TweenService:Create(rootPart, TweenInfo.new(depthPunch.LungeSeconds, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		local tween = TweenService:Create(rootPart, TweenInfo.new(depthPunch.LungeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 			CFrame = rootPart.CFrame + direction * travel,
 		})
 		tween:Play()
 		tween.Completed:Wait()
 		rootPart.AssemblyLinearVelocity = Vector3.new(0, rootPart.AssemblyLinearVelocity.Y, 0)
 	end
-	task.delay(0.22, function()
+	task.delay(depthPunch.OwnershipHoldSeconds, function()
 		if rootPart.Parent and player.Parent and player:GetAttribute("PunchOwnershipToken") == ownershipToken then
 			rootPart.AssemblyLinearVelocity = Vector3.new(0, rootPart.AssemblyLinearVelocity.Y, 0)
 			rootPart.AssemblyAngularVelocity = Vector3.zero
+			depthPunch.ResolveCharacterOverlaps()
 			shared.PunchWallSetCharacterCollisionGroup(rootPart.Parent, "PlayerCharacters")
 			pcall(function() rootPart:SetNetworkOwnershipAuto() end)
 		end
@@ -3211,6 +3244,7 @@ local function hitDepthBlock(player, block, options)
 	local previousHP = block:GetAttribute("HP") or 0
 	local actualDamage = math.min(previousHP, damage)
 	local remainingHP = math.max(0, previousHP - damage)
+	markDepthBlockDirty(block)
 	block:SetAttribute("HP", remainingHP)
 	depthBlockContributions[block] = depthBlockContributions[block] or {}
 	depthBlockContributions[block][player.UserId] = (depthBlockContributions[block][player.UserId] or 0) + actualDamage
@@ -3240,6 +3274,7 @@ local function hitDepthBlock(player, block, options)
 	block.CanCollide = false
 	block.CanQuery = false
 	block.Transparency = 1
+	markStructuralLayerDirty(block:GetAttribute("Depth"))
 	spawnDepthBlockFragments(block, player, options.impactDirection, options.impactForceScale)
 	if not wasDetached then depthPunch.StructuralCollapse(block, player) end
 
@@ -3799,8 +3834,9 @@ local function playTrainingImpact(config)
 	end
 end
 
-local function grantTrainingTick(player, config, showFeedback)
-	local gain = config.gain
+local function grantTrainingTick(player, config, showFeedback, tickCount)
+	tickCount = math.max(1, math.floor(tonumber(tickCount) or 1))
+	local gain = config.gain * tickCount
 	if (player:GetAttribute("TrainingBoostExpiresAt") or 0) > workspace:GetServerTimeNow() then gain *= 2 end
 	addStat(player, "Power", gain)
 	setStat(player, "TrainingUpdatedAt", os.time())
@@ -3836,6 +3872,7 @@ local function trainPlayer(player, config)
 	setStat(player, "TrainingActive", 1)
 	setStat(player, "TrainingUpdatedAt", os.time())
 	player:SetAttribute("AutoTrainingActive", true)
+	player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
 	setTrainingMovementLocked(player, true, config)
 
 	local gain = grantTrainingTick(player, config, true)
@@ -3848,6 +3885,7 @@ local function stopTraining(player)
 	setStat(player, "TrainingActive", 0)
 	setStat(player, "TrainingUpdatedAt", os.time())
 	player:SetAttribute("AutoTrainingActive", false)
+	player:SetAttribute("TrainingTickAnchor", nil)
 	setTrainingMovementLocked(player, false, trainingConfigs[1])
 	sendFeedback(player, {
 		type = "TrainingState",
@@ -5407,37 +5445,60 @@ function resetWorldState()
 			resetWallState(wall)
 		end
 	end
-	for _, block in ipairs(depthBlocksFolder:GetChildren()) do
-		block:SetAttribute("HP", block:GetAttribute("MaxHP"))
-		block:SetAttribute("Broken", false)
-		block:SetAttribute("DamageStage", 0)
-		block:SetAttribute("LastRadiusDamageScale", 0)
-		block:SetAttribute("LastRadiusHitAt", 0)
-		block:SetAttribute("Shaking", false)
-		block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
-		block:SetAttribute("StructuralFalling", false)
-		block:SetAttribute("StructuralDetached", false)
-		block:SetAttribute("StructuralSettled", false)
-		block:SetAttribute("StructuralActiveSlot", false)
-		block:SetAttribute("StructuralFailure", false)
-		block:SetAttribute("StructuralToken", (block:GetAttribute("StructuralToken") or 0) + 1)
-		block:SetAttribute("DetachedImpactToken", (block:GetAttribute("DetachedImpactToken") or 0) + 1)
-		block:SetAttribute("SettledCFrame", nil)
-		block:SetAttribute("DetachedImpactOrigin", nil)
-		block:SetAttribute("LastDetachedLaunchSpeed", nil)
-		block:SetAttribute("LastOverlapEjectAt", nil)
-		block:SetAttribute("LastOverlapEjectSpeed", nil)
-		block:SetAttribute("LastOverlapShatterAt", nil)
-		block.Color = block:GetAttribute("OriginalColor") or block.Color
-		block.CFrame = block:GetAttribute("BaseCFrame") or block.CFrame
-		block.Transparency = 0
-		block.Anchored = true
-		block.CanCollide = true
-		block.CanQuery = true
-		block.CollisionGroup = "DepthStructure"
-		depthBlockContributions[block] = {}
+	local resetDepthBlocks = 0
+	for block in pairs(depthBlocksNeedingReset) do
+		local maxHP = block:GetAttribute("MaxHP")
+		local baseCFrame = block:GetAttribute("BaseCFrame")
+		local needsReset = block.Parent == depthBlocksFolder and (block:GetAttribute("HP") ~= maxHP
+			or block:GetAttribute("Broken") == true
+			or (block:GetAttribute("DamageStage") or 0) ~= 0
+			or block:GetAttribute("Shaking") == true
+			or block:GetAttribute("StructuralFalling") == true
+			or block:GetAttribute("StructuralDetached") == true
+			or block:GetAttribute("StructuralSettled") == true
+			or block:GetAttribute("StructuralActiveSlot") == true
+			or block:GetAttribute("StructuralFailure") == true
+			or block.Transparency ~= 0
+			or not block.Anchored
+			or not block.CanCollide
+			or not block.CanQuery
+			or block.CollisionGroup ~= "DepthStructure"
+			or (typeof(baseCFrame) == "CFrame" and block.CFrame ~= baseCFrame))
+		if needsReset then
+			resetDepthBlocks += 1
+			block:SetAttribute("HP", maxHP)
+			block:SetAttribute("Broken", false)
+			block:SetAttribute("DamageStage", 0)
+			block:SetAttribute("LastRadiusDamageScale", 0)
+			block:SetAttribute("LastRadiusHitAt", 0)
+			block:SetAttribute("Shaking", false)
+			block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
+			block:SetAttribute("StructuralFalling", false)
+			block:SetAttribute("StructuralDetached", false)
+			block:SetAttribute("StructuralSettled", false)
+			block:SetAttribute("StructuralActiveSlot", false)
+			block:SetAttribute("StructuralFailure", false)
+			block:SetAttribute("StructuralToken", (block:GetAttribute("StructuralToken") or 0) + 1)
+			block:SetAttribute("DetachedImpactToken", (block:GetAttribute("DetachedImpactToken") or 0) + 1)
+			block:SetAttribute("SettledCFrame", nil)
+			block:SetAttribute("DetachedImpactOrigin", nil)
+			block:SetAttribute("LastDetachedLaunchSpeed", nil)
+			block:SetAttribute("LastOverlapEjectAt", nil)
+			block:SetAttribute("LastOverlapEjectSpeed", nil)
+			block:SetAttribute("LastOverlapShatterAt", nil)
+			block.Color = block:GetAttribute("OriginalColor") or block.Color
+			block.CFrame = typeof(baseCFrame) == "CFrame" and baseCFrame or block.CFrame
+			block.Transparency = 0
+			block.Anchored = true
+			block.CanCollide = true
+			block.CanQuery = true
+			block.CollisionGroup = "DepthStructure"
+			depthBlockContributions[block] = {}
+		end
 	end
+	table.clear(depthBlocksNeedingReset)
 	depthDebrisFolder:ClearAllChildren()
+	table.clear(structuralDirtyLayers)
 	root:SetAttribute("ActiveStructuralFalling", 0)
 	root:SetAttribute("LastStructuralCollapseCount", 0)
 	root:SetAttribute("LastCharacterOverlapShatterCount", 0)
@@ -5471,6 +5532,7 @@ function resetWorldState()
 	root:SetAttribute("LastWorldResetAt", now)
 	root:SetAttribute("NextWorldResetAt", now + WORLD_RESET_INTERVAL)
 	root:SetAttribute("WorldResetCount", (root:GetAttribute("WorldResetCount") or 0) + 1)
+	root:SetAttribute("LastWorldResetDepthBlocks", resetDepthBlocks)
 	for _, player in ipairs(Players:GetPlayers()) do
 		sendFeedback(player, {
 			type = "WorldReset",
@@ -5483,6 +5545,7 @@ function resetWorldState()
 		action = "WorldReset",
 		ok = true,
 		teleportedPlayers = count,
+		depthBlocksReset = resetDepthBlocks,
 		resetAt = now,
 		resetCount = root:GetAttribute("WorldResetCount"),
 	}
@@ -5573,7 +5636,11 @@ shared.PunchWallRunStressCase = function(player, caseConfig)
 	local expectedPunches = cycleCount * attemptCount
 	local result = { name = tostring(caseConfig.name or "case"), punches = 0, success = 0, overlaps = 0, corrections = 0, stuck = 0, maxBack = 0 }
 	for cycle = 1, cycleCount do
-		resetAutomationState(player)
+		if cycle == 1 then
+			resetAutomationState(player)
+		else
+			resetWorldState()
+		end
 		setStat(player, "Power", tonumber(caseConfig.power) or 15)
 		setStat(player, "WallLevel", 99)
 		setStat(player, "CritChance", 0)
@@ -6232,7 +6299,14 @@ task.spawn(function()
 			if player:FindFirstChild("RPGStats") then
 				addStat(player, "PlaytimeSeconds", 1)
 				if statValue(player, "TrainingActive", 0) >= 1 then
-					grantTrainingTick(player, trainingConfigs[1], false)
+					local now = workspace:GetServerTimeNow()
+					local anchor = tonumber(player:GetAttribute("TrainingTickAnchor")) or now
+					local tickSeconds = math.max(0.1, tonumber(GameConfig.Training.TickSeconds) or 1)
+					local due = math.clamp(math.floor((now - anchor) / tickSeconds), 0, 60)
+					if due > 0 then
+						grantTrainingTick(player, trainingConfigs[1], false, due)
+						player:SetAttribute("TrainingTickAnchor", anchor + due * tickSeconds)
+					end
 				end
 				if statValue(player, "DailyQuestDate", "") ~= today then
 					setStat(player, "DailyBreaks", 0)

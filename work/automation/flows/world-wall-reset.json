@@ -33,7 +33,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') return H:JSONEncode({feedback=gui:GetAttribute('LastFeedbackType'),target=gui:GetAttribute('LastFeedbackTarget')})"
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local deadline=os.clock()+3 repeat if gui:GetAttribute('LastFeedbackType')=='WorldReset' and gui:GetAttribute('LastFeedbackTarget')=='Spawn' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({feedback=gui:GetAttribute('LastFeedbackType'),target=gui:GetAttribute('LastFeedbackTarget')})"
       },
       "expectRegex": ["\"feedback\"\\s*:\\s*\"WorldReset\"", "\"target\"\\s*:\\s*\"Spawn\""],
       "label": "client receives reset feedback"
