@@ -214,12 +214,19 @@ function InventoryUI.new(options)
 	self._signature = nil
 	self._deleteConfirmKey = nil
 	self._deleteConfirmUntil = 0
+	self._deleteConfirmThread = nil
+	self._deleteConfirmGeneration = 0
 	self._detailExpanded = false
 	self._rarityMenuOpen = false
 	self._updatingSearch = false
 	self._lastTimedRefreshAt = 0
 	self._hasTimedItem = false
 	self._timerConnection = nil
+	self._timerThread = nil
+	self._timerGeneration = 0
+	self._timerModeKey = nil
+	self._timedDetailUpdateCount = 0
+	self._timedExpiryRebuildCount = 0
 	self._diagnosticSnapshotCount = 0
 	self._diagnosticSnapshotSkipCount = 0
 	self._gridRebuildCount = 0
@@ -238,6 +245,11 @@ function InventoryUI.new(options)
 	self.Root:SetAttribute("InventorySelectionVisualUpdateCount", 0)
 	self.Root:SetAttribute("InventoryLiveCardCount", 0)
 	self.Root:SetAttribute("InventoryCardConnectionCount", 0)
+	self.Root:SetAttribute("InventoryTimedRefreshMode", "Stopped")
+	self.Root:SetAttribute("InventoryTimedDetailUpdateCount", 0)
+	self.Root:SetAttribute("InventoryTimedExpiryRebuildCount", 0)
+	self.Root:SetAttribute("InventoryDeleteConfirmationScheduled", false)
+	self.Root:SetAttribute("InventoryDeleteConfirmationKey", "")
 	self:ApplyResponsive(self.Root.AbsoluteSize, false, 1)
 	return self
 end
@@ -778,12 +790,19 @@ function InventoryUI:_build(parent)
 	self.Capacity.Position = UDim2.fromScale(1, 0)
 	self.Capacity.ZIndex = 148
 
-	self.RarityMenu = create("Frame", self.GridPane, {
+	self.RarityMenu = create("ScrollingFrame", self.GridPane, {
 		Name = "RarityMenu",
 		AnchorPoint = Vector2.new(1, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = Color3.fromRGB(5, 14, 22),
 		BorderSizePixel = 0,
+		CanvasSize = UDim2.new(),
+		ClipsDescendants = true,
+		ElasticBehavior = Enum.ElasticBehavior.Never,
 		Position = UDim2.new(1, -8, 0, 56),
+		ScrollBarImageColor3 = PALETTE.Cyan,
+		ScrollBarThickness = 5,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Size = UDim2.fromOffset(154, 7 * 44 + 12),
 		Visible = false,
 		ZIndex = 170,
@@ -1145,6 +1164,7 @@ function InventoryUI:_build(parent)
 	self:_connect(self.DetailClose.Activated, function()
 		self._detailExpanded = false
 		self:ApplyResponsive(self._layout.viewport, true, self._layout.uiScale)
+		self:_syncTimedRefresh()
 	end)
 	self:_connect(self.RarityFilter.Activated, function()
 		self:_setRarityMenu(not self._rarityMenuOpen)
@@ -1158,6 +1178,7 @@ function InventoryUI:_build(parent)
 		local size = self.Root.AbsoluteSize
 		if size.X > 0 and size.Y > 0 then
 			self:ApplyResponsive(size, size.X < 900 or size.Y < 520, self._layout.uiScale)
+			self:_syncTimedRefresh()
 		end
 	end)
 	self:_connect(self.Root:GetPropertyChangedSignal("Visible"), function()
@@ -1166,39 +1187,233 @@ function InventoryUI:_build(parent)
 end
 
 function InventoryUI:_stopTimedRefresh()
+	self._timerGeneration = self._timerGeneration + 1
+	self._timerModeKey = nil
 	if self._timerConnection then
 		self._timerConnection:Disconnect()
 		self._timerConnection = nil
 	end
+	if self._timerThread then
+		local timerThread = self._timerThread
+		self._timerThread = nil
+		pcall(function()
+			task.cancel(timerThread)
+		end)
+	end
+	if self.Root then
+		self.Root:SetAttribute("InventoryTimedRefreshMode", "Stopped")
+	end
 end
 
-function InventoryUI:_syncTimedRefresh()
-	if not self.Root or not self.Root.Visible or not self._snapshot or not self._hasTimedItem then
-		self:_stopTimedRefresh()
-		return
+function InventoryUI:_updateTimedItemDetail(item, now)
+	local endsAt = tonumber(item and item.endsAt)
+	if not endsAt or endsAt <= 0 then
+		return false
 	end
-	if self._timerConnection then
-		return
+
+	local currentDetail = tostring(item.detail or item.description or "")
+	local baseDetail = item._inventoryTimedBaseDetail
+	if type(baseDetail) ~= "string" then
+		baseDetail = string.match(currentDetail, "^(.-)%s*|%s*%d+:%d%d remaining%s*$") or currentDetail
+		item._inventoryTimedBaseDetail = baseDetail
 	end
-	self._lastTimedRefreshAt = workspace:GetServerTimeNow()
-	self._timerConnection = RunService.Heartbeat:Connect(function()
-		if not self.Root or not self.Root.Visible or not self._hasTimedItem then
-			self:_stopTimedRefresh()
-			return
+	local remaining = math.max(0, math.ceil(endsAt - now))
+	local nextDetail = ("%s | %d:%02d remaining"):format(baseDetail, math.floor(remaining / 60), remaining % 60)
+	local changed = nextDetail ~= currentDetail
+	item.remainingSeconds = remaining
+	item.detail = nextDetail
+	item.description = nextDetail
+	return changed
+end
+
+function InventoryUI:_refreshTimedItems(now)
+	local snapshot = self._snapshot
+	if not snapshot or type(snapshot.items) ~= "table" then
+		self._hasTimedItem = false
+		return false, nil
+	end
+
+	local expired = false
+	local nextExpiry
+	local selectedDetailChanged = false
+	for _, item in ipairs(snapshot.items) do
+		local endsAt = tonumber(item.endsAt)
+		if endsAt and endsAt > 0 then
+			if endsAt <= now then
+				expired = true
+			else
+				nextExpiry = nextExpiry and math.min(nextExpiry, endsAt) or endsAt
+				local changed = self:_updateTimedItemDetail(item, now)
+				if item == self._selectedItem and changed then
+					selectedDetailChanged = true
+				end
+			end
 		end
-		local now = workspace:GetServerTimeNow()
-		if math.floor(now) <= math.floor(self._lastTimedRefreshAt) then
-			return
-		end
-		self._lastTimedRefreshAt = now
+	end
+
+	if expired then
 		self._snapshot = self:_buildSnapshot(self:_getStats())
 		self._hasTimedItem = hasTimedItem(self._snapshot)
 		self:_applyFilter(false)
-		self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
-		if not self._hasTimedItem then
+		if self.Root.Visible then
+			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+		end
+		self._timedExpiryRebuildCount = self._timedExpiryRebuildCount + 1
+		self.Root:SetAttribute("InventoryTimedExpiryRebuildCount", self._timedExpiryRebuildCount)
+		return true, nil
+	end
+
+	self._hasTimedItem = nextExpiry ~= nil
+	if selectedDetailChanged and self._selectedItem then
+		self.DetailDescription.Text = tostring(self._selectedItem.description or self._selectedItem.detail or "")
+		self._timedDetailUpdateCount = self._timedDetailUpdateCount + 1
+		self.Root:SetAttribute("InventoryTimedDetailUpdateCount", self._timedDetailUpdateCount)
+	end
+	return false, nextExpiry
+end
+
+function InventoryUI:_syncTimedRefresh()
+	if not self.Root or not self.Root.Parent or not self.Root.Visible or not self._snapshot or not self._hasTimedItem then
+		self:_stopTimedRefresh()
+		return
+	end
+
+	local now = workspace:GetServerTimeNow()
+	local rebuilt, nextExpiry = self:_refreshTimedItems(now)
+	if rebuilt then
+		self:_syncTimedRefresh()
+		return
+	end
+	if not nextExpiry then
+		self:_stopTimedRefresh()
+		return
+	end
+
+	local selectedEndsAt = tonumber(self._selectedItem and self._selectedItem.endsAt)
+	local selectedTimedVisible = selectedEndsAt
+		and selectedEndsAt > now
+		and self.Detail.Visible
+		and self.DetailDescription.Visible
+	local modeKey
+	if selectedTimedVisible then
+		modeKey = ("detail:%s:%.6f"):format(tostring(self._selectedItem.key or ""), selectedEndsAt)
+		if self._timerModeKey == modeKey and self._timerConnection then
+			return
+		end
+	else
+		modeKey = ("expiry:%.6f"):format(nextExpiry)
+		if self._timerModeKey == modeKey and self._timerThread then
+			return
+		end
+	end
+
+	self:_stopTimedRefresh()
+	self._timerModeKey = modeKey
+	local generation = self._timerGeneration
+	if selectedTimedVisible then
+		self._lastTimedRefreshAt = now
+		self.Root:SetAttribute("InventoryTimedRefreshMode", "SelectedDetailHeartbeat")
+		self._timerConnection = RunService.Heartbeat:Connect(function()
+			if generation ~= self._timerGeneration then
+				return
+			end
+			if not self.Root or not self.Root.Parent or not self.Root.Visible or not self._hasTimedItem then
+				self:_stopTimedRefresh()
+				return
+			end
+			local tickNow = workspace:GetServerTimeNow()
+			if math.floor(tickNow) <= math.floor(self._lastTimedRefreshAt) then
+				return
+			end
+			self._lastTimedRefreshAt = tickNow
+			local tickRebuilt = self:_refreshTimedItems(tickNow)
+			if tickRebuilt or not self._hasTimedItem then
+				self:_syncTimedRefresh()
+			end
+		end)
+		return
+	end
+
+	self.Root:SetAttribute("InventoryTimedRefreshMode", "ExpiryDelay")
+	self._timerThread = task.delay(math.max(0.03, nextExpiry - now + 0.03), function()
+		if generation ~= self._timerGeneration then
+			return
+		end
+		self._timerThread = nil
+		if not self.Root or not self.Root.Parent or not self.Root.Visible then
 			self:_stopTimedRefresh()
+			return
+		end
+		self:_refreshTimedItems(workspace:GetServerTimeNow())
+		self:_syncTimedRefresh()
+	end)
+end
+
+function InventoryUI:_refreshDeleteConfirmationLabel()
+	local item = self._selectedItem
+	if not item then
+		return
+	end
+	local awaitingConfirmation = self._deleteConfirmKey == tostring(item.key)
+		and os.clock() <= self._deleteConfirmUntil
+	for _, button in ipairs(self._actionButtons) do
+		if button:IsA("TextButton") and button:GetAttribute("Destructive") == true then
+			local semanticName = tostring(button:GetAttribute("InventoryAction") or "")
+			local normalLabel = semanticName
+			for _, action in ipairs(itemActions(item)) do
+				if normalize(actionName(action)) == normalize(semanticName) then
+					normalLabel = tostring(action.label or semanticName)
+					break
+				end
+			end
+			button.Text = string.upper(awaitingConfirmation and "CONFIRM DELETE" or normalLabel)
+		end
+	end
+end
+
+function InventoryUI:_cancelDeleteConfirmation(refreshLabel)
+	self._deleteConfirmGeneration = self._deleteConfirmGeneration + 1
+	if self._deleteConfirmThread then
+		local confirmThread = self._deleteConfirmThread
+		self._deleteConfirmThread = nil
+		pcall(function()
+			task.cancel(confirmThread)
+		end)
+	end
+	self._deleteConfirmKey = nil
+	self._deleteConfirmUntil = 0
+	if self.Root then
+		self.Root:SetAttribute("InventoryDeleteConfirmationScheduled", false)
+		self.Root:SetAttribute("InventoryDeleteConfirmationKey", "")
+	end
+	if refreshLabel == true then
+		self:_refreshDeleteConfirmationLabel()
+	end
+end
+
+function InventoryUI:_armDeleteConfirmation(key)
+	self:_cancelDeleteConfirmation(false)
+	self._deleteConfirmKey = tostring(key)
+	self._deleteConfirmUntil = os.clock() + 3
+	local generation = self._deleteConfirmGeneration
+	self.Root:SetAttribute("InventoryDeleteConfirmationScheduled", true)
+	self.Root:SetAttribute("InventoryDeleteConfirmationKey", self._deleteConfirmKey)
+	self._deleteConfirmThread = task.delay(3, function()
+		if generation ~= self._deleteConfirmGeneration
+			or self._deleteConfirmKey ~= tostring(key)
+		then
+			return
+		end
+		self._deleteConfirmThread = nil
+		self._deleteConfirmKey = nil
+		self._deleteConfirmUntil = 0
+		if self.Root and self.Root.Parent then
+			self.Root:SetAttribute("InventoryDeleteConfirmationScheduled", false)
+			self.Root:SetAttribute("InventoryDeleteConfirmationKey", "")
+			self:_refreshDeleteConfirmationLabel()
 		end
 	end)
+	self:_refreshDeleteConfirmationLabel()
 end
 
 function InventoryUI:_applyAtlasIcon(image, iconName)
@@ -1635,6 +1850,7 @@ function InventoryUI:_renderDetail()
 		self:_syncDetailVisibility()
 		return
 	end
+	self:_updateTimedItemDetail(item, workspace:GetServerTimeNow())
 
 	local accent = itemAccent(item)
 	local displayName = tostring(item.displayName or item.name or "Unknown Item")
@@ -1758,6 +1974,7 @@ function InventoryUI:_syncDetailVisibility()
 end
 
 function InventoryUI:_applyFilter(resetDrawer)
+	self:_cancelDeleteConfirmation(false)
 	self._visibleItems = self:_filterSnapshot()
 	local selectedStillVisible = false
 	for _, item in ipairs(self._visibleItems) do
@@ -1795,8 +2012,7 @@ function InventoryUI:SetVisible(visible)
 		end
 		self:ApplyResponsive(viewport, viewport.X < 900 or viewport.Y < 520, self._layout.uiScale)
 	else
-		self._deleteConfirmKey = nil
-		self._deleteConfirmUntil = 0
+		self:_cancelDeleteConfirmation(false)
 		self:_setRarityMenu(false)
 	end
 	self.Root.Visible = visible
@@ -1843,10 +2059,9 @@ function InventoryUI:SetCategory(name, includeDiagnostics)
 	for _, category in ipairs(CATEGORIES) do
 		if normalize(category) == requested then
 			self._category = category
-			self._deleteConfirmKey = nil
-			self._deleteConfirmUntil = 0
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+			self:_syncTimedRefresh()
 			return self:_snapshotResult(includeDiagnostics)
 		end
 	end
@@ -1860,10 +2075,9 @@ function InventoryUI:SetSearch(text, includeDiagnostics)
 		self.Search.Text = self._search
 		self._updatingSearch = false
 	end
-	self._deleteConfirmKey = nil
-	self._deleteConfirmUntil = 0
 	self:_applyFilter(true)
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+	self:_syncTimedRefresh()
 	return self:_snapshotResult(includeDiagnostics)
 end
 
@@ -1872,10 +2086,9 @@ function InventoryUI:SetRarity(name, includeDiagnostics)
 	for _, rarity in ipairs(RARITIES) do
 		if normalize(rarity) == requested then
 			self._rarity = rarity
-			self._deleteConfirmKey = nil
-			self._deleteConfirmUntil = 0
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+			self:_syncTimedRefresh()
 			return self:_snapshotResult(includeDiagnostics)
 		end
 	end
@@ -1888,10 +2101,9 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 		return self:_snapshotResult(includeDiagnostics)
 	end
 	local previousKey = self._selectedKey
+	self:_cancelDeleteConfirmation(false)
 	self._selectedKey = tostring(item.key)
 	self._selectedItem = item
-	self._deleteConfirmKey = nil
-	self._deleteConfirmUntil = 0
 	self._detailExpanded = true
 	if tostring(previousKey or "") ~= self._selectedKey then
 		self:_applyCardSelectionVisual(previousKey, false)
@@ -1901,6 +2113,7 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 	end
 	self:_renderDetail()
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+	self:_syncTimedRefresh()
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey)
 	return self:_snapshotResult(includeDiagnostics)
 end
@@ -1951,13 +2164,10 @@ function InventoryUI:InvokeAction(request)
 		local key = tostring(item.key)
 		local now = os.clock()
 		if self._deleteConfirmKey ~= key or now > self._deleteConfirmUntil then
-			self._deleteConfirmKey = key
-			self._deleteConfirmUntil = now + 3
-			self:_renderDetail()
+			self:_armDeleteConfirmation(key)
 			return false, "confirmation_required"
 		end
-		self._deleteConfirmKey = nil
-		self._deleteConfirmUntil = 0
+		self:_cancelDeleteConfirmation(false)
 	end
 
 	local payload = action.payload
@@ -2033,8 +2243,23 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Capacity.Position = UDim2.fromScale(1, 0)
 	self.Capacity.Size = UDim2.fromOffset(capacityWidth, toolbarHeight)
 	self.Capacity.TextSize = useCompact and 9 or 10
-	self.RarityMenu.Position = UDim2.new(1, -(8 + capacityWidth + toolbarGap), 0, toolbarHeight + 12)
-	self.RarityMenu.Size = UDim2.fromOffset(rarityWidth, #RARITIES * touchTarget + 12)
+	local rarityMenuTop = toolbarHeight + 12
+	local desiredRarityMenuHeight = #RARITIES * touchTarget + 12
+	local availableRarityMenuHeight = bodyHeight - rarityMenuTop - 12
+	if useCompact then
+		local compactContentHeight = math.max(0, bodyHeight - (touchTarget + 8) - 12)
+		availableRarityMenuHeight = compactContentHeight - rarityMenuTop - 4
+	end
+	local rarityMenuHeight = math.max(
+		touchTarget + 12,
+		math.min(desiredRarityMenuHeight, math.max(touchTarget + 12, availableRarityMenuHeight))
+	)
+	self.RarityMenu.Position = UDim2.new(1, -(8 + capacityWidth + toolbarGap), 0, rarityMenuTop)
+	self.RarityMenu.Size = UDim2.fromOffset(rarityWidth, rarityMenuHeight)
+	self.RarityMenu.ScrollBarThickness = rarityMenuHeight < desiredRarityMenuHeight and 5 or 0
+	self.RarityMenu:SetAttribute("InventoryRarityEntryHeight", touchTarget * scale)
+	self.RarityMenu:SetAttribute("InventoryRarityMenuBounded", useCompact)
+	self.RarityMenu:SetAttribute("InventoryRarityMenuHeight", rarityMenuHeight * scale)
 	for _, button in pairs(self._rarityButtons) do
 		button.Size = UDim2.new(1, 0, 0, touchTarget)
 	end
@@ -2428,6 +2653,9 @@ function InventoryUI:GetSnapshot()
 			columns = self._layout.columns,
 			minTouchTarget = self:_minimumTouchTarget(),
 			detailMode = self._layout.detailMode,
+			rarityMenuBounded = self.RarityMenu:GetAttribute("InventoryRarityMenuBounded") == true,
+			rarityMenuHeight = tonumber(self.RarityMenu:GetAttribute("InventoryRarityMenuHeight")) or 0,
+			rarityEntryHeight = tonumber(self.RarityMenu:GetAttribute("InventoryRarityEntryHeight")) or 0,
 			allTextFits = self:_textFits(),
 			insideSafeArea = self:_insideSafeArea(),
 			noOverlap = self:_layoutHasNoOverlap(),
@@ -2445,11 +2673,16 @@ function InventoryUI:GetSnapshot()
 			liveCards = #self._cards,
 			cardConnections = #self._cardConnections,
 			cardConnectionBounded = #self._cardConnections <= (#self._cards * 3),
+			timedRefreshMode = tostring(self.Root:GetAttribute("InventoryTimedRefreshMode") or "Stopped"),
+			timedDetailUpdates = self._timedDetailUpdateCount,
+			timedExpiryRebuilds = self._timedExpiryRebuildCount,
+			deleteConfirmationScheduled = self.Root:GetAttribute("InventoryDeleteConfirmationScheduled") == true,
 		},
 	}
 end
 
 function InventoryUI:Destroy()
+	self:_cancelDeleteConfirmation(false)
 	self:_stopTimedRefresh()
 	for _, connection in ipairs(self._connections) do
 		connection:Disconnect()

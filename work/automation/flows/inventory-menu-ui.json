@@ -197,6 +197,95 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('SelectInventoryCategory','Boosts') local active=a:Invoke('InventorySnapshot') local boostPresent=#(active.visibleKeys or {})==1 and active.visibleKeys[1]=='boost:CoinBoost' a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.15) local before=a:Invoke('InventorySnapshot') local bp=before.performance or {} task.wait(2.2) local after=a:Invoke('InventorySnapshot') local ap=after.performance or {} local metricsPresent=type(bp.gridRebuilds)=='number' and type(bp.liveCards)=='number' and type(bp.cardConnections)=='number' and type(bp.timedDetailUpdates)=='number' and type(ap.gridRebuilds)=='number' and type(ap.liveCards)=='number' and type(ap.cardConnections)=='number' and type(ap.timedDetailUpdates)=='number' local gridStable=ap.gridRebuilds==bp.gridRebuilds local liveStable=ap.liveCards==bp.liveCards local connectionsStable=ap.cardConnections==bp.cardConnections local detailStable=ap.timedDetailUpdates==bp.timedDetailUpdates local modeOk=bp.timedRefreshMode=='ExpiryDelay' and ap.timedRefreshMode=='ExpiryDelay' local selected=after.selected or {} return H:JSONEncode({ok=boostPresent and before.visible==true and after.visible==true and selected.key=='pet:slot:2' and metricsPresent and gridStable and liveStable and connectionsStable and detailStable and ap.cardConnectionBounded==true and modeOk,boostPresent=boostPresent,selected=selected.key,visible=after.visible,metricsPresent=metricsPresent,gridStable=gridStable,liveStable=liveStable,connectionsStable=connectionsStable,detailStable=detailStable,cardConnectionBounded=ap.cardConnectionBounded,beforeMode=bp.timedRefreshMode,afterMode=ap.timedRefreshMode,beforeGrid=bp.gridRebuilds,afterGrid=ap.gridRebuilds,beforeTimedDetails=bp.timedDetailUpdates,afterTimedDetails=ap.timedDetailUpdates})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"boostPresent\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*\"pet:slot:2\"",
+        "\"visible\"\\s*:\\s*true",
+        "\"metricsPresent\"\\s*:\\s*true",
+        "\"gridStable\"\\s*:\\s*true",
+        "\"liveStable\"\\s*:\\s*true",
+        "\"connectionsStable\"\\s*:\\s*true",
+        "\"detailStable\"\\s*:\\s*true",
+        "\"cardConnectionBounded\"\\s*:\\s*true",
+        "\"beforeMode\"\\s*:\\s*\"ExpiryDelay\"",
+        "\"afterMode\"\\s*:\\s*\"ExpiryDelay\""
+      ],
+      "label": "non-timed pet detail avoids per-second rebuilds while Coin Boost remains active"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') local p=game.Players:GetPlayers()[1] local now=workspace:GetServerTimeNow() local coinAt=now+3 local damageAt=now+10 local coin=c:Invoke('SetPlayerAttribute',{name='CoinBoostExpiresAt',value=coinAt}) local damage=c:Invoke('SetPlayerAttribute',{name='DamageBoostExpiresAt',value=damageAt}) local actualCoin=p:GetAttribute('CoinBoostExpiresAt') or 0 local actualDamage=p:GetAttribute('DamageBoostExpiresAt') or 0 return H:JSONEncode({ok=coin.ok==true and damage.ok==true and actualCoin==coinAt and actualDamage==damageAt and actualCoin>now+2.5 and actualCoin<now+3.5 and actualDamage>now+9.5,coinShort=actualCoin>now+2.5 and actualCoin<now+3.5,damageLong=actualDamage>now+9.5,coinDelta=actualCoin-now,damageDelta=actualDamage-now})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"coinShort\"\\s*:\\s*true",
+        "\"damageLong\"\\s*:\\s*true"
+      ],
+      "label": "seed staggered authoritative boost expiries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function hasKey(s,key) return table.find(s.visibleKeys or {},key)~=nil end a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('SelectInventoryCategory','Boosts') a:Invoke('RequestAction',{action='RequestSync'}) local seeded,seededBoth local syncDeadline=os.clock()+2 repeat task.wait(.05) seeded=a:Invoke('InventorySnapshot') seededBoth=hasKey(seeded,'boost:CoinBoost') and hasKey(seeded,'boost:DamageBoost') until seededBoth or os.clock()>=syncDeadline a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.1) local before=a:Invoke('InventorySnapshot') local bp=before.performance or {} local after local expiryDeadline=os.clock()+4.5 repeat task.wait(.05) after=a:Invoke('InventorySnapshot') until ((after.performance or {}).timedExpiryRebuilds or 0)>=(bp.timedExpiryRebuilds or 0)+1 or os.clock()>=expiryDeadline local ap=after.performance or {} task.wait(.35) local settled=a:Invoke('InventorySnapshot') local sp=settled.performance or {} local expiryOnce=ap.timedExpiryRebuilds==(bp.timedExpiryRebuilds or 0)+1 and sp.timedExpiryRebuilds==ap.timedExpiryRebuilds local rebuildOnce=ap.gridRebuilds==(bp.gridRebuilds or 0)+1 and sp.gridRebuilds==ap.gridRebuilds local stablePool=ap.liveCards==bp.liveCards and sp.liveCards==ap.liveCards and ap.cardConnections==bp.cardConnections and sp.cardConnections==ap.cardConnections local noDetailChurn=ap.timedDetailUpdates==bp.timedDetailUpdates and sp.timedDetailUpdates==ap.timedDetailUpdates local rescheduled=bp.timedRefreshMode=='ExpiryDelay' and ap.timedRefreshMode=='ExpiryDelay' and sp.timedRefreshMode=='ExpiryDelay' local bounded=ap.cardConnectionBounded==true and sp.cardConnectionBounded==true a:Invoke('SelectInventoryCategory','Boosts') local remaining=a:Invoke('InventorySnapshot') local remainingDamage=#(remaining.visibleKeys or {})==1 and remaining.visibleKeys[1]=='boost:DamageBoost' return H:JSONEncode({ok=seededBoth and before.selected and before.selected.key=='pet:slot:2' and expiryOnce and rebuildOnce and stablePool and noDetailChurn and rescheduled and bounded and remainingDamage,seededBoth=seededBoth,selected=before.selected and before.selected.key,expiryOnce=expiryOnce,rebuildOnce=rebuildOnce,stablePool=stablePool,noDetailChurn=noDetailChurn,rescheduled=rescheduled,bounded=bounded,remainingDamage=remainingDamage,beforeExpiry=bp.timedExpiryRebuilds,afterExpiry=ap.timedExpiryRebuilds,settledExpiry=sp.timedExpiryRebuilds,beforeGrid=bp.gridRebuilds,afterGrid=ap.gridRebuilds,settledGrid=sp.gridRebuilds,beforeMode=bp.timedRefreshMode,afterMode=ap.timedRefreshMode,settledMode=sp.timedRefreshMode,remainingKeys=remaining.visibleKeys})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"seededBoth\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*\"pet:slot:2\"",
+        "\"expiryOnce\"\\s*:\\s*true",
+        "\"rebuildOnce\"\\s*:\\s*true",
+        "\"stablePool\"\\s*:\\s*true",
+        "\"noDetailChurn\"\\s*:\\s*true",
+        "\"rescheduled\"\\s*:\\s*true",
+        "\"bounded\"\\s*:\\s*true",
+        "\"remainingDamage\"\\s*:\\s*true",
+        "\"beforeMode\"\\s*:\\s*\"ExpiryDelay\"",
+        "\"afterMode\"\\s*:\\s*\"ExpiryDelay\"",
+        "\"settledMode\"\\s*:\\s*\"ExpiryDelay\""
+      ],
+      "label": "earliest boost expiry rebuilds once and reschedules without churn"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') local p=game.Players:GetPlayers()[1] local now=workspace:GetServerTimeNow() local coinAt=now+900 local coin=c:Invoke('SetPlayerAttribute',{name='CoinBoostExpiresAt',value=coinAt}) local damage=c:Invoke('SetPlayerAttribute',{name='DamageBoostExpiresAt',value=0}) return H:JSONEncode({ok=coin.ok==true and damage.ok==true and p:GetAttribute('CoinBoostExpiresAt')==coinAt and p:GetAttribute('DamageBoostExpiresAt')==0,coinRestored=p:GetAttribute('CoinBoostExpiresAt')==coinAt,damageCleared=p:GetAttribute('DamageBoostExpiresAt')==0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"coinRestored\"\\s*:\\s*true",
+        "\"damageCleared\"\\s*:\\s*true"
+      ],
+      "label": "restore authoritative Coin Boost fixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('SelectInventoryCategory','Boosts') a:Invoke('RequestAction',{action='RequestSync'}) local restored,restoredCoin local deadline=os.clock()+2 repeat task.wait(.05) restored=a:Invoke('InventorySnapshot') restoredCoin=#(restored.visibleKeys or {})==1 and restored.visibleKeys[1]=='boost:CoinBoost' until restoredCoin or os.clock()>=deadline a:Invoke('SelectInventoryCategory','Pets') return H:JSONEncode({ok=restoredCoin and (restored.performance or {}).cardConnectionBounded==true,restoredCoin=restoredCoin,bounded=(restored.performance or {}).cardConnectionBounded,keys=restored.visibleKeys})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"restoredCoin\"\\s*:\\s*true",
+        "\"bounded\"\\s*:\\s*true"
+      ],
+      "label": "confirm restored Coin Boost client fixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') local filtered=a:Invoke('InventorySnapshot') a:Invoke('SelectInventoryItem','pet:slot:1') local first=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('SelectInventoryItem','pet:slot:2') local second=(a:Invoke('InventorySnapshot').selected or {}) local keys=filtered.visibleKeys or {} local firstBoundary=first.equipped==true and has(first,'Unequip') and not has(first,'Equip') local secondBoundary=second.equipped==false and has(second,'Equip') and not has(second,'Unequip') local canUnlock=has(second,'Unlock') local canDelete=has(second,'Delete') return H:JSONEncode({ok=#keys==2 and table.find(keys,'pet:slot:1')~=nil and table.find(keys,'pet:slot:2')~=nil and first.key=='pet:slot:1' and firstBoundary and second.key=='pet:slot:2' and second.kind=='Pet' and second.name=='Crystal Fox' and second.slot==2 and second.locked==true and secondBoundary and canUnlock and not canDelete,count=#keys,keys=keys,key=second.key,name=second.name,slot=second.slot,locked=second.locked,firstUnequipOnly=firstBoundary,secondEquipOnly=secondBoundary,canUnlock=canUnlock,canDelete=canDelete,rarity=filtered.rarity,search=filtered.search})"
       },
       "expectRegex": [
@@ -246,6 +335,53 @@
         "\"equipped\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\"\\]\""
       ],
       "label": "invalid client key leaves authoritative pet state unchanged"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end local function waitSelected(predicate) local deadline=os.clock()+2 local d repeat d=(a:Invoke('InventorySnapshot').selected or {}) if predicate(d) then return d,true end task.wait(.05) until os.clock()>=deadline return d,false end a:Invoke('SelectInventoryItem','pet:slot:2') local unlockDispatched,unlockReason=a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) local unlocked,unlockSynced=waitSelected(function(d) return d.key=='pet:slot:2' and d.locked==false and has(d,'Delete') end) task.wait(.1) local armDispatched,armReason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2',single=true}) local armed=a:Invoke('InventorySnapshot') local detailActions=g:FindFirstChild('DetailActions',true) local destructive for _,button in ipairs(detailActions and detailActions:GetChildren() or {}) do if button:IsA('TextButton') and button:GetAttribute('Destructive')==true and button:GetAttribute('InventoryAction')=='Delete' then destructive=button break end end local perf=armed.performance or {} local scheduled=perf.deleteConfirmationScheduled==true local label=destructive and destructive.Text or '' local buttonVisible=destructive and destructive.Visible==true return H:JSONEncode({ok=unlockDispatched==true and unlockSynced and unlocked.locked==false and armDispatched==false and armReason=='confirmation_required' and label=='CONFIRM DELETE' and buttonVisible and scheduled,path='SupportedAutomationSingleCall',unlockDispatched=unlockDispatched,unlockReason=tostring(unlockReason),unlockSynced=unlockSynced,unlocked=unlocked.locked==false,armDispatched=armDispatched,armReason=tostring(armReason),label=label,buttonVisible=buttonVisible,scheduled=scheduled})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"path\"\\s*:\\s*\"SupportedAutomationSingleCall\"",
+        "\"unlockDispatched\"\\s*:\\s*true",
+        "\"unlockSynced\"\\s*:\\s*true",
+        "\"unlocked\"\\s*:\\s*true",
+        "\"armDispatched\"\\s*:\\s*false",
+        "\"armReason\"\\s*:\\s*\"confirmation_required\"",
+        "\"label\"\\s*:\\s*\"CONFIRM DELETE\"",
+        "\"buttonVisible\"\\s*:\\s*true",
+        "\"scheduled\"\\s*:\\s*true"
+      ],
+      "label": "single direct delete action arms visible confirmation without dispatch"
+    },
+    {
+      "type": "wait",
+      "ms": 3200,
+      "label": "wait for delete confirmation timeout"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end local before=a:Invoke('InventorySnapshot') local detailActions=g:FindFirstChild('DetailActions',true) local destructive for _,button in ipairs(detailActions and detailActions:GetChildren() or {}) do if button:IsA('TextButton') and button:GetAttribute('Destructive')==true and button:GetAttribute('InventoryAction')=='Delete' then destructive=button break end end local beforePerf=before.performance or {} local restoredLabel=destructive and destructive.Text or '' local expired=restoredLabel=='DELETE' and beforePerf.deleteConfirmationScheduled==false local lockDispatched,lockReason=a:Invoke('InvokeInventoryAction',{action='Lock',key='pet:slot:2'}) local deadline=os.clock()+2 local after repeat after=a:Invoke('InventorySnapshot') local selected=after.selected or {} if selected.key=='pet:slot:2' and selected.locked==true and has(selected,'Unlock') and not has(selected,'Delete') then break end task.wait(.05) until os.clock()>=deadline local selected=after.selected or {} local afterPerf=after.performance or {} local authoritativeLocked=selected.key=='pet:slot:2' and selected.locked==true and has(selected,'Unlock') and not has(selected,'Delete') return H:JSONEncode({ok=before.selected and before.selected.locked==false and expired and lockDispatched==true and authoritativeLocked and afterPerf.deleteConfirmationScheduled==false,restoredLabel=restoredLabel,scheduledBefore=beforePerf.deleteConfirmationScheduled,expired=expired,lockDispatched=lockDispatched,lockReason=tostring(lockReason),authoritativeLocked=authoritativeLocked,scheduledAfter=afterPerf.deleteConfirmationScheduled,category=after.category,rarity=after.rarity,search=after.search})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"restoredLabel\"\\s*:\\s*\"DELETE\"",
+        "\"scheduledBefore\"\\s*:\\s*false",
+        "\"expired\"\\s*:\\s*true",
+        "\"lockDispatched\"\\s*:\\s*true",
+        "\"authoritativeLocked\"\\s*:\\s*true",
+        "\"scheduledAfter\"\\s*:\\s*false",
+        "\"category\"\\s*:\\s*\"Pets\"",
+        "\"rarity\"\\s*:\\s*\"Epic\"",
+        "\"search\"\\s*:\\s*\"crystal\""
+      ],
+      "label": "delete confirmation expires and authoritative duplicate lock is restored"
     },
     {
       "type": "call",
@@ -465,6 +601,34 @@
         "\"restoredInside\"\\s*:\\s*true"
       ],
       "label": "closing compact detail restores a positive in-bounds inventory grid"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local menu=g:FindFirstChild('RarityMenu',true) local gridPane=g:FindFirstChild('InventoryGridPane',true) local expected={'All','Common','Rare','Epic','Legendary','Secret','Premium'} local function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end assert(menu and gridPane,'rarity menu hierarchy missing') local described=a:Invoke('Describe') local commandListed=type(described)=='table' and table.find(described.commands or {},'SetInventoryRarityMenuOpen')~=nil local opened=a:Invoke('SetInventoryRarityMenuOpen',true) task.wait(.2) local choiceCount=0 local allChoices=true local touchTargets=true local minChoiceHeight=math.huge for _,rarity in ipairs(expected) do local button=menu:FindFirstChild('Rarity'..rarity) allChoices=allChoices and button~=nil and button:IsA('GuiButton') and button.Visible==true if button and button:IsA('GuiButton') then choiceCount+=1 minChoiceHeight=math.min(minChoiceHeight,button.AbsoluteSize.Y) touchTargets=touchTargets and button.AbsoluteSize.Y>=44 end end if minChoiceHeight==math.huge then minChoiceHeight=0 end local wasVisible=opened==true and menu.Visible==true local gridVisible=gridPane.Visible==true local bounded=menu.Parent==gridPane and inside(menu,gridPane) local automaticY=menu:IsA('ScrollingFrame') and menu.AutomaticCanvasSize==Enum.AutomaticSize.Y local overflow=menu:IsA('ScrollingFrame') and menu.AbsoluteCanvasSize.Y>menu.AbsoluteWindowSize.Y+1 and menu.ScrollBarThickness>0 and menu.ScrollingEnabled==true local canvasHeight=menu:IsA('ScrollingFrame') and menu.AbsoluteCanvasSize.Y or 0 local windowHeight=menu:IsA('ScrollingFrame') and menu.AbsoluteWindowSize.Y or 0 local maxCanvasY=math.max(0,canvasHeight-windowHeight) if menu:IsA('ScrollingFrame') then menu.CanvasPosition=Vector2.new(0,maxCanvasY) end task.wait(.2) local premium=menu:FindFirstChild('RarityPremium') local scrolledToEnd=menu:IsA('ScrollingFrame') and math.abs(menu.CanvasPosition.Y-maxCanvasY)<=2 local premiumReachable=premium~=nil and premium:IsA('GuiButton') and premium.Visible==true and premium.AbsoluteSize.Y>=44 and inside(premium,menu) and scrolledToEnd local premiumResult=a:Invoke('SetInventoryRarity','Premium') local premiumSnapshot=a:Invoke('InventorySnapshot') local premiumApplied=type(premiumResult)=='table' and premiumSnapshot.rarity=='Premium' a:Invoke('SetInventoryRarity','All') local restored=a:Invoke('InventorySnapshot') local allRestored=restored.rarity=='All' local closedState=a:Invoke('SetInventoryRarityMenuOpen',false) local closed=closedState==false and menu.Visible==false return H:JSONEncode({ok=commandListed and wasVisible and gridVisible and bounded and automaticY and overflow and allChoices and choiceCount==7 and touchTargets and premiumReachable and premiumApplied and allRestored and closed,commandListed=commandListed,visible=wasVisible,gridVisible=gridVisible,bounded=bounded,automaticY=automaticY,overflow=overflow,allChoices=allChoices,choiceCount=choiceCount,touchTargets=touchTargets,minChoiceHeight=minChoiceHeight,canvasHeight=canvasHeight,windowHeight=windowHeight,scrolledToEnd=scrolledToEnd,premiumReachable=premiumReachable,premiumApplied=premiumApplied,premiumRarity=premiumSnapshot.rarity,allRestored=allRestored,closed=closed})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"commandListed\"\\s*:\\s*true",
+        "\"visible\"\\s*:\\s*true",
+        "\"gridVisible\"\\s*:\\s*true",
+        "\"bounded\"\\s*:\\s*true",
+        "\"automaticY\"\\s*:\\s*true",
+        "\"overflow\"\\s*:\\s*true",
+        "\"allChoices\"\\s*:\\s*true",
+        "\"choiceCount\"\\s*:\\s*7",
+        "\"touchTargets\"\\s*:\\s*true",
+        "\"minChoiceHeight\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})(\\.[0-9]+)?",
+        "\"scrolledToEnd\"\\s*:\\s*true",
+        "\"premiumReachable\"\\s*:\\s*true",
+        "\"premiumApplied\"\\s*:\\s*true",
+        "\"premiumRarity\"\\s*:\\s*\"Premium\"",
+        "\"allRestored\"\\s*:\\s*true",
+        "\"closed\"\\s*:\\s*true"
+      ],
+      "label": "compact rarity menu stays bounded scrollable and touch safe"
     },
     {
       "type": "call",

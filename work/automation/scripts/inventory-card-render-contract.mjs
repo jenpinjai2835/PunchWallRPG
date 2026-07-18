@@ -30,6 +30,34 @@ function block(start, end) {
   return source.slice(startIndex, endIndex);
 }
 
+function tail(start) {
+  const startIndex = source.indexOf(start);
+  assert.notEqual(startIndex, -1, `Missing tail sentinel: ${start}`);
+  return source.slice(startIndex);
+}
+
+function orderedTokens(text, tokens) {
+  let cursor = 0;
+  for (const token of tokens) {
+    const tokenIndex = text.indexOf(token, cursor);
+    if (tokenIndex < 0) {
+      return false;
+    }
+    cursor = tokenIndex + token.length;
+  }
+  return true;
+}
+
+function tailSatisfies(text, start, required = [], forbidden = []) {
+  const startIndex = text.indexOf(start);
+  if (startIndex < 0) {
+    return false;
+  }
+  const remainder = text.slice(startIndex);
+  return required.every((token) => remainder.includes(token))
+    && forbidden.every((token) => !remainder.includes(token));
+}
+
 const clearCards = block(
   "function InventoryUI:_clearCards()",
   "function InventoryUI:_applyCardSelectionVisual",
@@ -54,6 +82,27 @@ const getSnapshot = block(
   "function InventoryUI:GetSnapshot()",
   "function InventoryUI:Destroy()",
 );
+const timedRefresh = block(
+  "function InventoryUI:_stopTimedRefresh()",
+  "function InventoryUI:_refreshDeleteConfirmationLabel",
+);
+const refreshTimedItems = block(
+  "function InventoryUI:_refreshTimedItems(now)",
+  "function InventoryUI:_syncTimedRefresh()",
+);
+const deleteConfirmation = block(
+  "function InventoryUI:_refreshDeleteConfirmationLabel()",
+  "function InventoryUI:_applyAtlasIcon",
+);
+const responsive = block(
+  "function InventoryUI:ApplyResponsive(viewport, compact, uiScale)",
+  "function InventoryUI:_enabledActionNames",
+);
+const absoluteSizeCallback = block(
+  'self:_connect(self.Root:GetPropertyChangedSignal("AbsoluteSize"), function()',
+  'self:_connect(self.Root:GetPropertyChangedSignal("Visible"), function()',
+);
+const destroy = tail("function InventoryUI:Destroy()");
 
 check(
   "selection_avoids_grid_rebuild",
@@ -119,8 +168,10 @@ const connectionAdds = (
 check(
   "card_connections_are_fixed_per_rendered_card",
   connectionAdds === 3
-    && clearCards.indexOf("self:_disconnectPool(self._cardConnections)")
-      < clearCards.indexOf("card:Destroy()")
+    && orderedTokens(clearCards, [
+      "self:_disconnectPool(self._cardConnections)",
+      "card:Destroy()",
+    ])
     && clearCards.includes("table.clear(self._cardRefsByKey)")
     && !selectionVisual.includes("_connect")
     && !selectItem.includes("_connect"),
@@ -140,6 +191,97 @@ check(
       "cardConnectionBounded = #self._cardConnections <= (#self._cards * 3)",
     ),
   "Automation snapshots must expose rebuild, fast-selection, live-card, and connection counters.",
+);
+check(
+  "compact_rarity_menu_is_bounded_and_scrollable",
+  source.includes('self.RarityMenu = create("ScrollingFrame", self.GridPane')
+    && source.includes("AutomaticCanvasSize = Enum.AutomaticSize.Y")
+    && source.includes("ClipsDescendants = true")
+    && responsive.includes(
+      "availableRarityMenuHeight = compactContentHeight - rarityMenuTop - 4",
+    )
+    && responsive.includes(
+      "math.min(desiredRarityMenuHeight, math.max(touchTarget + 12, availableRarityMenuHeight))",
+    )
+    && responsive.includes(
+      "button.Size = UDim2.new(1, 0, 0, touchTarget)",
+    )
+    && responsive.includes(
+      "self.RarityMenu.ScrollBarThickness = rarityMenuHeight < desiredRarityMenuHeight and 5 or 0",
+    ),
+  "Compact rarity options must retain touch height inside a clipped, adaptively bounded scrolling menu.",
+);
+check(
+  "timed_heartbeat_requires_visible_detail_text",
+  orderedTokens(timedRefresh, [
+    "local selectedTimedVisible = selectedEndsAt",
+    "selectedEndsAt > now",
+    "self.Detail.Visible",
+    "self.DetailDescription.Visible",
+  ])
+    && (timedRefresh.match(/if selectedTimedVisible then/g) || []).length >= 2,
+  "Heartbeat countdowns require both the detail pane and its description text to be visible.",
+);
+check(
+  "timed_detail_ticks_do_not_rebuild_grid_or_actions",
+  timedRefresh.includes(
+    'self.Root:SetAttribute("InventoryTimedRefreshMode", "SelectedDetailHeartbeat")',
+  )
+    && timedRefresh.includes(
+      "self.DetailDescription.Text = tostring(self._selectedItem.description",
+    )
+    && orderedTokens(refreshTimedItems, [
+      "if expired then",
+      "self:_applyFilter(false)",
+    ])
+    && tailSatisfies(
+      timedRefresh,
+      "RunService.Heartbeat:Connect",
+      [],
+      ["self:_renderGrid()", "self:_renderDetail()"],
+    ),
+  "Second-level countdown updates may touch selected detail text; full filter/grid/action rebuilding is reserved for expiry.",
+);
+check(
+  "nonselected_timers_use_one_cancellable_expiry",
+  timedRefresh.includes(
+    'self.Root:SetAttribute("InventoryTimedRefreshMode", "ExpiryDelay")',
+  )
+    && timedRefresh.includes("self._timerThread = task.delay(")
+    && timedRefresh.includes("task.cancel(timerThread)")
+    && timedRefresh.includes("self._timerModeKey == modeKey")
+    && destroy.includes("self:_stopTimedRefresh()"),
+  "A nonselected boost must schedule one keyed expiry task that is cancelled on resync or destroy.",
+);
+check(
+  "responsive_detail_visibility_resyncs_timer_mode",
+  orderedTokens(absoluteSizeCallback, [
+    "self:ApplyResponsive(",
+    "self:_syncTimedRefresh()",
+  ])
+    && !responsive.includes("self:_syncTimedRefresh()"),
+  "A resize must resync the selected-detail timer after responsive visibility changes without recursing from ApplyResponsive.",
+);
+check(
+  "delete_confirmation_visibly_expires_and_cancels",
+  deleteConfirmation.includes("self._deleteConfirmThread = task.delay(3")
+    && deleteConfirmation.includes("generation ~= self._deleteConfirmGeneration")
+    && deleteConfirmation.includes("task.cancel(confirmThread)")
+    && deleteConfirmation.includes("self:_refreshDeleteConfirmationLabel()")
+    && deleteConfirmation.includes(
+      'button.Text = string.upper(awaitingConfirmation and "CONFIRM DELETE" or normalLabel)',
+    )
+    && tailSatisfies(
+      deleteConfirmation,
+      "self._deleteConfirmThread = task.delay(3",
+      [
+        'self.Root:SetAttribute("InventoryDeleteConfirmationKey", "")',
+        "self:_refreshDeleteConfirmationLabel()",
+      ],
+    )
+    && source.includes("self:_armDeleteConfirmation(key)")
+    && destroy.includes("self:_cancelDeleteConfirmation(false)"),
+  "Delete confirmation needs one cancellable generation-scoped delay that restores the visible action label.",
 );
 
 class CardLifecycleContract {

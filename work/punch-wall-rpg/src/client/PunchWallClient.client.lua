@@ -4433,7 +4433,8 @@ if RunService:IsStudio() then
 			"Describe", "Sequence", "Snapshot", "Punch", "Jump", "SpinNow", "OpenSpin",
 			"OpenTab", "OpenShopPage", "InvokeShopAction", "CloseMenus", "ToggleSound",
 			"OpenInventory", "CloseInventory", "SelectInventoryCategory", "SetInventorySearch",
-			"SetInventoryRarity", "SelectInventoryItem", "InvokeInventoryAction", "InventorySnapshot",
+			"SetInventoryRarity", "SetInventoryRarityMenuOpen", "SelectInventoryItem",
+			"InvokeInventoryAction", "InventorySnapshot",
 			"OpenMore", "SetCamera", "ResetCamera", "SetSettings", "ClearMarkers",
 			"RequestAction", "SetGuiVisible", "SetGuiAttribute", "GetGuiSummary",
 			"__ReplayLoading", "__HideLoading", "__RunCamera",
@@ -4526,6 +4527,12 @@ if RunService:IsStudio() then
 				if not shared.PunchWallInventoryController then return false end
 				return shared.PunchWallInventoryController:SetRarity(tostring(value or "All"))
 			end
+			if action == "SetInventoryRarityMenuOpen" then
+				local controller = shared.PunchWallInventoryController
+				if not controller then return false end
+				controller:_setRarityMenu(value == true)
+				return controller.RarityMenu.Visible == true
+			end
 			if action == "SelectInventoryItem" then
 				if not shared.PunchWallInventoryController then return false end
 				return shared.PunchWallInventoryController:SelectItem(tostring(value or ""))
@@ -4536,6 +4543,7 @@ if RunService:IsStudio() then
 				if type(value) == "table"
 					and string.lower(tostring(value.action or "")) == "delete"
 					and reason == "confirmation_required"
+					and value.single ~= true
 				then
 					return shared.PunchWallInventoryController:InvokeAction(value)
 				end
