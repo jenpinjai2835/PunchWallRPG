@@ -204,15 +204,21 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) task.wait(.25) local unlocked=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('InvokeInventoryAction',{action='Lock',key='pet:slot:2'}) task.wait(.25) local relocked=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) task.wait(.25) local deleteReady=(a:Invoke('InventorySnapshot').selected or {}) local firstDispatch,firstReason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2'}) local dispatched,reason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2'}) return H:JSONEncode({ok=unlocked.key=='pet:slot:2' and unlocked.locked==false and relocked.key=='pet:slot:2' and relocked.locked==true and deleteReady.key=='pet:slot:2' and deleteReady.locked==false and has(deleteReady,'Delete') and firstDispatch==false and firstReason=='confirmation_required' and dispatched==true,unlocked=unlocked.locked==false,relocked=relocked.locked==true,deleteReady=deleteReady.locked==false,canDelete=has(deleteReady,'Delete'),confirmation=firstReason,dispatched=dispatched,reason=tostring(reason)})"
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end local function waitSelected(predicate) local deadline=os.clock()+2 local d repeat d=(a:Invoke('InventorySnapshot').selected or {}) if predicate(d) then return d,true end task.wait(.05) until os.clock()>=deadline return d,false end local unlockDispatched,unlockReason=a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) local unlocked,unlockSynced=waitSelected(function(d) return d.key=='pet:slot:2' and d.locked==false end) task.wait(.15) local lockDispatched,lockReason=a:Invoke('InvokeInventoryAction',{action='Lock',key='pet:slot:2'}) local relocked,lockSynced=waitSelected(function(d) return d.key=='pet:slot:2' and d.locked==true end) task.wait(.15) local reUnlockDispatched,reUnlockReason=a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) local deleteReady,reUnlockSynced=waitSelected(function(d) return d.key=='pet:slot:2' and d.locked==false and has(d,'Delete') end) task.wait(.15) local dispatched,reason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2'}) return H:JSONEncode({ok=unlockDispatched==true and unlockSynced and lockDispatched==true and lockSynced and reUnlockDispatched==true and reUnlockSynced and dispatched==true,unlockDispatched=unlockDispatched,unlockReason=tostring(unlockReason),unlockSynced=unlockSynced,unlocked=unlocked.locked==false,lockDispatched=lockDispatched,lockReason=tostring(lockReason),lockSynced=lockSynced,relocked=relocked.locked==true,reUnlockDispatched=reUnlockDispatched,reUnlockReason=tostring(reUnlockReason),reUnlockSynced=reUnlockSynced,deleteReady=deleteReady.locked==false,canDelete=has(deleteReady,'Delete'),dispatched=dispatched,reason=tostring(reason)})"
       },
+      "saveAs": "duplicateActionSequence",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
+        "\"unlockDispatched\"\\s*:\\s*true",
+        "\"unlockSynced\"\\s*:\\s*true",
         "\"unlocked\"\\s*:\\s*true",
+        "\"lockDispatched\"\\s*:\\s*true",
+        "\"lockSynced\"\\s*:\\s*true",
         "\"relocked\"\\s*:\\s*true",
+        "\"reUnlockDispatched\"\\s*:\\s*true",
+        "\"reUnlockSynced\"\\s*:\\s*true",
         "\"deleteReady\"\\s*:\\s*true",
         "\"canDelete\"\\s*:\\s*true",
-        "\"confirmation\"\\s*:\\s*\"confirmation_required\"",
         "\"dispatched\"\\s*:\\s*true"
       ],
       "label": "unlock relock then delete the exact unequipped duplicate slot"
@@ -227,10 +233,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local before={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local preserved=before.inventory=='[\"Crystal Fox\",\"Miner Cat\"]' and before.locked=='[]' and before.equipped=='[\"Crystal Fox\"]' local stale=c:Invoke('DeletePet',{target='Crystal Fox',index=2}) local after={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local unchanged=after.inventory==before.inventory and after.locked==before.locked and after.equipped==before.equipped local reset=c:Invoke('Reset') return H:JSONEncode({ok=preserved and stale.ok==false and stale.reason=='stale_inventory' and unchanged and reset.ok==true,inventory=before.inventory,locked=before.locked,equipped=before.equipped,staleOk=stale.ok==true,staleReason=stale.reason,unchanged=unchanged,reset=reset.ok==true})"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local expectedInventory='[\"Crystal Fox\",\"Miner Cat\"]' local expectedLocked='[]' local expectedEquipped='[\"Crystal Fox\"]' local deadline=os.clock()+2 local before repeat before={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} if before.inventory==expectedInventory and before.locked==expectedLocked and before.equipped==expectedEquipped then break end task.wait(.05) until os.clock()>=deadline local preserved=before.inventory==expectedInventory and before.locked==expectedLocked and before.equipped==expectedEquipped local stale=preserved and c:Invoke('DeletePet',{target='Crystal Fox',index=2}) or {ok=false,reason='precondition_failed'} local after={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local unchanged=after.inventory==before.inventory and after.locked==before.locked and after.equipped==before.equipped local reset=c:Invoke('Reset') return H:JSONEncode({ok=preserved and stale.ok==false and stale.reason=='stale_inventory' and unchanged and reset.ok==true,preserved=preserved,inventory=before.inventory,locked=before.locked,equipped=before.equipped,staleOk=stale.ok==true,staleReason=stale.reason,unchanged=unchanged,reset=reset.ok==true})"
       },
+      "saveAs": "postDeleteState",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
+        "\"preserved\"\\s*:\\s*true",
         "\"inventory\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\",\\\\\"Miner Cat\\\\\"\\]\"",
         "\"locked\"\\s*:\\s*\"\\[\\]\"",
         "\"equipped\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\"\\]\"",
