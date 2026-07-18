@@ -11,9 +11,10 @@ The dedicated recorded flow is:
 
 `work/automation/flows/inventory-menu-ui.json`
 
-The flow is designed for the source-first Studio place named `PunchWallRPG`.
-It becomes an integration gate after the Coordinator wires the client
-automation contract described below.
+The flow is designed for the source-first Punch Wall RPG Studio place. The
+final validation place is `PunchWallRPGPlayable_v1_final.rbxlx`. It becomes an
+integration gate after the Coordinator wires the client automation contract
+described below.
 
 ## Runtime Asset Gate: BLOCKED
 
@@ -133,7 +134,7 @@ Inventory, locks, and equipped pets must remain byte-for-byte unchanged.
         detailMode = "Pane", -- "Drawer" for compact selection
     },
     art = {
-        mode = "NativeFallback", -- or "UploadedLayers"
+        mode = "UploadedItemArt", -- or "NativeFallback"
         magentaFree = true,
         checkerboardFree = true,
     },
@@ -194,7 +195,7 @@ data.
 | 1920x1080 desktop | Wide | Category rail, adaptive grid, and detail pane visible without overlap. |
 | 1366x768 desktop | Wide automated gate | Same three-region hierarchy; all visible actions and text pass measurements. |
 | 1024x768 tablet | Wide/adaptive | Detail remains usable; grid reduces columns without clipping. |
-| 844x390 phone landscape | Compact | Horizontal/compact category control, 2-3 grid columns, detail drawer. |
+| 844x390 phone landscape | Compact | Horizontal/compact category control, adaptive 3-4 grid columns, detail drawer. |
 | 740x360 phone landscape | Compact automated gate | Most restrictive layout; 44px actions, safe area, readable drawer, no overlap. |
 
 All viewports must satisfy:
@@ -298,7 +299,91 @@ Record:
 - player-view captures for 1920x1080, 1024x768, and 844x390;
 - any unrelated pre-existing failure as a concrete blocker, not a pass;
 - asset mode used for the tested build (`NativeFallback` or
-  `UploadedLayers`).
+  `UploadedItemArt`).
+
+## Execution Record — 2026-07-18
+
+The integrated source was synchronized to the open Studio place
+`PunchWallRPGPlayable_v1_final.rbxlx` (Studio instance
+`597f195a-a442-457a-8e13-6627c44e58bf`) before validation.
+
+### Inventory Gate
+
+- `inventory-menu-ui`: **36/36 PASS** for three consecutive runs after the
+  authoritative duplicate-pet wait was made deterministic.
+- The dedicated flow's console-error assertion passed. No Inventory runtime
+  error remained.
+- `inventory-persistence`, `luck-distribution`, `responsive-ui-inputs`,
+  `release-expansion-ui`, `device-matrix-hud-shop`,
+  `punchwall-shop-and-pet`, `pet-wall-drops-and-fusion`,
+  `release-expansion-economy`, `release-expansion-world`,
+  `full-game-tester-critical-ui-and-models`,
+  `punchwall-mobile-controls`, and `final-rbxlx-build-validation` passed.
+- Duplicate-pet equip/unequip boundaries were validated through the exposed UI
+  actions. Lock, unlock, and delete used the normal `ActionRequest` route. An
+  invalid key failed closed on the client without changing server state, and a
+  stale index failed closed through the Studio server harness.
+
+### Visual Matrix
+
+| Capture | Observed runtime result |
+| --- | --- |
+| `Inventory_Final_1920x1080_All` | 1180x720 modal, wide mode, four columns. |
+| `Inventory_Final_1366x768_All` | Wide mode, four columns, category rail, grid, and detail pane. |
+| `Inventory_Final_1024x768_All_Retry` | 971x536 modal, adaptive wide mode, three columns. |
+| `Inventory_Final_844x390_PetDetail` | Compact drawer 598x199, four columns in the underlying adaptive grid. |
+| `Inventory_Final_740x360_PetDetail` | Compact drawer 545x169, three-column grid state. |
+| `Inventory_Final_740x360_PetGrid` | Restored grid 529x101 after the detail drawer closed. |
+
+Every measured viewport reported `minTouchTarget >= 44`,
+`allTextFits = true`, `insideSafeArea = true`, and `noOverlap = true`. The
+Inventory hid the gameplay HUD while open and restored it on close. Studio was
+returned to Edit mode, landscape orientation, and the default viewport; all
+temporary Inventory custom devices were removed.
+
+The tested build uses native Roblox UI for chrome plus approved existing
+uploaded item art. Runtime snapshots therefore report `UploadedItemArt` when
+visible entries use those images and `NativeFallback` otherwise. The blocked
+raw magenta layer pack was not used.
+
+Studio's manual-session output retained only the expected unpublished-place
+DataStore warning and the Studio-only `DevCameraOcclusionMode` permission
+warning.
+
+### Complete Existing-Flow Suite
+
+The complete 84-flow run finished with **63 PASS / 21 FAIL**. No failure output
+implicated `InventoryUI`, `InventoryViewModel`, or the server Inventory
+actions. The failures remain untriaged repository-wide blockers and are not
+counted as passes. Their first observed assertions were:
+
+- `ai-material-assets` — runtime material count did not match
+  `"concrete"\s*:\s*2[0-9][0-9]`;
+- `camera-tunnel-zoom-preservation` — `preserve` was not `true`;
+- `destruction-boss-phases`, `hero-city-theme`, and
+  `iteration03-safearea-destruction` — expected `Walls/Brick Wall` fixture was
+  absent;
+- `fist-items-icon-ui` — expected armory closed-fist `count = 4`;
+- `iteration04-armory-pets-feedback` — expected
+  `Boxing Glove Gauntlet Palm` object was absent;
+- `hero-city-design-alignment` — expected `bricks = 50`;
+- `hero-city-reference-ui` — expected Boxing Glove Armory nameplate was absent;
+- `hero-shop-reference-polish` — expected `realArtTotal = 14`;
+- `iteration01-complete-polish`, `iteration02-companion-tasks-boss`, and
+  `iteration05-final-depth-motion` — expected scene part count was 1,297;
+- `power-scaled-penetration` — expected travel value was 48;
+- `punchwall-free-aim-combat-polish` — attempted to index nil with `Position`;
+- `punchwall-map-progression` — `spawnNearTraining` was not `true`;
+- `punchwall-motion-feedback` — expected action type was `Train`;
+- `punchwall-radius-damage-shake` — expected outcome was `radius`;
+- `punchwall-shared-excavation-field` — expected `firstHP = 15`;
+- `punchwall-visual-polish-smoke` — expected `Intensity = 0.1`;
+- `reduced-motion-performance` — `BrickWallBroken` was not `false`.
+
+Inventory scope has no known in-scope defect and is ready for review. The
+repository branch should not be merged to `develop` until the 21
+repository-wide failures are triaged and then repaired or explicitly
+re-baselined through normal review.
 
 The Inventory is ready only after integration, the relevant regression, the
 full required suite, and visual review report no known in-scope defect.
