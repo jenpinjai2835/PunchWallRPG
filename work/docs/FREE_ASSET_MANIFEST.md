@@ -250,3 +250,20 @@ The Coin price icon is also copied into
 `F:\Roblox\PuchWall\work\assets\user-supplied\shop-coin-icon.png` and is
 preloaded during the client loading screen. It is rendered as a standalone
 transparent `ImageLabel`, so no square atlas frame or crop can overlap prices.
+
+# User-Supplied Inventory HUD Icon - 2026-07-18
+
+| Runtime use | Workspace source | Dimensions | SHA-256 | Roblox asset ID |
+| --- | --- | ---: | --- | --- |
+| Dedicated Inventory menu action beside Shop | `work/assets/user-supplied/inventory-hud-icon.png` | 500x500 ARGB PNG | `06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A` | `123409223461276` |
+
+The workspace file is an exact byte-for-byte copy of the user-supplied image
+from `C:\Temp\RMBG\ChatGPT Image 18 ก.ค. 2569 16_18_20.png`. It is raster art
+only and contains no scripts, prompts, remotes, sounds, or behavior objects.
+
+The exact source was uploaded through the authenticated project Studio as
+`rbxassetid://123409223461276`. Runtime records
+`IconSourceMode = "UploadedUserAsset"` and hides its native fallback label.
+If that configured ID is ever absent or invalid, the client fails visibly safe
+to the existing approved `MoreTool` image (`rbxassetid://103143983649151`) with
+an `INVENTORY` label instead of inventing or requesting an unapproved asset.

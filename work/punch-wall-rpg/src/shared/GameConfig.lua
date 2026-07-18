@@ -370,6 +370,7 @@ GameConfig.HeroCityPixelUI = {
 	Spin = "rbxassetid://107739720698002",
 	Rebirth = "rbxassetid://129503393018469",
 	Shop = "rbxassetid://104281527974467",
+	Inventory = "rbxassetid://123409223461276",
 	Pets = "rbxassetid://94981950804472",
 	Quests = "rbxassetid://130173685908715",
 	QuestCard = "rbxassetid://98132697706518",

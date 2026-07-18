@@ -1,6 +1,6 @@
 {
   "name": "inventory-menu-ui",
-  "description": "Validate the authoritative Inventory modal, owned-item filtering, stable duplicate-pet slot actions, desktop and compact layout contracts, and clean modal restoration.",
+  "description": "Validate the dedicated Inventory HUD action beside Shop, the authoritative Inventory modal, owned-item filtering, stable duplicate-pet slot actions, desktop and compact layout contracts, and clean modal restoration.",
   "studioName": "PunchWallRPG",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -51,6 +51,25 @@
       "type": "wait",
       "ms": 500,
       "label": "wait for seeded inventory sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local r=g:WaitForChild('PixelPerfectHeroCityHUD') local b=r:FindFirstChild('InventoryButton') local shop=r:FindFirstChild('ShopButton') local punch=r:FindFirstChild('ActionPunch') local jump=r:FindFirstChild('ActionJump') local cfg=require(game.ReplicatedStorage:WaitForChild('GameConfig')) local function intersects(x,y) if not x or not y then return true end local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local centerDelta=b and shop and math.abs((b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y*.5)) or 999 local gap=b and shop and shop.AbsolutePosition.X-(b.AbsolutePosition.X+b.AbsoluteSize.X) or -999 local sourceMode=b and b:GetAttribute('IconSourceMode') local exactIcon=cfg.HeroCityPixelUI.Inventory=='rbxassetid://123409223461276' local sourceOk=b and sourceMode=='UploadedUserAsset' and exactIcon and b.Image==cfg.HeroCityPixelUI.Inventory and b:GetAttribute('PendingAssetUpload')==false and b:GetAttribute('IconSourceSHA256')=='06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A' local placementOk=b and shop and centerDelta<=16 and gap>=-1 and gap<=40 and not intersects(b,punch) and not intersects(b,jump) local targetOk=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=b and pcall(function() b:Activate() end) task.wait(.3) local s=a:Invoke('InventorySnapshot') return H:JSONEncode({ok=b~=nil and b:IsA('ImageButton') and b:GetAttribute('ToolAction')=='OpenInventory' and b:GetAttribute('MenuRow')=='Shop' and sourceOk and placementOk and targetOk and activated and s.visible==true,sourceMode=sourceMode,exactIcon=exactIcon,pending=b and b:GetAttribute('PendingAssetUpload'),target=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0,centerDelta=centerDelta,gap=gap,noPunchOverlap=b and not intersects(b,punch),noJumpOverlap=b and not intersects(b,jump),activated=activated,visible=s.visible})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"sourceMode\"\\s*:\\s*\"UploadedUserAsset\"",
+        "\"exactIcon\"\\s*:\\s*true",
+        "\"target\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
+        "\"noPunchOverlap\"\\s*:\\s*true",
+        "\"noJumpOverlap\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"visible\"\\s*:\\s*true"
+      ],
+      "label": "dedicated desktop Inventory button sits beside Shop and opens the modal"
     },
     {
       "type": "call",
@@ -327,6 +346,24 @@
       "type": "wait",
       "ms": 400,
       "label": "wait for compact seed sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local r=g:WaitForChild('PixelPerfectHeroCityHUD') local b=r:FindFirstChild('InventoryButton') local shop=r:FindFirstChild('ShopButton') local punch=r:FindFirstChild('ActionPunch') local jump=r:FindFirstChild('ActionJump') local function intersects(x,y) if not x or not y then return true end local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local centerDelta=b and shop and math.abs((b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y*.5)) or 999 local gap=b and shop and shop.AbsolutePosition.X-(b.AbsolutePosition.X+b.AbsoluteSize.X) or -999 local target=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0 local placementOk=b and shop and centerDelta<=16 and gap>=-1 and gap<=40 and not intersects(b,punch) and not intersects(b,jump) local activated=b and pcall(function() b:Activate() end) task.wait(.3) local s=a:Invoke('InventorySnapshot') return H:JSONEncode({ok=b~=nil and target>=44 and placementOk and activated and s.visible==true,target=target,centerDelta=centerDelta,gap=gap,noPunchOverlap=b and not intersects(b,punch),noJumpOverlap=b and not intersects(b,jump),activated=activated,visible=s.visible,sourceMode=b and b:GetAttribute('IconSourceMode')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"target\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
+        "\"noPunchOverlap\"\\s*:\\s*true",
+        "\"noJumpOverlap\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"visible\"\\s*:\\s*true",
+        "\"sourceMode\"\\s*:\\s*\"UploadedUserAsset\""
+      ],
+      "label": "compact Inventory button keeps a 44px target beside Shop without action overlap"
     },
     {
       "type": "call",

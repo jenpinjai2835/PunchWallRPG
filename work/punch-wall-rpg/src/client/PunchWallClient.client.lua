@@ -4973,6 +4973,47 @@ referenceButton("SpinButton", pixel.Spin, 16, 316, 82, 111, function()
 	if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() else requestAction("Spin") end
 end)
 referenceButton("RebirthButton", pixel.Rebirth, 16, 429, 82, 111, function() openGameTab("Tasks") end)
+local uploadedInventoryIcon = type(pixel.Inventory) == "string"
+	and string.match(pixel.Inventory, "^rbxassetid://%d+$") ~= nil
+local inventoryIconAsset = uploadedInventoryIcon and pixel.Inventory or pixel.MoreTool
+local inventoryIconSourceMode = uploadedInventoryIcon and "UploadedUserAsset" or "ApprovedAssetFallback"
+local referenceInventory = referenceButton("InventoryButton", inventoryIconAsset, 1468, 313, 76, 76, function()
+	openGameTab("Inventory")
+end)
+referenceInventory:SetAttribute("ToolAction", "OpenInventory")
+referenceInventory:SetAttribute("MenuRow", "Shop")
+referenceInventory:SetAttribute("IconSourceMode", inventoryIconSourceMode)
+referenceInventory:SetAttribute("IconSourcePath", "work/assets/user-supplied/inventory-hud-icon.png")
+referenceInventory:SetAttribute("IconSourceSHA256", "06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A")
+referenceInventory:SetAttribute("PendingAssetUpload", not uploadedInventoryIcon)
+referenceInventory:SetAttribute("FallbackAssetId", pixel.MoreTool)
+local inventoryMinTarget = Instance.new("UISizeConstraint")
+inventoryMinTarget.Name = "MinimumTouchTarget"
+inventoryMinTarget.MinSize = Vector2.new(44, 44)
+inventoryMinTarget.Parent = referenceInventory
+local inventoryFallbackLabel = Instance.new("TextLabel")
+inventoryFallbackLabel.Name = "FallbackInventoryLabel"
+inventoryFallbackLabel.AnchorPoint = Vector2.new(0.5, 1)
+inventoryFallbackLabel.Position = UDim2.fromScale(0.5, 1)
+inventoryFallbackLabel.Size = UDim2.new(1, 8, 0.22, 0)
+inventoryFallbackLabel.BackgroundColor3 = Color3.fromRGB(7, 15, 23)
+inventoryFallbackLabel.BackgroundTransparency = 0.08
+inventoryFallbackLabel.BorderSizePixel = 0
+inventoryFallbackLabel.Font = Enum.Font.GothamBlack
+inventoryFallbackLabel.Text = "INVENTORY"
+inventoryFallbackLabel.TextColor3 = Color3.fromRGB(235, 244, 249)
+inventoryFallbackLabel.TextScaled = true
+inventoryFallbackLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+inventoryFallbackLabel.TextStrokeTransparency = 0.15
+inventoryFallbackLabel.Visible = not uploadedInventoryIcon
+inventoryFallbackLabel.ZIndex = referenceInventory.ZIndex + 1
+inventoryFallbackLabel.Parent = referenceInventory
+local inventoryFallbackTextSize = Instance.new("UITextSizeConstraint")
+inventoryFallbackTextSize.MinTextSize = 7
+inventoryFallbackTextSize.MaxTextSize = 12
+inventoryFallbackTextSize.Parent = inventoryFallbackLabel
+referenceHUD:SetAttribute("InventoryIconSourceMode", inventoryIconSourceMode)
+referenceHUD:SetAttribute("InventoryIconPendingUpload", not uploadedInventoryIcon)
 referenceButton("ShopButton", pixel.Shop, 1570, 296, 87, 111, function() openGameTab("Fists") end)
 referenceButton("PetsButton", pixel.Pets, 1570, 410, 87, 104, function() openGameTab("Pets") end)
 referenceButton("QuestsButton", pixel.Quests, 1570, 515, 87, 103, function() openGameTab("Tasks") end)
