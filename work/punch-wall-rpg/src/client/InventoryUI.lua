@@ -520,8 +520,8 @@ function InventoryUI:_build(parent)
 	addCorner(self.Capacity, 3)
 	self.CapacityStroke = addStroke(self.Capacity, PALETTE.SteelLight, 1.5)
 	addGradient(self.Capacity, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(13, 31, 43)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 10, 16)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
 	}), 90)
 
 	self.Close = create("TextButton", self.Header, {
@@ -541,9 +541,9 @@ function InventoryUI:_build(parent)
 	addCorner(self.Close, 4)
 	addStroke(self.Close, Color3.fromRGB(255, 70, 50), 2.5)
 	addGradient(self.Close, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(226, 27, 29)),
-		ColorSequenceKeypoint.new(0.52, Color3.fromRGB(133, 7, 16)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(72, 3, 10)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 225, 215)),
+		ColorSequenceKeypoint.new(0.52, Color3.fromRGB(225, 165, 160)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 110, 120)),
 	}), 90)
 	create("Frame", self.Close, {
 		Name = "CloseInnerEdge",
@@ -613,9 +613,9 @@ function InventoryUI:_build(parent)
 		addCorner(button, 3)
 		local buttonStroke = addStroke(button, PALETTE.SteelLight, 1.5, 0.1)
 		local buttonGradient = addGradient(button, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(17, 39, 51)),
-			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(7, 21, 31)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 13, 20)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
+			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(190, 220, 235)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
 		}), 0)
 		local padding = create("UIPadding", button, {
 			PaddingLeft = UDim.new(0, 50),
@@ -760,8 +760,8 @@ function InventoryUI:_build(parent)
 	addCorner(self.RarityFilter, 3)
 	addStroke(self.RarityFilter, PALETTE.CyanSoft, 1.5)
 	addGradient(self.RarityFilter, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(13, 44, 61)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 15, 23)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 190, 215)),
 	}), 90)
 
 	self.Capacity.Parent = self.Toolbar
@@ -1331,13 +1331,13 @@ function InventoryUI:_renderCategories()
 		widgets.stroke.Color = selected and PALETTE.Gold or PALETTE.SteelLight
 		widgets.stroke.Thickness = selected and 2.5 or 1.5
 		widgets.gradient.Color = selected and ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(51, 47, 28)),
-			ColorSequenceKeypoint.new(0.58, Color3.fromRGB(18, 26, 28)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(6, 15, 20)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 248, 205)),
+			ColorSequenceKeypoint.new(0.58, Color3.fromRGB(220, 205, 140)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(175, 150, 85)),
 		}) or ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(17, 39, 51)),
-			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(7, 21, 31)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 13, 20)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
+			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(190, 220, 235)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
 		})
 		widgets.indicator.Visible = selected
 		widgets.arrow.Visible = selected and not self._layout.compact
@@ -1664,9 +1664,9 @@ function InventoryUI:_renderDetail()
 			addCorner(button, 3)
 			addStroke(button, destructive and Color3.fromRGB(255, 113, 83) or Color3.fromRGB(155, 236, 255), 1.5, 0.15)
 			addGradient(button, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, buttonColor:Lerp(Color3.new(1, 1, 1), 0.16)),
-				ColorSequenceKeypoint.new(0.52, buttonColor),
-				ColorSequenceKeypoint.new(1, buttonColor:Lerp(Color3.new(0, 0, 0), 0.34)),
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+				ColorSequenceKeypoint.new(0.52, Color3.fromRGB(215, 235, 245)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 185, 205)),
 			}), 90)
 			self:_connectScoped(self._actionConnections, button.Activated, function()
 				self:InvokeAction(semanticName)
@@ -2167,7 +2167,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		or bodyWidth - 4 - math.clamp(windowWidth * 0.275, 270, 310) - 12
 	local gridContentWidth = math.max(280, gridPaneWidth - 24)
 	local columns
-	if gridContentWidth >= 620 then
+	if gridContentWidth >= 600 then
 		columns = 5
 	elseif gridContentWidth >= 555 then
 		columns = 4
