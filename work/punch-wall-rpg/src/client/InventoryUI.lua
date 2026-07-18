@@ -784,6 +784,7 @@ function InventoryUI:_build(parent)
 		self._lastTimedRefreshAt = now
 		self._snapshot = self:_buildSnapshot(self:_getStats())
 		self:_applyFilter(false)
+		self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
 	end)
 end
 
@@ -1278,6 +1279,9 @@ function InventoryUI:Refresh(force)
 		self._signature = signature
 		self._snapshot = self:_buildSnapshot(stats)
 		self:_applyFilter(false)
+		if self.Root.Visible then
+			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+		end
 	end
 	return self:GetSnapshot()
 end
@@ -1448,7 +1452,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	local titleLeft = useCompact and 92 or 82
 	self.Title.Position = UDim2.fromOffset(titleLeft, 6)
 	self.Subtitle.Position = UDim2.fromOffset(titleLeft + 2, 47)
-	self.Title.Size = UDim2.new(useCompact and 0.46 or 0.48, -24, 0, useCompact and 44 or 42)
+	self.Title.Size = useCompact
+		and UDim2.new(1, -(titleLeft + 266), 0, 44)
+		or UDim2.new(0.48, -24, 0, 42)
 	self.Capacity.Position = UDim2.new(1, -68, 0.5, 0)
 	self.Capacity.Size = UDim2.fromOffset(useCompact and 190 or 235, useCompact and 34 or 38)
 	self.Capacity.TextSize = useCompact and 10 or 12
@@ -1492,28 +1498,22 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		end
 
 		local categoryHeight = touchTarget + 8
-		local minimumGridHeight = 58
-		local drawerHeight = 0
-		if self._detailExpanded and self._selectedItem then
-			if shortCompact then
-				drawerHeight = math.min(132, math.max(108, bodyHeight * 0.44))
-			else
-				drawerHeight = math.min(210, math.max(160, bodyHeight * 0.42, touchTarget + 112))
-			end
-			local maximumDrawerHeight = math.max(
-				0,
-				bodyHeight - categoryHeight - minimumGridHeight - 12
-			)
-			drawerHeight = math.min(drawerHeight, maximumDrawerHeight)
-		end
-		local gridHeight = bodyHeight - categoryHeight - 12 - (drawerHeight > 0 and drawerHeight + 8 or 0)
+		local drawerOpen = self._detailExpanded and self._selectedItem ~= nil
+		local contentHeight = math.max(0, bodyHeight - categoryHeight - 12)
+		local drawerHeight = drawerOpen and contentHeight or 0
 		self.GridPane.Position = UDim2.fromOffset(4, categoryHeight + 8)
-		self.GridPane.Size = UDim2.new(1, -8, 0, math.max(minimumGridHeight, gridHeight))
-		self.Detail.Position = UDim2.new(0, 4, 1, -drawerHeight - 4)
+		self.GridPane.Size = UDim2.new(1, -8, 0, drawerOpen and 0 or contentHeight)
+		self.GridPane.Visible = not drawerOpen
+		self.Toolbar.Visible = not drawerOpen
+		self.Grid.Visible = not drawerOpen
+		if drawerOpen then
+			self.Grid.Size = UDim2.new(1, -16, 0, 0)
+		end
+		self.Detail.Position = UDim2.fromOffset(4, categoryHeight + 8)
 		self.Detail.Size = UDim2.new(1, -8, 0, drawerHeight)
 		self.DetailClose.Size = UDim2.fromOffset(touchTarget, touchTarget)
-		self.DetailClose.Visible = drawerHeight > 0
-		self.CompactDetailDrawer.Visible = drawerHeight > 0
+		self.DetailClose.Visible = drawerOpen
+		self.CompactDetailDrawer.Visible = drawerOpen
 		self:_syncDetailVisibility()
 
 		if shortCompact then
@@ -1553,7 +1553,10 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.DetailActionLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		local actionCount = math.max(1, #self._actionButtons)
 		local actionColumns = math.min(3, actionCount)
-		local actionPanelWidth = shortCompact and (bodyWidth * 0.42 - touchTarget - 14) or (bodyWidth * 0.44 - 14)
+		local detailPanelWidth = bodyWidth - 8
+		local actionPanelWidth = shortCompact
+			and (detailPanelWidth * 0.42 - touchTarget - 14)
+			or (detailPanelWidth * 0.44 - 14)
 		local actionWidth = math.max(touchTarget, math.floor((actionPanelWidth - (actionColumns - 1) * 6) / actionColumns))
 		self.DetailActionLayout.FillDirectionMaxCells = actionColumns
 		self.DetailActionLayout.CellPadding = UDim2.fromOffset(6, 6)
@@ -1565,6 +1568,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		end
 	else
 		self.DetailDescription.Visible = true
+		self.GridPane.Visible = true
+		self.Toolbar.Visible = true
+		self.Grid.Visible = true
 		self.CategoryBar.Position = UDim2.fromOffset(4, 4)
 		self.CategoryBar.Size = UDim2.fromOffset(154, bodyHeight - 8)
 		self.CategoryPadding.PaddingTop = UDim.new(0, 8)
@@ -1670,7 +1676,15 @@ function InventoryUI:_textFits()
 	end
 	for _, descendant in ipairs(self.Window:GetDescendants()) do
 		if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-			if descendant.Visible and descendant.AbsoluteSize.X > 0 and descendant.AbsoluteSize.Y > 0 then
+			local effectivelyVisible = descendant.Visible
+			local ancestor = descendant.Parent
+			while effectivelyVisible and ancestor and ancestor ~= self.Root do
+				if ancestor:IsA("GuiObject") and not ancestor.Visible then
+					effectivelyVisible = false
+				end
+				ancestor = ancestor.Parent
+			end
+			if effectivelyVisible and descendant.AbsoluteSize.X > 0 and descendant.AbsoluteSize.Y > 0 then
 				local managed = descendant.TextScaled
 					or descendant.TextWrapped
 					or descendant.TextTruncate ~= Enum.TextTruncate.None
@@ -1705,7 +1719,7 @@ function InventoryUI:_layoutHasNoOverlap()
 		return true
 	end
 	if self._layout.compact then
-		if not self.Detail.Visible then
+		if not self.Detail.Visible or not self.GridPane.Visible then
 			return true
 		end
 		return not rectsOverlap(
