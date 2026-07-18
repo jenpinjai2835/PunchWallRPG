@@ -22,10 +22,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD',5) local hud=g and g:FindFirstChild('PixelPerfectHeroCityHUD') local shop=g and g:FindFirstChild('FunctionalHeroShop',true) local spin=g and g:FindFirstChild('HeroSpinModal') local music=game:GetService('SoundService'):FindFirstChild('Hero Forest Music') return H:JSONEncode({ok=g~=nil and hud~=nil and shop~=nil and spin~=nil and music~=nil,music=music and music.SoundId,playing=music and music.IsPlaying,punch=hud and hud:FindFirstChild('ActionPunch')~=nil,jump=hud and hud:FindFirstChild('ActionJump')~=nil})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD',5) local hud=g and g:FindFirstChild('PixelPerfectHeroCityHUD') local shop=g and g:FindFirstChild('FunctionalHeroShop',true) local spin=g and g:FindFirstChild('HeroSpinModal') local music=game:GetService('SoundService'):FindFirstChild('Hero Forest Music') local inventory=hud and hud:FindFirstChild('InventoryButton') local inventoryImage=inventory and inventory.Image local inventoryAction=inventory and inventory:GetAttribute('ToolAction') local inventoryTarget=inventory and math.min(inventory.AbsoluteSize.X,inventory.AbsoluteSize.Y) or 0 return H:JSONEncode({ok=g~=nil and hud~=nil and shop~=nil and spin~=nil and music~=nil and inventory~=nil and inventoryImage=='rbxassetid://123409223461276' and inventoryAction=='OpenInventory' and inventoryTarget>=44,music=music and music.SoundId,playing=music and music.IsPlaying,punch=hud and hud:FindFirstChild('ActionPunch')~=nil,jump=hud and hud:FindFirstChild('ActionJump')~=nil,inventory=inventory~=nil,inventoryImage=inventoryImage,inventoryAction=inventoryAction,inventoryTarget=inventoryTarget})"
       },
-      "expectRegex": ["\"ok\":true", "\"music\":\"rbxassetid://1837768082\"", "\"playing\":true", "\"punch\":true", "\"jump\":true"],
-      "label": "embedded client release boots HUD shop spin and music"
+      "expectRegex": ["\"ok\":true", "\"music\":\"rbxassetid://1837768082\"", "\"playing\":true", "\"punch\":true", "\"jump\":true", "\"inventory\":true", "\"inventoryImage\":\"rbxassetid://123409223461276\"", "\"inventoryAction\":\"OpenInventory\"", "\"inventoryTarget\":(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"],
+      "label": "embedded client release boots HUD Inventory shop spin and music"
     },
     {
       "type": "call",
