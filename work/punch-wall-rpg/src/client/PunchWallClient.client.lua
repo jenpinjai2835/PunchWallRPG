@@ -3204,10 +3204,6 @@ performPunchAnimation = function(directionName)
 			if trailForPunch and trailForPunch.Parent then trailForPunch.Enabled = false end
 		end)
 	end
-	if not clientSettings.motion then
-		gui:SetAttribute("CharacterPunchMotionSuppressed", true)
-		return true
-	end
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not character or not humanoid then return false end
@@ -3234,6 +3230,7 @@ performPunchAnimation = function(directionName)
 	}
 	gui:SetAttribute("CharacterPunchMotionActive", true)
 	gui:SetAttribute("CharacterPunchMotionSuppressed", false)
+	gui:SetAttribute("CharacterPunchReducedMotion", not clientSettings.motion)
 	gui:SetAttribute("CharacterPunchRig", humanoid.RigType == Enum.HumanoidRigType.R15 and "R15" or "R6")
 	gui:SetAttribute("PunchMotionPhase", "Windup")
 	gui:SetAttribute("PunchContactAt", now + 0.2)
@@ -3437,7 +3434,15 @@ updatePunchMotion = function()
 		gui:SetAttribute("CharacterPunchAppliedOffset", 0)
 	end
 end
+
+-- Animator updates joint transforms during PreAnimation. Apply the authored
+-- pose in PreSimulation so the rig solver consumes it during the same frame.
+-- Heartbeat/render-only writes are overwritten before an AnimationConstraint
+-- can move the limb, which leaves the avatar sliding with a visually idle arm.
+RunService.PreSimulation:Connect(updatePunchMotion)
 RunService.Heartbeat:Connect(updatePunchMotion)
+gui:SetAttribute("CharacterPunchRenderOverride", true)
+gui:SetAttribute("CharacterPunchSimulationOverride", true)
 
 shared.PunchWallCameraPositionBlocked = function(position, character)
 	local overlap = OverlapParams.new()

@@ -1,6 +1,6 @@
 {
   "name": "punch-character-motion",
-  "description": "Verify punch input drives a visible full-body pose on modern AnimationConstraint rigs and legacy Motor6D rigs, recovers cleanly, and honors Motion Feedback off.",
+  "description": "Verify punch input visibly moves the avatar arm on modern AnimationConstraint and legacy Motor6D rigs, recovers cleanly, and remains readable when reduced camera motion is enabled.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -37,16 +37,20 @@
       "saveAs": "motionDiagnostics",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local joint for _,d in ipairs(p.Character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(joint,\"right shoulder joint missing\") local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(1.1) local maxAngle=g:GetAttribute(\"CharacterPunchAppliedMaxAngle\") or 0 local maxPosition=g:GetAttribute(\"CharacterPunchAppliedMaxOffset\") or 0 local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local dramatic=maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and not active return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,active=active,dramatic=dramatic})"
+        "code": "local H=game:GetService(\"HttpService\") local RS=game:GetService(\"RunService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local character=p.Character local root=character:FindFirstChild(\"HumanoidRootPart\") local hand=character:FindFirstChild(\"RightHand\") or character:FindFirstChild(\"Right Arm\") local joint for _,d in ipairs(character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(root and hand and joint,\"punch rig parts missing\") local startLocal=root.CFrame:PointToObjectSpace(hand.Position) local maxRelativeDelta=0 local phases={} local before=g:GetAttribute(\"CharacterPunchCount\") or 0 task.spawn(function() g.PunchWallClientAutomation:Invoke(\"Punch\") end) local started=os.clock() while os.clock()-started<.82 do RS.RenderStepped:Wait() local currentLocal=root.CFrame:PointToObjectSpace(hand.Position) maxRelativeDelta=math.max(maxRelativeDelta,(currentLocal-startLocal).Magnitude) phases[g:GetAttribute(\"PunchMotionPhase\") or \"nil\"]=true end task.wait(.3) local maxAngle=g:GetAttribute(\"CharacterPunchAppliedMaxAngle\") or 0 local maxPosition=g:GetAttribute(\"CharacterPunchAppliedMaxOffset\") or 0 local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local dramatic=maxRelativeDelta>.75 and maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and phases.Windup and phases.Contact and phases.Recovery and not active return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,maxRelativeDelta=maxRelativeDelta,windup=phases.Windup==true,contact=phases.Contact==true,recovery=phases.Recovery==true,renderOverride=g:GetAttribute(\"CharacterPunchRenderOverride\"),active=active,dramatic=dramatic})"
       },
       "expectRegex": [
         "\"class\"\\s*:\\s*\"(AnimationConstraint|Motor6D)\"",
         "\"rig\"\\s*:\\s*\"R(6|15)\"",
         "\"count\"\\s*:\\s*1",
+        "\"windup\"\\s*:\\s*true",
+        "\"contact\"\\s*:\\s*true",
+        "\"recovery\"\\s*:\\s*true",
+        "\"renderOverride\"\\s*:\\s*true",
         "\"active\"\\s*:\\s*false",
         "\"dramatic\"\\s*:\\s*true"
       ],
-      "label": "punch produces and recovers a visible character pose"
+      "label": "punch visibly moves the hand through windup contact and recovery"
     },
     {
       "type": "call",
@@ -55,7 +59,7 @@
         "datamodel_type": "Client",
         "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local snapshot=g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) return snapshot and snapshot.motion==false"
       },
-      "label": "disable motion feedback"
+      "label": "enable reduced camera motion"
     },
     {
       "type": "wait",
@@ -67,14 +71,17 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),active=g:GetAttribute(\"CharacterPunchMotionActive\")}) g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=true,sound=true,uiScale=1,persist=false}) return result"
+        "code": "local H=game:GetService(\"HttpService\") local RS=game:GetService(\"RunService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local root=p.Character.HumanoidRootPart local hand=p.Character:FindFirstChild(\"RightHand\") or p.Character:FindFirstChild(\"Right Arm\") g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) local remaining=1.02-(os.clock()-(g:GetAttribute(\"LastPunchActionAt\") or 0)) if remaining>0 then task.wait(remaining) end local startLocal=root.CFrame:PointToObjectSpace(hand.Position) local maxRelativeDelta=0 local before=g:GetAttribute(\"CharacterPunchCount\") or 0 task.spawn(function() g.PunchWallClientAutomation:Invoke(\"Punch\") end) local started=os.clock() while os.clock()-started<.82 do RS.RenderStepped:Wait() maxRelativeDelta=math.max(maxRelativeDelta,(root.CFrame:PointToObjectSpace(hand.Position)-startLocal).Magnitude) end task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),reduced=g:GetAttribute(\"CharacterPunchReducedMotion\"),cameraFollow=g:GetAttribute(\"PunchCameraFollowEnabled\"),maxRelativeDelta=maxRelativeDelta,visible=maxRelativeDelta>.75,active=g:GetAttribute(\"CharacterPunchMotionActive\")}) g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=true,sound=true,uiScale=1,persist=false}) return result"
       },
       "expectRegex": [
-        "\"count\"\\s*:\\s*0",
-        "\"suppressed\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*1",
+        "\"suppressed\"\\s*:\\s*false",
+        "\"reduced\"\\s*:\\s*true",
+        "\"cameraFollow\"\\s*:\\s*false",
+        "\"visible\"\\s*:\\s*true",
         "\"active\"\\s*:\\s*false"
       ],
-      "label": "reduced motion suppresses character pose"
+      "label": "reduced motion keeps punch action while suppressing camera follow"
     },
     {
       "type": "call",
