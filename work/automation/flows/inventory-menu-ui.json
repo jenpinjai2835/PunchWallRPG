@@ -397,7 +397,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local menu=g:FindFirstChild('GameMenu') local vp=workspace.CurrentCamera.ViewportSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,vp.X) local heightRatio=size.Y/math.max(1,vp.Y) local safe=menu and menu.AbsolutePosition.X>=-1 and menu.AbsolutePosition.Y>=-1 and menu.AbsolutePosition.X+size.X<=vp.X+2 and menu.AbsolutePosition.Y+size.Y<=vp.Y+2 local sizing=menu and menu:GetAttribute('InventoryModalSizing') return H:JSONEncode({ok=sizing=='CompactSafeFill' and widthRatio>=.85 and heightRatio>=.85 and safe,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,safe=safe})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local menu=g:FindFirstChild('GameMenu') local rootPosition=g.AbsolutePosition local rootSize=g.AbsoluteSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,rootSize.X) local heightRatio=size.Y/math.max(1,rootSize.Y) local safe=menu and menu.AbsolutePosition.X>=rootPosition.X-1 and menu.AbsolutePosition.Y>=rootPosition.Y-1 and menu.AbsolutePosition.X+size.X<=rootPosition.X+rootSize.X+2 and menu.AbsolutePosition.Y+size.Y<=rootPosition.Y+rootSize.Y+2 local sizing=menu and menu:GetAttribute('InventoryModalSizing') return H:JSONEncode({ok=sizing=='CompactSafeFill' and widthRatio>=.85 and heightRatio>=.85 and safe,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,safe=safe})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -416,7 +416,7 @@
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"compact\"\\s*:\\s*true",
-        "\"columns\"\\s*:\\s*[23]",
+        "\"columns\"\\s*:\\s*3",
         "\"minTouch\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
         "\"textFits\"\\s*:\\s*true",
         "\"safe\"\\s*:\\s*true",

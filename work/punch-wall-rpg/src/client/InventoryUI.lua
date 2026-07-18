@@ -2009,7 +2009,10 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Body.Position = UDim2.fromOffset(8, bodyTop)
 	self.Body.Size = UDim2.new(1, -16, 1, -(bodyTop + 8))
 	self.Subtitle.Visible = false
-	local titleLeft = useCompact and 20 or 30
+	-- Landscape phone simulation keeps the Roblox/system controls in the
+	-- upper-left corner even when CoreGui is suppressed. Reserve that chrome
+	-- lane in compact mode so the title remains fully readable.
+	local titleLeft = useCompact and 145 or 30
 	self.Title.Position = UDim2.fromOffset(titleLeft, 5)
 	self.Title.Size = UDim2.new(1, -(titleLeft + math.max(touchTarget, useCompact and 44 or 50) + 30), 1, -13)
 	self.HeaderPattern.Visible = not useCompact
@@ -2234,7 +2237,11 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		or bodyWidth - 4 - math.clamp(windowWidth * 0.275, 270, 310) - 12
 	local gridContentWidth = math.max(280, gridPaneWidth - 24)
 	local columns
-	if gridContentWidth >= 600 then
+	if useCompact and viewport.X < 800 then
+		columns = 3
+	elseif useCompact and viewport.X < 900 then
+		columns = 4
+	elseif gridContentWidth >= 600 then
 		columns = 5
 	elseif gridContentWidth >= 555 then
 		columns = 4
