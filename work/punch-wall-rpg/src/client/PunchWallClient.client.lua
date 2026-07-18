@@ -4675,33 +4675,174 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	end
 end)
 
-local ambientPulseParts = {}
-task.spawn(function()
-	while gui.Parent do
-		table.clear(ambientPulseParts)
-		local root = workspace:FindFirstChild("PunchWallRPG")
-		if root then
-			for _, descendant in ipairs(root:GetDescendants()) do
-				if descendant:IsA("BasePart") and descendant:GetAttribute("AmbientMotion") == "Pulse" then
-					table.insert(ambientPulseParts, descendant)
-				end
+do
+local clientRuntime = {
+	AmbientPulseParts = {},
+	AmbientPulseIndices = {},
+	AmbientPulseAddedCount = 0,
+	AmbientPulseRemovedCount = 0,
+	AmbientPulseInitialScanCount = 0,
+	GameRoot = nil,
+	WallsFolder = nil,
+	InteractablesFolder = nil,
+	DepthBlocksFolder = nil,
+	GameRootConnections = {},
+	GameRootBindCount = 0,
+	TargetFolderCacheRefreshCount = 0,
+	TargetCacheMissCount = 0,
+	TargetDepthOverlap = OverlapParams.new(),
+}
+clientRuntime.TargetDepthOverlap.FilterType = Enum.RaycastFilterType.Include
+clientRuntime.TargetDepthOverlap.FilterDescendantsInstances = {}
+clientRuntime.TargetDepthOverlap.MaxParts = 400
+
+gui:SetAttribute("AmbientPulseRegistryMode", "EventDrivenV1")
+gui:SetAttribute("AmbientPulseCount", 0)
+gui:SetAttribute("TargetHeartbeatCacheMode", "EventDrivenFoldersV1")
+gui:SetAttribute("TargetOverlapParamsCreateCount", 1)
+
+function clientRuntime.UpdateAmbientPulseAttributes()
+	gui:SetAttribute("AmbientPulseCount", #clientRuntime.AmbientPulseParts)
+	gui:SetAttribute("AmbientPulseAddedCount", clientRuntime.AmbientPulseAddedCount)
+	gui:SetAttribute("AmbientPulseRemovedCount", clientRuntime.AmbientPulseRemovedCount)
+end
+
+function clientRuntime.RegisterAmbientPulsePart(candidate)
+	if not candidate:IsA("BasePart")
+		or candidate:GetAttribute("AmbientMotion") ~= "Pulse"
+		or clientRuntime.AmbientPulseIndices[candidate]
+	then
+		return false
+	end
+	table.insert(clientRuntime.AmbientPulseParts, candidate)
+	clientRuntime.AmbientPulseIndices[candidate] = #clientRuntime.AmbientPulseParts
+	clientRuntime.AmbientPulseAddedCount += 1
+	clientRuntime.UpdateAmbientPulseAttributes()
+	return true
+end
+
+function clientRuntime.UnregisterAmbientPulsePart(candidate)
+	local index = clientRuntime.AmbientPulseIndices[candidate]
+	if not index then return false end
+	clientRuntime.AmbientPulseIndices[candidate] = nil
+	table.remove(clientRuntime.AmbientPulseParts, index)
+	for shiftedIndex = index, #clientRuntime.AmbientPulseParts do
+		clientRuntime.AmbientPulseIndices[clientRuntime.AmbientPulseParts[shiftedIndex]] = shiftedIndex
+	end
+	clientRuntime.AmbientPulseRemovedCount += 1
+	clientRuntime.UpdateAmbientPulseAttributes()
+	return true
+end
+
+function clientRuntime.DisconnectGameRoot()
+	for _, connection in ipairs(clientRuntime.GameRootConnections) do
+		connection:Disconnect()
+	end
+	table.clear(clientRuntime.GameRootConnections)
+end
+
+function clientRuntime.RefreshTargetFolderCache()
+	local root = clientRuntime.GameRoot
+	local walls = root and root:FindFirstChild("Walls") or nil
+	local interactables = root and root:FindFirstChild("Interactables") or nil
+	local depthBlocks = root and root:FindFirstChild("Depth Blocks") or nil
+	if walls == clientRuntime.WallsFolder
+		and interactables == clientRuntime.InteractablesFolder
+		and depthBlocks == clientRuntime.DepthBlocksFolder
+	then
+		return false
+	end
+	clientRuntime.WallsFolder = walls
+	clientRuntime.InteractablesFolder = interactables
+	clientRuntime.DepthBlocksFolder = depthBlocks
+	clientRuntime.TargetDepthOverlap.FilterDescendantsInstances = depthBlocks and { depthBlocks } or {}
+	clientRuntime.TargetFolderCacheRefreshCount += 1
+	gui:SetAttribute("TargetFolderCacheRefreshCount", clientRuntime.TargetFolderCacheRefreshCount)
+	gui:SetAttribute("TargetWallsCached", walls ~= nil)
+	gui:SetAttribute("TargetInteractablesCached", interactables ~= nil)
+	gui:SetAttribute("TargetDepthBlocksCached", depthBlocks ~= nil)
+	return true
+end
+
+function clientRuntime.BindGameRoot(root)
+	if root == clientRuntime.GameRoot then return false end
+	clientRuntime.DisconnectGameRoot()
+	for index = #clientRuntime.AmbientPulseParts, 1, -1 do
+		clientRuntime.UnregisterAmbientPulsePart(clientRuntime.AmbientPulseParts[index])
+	end
+	clientRuntime.GameRoot = root
+	clientRuntime.GameRootBindCount += 1
+	gui:SetAttribute("ClientGameRootBindCount", clientRuntime.GameRootBindCount)
+	clientRuntime.RefreshTargetFolderCache()
+	if not root then return true end
+
+	clientRuntime.AmbientPulseInitialScanCount += 1
+	gui:SetAttribute("AmbientPulseInitialScanCount", clientRuntime.AmbientPulseInitialScanCount)
+	for _, descendant in ipairs(root:GetDescendants()) do
+		clientRuntime.RegisterAmbientPulsePart(descendant)
+	end
+
+	table.insert(clientRuntime.GameRootConnections, root.DescendantAdded:Connect(function(descendant)
+		if clientRuntime.RegisterAmbientPulsePart(descendant) or not descendant:IsA("BasePart") then return end
+		-- Server builders parent parts before applying their visual attributes.
+		-- One deferred check captures that synchronous construction path without
+		-- retaining a property connection for every scene part.
+		task.defer(function()
+			if clientRuntime.GameRoot == root and descendant:IsDescendantOf(root) then
+				clientRuntime.RegisterAmbientPulsePart(descendant)
 			end
+		end)
+	end))
+	table.insert(clientRuntime.GameRootConnections, root.DescendantRemoving:Connect(function(descendant)
+		clientRuntime.UnregisterAmbientPulsePart(descendant)
+	end))
+	table.insert(clientRuntime.GameRootConnections, root.ChildAdded:Connect(function(child)
+		if child.Name == "Walls" or child.Name == "Interactables" or child.Name == "Depth Blocks" then
+			clientRuntime.RefreshTargetFolderCache()
 		end
-		gui:SetAttribute("AmbientPulseCount", #ambientPulseParts)
-		task.wait(2)
+	end))
+	table.insert(clientRuntime.GameRootConnections, root.ChildRemoved:Connect(function(child)
+		if child == clientRuntime.WallsFolder
+			or child == clientRuntime.InteractablesFolder
+			or child == clientRuntime.DepthBlocksFolder
+		then
+			task.defer(clientRuntime.RefreshTargetFolderCache)
+		end
+	end))
+	table.insert(clientRuntime.GameRootConnections, root:GetPropertyChangedSignal("Name"):Connect(function()
+		task.defer(clientRuntime.RefreshGameRoot)
+	end))
+	return true
+end
+
+function clientRuntime.RefreshGameRoot()
+	local root = workspace:FindFirstChild("PunchWallRPG")
+	clientRuntime.BindGameRoot(root)
+end
+
+workspace.ChildAdded:Connect(function(child)
+	if child.Name == "PunchWallRPG" then
+		task.defer(clientRuntime.RefreshGameRoot)
 	end
 end)
+workspace.ChildRemoved:Connect(function(child)
+	if child == clientRuntime.GameRoot then
+		clientRuntime.BindGameRoot(nil)
+		task.defer(clientRuntime.RefreshGameRoot)
+	end
+end)
+clientRuntime.RefreshGameRoot()
 
 local ambientPhase = 0
 local lastAmbientActive
 RunService.RenderStepped:Connect(function(deltaTime)
 	ambientPhase += deltaTime
-	local active = clientSettings.motion and #ambientPulseParts > 0
+	local active = clientSettings.motion and #clientRuntime.AmbientPulseParts > 0
 	if active ~= lastAmbientActive then
 		lastAmbientActive = active
 		gui:SetAttribute("AmbientMotionActive", active)
 	end
-	for index, part in ipairs(ambientPulseParts) do
+	for index, part in ipairs(clientRuntime.AmbientPulseParts) do
 		if part.Parent then
 			local base = tonumber(part:GetAttribute("AmbientBaseTransparency")) or 0
 			part.Transparency = active and math.clamp(base + math.sin(ambientPhase * 2.6 + index * 0.7) * 0.1, 0, 0.85) or base
@@ -4746,31 +4887,39 @@ RunService.Heartbeat:Connect(function(delta)
 	targetTimer = 0
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	local gameRoot = clientRuntime.GameRoot
+	if gameRoot and (gameRoot.Parent ~= workspace or gameRoot.Name ~= "PunchWallRPG") then
+		clientRuntime.RefreshGameRoot()
+		gameRoot = clientRuntime.GameRoot
+	end
 	if not rootPart or not gameRoot then return end
+	if (clientRuntime.WallsFolder and (clientRuntime.WallsFolder.Parent ~= gameRoot or clientRuntime.WallsFolder.Name ~= "Walls"))
+		or (clientRuntime.InteractablesFolder and (clientRuntime.InteractablesFolder.Parent ~= gameRoot or clientRuntime.InteractablesFolder.Name ~= "Interactables"))
+		or (clientRuntime.DepthBlocksFolder and (clientRuntime.DepthBlocksFolder.Parent ~= gameRoot or clientRuntime.DepthBlocksFolder.Name ~= "Depth Blocks"))
+	then
+		clientRuntime.TargetCacheMissCount += 1
+		gui:SetAttribute("TargetCacheMissCount", clientRuntime.TargetCacheMissCount)
+		clientRuntime.RefreshTargetFolderCache()
+	end
 	local nearest
 	local nearestDistance = 44
 	local nearestWall
 	local nearestWallDistance = 50
-	for _, folderName in ipairs({ "Walls", "Interactables" }) do
-		local folder = gameRoot:FindFirstChild(folderName)
+	for folderIndex = 1, 2 do
+		local folder = folderIndex == 1 and clientRuntime.WallsFolder or clientRuntime.InteractablesFolder
 		if folder then
 			for _, candidate in ipairs(folder:GetChildren()) do
 				if candidate:IsA("BasePart") then
 					local distance = (candidate.Position - rootPart.Position).Magnitude
 					if distance < nearestDistance then nearest, nearestDistance = candidate, distance end
-					if folderName == "Walls" and distance < nearestWallDistance then nearestWall, nearestWallDistance = candidate, distance end
+					if folderIndex == 1 and distance < nearestWallDistance then nearestWall, nearestWallDistance = candidate, distance end
 				end
 			end
 		end
 	end
-	local depthBlocks = gameRoot:FindFirstChild("Depth Blocks")
+	local depthBlocks = clientRuntime.DepthBlocksFolder
 	if depthBlocks then
-		local overlap = OverlapParams.new()
-		overlap.FilterType = Enum.RaycastFilterType.Include
-		overlap.FilterDescendantsInstances = { depthBlocks }
-		overlap.MaxParts = 400
-		for _, block in ipairs(workspace:GetPartBoundsInRadius(rootPart.Position, 38, overlap)) do
+		for _, block in ipairs(workspace:GetPartBoundsInRadius(rootPart.Position, 38, clientRuntime.TargetDepthOverlap)) do
 			if block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
 				local offset = block.Position - rootPart.Position
 				local distance = offset.Magnitude
@@ -4789,8 +4938,8 @@ RunService.Heartbeat:Connect(function(delta)
 	local tutorial = latestStats.Tutorial
 	local tutorialTarget
 	if type(tutorial) == "table" and tutorial.target and tutorial.target ~= "" then
-		local walls = gameRoot:FindFirstChild("Walls")
-		local interactables = gameRoot:FindFirstChild("Interactables")
+		local walls = clientRuntime.WallsFolder
+		local interactables = clientRuntime.InteractablesFolder
 		tutorialTarget = (walls and walls:FindFirstChild(tutorial.target)) or (interactables and interactables:FindFirstChild(tutorial.target))
 	end
 	if tutorialTarget and tutorialTarget:IsA("BasePart") then
@@ -4823,6 +4972,7 @@ RunService.Heartbeat:Connect(function(delta)
 	end
 	targetHUD.Visible = false
 end)
+end
 
 gui:SetAttribute("CombatCameraActive", false)
 if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable then
@@ -5899,7 +6049,124 @@ shared.PunchWallBuildShopUI = function()
 
 	shared.PunchWallShopDimmer = shopDimmer
 	shared.PunchWallHeroShopPage = shared.PunchWallHeroShopPage or "Fists"
-	shared.PunchWallHeroShopRefresh = function()
+	local shopRuntime = {
+		Pages = { "Fists", "Premium", "Boosts", "Robux" },
+		LastSignature = nil,
+		RefreshRequestCount = 0,
+		RefreshBuildCount = 0,
+		RefreshSkipCount = 0,
+		RefreshForceCount = 0,
+		BoostTickGeneration = 0,
+		BoostTickCount = 0,
+		BoostTickScheduled = false,
+	}
+
+	function shopRuntime.ResolvePage()
+		local requestedPage = shared.PunchWallHeroShopPage
+		return table.find(shopRuntime.Pages, requestedPage) and requestedPage or "Fists"
+	end
+
+	function shopRuntime.CanonicalOwnedList(raw, fallback)
+		local values = decodeJSON(raw, fallback)
+		local normalized = {}
+		for _, value in ipairs(values) do
+			table.insert(normalized, tostring(value))
+		end
+		table.sort(normalized)
+		return table.concat(normalized, "\0")
+	end
+
+	function shopRuntime.BoostSecond(endsAt, now)
+		return math.max(0, math.floor((tonumber(endsAt) or 0) - now))
+	end
+
+	function shopRuntime.StateSignature(now)
+		local camera = workspace.CurrentCamera
+		local viewport = camera and camera.ViewportSize or Vector2.zero
+		local page = shopRuntime.ResolvePage()
+		local fields = {
+			"HeroShopStateV1",
+			page,
+			math.floor(viewport.X + 0.5),
+			math.floor(viewport.Y + 0.5),
+			UserInputService.TouchEnabled == true,
+			math.floor((tonumber(clientSettings.uiScale) or 1) * 1000 + 0.5),
+		}
+		if page == "Fists" then
+			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedFistsJSON, { "Starter Glove" }))
+			table.insert(fields, tostring(latestStats.EquippedFist or ""))
+		elseif page == "Premium" then
+			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumFistsJSON, {}))
+			table.insert(fields, tostring(latestStats.EquippedFist or ""))
+		elseif page == "Boosts" then
+			local boostInfo = latestStats.ShopBoosts or {}
+			table.insert(fields, shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now))
+			table.insert(fields, shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now))
+			table.insert(fields, shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now))
+		end
+		return HttpService:JSONEncode(fields), page
+	end
+
+	function shopRuntime.ScheduleBoostTick(page, now)
+		shopRuntime.BoostTickGeneration += 1
+		local generation = shopRuntime.BoostTickGeneration
+		shopRuntime.BoostTickScheduled = false
+		if page ~= "Boosts" or not shopReference.Visible then return end
+
+		local boostInfo = latestStats.ShopBoosts or {}
+		local nextDelay
+		for _, key in ipairs({ "CoinEndsAt", "SpeedEndsAt", "DamageEndsAt" }) do
+			local endsAt = boostInfo[key]
+			local remaining = (tonumber(endsAt) or 0) - now
+			if remaining > 0 then
+				local delay = math.max(0.03, remaining - math.floor(remaining) + 0.02)
+				nextDelay = nextDelay and math.min(nextDelay, delay) or delay
+			end
+		end
+		if not nextDelay then return end
+
+		shopRuntime.BoostTickScheduled = true
+		task.delay(nextDelay, function()
+			if generation ~= shopRuntime.BoostTickGeneration then return end
+			shopRuntime.BoostTickScheduled = false
+			if not shopReference.Parent
+				or not shopReference.Visible
+				or shopRuntime.ResolvePage() ~= "Boosts"
+			then
+				return
+			end
+			shopRuntime.BoostTickCount += 1
+			shopReference:SetAttribute("BoostTickCount", shopRuntime.BoostTickCount)
+			shared.PunchWallHeroShopRefresh()
+		end)
+	end
+
+	shared.PunchWallHeroShopRefresh = function(options)
+		local force = options == true or (type(options) == "table" and options.force == true)
+		local reason = type(options) == "table" and tostring(options.reason or "") or ""
+		local shopRefreshNow = workspace:GetServerTimeNow()
+		local signature, page = shopRuntime.StateSignature(shopRefreshNow)
+		shopRuntime.RefreshRequestCount += 1
+		shopReference:SetAttribute("RefreshRequestCount", shopRuntime.RefreshRequestCount)
+		if not force and signature == shopRuntime.LastSignature then
+			shopRuntime.RefreshSkipCount += 1
+			shopReference:SetAttribute("RefreshSkipCount", shopRuntime.RefreshSkipCount)
+			if page == "Boosts" and shopReference.Visible and not shopRuntime.BoostTickScheduled then
+				shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+			end
+			return false
+		end
+
+		if force then
+			shopRuntime.RefreshForceCount += 1
+			shopReference:SetAttribute("RefreshForceCount", shopRuntime.RefreshForceCount)
+		end
+		shopRuntime.LastSignature = signature
+		shopRuntime.RefreshBuildCount += 1
+		shopReference:SetAttribute("RefreshBuildCount", shopRuntime.RefreshBuildCount)
+		shopReference:SetAttribute("RefreshSignature", signature)
+		shopReference:SetAttribute("RefreshReason", reason)
+		shopReference:SetAttribute("RefreshMode", "RelevantStateSignatureV1")
 		shared.PunchWallShopActions = {}
 		for _, child in ipairs(shopReference:GetChildren()) do
 			if not child:GetAttribute("ShopRootDecoration") then child:Destroy() end
@@ -6030,9 +6297,6 @@ shared.PunchWallBuildShopUI = function()
 
 		local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
 		local ownedPremium = decodeJSON(latestStats.OwnedPremiumFistsJSON, {})
-		local requestedPage = shared.PunchWallHeroShopPage
-		local pages = { "Fists", "Premium", "Boosts", "Robux" }
-		local page = table.find(pages, requestedPage) and requestedPage or "Fists"
 		local tabBand = Instance.new("Frame")
 		tabBand.Name = "ShopTabs"
 		tabBand.BackgroundTransparency = 1
@@ -6040,7 +6304,7 @@ shared.PunchWallBuildShopUI = function()
 		tabBand.Size = UDim2.fromScale(0.95, 0.075)
 		tabBand.ZIndex = 102
 		tabBand.Parent = shopReference
-		for index, pageName in ipairs(pages) do
+		for index, pageName in ipairs(shopRuntime.Pages) do
 			local selected = page == pageName
 			local tab = Instance.new("TextButton")
 			tab.Name = pageName .. "ShopTab"
@@ -6069,7 +6333,7 @@ shared.PunchWallBuildShopUI = function()
 		end
 
 		local boostInfo = latestStats.ShopBoosts or {}
-		local now = workspace:GetServerTimeNow()
+		local now = shopRefreshNow
 		local products = {}
 		if page == "Fists" then
 			for _, item in ipairs(GameConfig.Fists) do table.insert(products, item) end
@@ -6329,6 +6593,18 @@ shared.PunchWallBuildShopUI = function()
 		bindButtonMotion(bottomClose, bottomClose.BackgroundColor3)
 		bottomClose.Activated:Connect(function() setMenuVisible(false) end)
 		label(footerBand, "ServerLabel", "SERVER VERIFIED PURCHASES", UDim2.fromScale(0.64, 0), UDim2.fromScale(0.335, 1), Color3.fromRGB(81, 190, 235), 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+		return true
+	end
+	shared.PunchWallInvalidateHeroShop = function(reason, refreshWhenVisible)
+		shopRuntime.LastSignature = nil
+		shopRuntime.BoostTickGeneration += 1
+		shopRuntime.BoostTickScheduled = false
+		shopReference:SetAttribute("LastInvalidationReason", tostring(reason or "manual"))
+		if refreshWhenVisible ~= false and shopReference.Visible then
+			return shared.PunchWallHeroShopRefresh({ force = true, reason = reason or "invalidation" })
+		end
+		return true
 	end
 	shared.PunchWallHeroShopRefresh()
 	return shopReference
@@ -6768,6 +7044,9 @@ applyResponsiveLayout = function()
 		nextWorld.Position = UDim2.new(0.5, 0, 1, -18)
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
+	end
+	if shopOpen and shared.PunchWallHeroShopRefresh then
+		shared.PunchWallHeroShopRefresh()
 	end
 	if shared.PunchWallInventoryController then
 		local inventoryViewport = mainPanel.AbsoluteSize
