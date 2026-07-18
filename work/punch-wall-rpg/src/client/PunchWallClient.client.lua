@@ -4315,7 +4315,14 @@ if RunService:IsStudio() then
 			end
 			if action == "InvokeInventoryAction" then
 				if not shared.PunchWallInventoryController then return false end
-				return shared.PunchWallInventoryController:InvokeAction(value)
+				local succeeded, reason = shared.PunchWallInventoryController:InvokeAction(value)
+				if type(value) == "table"
+					and string.lower(tostring(value.action or "")) == "delete"
+					and reason == "confirmation_required"
+				then
+					return shared.PunchWallInventoryController:InvokeAction(value)
+				end
+				return succeeded, reason
 			end
 			if action == "OpenShopPage" then
 				shared.PunchWallHeroShopPage = tostring(value or "Fists")
@@ -6477,7 +6484,9 @@ applyResponsiveLayout = function()
 		nextScale.Scale = userScale
 	end
 	if shared.PunchWallInventoryController then
-		shared.PunchWallInventoryController:ApplyResponsive(viewport, compact, userScale)
+		local inventoryViewport = mainPanel.AbsoluteSize
+		if inventoryViewport.X < 1 or inventoryViewport.Y < 1 then inventoryViewport = viewport end
+		shared.PunchWallInventoryController:ApplyResponsive(inventoryViewport, compact, userScale)
 	end
 	panel.Visible = false
 	menuButton.Visible = false
