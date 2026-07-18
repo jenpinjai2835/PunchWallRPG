@@ -5,6 +5,9 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "settle any prior play session" },
+    { "type": "wait", "ms": 1500, "label": "wait for edit datamodel" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) task.wait(1) return true" }, "label": "clear prior device simulation" },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -32,6 +35,7 @@
     },
     { "type": "assertNoConsoleErrors", "source": "desktopCamera", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "desktop camera metrics valid" },
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop desktop play" },
+    { "type": "wait", "ms": 1500, "label": "wait for desktop edit datamodel" },
 
     {
       "type": "call",
@@ -59,6 +63,7 @@
       "label": "sample six tablet punches"
     },
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop tablet play" },
+    { "type": "wait", "ms": 1500, "label": "wait for tablet edit datamodel" },
 
     {
       "type": "call",
