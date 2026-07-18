@@ -78,12 +78,22 @@ commands. They are test controls, not player-facing production controls.
 | `SetInventorySearch` | string | Apply trimmed case-insensitive search to authoritative names/display names. |
 | `SetInventoryRarity` | `All`, `Common`, `Rare`, `Epic`, `Legendary`, or `Premium` | Apply rarity filtering without mutating inventory. |
 | `SelectInventoryItem` | stable item key | Select exactly one owned/active item. Duplicate pets must be selected by slot key. |
-| `InvokeInventoryAction` | `{action=<name>, key=<stable key>}` | Send the normal server request for the selected item. Never mutate ownership locally. |
+| `InvokeInventoryAction` | `{action=<name>, key=<stable key>}` | Send the normal server request for that exact owned item. An unknown key must return `false, "item_not_found"`, preserve the prior selection, and dispatch nothing. Never mutate ownership locally. |
 | `InventorySnapshot` | none | Return the deterministic state contract below without changing gameplay. |
 
 Supported action names used by this flow are `Equip`, `Unlock`, `Lock`, and
 `Delete`. `selected.actions` contains enabled actions only. A locked pet exposes
 `Unlock` but not `Delete`.
+
+The `key` supplied to `InvokeInventoryAction` is authoritative scope, not a
+selection hint. The client must never fall back to the previously selected item
+when that explicit key is missing, invalid, or stale.
+
+Every slot-specific pet request sent to the server includes both the saved pet
+token and its current 1-based inventory index. If the index is out of range or
+no longer contains that token, the normal server validator and the mirrored
+Studio automation command return `ok = false, reason = "stale_inventory"`.
+Inventory, locks, and equipped pets must remain byte-for-byte unchanged.
 
 ### `InventorySnapshot` Shape
 
@@ -152,18 +162,30 @@ The flow verifies:
 3. Reference-only fake item names do not appear.
 4. Fists, Pets, Honor, and Boosts filters return their authoritative entries.
 5. Search for `boxing` selects `fist:Boxing Glove`.
-6. Search for `crystal` plus `Epic` rarity returns both duplicate pet slots.
-7. Slot 2 is locked independently of slot 1.
-8. Equip goes through the normal server path and server state becomes
+6. Equip goes through the normal server path and server state becomes
    `EquippedFist = "Boxing Glove"`.
-9. Unlock/relock targets slot 2; deletion targets unlocked slot 1.
-10. After deletion, slot 2 shifts to `slot:1`, and the test immediately invokes
-    `Reset` before any later assertion.
-11. Closing the modal restores the live Hero City gameplay HUD.
+7. Search for `crystal` plus `Epic` rarity returns both duplicate pet slots.
+8. With one Crystal Fox equipped, slot 1 alone exposes `Unequip`; slot 2 alone
+   exposes `Equip`. Slot 2 remains independently locked, exposing `Unlock` but
+   not `Delete`.
+9. `InvokeInventoryAction` with `pet:slot:999` returns
+   `false, "item_not_found"`, keeps slot 2 selected, and leaves the three
+   authoritative pet strings unchanged.
+10. Unlock/relock/unlock targets slot 2, then deletion targets that exact
+    unequipped duplicate.
+11. Deleting slot 2 leaves `[Crystal Fox, Miner Cat]`, preserves the equipped
+    sibling as `["Crystal Fox"]`, and clears the removed slot's lock.
+12. Reusing the old `{ target = "Crystal Fox", index = 2 }` after that deletion
+    returns `stale_inventory` and leaves inventory, locks, and equipped pets
+    unchanged.
+13. The test invokes `Reset` immediately after the destructive and stale-index
+    assertions, then closing the modal restores the live Hero City gameplay HUD.
 
-Deletion is permitted only inside this isolated, deterministic test state.
-The flow resets immediately after verifying the shifted slot. Cleanup always
-stops Play mode, so the mutation cannot be treated as player data.
+Deletion is permitted only inside this isolated, deterministic test state. The
+flow deletes the unequipped duplicate only after explicitly unlocking its slot,
+verifies the equipped sibling and stale-index failure, then resets immediately.
+Cleanup always stops Play mode, so the mutation cannot be treated as player
+data.
 
 ## Responsive Acceptance Matrix
 
@@ -190,6 +212,15 @@ All viewports must satisfy:
 - no magenta, checkerboard, sample quantities, or reference-only text is
   visible.
 
+Compact selection has an additional exclusive-detail contract. While the detail
+drawer/page is open, `InventoryGridPane` and `InventoryGrid` must both be hidden,
+the detail frame must have positive dimensions and remain inside
+`InventoryWindow`, and every visible action button must have positive touch-safe
+dimensions fully contained by the detail frame. Closing the detail state must
+hide the detail frame and restore both grid objects with positive dimensions
+inside the modal. The flow measures these live descendants directly; a
+high-level `noOverlap = true` value alone is not sufficient evidence.
+
 The recorded flow automates 1366x768 and the restrictive 740x360 layout. The
 remaining matrix sizes require the release device-matrix pass and captured
 player-view review.
@@ -202,7 +233,16 @@ player-view review.
 - A local button press may show pending feedback but cannot claim success until
   the authoritative state refresh arrives.
 - Invalid, missing, unowned, or stale stable keys fail closed.
+- An invalid explicit client action key returns `item_not_found`, preserves the
+  prior selection, and never dispatches an action for that prior selection.
 - Duplicate pets never use species name alone for lock/delete selection.
+- Slot-specific equip, unequip, lock, unlock, and delete requests include the
+  current inventory index. A token/index mismatch returns `stale_inventory`
+  without changing inventory, locks, or equipped pets.
+- For duplicate tokens, only the last currently equipped occurrence may expose
+  `Unequip`, and only the next unequipped occurrence may expose `Equip`.
+- Deleting an unequipped duplicate preserves the equipped count and the
+  equipped sibling.
 - Locked pets cannot expose or invoke delete.
 - Empty category, empty search, full capacity, loading, and selection-cleared
   states remain readable and do not leave stale detail actions enabled.

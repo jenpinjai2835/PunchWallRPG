@@ -149,7 +149,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') local filtered=a:Invoke('InventorySnapshot') a:Invoke('SelectInventoryItem','pet:slot:2') local s=a:Invoke('InventorySnapshot') local d=s.selected or {} local canUnlock=table.find(d.actions or {},'Unlock')~=nil local canDelete=table.find(d.actions or {},'Delete')~=nil local keys=filtered.visibleKeys or {} return H:JSONEncode({ok=#keys==2 and table.find(keys,'pet:slot:1')~=nil and table.find(keys,'pet:slot:2')~=nil and d.key=='pet:slot:2' and d.kind=='Pet' and d.name=='Crystal Fox' and d.slot==2 and d.locked==true and canUnlock and not canDelete,count=#keys,keys=keys,key=d.key,name=d.name,slot=d.slot,locked=d.locked,canUnlock=canUnlock,canDelete=canDelete,rarity=filtered.rarity,search=filtered.search})"
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') local filtered=a:Invoke('InventorySnapshot') a:Invoke('SelectInventoryItem','pet:slot:1') local first=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('SelectInventoryItem','pet:slot:2') local second=(a:Invoke('InventorySnapshot').selected or {}) local keys=filtered.visibleKeys or {} local firstBoundary=first.equipped==true and has(first,'Unequip') and not has(first,'Equip') local secondBoundary=second.equipped==false and has(second,'Equip') and not has(second,'Unequip') local canUnlock=has(second,'Unlock') local canDelete=has(second,'Delete') return H:JSONEncode({ok=#keys==2 and table.find(keys,'pet:slot:1')~=nil and table.find(keys,'pet:slot:2')~=nil and first.key=='pet:slot:1' and firstBoundary and second.key=='pet:slot:2' and second.kind=='Pet' and second.name=='Crystal Fox' and second.slot==2 and second.locked==true and secondBoundary and canUnlock and not canDelete,count=#keys,keys=keys,key=second.key,name=second.name,slot=second.slot,locked=second.locked,firstUnequipOnly=firstBoundary,secondEquipOnly=secondBoundary,canUnlock=canUnlock,canDelete=canDelete,rarity=filtered.rarity,search=filtered.search})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -159,22 +159,63 @@
         "\"name\"\\s*:\\s*\"Crystal Fox\"",
         "\"slot\"\\s*:\\s*2",
         "\"locked\"\\s*:\\s*true",
+        "\"firstUnequipOnly\"\\s*:\\s*true",
+        "\"secondEquipOnly\"\\s*:\\s*true",
         "\"canUnlock\"\\s*:\\s*true",
         "\"canDelete\"\\s*:\\s*false",
         "\"rarity\"\\s*:\\s*\"Epic\"",
         "\"search\"\\s*:\\s*\"crystal\""
       ],
-      "label": "duplicate pets retain independent slot identity and lock"
+      "label": "duplicate slots expose only the deterministic equip boundary actions"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) task.wait(.25) local unlocked=a:Invoke('InventorySnapshot') a:Invoke('InvokeInventoryAction',{action='Lock',key='pet:slot:2'}) task.wait(.25) local relocked=a:Invoke('InventorySnapshot') a:Invoke('SelectInventoryItem','pet:slot:1') a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:1'}) return unlocked.selected and unlocked.selected.locked==false and relocked.selected and relocked.selected.locked==true"
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local before=a:Invoke('InventorySnapshot') local dispatched,reason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:999'}) task.wait(.2) local after=a:Invoke('InventorySnapshot') local beforeKey=before.selected and before.selected.key local afterKey=after.selected and after.selected.key return H:JSONEncode({ok=dispatched==false and reason=='item_not_found' and beforeKey=='pet:slot:2' and afterKey==beforeKey,dispatched=dispatched,reason=reason,beforeKey=beforeKey,afterKey=afterKey})"
       },
-      "expectRegex": ["true"],
-      "label": "unlock relock and delete target exact duplicate slots"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"dispatched\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"item_not_found\"",
+        "\"beforeKey\"\\s*:\\s*\"pet:slot:2\"",
+        "\"afterKey\"\\s*:\\s*\"pet:slot:2\""
+      ],
+      "label": "invalid explicit item key fails closed without changing selection"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local inventory=p.RPGStats.PetInventoryJSON.Value local locked=p.RPGStats.LockedPetsJSON.Value local equipped=p.RPGStats.EquippedPetsJSON.Value return H:JSONEncode({ok=inventory=='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]' and locked=='[\"slot:2\"]' and equipped=='[\"Crystal Fox\"]',inventory=inventory,locked=locked,equipped=equipped})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"inventory\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\",\\\\\"Crystal Fox\\\\\",\\\\\"Miner Cat\\\\\"\\]\"",
+        "\"locked\"\\s*:\\s*\"\\[\\\\\"slot:2\\\\\"\\]\"",
+        "\"equipped\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\"\\]\""
+      ],
+      "label": "invalid client key leaves authoritative pet state unchanged"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation local function has(d,n) return table.find(d.actions or {},n)~=nil end a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) task.wait(.25) local unlocked=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('InvokeInventoryAction',{action='Lock',key='pet:slot:2'}) task.wait(.25) local relocked=(a:Invoke('InventorySnapshot').selected or {}) a:Invoke('InvokeInventoryAction',{action='Unlock',key='pet:slot:2'}) task.wait(.25) local deleteReady=(a:Invoke('InventorySnapshot').selected or {}) local firstDispatch,firstReason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2'}) local dispatched,reason=a:Invoke('InvokeInventoryAction',{action='Delete',key='pet:slot:2'}) return H:JSONEncode({ok=unlocked.key=='pet:slot:2' and unlocked.locked==false and relocked.key=='pet:slot:2' and relocked.locked==true and deleteReady.key=='pet:slot:2' and deleteReady.locked==false and has(deleteReady,'Delete') and firstDispatch==false and firstReason=='confirmation_required' and dispatched==true,unlocked=unlocked.locked==false,relocked=relocked.locked==true,deleteReady=deleteReady.locked==false,canDelete=has(deleteReady,'Delete'),confirmation=firstReason,dispatched=dispatched,reason=tostring(reason)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"unlocked\"\\s*:\\s*true",
+        "\"relocked\"\\s*:\\s*true",
+        "\"deleteReady\"\\s*:\\s*true",
+        "\"canDelete\"\\s*:\\s*true",
+        "\"confirmation\"\\s*:\\s*\"confirmation_required\"",
+        "\"dispatched\"\\s*:\\s*true"
+      ],
+      "label": "unlock relock then delete the exact unequipped duplicate slot"
     },
     {
       "type": "wait",
@@ -186,16 +227,19 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local before={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local ok=before.inventory=='[\"Crystal Fox\",\"Miner Cat\"]' and before.locked=='[\"slot:1\"]' and before.equipped=='[]' local reset=c:Invoke('Reset') return H:JSONEncode({ok=ok,inventory=before.inventory,locked=before.locked,equipped=before.equipped,reset=reset.ok==true})"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local before={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local preserved=before.inventory=='[\"Crystal Fox\",\"Miner Cat\"]' and before.locked=='[]' and before.equipped=='[\"Crystal Fox\"]' local stale=c:Invoke('DeletePet',{target='Crystal Fox',index=2}) local after={inventory=p.RPGStats.PetInventoryJSON.Value,locked=p.RPGStats.LockedPetsJSON.Value,equipped=p.RPGStats.EquippedPetsJSON.Value} local unchanged=after.inventory==before.inventory and after.locked==before.locked and after.equipped==before.equipped local reset=c:Invoke('Reset') return H:JSONEncode({ok=preserved and stale.ok==false and stale.reason=='stale_inventory' and unchanged and reset.ok==true,inventory=before.inventory,locked=before.locked,equipped=before.equipped,staleOk=stale.ok==true,staleReason=stale.reason,unchanged=unchanged,reset=reset.ok==true})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"inventory\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\",\\\\\"Miner Cat\\\\\"\\]\"",
-        "\"locked\"\\s*:\\s*\"\\[\\\\\"slot:1\\\\\"\\]\"",
-        "\"equipped\"\\s*:\\s*\"\\[\\]\"",
+        "\"locked\"\\s*:\\s*\"\\[\\]\"",
+        "\"equipped\"\\s*:\\s*\"\\[\\\\\"Crystal Fox\\\\\"\\]\"",
+        "\"staleOk\"\\s*:\\s*false",
+        "\"staleReason\"\\s*:\\s*\"stale_inventory\"",
+        "\"unchanged\"\\s*:\\s*true",
         "\"reset\"\\s*:\\s*true"
       ],
-      "label": "server confirms slot shift then immediately resets test deletion"
+      "label": "server preserves equipped duplicate and rejects the now-stale old index"
     },
     {
       "type": "wait",
@@ -281,7 +325,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.3) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} local art=s.art or {} local drawer=g:FindFirstChild('CompactDetailDrawer',true) return H:JSONEncode({ok=s.visible==true and l.compact==true and (l.columns==2 or l.columns==3) and (l.minTouchTarget or 0)>=44 and l.allTextFits==true and l.insideSafeArea==true and l.noOverlap==true and (l.detailMode=='Drawer' or (drawer and drawer.Visible==true)) and art.magentaFree==true and art.checkerboardFree==true and s.selected and s.selected.key=='pet:slot:2',compact=l.compact,columns=l.columns,minTouch=l.minTouchTarget,textFits=l.allTextFits,safe=l.insideSafeArea,noOverlap=l.noOverlap,detailMode=l.detailMode,drawer=drawer and drawer.Visible,key=s.selected and s.selected.key,magentaFree=art.magentaFree,checkerboardFree=art.checkerboardFree})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.3) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} local art=s.art or {} local window=g:FindFirstChild('InventoryWindow',true) local gridPane=g:FindFirstChild('InventoryGridPane',true) local grid=g:FindFirstChild('InventoryGrid',true) local detail=g:FindFirstChild('InventoryDetail',true) local detailActions=g:FindFirstChild('DetailActions',true) local drawer=g:FindFirstChild('CompactDetailDrawer',true) local actionCount=0 local actionsInside=true local actionsPositive=true if detailActions then for _,button in ipairs(detailActions:GetChildren()) do if button:IsA('GuiButton') and button.Visible and button:GetAttribute('InventoryAction') then actionCount+=1 actionsInside=actionsInside and inside(button,detail) actionsPositive=actionsPositive and math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 end end end local gridHidden=gridPane and grid and not gridPane.Visible and not grid.Visible and gridPane.AbsoluteSize.Y>=0 and grid.AbsoluteSize.Y>=0 local detailPositive=detail and detail.Visible and detail.AbsoluteSize.X>0 and detail.AbsoluteSize.Y>0 local detailInside=inside(detail,window) local actionPanelInside=inside(detailActions,detail) local geometryOk=gridHidden and detailPositive and detailInside and actionPanelInside and actionCount==2 and actionsInside and actionsPositive return H:JSONEncode({ok=s.visible==true and l.compact==true and (l.columns==2 or l.columns==3) and (l.minTouchTarget or 0)>=44 and l.allTextFits==true and l.insideSafeArea==true and l.noOverlap==true and l.detailMode=='Drawer' and drawer and drawer.Visible==true and geometryOk and art.magentaFree==true and art.checkerboardFree==true and s.selected and s.selected.key=='pet:slot:2',compact=l.compact,columns=l.columns,minTouch=l.minTouchTarget,textFits=l.allTextFits,safe=l.insideSafeArea,noOverlap=l.noOverlap,detailMode=l.detailMode,drawer=drawer and drawer.Visible,gridPaneVisible=gridPane and gridPane.Visible,gridVisible=grid and grid.Visible,gridPaneHeight=gridPane and gridPane.AbsoluteSize.Y,gridHeight=grid and grid.AbsoluteSize.Y,detailPositive=detailPositive,detailInside=detailInside,actionPanelInside=actionPanelInside,actionCount=actionCount,actionsInside=actionsInside,actionsPositive=actionsPositive,key=s.selected and s.selected.key,magentaFree=art.magentaFree,checkerboardFree=art.checkerboardFree})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -291,17 +335,47 @@
         "\"textFits\"\\s*:\\s*true",
         "\"safe\"\\s*:\\s*true",
         "\"noOverlap\"\\s*:\\s*true",
+        "\"detailMode\"\\s*:\\s*\"Drawer\"",
+        "\"drawer\"\\s*:\\s*true",
+        "\"gridPaneVisible\"\\s*:\\s*false",
+        "\"gridVisible\"\\s*:\\s*false",
+        "\"detailPositive\"\\s*:\\s*true",
+        "\"detailInside\"\\s*:\\s*true",
+        "\"actionPanelInside\"\\s*:\\s*true",
+        "\"actionCount\"\\s*:\\s*2",
+        "\"actionsInside\"\\s*:\\s*true",
+        "\"actionsPositive\"\\s*:\\s*true",
         "\"key\"\\s*:\\s*\"pet:slot:2\"",
         "\"magentaFree\"\\s*:\\s*true",
         "\"checkerboardFree\"\\s*:\\s*true"
       ],
-      "label": "compact drawer remains touch safe and readable"
+      "label": "compact detail mode hides the grid and contains every visible action"
     },
     {
       "type": "call",
       "tool": "screen_capture",
       "args": { "capture_id": "Inventory_Module_740x360_PetDetail" },
       "label": "capture compact inventory"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end a:Invoke('SetInventorySearch','__inventory_no_match__') task.wait(.1) local empty=a:Invoke('InventorySnapshot') local selectionCleared=#(empty.visibleKeys or {})==0 and empty.selected==nil a:Invoke('SetInventorySearch','') task.wait(.2) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} local window=g:FindFirstChild('InventoryWindow',true) local gridPane=g:FindFirstChild('InventoryGridPane',true) local grid=g:FindFirstChild('InventoryGrid',true) local toolbar=g:FindFirstChild('InventoryToolbar',true) local detail=g:FindFirstChild('InventoryDetail',true) local drawer=g:FindFirstChild('CompactDetailDrawer',true) local gridPositive=gridPane and grid and gridPane.Visible and grid.Visible and gridPane.AbsoluteSize.X>0 and gridPane.AbsoluteSize.Y>0 and grid.AbsoluteSize.X>0 and grid.AbsoluteSize.Y>0 local restoredInside=inside(gridPane,window) and inside(grid,gridPane) and inside(toolbar,gridPane) local drawerClosed=detail and not detail.Visible and drawer and not drawer.Visible return H:JSONEncode({ok=selectionCleared and s.visible==true and l.compact==true and l.detailMode=='Drawer' and drawerClosed and gridPositive and restoredInside,selectionCleared=selectionCleared,compact=l.compact,detailMode=l.detailMode,drawerClosed=drawerClosed,gridPaneVisible=gridPane and gridPane.Visible,gridVisible=grid and grid.Visible,gridPaneHeight=gridPane and gridPane.AbsoluteSize.Y,gridHeight=grid and grid.AbsoluteSize.Y,gridPositive=gridPositive,restoredInside=restoredInside})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"selectionCleared\"\\s*:\\s*true",
+        "\"compact\"\\s*:\\s*true",
+        "\"detailMode\"\\s*:\\s*\"Drawer\"",
+        "\"drawerClosed\"\\s*:\\s*true",
+        "\"gridPaneVisible\"\\s*:\\s*true",
+        "\"gridVisible\"\\s*:\\s*true",
+        "\"gridPositive\"\\s*:\\s*true",
+        "\"restoredInside\"\\s*:\\s*true"
+      ],
+      "label": "closing compact detail restores a positive in-bounds inventory grid"
     },
     {
       "type": "call",
