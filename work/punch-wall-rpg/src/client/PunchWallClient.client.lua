@@ -6148,6 +6148,12 @@ shared.PunchWallInventoryController = InventoryUI.new({
 	GetStats = function()
 		return latestStats
 	end,
+	GetHUDHidden = function()
+		return not referenceHUD.Visible
+			and not mobileControls.Visible
+			and not targetHUD.Visible
+			and not bossHUD.Visible
+	end,
 	OnClose = function()
 		setMenuVisible(false)
 	end,

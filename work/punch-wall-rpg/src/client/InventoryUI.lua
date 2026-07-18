@@ -169,6 +169,8 @@ function InventoryUI.new(options)
 	self.GetHUDHidden = options.GetHUDHidden
 
 	self._connections = {}
+	self._cardConnections = {}
+	self._actionConnections = {}
 	self._cards = {}
 	self._actionButtons = {}
 	self._categoryButtons = {}
@@ -205,6 +207,19 @@ function InventoryUI:_connect(signal, callback)
 	local connection = signal:Connect(callback)
 	table.insert(self._connections, connection)
 	return connection
+end
+
+function InventoryUI:_connectScoped(pool, signal, callback)
+	local connection = signal:Connect(callback)
+	table.insert(pool, connection)
+	return connection
+end
+
+function InventoryUI:_disconnectPool(pool)
+	for _, connection in ipairs(pool) do
+		connection:Disconnect()
+	end
+	table.clear(pool)
 end
 
 function InventoryUI:_build(parent)
@@ -919,6 +934,7 @@ function InventoryUI:_renderCategories()
 end
 
 function InventoryUI:_clearCards()
+	self:_disconnectPool(self._cardConnections)
 	for _, card in ipairs(self._cards) do
 		card:Destroy()
 	end
@@ -1062,19 +1078,19 @@ function InventoryUI:_renderGrid()
 			addCorner(locked, 3)
 		end
 
-		self:_connect(card.MouseEnter, function()
+		self:_connectScoped(self._cardConnections, card.MouseEnter, function()
 			if key ~= self._selectedKey then
 				card.BackgroundColor3 = PALETTE.CardHover
 				cardStroke.Thickness = 2
 			end
 		end)
-		self:_connect(card.MouseLeave, function()
+		self:_connectScoped(self._cardConnections, card.MouseLeave, function()
 			if key ~= self._selectedKey then
 				card.BackgroundColor3 = PALETTE.Card
 				cardStroke.Thickness = 1.5
 			end
 		end)
-		self:_connect(card.Activated, function()
+		self:_connectScoped(self._cardConnections, card.Activated, function()
 			self:SelectItem(key)
 		end)
 		table.insert(self._cards, card)
@@ -1082,6 +1098,7 @@ function InventoryUI:_renderGrid()
 end
 
 function InventoryUI:_clearActionButtons()
+	self:_disconnectPool(self._actionConnections)
 	for _, button in ipairs(self._actionButtons) do
 		button:Destroy()
 	end
@@ -1163,7 +1180,7 @@ function InventoryUI:_renderDetail()
 			button:SetAttribute("Destructive", destructive)
 			addCorner(button, 5)
 			addStroke(button, destructive and Color3.fromRGB(255, 113, 83) or Color3.fromRGB(155, 236, 255), 1.5, 0.15)
-			self:_connect(button.Activated, function()
+			self:_connectScoped(self._actionConnections, button.Activated, function()
 				self:InvokeAction(semanticName)
 			end)
 			table.insert(self._actionButtons, button)
@@ -1261,8 +1278,6 @@ function InventoryUI:Refresh(force)
 		self._signature = signature
 		self._snapshot = self:_buildSnapshot(stats)
 		self:_applyFilter(false)
-	elseif self.Root.Visible then
-		self:_applyFilter(false)
 	end
 	return self:GetSnapshot()
 end
@@ -1345,7 +1360,13 @@ function InventoryUI:InvokeAction(request)
 	local requestedName = request
 	if type(request) == "table" then
 		if request.key then
-			self:SelectItem(request.key)
+			local requestedKey = tostring(request.key)
+			if not self:_findItem(requestedKey) then
+				return false, "item_not_found"
+			end
+			if requestedKey ~= tostring(self._selectedKey) then
+				self:SelectItem(requestedKey)
+			end
 		end
 		requestedName = request.action or request.name
 	end
@@ -1424,6 +1445,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Body.Position = UDim2.fromOffset(8, bodyTop)
 	self.Body.Size = UDim2.new(1, -16, 1, -(bodyTop + 8))
 	self.Subtitle.Visible = not useCompact
+	local titleLeft = useCompact and 92 or 82
+	self.Title.Position = UDim2.fromOffset(titleLeft, 6)
+	self.Subtitle.Position = UDim2.fromOffset(titleLeft + 2, 47)
 	self.Title.Size = UDim2.new(useCompact and 0.46 or 0.48, -24, 0, useCompact and 44 or 42)
 	self.Capacity.Position = UDim2.new(1, -68, 0.5, 0)
 	self.Capacity.Size = UDim2.fromOffset(useCompact and 190 or 235, useCompact and 34 or 38)
@@ -1802,6 +1826,8 @@ function InventoryUI:Destroy()
 		connection:Disconnect()
 	end
 	table.clear(self._connections)
+	self:_disconnectPool(self._cardConnections)
+	self:_disconnectPool(self._actionConnections)
 	if self.Root then
 		self.Root:Destroy()
 	end
