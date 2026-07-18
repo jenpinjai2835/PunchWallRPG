@@ -18,6 +18,7 @@ end)
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
 local FistVisualBuilder = require(ReplicatedStorage:WaitForChild("FistVisualBuilder"))
+local InventoryUI = require(script.Parent:WaitForChild("InventoryUI"))
 FistVisualBuilder.Ensure()
 local palette = PolishConfig.Palette
 local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
@@ -2175,7 +2176,20 @@ local function renderSettings()
 end
 
 renderOpenPanel = function()
-	if not mainPanel.Visible then return end
+	if not mainPanel.Visible then
+		if shared.PunchWallInventoryController then shared.PunchWallInventoryController:SetVisible(false) end
+		return
+	end
+	if activeTab == "Inventory" then
+		clearContent()
+		for _, button in pairs(tabButtons) do button.BackgroundColor3 = palette.PanelSoft end
+		if shared.PunchWallInventoryController then
+			shared.PunchWallInventoryController:SetVisible(true)
+			shared.PunchWallInventoryController:Refresh()
+		end
+		return
+	end
+	if shared.PunchWallInventoryController then shared.PunchWallInventoryController:SetVisible(false) end
 	clearContent()
 	addGeneratedBanner()
 	for name, button in pairs(tabButtons) do
@@ -2274,7 +2288,7 @@ local function setMenuVisible(visible)
 end
 
 openGameTab = function(tabName)
-	if tabButtons[tabName] then activeTab = tabName end
+	if tabButtons[tabName] or tabName == "Inventory" then activeTab = tabName end
 	setMenuVisible(true)
 	task.defer(applyResponsiveLayout)
 end
@@ -4201,6 +4215,8 @@ if RunService:IsStudio() then
 		local clientCommandNames = {
 			"Describe", "Sequence", "Snapshot", "Punch", "Jump", "SpinNow", "OpenSpin",
 			"OpenTab", "OpenShopPage", "InvokeShopAction", "CloseMenus", "ToggleSound",
+			"OpenInventory", "CloseInventory", "SelectInventoryCategory", "SetInventorySearch",
+			"SetInventoryRarity", "SelectInventoryItem", "InvokeInventoryAction", "InventorySnapshot",
 			"OpenMore", "SetCamera", "ResetCamera", "SetSettings", "ClearMarkers",
 			"RequestAction", "SetGuiVisible", "SetGuiAttribute", "GetGuiSummary",
 			"__ReplayLoading", "__HideLoading", "__RunCamera",
@@ -4220,12 +4236,15 @@ if RunService:IsStudio() then
 			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 			local spinModal = gui:FindFirstChild("HeroSpinModal")
 			local shop = shared.PunchWallShopReference
+			local inventory = shared.PunchWallInventoryController
 			return {
 				ok = true,
 				menuVisible = mainPanel.Visible,
 				activeTab = activeTab,
 				shopVisible = shop and shop.Visible or false,
 				shopPage = shared.PunchWallHeroShopPage,
+				inventoryVisible = inventory and inventory:IsVisible() or false,
+				inventory = inventory and inventory:GetSnapshot() or nil,
 				spinVisible = spinModal and spinModal.Visible or false,
 				trainingVisible = shared.PunchWallTrainingOverlay and shared.PunchWallTrainingOverlay.Visible or false,
 				sound = clientSettings.sound,
@@ -4263,7 +4282,41 @@ if RunService:IsStudio() then
 			end
 			if action == "OpenTab" then openGameTab(tostring(value or "Fists")) return true end
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
-			if action == "OpenMore" then openGameTab("Tasks") return true end
+			if action == "OpenMore" or action == "OpenInventory" then
+				openGameTab("Inventory")
+				return shared.PunchWallInventoryController and shared.PunchWallInventoryController:GetSnapshot() or true
+			end
+			if action == "CloseInventory" then
+				setMenuVisible(false)
+				return true
+			end
+			if action == "InventorySnapshot" then
+				return shared.PunchWallInventoryController and shared.PunchWallInventoryController:GetSnapshot() or false
+			end
+			if action == "SelectInventoryCategory" then
+				if not shared.PunchWallInventoryController then return false end
+				shared.PunchWallInventoryController:SetCategory(tostring(value or "All"))
+				return shared.PunchWallInventoryController:GetSnapshot()
+			end
+			if action == "SetInventorySearch" then
+				if not shared.PunchWallInventoryController then return false end
+				shared.PunchWallInventoryController:SetSearch(tostring(value or ""))
+				return shared.PunchWallInventoryController:GetSnapshot()
+			end
+			if action == "SetInventoryRarity" then
+				if not shared.PunchWallInventoryController then return false end
+				shared.PunchWallInventoryController:SetRarity(tostring(value or "All"))
+				return shared.PunchWallInventoryController:GetSnapshot()
+			end
+			if action == "SelectInventoryItem" then
+				if not shared.PunchWallInventoryController then return false end
+				shared.PunchWallInventoryController:SelectItem(tostring(value or ""))
+				return shared.PunchWallInventoryController:GetSnapshot()
+			end
+			if action == "InvokeInventoryAction" then
+				if not shared.PunchWallInventoryController then return false end
+				return shared.PunchWallInventoryController:InvokeAction(value)
+			end
 			if action == "OpenShopPage" then
 				shared.PunchWallHeroShopPage = tostring(value or "Fists")
 				if shared.PunchWallHeroShopRefresh then shared.PunchWallHeroShopRefresh() end
@@ -4901,9 +4954,9 @@ end)
 shared.PunchWallSoundToolButton:SetAttribute("ToolAction", "ToggleSound")
 referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() openGameTab("Settings") end)
 shared.PunchWallMoreToolButton = referenceButton("MoreTool", pixel.MoreTool, 1587, 22, 64, 64, function()
-	openGameTab("Tasks")
+	openGameTab("Inventory")
 end)
-shared.PunchWallMoreToolButton:SetAttribute("ToolAction", "OpenGameMenu")
+shared.PunchWallMoreToolButton:SetAttribute("ToolAction", "OpenInventory")
 shared.PunchWallApplySoundSetting(clientSettings.sound, false)
 
 referenceHUD:SetAttribute("StudioTestControlLocation", RunService:IsStudio() and "SettingsOnly" or "Unavailable")
@@ -6081,6 +6134,22 @@ end
 shared.PunchWallShopReference = shared.PunchWallBuildShopUI()
 shared.PunchWallBuildShopUI = nil
 
+shared.PunchWallInventoryController = InventoryUI.new({
+	Parent = mainPanel,
+	GameConfig = GameConfig,
+	ActionRemote = actionRemote,
+	GetStats = function()
+		return latestStats
+	end,
+	OnClose = function()
+		setMenuVisible(false)
+	end,
+	OpenSpin = function()
+		if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() end
+	end,
+})
+shared.PunchWallInventoryController:SetVisible(false)
+
 shared.PunchWallJoystickVector = Vector2.zero
 shared.PunchWallBuildJoystickInput = function()
 	local joystickTouch
@@ -6159,6 +6228,7 @@ statRemote.OnClientEvent:Connect(function(payload)
 		end
 	end
 	if shared.PunchWallHeroShopRefresh then shared.PunchWallHeroShopRefresh() end
+	if shared.PunchWallInventoryController then shared.PunchWallInventoryController:Refresh() end
 	if shared.PunchWallRefreshSpin then shared.PunchWallRefreshSpin() end
 	if shared.PunchWallSetTrainingAnimation then shared.PunchWallSetTrainingAnimation((payload.TrainingActive or 0) >= 1) end
 end)
@@ -6167,6 +6237,7 @@ mainPanel:GetPropertyChangedSignal("Visible"):Connect(function()
 	referenceHUD.Visible = not mainPanel.Visible
 	shared.PunchWallShopReference.Visible = mainPanel.Visible and activeTab == "Fists"
 	shared.PunchWallShopDimmer.Visible = shared.PunchWallShopReference.Visible
+	shared.PunchWallInventoryController:SetVisible(mainPanel.Visible and activeTab == "Inventory")
 	task.defer(applyResponsiveLayout)
 end)
 
@@ -6182,8 +6253,12 @@ RunService.RenderStepped:Connect(function()
 	referenceHUD.Visible = not mainPanel.Visible
 	shared.PunchWallShopReference.Visible = mainPanel.Visible and activeTab == "Fists"
 	shared.PunchWallShopDimmer.Visible = shared.PunchWallShopReference.Visible
-	closeButton.Visible = mainPanel.Visible and not shared.PunchWallShopReference.Visible
-	mainPanel.BackgroundTransparency = shared.PunchWallShopReference.Visible and 1 or 0.03
+	local inventoryVisible = mainPanel.Visible and activeTab == "Inventory"
+	if shared.PunchWallInventoryController.Root then
+		shared.PunchWallInventoryController.Root.Visible = inventoryVisible
+	end
+	closeButton.Visible = mainPanel.Visible and not shared.PunchWallShopReference.Visible and not inventoryVisible
+	mainPanel.BackgroundTransparency = (shared.PunchWallShopReference.Visible or inventoryVisible) and 1 or 0.03
 	local touchGui = player.PlayerGui:FindFirstChild("TouchGui")
 	if touchGui and touchGui:IsA("ScreenGui") then
 		touchGui.Enabled = true
@@ -6229,6 +6304,7 @@ applyResponsiveLayout = function()
 	local compact = UserInputService.TouchEnabled or viewport.Y < 520
 	local userScale = math.clamp(tonumber(clientSettings.uiScale) or 1, 0.8, 1.2)
 	local shopOpen = mainPanel.Visible and activeTab == "Fists"
+	local inventoryOpen = mainPanel.Visible and activeTab == "Inventory"
 	if compact then
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
@@ -6259,9 +6335,10 @@ applyResponsiveLayout = function()
 		menuButton.Position = UDim2.new(0.5, 0, 0, 8)
 		menuButton.Size = UDim2.fromOffset(78, 44)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-		if shopOpen then
-			local shopHeight = math.max(280, math.min(viewport.Y - 12, (viewport.X - 20) / 1.58))
-			mainPanel.Size = UDim2.fromOffset(shopHeight * 1.58, shopHeight)
+		if shopOpen or inventoryOpen then
+			local aspect = inventoryOpen and (1672 / 941) or 1.58
+			local modalHeight = math.max(280, math.min(viewport.Y - 12, (viewport.X - 20) / aspect))
+			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 		else
 			local panelHeight = math.max(210, math.min(viewport.Y - 16, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
@@ -6347,9 +6424,10 @@ applyResponsiveLayout = function()
 		menuButton.Position = UDim2.new(1, -18, 0, 18)
 		menuButton.Size = UDim2.fromOffset(92, 42)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
-		if shopOpen then
-			local shopHeight = math.max(460, math.min(viewport.Y - 36, 860, (viewport.X - 48) / 1.5))
-			mainPanel.Size = UDim2.fromOffset(shopHeight * 1.5, shopHeight)
+		if shopOpen or inventoryOpen then
+			local aspect = inventoryOpen and (1672 / 941) or 1.5
+			local modalHeight = math.max(460, math.min(viewport.Y - 36, 860, (viewport.X - 48) / aspect))
+			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
 		else
 			mainPanel.Size = UDim2.fromOffset(677, 408)
@@ -6397,6 +6475,9 @@ applyResponsiveLayout = function()
 		nextWorld.Position = UDim2.new(0.5, 0, 1, -18)
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
+	end
+	if shared.PunchWallInventoryController then
+		shared.PunchWallInventoryController:ApplyResponsive(viewport, compact, userScale)
 	end
 	panel.Visible = false
 	menuButton.Visible = false

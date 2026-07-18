@@ -3,8 +3,12 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const PROJECT_ROOT = "F:\\Roblox\\PuchWall\\work\\punch-wall-rpg";
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.resolve(
+  process.env.PUNCH_WALL_PROJECT_ROOT || path.join(SCRIPT_DIR, "..", "..", "punch-wall-rpg"),
+);
 const DEFAULT_STUDIO_NAME = "PunchWallRPGPrototype";
 
 const SCRIPT_MAPPINGS = [
@@ -37,11 +41,25 @@ const SCRIPT_MAPPINGS = [
     name: "FistVisualBuilder",
   },
   {
+    source: path.join(PROJECT_ROOT, "src", "shared", "InventoryViewModel.lua"),
+    datamodelType: "Edit",
+    className: "ModuleScript",
+    service: "ReplicatedStorage",
+    name: "InventoryViewModel",
+  },
+  {
     source: path.join(PROJECT_ROOT, "src", "server", "PunchWallBootstrap.server.lua"),
     datamodelType: "Edit",
     className: "Script",
     service: "ServerScriptService",
     name: "PunchWallBootstrap",
+  },
+  {
+    source: path.join(PROJECT_ROOT, "src", "client", "InventoryUI.lua"),
+    datamodelType: "Edit",
+    className: "ModuleScript",
+    service: "StarterPlayer.StarterPlayerScripts",
+    name: "InventoryUI",
   },
   {
     source: path.join(PROJECT_ROOT, "src", "client", "PunchWallClient.client.lua"),
