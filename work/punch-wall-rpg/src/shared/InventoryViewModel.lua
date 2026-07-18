@@ -299,29 +299,35 @@ end
 
 local function addPets(items, GameConfig, stats)
 	local inventory = numericEntries(stats.PetInventoryJSON)
-	local equippedRemaining = listCounts(stats.EquippedPetsJSON)
+	local inventoryCounts = listCounts(stats.PetInventoryJSON)
+	local equippedCounts = listCounts(stats.EquippedPetsJSON)
+	local occurrences = {}
 	local locked = listSet(stats.LockedPetsJSON)
 	local definitions = makeDefinitionMap(GameConfig.Pets, GameConfig.PremiumPets)
 	local equippedCount = 0
 
 	for _, entry in ipairs(inventory) do
 		local petName, stars, token = parsePetToken(GameConfig, entry.value)
+		occurrences[token] = (occurrences[token] or 0) + 1
+		local occurrence = occurrences[token]
+		local tokenEquippedCount = math.min(equippedCounts[token] or 0, inventoryCounts[token] or 0)
 		local catalogEntry = definitions[petName]
 		local definition = catalogEntry and catalogEntry.definition or nil
 		local slotToken = "slot:" .. tostring(entry.index)
 		local isLocked = locked[token] == true or locked[slotToken] == true
-		local isEquipped = (equippedRemaining[token] or 0) > 0
+		local isEquipped = occurrence <= tokenEquippedCount
 		if isEquipped then
-			equippedRemaining[token] = equippedRemaining[token] - 1
 			equippedCount = equippedCount + 1
 		end
 		local accent = definition and (definition.accent or definition.color) or UNKNOWN_ACCENT
 		local primaryName = isEquipped and "UnequipPet" or "EquipPet"
+		local primaryEnabled = (isEquipped and occurrence == tokenEquippedCount)
+			or (not isEquipped and occurrence == tokenEquippedCount + 1 and definition ~= nil)
 		local primary = actionDescriptor(
 			primaryName,
 			isEquipped and "UNEQUIP" or "EQUIP",
-			{ action = primaryName, target = token },
-			isEquipped or definition ~= nil,
+			{ action = primaryName, target = token, index = entry.index },
+			primaryEnabled,
 			accent,
 			{ primary = true }
 		)

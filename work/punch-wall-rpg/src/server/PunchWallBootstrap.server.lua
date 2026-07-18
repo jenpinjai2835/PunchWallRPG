@@ -4408,6 +4408,51 @@ for _, pet in ipairs(GameConfig.AllPets()) do
 	petByName[pet.name] = pet
 end
 
+local function petValueCount(list, value)
+	local count = 0
+	for _, current in ipairs(list) do
+		if current == value then
+			count += 1
+		end
+	end
+	return count
+end
+
+local function petOccurrenceAt(inventory, petName, inventoryIndex)
+	local occurrence = 0
+	for index = 1, inventoryIndex do
+		if inventory[index] == petName then
+			occurrence += 1
+		end
+	end
+	return occurrence
+end
+
+local function validatePetInventoryIndex(inventory, petName, inventoryIndex)
+	if inventoryIndex == nil then
+		return nil
+	end
+	local selectedIndex = tonumber(inventoryIndex)
+	if not selectedIndex
+		or selectedIndex < 1
+		or selectedIndex % 1 ~= 0
+		or inventory[selectedIndex] ~= petName
+	then
+		return nil, "stale_inventory"
+	end
+	return selectedIndex
+end
+
+local function removeLast(list, value)
+	for index = #list, 1, -1 do
+		if list[index] == value then
+			table.remove(list, index)
+			return true
+		end
+	end
+	return false
+end
+
 local function refreshEquippedPets(player)
 	local equipped = decodeList(player, "EquippedPetsJSON")
 	local inventory = decodeList(player, "PetInventoryJSON")
@@ -4532,23 +4577,36 @@ tryDropPetEgg = function(player, depth)
 	return result
 end
 
-local function equipPet(player, petName)
+local function equipPet(player, petName, inventoryIndex)
+	local inventory = decodeList(player, "PetInventoryJSON")
+	local selectedIndex, indexReason = validatePetInventoryIndex(inventory, petName, inventoryIndex)
+	if indexReason then
+		return { ok = false, reason = indexReason }
+	end
 	local baseName = GameConfig.ParsePetToken(petName)
 	if not petByName[baseName] then
 		return { ok = false, reason = "unknown_pet" }
 	end
-	local inventory = decodeList(player, "PetInventoryJSON")
+	if selectedIndex == nil then
+		selectedIndex = table.find(inventory, petName)
+		if not selectedIndex then
+			return { ok = false, reason = "not_owned" }
+		end
+	end
 	local equipped = decodeList(player, "EquippedPetsJSON")
-	local ownedCount = 0
-	local equippedCount = 0
-	for _, name in ipairs(inventory) do
-		if name == petName then ownedCount += 1 end
-	end
-	for _, name in ipairs(equipped) do
-		if name == petName then equippedCount += 1 end
-	end
+	local ownedCount = petValueCount(inventory, petName)
+	local equippedCount = math.min(petValueCount(equipped, petName), ownedCount)
 	if equippedCount >= ownedCount then
 		return { ok = false, reason = "not_owned" }
+	end
+	if inventoryIndex ~= nil then
+		local occurrence = petOccurrenceAt(inventory, petName, selectedIndex)
+		if occurrence <= equippedCount then
+			return { ok = false, reason = "already_equipped" }
+		end
+		if occurrence ~= equippedCount + 1 then
+			return { ok = false, reason = "not_next_unequipped" }
+		end
 	end
 	if #equipped >= GameConfig.MaxEquippedPets then
 		return { ok = false, reason = "slots_full" }
@@ -4556,17 +4614,39 @@ local function equipPet(player, petName)
 	table.insert(equipped, petName)
 	encodeList(player, "EquippedPetsJSON", equipped)
 	local valid, multiplier = refreshEquippedPets(player)
-	return { ok = true, pet = petName, equipped = valid, multiplier = multiplier }
+	return { ok = true, pet = petName, index = selectedIndex, equipped = valid, multiplier = multiplier }
 end
 
-local function unequipPet(player, petName)
+local function unequipPet(player, petName, inventoryIndex)
+	local inventory = decodeList(player, "PetInventoryJSON")
+	local selectedIndex, indexReason = validatePetInventoryIndex(inventory, petName, inventoryIndex)
+	if indexReason then
+		return { ok = false, reason = indexReason }
+	end
 	local equipped = decodeList(player, "EquippedPetsJSON")
-	if not removeFirst(equipped, petName) then
+	if selectedIndex ~= nil then
+		local ownedCount = petValueCount(inventory, petName)
+		local equippedCount = math.min(petValueCount(equipped, petName), ownedCount)
+		local occurrence = petOccurrenceAt(inventory, petName, selectedIndex)
+		if occurrence > equippedCount then
+			return { ok = false, reason = "not_equipped" }
+		end
+		if occurrence ~= equippedCount then
+			return { ok = false, reason = "not_last_equipped" }
+		end
+	end
+	local removed
+	if selectedIndex ~= nil then
+		removed = removeLast(equipped, petName)
+	else
+		removed = removeFirst(equipped, petName)
+	end
+	if not removed then
 		return { ok = false, reason = "not_equipped" }
 	end
 	encodeList(player, "EquippedPetsJSON", equipped)
 	local valid, multiplier = refreshEquippedPets(player)
-	return { ok = true, pet = petName, equipped = valid, multiplier = multiplier }
+	return { ok = true, pet = petName, index = selectedIndex, equipped = valid, multiplier = multiplier }
 end
 
 local function petSlotToken(index)
@@ -4575,8 +4655,11 @@ end
 
 local function deletePet(player, petName, inventoryIndex)
 	local inventory = decodeList(player, "PetInventoryJSON")
-	local selectedIndex = math.floor(tonumber(inventoryIndex) or 0)
-	if selectedIndex < 1 or inventory[selectedIndex] ~= petName then
+	local selectedIndex, indexReason = validatePetInventoryIndex(inventory, petName, inventoryIndex)
+	if indexReason then
+		return { ok = false, reason = indexReason }
+	end
+	if selectedIndex == nil then
 		selectedIndex = table.find(inventory, petName) or 0
 	end
 	if selectedIndex < 1 then
@@ -4586,6 +4669,10 @@ local function deletePet(player, petName, inventoryIndex)
 	if listContains(lockedPets, petName) or listContains(lockedPets, petSlotToken(selectedIndex)) then
 		return { ok = false, reason = "pet_locked" }
 	end
+	local equipped = decodeList(player, "EquippedPetsJSON")
+	local ownedCount = petValueCount(inventory, petName)
+	local equippedCount = math.min(petValueCount(equipped, petName), ownedCount)
+	local selectedWasEquipped = petOccurrenceAt(inventory, petName, selectedIndex) <= equippedCount
 	table.remove(inventory, selectedIndex)
 	local shiftedLocks = {}
 	for _, entry in ipairs(lockedPets) do
@@ -4597,28 +4684,65 @@ local function deletePet(player, petName, inventoryIndex)
 			table.insert(shiftedLocks, entry)
 		end
 	end
-	local equipped = decodeList(player, "EquippedPetsJSON")
-	removeFirst(equipped, petName)
+	if selectedWasEquipped then
+		if inventoryIndex ~= nil then
+			removeLast(equipped, petName)
+		else
+			removeFirst(equipped, petName)
+		end
+	end
 	encodeList(player, "PetInventoryJSON", inventory)
 	encodeList(player, "EquippedPetsJSON", equipped)
 	encodeList(player, "LockedPetsJSON", shiftedLocks)
 	local valid, multiplier = refreshEquippedPets(player)
-	return { ok = true, pet = petName, index = selectedIndex, inventory = inventory, equipped = valid, multiplier = multiplier, locked = shiftedLocks }
+	return {
+		ok = true,
+		pet = petName,
+		index = selectedIndex,
+		wasEquipped = selectedWasEquipped,
+		inventory = inventory,
+		equipped = valid,
+		multiplier = multiplier,
+		locked = shiftedLocks,
+	}
 end
 
 local function setPetLocked(player, petName, locked, inventoryIndex)
 	local inventory = decodeList(player, "PetInventoryJSON")
-	local selectedIndex = math.floor(tonumber(inventoryIndex) or 0)
-	local useSlot = selectedIndex >= 1 and inventory[selectedIndex] == petName
+	local selectedIndex, indexReason = validatePetInventoryIndex(inventory, petName, inventoryIndex)
+	if indexReason then
+		return { ok = false, reason = indexReason }
+	end
+	local useSlot = selectedIndex ~= nil
 	if not useSlot and not listContains(inventory, petName) then
 		return { ok = false, reason = "not_owned" }
 	end
 	local lockToken = useSlot and petSlotToken(selectedIndex) or petName
 	local lockedPets = decodeList(player, "LockedPetsJSON")
+	local migratedLegacyLock = false
+	if useSlot and not locked and listContains(lockedPets, petName) then
+		migratedLegacyLock = true
+		while removeFirst(lockedPets, petName) do end
+		for index, token in ipairs(inventory) do
+			if token == petName and index ~= selectedIndex then
+				local preservedSlotToken = petSlotToken(index)
+				if not listContains(lockedPets, preservedSlotToken) then
+					table.insert(lockedPets, preservedSlotToken)
+				end
+			end
+		end
+	end
 	if locked and not listContains(lockedPets, lockToken) then table.insert(lockedPets, lockToken) end
 	if not locked then while removeFirst(lockedPets, lockToken) do end end
 	encodeList(player, "LockedPetsJSON", lockedPets)
-	return { ok = true, pet = petName, index = useSlot and selectedIndex or nil, token = lockToken, locked = locked }
+	return {
+		ok = true,
+		pet = petName,
+		index = useSlot and selectedIndex or nil,
+		token = lockToken,
+		locked = locked,
+		migratedLegacyLock = migratedLegacyLock,
+	}
 end
 
 local function fusePet(player, petToken)
@@ -5341,10 +5465,10 @@ local function handleMobileAction(player, request)
 		fusePet(player, target)
 		return
 	elseif action == "EquipPet" then
-		equipPet(player, target)
+		equipPet(player, target, inventoryIndex)
 		return
 	elseif action == "UnequipPet" then
-		unequipPet(player, target)
+		unequipPet(player, target, inventoryIndex)
 		return
 	elseif action == "DeletePet" then
 		deletePet(player, target, inventoryIndex)
@@ -5820,6 +5944,13 @@ if RunService:IsStudio() then
 		}
 	end
 
+	local function automationPetRequest(value)
+		if typeof(value) == "table" then
+			return value.target or value.token or value.name, value.index, value.value
+		end
+		return value, nil, nil
+	end
+
 	local automationCommand = Instance.new("BindableFunction")
 	automationCommand.Name = "PunchWallAutomation"
 	automationCommand.Parent = ServerStorage
@@ -6161,13 +6292,23 @@ if RunService:IsStudio() then
 		elseif action == "HatchPet" then
 			return automationSnapshot(player, hatchPet(player, true, tonumber(amount) or statValue(player, "Depth", 1)))
 		elseif action == "EquipPet" then
-			return automationSnapshot(player, equipPet(player, target))
+			local petTarget, inventoryIndex = automationPetRequest(target)
+			return automationSnapshot(player, equipPet(player, petTarget, inventoryIndex))
 		elseif action == "UnequipPet" then
-			return automationSnapshot(player, unequipPet(player, target))
+			local petTarget, inventoryIndex = automationPetRequest(target)
+			return automationSnapshot(player, unequipPet(player, petTarget, inventoryIndex))
 		elseif action == "DeletePet" then
-			return automationSnapshot(player, deletePet(player, target))
+			local petTarget, inventoryIndex = automationPetRequest(target)
+			return automationSnapshot(player, deletePet(player, petTarget, inventoryIndex))
 		elseif action == "LockPet" then
-			return automationSnapshot(player, setPetLocked(player, target, amount == true or amount == 1))
+			local petTarget, inventoryIndex, requestedLock = automationPetRequest(target)
+			local locked = requestedLock
+			if locked == nil then
+				locked = amount == true or amount == 1
+			else
+				locked = locked == true or locked == 1
+			end
+			return automationSnapshot(player, setPetLocked(player, petTarget, locked, inventoryIndex))
 		elseif action == "EquipFist" then
 			return automationSnapshot(player, equipFist(player, target))
 		elseif action == "BuyShopBoost" then
