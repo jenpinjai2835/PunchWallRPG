@@ -1,0 +1,4 @@
+interface:
+  display_name: "Punch Wall RPG Development"
+  short_description: "Build and validate Punch Wall RPG safely"
+  default_prompt: "Use $punch-wall-rpg-development to implement and validate a Punch Wall RPG change."

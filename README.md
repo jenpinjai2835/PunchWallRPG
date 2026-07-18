@@ -9,6 +9,10 @@ Roblox Studio project for the Hero City punching and depth-progression game.
 - `work/automation/` - recorded Studio automation flows and sync/build scripts
 - `work/docs/` - design, QC, and implementation documentation
 - `work/assets/` - generated visual assets used by the project
+- `.codex/skills/punch-wall-rpg-development/` - project-specific Codex workflow and references
+
+Repository-wide working rules are in `AGENTS.md`; Git workflow rules are in
+`work/docs/GIT_BRANCH_DEVELOPMENT_RULES.md`.
 
 ## Source workflow
 
