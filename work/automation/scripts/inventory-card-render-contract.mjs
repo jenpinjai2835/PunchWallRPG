@@ -222,6 +222,18 @@ check(
     && (timedRefresh.match(/if selectedTimedVisible then/g) || []).length >= 2,
   "Heartbeat countdowns require both the detail pane and its description text to be visible.",
 );
+const timedDetailMutationCalls = (
+  refreshTimedItems.match(/self:_updateTimedItemDetail\(item, now\)/g) || []
+).length;
+const visibleSelectedTimedDetailMutation =
+  /if item == self\._selectedItem\s+and self\.Detail\.Visible\s+and self\.DetailDescription\.Visible\s+then\s+local changed = self:_updateTimedItemDetail\(item, now\)\s+if changed then\s+selectedDetailChanged = true\s+end\s+end/.test(
+    refreshTimedItems,
+  );
+check(
+  "timed_detail_mutation_requires_visible_selected_item",
+  timedDetailMutationCalls === 1 && visibleSelectedTimedDetailMutation,
+  "The only per-second detail mutation must be structurally enclosed by selected-item, visible-detail, and visible-description guards.",
+);
 check(
   "timed_detail_ticks_do_not_rebuild_grid_or_actions",
   timedRefresh.includes(

@@ -1243,9 +1243,14 @@ function InventoryUI:_refreshTimedItems(now)
 				expired = true
 			else
 				nextExpiry = nextExpiry and math.min(nextExpiry, endsAt) or endsAt
-				local changed = self:_updateTimedItemDetail(item, now)
-				if item == self._selectedItem and changed then
-					selectedDetailChanged = true
+				if item == self._selectedItem
+					and self.Detail.Visible
+					and self.DetailDescription.Visible
+				then
+					local changed = self:_updateTimedItemDetail(item, now)
+					if changed then
+						selectedDetailChanged = true
+					end
 				end
 			end
 		end
