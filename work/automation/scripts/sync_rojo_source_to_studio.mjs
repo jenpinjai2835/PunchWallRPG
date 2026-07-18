@@ -309,8 +309,10 @@ async function main() {
       await sleep(3000);
     }
     for (const mapping of SCRIPT_MAPPINGS) {
-      const source = fs.readFileSync(mapping.source, "utf8");
-	  const result = await syncMapping(client, mapping, source);
+      // Roblox normalizes Script.Source line endings to LF. Normalize before
+      // chunking so the post-sync length check measures the exact stored text.
+      const source = fs.readFileSync(mapping.source, "utf8").replace(/\r\n?/g, "\n");
+      const result = await syncMapping(client, mapping, source);
       synced.push({ name: mapping.name, source: mapping.source, result: result.text });
     }
 
