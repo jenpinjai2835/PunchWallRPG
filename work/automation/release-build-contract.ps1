@@ -91,17 +91,40 @@ $canonicalHashBefore = (Get-FileHash -LiteralPath $canonicalFinal -Algorithm SHA
 $contractResult = $null
 try {
     [void](New-Item -ItemType Directory -Path $contractRoot)
+    $sourceWithImportedCode = Join-Path $contractRoot "source-with-imported-code.rbxlx"
     $builtPlace = Join-Path $contractRoot "PunchWallRPGPlayable_v1_contract_validation.rbxlx"
     $manifestPath = Join-Path $contractRoot "PunchWallRPGPlayable_v1_contract_validation.build.json"
 
+    Copy-Item -LiteralPath $canonicalFinal -Destination $sourceWithImportedCode
+    $unsafeSourceDocument = Read-SafeXmlDocument $sourceWithImportedCode
+    $unsafeTemplate = $unsafeSourceDocument.SelectSingleNode(
+        "//Item[@class='Script'][Properties/string[@name='Name' and text()='PunchWallBootstrap']]"
+    )
+    $serverStorage = $unsafeSourceDocument.DocumentElement.SelectSingleNode(
+        "Item[@class='ServerStorage'][Properties/string[@name='Name' and text()='ServerStorage']]"
+    )
+    if ($null -eq $unsafeTemplate -or $null -eq $serverStorage) {
+        throw "Contract could not construct imported-code sanitizer fixture"
+    }
+    foreach ($index in 1..13) {
+        $unsafeClone = [System.Xml.XmlElement]$unsafeTemplate.CloneNode($true)
+        $unsafeName = $unsafeClone.SelectSingleNode("Properties/string[@name='Name']")
+        $unsafeName.InnerText = "CreatorStoreImportedBehavior$index"
+        [void]$serverStorage.AppendChild($unsafeClone)
+    }
+    Save-XmlDocument $unsafeSourceDocument $sourceWithImportedCode
+
     $buildResult = (& $buildScript `
-        -SourcePlace $canonicalFinal `
+        -SourcePlace $sourceWithImportedCode `
         -OutputPlace $builtPlace `
         -SourceRoot $sourceRoot `
         -ManifestPath $manifestPath) | ConvertFrom-Json
     if (
         -not $buildResult.ok -or
         [int]$buildResult.embeddedModuleCount -ne $expectedModules.Count -or
+        [int]$buildResult.codeObjectCount -ne $expectedModules.Count -or
+        [int]$buildResult.removedCodeObjectCount -ne 13 -or
+        [int]$buildResult.codeAllowlistVersion -ne 1 -or
         $buildResult.cdataPreserved -ne $true
     ) {
         throw "Disposable production build did not prove the exact source map"
@@ -112,6 +135,8 @@ try {
     if (
         -not $verification.ok -or
         [int]$verification.moduleCount -ne $expectedModules.Count -or
+        [int]$verification.codeObjectCount -ne $expectedModules.Count -or
+        [int]$verification.codeAllowlistVersion -ne 1 -or
         $verification.cdataPreserved -ne $true
     ) {
         throw "Disposable production build failed exact-source verification"
@@ -128,6 +153,9 @@ try {
     if (
         [string]$manifest.sha256 -ne [string]$verification.rbxlxSha256 -or
         [int]$manifest.embeddedModuleCount -ne $expectedModules.Count -or
+        [int]$manifest.codeObjectCount -ne $expectedModules.Count -or
+        [int]$manifest.removedCodeObjectCount -ne 13 -or
+        [int]$manifest.codeAllowlistVersion -ne 1 -or
         $manifest.cdataPreserved -ne $true
     ) {
         throw "Build manifest does not match the verified disposable RBXLX"
@@ -212,6 +240,23 @@ try {
         & $verifyScript -PlacePath $wrongParentPlace -SourceRoot $sourceRoot
     } "expected exact StarterPlayer/StarterPlayerScripts service path"
 
+    $extraCodePlace = Join-Path $contractRoot "extra-code-object.rbxlx"
+    Copy-Item -LiteralPath $builtPlace -Destination $extraCodePlace
+    $extraCodeDocument = Read-SafeXmlDocument $extraCodePlace
+    $extraCodeTemplate = $extraCodeDocument.SelectSingleNode(
+        "//Item[@class='Script'][Properties/string[@name='Name' and text()='PunchWallBootstrap']]"
+    )
+    $extraCodeParent = $extraCodeDocument.DocumentElement.SelectSingleNode(
+        "Item[@class='ServerStorage'][Properties/string[@name='Name' and text()='ServerStorage']]"
+    )
+    $extraCode = [System.Xml.XmlElement]$extraCodeTemplate.CloneNode($true)
+    $extraCode.SelectSingleNode("Properties/string[@name='Name']").InnerText = "InjectedCreatorStoreScript"
+    [void]$extraCodeParent.AppendChild($extraCode)
+    Save-XmlDocument $extraCodeDocument $extraCodePlace
+    Assert-Throws {
+        & $verifyScript -PlacePath $extraCodePlace -SourceRoot $sourceRoot
+    } "Global exact code allowlist expected"
+
     $canonicalHashAfterBuild = (Get-FileHash -LiteralPath $canonicalFinal -Algorithm SHA256).Hash
     if ($canonicalHashAfterBuild -ne $canonicalHashBefore) {
         throw "Canonical final RBXLX changed during disposable build verification"
@@ -221,7 +266,10 @@ try {
         ok = $true
         studioUsed = $false
         sourceMapVersion = 1
+        codeAllowlistVersion = 1
         moduleCount = $verification.moduleCount
+        codeObjectCount = $verification.codeObjectCount
+        sanitizedImportedCodeObjects = $buildResult.removedCodeObjectCount
         cdataCount = $cdataCount
         disposableBytes = (Get-Item -LiteralPath $builtPlace).Length
         disposableSha256 = $verification.rbxlxSha256
@@ -232,7 +280,8 @@ try {
             "worktree_source_root_guard",
             "tampered_source_rejected",
             "duplicate_module_rejected",
-            "wrong_parent_rejected"
+            "wrong_parent_rejected",
+            "extra_code_object_rejected"
         )
     }
 }

@@ -138,6 +138,64 @@ function Resolve-ExpectedParent(
     return $parentMatches[0]
 }
 
+function Get-ItemPath([System.Xml.XmlElement]$Item) {
+    $segments = [System.Collections.Generic.List[string]]::new()
+    $current = $Item
+    while ($null -ne $current -and $current.LocalName -eq "Item") {
+        $name = Get-ItemName $current
+        if ([string]::IsNullOrWhiteSpace($name)) { $name = "<unnamed>" }
+        $segments.Insert(0, $name)
+        $current = $current.ParentNode
+    }
+    return $segments -join "/"
+}
+
+function Get-CodeItems([System.Xml.XmlDocument]$Document) {
+    return @($Document.SelectNodes(
+        "//Item[@class='Script' or @class='LocalScript' or @class='ModuleScript']"
+    ))
+}
+
+function Remove-NonCanonicalCodeItems([System.Xml.XmlDocument]$Document) {
+    $removed = @()
+    foreach ($item in @(Get-CodeItems $Document)) {
+        $name = Get-ItemName $item
+        if ($sources.Contains($name)) { continue }
+        $removed += [ordered]@{
+            name = $name
+            class = $item.GetAttribute("class")
+            path = Get-ItemPath $item
+        }
+        [void]$item.ParentNode.RemoveChild($item)
+    }
+    return $removed
+}
+
+function Assert-GlobalExactCodeAllowlist([System.Xml.XmlDocument]$Document) {
+    $codeItems = @(Get-CodeItems $Document)
+    if ($codeItems.Count -ne $sources.Count) {
+        $paths = @($codeItems | ForEach-Object {
+            "$($_.GetAttribute('class')):$((Get-ItemPath $_))"
+        })
+        throw "Global exact code allowlist expected $($sources.Count) objects, found $($codeItems.Count): $($paths -join ', ')"
+    }
+    foreach ($item in $codeItems) {
+        $name = Get-ItemName $item
+        if (-not $sources.Contains($name)) {
+            throw "Global exact code allowlist rejected $($item.GetAttribute('class')) at $(Get-ItemPath $item)"
+        }
+        $definition = $sources[$name]
+        if ($item.GetAttribute("class") -cne $definition.Class) {
+            throw "Global exact code allowlist class mismatch for $name"
+        }
+        $expectedParent = Resolve-ExpectedParent $Document $definition
+        if (-not [object]::ReferenceEquals($item.ParentNode, $expectedParent)) {
+            throw "Global exact code allowlist path mismatch for $name`: $(Get-ItemPath $item)"
+        }
+    }
+    return $codeItems.Count
+}
+
 function New-RobloxId {
     return [Guid]::NewGuid().ToString("N").ToLowerInvariant()
 }
@@ -400,6 +458,7 @@ $assetService = Find-Item "AssetService" "AssetService"
 if ($null -eq $assetService) { throw "AssetService item missing" }
 Set-PropertyText $assetService "AllowInsertFreeAssets" "true"
 
+$removedCodeObjects = @(Remove-NonCanonicalCodeItems $script:document)
 $updated = @()
 $sourceFileHashes = [ordered]@{}
 foreach ($entry in $sources.GetEnumerator()) {
@@ -473,6 +532,7 @@ try {
         }
         $exactSources[$name] = Get-SourceTextHash $expectedSource
     }
+    $codeObjectCount = Assert-GlobalExactCodeAllowlist $validation
     Move-Item -LiteralPath $temporaryPath -Destination $resolvedPlace -Force
 }
 finally {
@@ -487,7 +547,11 @@ finally {
     place = $resolvedPlace
     updated = $updated
     sourceMapVersion = 1
+    codeAllowlistVersion = 1
     sourceMapCount = $sources.Count
+    codeObjectCount = $codeObjectCount
+    removedCodeObjectCount = $removedCodeObjects.Count
+    removedCodeObjects = $removedCodeObjects
     exactSources = $exactSources
     sourceFileSha256 = $sourceFileHashes
     cdataPreserved = $true

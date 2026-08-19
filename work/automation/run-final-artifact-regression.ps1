@@ -2,13 +2,11 @@ param(
     [string]$OutputPlace = "",
     [string]$ValidationPlace = "",
 
-    [Parameter(Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [string]$StudioInstanceId,
+    [string]$StudioInstanceId = "",
 
-    [Parameter(Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [string]$ExpectedPlaceName
+    [string]$ExpectedPlaceName = "",
+
+    [switch]$StaticOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -36,6 +34,12 @@ if (-not (Test-Path -LiteralPath $resolvedOutput -PathType Leaf)) {
 }
 if (-not (Test-Path -LiteralPath $resolvedValidation -PathType Leaf)) {
     throw "Canonical validation copy is missing: $resolvedValidation"
+}
+if (-not $StaticOnly -and (
+    [string]::IsNullOrWhiteSpace($StudioInstanceId) -or
+    [string]::IsNullOrWhiteSpace($ExpectedPlaceName)
+)) {
+    throw "StudioInstanceId and ExpectedPlaceName are required unless -StaticOnly is used"
 }
 
 $verifyScript = Join-Path $PSScriptRoot "verify-exact-rbxlx-sources.ps1"
@@ -80,6 +84,10 @@ $validationModules = @($validationContract.modules.PSObject.Properties)
 if (
     [int]$outputContract.moduleCount -ne $expectedModules.Count -or
     [int]$validationContract.moduleCount -ne $expectedModules.Count -or
+    [int]$outputContract.codeObjectCount -ne $expectedModules.Count -or
+    [int]$validationContract.codeObjectCount -ne $expectedModules.Count -or
+    [int]$outputContract.codeAllowlistVersion -ne 1 -or
+    [int]$validationContract.codeAllowlistVersion -ne 1 -or
     $outputContract.cdataPreserved -ne $true -or
     $validationContract.cdataPreserved -ne $true -or
     $outputModules.Count -ne $expectedModules.Count -or
@@ -110,6 +118,24 @@ foreach ($name in $expectedModules) {
     if ($outputHash -ne $validationHash -or $outputFileHash -ne $validationFileHash) {
         throw "Output and validation-copy source hashes differ for $name"
     }
+}
+
+if ($StaticOnly) {
+    [pscustomobject]@{
+        ok = $true
+        studioUsed = $false
+        runtimeStatus = "NOT_RUN_STATIC_ONLY"
+        canonicalOutput = $resolvedOutput
+        canonicalValidationCopy = $resolvedValidation
+        rbxlxSha256 = $outputContract.rbxlxSha256
+        moduleCount = $expectedModules.Count
+        sourceMapVersion = 1
+        codeAllowlistVersion = 1
+        codeObjectCount = $outputContract.codeObjectCount
+        cdataPreserved = $true
+        exactSourceHashes = $outputContract.modules
+    } | ConvertTo-Json -Depth 10
+    return
 }
 
 $expectedPlacePattern = "^$([regex]::Escape($ExpectedPlaceName))$"
@@ -163,6 +189,8 @@ foreach ($name in $expectedModules) {
     rbxlxSha256 = $outputContract.rbxlxSha256
     moduleCount = $expectedModules.Count
     sourceMapVersion = 1
+    codeAllowlistVersion = 1
+    codeObjectCount = $outputContract.codeObjectCount
     cdataPreserved = $true
     exactSourceHashes = $outputContract.modules
     selectedStudio = $flowResult.selectedStudio

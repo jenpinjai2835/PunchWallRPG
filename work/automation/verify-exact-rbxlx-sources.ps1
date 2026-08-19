@@ -110,6 +110,18 @@ function Get-ItemName([System.Xml.XmlElement]$Item) {
     return $node.InnerText
 }
 
+function Get-ItemPath([System.Xml.XmlElement]$Item) {
+    $segments = [System.Collections.Generic.List[string]]::new()
+    $current = $Item
+    while ($null -ne $current -and $current.LocalName -eq "Item") {
+        $name = Get-ItemName $current
+        if ([string]::IsNullOrWhiteSpace($name)) { $name = "<unnamed>" }
+        $segments.Insert(0, $name)
+        $current = $current.ParentNode
+    }
+    return $segments -join "/"
+}
+
 function Resolve-ExpectedParent(
     [System.Xml.XmlDocument]$Document,
     [pscustomobject]$Definition
@@ -185,6 +197,30 @@ foreach ($entry in $mappings.GetEnumerator()) {
     }
 }
 
+$codeItems = @($document.SelectNodes(
+    "//Item[@class='Script' or @class='LocalScript' or @class='ModuleScript']"
+))
+if ($codeItems.Count -ne $mappings.Count) {
+    $paths = @($codeItems | ForEach-Object {
+        "$($_.GetAttribute('class')):$((Get-ItemPath $_))"
+    })
+    throw "Global exact code allowlist expected $($mappings.Count) objects, found $($codeItems.Count): $($paths -join ', ')"
+}
+foreach ($item in $codeItems) {
+    $name = Get-ItemName $item
+    if (-not $mappings.Contains($name)) {
+        throw "Global exact code allowlist rejected $($item.GetAttribute('class')) at $(Get-ItemPath $item)"
+    }
+    $definition = $mappings[$name]
+    if ($item.GetAttribute("class") -cne $definition.Class) {
+        throw "Global exact code allowlist class mismatch for $name"
+    }
+    $expectedParent = Resolve-ExpectedParent $document $definition
+    if (-not [object]::ReferenceEquals($item.ParentNode, $expectedParent)) {
+        throw "Global exact code allowlist path mismatch for $name`: $(Get-ItemPath $item)"
+    }
+}
+
 [pscustomobject]@{
     ok = $true
     sourceMapVersion = 1
@@ -193,6 +229,9 @@ foreach ($entry in $mappings.GetEnumerator()) {
     fileName = [System.IO.Path]::GetFileName($resolvedPlace)
     rbxlxSha256 = (Get-FileHash -LiteralPath $resolvedPlace -Algorithm SHA256).Hash
     moduleCount = $verified.Count
+    codeAllowlistVersion = 1
+    codeObjectCount = $codeItems.Count
+    rejectedCodeObjectCount = 0
     cdataPreserved = $true
     modules = $verified
 } | ConvertTo-Json -Depth 6

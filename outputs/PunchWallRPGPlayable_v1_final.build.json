@@ -1,0 +1,122 @@
+{
+    "ok":  true,
+    "game":  "Smash Wall",
+    "branch":  "codex/fix/qc-release",
+    "sourceCommit":  "6dc441334f957d0fe6d9b086b5bb5cc3a65b1cd1",
+    "sourcePlace":  "F:\\Roblox\\PuchWall-qc-release\\outputs\\.codex-qc-release-source-template.rbxlx",
+    "outputPlace":  "F:\\Roblox\\PuchWall-qc-release\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+    "sourceRoot":  "F:\\Roblox\\PuchWall-qc-release\\work\\punch-wall-rpg\\src",
+    "bytes":  5593417,
+    "sha256":  "9EB3133E347D5632C3A844AE5627FD3511F7E1B8105B8C1C31641C46E390574E",
+    "templateSha256":  "1A772E92646C8E35B6EBB852DA92ABAD35851E5A97EC5116C5D3A869FF3643B8",
+    "sourceMapVersion":  1,
+    "codeAllowlistVersion":  1,
+    "embeddedModuleCount":  9,
+    "codeObjectCount":  9,
+    "removedCodeObjectCount":  13,
+    "removedCodeObjects":  [
+                               {
+                                   "name":  "Script",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/Script"
+                               },
+                               {
+                                   "name":  "Animate",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/R6/Animate"
+                               },
+                               {
+                                   "name":  "LocalScript",
+                                   "class":  "LocalScript",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/TextLabel/LocalScript"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 1-/Main"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 2-/Main"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 3-/Main"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 4-/Main"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 5-/Main"
+                               },
+                               {
+                                   "name":  "Main",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Special Grade/Main"
+                               },
+                               {
+                                   "name":  "Material",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/DO NOT DELETE/Material"
+                               },
+                               {
+                                   "name":  "LocalScript",
+                                   "class":  "LocalScript",
+                                   "path":  "Material/Credits/TextBox/LocalScript"
+                               },
+                               {
+                                   "name":  "Animate",
+                                   "class":  "LocalScript",
+                                   "path":  "ServerStorage/CreatorStoreQC/Premium Robot Merchant NPC Candidate/Soldier/Animate"
+                               },
+                               {
+                                   "name":  "Health",
+                                   "class":  "Script",
+                                   "path":  "ServerStorage/CreatorStoreQC/Premium Robot Merchant NPC Candidate/Soldier/Health"
+                               }
+                           ],
+    "embeddedScripts":  [
+                            "GameConfig",
+                            "PolishConfig",
+                            "ForestVisualBuilder",
+                            "FistVisualBuilder",
+                            "InventoryViewModel",
+                            "ProfilePersistence",
+                            "PunchWallBootstrap",
+                            "InventoryUI",
+                            "PunchWallClient"
+                        ],
+    "exactSourceSha256":  {
+                              "GameConfig":  "A971D7923AD064D070679EDC10EC3428EBE3161A4D46A47576B308B94F4CDC73",
+                              "PolishConfig":  "5B32709854867B3820252AC6EBC23EE0CF4E8589C7D8ADBBDF4D10D250BD974D",
+                              "ForestVisualBuilder":  "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+                              "FistVisualBuilder":  "C37886B22E2FDF174E23E51B8275CEB0B04F2EDBBF5454CBCB119CD118ECE3A3",
+                              "InventoryViewModel":  "C805F8814FFA9FA8543B529092B6534B76227445AF7FFF4617A085797B871E56",
+                              "ProfilePersistence":  "DAF08CFAF0BB3BFB3A913203896FDA4924BB72FE2C28342DF8614471EF323AAB",
+                              "PunchWallBootstrap":  "27AC72522F42A568A19E5D3A367F1940DBA2922EE9F042C29C18C03CB10EDFD5",
+                              "InventoryUI":  "A46D3101A7FA23151C3DF47409410B48373A014B254D54DA4CFF156BCC2F3885",
+                              "PunchWallClient":  "27773FBA88B71519A755F24D80E968CE39FC67B8985692E9F6496BA960972470"
+                          },
+    "sourceFileSha256":  {
+                             "GameConfig":  "A30C96C3E8A26981434E309A33E030CFBDBEF1B8CEB13BFC0DF6C27AD2A9DE59",
+                             "PolishConfig":  "4A4B862B640B36136595E1841B025443946AD230EFDD5C2035E0293FBBF1C927",
+                             "ForestVisualBuilder":  "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+                             "FistVisualBuilder":  "6C1C10E918D1506644976CC30E61E21FA837AE76BEE66AD539AFB6581EBF0EF5",
+                             "InventoryViewModel":  "554C6080874942E0B5D388EF330D70B41423B55087B1819424045385E6122436",
+                             "ProfilePersistence":  "155296B3DE325F28265B5E401FACD009FCD58BFDC94E7756E9E8D05C446969F8",
+                             "PunchWallBootstrap":  "38409C8839FFA48242BE9E0EF98F6FAD9AD87EDEC639AE66B42CC27917C9F45B",
+                             "InventoryUI":  "B59619E355C06BD605F2C399BD6A90BB7347BC2023B94B3478EBD52D55F7357C",
+                             "PunchWallClient":  "370B47DB43A521917C5504D31CEEB294C7B93EFAA2E6B41F4D496D6751E13155"
+                         },
+    "cdataPreserved":  true,
+    "configuredGamePasses":  3,
+    "configuredDeveloperProducts":  8,
+    "studioHarnessGuarded":  true,
+    "generatedAtUtc":  "2026-08-19T10:35:42.6256750Z"
+}

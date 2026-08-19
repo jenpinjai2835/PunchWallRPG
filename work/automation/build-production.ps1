@@ -132,9 +132,11 @@ try {
     }
     if (
         [int]$embedResult.sourceMapCount -ne $expectedEmbeddedNames.Count -or
+        [int]$embedResult.codeObjectCount -ne $expectedEmbeddedNames.Count -or
+        [int]$embedResult.codeAllowlistVersion -ne 1 -or
         $embedResult.cdataPreserved -ne $true
     ) {
-        throw "Embedder did not prove the complete CDATA-preserving source map"
+        throw "Embedder did not prove the complete source map and global exact code allowlist"
     }
     $embeddedNames = @($embedResult.updated)
     if (
@@ -149,6 +151,8 @@ try {
     if (
         -not $temporaryContract.ok -or
         [int]$temporaryContract.moduleCount -ne $expectedEmbeddedNames.Count -or
+        [int]$temporaryContract.codeObjectCount -ne $expectedEmbeddedNames.Count -or
+        [int]$temporaryContract.codeAllowlistVersion -ne 1 -or
         $temporaryContract.cdataPreserved -ne $true
     ) {
         throw "Independent exact-source verification failed for the temporary build"
@@ -214,6 +218,8 @@ $publishedContract = (& $verifyScript -PlacePath $resolvedOutput -SourceRoot $re
 if (
     -not $publishedContract.ok -or
     [int]$publishedContract.moduleCount -ne $expectedEmbeddedNames.Count -or
+    [int]$publishedContract.codeObjectCount -ne $expectedEmbeddedNames.Count -or
+    [int]$publishedContract.codeAllowlistVersion -ne 1 -or
     [string]$publishedContract.rbxlxSha256 -ne $hash
 ) {
     throw "Published production output failed post-write exact-source verification"
@@ -236,7 +242,11 @@ $manifest = [ordered]@{
     sha256 = $hash
     templateSha256 = $templateHash
     sourceMapVersion = 1
+    codeAllowlistVersion = 1
     embeddedModuleCount = $expectedEmbeddedNames.Count
+    codeObjectCount = $publishedContract.codeObjectCount
+    removedCodeObjectCount = $embedResult.removedCodeObjectCount
+    removedCodeObjects = $embedResult.removedCodeObjects
     embeddedScripts = $embeddedNames
     exactSourceSha256 = $embedResult.exactSources
     sourceFileSha256 = $embedResult.sourceFileSha256
