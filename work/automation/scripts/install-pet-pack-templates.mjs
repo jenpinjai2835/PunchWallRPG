@@ -31,9 +31,9 @@ try {
 local H=game:GetService("HttpService")
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local history=game:GetService("ChangeHistoryService")
-local source=workspace:FindFirstChild("Pet pack")
-assert(source and source:IsA("Model"),"sanitized Workspace.Pet pack is missing")
-assert(source:GetAttribute("SanitizedVisualOnly")==true,"raw pack sanitation attestation missing")
+local sourceRoot=workspace:FindFirstChild("Pet pack")
+assert(sourceRoot and sourceRoot:IsA("Model"),"sanitized Workspace.Pet pack is missing")
+assert(sourceRoot:GetAttribute("SanitizedVisualOnly")==true,"raw pack sanitation attestation missing")
 
 local mappings={
   {definition="Forest Pup",rarity="Common",source="Dowodle",template="Sanitized_ForestPupPet"},
@@ -45,6 +45,29 @@ local mappings={
   {definition="Storm Wyvern",rarity="Premium",source="Electra Hydra",template="Sanitized_StormWyvernPet"},
   {definition="Celestial Guardian",rarity="Premium",source="Mythic Radiant One",template="Sanitized_CelestialGuardianPet"},
 }
+
+-- Assistant/InsertService wraps this Creator Store model in an extra Model
+-- named "Pet pack", while a manual Toolbox insert may expose the pets directly.
+-- Resolve the one container that owns every mapped source so both reproducible
+-- import paths install the same eight children.
+local source=sourceRoot
+if not source:FindFirstChild(mappings[1].source) then
+  local candidates={}
+  for _,candidate in ipairs(sourceRoot:GetDescendants()) do
+    if candidate:IsA("Model") then
+      local complete=true
+      for _,mapping in ipairs(mappings) do
+        if not candidate:FindFirstChild(mapping.source) then
+          complete=false
+          break
+        end
+      end
+      if complete then table.insert(candidates,candidate) end
+    end
+  end
+  assert(#candidates==1,"expected one nested pet-pack source container, found "..tostring(#candidates))
+  source=candidates[1]
+end
 
 local external=ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
 if not external then
@@ -111,7 +134,7 @@ external:SetAttribute("PetPackAssetId","70715599928632")
 external:SetAttribute("PetPackTemplateCount",#mappings)
 external:SetAttribute("PetPackVersion","CuteFurryBundleV1")
 
-source:Destroy()
+sourceRoot:Destroy()
 assert(not workspace:FindFirstChild("Pet pack"),"raw pet pack remained in Workspace")
 local unsafe=0
 for _,d in ipairs(external:GetDescendants()) do

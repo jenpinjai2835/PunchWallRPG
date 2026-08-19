@@ -9,6 +9,7 @@ const server = read("work", "punch-wall-rpg", "src", "server", "PunchWallBootstr
 const client = read("work", "punch-wall-rpg", "src", "client", "PunchWallClient.client.lua");
 const installer = read("work", "automation", "scripts", "install-pet-pack-templates.mjs");
 const manifest = read("work", "docs", "FREE_ASSET_MANIFEST.md");
+const finalPlace = read("outputs", "PunchWallRPGPlayable_v1_final.rbxlx");
 const flow = JSON.parse(read("work", "automation", "flows", "creator-store-pet-pack-visuals.json"));
 const gamePassFlow = JSON.parse(read("work", "automation", "flows", "premium-pet-gamepass-configuration.json"));
 
@@ -46,12 +47,24 @@ const checks = {
   installer_keeps_exact_eight_and_removes_raw_pack: includesMapping(installer)
     && installer.includes("rawPackRemoved=true")
     && installer.includes('d:IsA("LuaSourceContainer")')
-    && installer.includes('CreatorStorePackAssetId","70715599928632"'),
+    && installer.includes('CreatorStorePackAssetId","70715599928632"')
+    && installer.includes('expected one nested pet-pack source container'),
+  missing_template_showcase_cannot_masquerade_as_companion: server.includes('display:SetAttribute("SourceFallback", true)')
+    && server.includes('display:SetAttribute("TemplateVisualAttested", false)')
+    && server.includes('display:SetAttribute("CompanionCompatible", false)')
+    && client.includes('function companionRuntime.AttestedCatalogPetTemplate(candidate, definition)')
+    && client.includes('candidate:GetAttribute("SourceFallback") ~= true')
+    && client.includes('candidate:GetAttribute("TemplateVisualAttested") == true')
+    && client.includes('candidate:GetAttribute("CompanionCompatible") == true'),
   runtime_flow_checks_templates_inventory_premium_and_console: flowSource.includes("eight extracted pack templates are exact safe and bounded")
     && flowSource.includes("cards==8 and matched==8 and unsafe==0")
     && flowSource.includes("premium companions keep exact pack identities and non-overlapping formation")
     && flowSource.includes("post-stop console clean"),
   provenance_manifest_records_pack_and_mapping: manifest.includes("70715599928632") && includesMapping(manifest),
+  final_artifact_bakes_all_eight_template_instances: mapping.every(([, , template]) =>
+    finalPlace.includes(`<string name="Name">${template}</string>`))
+    && finalPlace.includes('<string name="Name">PunchWallExternalAssets</string>')
+    && !finalPlace.includes('<string name="Name">Pet pack</string>'),
 };
 
 const failures = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);

@@ -4741,12 +4741,30 @@ function companionRuntime.StyleNormalCatalogPet(model, definition)
 	return model
 end
 
+function companionRuntime.AttestedCatalogPetTemplate(candidate, definition)
+	if not candidate or not candidate:IsA("Model") or not definition or not definition.templateName then return false end
+	local policy
+	for _, entry in ipairs(PolishConfig.ExternalVisualTemplates or {}) do
+		if entry.templateName == definition.templateName then
+			policy = entry
+			break
+		end
+	end
+	if not policy or policy.preloadedOnly ~= true then return false end
+	return candidate:GetAttribute("SourceFallback") ~= true
+		and candidate:GetAttribute("TemplateVisualAttested") == true
+		and candidate:GetAttribute("PreloadedOnly") == true
+		and tostring(candidate:GetAttribute("CreatorStorePackAssetId")) == tostring(policy.assetId)
+		and candidate:GetAttribute("SourcePackModelName") == policy.sourceModel
+		and candidate:GetAttribute("PetDefinitionName") == definition.name
+		and (tonumber(candidate:GetAttribute("VisualPartCount")) or 0) >= 3
+end
+
 local function catalogCompanionTemplate(definition)
 	if not definition.templateName then return nil, nil end
 	local externalAssets = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
 	local externalTemplate = externalAssets and externalAssets:FindFirstChild(definition.templateName)
-	if externalTemplate
-		and externalTemplate:IsA("Model")
+	if companionRuntime.AttestedCatalogPetTemplate(externalTemplate, definition)
 		and companionRuntime.PrepareVisualAsset(externalAssets, externalTemplate) then
 		return externalTemplate, "ExternalTemplate"
 	end
@@ -4756,6 +4774,8 @@ local function catalogCompanionTemplate(definition)
 			if candidate:IsA("Model")
 				and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
 				and candidate:GetAttribute("PetTemplate") == definition.templateName
+				and candidate:GetAttribute("CompanionCompatible") == true
+				and companionRuntime.AttestedCatalogPetTemplate(candidate, definition)
 				and companionRuntime.PrepareVisualAsset(candidate, candidate) then
 				return candidate, "ShowcaseClone"
 			end
@@ -10356,6 +10376,8 @@ shared.PunchWallBuildShopUI = function()
 					if candidate:IsA("Model")
 						and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
 						and candidate:GetAttribute("PetTemplate") == item.templateName
+						and candidate:GetAttribute("CompanionCompatible") == true
+						and companionRuntime.AttestedCatalogPetTemplate(candidate, item)
 						and FistVisualBuilder.IsSanitizedVisual(candidate)
 					then
 						model = companionRuntime.CloneSanitizedVisual(candidate)
