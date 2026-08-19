@@ -498,6 +498,25 @@ local clientSettings = { motion = true, sound = true, uiScale = 1 }
 local tutorialObjectiveText = "OBJECTIVE  |  Train at the Power Bag"
 local openGameTab = function() end
 local applyResponsiveLayout = function() end
+
+shared.PunchWallClassifyResponsiveViewport = function(size)
+	if typeof(size) ~= "Vector2" or size.X < 1 or size.Y < 1 then
+		return "Desktop", false
+	end
+	local shortSide = math.min(size.X, size.Y)
+	local longSide = math.max(size.X, size.Y)
+	if UserInputService.TouchEnabled and shortSide <= 600 then
+		return "PhoneLandscape", true
+	end
+	if UserInputService.TouchEnabled then
+		return "TabletTouch", true
+	end
+	if shortSide < 520 and longSide < 1180 then
+		return "CompactDesktop", true
+	end
+	return "Desktop", false
+end
+
 shared.PunchWallOpenRebirthPanel = function() end
 shared.PunchWallRebirthRuntime = {
 	armed = false,
@@ -4124,6 +4143,10 @@ renderStandaloneSettings = function()
 				onSelect(option.value)
 				renderStandaloneSettings()
 			end)
+			-- Options sits above the row chrome at Z74. Keep the actionable button
+			-- one layer above its parent; otherwise the compact screenshot has a
+			-- live hitbox but the colored option and label are visually buried.
+			button.ZIndex = optionArea.ZIndex + 1
 			button.Size = UDim2.fromOffset(option.width or 78, 44)
 			button:SetAttribute("MinimumTouchTarget", 44)
 			button:SetAttribute("SettingValue", tostring(option.value))
@@ -9069,8 +9092,10 @@ local referenceJump = referenceButton("ActionJump", pixel.Jump, 1460, 694, 211, 
 	requestHumanoidJump()
 end)
 
+local punchUpButton
+local punchDownButton
 local responsiveHudDiagnosticsGeneration = 0
-local function scheduleResponsiveHudDiagnostics(compact)
+local function scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 	responsiveHudDiagnosticsGeneration += 1
 	local generation = responsiveHudDiagnosticsGeneration
 	task.defer(function()
@@ -9112,6 +9137,68 @@ local function scheduleResponsiveHudDiagnostics(compact)
 		referenceHUD:SetAttribute("CompactUtilityTouchTargets", "Daily,Spin,Sound,Settings,More")
 		referenceHUD:SetAttribute("CompactUtilityMinimumTouchTarget", minimumTarget)
 		referenceHUD:SetAttribute("CompactUtilityTouchTargetsPass", not compact or minimumTarget >= 44)
+
+		local activePhoneControls = {
+			referenceDaily,
+			referenceSpin,
+			shared.PunchWallSoundToolButton,
+			shared.PunchWallSettingsToolButton,
+			shared.PunchWallMoreToolButton,
+			referenceInventory,
+			referenceShop,
+			referencePets,
+			shared.PunchWallReferenceRebirth,
+			referencePunch,
+			referenceJump,
+			punchUpButton,
+			punchDownButton,
+		}
+		local visibleControls = {}
+		local compactTargetsPass = true
+		local compactBoundsPass = true
+		local coveredArea = 0
+		local hudPosition, hudSize = referenceHUD.AbsolutePosition, referenceHUD.AbsoluteSize
+		for _, button in ipairs(activePhoneControls) do
+			if button.Visible then
+				visibleControls[#visibleControls + 1] = button
+				local position, size = button.AbsolutePosition, button.AbsoluteSize
+				compactTargetsPass = compactTargetsPass and math.min(size.X, size.Y) >= 44
+				compactBoundsPass = compactBoundsPass
+					and position.X >= hudPosition.X - 0.5
+					and position.Y >= hudPosition.Y - 0.5
+					and position.X + size.X <= hudPosition.X + hudSize.X + 0.5
+					and position.Y + size.Y <= hudPosition.Y + hudSize.Y + 0.5
+				coveredArea += size.X * size.Y
+			end
+		end
+		local pairwisePass = true
+		local overlapPair = ""
+		for leftIndex = 1, #visibleControls do
+			local left = visibleControls[leftIndex]
+			local leftPosition, leftSize = left.AbsolutePosition, left.AbsoluteSize
+			for rightIndex = leftIndex + 1, #visibleControls do
+				local right = visibleControls[rightIndex]
+				local rightPosition, rightSize = right.AbsolutePosition, right.AbsoluteSize
+				local overlapX = math.max(0, math.min(leftPosition.X + leftSize.X, rightPosition.X + rightSize.X) - math.max(leftPosition.X, rightPosition.X))
+				local overlapY = math.max(0, math.min(leftPosition.Y + leftSize.Y, rightPosition.Y + rightSize.Y) - math.max(leftPosition.Y, rightPosition.Y))
+				if overlapX * overlapY >= 1 then
+					pairwisePass = false
+					if overlapPair == "" then overlapPair = left.Name .. ":" .. right.Name end
+				end
+			end
+		end
+		local coverage = coveredArea / math.max(1, hudSize.X * hudSize.Y)
+		referenceHUD:SetAttribute("PhoneLayoutContractVersion", "PhoneLandscapeV3")
+		referenceHUD:SetAttribute("PhonePrimaryControlCount", #visibleControls)
+		referenceHUD:SetAttribute("PhonePrimaryTargetsPass", not compact or compactTargetsPass)
+		referenceHUD:SetAttribute("PhonePrimaryBoundsPass", not compact or compactBoundsPass)
+		referenceHUD:SetAttribute("PhonePrimaryPairwisePass", not compact or pairwisePass)
+		referenceHUD:SetAttribute("PhonePrimaryOverlapPair", overlapPair)
+		referenceHUD:SetAttribute("PhoneControlCoverage", coverage)
+		referenceHUD:SetAttribute("PhoneControlCoveragePass", not compact or coverage <= 0.2)
+		referenceHUD:SetAttribute("PhonePunchMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referencePunch.AbsoluteSize.X, referencePunch.AbsoluteSize.Y) <= 96)
+		referenceHUD:SetAttribute("PhoneJoystickMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referenceJoystick.AbsoluteSize.X, referenceJoystick.AbsoluteSize.Y) <= 112)
+		referenceHUD:SetAttribute("PhoneRedundantQuestHidden", not compact or not referenceQuests.Visible)
 
 		local settingsPanel = shared.PunchWallStandaloneWindows.SettingsPanel
 		local settingsBody = shared.PunchWallStandaloneWindows.SettingsBody
@@ -9234,8 +9321,8 @@ local function makeDirectionalPunchButton(name, label, x, y, direction)
 	return button
 end
 
-local punchUpButton = makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
-local punchDownButton = makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
+punchUpButton = makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
+punchDownButton = makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
 enforceReferenceTouchTarget(punchUpButton)
 enforceReferenceTouchTarget(punchDownButton)
 
@@ -9757,13 +9844,13 @@ shared.PunchWallBuildSpinUI = function()
 	end
 
 	imageLayer("ImageLabel", "SpinHeaderArt", GameConfig.SpinArt.Header, UDim2.fromScale(0.035, 0.025), UDim2.fromScale(0.79, 0.17), 183)
-	local close = imageLayer("ImageButton", "CloseSpin", GameConfig.SpinArt.Close, UDim2.fromScale(0.875, 0.035), UDim2.fromScale(0.09, 0.125), 186)
+	local close = imageLayer("ImageButton", "CloseSpin", GameConfig.SpinArt.Close, UDim2.fromScale(0.865, 0.03), UDim2.fromScale(0.105, 0.14), 186)
 	local wheel = imageLayer("ImageLabel", "PrizeWheel", GameConfig.SpinArt.Wheel, UDim2.fromScale(0.035, 0.20), UDim2.fromScale(0.55, 0.75), 183)
 	imageLayer("ImageLabel", "PrizePointer", GameConfig.SpinArt.Pointer, UDim2.fromScale(0.255, 0.17), UDim2.fromScale(0.105, 0.12), 186)
 	imageLayer("ImageLabel", "WheelCenter", GameConfig.SpinArt.Center, UDim2.fromScale(0.238, 0.48), UDim2.fromScale(0.145, 0.20), 186)
 	local freeReady = imageLayer("ImageLabel", "FreeSpinReadyArt", GameConfig.SpinArt.FreeSpinReady, UDim2.fromScale(0.60, 0.38), UDim2.fromScale(0.35, 0.18), 184)
 	local spinButton = imageLayer("ImageButton", "SpinNow", GameConfig.SpinArt.SpinNow, UDim2.fromScale(0.59, 0.60), UDim2.fromScale(0.37, 0.17), 185)
-	local buySpins = imageLayer("ImageButton", "BuyBonusSpins", GameConfig.SpinArt.BonusSpins, UDim2.fromScale(0.59, 0.80), UDim2.fromScale(0.37, 0.12), 185)
+	local buySpins = imageLayer("ImageButton", "BuyBonusSpins", GameConfig.SpinArt.BonusSpins, UDim2.fromScale(0.59, 0.785), UDim2.fromScale(0.37, 0.14), 185)
 	local bonusSpinProduct = shared.PunchWallPurchaseRuntime.FindPremiumProduct("SpinPack")
 	local bonusSpinPurchaseConfigured =
 		shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct(bonusSpinProduct)
@@ -9826,10 +9913,13 @@ shared.PunchWallBuildSpinUI = function()
 			local camera = workspace.CurrentCamera
 			available = camera and camera.ViewportSize or Vector2.new(760, 558)
 		end
-		local fitScale = math.min((available.X - 18) / 760, (available.Y - 14) / 558)
+		local _, compact = shared.PunchWallClassifyResponsiveViewport(available)
+		local edgeMargin = compact and 32 or 18
+		local fitScale = math.min((available.X - edgeMargin) / 760, (available.Y - edgeMargin) / 558)
 		spinScale.Scale = math.clamp(fitScale, 0.5, 1)
 		gui:SetAttribute("SpinPanelScale", spinScale.Scale)
-		gui:SetAttribute("SpinLayoutCompact", fitScale < 0.82)
+		gui:SetAttribute("SpinLayoutCompact", compact)
+		gui:SetAttribute("SpinSafeEdgeMargin", edgeMargin)
 	end
 	spinOverlay:GetPropertyChangedSignal("AbsoluteSize"):Connect(applySpinLayout)
 	task.defer(applySpinLayout)
@@ -9852,6 +9942,7 @@ shared.PunchWallBuildSpinUI = function()
 	shared.PunchWallOpenSpin = function()
 		setMenuVisible(false)
 		spinOverlay.Visible = true
+		referenceHUD.Visible = false
 		gui:SetAttribute("SpinModalVisible", true)
 		shared.PunchWallSetModalCoreGuiHidden(true, "SpinModal")
 		applySpinLayout()
@@ -9901,7 +9992,10 @@ shared.PunchWallBuildSpinUI = function()
 		spinOverlay.Visible = false
 		gui:SetAttribute("SpinModalVisible", false)
 		shared.PunchWallSetModalCoreGuiHidden(false, "SpinModal")
+		applyReferenceHUDState(true)
 	end)
+	close:SetAttribute("MinimumEffectiveTouchTarget", 44)
+	buySpins:SetAttribute("MinimumEffectiveTouchTarget", 44)
 	gui:SetAttribute("SpinUsesSuppliedLayers", true)
 	gui:SetAttribute("SpinLayerCount", 9)
 end
@@ -10482,8 +10576,9 @@ shared.PunchWallBuildShopUI = function()
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
 		title.TextStrokeTransparency = 0.08
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-		local compactHeader = UserInputService.TouchEnabled
-			or (workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.Y < 520)
+		local _, compactHeader = shared.PunchWallClassifyResponsiveViewport(
+			workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.zero
+		)
 		local honorBalanceText = formatNumber(math.max(0, tonumber(latestStats.Honor) or 0))
 		local headerSubtitle = page == "Honor"
 			and ((compactHeader and "HONOR %s  •  CURRENCY ONLY  •  GATES APPLY"
@@ -10651,7 +10746,7 @@ shared.PunchWallBuildShopUI = function()
 		end
 
 		local camera = workspace.CurrentCamera
-		local compactCards = UserInputService.TouchEnabled or (camera and camera.ViewportSize.Y < 520)
+		local _, compactCards = shared.PunchWallClassifyResponsiveViewport(camera and camera.ViewportSize or Vector2.zero)
 		if compactCards then
 			tabBand.Size = UDim2.new(0.95, 0, 0, 44)
 		end
@@ -11560,7 +11655,12 @@ applyResponsiveLayout = function()
 	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
 	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
 	gui:SetAttribute("ResponsiveViewportSource", viewportSource)
-	local compact = UserInputService.TouchEnabled or viewport.Y < 520
+	local responsiveProfile, compact = shared.PunchWallClassifyResponsiveViewport(viewport)
+	local phoneScale = responsiveProfile == "TabletTouch" and 1.12
+		or compact and math.clamp(math.min(viewport.X / 874, viewport.Y / 402), 0.84, 1)
+		or 1
+	gui:SetAttribute("ResponsiveProfile", responsiveProfile)
+	gui:SetAttribute("ResponsivePhoneScale", phoneScale)
 	local coreGuiTopLeft = Vector2.zero
 	local coreGuiBottomRight = Vector2.zero
 	pcall(function()
@@ -11715,26 +11815,32 @@ applyResponsiveLayout = function()
 	local shopOpen = mainPanel.Visible and activeTab == "Fists"
 	local inventoryOpen = mainPanel.Visible and activeTab == "Inventory"
 	if compact then
-		-- Device Simulator can rasterize logical UI units below one screen pixel.
-		-- Use a compact offset grid large enough to preserve a real 44 px touch
-		-- target while keeping all four menu actions optically identical.
-		local compactMenuWidth = 58
-		local compactMenuHeight = 72
-		local compactMenuGap = 8
-		local compactMenuRight = 10
-		local compactMenuTop = math.max(54, math.floor(coreGuiTopLeft.Y + 46))
-		local compactLeftColumnRight = compactMenuRight + compactMenuWidth + compactMenuGap + 20
+		-- PhoneLandscapeV3 keeps the gameplay center open. Four primary actions
+		-- use a small 2x2 cluster; Missions stays reachable from DAILY and MORE,
+		-- so the redundant compact QUESTS tile is removed.
+		local compactMenuWidth = math.max(48, math.floor(52 * phoneScale + 0.5))
+		local compactMenuHeight = math.max(60, math.floor(62 * phoneScale + 0.5))
+		local compactMenuGap = 6
+		local compactMenuRight = 8
+		-- Keep an explicit 8 px gutter below the 48 px utility row.  The old
+		-- +50 offset let Sound overlap Inventory by a few pixels after the
+		-- aspect constraints resolved on short iPhone landscape viewports.
+		local compactMenuTop = math.max(66, math.floor(coreGuiTopLeft.Y + 60))
+		local compactLeftColumnRight = compactMenuRight + compactMenuWidth + compactMenuGap
 		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
 			button.AnchorPoint = Vector2.new(1, 0)
 			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
 			button:SetAttribute("MinimumTouchTarget", 44)
+			enforceReferenceTouchTarget(button)
 		end
 		referenceShop.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop)
 		referenceInventory.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop)
-		referencePets.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
-		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
-		referenceQuests.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + (compactMenuHeight + compactMenuGap) * 2)
-		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "CompactTouchGrid58x72QuestsJumpSafeV2")
+		referencePets.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		referenceQuests.Visible = false
+		referenceQuests.Active = false
+		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "PhoneLandscape2x2SafeV3")
+		referenceHUD:SetAttribute("CompactQuestsRoutedThroughMissions", true)
 		local compactUtilitySize = 48
 		local compactUtilityTop = math.max(4, math.floor(coreGuiTopLeft.Y + 4))
 		for utilityIndex, button in ipairs({
@@ -11743,29 +11849,74 @@ applyResponsiveLayout = function()
 			shared.PunchWallSoundToolButton,
 		}) do
 			button.AnchorPoint = Vector2.new(1, 0)
-			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * 52), 0, compactUtilityTop)
+			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * 48), 0, compactUtilityTop)
 			button.Size = UDim2.fromOffset(compactUtilitySize, compactUtilitySize)
 		end
 		for utilityIndex, button in ipairs({ referenceDaily, referenceSpin }) do
 			button.AnchorPoint = Vector2.zero
-			button.Position = UDim2.fromOffset(10, compactMenuTop + (utilityIndex - 1) * (compactMenuHeight + compactMenuGap))
+			button.Position = UDim2.fromOffset(8, compactMenuTop + (utilityIndex - 1) * (compactMenuHeight + compactMenuGap))
 			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
 		end
+		local joystickSize = math.max(96, math.floor(110 * phoneScale + 0.5))
+		referenceJoystick.AnchorPoint = Vector2.new(0, 1)
+		referenceJoystick.Position = UDim2.new(0, 8, 1, -8)
+		referenceJoystick.Size = UDim2.fromOffset(joystickSize, joystickSize)
+		referenceJoystick:SetAttribute("ResponsiveProfile", "PhoneLandscapeJoystickV3")
+		local punchSize = math.max(84, math.floor(92 * phoneScale + 0.5))
+		referencePunch.AnchorPoint = Vector2.new(1, 1)
+		referencePunch.Position = UDim2.new(1, -8, 1, -8)
+		referencePunch.Size = UDim2.fromOffset(punchSize, punchSize)
+		referencePunch:SetAttribute("ResponsiveProfile", "PhoneLandscapePunchV3")
+		referencePunch:SetAttribute("MaximumCompactSize", 92)
+		local jumpSize = math.max(58, math.floor(62 * phoneScale + 0.5))
 		referenceJump.AnchorPoint = Vector2.new(1, 1)
-		referenceJump.Position = UDim2.new(1, -8, 1, -8)
-		referenceJump.Size = UDim2.fromOffset(86, 86)
+		referenceJump.Position = UDim2.new(1, -(punchSize + 16), 1, -10)
+		referenceJump.Size = UDim2.fromOffset(jumpSize, jumpSize)
+		referenceJump:SetAttribute("ResponsiveProfile", "PhoneLandscapeJumpV3")
 		honorOpen.AnchorPoint = Vector2.new(0.5, 0.5)
 		honorOpen.Position = UDim2.fromScale(0.5, 0.5)
 		honorOpen.Size = UDim2.fromOffset(48, 48)
 		honorOpen:SetAttribute("ResponsiveProfile", "CompactTransparentHit48V1")
 		punchUpButton.AnchorPoint = Vector2.new(1, 1)
-		punchUpButton.Position = UDim2.new(1, -306, 1, -18)
-		punchUpButton.Size = UDim2.fromOffset(48, 48)
+		punchUpButton.Position = UDim2.new(1, -(punchSize + jumpSize + 68), 1, -12)
+		punchUpButton.Size = UDim2.fromOffset(44, 44)
 		punchDownButton.AnchorPoint = Vector2.new(1, 1)
-		punchDownButton.Position = UDim2.new(1, -252, 1, -18)
-		punchDownButton.Size = UDim2.fromOffset(48, 48)
-		punchUpButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
-		punchDownButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
+		punchDownButton.Position = UDim2.new(1, -(punchSize + jumpSize + 20), 1, -12)
+		punchDownButton.Size = UDim2.fromOffset(44, 44)
+		punchUpButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V3")
+		punchDownButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V3")
+		-- Phone information hierarchy: keep only essential progress at a glance.
+		-- Detailed rank and quest data remain available through Missions.
+		if rankWidgets.Root then rankWidgets.Root.Visible = false end
+		shared.PunchWallHUDWidgets.QuestCard.Visible = false
+		local topCardHeight = math.max(40, math.floor(44 * phoneScale + 0.5))
+		referencePowerCard.AnchorPoint = Vector2.new(0.5, 0)
+		referencePowerCard.Position = UDim2.new(0.34, 0, 0, 5)
+		referencePowerCard.Size = UDim2.fromOffset(math.floor(120 * phoneScale + 0.5), topCardHeight)
+		referenceCoinsCard.AnchorPoint = Vector2.new(0.5, 0)
+		referenceCoinsCard.Position = UDim2.new(0.5, 0, 0, 5)
+		referenceCoinsCard.Size = UDim2.fromOffset(math.floor(138 * phoneScale + 0.5), topCardHeight)
+		referenceWallCard.AnchorPoint = Vector2.new(0.5, 0)
+		referenceWallCard.Position = UDim2.new(0.66, 0, 0, 5)
+		referenceWallCard.Size = UDim2.fromOffset(math.floor(108 * phoneScale + 0.5), topCardHeight)
+		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.new(0.5, 0)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Position = UDim2.new(0.5, 0, 0, topCardHeight + 9)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(280, viewport.X * 0.34), 38)
+		local honorCard = honorOpen and honorOpen.Parent
+		if honorCard and honorCard:IsA("GuiObject") then
+			honorCard.AnchorPoint = Vector2.new(0.5, 0)
+			honorCard.Position = UDim2.new(0.73, 0, 0, topCardHeight + 9)
+			honorCard.Size = UDim2.fromOffset(88, 38)
+			honorCard:SetAttribute("ResponsiveProfile", "PhoneLandscapeHonorV3")
+		end
+		shared.PunchWallHUDWidgets.NextWorldCard.AnchorPoint = Vector2.new(0.5, 1)
+		shared.PunchWallHUDWidgets.NextWorldCard.Position = UDim2.new(0.53, 0, 1, -8)
+		shared.PunchWallHUDWidgets.NextWorldCard.Size = UDim2.fromOffset(math.floor(116 * phoneScale + 0.5), math.floor(86 * phoneScale + 0.5))
+		trainingOverlay.AnchorPoint = Vector2.new(0.5, 0)
+		trainingOverlay.Position = UDim2.new(0.5, 0, 0, 94)
+		trainingOverlay.Size = UDim2.fromOffset(math.min(280, viewport.X * 0.36), 62)
+		trainingOverlay:SetAttribute("ResponsiveProfile", "PhoneTrainingTopLaneV3")
+		referenceHUD:SetAttribute("PhoneLandscapeInformationProfile", "EssentialProgressV3")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -11792,27 +11943,27 @@ applyResponsiveLayout = function()
 		useButton.Size = UDim2.fromOffset(72, 36)
 		contextLabel.Position = UDim2.new(1, -322, 1, -155)
 		contextLabel.Size = UDim2.fromOffset(180, 30)
-		shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.56, 0.78)
-		shared.PunchWallContextActionButton.Size = UDim2.fromScale(0.24, 0.1)
-		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "CompactCenterSafe")
+		shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.5, 0.7)
+		shared.PunchWallContextActionButton.Size = UDim2.fromOffset(180, 48)
+		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "PhoneCenterLane48V3")
 		menuButton.Position = UDim2.new(0.5, 0, 0, math.max(8, math.floor(coreGuiTopLeft.Y + 8)))
 		menuButton.Size = UDim2.fromOffset(78, 44)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 		if inventoryOpen then
-			local availableWidth = math.max(1, viewport.X - 20)
-			local availableHeight = math.max(1, viewport.Y - 12)
+			local availableWidth = math.max(1, viewport.X - 24)
+			local availableHeight = math.max(1, viewport.Y - 24)
 			local compactAspect = math.clamp(availableWidth / availableHeight, 1.5, 2.1)
 			local modalWidth = math.min(availableWidth, availableHeight * compactAspect)
 			local modalHeight = math.min(availableHeight, modalWidth / compactAspect)
 			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
-			mainPanel:SetAttribute("InventoryModalSizing", "CompactSafeFill")
+			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeMargin12V3")
 		elseif shopOpen then
 			local aspect = 1.58
 			local modalHeight = math.max(270, math.min(viewport.Y - 24, (viewport.X - 24) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 			mainPanel:SetAttribute("ShopModalSizing", "CompactSafeMarginV2")
 		else
-			local panelHeight = math.max(210, math.min(viewport.Y - 16, (viewport.X - 24) * 408 / 677))
+			local panelHeight = math.max(210, math.min(viewport.Y - 24, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
 			mainPanel.Size = UDim2.fromOffset(panelWidth, panelHeight)
 			closeButton.Position = UDim2.new(1, -8, 0, 8)
@@ -11855,6 +12006,7 @@ applyResponsiveLayout = function()
 			mainPanel:SetAttribute("GenericPhoneMinimumTouchTarget", 44)
 		end
 		mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+		mainPanel:SetAttribute("CompactModalSafeMargin", 12)
 		if rankWidgets.Root then
 			rankWidgets.Root.Position = UDim2.fromOffset(74, 92)
 			rankWidgets.Root.Size = UDim2.fromOffset(100, 228)
@@ -11881,6 +12033,35 @@ applyResponsiveLayout = function()
 		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
 			button.AnchorPoint = Vector2.zero
 		end
+		referenceQuests.Visible = true
+		referenceQuests.Active = true
+		referencePunch.AnchorPoint = Vector2.zero
+		referencePunch.Position, referencePunch.Size = designRect(1211, 669, 250, 250)
+		referencePunch:SetAttribute("ResponsiveProfile", "ReferenceDesktopPunch")
+		referenceJoystick.AnchorPoint = Vector2.zero
+		referenceJoystick.Position, referenceJoystick.Size = designRect(57, 640, 270, 270)
+		referenceJoystick:SetAttribute("ResponsiveProfile", "ReferenceDesktopJoystick")
+		if rankWidgets.Root then rankWidgets.Root.Visible = true end
+		shared.PunchWallHUDWidgets.QuestCard.Visible = true
+		referencePowerCard.AnchorPoint = Vector2.zero
+		referencePowerCard.Position, referencePowerCard.Size = designRect(415, 23, 279, 103)
+		referenceCoinsCard.AnchorPoint = Vector2.zero
+		referenceCoinsCard.Position, referenceCoinsCard.Size = designRect(702, 22, 330, 104)
+		referenceWallCard.AnchorPoint = Vector2.zero
+		referenceWallCard.Position, referenceWallCard.Size = designRect(1041, 23, 252, 103)
+		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.zero
+		shared.PunchWallHUDWidgets.ObjectiveCard.Position, shared.PunchWallHUDWidgets.ObjectiveCard.Size = designRect(682, 132, 340, 48)
+		local honorCard = honorOpen and honorOpen.Parent
+		if honorCard and honorCard:IsA("GuiObject") then
+			honorCard.AnchorPoint = Vector2.zero
+			honorCard.Position, honorCard.Size = designRect(1218, 132, 137, 58)
+			honorCard:SetAttribute("ResponsiveProfile", "ReferenceDesktopHonor")
+		end
+		shared.PunchWallHUDWidgets.NextWorldCard.AnchorPoint = Vector2.zero
+		shared.PunchWallHUDWidgets.NextWorldCard.Position, shared.PunchWallHUDWidgets.NextWorldCard.Size = designRect(1020, 778, 194, 145)
+		trainingOverlay.AnchorPoint = Vector2.zero
+		trainingOverlay.Position, trainingOverlay.Size = designRect(570, 788, 440, 104)
+		trainingOverlay:SetAttribute("ResponsiveProfile", "ReferenceDesktopTraining")
 		referenceInventory.Position, referenceInventory.Size = designRect(inventoryMenuX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight)
 		referenceShop.Position, referenceShop.Size = designRect(rightMenuColumnX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight)
 		referencePets.Position, referencePets.Size = designRect(rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight)
@@ -12010,7 +12191,7 @@ applyResponsiveLayout = function()
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
 	end
-	scheduleResponsiveHudDiagnostics(compact)
+	scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 	if shopOpen and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()
 	end

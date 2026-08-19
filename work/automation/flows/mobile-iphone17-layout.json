@@ -1,0 +1,108 @@
+{
+  "name": "mobile-iphone17-layout",
+  "description": "Focused iPhone 17 landscape geometry gate for the active HUD and every player-facing window after PhoneLandscapeV3 remediation.",
+  "studioInstanceId": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
+  "studioName": "^SmashWall_v1[.]0[.]1[.]rbxlx$",
+  "placeName": "^SmashWall_v1[.]0[.]1[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='QC iPhone 17 874x402' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"[ ]*:[ ]*874", "\"height\"[ ]*:[ ]*402", "\"active\"[ ]*:[ ]*true"],
+      "label": "configure iPhone 17 landscape"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 60000, "label": "start iPhone 17 play" },
+    { "type": "wait", "ms": 8000, "label": "wait for responsive client" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD task.wait(.2) local p=h.ActionPunch local j=h.ActionJump local joy=h.MovementJoystick local q=h.QuestsButton local result={profile=g:GetAttribute('ResponsiveProfile'),width=g:GetAttribute('ResponsiveViewportWidth'),height=g:GetAttribute('ResponsiveViewportHeight'),contract=h:GetAttribute('PhoneLayoutContractVersion'),targets=h:GetAttribute('PhonePrimaryTargetsPass'),bounds=h:GetAttribute('PhonePrimaryBoundsPass'),pairwise=h:GetAttribute('PhonePrimaryPairwisePass'),overlapPair=h:GetAttribute('PhonePrimaryOverlapPair'),coverage=h:GetAttribute('PhoneControlCoveragePass'),punchMax=h:GetAttribute('PhonePunchMaximumPass'),joystickMax=h:GetAttribute('PhoneJoystickMaximumPass'),questHidden=not q.Visible,punch=math.max(p.AbsoluteSize.X,p.AbsoluteSize.Y),jump=math.min(j.AbsoluteSize.X,j.AbsoluteSize.Y),joystick=math.max(joy.AbsoluteSize.X,joy.AbsoluteSize.Y)} assert(result.profile=='PhoneLandscape' and result.width==874 and result.height>=360 and result.height<=402 and result.contract=='PhoneLandscapeV3' and result.targets and result.bounds and result.pairwise and result.coverage and result.punchMax and result.joystickMax and result.questHidden and result.punch<=96 and result.jump>=44 and result.joystick<=112,'iPhone HUD contract '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"profile\"[ ]*:[ ]*\"PhoneLandscape\"", "\"width\"[ ]*:[ ]*874", "\"contract\"[ ]*:[ ]*\"PhoneLandscapeV3\"", "\"targets\"[ ]*:[ ]*true", "\"bounds\"[ ]*:[ ]*true", "\"pairwise\"[ ]*:[ ]*true", "\"coverage\"[ ]*:[ ]*true", "\"punchMax\"[ ]*:[ ]*true", "\"joystickMax\"[ ]*:[ ]*true", "\"questHidden\"[ ]*:[ ]*true"],
+      "label": "iPhone HUD is bounded sparse and touch safe"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PowerCard','CoinsCard','WallCard','TutorialObjectiveHUD','HonorCurrencyHUD','NextWorldCard'} local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return math.max(0,math.min(ap.X+as.X,bp.X+bs.X)-math.max(ap.X,bp.X))*math.max(0,math.min(ap.Y+as.Y,bp.Y+bs.Y)-math.max(ap.Y,bp.Y)) end local objects={} for _,n in ipairs(names) do objects[n]=h:FindFirstChild(n,true) assert(objects[n] and objects[n].Visible,n..' missing') end local topClear=overlap(objects.PowerCard,objects.CoinsCard)<1 and overlap(objects.CoinsCard,objects.WallCard)<1 and overlap(objects.TutorialObjectiveHUD,objects.HonorCurrencyHUD)<1 local textFit=true for _,n in ipairs({'PowerValue','CoinsValue','DepthValue','ObjectiveText','HonorValue','WorldProgress'}) do local x=h:FindFirstChild(n,true) textFit=textFit and x~=nil and x.TextFits end local result={topClear=topClear,textFit=textFit,rankHidden=not h.DepthRankHUD.Visible,questCardHidden=not h.QuestCard.Visible,info=h:GetAttribute('PhoneLandscapeInformationProfile')} assert(result.topClear and result.textFit and result.rankHidden and result.questCardHidden and result.info=='EssentialProgressV3','information hierarchy '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"topClear\"[ ]*:[ ]*true", "\"textFit\"[ ]*:[ ]*true", "\"rankHidden\"[ ]*:[ ]*true", "\"questCardHidden\"[ ]*:[ ]*true", "\"info\"[ ]*:[ ]*\"EssentialProgressV3\""],
+      "label": "top information hierarchy is clear"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenInventory','All') task.wait(.4) local root=g.GameMenu.FunctionalInventory local result={visible=root.Visible,drawer=root:GetAttribute('InventoryDetailMode')=='Drawer',bounded=root:GetAttribute('InventoryBoundsPass')~=false,modal=g.GameMenu:GetAttribute('InventoryModalSizing')} assert(result.visible and result.drawer and result.bounded and result.modal=='PhoneSafeMargin12V3','Inventory All '..H:JSONEncode(result)) return H:JSONEncode(result)" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"drawer\"[ ]*:[ ]*true", "\"bounded\"[ ]*:[ ]*true", "\"modal\"[ ]*:[ ]*\"PhoneSafeMargin12V3\""],
+      "label": "Inventory All uses bounded phone drawer"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local states={} for _,category in ipairs({'Pets','Honor'}) do a:Invoke('SelectInventoryCategory',category) task.wait(.3) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} states[category]={category=s.category,compact=l.compact,detailMode=l.detailMode,visibleCount=#(s.visibleKeys or {})} end assert(states.Pets.category=='Pets' and states.Pets.compact and states.Pets.detailMode=='Drawer' and states.Honor.category=='Honor' and states.Honor.compact and states.Honor.detailMode=='Drawer','Inventory categories '..H:JSONEncode(states)) return H:JSONEncode(states)" },
+      "expectRegex": ["\"Pets\"", "\"Honor\"", "\"compact\"[ ]*:[ ]*true", "\"detailMode\"[ ]*:[ ]*\"Drawer\""],
+      "label": "Inventory Pets and Honor retain compact detail behavior"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local pages={} assert(a:Invoke('OpenTab','Fists')==true,'Shop host did not open') for _,page in ipairs({'Fists','Premium','Boosts','Honor','Robux'}) do a:Invoke('OpenShopPage',page) task.wait(.35) local s=g.GameMenu.FunctionalHeroShop local small,notFit=0,0 local function shown(x) local n=x while n and n~=s.Parent do if n:IsA('GuiObject') and not n.Visible then return false end if n==s then break end n=n.Parent end return true end for _,x in ipairs(s:GetDescendants()) do if shown(x) and x:IsA('GuiButton') and math.min(x.AbsoluteSize.X,x.AbsoluteSize.Y)<44 then small+=1 end if shown(x) and (x:IsA('TextLabel') or x:IsA('TextButton')) and x.Text~='' and not x.TextFits then notFit+=1 end end pages[page]={visible=s.Visible,small=small,notFit=notFit} assert(s.Visible and small==0 and notFit==0,page..' shop '..H:JSONEncode(pages[page])) end return H:JSONEncode(pages)" },
+      "expectRegex": ["\"Fists\"", "\"Premium\"", "\"Boosts\"", "\"Honor\"", "\"Robux\"", "\"small\"[ ]*:[ ]*0", "\"notFit\"[ ]*:[ ]*0"],
+      "label": "all five Shop pages fit iPhone 17"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') a:Invoke('OpenMore') task.wait(.3) local w=g.GameMenu local s=a:Invoke('Snapshot') return H:JSONEncode({visible=w.Visible,active=s.activeTab,margin=w:GetAttribute('CompactModalSafeMargin'),legacyTabs=w.Tabs.Visible})" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"active\"[ ]*:[ ]*\"Tasks\"", "\"margin\"[ ]*:[ ]*12", "\"legacyTabs\"[ ]*:[ ]*false"],
+      "label": "Missions surface is safe"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') a:Invoke('OpenRebirth','iphone17_flow') task.wait(.3) local w=g.RebirthWindow local review=w:FindFirstChild('ReviewRebirth',true) or w:FindFirstChild('RebirthLocked',true) local result={visible=w.Visible,profile=w:GetAttribute('ResponsiveProfile'),header=w:GetAttribute('CompactHeaderSafeLeft'),control=review and math.min(review.AbsoluteSize.X,review.AbsoluteSize.Y) or 0} assert(result.visible and result.profile=='StandaloneCompactSafeV1' and result.header>=90 and result.control>=44,'Rebirth '..H:JSONEncode(result)) return H:JSONEncode(result)" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"profile\"[ ]*:[ ]*\"StandaloneCompactSafeV1\"", "\"header\"[ ]*:[ ]*(9[0-9]|[1-9][0-9]{2,})", "\"control\"[ ]*:[ ]*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"],
+      "label": "Rebirth compact header and action fit"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') a:Invoke('OpenSettings','iphone17_flow') task.wait(.3) local w=g.SettingsWindow local result={visible=w.Visible,profile=w:GetAttribute('ResponsiveProfile'),contained=w:GetAttribute('CompactSettingsRowsContained'),rows=w:GetAttribute('CompactSettingsRowCount')} assert(result.visible and result.profile=='StandaloneCompactSafeV1' and result.contained and result.rows==3,'Settings '..H:JSONEncode(result)) return H:JSONEncode(result)" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"profile\"[ ]*:[ ]*\"StandaloneCompactSafeV1\"", "\"contained\"[ ]*:[ ]*true", "\"rows\"[ ]*:[ ]*3"],
+      "label": "Settings rows stay contained"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') a:Invoke('OpenSpin') task.wait(.3) local w=g.HeroSpinModal local panel=w.SpinPanel local close=panel.CloseSpin local buy=panel.BuyBonusSpins local result={visible=w.Visible,hudHidden=not g.PixelPerfectHeroCityHUD.Visible,compact=g:GetAttribute('SpinLayoutCompact'),margin=g:GetAttribute('SpinSafeEdgeMargin'),close=math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y),buy=math.min(buy.AbsoluteSize.X,buy.AbsoluteSize.Y)} assert(result.visible and result.hudHidden and result.compact and result.margin==32 and result.close>=44 and result.buy>=44,'Spin '..H:JSONEncode(result)) return H:JSONEncode(result)" },
+      "expectRegex": ["\"visible\"[ ]*:[ ]*true", "\"hudHidden\"[ ]*:[ ]*true", "\"compact\"[ ]*:[ ]*true", "\"margin\"[ ]*:[ ]*32", "\"close\"[ ]*:[ ]*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})", "\"buy\"[ ]*:[ ]*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"],
+      "label": "Hero Spin is isolated and touch safe"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "label": "stop iPhone 17 play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='QC iPhone 17 874x402' and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return {default=S:GetDeviceAsync()=='default',removed=removed}" },
+      "expectRegex": ["\"default\"[ ]*:[ ]*true", "\"removed\"[ ]*:[ ]*1"],
+      "label": "restore simulator default"
+    }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true" }, "allowError": true, "label": "cleanup simulator" }
+  ]
+}

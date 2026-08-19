@@ -72,22 +72,21 @@ check(
         && source.includes("if size<44 then")
         && source.includes("smallNames=small")
         && source.includes("#small==0")
-        && source.includes("count>=10");
+        && source.includes("count>=9");
     }),
   "844 and 740 must enumerate every actually visible GuiButton and reject any rendered target below 44px.",
 );
 
 check(
-  "both_phone_profiles_reject_quests_jump_overlap",
+  "both_phone_profiles_hide_redundant_quests",
   phoneTargetSteps.every((step) => {
     const source = step.args?.code || "";
     return source.includes("h:FindFirstChild('QuestsButton')")
-      && source.includes("h:FindFirstChild('ActionJump')")
-      && source.includes("not overlaps(quests,jump)")
+      && source.includes("not visible(quests)")
       && step.expectRegex?.some((pattern) =>
-        pattern.includes("questsJumpClear") && pattern.endsWith("true"));
+        pattern.includes("questHidden") && pattern.endsWith("true"));
   }),
-  "Both phone profiles must fail closed if Quests overlaps Jump.",
+  "Both phone profiles must hide the redundant Quests tile; Missions remains reachable through Daily and More.",
 );
 
 check(
@@ -102,17 +101,17 @@ check(
 );
 
 check(
-  "compact_honor_and_directional_punch_targets_have_real_48px_profiles",
+  "compact_honor_and_directional_punch_targets_have_real_44px_profiles",
   client.includes("enforceReferenceTouchTarget(honorOpen)")
     && client.includes('"CompactTransparentHit48V1"')
     && client.includes("enforceReferenceTouchTarget(punchUpButton)")
     && client.includes("enforceReferenceTouchTarget(punchDownButton)")
     && client.includes('constraint.Name = "MinimumTouchTarget"')
     && client.includes("constraint.MinSize = Vector2.new(44, 44)")
-    && client.includes('"CompactTouchPair48V1"')
-    && client.includes("punchUpButton.Size = UDim2.fromOffset(48, 48)")
-    && client.includes("punchDownButton.Size = UDim2.fromOffset(48, 48)"),
-  "The compact Honor overlay and both directional punch controls must keep explicit 48px hit areas instead of design-scale shrinking below 44px.",
+    && client.includes('"PhoneLandscapeDirectionPair44V3"')
+    && client.includes("punchUpButton.Size = UDim2.fromOffset(44, 44)")
+    && client.includes("punchDownButton.Size = UDim2.fromOffset(44, 44)"),
+  "The compact Honor overlay and both directional punch controls must keep explicit hit areas at or above the 44px accessibility floor.",
 );
 
 check(
