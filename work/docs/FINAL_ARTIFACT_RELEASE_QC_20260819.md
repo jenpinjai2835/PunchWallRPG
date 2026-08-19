@@ -3,7 +3,7 @@
 ## Scope
 
 Final release-artifact rebuild on
-`develop@63231af87da568a4d32d84ffd6b75200bd398f0f`, after the current source
+`develop@ef7d4c1afa834fdd5ca4fab975957b4b1636cdf6`, after the current source
 passed the focused Studio runtime matrix. The artifact build and verification
 commands themselves did not open Roblox Studio.
 
@@ -11,10 +11,13 @@ commands themselves did not open Roblox Studio.
 
 | File | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 5,595,288 | `1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A` |
-| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 5,595,288 | `1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A` |
+| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 5,597,130 | `8366FABFF2D3229E0B4E92DDE41267751D27C43FCA144192BE0F0CF9A05AFC3D` |
+| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 5,597,130 | `8366FABFF2D3229E0B4E92DDE41267751D27C43FCA144192BE0F0CF9A05AFC3D` |
 
 The validation copy is byte-identical to the canonical final artifact.
+The manifest records six configured Game Passes and eight configured
+Developer Products. This includes the three new Premium Fist passes and the
+approved Rebirth coin asset bound by the current canonical source.
 
 ## Code-object allowlist
 

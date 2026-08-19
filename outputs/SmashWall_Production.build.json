@@ -2,13 +2,13 @@
     "ok":  true,
     "game":  "Smash Wall",
     "branch":  "develop",
-    "sourceCommit":  "63231af87da568a4d32d84ffd6b75200bd398f0f",
+    "sourceCommit":  "ef7d4c1afa834fdd5ca4fab975957b4b1636cdf6",
     "sourcePlace":  "F:\\Roblox\\PuchWall\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
     "outputPlace":  "F:\\Roblox\\PuchWall\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
     "sourceRoot":  "F:\\Roblox\\PuchWall\\work\\punch-wall-rpg\\src",
-    "bytes":  5595288,
-    "sha256":  "1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A",
-    "templateSha256":  "A7F1C84059D1C1DDFA89500932C297DEDE48021A174DEBB0749AD1ABE44D2536",
+    "bytes":  5597130,
+    "sha256":  "8366FABFF2D3229E0B4E92DDE41267751D27C43FCA144192BE0F0CF9A05AFC3D",
+    "templateSha256":  "1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A",
     "sourceMapVersion":  1,
     "codeAllowlistVersion":  1,
     "embeddedModuleCount":  9,
@@ -29,30 +29,30 @@
                             "PunchWallClient"
                         ],
     "exactSourceSha256":  {
-                              "GameConfig":  "A971D7923AD064D070679EDC10EC3428EBE3161A4D46A47576B308B94F4CDC73",
+                              "GameConfig":  "4703B23FA46384AD8B4252E1CC68BCAB62640DF35AC9BA4020C4449EA53A211A",
                               "PolishConfig":  "5B32709854867B3820252AC6EBC23EE0CF4E8589C7D8ADBBDF4D10D250BD974D",
                               "ForestVisualBuilder":  "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
                               "FistVisualBuilder":  "C37886B22E2FDF174E23E51B8275CEB0B04F2EDBBF5454CBCB119CD118ECE3A3",
                               "InventoryViewModel":  "C805F8814FFA9FA8543B529092B6534B76227445AF7FFF4617A085797B871E56",
                               "ProfilePersistence":  "DAF08CFAF0BB3BFB3A913203896FDA4924BB72FE2C28342DF8614471EF323AAB",
-                              "PunchWallBootstrap":  "27AC72522F42A568A19E5D3A367F1940DBA2922EE9F042C29C18C03CB10EDFD5",
+                              "PunchWallBootstrap":  "D3B48ED41F347852D9DA3FD24611C2EE9809A15342B3E8C96315B11E9811513F",
                               "InventoryUI":  "A46D3101A7FA23151C3DF47409410B48373A014B254D54DA4CFF156BCC2F3885",
-                              "PunchWallClient":  "D6DC0D4FA5A98E23537F5285E479B0F0FA8D68A0EF789AB98BB74D13A2CE0C66"
+                              "PunchWallClient":  "C6D9F317B225FBCA268F056C91C1C5F2C283B1D4FB4A216C6C1EDCFCB50BAE33"
                           },
     "sourceFileSha256":  {
-                             "GameConfig":  "A30C96C3E8A26981434E309A33E030CFBDBEF1B8CEB13BFC0DF6C27AD2A9DE59",
+                             "GameConfig":  "F060E85B5BE4407D6977A8CCBD8EE37389171DE95618B7F3B9C55938D23A57A1",
                              "PolishConfig":  "4A4B862B640B36136595E1841B025443946AD230EFDD5C2035E0293FBBF1C927",
                              "ForestVisualBuilder":  "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
                              "FistVisualBuilder":  "6C1C10E918D1506644976CC30E61E21FA837AE76BEE66AD539AFB6581EBF0EF5",
                              "InventoryViewModel":  "554C6080874942E0B5D388EF330D70B41423B55087B1819424045385E6122436",
                              "ProfilePersistence":  "155296B3DE325F28265B5E401FACD009FCD58BFDC94E7756E9E8D05C446969F8",
-                             "PunchWallBootstrap":  "38409C8839FFA48242BE9E0EF98F6FAD9AD87EDEC639AE66B42CC27917C9F45B",
+                             "PunchWallBootstrap":  "17CB10FC32F6FA7EA2A94D35A2A9123A9FFE0E4093E768A55CB2E63000970F5E",
                              "InventoryUI":  "B59619E355C06BD605F2C399BD6A90BB7347BC2023B94B3478EBD52D55F7357C",
-                             "PunchWallClient":  "F78A50E680B90A83DECC768318F1B6A70635DA4CC981DB1F61152A6FA6529FEA"
+                             "PunchWallClient":  "94FA6EF1BF04A637AF0C5612076B8EC9C42B54ADFE7E0F1452882DC80368C633"
                          },
     "cdataPreserved":  true,
-    "configuredGamePasses":  3,
+    "configuredGamePasses":  6,
     "configuredDeveloperProducts":  8,
     "studioHarnessGuarded":  true,
-    "generatedAtUtc":  "2026-08-19T11:30:41.9879709Z"
+    "generatedAtUtc":  "2026-08-19T14:22:04.5595284Z"
 }

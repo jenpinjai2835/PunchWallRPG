@@ -63012,6 +63012,8 @@ shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice = function(item, displ
 	for _, objectName in ipairs({
 		item.name .. " Premium Pet Stand",
 		item.name .. " Premium Pet Price",
+		item.name .. " Stand",
+		item.name .. " Armory Nameplate",
 	}) do
 		local object = root:FindFirstChild(objectName, true)
 		if object then
@@ -63019,7 +63021,7 @@ shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice = function(item, displ
 			object:SetAttribute("DisplayedRobuxPrice", resolved and displayPrice or 0)
 			object:SetAttribute("RegionalPriceResolved", resolved)
 			object:SetAttribute("RegionalPriceState", state)
-			if objectName:find(" Price$", 1, false) then
+			if objectName:find(" Price$", 1, false) or objectName:find(" Nameplate$", 1, false) then
 				for _, descendant in ipairs(object:GetDescendants()) do
 					if descendant:IsA("TextLabel") and descendant.Name == "Subtitle" then
 						descendant.Text = text
@@ -63032,7 +63034,18 @@ end
 
 shared.PunchWallPurchaseRuntime.HasConfiguredGamePass = function(item)
 	local gamePassId = item and tonumber(item.gamePassId)
-	return gamePassId ~= nil and gamePassId > 0
+	if gamePassId == nil or gamePassId <= 0 or gamePassId % 1 ~= 0 then
+		return false
+	end
+	local matches = 0
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, candidate in ipairs(catalog) do
+			if tonumber(candidate.gamePassId) == gamePassId then
+				matches += 1
+			end
+		end
+	end
+	return matches == 1
 end
 
 shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct = function(product)
@@ -63097,6 +63110,12 @@ shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice = function(item, onResol
 			task.delay(3, function()
 				shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
 			end)
+			-- A slow first bootstrap can create the armory/pet stands after the
+			-- three-second pass. Keep one later bounded re-apply so live prices
+			-- cannot remain stale without introducing a polling or render loop.
+			task.delay(12, function()
+				shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
+			end)
 			local callbacks = shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId]
 			shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId] = nil
 			if callbacks then
@@ -63111,9 +63130,11 @@ shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice = function(item, onResol
 end
 
 task.defer(function()
-	for _, item in ipairs(GameConfig.PremiumPets) do
-		if shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item) then
-			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item)
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, item in ipairs(catalog) do
+			if shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item) then
+				shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item)
+			end
 		end
 	end
 end)
@@ -66008,17 +66029,22 @@ local function renderFists()
 		local equipped = latestStats.EquippedFist == item.name
 		local purchaseConfigured = shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item)
 		local purchaseUnavailable = not isOwned and not purchaseConfigured
+		local displayPrice, regionalPriceResolved, regionalPriceState =
+			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item, renderOpenPanel)
+		local priceCopy = regionalPriceResolved and ("R$ %d"):format(displayPrice)
+			or regionalPriceState == "Loading" and "CHECKING PRICE"
+			or "PRICE AT CHECKOUT"
 		local _, actions = addRow(
 			item.displayName,
 			purchaseUnavailable
 				and ("UNAVAILABLE  |  Permanent x%.1f Power  |  Pass ID not configured"):format(item.mult)
 				or isOwned and not purchaseConfigured
 					and ("OWNED  |  Permanent x%.1f Power  |  Equip anytime"):format(item.mult)
-				or ("R$ %d  |  Permanent x%.1f Power  |  Tier %d Aura"):format(item.robux, item.mult, item.tier),
+				or ("%s  |  Permanent x%.1f Power  |  Tier %d Aura"):format(priceCopy, item.mult, item.tier),
 			item.accent,
 			item.icon
 		)
-		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or purchaseConfigured and ("R$ " .. item.robux) or "UNAVAILABLE", equipped and palette.Reward or purchaseUnavailable and palette.MutedText or item.accent, function()
+		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or purchaseConfigured and priceCopy or "UNAVAILABLE", equipped and palette.Reward or purchaseUnavailable and palette.MutedText or item.accent, function()
 			if equipped then return end
 			if isOwned then
 				actionRemote:FireServer({ action = "EquipFist", target = item.name })
@@ -66027,6 +66053,11 @@ local function renderFists()
 			end
 		end)
 		button.Size = UDim2.fromOffset(112, 44)
+		button:SetAttribute("GamePassId", tonumber(item.gamePassId) or 0)
+		button:SetAttribute("DefaultRobuxPrice", tonumber(item.robux) or 0)
+		button:SetAttribute("DisplayedRobuxPrice", regionalPriceResolved and displayPrice or 0)
+		button:SetAttribute("RegionalPriceResolved", regionalPriceResolved)
+		button:SetAttribute("RegionalPriceState", regionalPriceState)
 		button.Active = not equipped and (isOwned or purchaseConfigured)
 		button.Selectable = button.Active
 		button.AutoButtonColor = button.Active
@@ -66818,7 +66849,7 @@ renderStandaloneRebirth = function()
 
 	local coinsMet = q.currentCoins >= q.requiredCoins
 	local coinCard = standaloneCard(rebirthBody, "CoinsRequirement", UDim2.fromScale(0.65, 0), UDim2.fromScale(0.35, 0.48), coinsMet and palette.Reward or palette.Fail)
-	createThemeIcon(coinCard, "Coin", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
+	createThemeIcon(coinCard, "RebirthCoin", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
 	standaloneLabel(coinCard, "RequirementTitle", "COINS", UDim2.fromOffset(82, 9), UDim2.new(1, -92, 0, 28), palette.Text, 13, Enum.Font.GothamBlack)
 	standaloneLabel(coinCard, "RequirementValue", shortReadyText(q.currentCoins, q.requiredCoins, formatNumber), UDim2.fromOffset(82, 34), UDim2.new(1, -92, 0, 32), coinsMet and palette.Reward or palette.Text, 18, Enum.Font.GothamBlack)
 	standaloneLabel(coinCard, "RequirementState", coinsMet and "READY" or ("NEED %s"):format(formatNumber(q.requiredCoins - q.currentCoins)), UDim2.new(0, 12, 1, -42), UDim2.new(1, -24, 0, 30), coinsMet and palette.Reward or palette.Fail, 12, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
@@ -79733,12 +79764,12 @@ for index, fist in ipairs(GameConfig.Fists) do
 	fist.unlockDepth = fistUnlockDepths[index]
 end
 
--- Permanent Premium fists use Game Passes. IDs remain zero until the owner
--- creates the passes for the published experience in Creator Dashboard.
+-- Permanent Premium fists use the configured Smash Wall Game Passes. Runtime
+-- purchase helpers also require each ID to be unique across fists and pets.
 GameConfig.PremiumFists = {
-	{ name = "Crimson Vanguard Fist", displayName = "Crimson Vanguard", tier = 6, style = "Vanguard", icon = "CrimsonVanguardFist", robux = 49, gamePassId = 0, mult = 2.5, color = Color3.fromRGB(214, 38, 42), accent = Color3.fromRGB(255, 186, 49), material = Enum.Material.Metal, model = "Armored" },
-	{ name = "Stormbreaker Fist", displayName = "Stormbreaker", tier = 7, style = "Storm", icon = "StormbreakerFist", robux = 129, gamePassId = 0, mult = 12, color = Color3.fromRGB(24, 47, 72), accent = Color3.fromRGB(46, 211, 255), material = Enum.Material.Metal, model = "Void" },
-	{ name = "Celestial Titan Fist", displayName = "Celestial Titan", tier = 8, style = "Celestial", icon = "CelestialTitanFist", robux = 299, gamePassId = 0, mult = 60, color = Color3.fromRGB(213, 137, 23), accent = Color3.fromRGB(255, 228, 101), material = Enum.Material.Metal, model = "Gold" },
+	{ name = "Crimson Vanguard Fist", displayName = "Crimson Vanguard", tier = 6, style = "Vanguard", icon = "CrimsonVanguardFist", robux = 49, gamePassId = 1947838143, mult = 2.5, color = Color3.fromRGB(214, 38, 42), accent = Color3.fromRGB(255, 186, 49), material = Enum.Material.Metal, model = "Armored" },
+	{ name = "Stormbreaker Fist", displayName = "Stormbreaker", tier = 7, style = "Storm", icon = "StormbreakerFist", robux = 129, gamePassId = 1951036123, mult = 12, color = Color3.fromRGB(24, 47, 72), accent = Color3.fromRGB(46, 211, 255), material = Enum.Material.Metal, model = "Void" },
+	{ name = "Celestial Titan Fist", displayName = "Celestial Titan", tier = 8, style = "Celestial", icon = "CelestialTitanFist", robux = 299, gamePassId = 1951054054, mult = 60, color = Color3.fromRGB(213, 137, 23), accent = Color3.fromRGB(255, 228, 101), material = Enum.Material.Metal, model = "Gold" },
 }
 
 GameConfig.PremiumPets = {
@@ -80077,6 +80108,7 @@ GameConfig.UIIconAtlas = {
 GameConfig.HeroCityPixelUI = {
 	Power = "rbxassetid://116369277219209",
 	Coins = "rbxassetid://129024701441116",
+	RebirthCoin = "rbxassetid://135091225093305",
 	Wall = "rbxassetid://71796534980277",
 	Daily = "rbxassetid://140223386174801",
 	Spin = "rbxassetid://107739720698002",
@@ -92389,7 +92421,7 @@ return PolishConfig
 				</Item>
 			</Item>
 			
-		<Item class="Model" referent="RBX1DE138C5D1A042F4A38D68086AF65A34">
+		<Item class="Model" referent="RBXB57CA6FBA9EA4F81A2F241818D363A0F">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -92440,10 +92472,10 @@ return PolishConfig
 					<string name="Name">CreatorStore_ArmoredClosedHeroFist</string>
 					<int64 name="SourceAssetId">1622087753</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">6edd427ac67e4ae19881432aeba8aee8</UniqueId>
+					<UniqueId name="UniqueId">8ccfa0c1db83425b90b77bfdd04555ec</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBXAF1FC8B5E50E44DB983DD3915F46C0DE">
+			<Item class="Part" referent="RBXB75B28CB7A034CCFAC98BC704809031B">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -92541,9 +92573,9 @@ return PolishConfig
 					<string name="Name">FistMesh</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">da0997c29a774c689f395462c15214c0</UniqueId>
+					<UniqueId name="UniqueId">ddb682de938b47f2bbd90db20da11430</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBXD9AFC285347B43C2B6D1CA2D0DF635D1">
+			<Item class="SpecialMesh" referent="RBXB71395DBA79A4AC5A2FAECD876009D67">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -92570,7 +92602,7 @@ return PolishConfig
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">1d5a22f28e394690a6b2e98297ff0ed3</UniqueId>
+								<UniqueId name="UniqueId">3b689f93cccf49efbe0224b5b63e26e7</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		<Item class="ModuleScript" referent="RBX1AA10873531341DE8794853199EB6898">
@@ -93726,7 +93758,7 @@ return FistVisualBuilder
 				<UniqueId name="UniqueId">d93177e95e0d495ca4cfb988dde508a0</UniqueId>
 			</Properties>
 			
-		<Item class="Model" referent="RBXABFCDF71F76A449FB09F4CFA911AC226">
+		<Item class="Model" referent="RBX2686216CA6CD42CF81616E2264D9D3D3">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -93777,10 +93809,10 @@ return FistVisualBuilder
 					<string name="Name">Sanitized_PowerFistGoldKnuckle</string>
 					<int64 name="SourceAssetId">65566767</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">fe3f9fa0697a48ba99aa251648011602</UniqueId>
+					<UniqueId name="UniqueId">484a5c8e836948078fa29927a8ca5518</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBXD7FAA115F0CC4FEE80C4D9D46C276006">
+			<Item class="Part" referent="RBX25AA5766E1F74D8CA21F94A88DCD7210">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -93878,9 +93910,9 @@ return FistVisualBuilder
 					<string name="Name">Handle</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">807cc5deae8b45f89c37d3d1ddf77442</UniqueId>
+					<UniqueId name="UniqueId">6177c8ca542f424c8358e47fe2bdde4d</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBX4207D569206943C0AACCD9B1C2CF45F3">
+			<Item class="SpecialMesh" referent="RBXD509D3D5F4CC434F988F3C2BF73FE545">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -93907,7 +93939,7 @@ return FistVisualBuilder
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">6dd760b4feb04a27af3fcb90b9168b97</UniqueId>
+								<UniqueId name="UniqueId">76c036e45e8345078b2f3c7bb5054692</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		
@@ -94858,7 +94890,7 @@ return InventoryViewModel
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
 				<UniqueId name="UniqueId">af4fb81b3dcd41b5b8601564c3f0e767</UniqueId>
 			</Properties>
-		</Item><Item class="Folder" referent="RBX947FF3AF508245A9AAA179F722117FEC">
+		</Item><Item class="Folder" referent="RBX11649AC520794DAFB42608304A1FD1DF">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -94867,13 +94899,13 @@ return InventoryViewModel
 				<string name="Name">PunchWallVisualAssets</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-				<UniqueId name="UniqueId">02ab158221fe41d0ac79e667e1c6fd34</UniqueId>
+				<UniqueId name="UniqueId">29d643fd5ded4173a89dcc9dd86358ad</UniqueId>
 			</Properties>
 			
 			
 			
 			
-		<Item class="Model" referent="RBXE0555E099A7344EA8577E48DD84AF4EA">
+		<Item class="Model" referent="RBX9557284057234C3081CB54FE7FD5C983">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -94924,10 +94956,10 @@ return InventoryViewModel
 					<string name="Name">StylizedForestTreeTemplate</string>
 					<int64 name="SourceAssetId">95555308270103</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">0ce10b5957874c0cb06dd75176acffb4</UniqueId>
+					<UniqueId name="UniqueId">f73d59468d064e178cad28ef07188fbb</UniqueId>
 				</Properties>
 				
-			<Item class="MeshPart" referent="RBX0D49B8DD3C774801A5B1FB6EB8AB3154">
+			<Item class="MeshPart" referent="RBXA872F4F7327048F98D4C67D1F5CCC2E0">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95061,11 +95093,11 @@ return InventoryViewModel
 							<string name="Name">Meshes/Jungle tree trunks_Plane.006</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">1aa4d8c765b5480885f010a36c69dd4e</UniqueId>
+							<UniqueId name="UniqueId">3c084c37e4094e2183d669677ba18010</UniqueId>
 						</Properties>
 						
 						
-					</Item><Item class="MeshPart" referent="RBX7E9E8D49FC294B3D946079D8132AD5FC">
+					</Item><Item class="MeshPart" referent="RBX3B8AD090F56B4DEBAAB50BA7A712409F">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95199,11 +95231,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">81c12373dc6647f6beae825e056a4d47</UniqueId>
+							<UniqueId name="UniqueId">6b1c887f41f948b1b3b54942aad5403b</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX0F29E859B0804F3194C016C85CEBEA8D">
+					<Item class="SurfaceAppearance" referent="RBX5DFC90C7376A4071A81DC4818EA3B9EB">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95233,10 +95265,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">93c71ce9d5df41f7b5c70a9b272e735d</UniqueId>
+									<UniqueId name="UniqueId">e8f93e78ae6e4790ae32374d3516fd8a</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX086EFBA6C5D5451C81B3BD83D3E7A74A">
+							</Item></Item><Item class="MeshPart" referent="RBX34F5368AD4064D4591CF081EA4FE3E0B">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95370,11 +95402,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">ec670b7f71da42449135debd4c8e75f4</UniqueId>
+							<UniqueId name="UniqueId">88d53c1bee5347998a7aafb1c0fed44f</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX9582739213804BEE8788274DF8C9C9EA">
+					<Item class="SurfaceAppearance" referent="RBX82382055136A4DD0B30CE9C2AF2A0DC6">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95404,10 +95436,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">dea87c6dbea547fe9d9e8a4fe4151679</UniqueId>
+									<UniqueId name="UniqueId">a71c6983b72b4f25b3c39986a86a0755</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXCCE9816D3DD14B24AFC5F7507E62C608">
+							</Item></Item><Item class="MeshPart" referent="RBXC420BCDA400549A3B140A605C6BFBD07">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95541,11 +95573,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">88d43711a82f47e496caa7ed15ca81fb</UniqueId>
+							<UniqueId name="UniqueId">c3a44f05267145db971fdfcaa9cd1216</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX3F701C743AFE45C096D1021E181FF719">
+					<Item class="SurfaceAppearance" referent="RBX4C3BBEA4A80A47BA8CEEEC49B29F6858">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95575,10 +95607,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">627cb356aa414e9ab4b1a3b678253a7c</UniqueId>
+									<UniqueId name="UniqueId">f7cff25568af41d1bbd3a95e184ffacf</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXEE649EACFE4E4CA5BE391B348ADE2F80">
+							</Item></Item><Item class="MeshPart" referent="RBX03023B476CA94B71ABAB76371A69A1E2">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95712,11 +95744,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">bd15465c9c0d46d2b75fc56d1c104a0e</UniqueId>
+							<UniqueId name="UniqueId">c2ac3b4f3fbd4beea8167c0733301aa5</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXE98B2521C33E456884E325DF20F7C2F4">
+					<Item class="SurfaceAppearance" referent="RBXD08DEBB222ED4437A9442C3845A14704">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95746,10 +95778,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">dbbdbfe770e34559bfe73edff66d0fb9</UniqueId>
+									<UniqueId name="UniqueId">2b9b48c82076411a9fb25a2a31565379</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX0598BC049704437A966770ACE4B9B5F3">
+							</Item></Item><Item class="MeshPart" referent="RBX0503AE0F05F74EA6906CC8311C68D0F1">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95883,11 +95915,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">570f87ab12d24fe9a629859b2c4a0217</UniqueId>
+							<UniqueId name="UniqueId">58bf9b67d8524eafb0eaa6ae94c407a0</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXA9BF21771C264375AD60FA136BD8707F">
+					<Item class="SurfaceAppearance" referent="RBX7350A27056D441268AD7BCCC724773B5">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95917,10 +95949,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">e5bf4da1b66c43429213df7c612d0500</UniqueId>
+									<UniqueId name="UniqueId">3f965e3f6b864c6f8cb664779486e37d</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX1B2462B2C02A4D3FAE5302E4ED0997C4">
+							</Item></Item><Item class="MeshPart" referent="RBXEE0A2036D61D4EB59301EDF0C5CEC13B">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -96054,11 +96086,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">805a5fc89e5f44208f15e41a508bdbb7</UniqueId>
+							<UniqueId name="UniqueId">88ef9a17a6e146b69d8b3e5933cc40c2</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXA8DEF8986A2549BD81DC74C833F81348">
+					<Item class="SurfaceAppearance" referent="RBXEE9B13385E0F4CDEBC8B2F6BC3FB1B5D">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -96088,7 +96120,7 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">a49ef72457e9478393854ebf91732f66</UniqueId>
+									<UniqueId name="UniqueId">94a255f5e91c40c0baf2a9b0dc054758</UniqueId>
 								</Properties>
 								
 							</Item></Item></Item></Item></Item>
@@ -96137,7 +96169,18 @@ local visualSafety = {
 
 visualSafety.hasConfiguredGamePass = function(item)
 	local gamePassId = item and tonumber(item.gamePassId)
-	return gamePassId ~= nil and gamePassId > 0
+	if gamePassId == nil or gamePassId <= 0 or gamePassId % 1 ~= 0 then
+		return false
+	end
+	local matches = 0
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, candidate in ipairs(catalog) do
+			if tonumber(candidate.gamePassId) == gamePassId then
+				matches += 1
+			end
+		end
+	end
+	return matches == 1
 end
 
 visualSafety.hasConfiguredDeveloperProduct = function(product)
