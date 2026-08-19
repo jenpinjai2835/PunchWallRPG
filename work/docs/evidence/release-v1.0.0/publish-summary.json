@@ -1,0 +1,77 @@
+{
+  "status": "published-v11-cancel-pass-paid-purchase-blocked-insufficient-robux",
+  "releaseVersion": "1.0.0",
+  "sourceBranch": "develop",
+  "sourceCommit": "65886940245772b7f336846f6da2a007f2d1d40f",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "publishedPlaceVersion": 11,
+  "publishedAtUtc": "2026-08-19T15:55:28.5836071Z",
+  "studioSerializedArtifact": "outputs/releases/v1.0.0/SmashWall_v1.0.0_studio_serialized.rbxl",
+  "bytes": 1084378,
+  "sha256": "9D9BF7707A8B343A67B47EF69F1A820513A83760CFE30B5263273EEDC59F6AD0",
+  "publishedDownloadSha256": "9D9BF7707A8B343A67B47EF69F1A820513A83760CFE30B5263273EEDC59F6AD0",
+  "studioValidation": {
+    "committedXmlRelease": "pass-10-of-10",
+    "studioSerializedBinary": "pass-10-of-10"
+  },
+  "persistenceMigration": {
+    "status": "pass-live",
+    "fromDataVersion": 3,
+    "toDataVersion": 7,
+    "fistMasteryBefore": 6.25,
+    "fistMasteryAfter": 6,
+    "coinsRetained": 1849,
+    "profileLoadKick": false
+  },
+  "access": {
+    "mode": "Limited",
+    "testers": true,
+    "friends": true
+  },
+  "liveJoin": {
+    "status": "pass",
+    "jobId": "47ce1b98-d96f-4605-a7be-df9fb3eefbeb",
+    "playerLog": "C:/Users/Jennarong Pinjai/AppData/Local/Roblox/logs/0.735.0.7351131_20260819T155755Z_Player_D5135_last.log",
+    "kickCount": 0
+  },
+  "commerceUat": {
+    "status": "cancel-pass-paid-purchase-blocked-insufficient-robux",
+    "product": "Honor Pouch",
+    "honorAmount": 25,
+    "livePriceRobux": 25,
+    "accountRobuxBefore": 18,
+    "accountRobuxAfterCancel": 18,
+    "checkoutPromptVerified": true,
+    "checkoutTopUpOffer": {
+      "robux": 500,
+      "priceThb": 200
+    },
+    "paidPurchasePerformed": false,
+    "cancelNoChargeVerified": true,
+    "honorBefore": 0,
+    "honorAfterCancel": 0,
+    "receiptRejoinVerified": false,
+    "requireExplicitUserApprovalBeforeCharge": true
+  },
+  "commerceEvidence": [
+    {
+      "file": "work/docs/evidence/release-v1.0.0/published-v11-honor-checkout-prompt.png",
+      "capturedAtUtc": "2026-08-19T16:06:50.9756610Z",
+      "sha256": "75CD1AAB63C97BA6C54B9C700691F58455231DF8307D2D0D17437837218A652C"
+    },
+    {
+      "file": "work/docs/evidence/release-v1.0.0/published-v11-honor-checkout-canceled.png",
+      "capturedAtUtc": "2026-08-19T16:07:51.4777746Z",
+      "sha256": "691DD167291A72229E2B5B3C2566FF79194D395984ED1A36F701AA65662FBB5C"
+    }
+  ],
+  "credentialHygiene": {
+    "temporaryOpenCloudKeyDeleted": true
+  },
+  "historicalRecovery": {
+    "knownGoodPublishedVersion": 9,
+    "invalidThirdPartySerializedVersion": 8,
+    "supersededMigrationBlockedVersion": 10
+  }
+}

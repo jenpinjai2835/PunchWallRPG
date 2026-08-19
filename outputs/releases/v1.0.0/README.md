@@ -1,12 +1,20 @@
 # Smash Wall v1.0.0
 
-Open `SmashWall_v1.0.0.rbxlx` in Roblox Studio to inspect or publish the release.
-`SmashWall_v1.0.0_validation.rbxlx` is a byte-identical verification copy.
+Use `SmashWall_v1.0.0_studio_serialized.rbxl` to publish the release through
+Roblox. It is the Studio-serialized binary that was runtime-tested and uploaded
+as published place version 11.
+
+`SmashWall_v1.0.0.rbxlx` and `SmashWall_v1.0.0_validation.rbxlx` remain the
+source-inspectable XML release and its byte-identical verification copy.
 
 - Version: `1.0.0`
-- Source commit: `a426d1bf0b50f8e7b63433b9f8c0279281180287`
-- Bytes: `5,597,130`
-- SHA-256: `DEE39AFF9D2196F1A776000B9F88D5018CF5073B735E5D8929E9FE7A4BF415AE`
+- Source commit: `65886940245772b7f336846f6da2a007f2d1d40f`
+- Bytes: `5,598,171`
+- SHA-256: `6D2630509244C0EF9F82B26987FE884ADAEFECFBC05DBDCD8FBEA10D6D2C8792`
+- Published binary bytes: `1,084,378`
+- Published binary SHA-256: `9D9BF7707A8B343A67B47EF69F1A820513A83760CFE30B5263273EEDC59F6AD0`
+- Published universe/place: `10490793155` / `125255969070601`
+- Published place version: `11` at `2026-08-19T15:55:28.5836071Z`
 - Canonical code objects: `9`
 - Extra code objects: `0`
 

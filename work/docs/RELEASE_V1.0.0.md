@@ -6,14 +6,15 @@ Release channel: Release
 
 Source branch: `develop`
 
-Source commit: `a426d1bf0b50f8e7b63433b9f8c0279281180287`
+Source commit: `65886940245772b7f336846f6da2a007f2d1d40f`
 
 ## Deliverables
 
 | File | Purpose | Bytes | SHA-256 |
 | --- | --- | ---: | --- |
-| `outputs/releases/v1.0.0/SmashWall_v1.0.0.rbxlx` | Release place | 5,597,130 | `DEE39AFF9D2196F1A776000B9F88D5018CF5073B735E5D8929E9FE7A4BF415AE` |
-| `outputs/releases/v1.0.0/SmashWall_v1.0.0_validation.rbxlx` | Byte-identical validation copy | 5,597,130 | `DEE39AFF9D2196F1A776000B9F88D5018CF5073B735E5D8929E9FE7A4BF415AE` |
+| `outputs/releases/v1.0.0/SmashWall_v1.0.0.rbxlx` | Release place | 5,598,171 | `6D2630509244C0EF9F82B26987FE884ADAEFECFBC05DBDCD8FBEA10D6D2C8792` |
+| `outputs/releases/v1.0.0/SmashWall_v1.0.0_validation.rbxlx` | Byte-identical validation copy | 5,598,171 | `6D2630509244C0EF9F82B26987FE884ADAEFECFBC05DBDCD8FBEA10D6D2C8792` |
+| `outputs/releases/v1.0.0/SmashWall_v1.0.0_studio_serialized.rbxl` | Studio-serialized publish binary | 1,084,378 | `9D9BF7707A8B343A67B47EF69F1A820513A83760CFE30B5263273EEDC59F6AD0` |
 | `outputs/releases/v1.0.0/SmashWall_v1.0.0.manifest.json` | Build provenance and source hashes | — | Recorded in Git |
 
 The release place, validation copy, and `outputs/SmashWall_Production.rbxlx`
@@ -46,6 +47,19 @@ are byte-identical.
 - Release build sanitizer contract: PASS.
 - Canonical final artifact static regression: PASS.
 - Versioned release and validation copy byte identity: PASS.
+- Exact XML release runtime in Studio: PASS 10/10.
+- Studio-serialized binary reopened and runtime-tested in Studio: PASS 10/10.
+- Published as universe `10490793155`, place `125255969070601`, place
+  version `11` at `2026-08-19T15:55:28.5836071Z`.
+- Published download matches the local Studio binary byte-for-byte at SHA-256
+  `9D9BF7707A8B343A67B47EF69F1A820513A83760CFE30B5263273EEDC59F6AD0`.
+- Live Roblox Player joined version 11 with no kick. The production DataStore
+  migrated the test account from DataVersion 3 to 7, retained Coins 1,849, and
+  converted the legacy fractional FistMastery 6.25 to completed mastery 6.
+- Live commerce prompt PASS for `Honor Pouch`: Roblox displayed the exact
+  product and regional price of 25 Robux. Cancel PASS: Honor remained 0, the
+  account balance remained 18 Robux, and all four BUY actions returned to the
+  ready state without a receipt grant.
 
 ## Build command
 
@@ -56,9 +70,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File work/automation/package-vers
 
 ## Remaining release gates
 
-- The exact versioned file has not been opened for a final Roblox Studio runtime
-  playtest; its artifact gate is `STATIC PASS`, not a runtime-file PASS.
-- Published private/UAT testing remains required for real Robux prompt/cancel,
-  paid receipt delivery, Game Pass ownership, and leave/rejoin DataStore
-  persistence. Local PlaceId `0` evidence cannot prove those Roblox services.
-- Physical controller coverage remains a manual-device gate.
+- Published private/UAT paid receipt delivery remains blocked because the test
+  account has 18 Robux while the lowest pack costs 25 Robux. Roblox offered a
+  500 Robux top-up for THB 200; do not confirm that charge without explicit
+  action-time user approval. After sufficient balance exists, verify the exact
+  +25 Honor grant, receipt replay safety, and leave/rejoin persistence.
+- Live Game Pass ownership and physical controller coverage remain manual gates.

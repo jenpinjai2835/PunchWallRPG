@@ -92421,7 +92421,7 @@ return PolishConfig
 				</Item>
 			</Item>
 			
-		<Item class="Model" referent="RBX210C19F9BE344B4DBD2AA7E4DD6F176D">
+		<Item class="Model" referent="RBXAE47F6885C994282A8AF51ABB58751D4">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -92472,10 +92472,10 @@ return PolishConfig
 					<string name="Name">CreatorStore_ArmoredClosedHeroFist</string>
 					<int64 name="SourceAssetId">1622087753</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">653ffe69631d4e1b9514af6e75748fa5</UniqueId>
+					<UniqueId name="UniqueId">378a509447094e66a560a35f1814d08f</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBX1D528BC906284D7080E7F778A9E987A8">
+			<Item class="Part" referent="RBX707183EDF91140F3BD34987560DA98B3">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -92573,9 +92573,9 @@ return PolishConfig
 					<string name="Name">FistMesh</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">2eb0a5e585334cc4958a52226917d7ed</UniqueId>
+					<UniqueId name="UniqueId">9585a95c6ad14ef28363a1a978d08c11</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBX91A1A37C78AC4B60A8F902AF328D8F21">
+			<Item class="SpecialMesh" referent="RBXF1A6E53709F5452386400D0D2F9D6F90">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -92602,7 +92602,7 @@ return PolishConfig
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">0c350cbc94f64305a33e718a6c9b20dd</UniqueId>
+								<UniqueId name="UniqueId">6edac69d8f0e4c72ae86b1f623887b17</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		<Item class="ModuleScript" referent="RBX1AA10873531341DE8794853199EB6898">
@@ -93758,7 +93758,7 @@ return FistVisualBuilder
 				<UniqueId name="UniqueId">d93177e95e0d495ca4cfb988dde508a0</UniqueId>
 			</Properties>
 			
-		<Item class="Model" referent="RBXF20193ECE7054876A58C411BE236D1F5">
+		<Item class="Model" referent="RBXC17EA9F9137B4474BA1E26E9B9E13BE3">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -93809,10 +93809,10 @@ return FistVisualBuilder
 					<string name="Name">Sanitized_PowerFistGoldKnuckle</string>
 					<int64 name="SourceAssetId">65566767</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">a82a653dd1cb47a09dfeb6a9d1a5e363</UniqueId>
+					<UniqueId name="UniqueId">fd60bb2d721c49a5850754b331d9eab3</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBXC3A93B00FEC3473E9122307E517F4760">
+			<Item class="Part" referent="RBX23F266277CB94F5DB31F7341B1FFA055">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -93910,9 +93910,9 @@ return FistVisualBuilder
 					<string name="Name">Handle</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">af6fb901d13041c29636be09ca463bc6</UniqueId>
+					<UniqueId name="UniqueId">1cb8b6d84c3b457e81537e910f071798</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBX59C711814B344F51BD562BF471BCBA1E">
+			<Item class="SpecialMesh" referent="RBX8425D17F68F2424EBE3D25173FF4C108">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -93939,7 +93939,7 @@ return FistVisualBuilder
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">1d8ac2b815b349009a40a3fb205b67dd</UniqueId>
+								<UniqueId name="UniqueId">b506461f3f91460f9916188e5c97d97f</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		
@@ -94890,7 +94890,7 @@ return InventoryViewModel
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
 				<UniqueId name="UniqueId">af4fb81b3dcd41b5b8601564c3f0e767</UniqueId>
 			</Properties>
-		</Item><Item class="Folder" referent="RBXF947224521EB4F82B99364278DBA0C1C">
+		</Item><Item class="Folder" referent="RBX1E8E7635F85A4AC786EC999BB5AB3B77">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -94899,13 +94899,13 @@ return InventoryViewModel
 				<string name="Name">PunchWallVisualAssets</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-				<UniqueId name="UniqueId">7dbb82c7b00646b4937aa88b0e5d9eae</UniqueId>
+				<UniqueId name="UniqueId">933cd2b260b94aa48591aad165880a69</UniqueId>
 			</Properties>
 			
 			
 			
 			
-		<Item class="Model" referent="RBX1DC59AB98822495088FBB966CB916B2E">
+		<Item class="Model" referent="RBXEA6BF96198B34F6085A9ACB2A38B25A3">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -94956,10 +94956,10 @@ return InventoryViewModel
 					<string name="Name">StylizedForestTreeTemplate</string>
 					<int64 name="SourceAssetId">95555308270103</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">c8677a4b038a48888ce34cfc94b8a529</UniqueId>
+					<UniqueId name="UniqueId">df203eca10e54385905e72e2e57efc72</UniqueId>
 				</Properties>
 				
-			<Item class="MeshPart" referent="RBXB3776ECBC9FD4284B2F4294CF825089F">
+			<Item class="MeshPart" referent="RBX0C27F8E2F010409AAF89DF2CADB8F0A4">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95093,11 +95093,11 @@ return InventoryViewModel
 							<string name="Name">Meshes/Jungle tree trunks_Plane.006</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">af11efdad188479b92b62d4a0a4c58b8</UniqueId>
+							<UniqueId name="UniqueId">15fff062369a4310a8fa28f3f70274c2</UniqueId>
 						</Properties>
 						
 						
-					</Item><Item class="MeshPart" referent="RBX106A1C58E14E41A19DCF76026003F1E2">
+					</Item><Item class="MeshPart" referent="RBX90CDDE0AE8644456A608617F55EE6120">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95231,11 +95231,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">2c01ef871d734a19930903925e5d0297</UniqueId>
+							<UniqueId name="UniqueId">882f4031901c4831bd7f2882f2c56196</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX4860466D09C84E0A9B9304DECA8189F7">
+					<Item class="SurfaceAppearance" referent="RBX9FCD0E0F82344CF4A06A6E0FA7B076F0">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95265,10 +95265,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">51f1ba41af68479fbc84b5bd0a930888</UniqueId>
+									<UniqueId name="UniqueId">787c3871d9504677b0908224831b352d</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX3A9F98435D5F4876A6EB26CC433B49CE">
+							</Item></Item><Item class="MeshPart" referent="RBX09B3B5D8FA4B46DB984B33F4EB2C464E">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95402,11 +95402,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">0e4990e38f574168a05a644d33beec19</UniqueId>
+							<UniqueId name="UniqueId">cfdac85106134491b5d5e670333ac720</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXDFF5E9CE1D9843C68457560E1649AC7A">
+					<Item class="SurfaceAppearance" referent="RBXC55BA4BCB75149C7AD9825F1E031B269">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95436,10 +95436,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">7f55b03013d84d9c9ddcc6b0e253a045</UniqueId>
+									<UniqueId name="UniqueId">96108d4748564508813d9c9f50af4558</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX4B52C1E8F6D548BF844EDFC6C4FD4214">
+							</Item></Item><Item class="MeshPart" referent="RBX0600557605FF47749B1FD517F46CBC69">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95573,11 +95573,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">5479bc9b991748bdbead85218c0df0ce</UniqueId>
+							<UniqueId name="UniqueId">4025f286376942c8bbc4084d765ff203</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX6F71E01EC4054D40BFE3C3950A421C8E">
+					<Item class="SurfaceAppearance" referent="RBX5AD013E0588E448CB236F7C93D61160D">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95607,10 +95607,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">3b520613034147f986ad8fc9409ca8ae</UniqueId>
+									<UniqueId name="UniqueId">9ad4ac7ed5234242baa51d2212005e35</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX9E1852346CDB4D90A8CE1209E1032A1E">
+							</Item></Item><Item class="MeshPart" referent="RBXEA63806D8B7C40E49D26D5D6CD4F0E4D">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95744,11 +95744,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">2340be24b5e74b039a614d2ff85948f8</UniqueId>
+							<UniqueId name="UniqueId">158995fe2ded42d4872d5af51ae17bbc</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX2180A68B12A947B8A4E7FD9C14772F3B">
+					<Item class="SurfaceAppearance" referent="RBXD13E45DFAC1C48CCA8B7EB170765775E">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95778,10 +95778,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">7dec3579b1774d5393092c09376fd25b</UniqueId>
+									<UniqueId name="UniqueId">165a067f4f1c4162880dca6df997384e</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX0B53D646F69343B4A93E8228ADF4BFC6">
+							</Item></Item><Item class="MeshPart" referent="RBXD1E2969FECF84276B7B4EFD6F3657BCD">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95915,11 +95915,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">6335e6267dd8440a9710b32f1514bd8d</UniqueId>
+							<UniqueId name="UniqueId">f089f5c492dc4cf5af07c6ec51cb4e9b</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX6A559C4031A54740A7F3E81BD32513E6">
+					<Item class="SurfaceAppearance" referent="RBXF8ACCEB7BFD24D58895A5FB118950984">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95949,10 +95949,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">02da8831791c49b78ba9d3774d85491e</UniqueId>
+									<UniqueId name="UniqueId">6444f4ec9bd74b389820f98561693f17</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX48D4F01A98414996A65A162186573A8A">
+							</Item></Item><Item class="MeshPart" referent="RBX45EB6A3C6F9549E79A0D8F71194C6FB4">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -96086,11 +96086,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">a60635fa7e1949db93604365e37efc54</UniqueId>
+							<UniqueId name="UniqueId">6ef9123c121b46f5a90da5389d6237b9</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXB5609FF83F4D421E9A7EC93EEAAF96AB">
+					<Item class="SurfaceAppearance" referent="RBX66CEAE17AD68497AAEEDB88549B4B332">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -96120,7 +96120,7 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">0976ed2402394a0fbab1fe383a737e16</UniqueId>
+									<UniqueId name="UniqueId">ab6f8c6f2bd4456fb3caa99a305e65e5</UniqueId>
 								</Properties>
 								
 							</Item></Item></Item></Item></Item>
@@ -106155,7 +106155,7 @@ end)
 				<Content name="LinkedSource"><null></null></Content>
 				<ProtectedString name="Source"><![CDATA[local ProfilePersistence = {}
 
-ProfilePersistence.ContractVersion = "2.2.0"
+ProfilePersistence.ContractVersion = "2.2.1"
 ProfilePersistence.MaxReceiptLedgerEntries = 200
 ProfilePersistence.MaxSeenReceiptIds = 2048
 ProfilePersistence.MaxAuthoritativeNumber = 9007199254740991
@@ -107189,6 +107189,19 @@ function ProfilePersistence.Migrate(rawProfile, currentVersion, maxEntries)
 	if currentVersion >= 7 and sourceVersion < 7 then
 		profile.HonorPowerBonus = 0
 	end
+	-- DataVersion 3 stored fractional FistMastery progress (for example 6.25),
+	-- while the current authoritative stat is an integer counter. Preserve every
+	-- completed mastery level without inventing progress. Invalid types, nonfinite
+	-- values, and values below the historical minimum still fail schema validation.
+	if sourceVersion < currentVersion
+		and type(profile.FistMastery) == "number"
+		and profile.FistMastery == profile.FistMastery
+		and profile.FistMastery ~= math.huge
+		and profile.FistMastery ~= -math.huge
+		and profile.FistMastery >= 1
+	then
+		profile.FistMastery = math.floor(profile.FistMastery)
+	end
 	local validatedProfile, schemaError = validateAuthoritativeFields(profile)
 	if not validatedProfile then
 		return nil, schemaError
@@ -107855,6 +107868,19 @@ function ProfilePersistence.RunContractSelfTest(currentVersion)
 	assert(
 		migrated.LegacyOnlyPayload == nil,
 		"legacy migration did not drop unknown top-level fields"
+	)
+	local legacyFractionalMastery, legacyFractionalMasteryState =
+		ProfilePersistence.Migrate({
+			DataVersion = 3,
+			FistMastery = 6.25,
+			Coins = 1849,
+		}, currentVersion)
+	assert(
+		legacyFractionalMastery
+			and legacyFractionalMasteryState == "Migrated"
+			and legacyFractionalMastery.FistMastery == 6
+			and legacyFractionalMastery.Coins == 1849,
+		"legacy fractional FistMastery was not migrated without data loss"
 	)
 	for _, field in ipairs(ProfilePersistence.BoostExpiryFields) do
 		assert(type(migrated[field]) == "number", "boost migration field missing: " .. field)

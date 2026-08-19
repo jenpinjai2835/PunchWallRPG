@@ -1,7 +1,7 @@
 {
   "name": "final-rbxlx-build-validation",
   "description": "Open a byte-for-byte validation copy of the rebuilt final RBXLX and verify the embedded scripts bootstrap the complete player-facing release.",
-  "studioName": "^(PunchWallRPGPlayable_v1_final_validation[.]rbxlx|SmashWall_v1[.]0[.]0_studio_serialized(?:_v11)?[.]rbxl)$",
+  "studioName": "^(PunchWallRPGPlayable_v1_final_validation[.]rbxlx|SmashWall_v1[.]0[.]0_studio_serialized(?:_v11|_current)?[.]rbxl)$",
   "pollAttempts": 20,
   "pollMs": 2500,
   "steps": [
