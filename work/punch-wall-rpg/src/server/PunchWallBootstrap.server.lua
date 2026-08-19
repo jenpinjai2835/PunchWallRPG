@@ -29,7 +29,18 @@ local visualSafety = {
 
 visualSafety.hasConfiguredGamePass = function(item)
 	local gamePassId = item and tonumber(item.gamePassId)
-	return gamePassId ~= nil and gamePassId > 0
+	if gamePassId == nil or gamePassId <= 0 or gamePassId % 1 ~= 0 then
+		return false
+	end
+	local matches = 0
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, candidate in ipairs(catalog) do
+			if tonumber(candidate.gamePassId) == gamePassId then
+				matches += 1
+			end
+		end
+	end
+	return matches == 1
 end
 
 visualSafety.hasConfiguredDeveloperProduct = function(product)

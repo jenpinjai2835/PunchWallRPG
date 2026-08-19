@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
   "results": [
     {
       "ok": true,
@@ -19,8 +19,8 @@
         "allow bounded bootstrap and regional-price lookup",
         "catalog IDs and world purchase availability are truthful",
         "premium and Robux controls are configured, priced, and wired",
-        "zero-ID fist request fails closed with one clear message",
-        "rejected request causes no authoritative mutation",
+        "premium fist live Marketplace metadata matches configured passes",
+        "catalog and metadata inspection cause no authoritative mutation",
         "capture console",
         "console clean",
         "stop play",

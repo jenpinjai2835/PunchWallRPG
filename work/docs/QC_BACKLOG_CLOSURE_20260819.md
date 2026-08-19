@@ -59,7 +59,9 @@ opens Studio and must be run as an explicit runtime benchmark.
 
 ## Remaining external release gates
 
-- `PremiumFists` still require three real Creator Dashboard Game Pass IDs.
+- The three `PremiumFists` Game Passes are configured and on sale: Crimson
+  Vanguard `1947838143`, Stormbreaker `1951036123`, and Celestial Titan
+  `1951054054`. Published private-server purchase/rejoin UAT remains required.
 - The generated Rebirth coin master still requires upload/moderation before a
   runtime asset ID can replace the approved fallback.
 - PlaceId 0 cannot prove production DataStore leave/rejoin durability, real

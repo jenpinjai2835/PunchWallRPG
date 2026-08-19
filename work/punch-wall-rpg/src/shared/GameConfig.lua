@@ -267,12 +267,12 @@ for index, fist in ipairs(GameConfig.Fists) do
 	fist.unlockDepth = fistUnlockDepths[index]
 end
 
--- Permanent Premium fists use Game Passes. IDs remain zero until the owner
--- creates the passes for the published experience in Creator Dashboard.
+-- Permanent Premium fists use the configured Smash Wall Game Passes. Runtime
+-- purchase helpers also require each ID to be unique across fists and pets.
 GameConfig.PremiumFists = {
-	{ name = "Crimson Vanguard Fist", displayName = "Crimson Vanguard", tier = 6, style = "Vanguard", icon = "CrimsonVanguardFist", robux = 49, gamePassId = 0, mult = 2.5, color = Color3.fromRGB(214, 38, 42), accent = Color3.fromRGB(255, 186, 49), material = Enum.Material.Metal, model = "Armored" },
-	{ name = "Stormbreaker Fist", displayName = "Stormbreaker", tier = 7, style = "Storm", icon = "StormbreakerFist", robux = 129, gamePassId = 0, mult = 12, color = Color3.fromRGB(24, 47, 72), accent = Color3.fromRGB(46, 211, 255), material = Enum.Material.Metal, model = "Void" },
-	{ name = "Celestial Titan Fist", displayName = "Celestial Titan", tier = 8, style = "Celestial", icon = "CelestialTitanFist", robux = 299, gamePassId = 0, mult = 60, color = Color3.fromRGB(213, 137, 23), accent = Color3.fromRGB(255, 228, 101), material = Enum.Material.Metal, model = "Gold" },
+	{ name = "Crimson Vanguard Fist", displayName = "Crimson Vanguard", tier = 6, style = "Vanguard", icon = "CrimsonVanguardFist", robux = 49, gamePassId = 1947838143, mult = 2.5, color = Color3.fromRGB(214, 38, 42), accent = Color3.fromRGB(255, 186, 49), material = Enum.Material.Metal, model = "Armored" },
+	{ name = "Stormbreaker Fist", displayName = "Stormbreaker", tier = 7, style = "Storm", icon = "StormbreakerFist", robux = 129, gamePassId = 1951036123, mult = 12, color = Color3.fromRGB(24, 47, 72), accent = Color3.fromRGB(46, 211, 255), material = Enum.Material.Metal, model = "Void" },
+	{ name = "Celestial Titan Fist", displayName = "Celestial Titan", tier = 8, style = "Celestial", icon = "CelestialTitanFist", robux = 299, gamePassId = 1951054054, mult = 60, color = Color3.fromRGB(213, 137, 23), accent = Color3.fromRGB(255, 228, 101), material = Enum.Material.Metal, model = "Gold" },
 }
 
 GameConfig.PremiumPets = {
@@ -611,6 +611,7 @@ GameConfig.UIIconAtlas = {
 GameConfig.HeroCityPixelUI = {
 	Power = "rbxassetid://116369277219209",
 	Coins = "rbxassetid://129024701441116",
+	RebirthCoin = "rbxassetid://135091225093305",
 	Wall = "rbxassetid://71796534980277",
 	Daily = "rbxassetid://140223386174801",
 	Spin = "rbxassetid://107739720698002",

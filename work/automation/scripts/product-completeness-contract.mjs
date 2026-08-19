@@ -50,8 +50,8 @@ const flowLuau = flow.steps
   .filter((step) => step.tool === "execute_luau")
   .map((step) => step.args?.code ?? "")
   .join("\n");
-const rejectionFlowLuau = flow.steps.find(
-  (step) => step.saveAs === "realProductPathRejections",
+const livePremiumFistMetadataFlowLuau = flow.steps.find(
+  (step) => step.saveAs === "livePremiumFistMetadata",
 )?.args?.code ?? "";
 const clientAvailabilityFlowLuau = flow.steps.find(
   (step) => step.saveAs === "clientAvailability",
@@ -60,15 +60,6 @@ const mobileActionCooldownMatch = server.match(
   /local MOBILE_ACTION_COOLDOWN\s*=\s*([0-9.]+)/,
 );
 const mobileActionCooldownSeconds = Number(mobileActionCooldownMatch?.[1]);
-const rejectionDispatches = rejectionFlowLuau.match(
-  /^\s*dispatch\('BuyPremium(?:Fist|Pet|Product)'/gm,
-) ?? [];
-const rejectionSettles = rejectionFlowLuau.match(
-  /^\s*task\.wait\(ACTION_REQUEST_SETTLE_SECONDS\)$/gm,
-) ?? [];
-const rejectionFireServerSites = rejectionFlowLuau.match(
-  /:FireServer/g,
-) ?? [];
 const includesAll = (source, needles) => needles.every((needle) => source.includes(needle));
 const section = (source, start, end) => {
   const startIndex = source.indexOf(start);
@@ -104,6 +95,11 @@ const functionalShopAvailability = section(
 );
 
 const checks = {
+  premium_fist_catalog_matches_creator_dashboard: includesAll(config, [
+    'name = "Crimson Vanguard Fist", displayName = "Crimson Vanguard", tier = 6, style = "Vanguard", icon = "CrimsonVanguardFist", robux = 49, gamePassId = 1947838143',
+    'name = "Stormbreaker Fist", displayName = "Stormbreaker", tier = 7, style = "Storm", icon = "StormbreakerFist", robux = 129, gamePassId = 1951036123',
+    'name = "Celestial Titan Fist", displayName = "Celestial Titan", tier = 8, style = "Celestial", icon = "CelestialTitanFist", robux = 299, gamePassId = 1951054054',
+  ]),
   developer_product_catalog_matches_creator_dashboard: includesAll(config, [
     'id = "CoinPack", displayName = "Hero Coin Pack", robux = 29, productId = 3708736246',
     'id = "SpinPack", displayName = "3 Hero Spins", robux = 49, productId = 3708736283',
@@ -131,6 +127,13 @@ const checks = {
     "visualSafety.hasConfiguredGamePass",
     "visualSafety.hasConfiguredDeveloperProduct",
   ]),
+  game_pass_configuration_is_unique_across_fists_and_pets:
+    [client, server].every((source) => includesAll(source, [
+      "for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do",
+      "if tonumber(candidate.gamePassId) == gamePassId then",
+      "matches += 1",
+      "return matches == 1",
+    ])),
   disabled_purchase_controls_are_noninteractive: includesAll(client, [
     "button.Active = false",
     "button.Selectable = false",
@@ -233,31 +236,35 @@ const checks = {
     "shared.PunchWallPremiumProducts.grant(player, product)",
     'shared.PunchWallPremiumPets.grant(player, item, "StudioAutomation")',
   ]),
-  availability_flow_probes_real_action_remote_not_shared_registries:
+  availability_flow_probes_all_catalogs_without_opening_purchase:
     includesAll(flowLuau, [
       "command:Invoke('Reset')",
       "assert(cfg.StudioTestGrantPremium==false",
-      "PunchWallEvents.ActionRequest:FireServer",
-      "PunchWallEvents.Feedback",
-      "OnClientEvent:Connect",
-      "BuyPremiumFist",
+      "configuredFists",
       "configuredPets",
       "configuredProducts",
-      "PremiumSetup",
+      "GetProductInfoAsync(fist.gamePassId,Enum.InfoType.GamePass)",
+      "info.Name==fist.name",
+      "info.IsForSale==true",
       "command:Invoke('Snapshot')",
       "OwnedPremiumFistsJSON",
       "OwnedPremiumPetsJSON",
       "SpinCredits",
     ])
     && !/cfg\.StudioTestGrantPremium\s*=(?!=)/.test(flowLuau)
-    && !/\.(?:gamePassId|productId)\s*=(?!=)/.test(flowLuau),
-  availability_flow_has_one_bounded_real_rejection_request:
-    rejectionFireServerSites.length === 1
-    && rejectionDispatches.length === 0
-    && rejectionSettles.length === 0
-    && rejectionFlowLuau.includes("action='BuyPremiumFist'")
-    && rejectionFlowLuau.includes("local deadline=os.clock()+2")
-    && !rejectionFlowLuau.includes("BuyPremiumProduct"),
+    && !/\.(?:gamePassId|productId)\s*=(?!=)/.test(flowLuau)
+    && !flowLuau.includes("PromptGamePassPurchase"),
+  availability_flow_matches_all_three_live_premium_fists:
+    includesAll(livePremiumFistMetadataFlowLuau, [
+      "1947838143",
+      "1951036123",
+      "1951054054",
+      "Enum.InfoType.GamePass",
+      "info.Name==fist.name",
+      "info.IsForSale==true",
+      "assert(ok and #rows==3",
+    ])
+    && !livePremiumFistMetadataFlowLuau.includes(":FireServer"),
   studio_purchase_id_override_is_bounded_vm_local_and_restorable:
     includesAll(client, [
       '"ConfigurePurchaseTestIds"',
@@ -283,10 +290,14 @@ const checks = {
     ]),
   availability_ui_flow_uses_harness_only_and_covers_all_catalogs:
     includesAll(clientAvailabilityFlowLuau, [
+      "cfg.PremiumFists",
+      "fistWorldOk",
+      "workspace.PunchWallRPG.Interactables",
+      "FindFirstChildOfClass('ClickDetector')",
+      "Enum.InfoType.GamePass",
       "a:Invoke('OpenShopPage','Premium')",
       "validatePage('Robux')",
       "validatePage('Honor')",
-      "a:Invoke('OpenTab','Pets')",
       "cfg.PremiumPets",
       "cfg.PremiumProducts",
       "PremiumPetPreviewReady",
@@ -294,7 +305,7 @@ const checks = {
       "RegionalPriceResolved",
       "ShopActionBound",
       "GetProductInfoAsync",
-      "pet.name..'PremiumPet'",
+      "PremiumPetPreviewReady",
     ])
     && !/\.(?:gamePassId|productId)\s*=(?!=)/.test(clientAvailabilityFlowLuau),
   availability_ui_flow_restores_on_failure_and_cleanup:
@@ -307,6 +318,12 @@ const checks = {
     "MarketplaceService:PromptProductPurchase(player, product.productId)",
     "MarketplaceService.PromptGamePassPurchaseFinished:Connect",
     "MarketplaceService.ProcessReceipt",
+  ]),
+  world_gamepass_prices_survive_slow_bootstrap: includesAll(client, [
+    "ApplyPremiumPetWorldPrice",
+    "task.delay(3, function()",
+    "task.delay(12, function()",
+    "cannot remain stale without introducing a polling or render loop",
   ]),
   honor_copy_describes_current_release_only: includesAll(client, [
     "DEPTH • REBIRTH • TITAN | EQUIP ONE RELIC",

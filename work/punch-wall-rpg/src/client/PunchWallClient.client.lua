@@ -141,6 +141,8 @@ shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice = function(item, displ
 	for _, objectName in ipairs({
 		item.name .. " Premium Pet Stand",
 		item.name .. " Premium Pet Price",
+		item.name .. " Stand",
+		item.name .. " Armory Nameplate",
 	}) do
 		local object = root:FindFirstChild(objectName, true)
 		if object then
@@ -148,7 +150,7 @@ shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice = function(item, displ
 			object:SetAttribute("DisplayedRobuxPrice", resolved and displayPrice or 0)
 			object:SetAttribute("RegionalPriceResolved", resolved)
 			object:SetAttribute("RegionalPriceState", state)
-			if objectName:find(" Price$", 1, false) then
+			if objectName:find(" Price$", 1, false) or objectName:find(" Nameplate$", 1, false) then
 				for _, descendant in ipairs(object:GetDescendants()) do
 					if descendant:IsA("TextLabel") and descendant.Name == "Subtitle" then
 						descendant.Text = text
@@ -161,7 +163,18 @@ end
 
 shared.PunchWallPurchaseRuntime.HasConfiguredGamePass = function(item)
 	local gamePassId = item and tonumber(item.gamePassId)
-	return gamePassId ~= nil and gamePassId > 0
+	if gamePassId == nil or gamePassId <= 0 or gamePassId % 1 ~= 0 then
+		return false
+	end
+	local matches = 0
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, candidate in ipairs(catalog) do
+			if tonumber(candidate.gamePassId) == gamePassId then
+				matches += 1
+			end
+		end
+	end
+	return matches == 1
 end
 
 shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct = function(product)
@@ -226,6 +239,12 @@ shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice = function(item, onResol
 			task.delay(3, function()
 				shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
 			end)
+			-- A slow first bootstrap can create the armory/pet stands after the
+			-- three-second pass. Keep one later bounded re-apply so live prices
+			-- cannot remain stale without introducing a polling or render loop.
+			task.delay(12, function()
+				shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
+			end)
 			local callbacks = shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId]
 			shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId] = nil
 			if callbacks then
@@ -240,9 +259,11 @@ shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice = function(item, onResol
 end
 
 task.defer(function()
-	for _, item in ipairs(GameConfig.PremiumPets) do
-		if shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item) then
-			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item)
+	for _, catalog in ipairs({ GameConfig.PremiumFists, GameConfig.PremiumPets }) do
+		for _, item in ipairs(catalog) do
+			if shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item) then
+				shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item)
+			end
 		end
 	end
 end)
@@ -3137,17 +3158,22 @@ local function renderFists()
 		local equipped = latestStats.EquippedFist == item.name
 		local purchaseConfigured = shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item)
 		local purchaseUnavailable = not isOwned and not purchaseConfigured
+		local displayPrice, regionalPriceResolved, regionalPriceState =
+			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item, renderOpenPanel)
+		local priceCopy = regionalPriceResolved and ("R$ %d"):format(displayPrice)
+			or regionalPriceState == "Loading" and "CHECKING PRICE"
+			or "PRICE AT CHECKOUT"
 		local _, actions = addRow(
 			item.displayName,
 			purchaseUnavailable
 				and ("UNAVAILABLE  |  Permanent x%.1f Power  |  Pass ID not configured"):format(item.mult)
 				or isOwned and not purchaseConfigured
 					and ("OWNED  |  Permanent x%.1f Power  |  Equip anytime"):format(item.mult)
-				or ("R$ %d  |  Permanent x%.1f Power  |  Tier %d Aura"):format(item.robux, item.mult, item.tier),
+				or ("%s  |  Permanent x%.1f Power  |  Tier %d Aura"):format(priceCopy, item.mult, item.tier),
 			item.accent,
 			item.icon
 		)
-		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or purchaseConfigured and ("R$ " .. item.robux) or "UNAVAILABLE", equipped and palette.Reward or purchaseUnavailable and palette.MutedText or item.accent, function()
+		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or purchaseConfigured and priceCopy or "UNAVAILABLE", equipped and palette.Reward or purchaseUnavailable and palette.MutedText or item.accent, function()
 			if equipped then return end
 			if isOwned then
 				actionRemote:FireServer({ action = "EquipFist", target = item.name })
@@ -3156,6 +3182,11 @@ local function renderFists()
 			end
 		end)
 		button.Size = UDim2.fromOffset(112, 44)
+		button:SetAttribute("GamePassId", tonumber(item.gamePassId) or 0)
+		button:SetAttribute("DefaultRobuxPrice", tonumber(item.robux) or 0)
+		button:SetAttribute("DisplayedRobuxPrice", regionalPriceResolved and displayPrice or 0)
+		button:SetAttribute("RegionalPriceResolved", regionalPriceResolved)
+		button:SetAttribute("RegionalPriceState", regionalPriceState)
 		button.Active = not equipped and (isOwned or purchaseConfigured)
 		button.Selectable = button.Active
 		button.AutoButtonColor = button.Active
@@ -3947,7 +3978,7 @@ renderStandaloneRebirth = function()
 
 	local coinsMet = q.currentCoins >= q.requiredCoins
 	local coinCard = standaloneCard(rebirthBody, "CoinsRequirement", UDim2.fromScale(0.65, 0), UDim2.fromScale(0.35, 0.48), coinsMet and palette.Reward or palette.Fail)
-	createThemeIcon(coinCard, "Coin", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
+	createThemeIcon(coinCard, "RebirthCoin", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
 	standaloneLabel(coinCard, "RequirementTitle", "COINS", UDim2.fromOffset(82, 9), UDim2.new(1, -92, 0, 28), palette.Text, 13, Enum.Font.GothamBlack)
 	standaloneLabel(coinCard, "RequirementValue", shortReadyText(q.currentCoins, q.requiredCoins, formatNumber), UDim2.fromOffset(82, 34), UDim2.new(1, -92, 0, 32), coinsMet and palette.Reward or palette.Text, 18, Enum.Font.GothamBlack)
 	standaloneLabel(coinCard, "RequirementState", coinsMet and "READY" or ("NEED %s"):format(formatNumber(q.requiredCoins - q.currentCoins)), UDim2.new(0, 12, 1, -42), UDim2.new(1, -24, 0, 30), coinsMet and palette.Reward or palette.Fail, 12, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)

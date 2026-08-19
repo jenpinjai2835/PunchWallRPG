@@ -1,6 +1,6 @@
 {
   "status": "internal-pass-release-evidence-blocked",
-  "capturedAt": "2026-08-19T13:28:55.8350027+07:00",
+  "capturedAt": "2026-08-19T21:21:08.7415934+07:00",
   "studio": {
     "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
     "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
@@ -8,32 +8,36 @@
     "datamodelType": "Edit"
   },
   "runtimeSourceFingerprints": {
-    "GameConfig": { "length": 39008, "adler32": 1426347784 },
+    "GameConfig": { "length": 39088, "adler32": 3358682012 },
     "ProfilePersistence": { "length": 69670, "adler32": 2695979586 },
-    "PunchWallBootstrap": { "length": 417864, "adler32": 3619367568 },
-    "PunchWallClient": { "length": 512176, "adler32": 1212888966 }
+    "PunchWallBootstrap": { "length": 418162, "adler32": 2649786543 },
+    "PunchWallClient": { "length": 526149, "adler32": 1222747563 }
   },
   "sha256": {
-    "work/punch-wall-rpg/src/shared/GameConfig.lua": "3045f30fdd3851b493668af4a26dbe9be73cb9e5fa13ade73ed589e45f854c0b",
-    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "daf08cfaf0bb3bfb3a913203896fda4924bb72fe2c28342df8614471ef323aab",
-    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "a415baba707464e9d27d2a1b67ac5602bb9860d3905e0a3ced5d7f755691c01e",
-    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "78c7bff76b09e0c6bfbb6b78c5d5c1f774c2aa98f9f25d32e64a57d40c64e17f",
-    "work/automation/flows/standalone-player-windows.json": "586e76eea0d1dc7e4f09c969a8ecc7dc4b5d6dc1de2084c8de26db9ba7f066c7",
-    "work/automation/flows/rebirth-progression.json": "6e77df013fff13e530cc83e62ce1e39cb96e0e242b3743fd9b7bf46ef64681cb",
-    "work/automation/scripts/standalone-player-windows-contract.mjs": "984dcf328271acb493f816d26db6f7744690b3a59cabea6d0c3ce7d73670d771",
-    "work/automation/scripts/rebirth-progression-contract.mjs": "eeb6ed105aa5c0d3b87f5d64fb5289ffc7fa3c7edb298bec7b3782afc03a32ea",
-    "work/automation/scripts/capture-rebirth-progression.mjs": "42a1cb1454baaa0220a512d940fcbbdbbe407b778505966e08c7f29b0c749bf0",
-    "work/docs/evidence/standalone-windows-20260819/capture-blocker.json": "2d3a27cd247124f47a694c91364fec0849bf5ce9b2ee72e924be93a1a054ba98",
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "f060e85b5be4407d6977a8ccbd8ee37389171de95618b7f3b9c55938d23a57a1",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "155296b3de325f28265b5e401facd009fcd58bfdc94e7756e9e8d05c446969f8",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "17cb10fc32f6fa7ea2a94d35a2a9123a9ffe0e4093e768a55cb2e63000970f5e",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "94fa6ef1bf04a637af0c5612076b8ec9c42b54adfe7e0f1452882dc80368c633",
+    "work/automation/flows/standalone-player-windows.json": "47c5e8fa91647d630afbdf0cbb757b6afc668ef8d9db598a86641d3ad0efeda4",
+    "work/automation/flows/rebirth-progression.json": "33ea192fe74096d7c51e413f524d9614cf1d0e5d9622e7c531edbeb9a8158eab",
+    "work/automation/scripts/standalone-player-windows-contract.mjs": "28dda4ea8c56a6ec3c486713cd82242e62eaf7521e7883dc0c99dcca492e6c6c",
+    "work/automation/scripts/rebirth-progression-contract.mjs": "30fffd16726eecc52b69d6b7e8531b223233eae33d3585fb5894665686afa917",
+    "work/automation/scripts/capture-rebirth-progression.mjs": "dfcba59c7eab4751197fc5b1212f61ee6785e5a11f4ab173b999742e28dc025c",
+    "work/docs/evidence/standalone-windows-20260819/capture-blocker.json": "a9d44abb9826e9f81694b0988421e5fdc18a74ea1c95456326410a9c0563b179",
     "work/docs/evidence/standalone-windows-20260819/standalone-player-windows-result.json": "71e52700d66d481f84dfc7d69023ef0c24256f1d01b65eb71e88c2e98956c302",
-    "work/docs/evidence/standalone-windows-20260819/rebirth-progression-result.json": "68983c6b0582a18890f2884747f9a41a683ceb7fcf4e6887e1af23b1291fe351",
-    "work/assets/generated/rebirth-ui-v1/README.md": "975cb6f1bd4084f63226bab51094ff260a7c1c2c3f951412bc293d0ca13e95b6"
+    "work/docs/evidence/standalone-windows-20260819/rebirth-progression-result.json": "3d0abe8a9a0de70f3b3676b1329f076090d877e3792a08d5769b2a22284ed73e",
+    "work/assets/generated/rebirth-ui-v1/README.md": "c752fc27d028c555246abd43d4539cdc32669cb9fee603def33a14af7cc74950",
+    "work/docs/REBIRTH_COIN_ASSET_20260819.md": "9766c2dedde8946229a8bd5d254927b66fef0e7bc2cd0121ad62a619fdb2af1b",
+    "work/automation/scripts/product-completeness-contract.mjs": "965f33b90291f765d48a05a2e4d0146650e56e680a709f04f5c0a6d7bd419df5",
+    "work/docs/evidence/product-completeness-purchase-availability-20260819.json": "febb7ac52763815f789880411faba3189c8c05e040792f34bd0f610277af53c8"
   },
   "checks": {
     "standalonePlayerWindows": "26/26 PASS",
     "rebirthProgression": "42/42 PASS",
-    "standaloneContract": "18/18 PASS",
+    "standaloneContract": "19/19 PASS",
     "rebirthContract": "19/19 PASS",
-    "fullStaticAggregate": "PASS: Node 43, PowerShell 18, Luau 27, flow JSON 113"
+    "productCompleteness": "11/11 runtime PASS; 29/29 contract PASS",
+    "fullStaticAggregate": "PASS: Node 44, PowerShell 18, Luau 27, flow JSON 113, static contracts 24/24"
   },
   "blocked": {
     "physicalMouseTouch": "Studio MCP user_mouse_input timed out; route/callback automation is not physical-input proof.",

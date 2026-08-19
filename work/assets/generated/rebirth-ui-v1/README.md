@@ -6,7 +6,7 @@ Files:
 
 - `wall-level.png` — Wall Level requirement.
 - `coins.png` — Coins requirement draft. Do **not** upload this draft: its lightning emblem can be mistaken for Power. A future approved revision must use an unmistakable currency mark and preserve real alpha transparency.
-- `coins-v2.png` — Approved visual master candidate for Coins: a five-coin gold stack with embossed stars and real alpha transparency. It contains no lightning or Power-core motif. Upload and Roblox moderation are still required before assigning a runtime asset ID.
+- `coins-v2.png` — Approved Coins master: a five-coin gold stack with embossed stars and real alpha transparency. It contains no lightning or Power-core motif. Uploaded to Roblox as `Smash Wall Rebirth Coin`; asset `135091225093305`; thumbnail moderation state `Completed` on 2026-08-19. Runtime key: `GameConfig.HeroCityPixelUI.RebirthCoin`.
 - `rebirth-core.png` — Rebirth reward/permanent multiplier.
 
 The v1 files are intentionally kept separate so Roblox can upload, crop, scale, and replace each icon independently. Only assets explicitly marked approved after alpha/silhouette review may be uploaded.
