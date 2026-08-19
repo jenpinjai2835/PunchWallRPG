@@ -2265,11 +2265,21 @@ local function showFeedback(payload)
 			return
 		end
 		if requested == "Honor" and payload.selected ~= nil then
-			-- World relic displays are previews, not instant purchases. Preserve the
-			-- exact server-selected relic through the deferred menu render so long
-			-- catalogs open at the item the player actually inspected.
-			shared.PunchWallSelectedHonorItemId = tostring(payload.selected)
-			gui:SetAttribute("RequestedHonorItemId", shared.PunchWallSelectedHonorItemId)
+			-- World relic displays are previews, not instant purchases. The complete
+			-- relic catalog now lives in Inventory; never route a relic click to the
+			-- optional Robux Honor-pack shop.
+			local definition = GameConfig.HonorItemDefinition(tostring(payload.selected))
+			local selectedId = definition and tostring(definition.id) or ""
+			if selectedId ~= "" then
+				shared.PunchWallSelectedHonorItemId = selectedId
+				gui:SetAttribute("RequestedHonorItemId", selectedId)
+				task.defer(function()
+					if shared.PunchWallOpenInventoryHonorItem then
+						shared.PunchWallOpenInventoryHonorItem(selectedId, "world_relic")
+					end
+				end)
+			end
+			return
 		end
 		if table.find({ "Fists", "Premium", "Boosts", "Honor", "Robux" }, requested) then
 			local menu = gui:FindFirstChild("GameMenu")
@@ -4349,12 +4359,18 @@ openGameTab = function(tabName)
 		return
 	elseif tabName == "Pets" then
 		activeTab = "Inventory"
+	elseif tabName == "Honor" then
+		activeTab = "Inventory"
 	elseif tabButtons[tabName] or tabName == "Inventory" then
 		activeTab = tabName
 	end
 	setMenuVisible(true)
 	if tabName == "Pets" and shared.PunchWallInventoryController then
 		shared.PunchWallInventoryController:SetCategory("Pets")
+	elseif tabName == "Honor" and shared.PunchWallInventoryController then
+		shared.PunchWallInventoryController:SetSearch("", false)
+		shared.PunchWallInventoryController:SetRarity("All", false)
+		shared.PunchWallInventoryController:SetCategory("Honor", false)
 	end
 	task.defer(applyResponsiveLayout)
 end
@@ -5333,6 +5349,8 @@ function companionRuntime.BuildItemMatchedGauntlet(fistName)
 	model:SetAttribute("IconIdentity", presentation.iconIdentity)
 	model:SetAttribute("FistVariantKey", presentation.variantKey)
 	model:SetAttribute("SignatureFeature", presentation.signatureFeature)
+	model:SetAttribute("CatalogMotif", presentation.catalogMotif)
+	model:SetAttribute("CatalogMotifVersion", presentation.catalogMotifVersion)
 	model:SetAttribute("ShopArtMatchedTier", definition.tier)
 	model:SetAttribute("ItemColorMatched", true)
 	model:SetAttribute("ItemMaterialMatched", true)
@@ -5948,6 +5966,8 @@ function companionRuntime.BuildHeroGauntlet(fistName)
 	model:SetAttribute("IconIdentity", presentation.iconIdentity)
 	model:SetAttribute("FistVariantKey", presentation.variantKey)
 	model:SetAttribute("SignatureFeature", presentation.signatureFeature)
+	model:SetAttribute("CatalogMotif", presentation.catalogMotif)
+	model:SetAttribute("CatalogMotifVersion", presentation.catalogMotifVersion)
 	model:SetAttribute("ShopArtMatchedTier", definition.tier)
 	model:SetAttribute("WholeHandHidden", false)
 	model:SetAttribute("HandTransparencyPreserved", true)
@@ -7760,9 +7780,9 @@ if RunService:IsStudio() then
 			if action == "OpenHonorItem" then
 				local itemId = tostring(value or "")
 				if not GameConfig.HonorItemDefinition(itemId) then return false end
-				shared.PunchWallSelectedHonorItemId = itemId
-				openGameTab("Honor")
-				return true
+				local succeeded = shared.PunchWallOpenInventoryHonorItem
+					and shared.PunchWallOpenInventoryHonorItem(itemId, "automation")
+				return succeeded == true
 			end
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
 			if action == "OpenMore" then
@@ -8747,6 +8767,18 @@ local function referenceButton(name, asset, x, y, width, height, callback)
 	return button
 end
 
+local function enforceReferenceTouchTarget(button)
+	button:SetAttribute("MinimumTouchTarget", 44)
+	local constraint = button:FindFirstChild("MinimumTouchTarget")
+	if not constraint then
+		constraint = Instance.new("UISizeConstraint")
+		constraint.Name = "MinimumTouchTarget"
+		constraint.MinSize = Vector2.new(44, 44)
+		constraint.Parent = button
+	end
+	return button
+end
+
 local pixel = GameConfig.HeroCityPixelUI
 local referencePowerCard = referenceImage("PowerCard", pixel.Power, 415, 23, 279, 103)
 local referenceCoinsCard = referenceImage("CoinsCard", pixel.Coins, 702, 22, 330, 104)
@@ -8822,7 +8854,8 @@ shared.PunchWallSoundToolButton = referenceButton("SoundTool", pixel.SoundTool, 
 	shared.PunchWallApplySoundSetting(not clientSettings.sound, true)
 end)
 shared.PunchWallSoundToolButton:SetAttribute("ToolAction", "ToggleSound")
-referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() shared.PunchWallOpenSettingsPanel("reference_settings") end)
+shared.PunchWallSettingsToolButton = referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() shared.PunchWallOpenSettingsPanel("reference_settings") end)
+shared.PunchWallSettingsToolButton:SetAttribute("ToolAction", "OpenSettings")
 shared.PunchWallMoreToolButton = referenceButton("MoreTool", pixel.MoreTool, 1587, 22, 64, 64, function()
 	openGameTab("Tasks")
 end)
@@ -8831,10 +8864,12 @@ shared.PunchWallApplySoundSetting(clientSettings.sound, false)
 
 referenceHUD:SetAttribute("StudioTestControlLocation", RunService:IsStudio() and "SettingsOnly" or "Unavailable")
 
-referenceButton("DailyButton", pixel.Daily, 16, 201, 82, 111, function() openGameTab("Tasks") end)
-referenceButton("SpinButton", pixel.Spin, 16, 316, 82, 111, function()
+local referenceDaily = referenceButton("DailyButton", pixel.Daily, 16, 201, 82, 111, function() openGameTab("Tasks") end)
+referenceDaily:SetAttribute("ToolAction", "OpenDaily")
+local referenceSpin = referenceButton("SpinButton", pixel.Spin, 16, 316, 82, 111, function()
 	if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() else requestAction("Spin") end
 end)
+referenceSpin:SetAttribute("ToolAction", "OpenSpin")
 shared.PunchWallReferenceRebirth = referenceButton("RebirthButton", pixel.Rebirth, 16, 429, 82, 111, function() shared.PunchWallOpenRebirthPanel("reference_hud") end)
 shared.PunchWallReferenceRebirth:SetAttribute("ToolAction", "OpenRebirthReview")
 local rightMenuIconWidth = 87
@@ -8900,6 +8935,16 @@ referenceHUD:SetAttribute("InventoryIconPendingUpload", not uploadedInventoryIco
 local referenceShop = referenceButton("ShopButton", pixel.Shop, rightMenuColumnX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Fists") end)
 local referencePets = referenceButton("PetsButton", pixel.Pets, rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Pets") end)
 local referenceQuests = referenceButton("QuestsButton", pixel.Quests, rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Tasks") end)
+
+for _, touchTarget in ipairs({
+	referenceDaily,
+	referenceSpin,
+	shared.PunchWallSoundToolButton,
+	shared.PunchWallSettingsToolButton,
+	shared.PunchWallMoreToolButton,
+}) do
+	enforceReferenceTouchTarget(touchTarget)
+end
 
 local function applyRightMenuOpticalArt(button, cropOffset, cropSize, displaySize)
 	button.ImageTransparency = 1
@@ -8970,6 +9015,79 @@ referencePunch.MouseLeave:Connect(function() setPunchHeld(false) end)
 local referenceJump = referenceButton("ActionJump", pixel.Jump, 1460, 694, 211, 211, function()
 	requestHumanoidJump()
 end)
+
+local responsiveHudDiagnosticsGeneration = 0
+local function scheduleResponsiveHudDiagnostics(compact)
+	responsiveHudDiagnosticsGeneration += 1
+	local generation = responsiveHudDiagnosticsGeneration
+	task.defer(function()
+		RunService.Heartbeat:Wait()
+		if generation ~= responsiveHudDiagnosticsGeneration then return end
+		local questPosition, questSize = referenceQuests.AbsolutePosition, referenceQuests.AbsoluteSize
+		local jumpPosition, jumpSize = referenceJump.AbsolutePosition, referenceJump.AbsoluteSize
+		local gapX = math.max(
+			jumpPosition.X - (questPosition.X + questSize.X),
+			questPosition.X - (jumpPosition.X + jumpSize.X)
+		)
+		local gapY = math.max(
+			jumpPosition.Y - (questPosition.Y + questSize.Y),
+			questPosition.Y - (jumpPosition.Y + jumpSize.Y)
+		)
+		local noOverlap = gapX >= 0 or gapY >= 0
+		referenceHUD:SetAttribute("ResponsivePairwiseGeometryVersion", "QuestsJumpV1")
+		referenceHUD:SetAttribute("QuestsJumpPairwiseNoOverlap", noOverlap)
+		referenceHUD:SetAttribute("QuestsJumpPairwiseGapX", gapX)
+		referenceHUD:SetAttribute("QuestsJumpPairwiseGapY", gapY)
+		referenceQuests:SetAttribute("PairwisePeer", "ActionJump")
+		referenceQuests:SetAttribute("PairwiseNoOverlap", noOverlap)
+		referenceJump:SetAttribute("PairwisePeer", "QuestsButton")
+		referenceJump:SetAttribute("PairwiseNoOverlap", noOverlap)
+
+		local minimumTarget = math.huge
+		for _, button in ipairs({
+			referenceDaily,
+			referenceSpin,
+			shared.PunchWallSoundToolButton,
+			shared.PunchWallSettingsToolButton,
+			shared.PunchWallMoreToolButton,
+		}) do
+			local actual = math.min(button.AbsoluteSize.X, button.AbsoluteSize.Y)
+			minimumTarget = math.min(minimumTarget, actual)
+			button:SetAttribute("RuntimeMinimumTouchTarget", actual)
+			button:SetAttribute("RuntimeTouchTargetPass", actual >= 44)
+		end
+		referenceHUD:SetAttribute("CompactUtilityTouchTargets", "Daily,Spin,Sound,Settings,More")
+		referenceHUD:SetAttribute("CompactUtilityMinimumTouchTarget", minimumTarget)
+		referenceHUD:SetAttribute("CompactUtilityTouchTargetsPass", not compact or minimumTarget >= 44)
+
+		local settingsPanel = shared.PunchWallStandaloneWindows.SettingsPanel
+		local settingsBody = shared.PunchWallStandaloneWindows.SettingsBody
+		local contained, rowCount = true, 0
+		for _, rowName in ipairs({ "SOUNDSetting", "MOTIONSetting", "UI SIZESetting" }) do
+			local row = settingsBody:FindFirstChild(rowName)
+			if row and row:IsA("GuiObject") then
+				rowCount += 1
+				local rowPosition, rowSize = row.AbsolutePosition, row.AbsoluteSize
+				local rowContained = true
+				for _, descendant in ipairs(row:GetDescendants()) do
+					if descendant:IsA("GuiObject") and descendant.Visible then
+						local position, size = descendant.AbsolutePosition, descendant.AbsoluteSize
+						local inside = position.X >= rowPosition.X - 0.5
+							and position.Y >= rowPosition.Y - 0.5
+							and position.X + size.X <= rowPosition.X + rowSize.X + 0.5
+							and position.Y + size.Y <= rowPosition.Y + rowSize.Y + 0.5
+						rowContained = rowContained and inside
+					end
+				end
+				row:SetAttribute("CompactDescendantsContained", rowContained)
+				contained = contained and rowContained
+			end
+		end
+		settingsPanel:SetAttribute("CompactSettingsContainmentVersion", "RowContainedV1")
+		settingsPanel:SetAttribute("CompactSettingsRowCount", rowCount)
+		settingsPanel:SetAttribute("CompactSettingsRowsContained", not compact or (rowCount == 3 and contained))
+	end)
+end
 
 shared.PunchWallContextActionButton = Instance.new("TextButton")
 shared.PunchWallContextActionButton.Name = "ContextAction"
@@ -9873,21 +9991,24 @@ shared.PunchWallBuildShopUI = function()
 		card:SetAttribute("ShopFistIconIdentity", presentation.iconIdentity)
 		card:SetAttribute("ShopFistVariantKey", presentation.variantKey)
 		card:SetAttribute("ShopFistSignatureFeature", presentation.signatureFeature)
+		card:SetAttribute("ShopFistCatalogMotif", presentation.catalogMotif)
+		card:SetAttribute("ShopFistCatalogMotifVersion", presentation.catalogMotifVersion)
 		card:SetAttribute("StaticPreviewRenderLoop", false)
-		card:SetAttribute("StaticPreviewChromeOnly", false)
-		card:SetAttribute("StaticPreviewChromeCoverage", "TintBadgeFeatureV1")
-		icon.ImageColor3 = Color3.new(1, 1, 1):Lerp(presentation.imageTint, 0.32)
+		card:SetAttribute("StaticPreviewChromeOnly", true)
+		card:SetAttribute("StaticPreviewChromeCoverage", "PerimeterOnlyV1")
+		card:SetAttribute("StaticPreviewStyleVersion", "PerimeterCatalogIdentityV2")
+		icon.ImageColor3 = Color3.new(1, 1, 1)
 		icon.ImageTransparency = 0
 		icon:SetAttribute("HeroGauntletArtVariant", presentation.shopArtKey)
 		icon:SetAttribute("HeroGauntletTier", presentation.tier)
 		icon:SetAttribute("HeroGauntletIconIdentity", presentation.iconIdentity)
 		icon:SetAttribute("HeroGauntletVariantKey", presentation.variantKey)
-		icon:SetAttribute("HeroGauntletTintMatched", true)
+		icon:SetAttribute("HeroGauntletTintMatched", false)
 		icon:SetAttribute("LoadedArtUnobscured", icon.Image ~= "")
 
 		-- The three uploaded silhouettes are deliberately reused as lightweight
-		-- bases. Per-item palette tint, tier badge, armor signature, plates, and
-		-- fins make every catalog icon visually and machine-identifiable unique.
+		-- bases. Loaded pixels remain untouched; tier, family signature, immutable
+		-- catalog motif, plates, and fins live only on the perimeter chrome.
 		local chrome = Instance.new("Frame")
 		chrome.Name = "HeroGauntletTierChrome"
 		chrome.BackgroundTransparency = 1
@@ -9935,9 +10056,9 @@ shared.PunchWallBuildShopUI = function()
 
 		local featureLabel = Instance.new("TextLabel")
 		featureLabel.Name = "StaticSignatureFeature"
-		featureLabel.AnchorPoint = Vector2.new(0.5, 1)
-		featureLabel.Position = UDim2.new(0.5, 0, 1, -4)
-		featureLabel.Size = UDim2.new(0.72, 0, 0, 14)
+		featureLabel.AnchorPoint = Vector2.new(0, 1)
+		featureLabel.Position = UDim2.new(0, 4, 1, -4)
+		featureLabel.Size = UDim2.fromOffset(50, 14)
 		featureLabel.BackgroundColor3 = Color3.fromRGB(2, 8, 12)
 		featureLabel.BackgroundTransparency = 0.12
 		featureLabel.BorderSizePixel = 0
@@ -9950,6 +10071,23 @@ shared.PunchWallBuildShopUI = function()
 		local featureCorner = Instance.new("UICorner")
 		featureCorner.CornerRadius = UDim.new(0, 3)
 		featureCorner.Parent = featureLabel
+
+		local catalogMotif = Instance.new("TextLabel")
+		catalogMotif.Name = "StaticCatalogMotif"
+		catalogMotif.Position = UDim2.fromOffset(4, 15)
+		catalogMotif.Size = UDim2.fromOffset(38, 13)
+		catalogMotif.BackgroundColor3 = presentation.accent
+		catalogMotif.BackgroundTransparency = 0.1
+		catalogMotif.BorderSizePixel = 0
+		catalogMotif.Font = Enum.Font.GothamBlack
+		catalogMotif.Text = presentation.catalogMotif
+		catalogMotif.TextColor3 = Color3.fromRGB(2, 8, 12)
+		catalogMotif.TextSize = 7
+		catalogMotif.ZIndex = chrome.ZIndex + 1
+		catalogMotif.Parent = chrome
+		local motifCorner = Instance.new("UICorner")
+		motifCorner.CornerRadius = UDim.new(0, 3)
+		motifCorner.Parent = catalogMotif
 
 		local tierRail = Instance.new("Frame")
 		tierRail.Name = "StaticTierRail"
@@ -9965,8 +10103,8 @@ shared.PunchWallBuildShopUI = function()
 		railCorner.CornerRadius = UDim.new(1, 0)
 		railCorner.Parent = tierRail
 
-		local previewParts = 4
-		local tierPipCount = math.clamp(math.ceil(presentation.tier / 3), 1, 6)
+		local previewParts = 5
+		local tierPipCount = math.clamp(math.ceil(presentation.tier / 4), 1, 4)
 		for tierIndex = 1, tierPipCount do
 			local pip = Instance.new("Frame")
 			pip.Name = "StaticTierPip" .. tierIndex
@@ -10009,7 +10147,7 @@ shared.PunchWallBuildShopUI = function()
 			previewParts += 1
 		end
 		card:SetAttribute("StaticPreviewPartCount", previewParts)
-		card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistIconV1")
+		card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistPerimeterV2")
 	end
 
 	function shopRuntime.ScheduleBoostTick(page, now)
@@ -11077,6 +11215,27 @@ shared.PunchWallInventoryController = InventoryUI.new({
 })
 shared.PunchWallInventoryController:SetVisible(false)
 
+shared.PunchWallOpenInventoryHonorItem = function(itemId, origin)
+	local definition = GameConfig.HonorItemDefinition(tostring(itemId or ""))
+	itemId = definition and tostring(definition.id) or ""
+	if itemId == "" then
+		return false, "item_not_found"
+	end
+	local controller = shared.PunchWallInventoryController
+	if not controller then
+		return false, "inventory_unavailable"
+	end
+	shared.PunchWallSelectedHonorItemId = itemId
+	gui:SetAttribute("RequestedHonorItemId", itemId)
+	gui:SetAttribute("HonorInventoryOpenOrigin", tostring(origin or "honor_catalog"))
+	openGameTab("Inventory")
+	local succeeded, result = controller:OpenSelection("Honor", "honor:" .. itemId, false)
+	if not succeeded then
+		return false, result
+	end
+	return true
+end
+
 local referenceHUDStateKey
 local referenceHUDStateApplications = 0
 local function setVisibleIfChanged(object, visible)
@@ -11395,6 +11554,23 @@ applyResponsiveLayout = function()
 			if row then
 				row.Position = UDim2.fromOffset(0, (rowIndex - 1) * 56)
 				row.Size = UDim2.new(1, 0, 0, 52)
+				row.ClipsDescendants = true
+				local icon = row:FindFirstChild("SettingIcon")
+				local title = row:FindFirstChild("SettingTitle")
+				local helper = row:FindFirstChild("SettingHelper")
+				if icon then
+					icon.Position = UDim2.fromOffset(6, 6)
+					icon.Size = UDim2.fromOffset(40, 40)
+				end
+				if title then
+					title.Position = UDim2.fromOffset(54, 3)
+					title.Size = UDim2.fromOffset(132, 22)
+				end
+				if helper then
+					helper.Position = UDim2.fromOffset(54, 26)
+					helper.Size = UDim2.fromOffset(154, 20)
+				end
+				row:SetAttribute("ResponsiveRowProfile", "CompactContained52V1")
 			end
 		end
 		local settingsFooter = shared.PunchWallStandaloneWindows.SettingsBody:FindFirstChild("Footer")
@@ -11439,6 +11615,35 @@ applyResponsiveLayout = function()
 			rewardValue.Position = UDim2.fromScale(0.04, 0.71)
 			rewardValue.Size = UDim2.fromScale(0.92, 0.25)
 		end
+		for rowIndex, rowName in ipairs({ "SOUNDSetting", "MOTIONSetting", "UI SIZESetting" }) do
+			local row = shared.PunchWallStandaloneWindows.SettingsBody:FindFirstChild(rowName)
+			if row then
+				row.Position = UDim2.new(0, 0, 0, (rowIndex - 1) * 82)
+				row.Size = UDim2.new(1, 0, 0, 72)
+				row.ClipsDescendants = false
+				local icon = row:FindFirstChild("SettingIcon")
+				local title = row:FindFirstChild("SettingTitle")
+				local helper = row:FindFirstChild("SettingHelper")
+				if icon then
+					icon.Position = UDim2.fromOffset(12, 12)
+					icon.Size = UDim2.fromOffset(48, 48)
+				end
+				if title then
+					title.Position = UDim2.fromOffset(70, 7)
+					title.Size = UDim2.fromOffset(130, 25)
+				end
+				if helper then
+					helper.Position = UDim2.fromOffset(70, 31)
+					helper.Size = UDim2.fromOffset(170, 28)
+				end
+				row:SetAttribute("ResponsiveRowProfile", "Desktop72V1")
+			end
+		end
+		local settingsFooter = shared.PunchWallStandaloneWindows.SettingsBody:FindFirstChild("Footer")
+		if settingsFooter then
+			settingsFooter.Position = UDim2.new(0, 0, 1, -56)
+			settingsFooter.Size = UDim2.new(1, 0, 0, 56)
+		end
 		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
 		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
 	end
@@ -11453,17 +11658,37 @@ applyResponsiveLayout = function()
 		local compactMenuGap = 8
 		local compactMenuRight = 10
 		local compactMenuTop = math.max(54, math.floor(coreGuiTopLeft.Y + 46))
+		local compactLeftColumnRight = compactMenuRight + compactMenuWidth + compactMenuGap + 20
 		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
 			button.AnchorPoint = Vector2.new(1, 0)
 			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
 			button:SetAttribute("MinimumTouchTarget", 44)
 		end
 		referenceShop.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop)
-		referenceInventory.Position = UDim2.new(1, -(compactMenuRight + compactMenuWidth + compactMenuGap), 0, compactMenuTop)
+		referenceInventory.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop)
 		referencePets.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
-		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -(compactMenuRight + compactMenuWidth + compactMenuGap), 0, compactMenuTop + compactMenuHeight + compactMenuGap)
-		referenceQuests.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + (compactMenuHeight + compactMenuGap) * 2)
-		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "CompactTouchGrid58x72WithRebirth")
+		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		referenceQuests.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + (compactMenuHeight + compactMenuGap) * 2)
+		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "CompactTouchGrid58x72QuestsJumpSafeV2")
+		local compactUtilitySize = 48
+		local compactUtilityTop = math.max(4, math.floor(coreGuiTopLeft.Y + 4))
+		for utilityIndex, button in ipairs({
+			shared.PunchWallMoreToolButton,
+			shared.PunchWallSettingsToolButton,
+			shared.PunchWallSoundToolButton,
+		}) do
+			button.AnchorPoint = Vector2.new(1, 0)
+			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * 52), 0, compactUtilityTop)
+			button.Size = UDim2.fromOffset(compactUtilitySize, compactUtilitySize)
+		end
+		for utilityIndex, button in ipairs({ referenceDaily, referenceSpin }) do
+			button.AnchorPoint = Vector2.zero
+			button.Position = UDim2.fromOffset(10, compactMenuTop + (utilityIndex - 1) * (compactMenuHeight + compactMenuGap))
+			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
+		end
+		referenceJump.AnchorPoint = Vector2.new(1, 1)
+		referenceJump.Position = UDim2.new(1, -8, 1, -8)
+		referenceJump.Size = UDim2.fromOffset(86, 86)
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -11584,6 +11809,18 @@ applyResponsiveLayout = function()
 		referencePets.Position, referencePets.Size = designRect(rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight)
 		referenceQuests.Position, referenceQuests.Size = designRect(rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight)
 		shared.PunchWallReferenceRebirth.Position, shared.PunchWallReferenceRebirth.Size = designRect(16, 429, 82, 111)
+		shared.PunchWallSoundToolButton.AnchorPoint = Vector2.zero
+		shared.PunchWallSoundToolButton.Position, shared.PunchWallSoundToolButton.Size = designRect(1465, 22, 60, 64)
+		shared.PunchWallSettingsToolButton.AnchorPoint = Vector2.zero
+		shared.PunchWallSettingsToolButton.Position, shared.PunchWallSettingsToolButton.Size = designRect(1526, 22, 60, 64)
+		shared.PunchWallMoreToolButton.AnchorPoint = Vector2.zero
+		shared.PunchWallMoreToolButton.Position, shared.PunchWallMoreToolButton.Size = designRect(1587, 22, 64, 64)
+		referenceDaily.AnchorPoint = Vector2.zero
+		referenceDaily.Position, referenceDaily.Size = designRect(16, 201, 82, 111)
+		referenceSpin.AnchorPoint = Vector2.zero
+		referenceSpin.Position, referenceSpin.Size = designRect(16, 316, 82, 111)
+		referenceJump.AnchorPoint = Vector2.zero
+		referenceJump.Position, referenceJump.Size = designRect(1460, 694, 211, 211)
 		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
@@ -11686,6 +11923,7 @@ applyResponsiveLayout = function()
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
 	end
+	scheduleResponsiveHudDiagnostics(compact)
 	if shopOpen and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()
 	end

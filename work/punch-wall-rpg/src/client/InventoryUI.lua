@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local InventoryViewModel = require(ReplicatedStorage:WaitForChild("InventoryViewModel"))
 
@@ -438,6 +440,7 @@ function InventoryUI.new(options)
 	self._diagnosticSnapshotSkipCount = 0
 	self._gridRebuildCount = 0
 	self._selectionVisualUpdateCount = 0
+	self._selectionFocusGeneration = 0
 	self._cardCreateCount = 0
 	self._cardReuseCount = 0
 	self._actionCreateCount = 0
@@ -460,6 +463,13 @@ function InventoryUI.new(options)
 	self:_build(options.Parent)
 	self.Root:SetAttribute("InventoryGridRebuildCount", 0)
 	self.Root:SetAttribute("InventorySelectionVisualUpdateCount", 0)
+	self.Root:SetAttribute("InventoryHonorSelectionContractVersion", "HonorInventoryWorldSelectionV1")
+	self.Root:SetAttribute("InventoryHonorCatalogCount", 0)
+	self.Root:SetAttribute("InventoryHonorVisibleCount", 0)
+	self.Root:SetAttribute("InventoryHonorSelectedId", "")
+	self.Root:SetAttribute("InventoryHonorCanvasY", 0)
+	self.Root:SetAttribute("InventoryHonorSelectionInView", false)
+	self.Root:SetAttribute("InventoryHonorSelectionFocused", false)
 	self.Root:SetAttribute("InventoryLiveCardCount", 0)
 	self.Root:SetAttribute("InventoryCardConnectionCount", 0)
 	self.Root:SetAttribute("InventoryTimedRefreshMode", "Stopped")
@@ -2695,7 +2705,7 @@ function InventoryUI:_renderGrid()
 				BorderSizePixel = 0,
 				Font = Enum.Font.GothamBlack,
 				Position = UDim2.new(1, -8, 0, 34),
-				Size = UDim2.fromOffset(48, 20),
+				Size = UDim2.fromOffset(72, 20),
 				Text = "LOCKED",
 				TextColor3 = PALETTE.Text,
 				TextSize = 8,
@@ -2777,6 +2787,18 @@ function InventoryUI:_renderGrid()
 		card:SetAttribute("InventoryRarity", tostring(item.rarity or "Common"))
 		card:SetAttribute("InventoryEquipped", item.equipped == true)
 		card:SetAttribute("InventoryLocked", item.locked == true)
+		local honorItem = tostring(item.kind or "") == "Honor"
+		local honorState = honorItem and tostring(item.state or "Locked") or ""
+		local honorId = honorItem and string.match(key, "^honor:(.+)$") or nil
+		card:SetAttribute("HonorItemId", honorId or "")
+		card:SetAttribute("HonorState", honorState)
+		card:SetAttribute("HonorOwned", honorItem and item.owned == true or false)
+		card:SetAttribute("HonorUnlocked", honorItem and item.unlocked == true or false)
+		card:SetAttribute("HonorAffordable", honorItem and item.affordable == true or false)
+		card:SetAttribute("HonorEquipped", honorItem and item.equipped == true or false)
+		card:SetAttribute("HonorCost", honorItem and (tonumber(item.cost) or 0) or 0)
+		card:SetAttribute("HonorMissing", honorItem and (tonumber(item.missingHonor) or 0) or 0)
+		card:SetAttribute("InventoryWorldSelection", selected and honorId or "")
 		card:SetAttribute(
 			"InventoryLockedTreatment",
 			item.locked == true and "VeilAndBadge" or "Unlocked"
@@ -2811,7 +2833,9 @@ function InventoryUI:_renderGrid()
 		card:SetAttribute("ArtMode", artMode)
 		card:SetAttribute("PreviewPetName", usesPetPreview and tostring(item.previewPet or "") or "")
 		art.Visible = not usesPetPreview
-		art.ImageTransparency = item.locked == true and 0.34 or 0
+		art.ImageTransparency = item.locked == true and 0.34
+			or honorState == "Insufficient" and 0.12
+			or 0
 		cardRef.rarity.BackgroundColor3 = accent
 		cardRef.rarity.Text = string.upper(tostring(item.rarity or "Common"))
 		cardRef.rarity.TextColor3 = contrastText(accent)
@@ -2821,7 +2845,17 @@ function InventoryUI:_renderGrid()
 		cardRef.quantity.Text = "x" .. formatNumber(quantityValue)
 		cardRef.quantityStroke.Color = accent
 		cardRef.equipped.Visible = item.equipped == true
-		cardRef.locked.Visible = item.locked == true
+		local showHonorState = honorState == "Locked"
+			or honorState == "Insufficient"
+			or honorState == "Affordable"
+		cardRef.locked.Visible = item.locked == true or showHonorState
+		cardRef.locked.Text = honorState == "Insufficient" and ("NEED " .. formatNumber(item.missingHonor or 0))
+			or honorState == "Affordable" and "READY"
+			or "LOCKED"
+		cardRef.locked.BackgroundColor3 = honorState == "Affordable" and PALETTE.Green
+			or honorState == "Insufficient" and PALETTE.GoldDark
+			or PALETTE.RedDark
+		cardRef.locked.TextColor3 = honorState == "Affordable" and PALETTE.Ink or PALETTE.Text
 		cardRef.lockedVeil.Visible = item.locked == true
 
 		local keyedRefs = self._cardRefsByKey[key]
@@ -3004,6 +3038,10 @@ function InventoryUI:_renderDetail()
 	self.DetailName.Text = string.upper(displayName)
 	self.DetailInternalName.Text = item.slot
 		and ("OWNED ITEM  //  SLOT " .. tostring(item.slot))
+		or tostring(item.kind or "") == "Honor" and (
+			item.owned == true and "OWNED RELIC  //  SERVER VERIFIED"
+			or "HONOR CATALOG  //  SERVER VERIFIED"
+		)
 		or "OWNED ITEM  //  SERVER VERIFIED"
 	self.DetailDescription.Text = tostring(item.description or item.detail or "No additional item details.")
 	self.DetailStatus.Visible = false
@@ -3032,13 +3070,17 @@ function InventoryUI:_renderDetail()
 	if item.slot then
 		table.insert(statusParts, "SLOT " .. tostring(item.slot))
 	end
+	if tostring(item.kind or "") == "Honor" and item.equipped ~= true then
+		table.insert(statusParts, string.upper(tostring(item.state or "Locked")))
+	end
 	if #statusParts == 0 then
 		table.insert(statusParts, item.viewOnly == true and "VIEW ONLY" or "AVAILABLE")
 	end
 	self.DetailStatus.Text = table.concat(statusParts, "  |  ")
 	self.DetailStatus.TextColor3 = item.locked == true and PALETTE.Gold or item.equipped == true and PALETTE.Green or PALETTE.Cyan
 	self.DetailStatus.StatusSignal.BackgroundColor3 = self.DetailStatus.TextColor3
-	local stateName = item.locked == true and "LOCKED"
+	local stateName = tostring(item.kind or "") == "Honor" and string.upper(tostring(item.state or "Locked"))
+		or item.locked == true and "LOCKED"
 		or item.equipped == true and "EQUIPPED"
 		or item.viewOnly == true and "VIEW ONLY"
 		or "AVAILABLE"
@@ -3163,6 +3205,100 @@ function InventoryUI:_syncDetailVisibility()
 	end
 end
 
+function InventoryUI:_updateHonorDiagnostics()
+	local catalogCount = 0
+	for _, item in ipairs(self._snapshot and self._snapshot.items or {}) do
+		if tostring(item.kind or "") == "Honor" then
+			catalogCount += 1
+		end
+	end
+	local visibleCount = 0
+	for _, item in ipairs(self._visibleItems) do
+		if tostring(item.kind or "") == "Honor" then
+			visibleCount += 1
+		end
+	end
+	local selectedId = string.match(tostring(self._selectedKey or ""), "^honor:(.+)$") or ""
+	self.Root:SetAttribute("InventoryHonorCatalogCount", catalogCount)
+	self.Root:SetAttribute("InventoryHonorVisibleCount", visibleCount)
+	self.Root:SetAttribute("InventoryHonorSelectedId", selectedId)
+	if selectedId == "" then
+		self.Root:SetAttribute("InventoryHonorCanvasY", 0)
+		self.Root:SetAttribute("InventoryHonorSelectionInView", false)
+		self.Root:SetAttribute("InventoryHonorSelectionFocused", false)
+	end
+end
+
+function InventoryUI:_focusSelectedHonorCard()
+	self._selectionFocusGeneration += 1
+	local generation = self._selectionFocusGeneration
+	local selectedKey = tostring(self._selectedKey or "")
+	local selectedId = string.match(selectedKey, "^honor:(.+)$")
+	self.Root:SetAttribute("InventoryHonorSelectionInView", false)
+	self.Root:SetAttribute("InventoryHonorSelectionFocused", false)
+	if not selectedId then
+		return
+	end
+
+	task.defer(function()
+		local cardRef
+		for _ = 1, 4 do
+			if generation ~= self._selectionFocusGeneration
+				or self._destroyed
+				or not self.Root.Visible
+				or tostring(self._selectedKey or "") ~= selectedKey
+			then
+				return
+			end
+			local refs = self._cardRefsByKey[selectedKey]
+			cardRef = refs and refs[1] or nil
+			if cardRef and cardRef.card.Visible and self.Grid.Visible and self.Grid.AbsoluteSize.Y > 0 then
+				break
+			end
+			RunService.Heartbeat:Wait()
+		end
+		local card = cardRef and cardRef.card
+		if not card or not card.Visible or not self.Grid.Visible or self.Grid.AbsoluteSize.Y <= 0 then
+			return
+		end
+
+		local cardCenter = card.AbsolutePosition.Y + card.AbsoluteSize.Y * 0.5
+		local viewCenter = self.Grid.AbsolutePosition.Y + self.Grid.AbsoluteSize.Y * 0.5
+		local maxY = math.max(0, self.Grid.AbsoluteCanvasSize.Y - self.Grid.AbsoluteSize.Y)
+		self.Grid.CanvasPosition = Vector2.new(
+			self.Grid.CanvasPosition.X,
+			math.clamp(self.Grid.CanvasPosition.Y + cardCenter - viewCenter, 0, maxY)
+		)
+		RunService.Heartbeat:Wait()
+		if generation ~= self._selectionFocusGeneration
+			or not card.Parent
+			or tostring(self._selectedKey or "") ~= selectedKey
+		then
+			return
+		end
+		local cardTop = card.AbsolutePosition.Y
+		local cardBottom = cardTop + card.AbsoluteSize.Y
+		local viewTop = self.Grid.AbsolutePosition.Y
+		local viewBottom = viewTop + self.Grid.AbsoluteSize.Y
+		local inView = cardTop >= viewTop - 2 and cardBottom <= viewBottom + 2
+		local lastInput = UserInputService:GetLastInputType()
+		local selectionInput = lastInput == Enum.UserInputType.Keyboard
+			or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+		if selectionInput and inView and card.Selectable then
+			GuiService.SelectedObject = card
+		end
+		self.Root:SetAttribute("InventoryHonorSelectedId", selectedId)
+		self.Root:SetAttribute("InventoryHonorCanvasY", self.Grid.CanvasPosition.Y)
+		self.Root:SetAttribute("InventoryHonorSelectionInView", inView)
+		self.Root:SetAttribute("InventoryHonorSelectionFocused", GuiService.SelectedObject == card)
+		local screen = self.Root:FindFirstAncestorWhichIsA("ScreenGui")
+		if screen then
+			screen:SetAttribute("SelectedHonorItemId", selectedId)
+			screen:SetAttribute("SelectedHonorCanvasY", self.Grid.CanvasPosition.Y)
+		end
+	end)
+end
+
 function InventoryUI:_applyFilter(resetDrawer)
 	self:_cancelDeleteConfirmation(false)
 	self._visibleItems = self:_filterSnapshot()
@@ -3190,6 +3326,7 @@ function InventoryUI:_applyFilter(resetDrawer)
 	self.Root:SetAttribute("InventoryRarity", self._rarity)
 	self.Root:SetAttribute("InventoryVisibleCount", #self._visibleItems)
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey or "")
+	self:_updateHonorDiagnostics()
 end
 
 function InventoryUI:SetVisible(visible)
@@ -3203,6 +3340,7 @@ function InventoryUI:SetVisible(visible)
 		end
 		self:ApplyResponsive(viewport, viewport.X < 900 or viewport.Y < 520, self._layout.uiScale)
 	else
+		self._selectionFocusGeneration += 1
 		self:_cancelDeleteConfirmation(false)
 		self:_cancelPendingDetailRender()
 		self:_setRarityMenu(false)
@@ -3244,6 +3382,44 @@ function InventoryUI:Refresh(force, includeDiagnostics)
 	end
 	self:_syncTimedRefresh()
 	return self:_snapshotResult(includeDiagnostics)
+end
+
+function InventoryUI:OpenSelection(category, key, includeDiagnostics)
+	local requestedCategory = normalize(category)
+	local matchedCategory
+	for _, candidate in ipairs(CATEGORIES) do
+		if normalize(candidate) == requestedCategory then
+			matchedCategory = candidate
+			break
+		end
+	end
+	if not matchedCategory then
+		return false, "category_not_found"
+	end
+	self:Refresh(true, false)
+	local requestedKey = tostring(key or "")
+	local item = self:_findItem(requestedKey)
+	if not item or normalize(item.category) ~= normalize(matchedCategory) then
+		return false, "item_not_found"
+	end
+	self:_setRarityMenu(false)
+	self._category = matchedCategory
+	self._search = ""
+	self._rarity = "All"
+	if self.Search.Text ~= "" then
+		self._updatingSearch = true
+		self.Search.Text = ""
+		self._updatingSearch = false
+	end
+	self._selectedKey = requestedKey
+	self._detailExpanded = false
+	self:_applyFilter(false)
+	if not self._selectedItem or tostring(self._selectedItem.key or "") ~= requestedKey then
+		return false, "item_not_found"
+	end
+	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+	self:_focusSelectedHonorCard()
+	return true, self:_snapshotResult(includeDiagnostics)
 end
 
 function InventoryUI:SetCategory(name, includeDiagnostics)
@@ -3320,6 +3496,7 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
 	self:_syncTimedRefresh()
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey)
+	self:_updateHonorDiagnostics()
 	return self:_snapshotResult(includeDiagnostics)
 end
 
@@ -3947,6 +4124,12 @@ function InventoryUI:GetSnapshot()
 			slot = tonumber(item.slot),
 			equipped = item.equipped == true,
 			locked = item.locked == true,
+			owned = item.owned == true,
+			unlocked = item.unlocked == true,
+			affordable = item.affordable == true,
+			state = tostring(item.state or ""),
+			cost = tonumber(item.cost) or 0,
+			missingHonor = tonumber(item.missingHonor) or 0,
 			artKey = tostring(item.artKey or ""),
 			previewPet = tostring(item.previewPet or ""),
 			fusionOwned = tonumber(item.fusionOwned) or 0,

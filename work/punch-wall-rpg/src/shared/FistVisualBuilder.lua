@@ -95,6 +95,31 @@ local HERO_GAUNTLET_STYLES = {
 	},
 }
 
+-- Uploaded silhouettes remain untinted. These short catalog motifs add one
+-- immutable corner mark per fist so all normal and Premium offers stay
+-- recognizable even when several entries share the same armor family.
+local FIST_CATALOG_MOTIFS = {
+	StarterFist = "HOME",
+	BoxingFist = "K.O.",
+	IronFist = "RVT",
+	ThunderFist = "BOLT",
+	TitanFist = "FORT",
+	MagmaFist = "LAVA",
+	GlacierFist = "ICE",
+	ToxicFist = "TOX",
+	VoidFist = "VOID",
+	SolarFist = "SUN",
+	NebulaFist = "NOVA",
+	QuantumFist = "ATOM",
+	ChronoFist = "TIME",
+	GalaxyFist = "ORBIT",
+	InfinityFist = "INF",
+	AscendantFist = "ASC",
+	CrimsonVanguardFist = "VGD",
+	StormbreakerFist = "STORM",
+	CelestialTitanFist = "CROWN",
+}
+
 function FistVisualBuilder.GetRigProfile(hand)
 	local rigName = hand and hand.Name == "Right Arm" and "R6" or "R15"
 	local source = RIG_PROFILES[rigName]
@@ -117,8 +142,10 @@ function FistVisualBuilder.GetHeroGauntletPresentation(definition)
 	local tier = math.max(1, math.floor(tonumber(definition.tier) or 1))
 	local iconIdentity = tostring(definition.icon or "")
 	assert(iconIdentity ~= "", ("Fist %s is missing a unique icon identity"):format(tostring(definition.name)))
+	local catalogMotif = FIST_CATALOG_MOTIFS[iconIdentity]
+	assert(catalogMotif ~= nil, ("Fist %s is missing a catalog motif"):format(tostring(definition.name)))
 	return {
-		version = "HeroGauntletV2",
+		version = "HeroGauntletV3",
 		style = definition.style,
 		tier = tier,
 		armorPattern = style.armorPattern,
@@ -127,6 +154,8 @@ function FistVisualBuilder.GetHeroGauntletPresentation(definition)
 		shopArtKey = style.shopArtKey,
 		iconIdentity = iconIdentity,
 		signatureFeature = style.signatureFeature,
+		catalogMotif = catalogMotif,
+		catalogMotifVersion = "PerimeterCatalogMotifV1",
 		variantKey = ("%s:T%02d"):format(iconIdentity, tier),
 		imageTint = definition.color or Color3.fromRGB(166, 54, 45),
 		accent = definition.accent or Color3.fromRGB(255, 197, 45),

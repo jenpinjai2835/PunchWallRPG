@@ -13,6 +13,9 @@ local SIGNATURE_STATS_FIELDS = {
 	"LockedPetsJSON",
 	"OwnedHonorItemsJSON",
 	"EquippedHonorItem",
+	"Honor",
+	"Depth",
+	"Rebirths",
 	"ShopBoosts",
 }
 local EMPTY_TABLE = {}
@@ -452,37 +455,74 @@ end
 local function addHonor(items, GameConfig, stats)
 	local owned = listSet(stats.OwnedHonorItemsJSON)
 	local equippedName = tostring(stats.EquippedHonorItem or "")
+	local honorBalance = math.max(0, math.floor(tonumber(stats.Honor) or 0))
+	local depth = math.max(0, math.floor(tonumber(stats.Depth) or 0))
+	local rebirths = math.max(0, math.floor(tonumber(stats.Rebirths) or 0))
 	for _, definition in ipairs(catalogEntries(GameConfig.HonorItems)) do
-		if owned[definition.id] or owned[definition.name] then
-			local equipped = equippedName == definition.id or equippedName == definition.name
-			local accent = definition.accent or definition.color or UNKNOWN_ACCENT
-			local primary = actionDescriptor(
-				"BuyHonorItem",
-				equipped and "EQUIPPED" or "EQUIP",
-				{ action = "BuyHonorItem", target = definition.id },
-				not equipped,
-				accent,
-				{ primary = true }
-			)
-			local item = finalizeItem({
-				key = "honor:" .. definition.id,
-				category = "Honor",
-				kind = "Honor",
-				name = definition.name,
-				displayName = definition.displayName or definition.name,
-				rarity = inferRarity(definition, "Honor", false),
-				accent = accent,
-				art = honorArt(GameConfig, definition),
-				icon = definition.icon or "Success",
-				quantity = 1,
-				equipped = equipped,
-				locked = false,
-				detail = ("+%d%% total Power"):format(math.floor((tonumber(definition.powerBonus) or 0) * 100 + 0.5)),
-				actions = { primary },
-				primaryAction = primary,
-			})
-			table.insert(items, item)
+		local isOwned = owned[definition.id] == true or owned[definition.name] == true
+		local equipped = equippedName == definition.id or equippedName == definition.name
+		local requiredDepth = math.max(0, math.floor(tonumber(definition.requiredDepth) or 0))
+		local requiredRebirths = math.max(0, math.floor(tonumber(definition.requiredRebirths) or 0))
+		local unlocked = type(GameConfig.HonorItemUnlocked) == "function"
+			and GameConfig.HonorItemUnlocked(definition, depth, rebirths)
+			or (depth >= requiredDepth and rebirths >= requiredRebirths)
+		local cost = math.max(0, math.floor(tonumber(definition.cost) or 0))
+		local affordable = honorBalance >= cost
+		local missingHonor = math.max(0, cost - honorBalance)
+		local state = equipped and "Equipped"
+			or isOwned and "Owned"
+			or not unlocked and "Locked"
+			or not affordable and "Insufficient"
+			or "Affordable"
+		local actionLabel = equipped and "EQUIPPED"
+			or isOwned and "EQUIP"
+			or not unlocked and "LOCKED"
+			or not affordable and ("NEED %d"):format(missingHonor)
+			or ("UNLOCK %d"):format(cost)
+		local actionEnabled = not equipped and (isOwned or (unlocked and affordable))
+		local accent = definition.accent or definition.color or UNKNOWN_ACCENT
+		local primary = actionDescriptor(
+			"BuyHonorItem",
+			actionLabel,
+			{ action = "BuyHonorItem", target = definition.id },
+			actionEnabled,
+			accent,
+			{ primary = true }
+		)
+		local requirement = ("Depth %d"):format(requiredDepth)
+		if requiredRebirths > 0 then
+			requirement ..= (" | Rebirth %d"):format(requiredRebirths)
 		end
+		local item = finalizeItem({
+			key = "honor:" .. definition.id,
+			category = "Honor",
+			kind = "Honor",
+			name = definition.name,
+			displayName = definition.displayName or definition.name,
+			rarity = inferRarity(definition, "Honor", false),
+			accent = accent,
+			art = honorArt(GameConfig, definition),
+			icon = definition.icon or "Success",
+			quantity = 1,
+			owned = isOwned,
+			equipped = equipped,
+			locked = not isOwned and not unlocked,
+			unlocked = unlocked,
+			affordable = affordable,
+			state = state,
+			cost = cost,
+			missingHonor = missingHonor,
+			requiredDepth = requiredDepth,
+			requiredRebirths = requiredRebirths,
+			detail = ("+%d%% total Power | %d Honor | %s"):format(
+				math.floor((tonumber(definition.powerBonus) or 0) * 100 + 0.5),
+				cost,
+				requirement
+			),
+			actions = { primary },
+			primaryAction = primary,
+		})
+		table.insert(items, item)
 	end
 end
 
