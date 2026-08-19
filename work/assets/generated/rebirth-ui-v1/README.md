@@ -6,6 +6,7 @@ Files:
 
 - `wall-level.png` — Wall Level requirement.
 - `coins.png` — Coins requirement draft. Do **not** upload this draft: its lightning emblem can be mistaken for Power. A future approved revision must use an unmistakable currency mark and preserve real alpha transparency.
+- `coins-v2.png` — Approved visual master candidate for Coins: a five-coin gold stack with embossed stars and real alpha transparency. It contains no lightning or Power-core motif. Upload and Roblox moderation are still required before assigning a runtime asset ID.
 - `rebirth-core.png` — Rebirth reward/permanent multiplier.
 
 The v1 files are intentionally kept separate so Roblox can upload, crop, scale, and replace each icon independently. Only assets explicitly marked approved after alpha/silhouette review may be uploaded.
@@ -20,3 +21,7 @@ Prompt family:
 > Production-ready square Roblox RPG UI icon, child-readable silhouette, Hero City comic 3D rendering, dark navy/steel, cyan rim light, gold/violet accents, transparent background, isolated object, no frame, no card, no text, no letters, no numbers, no watermark, 1024 x 1024.
 
 Generated source copies remain in the Codex generated-images directory. This folder is the project-owned asset handoff.
+
+`coins-v2.png` generation prompt:
+
+> Child-readable Hero City currency requirement icon; five chunky gold coins with a front-facing embossed star and two small sparkle diamonds; transparent background; no text, numbers, currency symbols, lightning, energy core, fist, frame, or watermark.
