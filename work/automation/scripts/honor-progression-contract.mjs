@@ -155,25 +155,36 @@ check(
   "Honor UI must state all earning rules and expose locked/shortfall/owned/equipped states.",
 );
 check(
-  "honor_hud_and_world_displays_open_preview_without_spending",
+  "honor_hud_and_world_displays_open_canonical_preview_without_spending",
   client.includes('honorOpen.Name = "OpenHonorMenu"')
     && client.includes('openGameTab("Honor")')
     && server.includes('selected = item.id')
     && server.includes('type = "OpenMenu", target = "Honor"')
     && client.includes("shared.PunchWallSelectedHonorItemId = tostring(payload.selected)")
-    && client.includes('row:SetAttribute("HonorWorldSelection", item.id)')
-    && client.includes('gui:SetAttribute("SelectedHonorCanvasY", content.CanvasPosition.Y)')
-    && client.includes('gui:SetAttribute("RenderedGenericTab", activeTab)')
-    && client.includes("local preserveCanvasY = previouslyRenderedTab == activeTab and content.CanvasPosition.Y or 0")
-    && client.includes("content.AbsoluteCanvasSize.Y > content.AbsoluteSize.Y")
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionContractVersion", "HonorInventoryWorldSelectionV1")')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectedId"')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorCatalogCount"')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorVisibleCount"')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorCanvasY"')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionInView"')
+    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionFocused"')
+    && inventory.includes('card:SetAttribute("InventoryWorldSelection"')
     && !block(server, "detector.MouseClick:Connect(function(player)", "shared.PunchWallBuildHonorPlaza = nil").includes("shared.PunchWallBuyHonorItem(player, item)"),
-  "Honor HUD and world stands must open the canonical menu; only explicit UI unlock may spend.",
+  "Honor HUD and world stands must preview the exact relic through canonical UI; only explicit UI unlock may spend.",
 );
 check(
   "inventory_uses_stable_honor_ids",
   inventory.includes("owned[definition.id] or owned[definition.name]")
     && inventory.includes('key = "honor:" .. definition.id')
-    && inventory.includes('target = definition.id'),
+    && inventory.includes('target = definition.id')
+    && inventory.includes('card:SetAttribute("HonorItemId"')
+    && inventory.includes('card:SetAttribute("HonorState"')
+    && inventory.includes('card:SetAttribute("HonorOwned"')
+    && inventory.includes('card:SetAttribute("HonorUnlocked"')
+    && inventory.includes('card:SetAttribute("HonorAffordable"')
+    && inventory.includes('card:SetAttribute("HonorEquipped"')
+    && inventory.includes('card:SetAttribute("HonorCost"')
+    && inventory.includes('card:SetAttribute("HonorMissing"'),
   "Inventory ownership, action, and identity need stable ids with legacy migration compatibility.",
 );
 check(
@@ -212,13 +223,29 @@ check(
     && flowText.includes("client_forged_relic")
     && flowText.includes("SelectedHonorItemId")
     && flowText.includes("eternal_crown_of_honor")
-    && flowText.includes("content.CanvasPosition.Y>0")
+    && flowText.includes("FunctionalInventory")
+    && flowText.includes("HonorInventoryWorldSelectionV1")
+    && flowText.includes("ItemCard_honor_eternal_crown_of_honor")
+    && flowText.includes("InventorySelectedKey')==key")
+    && flowText.includes("InventoryHonorCatalogCount')==8")
+    && flowText.includes("InventoryHonorVisibleCount')==8")
+    && flowText.includes("InventoryHonorSelectionInView')==true")
+    && flowText.includes("InventoryHonorSelectionFocused')==false")
+    && flowText.includes("InventorySearch')==''")
+    && flowText.includes("InventoryRarity')=='All'")
+    && flowText.includes("card:GetAttribute('HonorState')=='Insufficient'")
+    && flowText.includes("card:GetAttribute('HonorUnlocked')==true")
+    && flowText.includes("card:GetAttribute('HonorCost')==1100")
+    && flowText.includes("card:GetAttribute('HonorMissing')==1100")
+    && flowText.includes("grid.CanvasPosition.Y==0")
+    && flowText.includes("rootCanvas==grid.CanvasPosition.Y")
+    && flowText.includes("screenCanvas==rootCanvas")
     && flowText.includes("PunchWall Honor Flow Desktop 1366x768")
     && flowText.includes("Static Trail Badge")
     && flowText.includes("Invoke('Respawn')")
     && flowText.includes("s.OwnedHonorItemsJSON")
     && flowText.includes("s.HonorPowerBonus==.02"),
-  "A balanced real mouse click must prove shortfall, exact purchase, replay, cosmetic, motion, and respawn.",
+  "Balanced real mouse input must prove shortfall, purchase, exact Inventory Honor world selection/scroll, cosmetic, motion, and respawn.",
 );
 check(
   "runtime_flow_checks_console_lifecycle",

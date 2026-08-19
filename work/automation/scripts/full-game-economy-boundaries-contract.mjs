@@ -65,6 +65,9 @@ const creditClient = executeSteps.find((step) =>
 const creditServer = executeSteps.find((step) =>
   step.label?.includes("server confirms credit path preserved cooldown"),
 );
+const honorBoundary = executeSteps.find((step) =>
+  step.label?.includes("verify honor cost, repeat, and full-catalog boundaries"),
+);
 
 const spinBoundarySteps = [
   cooldownSeed,
@@ -102,6 +105,20 @@ check(
     && !/\bshared\b/.test(allCode)
     && (allCode.match(/leaderstats\.Honor\.Value/g) || []).length >= 8,
   "Every Honor read must use leaderstats.Honor, and flow snippets must not carry state through shared across Assistant VMs.",
+);
+
+check(
+  "honor_cost_fixture_satisfies_progression_gate_first",
+  includesEvery(honorBoundary?.args?.code || "", [
+    "Depth=first.requiredDepth",
+    "Rebirths=first.requiredRebirths",
+    "Honor=first.cost-1",
+    "low.reason=='not_enough_honor'",
+    "SetStats',{Honor=100000,Depth=75,Rebirths=25}",
+  ])
+    && honorBoundary.expectRegex?.some((pattern) => pattern.includes("catalog") && pattern.endsWith("8"))
+    && honorBoundary.expectRegex?.some((pattern) => pattern.includes("owned") && pattern.endsWith("8")),
+  "Honor cost-1 and exact-cost boundaries must first satisfy the real Depth/Rebirth gate, while the full catalog fixture must satisfy the maximum gate.",
 );
 
 check(

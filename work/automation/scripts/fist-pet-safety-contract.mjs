@@ -791,22 +791,36 @@ check(
   "Street, Iron, and Thunder cards must not reuse one Champion image.",
 );
 check(
-  "shop_loaded_art_uses_perimeter_only_static_chrome",
+  "shop_loaded_art_uses_perimeter_only_static_identity",
   shopPresentation.includes('"HeroGauntletTierChrome"')
     && shopPresentation.includes('"StaticPreviewRenderLoop", false')
     && shopPresentation.includes('"StaticPreviewChromeOnly", true')
     && shopPresentation.includes('"StaticPreviewChromeCoverage", "PerimeterOnlyV1"')
+    && shopPresentation.includes('"StaticPreviewIdentityVersion", "UniqueFistPerimeterV2"')
+    && shopPresentation.includes('"StaticPreviewStyleVersion", "PerimeterCatalogIdentityV2"')
+    && shopPresentation.includes('card:SetAttribute("ShopFistStyle", presentation.style)')
+    && shopPresentation.includes('card:SetAttribute("ShopFistArmorPattern", presentation.armorPattern)')
+    && shopPresentation.includes('card:SetAttribute("ShopFistSignatureFeature", presentation.signatureFeature)')
+    && shopPresentation.includes('card:SetAttribute("ShopFistCatalogMotif", presentation.catalogMotif)')
     && shopPresentation.includes("icon.ImageColor3 = Color3.new(1, 1, 1)")
     && shopPresentation.includes("icon.ImageTransparency = 0")
+    && shopPresentation.includes('"HeroGauntletTintMatched", false')
     && shopPresentation.includes('"LoadedArtUnobscured", icon.Image ~= ""')
     && shopPresentation.includes('"StaticTierOutline"')
+    && shopPresentation.includes('"StaticTierBadge"')
+    && shopPresentation.includes('"StaticTierNumber"')
+    && shopPresentation.includes('("T%02d"):format(presentation.tier)')
+    && shopPresentation.includes('"StaticSignatureFeature"')
+    && shopPresentation.includes('"StaticCatalogMotif"')
     && shopPresentation.includes('"StaticTierRail"')
     && shopPresentation.includes('"StaticTierPip" .. tierIndex')
-    && !shopPresentation.includes('"StaticBackhandPlate"')
-    && !shopPresentation.includes('"StaticEnergyCore"')
+    && shopPresentation.includes('"StaticArmorPlate" .. plateIndex')
+    && shopPresentation.includes('"StaticArmorFin" .. finIndex')
+    && shopPresentation.includes('"StaticPreviewPartCount"')
+    && !shopPresentation.includes("icon.ImageColor3 = Color3.new(1, 1, 1):Lerp(")
     && !shopPresentation.includes("Heartbeat:Connect")
     && !shopPresentation.includes("RenderStepped:Connect"),
-  "Loaded fist pixels must remain untinted and unobscured by static perimeter chrome.",
+  "Loaded fist art must remain white and unobscured while unique style, motif, and signature identity stays in bounded perimeter chrome.",
 );
 check(
   "shop_description_has_high_contrast_readability_panel",
@@ -837,8 +851,8 @@ check(
 );
 check(
   "shop_feedback_uses_bounded_no_center_toast_without_sound_change",
-  showFeedback.includes('or payload.type == "PremiumSetup" or payload.type == "Fail" or payload.type == "Shop" then')
-    && showFeedback.includes('payload.type ~= "PremiumSetup" and payload.type ~= "Shop"')
+  showFeedback.includes('or payload.type == "PremiumPrompt" or payload.type == "PremiumSetup" or payload.type == "Fail" or payload.type == "Shop" then')
+    && showFeedback.includes('payload.type ~= "Fail" and payload.type ~= "PremiumSetup" and payload.type ~= "PremiumPrompt" and payload.type ~= "Shop"')
     && showFeedback.includes(
       "shared.PunchWallShowToast(feedbackText(payload), presentationColor, feedbackIcon(payload.type))",
     )
@@ -878,14 +892,18 @@ check(
 );
 check(
   "contextual_train_and_use_reuse_target_scan",
-  contextualActions.includes('candidate.Name == "Power Bag"')
-    && contextualActions.includes('candidate.Name == "Speed Dummy"')
-    && contextualActions.includes('candidate.Name == "Focus Stone"')
+  contextualActions.includes('candidate:GetAttribute("TrainingStationId") ~= nil')
+    && contextualActions.includes('candidate:GetAttribute("PowerPerSecond") ~= nil')
     && contextualActions.includes('candidate.Name == "Pet Egg Machine"')
     && contextualActions.includes('candidate.Name == "Rebirth Shrine"')
+    && contextualActions.includes('candidate:GetAttribute("PremiumOnly") == true')
+    && contextualActions.includes('candidate:GetAttribute("InteractionMenu") ~= nil')
     && client.includes('"ContextualActionUsesExistingTargetScan", true')
+    && client.includes('"ContextualActionScanInterval", 0.15')
+    && client.includes("for folderIndex = 1, 2 do")
+    && client.includes("clientRuntime.InteractablesFolder")
     && (client.match(/local targetTimer = 0/g) ?? []).length === 1,
-  "TRAIN/USE discovery must reuse the existing 0.15-second target scan.",
+  "Progressive TRAIN/USE discovery must reuse the single bounded 0.15-second target scan.",
 );
 check(
   "contextual_action_is_visible_safe_and_exact",

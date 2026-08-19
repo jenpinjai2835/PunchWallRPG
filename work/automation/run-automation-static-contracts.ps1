@@ -332,6 +332,85 @@ $checks.persistenceContract = @{
     dataVersion = $persistenceResult.dataVersion
 }
 
+$additionalStaticContracts = @(
+    @{ file = "client-runtime-performance-contract.mjs"; key = "clientRuntimePerformanceContract" },
+    @{ file = "device-matrix-hud-shop-contract.mjs"; key = "deviceMatrixHudShopContract" },
+    @{ file = "fist-pet-safety-contract.mjs"; key = "fistPetSafetyContract" },
+    @{ file = "full-game-real-ui-controls-contract.mjs"; key = "fullGameRealUiControlsContract" },
+    @{ file = "inventory-card-render-contract.mjs"; key = "inventoryCardRenderContract" },
+    @{ file = "inventory-runtime-cache-contract.mjs"; key = "inventoryRuntimeCacheContract" },
+    @{ file = "inventory-visual-fidelity-contract.mjs"; key = "inventoryVisualFidelityContract" },
+    @{ file = "inventory-visual-responsive-contract.mjs"; key = "inventoryVisualResponsiveContract" },
+    @{ file = "long-run-content-contract.mjs"; key = "longRunContentContract" },
+    @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
+    @{ file = "titan-hq-visual-contract.mjs"; key = "titanHqVisualContract" }
+)
+foreach ($contract in $additionalStaticContracts) {
+    $output = Invoke-CheckedNode -Arguments @((Join-Path $scriptsRoot $contract.file)) -Label "Static contract: $($contract.file)"
+    $joinedOutput = $output -join [Environment]::NewLine
+    $result = $null
+    try {
+        $result = $joinedOutput | ConvertFrom-Json
+    }
+    catch {
+        # A successful text-only contract is valid; Invoke-CheckedNode already
+        # made a nonzero exit fail closed.
+    }
+    if ($null -ne $result -and $null -ne $result.PSObject.Properties["ok"] -and -not $result.ok) {
+        throw "$($contract.file) did not report ok=true."
+    }
+    $reportedChecks = $null
+    if ($null -ne $result -and $null -ne $result.PSObject.Properties["passed"] -and $result.passed -isnot [System.Management.Automation.PSCustomObject]) {
+        $reportedChecks = $result.passed
+    }
+    elseif ($null -ne $result -and $null -ne $result.PSObject.Properties["checks"] -and $result.checks -is [ValueType]) {
+        $reportedChecks = $result.checks
+    }
+    $checks[$contract.key] = @{
+        passed = $true
+        reportedChecks = $reportedChecks
+    }
+}
+
+$manuallyInvokedContracts = @(
+    "automation-infrastructure-contract.mjs",
+    "batch-b-fist-flow-contract.mjs",
+    "creator-store-pet-pack-contract.mjs",
+    "fist-icon-identity-contract.mjs",
+    "full-game-economy-boundaries-contract.mjs",
+    "honor-product-receipts-contract.mjs",
+    "honor-progression-contract.mjs",
+    "persistence-contract.mjs",
+    "power-avatar-growth-contract.mjs",
+    "rebirth-progression-contract.mjs",
+    "standalone-player-windows-contract.mjs",
+    "training-station-progression-contract.mjs",
+    "world-boost-showcase-contract.mjs"
+)
+$excludedStudioCapableContracts = @(
+    @{
+        file = "inventory-performance-contract.mjs"
+        reason = "Studio-capable runtime benchmark; run explicitly with flow_runner instead of the non-Studio aggregate."
+    }
+)
+$registeredContracts = @($manuallyInvokedContracts) + @($additionalStaticContracts | ForEach-Object { $_.file }) + @($excludedStudioCapableContracts | ForEach-Object { $_.file })
+$allContractFiles = @(
+    Get-ChildItem -LiteralPath $scriptsRoot -Filter "*-contract.mjs" -File |
+        Sort-Object Name |
+        ForEach-Object { $_.Name }
+)
+$unregisteredContracts = @($allContractFiles | Where-Object { $_ -notin $registeredContracts })
+$missingContracts = @($registeredContracts | Where-Object { $_ -notin $allContractFiles })
+if ($unregisteredContracts.Count -gt 0 -or $missingContracts.Count -gt 0) {
+    throw "Static contract registry mismatch. Unregistered: $($unregisteredContracts -join ', '); missing: $($missingContracts -join ', ')"
+}
+$checks.staticContractCoverage = @{
+    passed = $true
+    executed = $manuallyInvokedContracts.Count + $additionalStaticContracts.Count
+    discovered = $allContractFiles.Count
+    excluded = $excludedStudioCapableContracts
+}
+
 [ordered]@{
     ok = $true
     automationRoot = $automationRoot

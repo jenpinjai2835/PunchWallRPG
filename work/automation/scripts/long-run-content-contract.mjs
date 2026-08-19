@@ -4,9 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..", "..");
-const config = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "shared", "GameConfig.lua"), "utf8");
-const client = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "client", "PunchWallClient.client.lua"), "utf8");
-const server = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "server", "PunchWallBootstrap.server.lua"), "utf8");
+const readNormalized = (...segments) => fs.readFileSync(path.join(root, ...segments), "utf8").replaceAll("\r\n", "\n");
+const config = readNormalized("punch-wall-rpg", "src", "shared", "GameConfig.lua");
+const client = readNormalized("punch-wall-rpg", "src", "client", "PunchWallClient.client.lua");
+const server = readNormalized("punch-wall-rpg", "src", "server", "PunchWallBootstrap.server.lua");
 
 let passed = 0;
 const check = (condition, message) => {

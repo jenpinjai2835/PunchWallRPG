@@ -46,13 +46,20 @@ check(
   "Controlled catalog mistakes must fail loudly instead of becoming Starter art.",
 );
 check(
-  "shop_uses_tint_badge_feature_identity",
+  "shop_uses_perimeter_only_catalog_identity",
   client.includes('card:SetAttribute("ShopFistIconIdentity", presentation.iconIdentity)')
-    && client.includes('card:SetAttribute("StaticPreviewChromeCoverage", "TintBadgeFeatureV1")')
+    && client.includes('card:SetAttribute("ShopFistCatalogMotif", presentation.catalogMotif)')
+    && client.includes('card:SetAttribute("StaticPreviewChromeOnly", true)')
+    && client.includes('card:SetAttribute("StaticPreviewChromeCoverage", "PerimeterOnlyV1")')
     && client.includes('tierText.Text = ("T%02d"):format(presentation.tier)')
     && client.includes("featureLabel.Text = presentation.signatureFeature")
-    && client.includes('card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistIconV1")'),
-  "Shop cards must visibly combine palette, tier, and armor-family identity.",
+    && client.includes('card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistPerimeterV2")')
+    && client.includes('card:SetAttribute("StaticPreviewStyleVersion", "PerimeterCatalogIdentityV2")')
+    && client.includes("icon.ImageColor3 = Color3.new(1, 1, 1)")
+    && client.includes('icon:SetAttribute("HeroGauntletTintMatched", false)')
+    && client.includes('icon:SetAttribute("LoadedArtUnobscured", icon.Image ~= "")')
+    && client.includes('motif.Name = "StaticCatalogMotif"'),
+  "Shop cards must keep loaded pixels unobscured and move unique motif, tier, and armor-family identity to perimeter chrome.",
 );
 check(
   "icon_identity_is_static_and_bounded",
@@ -68,10 +75,13 @@ check(
   "runtime_flow_rejects_duplicate_visual_identity",
   flowCode.includes("uniqueIdentity=uniqueIdentity")
     && flowCode.includes("variantCount=variantCount")
-    && flowCode.includes("tinted=tinted")
+    && flowCode.includes("whiteUnobscured=whiteUnobscured")
+    && flowCode.includes("motifCount=motifCount")
     && iconStep?.expectRegex?.some((pattern) => pattern.includes("uniqueIdentity") && pattern.endsWith("16"))
-    && iconStep?.expectRegex?.some((pattern) => pattern.includes("variantCount") && pattern.endsWith("16")),
-  "Studio QC must prove all sixteen visible icon identities are unique.",
+    && iconStep?.expectRegex?.some((pattern) => pattern.includes("variantCount") && pattern.endsWith("16"))
+    && iconStep?.expectRegex?.some((pattern) => pattern.includes("motifCount") && pattern.endsWith("16"))
+    && iconStep?.expectRegex?.some((pattern) => pattern.includes("whiteUnobscured") && pattern.endsWith("16")),
+  "Studio QC must prove all sixteen visible icon identities and motifs are unique while every uploaded image remains unobscured.",
 );
 
 console.log(JSON.stringify({
