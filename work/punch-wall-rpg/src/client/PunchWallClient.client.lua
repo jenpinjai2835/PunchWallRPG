@@ -8787,6 +8787,7 @@ shared.PunchWallHUDWidgets = {
 	QuestCard = referenceImage("QuestCard", pixel.QuestCard, 1368, 117, 294, 134),
 	NextWorldCard = referenceImage("NextWorldCard", pixel.NextWorld, 1020, 778, 194, 145),
 }
+local honorOpen
 shared.PunchWallBuildHonorHUD = function()
 	local honorCard = Instance.new("Frame")
 	honorCard.Name = "HonorCurrencyHUD"
@@ -8830,7 +8831,7 @@ shared.PunchWallBuildHonorHUD = function()
 	honorValue.Text = "0"
 	honorValue.TextColor3 = Color3.fromRGB(244, 246, 242)
 	honorValue.Parent = honorCard
-	local honorOpen = Instance.new("TextButton")
+	honorOpen = Instance.new("TextButton")
 	honorOpen.Name = "OpenHonorMenu"
 	honorOpen.BackgroundTransparency = 1
 	honorOpen.Text = ""
@@ -8838,6 +8839,7 @@ shared.PunchWallBuildHonorHUD = function()
 	honorOpen.ZIndex = 36
 	honorOpen.Active = true
 	honorOpen.Selectable = true
+	enforceReferenceTouchTarget(honorOpen)
 	honorOpen.Parent = honorCard
 	honorOpen.Activated:Connect(function()
 		shared.PunchWallSelectedHonorItemId = nil
@@ -9181,8 +9183,10 @@ local function makeDirectionalPunchButton(name, label, x, y, direction)
 	return button
 end
 
-makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
-makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
+local punchUpButton = makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
+local punchDownButton = makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
+enforceReferenceTouchTarget(punchUpButton)
+enforceReferenceTouchTarget(punchDownButton)
 
 local trainingOverlay = Instance.new("Frame")
 trainingOverlay.Name = "TrainingStateHUD"
@@ -10845,13 +10849,14 @@ shared.PunchWallBuildShopUI = function()
 			local productName = compactCards and compactProductNames[item.name] or nil
 			productName = productName or string.upper(item.displayName)
 			local productNameLabel = label(card, "Name", productName, UDim2.fromScale(textX, 0.08), UDim2.fromScale(featuredCard and 0.38 or 0.4, 0.2), Color3.fromRGB(250, 248, 239), compactCards and 12 or 17, Enum.Font.GothamBlack)
-			if #productName > 18 then
-				productNameLabel.TextScaled = true
-				local productNameSize = Instance.new("UITextSizeConstraint")
-				productNameSize.MinTextSize = compactCards and 8 or 10
-				productNameSize.MaxTextSize = compactCards and 12 or 17
-				productNameSize.Parent = productNameLabel
-			end
+			-- Every catalog title must remain complete as the long-play fist list
+			-- grows. TextScaled plus a bounded floor is more robust than relying
+			-- on a name-length heuristic that still clipped narrow glyph runs.
+			productNameLabel.TextScaled = true
+			local productNameSize = Instance.new("UITextSizeConstraint")
+			productNameSize.MinTextSize = compactCards and 8 or 10
+			productNameSize.MaxTextSize = compactCards and 12 or 17
+			productNameSize.Parent = productNameLabel
 			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, 11, Enum.Font.GothamBlack)
 			if compactCards and item.isHonorProduct then
 				rarityLabel.TextScaled = true
@@ -10951,6 +10956,11 @@ shared.PunchWallBuildShopUI = function()
 				or item.robux and "PRICE UNAVAILABLE"
 				or ((item.cost or 0) <= 0 and "FREE" or formatNumber(item.cost))
 			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
+			priceLabel.TextScaled = true
+			local priceTextSize = Instance.new("UITextSizeConstraint")
+			priceTextSize.MinTextSize = 7
+			priceTextSize.MaxTextSize = compactCards and 10 or 14
+			priceTextSize.Parent = priceLabel
 			if purchaseUnavailable then
 				if priceIcon:IsA("ImageLabel") then
 					priceIcon.ImageTransparency = 0.62
@@ -10959,11 +10969,6 @@ shared.PunchWallBuildShopUI = function()
 					priceIcon.BackgroundTransparency = 0.62
 				end
 				priceLabel.TextColor3 = Color3.fromRGB(185, 194, 199)
-				priceLabel.TextScaled = true
-				local unavailablePriceSize = Instance.new("UITextSizeConstraint")
-				unavailablePriceSize.MinTextSize = 7
-				unavailablePriceSize.MaxTextSize = 11
-				unavailablePriceSize.Parent = priceLabel
 			end
 			if compactCards then
 				priceIcon.Position = UDim2.fromScale(textX, 0.57)
@@ -11482,19 +11487,26 @@ applyResponsiveLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	-- Studio Device Simulator can transiently report a 1x1 camera viewport even
-	-- while the player HUD is already rasterized at the selected device size.
-	-- Use the full-screen reference HUD as the authoritative fallback so modal
-	-- geometry never collapses to 1x1 during simulator/play transitions.
-	if viewport.X < 320 or viewport.Y < 240 then
-		local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
-		local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
-		if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
+	-- Studio Device Simulator may retain the host-window camera viewport while
+	-- rasterizing ScreenGui content at the selected phone/tablet dimensions.
+	-- Prefer the actual full-screen HUD bounds whenever they disagree so compact
+	-- controls are selected from the pixels players can really touch.
+	local viewportSource = "Camera"
+	local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
+	local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
+	if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
+		if viewport.X < 320
+			or viewport.Y < 240
+			or math.abs(referenceSize.X - viewport.X) > 2
+			or math.abs(referenceSize.Y - viewport.Y) > 2
+		then
 			viewport = referenceSize
+			viewportSource = "ReferenceHUD"
 		end
 	end
 	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
 	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
+	gui:SetAttribute("ResponsiveViewportSource", viewportSource)
 	local compact = UserInputService.TouchEnabled or viewport.Y < 520
 	local coreGuiTopLeft = Vector2.zero
 	local coreGuiBottomRight = Vector2.zero
@@ -11689,6 +11701,18 @@ applyResponsiveLayout = function()
 		referenceJump.AnchorPoint = Vector2.new(1, 1)
 		referenceJump.Position = UDim2.new(1, -8, 1, -8)
 		referenceJump.Size = UDim2.fromOffset(86, 86)
+		honorOpen.AnchorPoint = Vector2.new(0.5, 0.5)
+		honorOpen.Position = UDim2.fromScale(0.5, 0.5)
+		honorOpen.Size = UDim2.fromOffset(48, 48)
+		honorOpen:SetAttribute("ResponsiveProfile", "CompactTransparentHit48V1")
+		punchUpButton.AnchorPoint = Vector2.new(1, 1)
+		punchUpButton.Position = UDim2.new(1, -306, 1, -18)
+		punchUpButton.Size = UDim2.fromOffset(48, 48)
+		punchDownButton.AnchorPoint = Vector2.new(1, 1)
+		punchDownButton.Position = UDim2.new(1, -252, 1, -18)
+		punchDownButton.Size = UDim2.fromOffset(48, 48)
+		punchUpButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
+		punchDownButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -11821,6 +11845,16 @@ applyResponsiveLayout = function()
 		referenceSpin.Position, referenceSpin.Size = designRect(16, 316, 82, 111)
 		referenceJump.AnchorPoint = Vector2.zero
 		referenceJump.Position, referenceJump.Size = designRect(1460, 694, 211, 211)
+		honorOpen.AnchorPoint = Vector2.zero
+		honorOpen.Position = UDim2.fromScale(0, 0)
+		honorOpen.Size = UDim2.fromScale(1, 1)
+		honorOpen:SetAttribute("ResponsiveProfile", "CardFill")
+		punchUpButton.AnchorPoint = Vector2.zero
+		punchUpButton.Position, punchUpButton.Size = designRect(1190, 590, 76, 76)
+		punchDownButton.AnchorPoint = Vector2.zero
+		punchDownButton.Position, punchDownButton.Size = designRect(1280, 590, 76, 76)
+		punchUpButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
+		punchDownButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
 		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
@@ -11940,6 +11974,7 @@ end
 if workspace.CurrentCamera then
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(applyResponsiveLayout)
 end
+referenceHUD:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyResponsiveLayout)
 task.defer(function()
 	applyResponsiveLayout()
 	actionRemote:FireServer({ action = "RequestSync" })

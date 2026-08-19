@@ -221,7 +221,8 @@ check(
   "runtime_flow_covers_real_ui_purchase_and_respawn",
   flowText.includes('"tool": "user_mouse_input"')
     && flowText.includes("OpenHonorMenu")
-    && flowText.includes("Vanguard TrailHonorAction")
+    && flowText.includes("Actionequip")
+    && flowText.includes("ItemCard_honor_vanguard_trail")
     && flowText.includes("HonorState')=='Insufficient")
     && flowText.includes("HonorState')=='Locked'")
     && flowText.includes("ActionRequest")

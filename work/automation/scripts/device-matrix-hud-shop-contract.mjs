@@ -14,6 +14,15 @@ const flowPath = path.join(
   "device-matrix-hud-shop.json",
 );
 const flow = JSON.parse(fs.readFileSync(flowPath, "utf8"));
+const clientPath = path.join(
+  repositoryRoot,
+  "work",
+  "punch-wall-rpg",
+  "src",
+  "client",
+  "PunchWallClient.client.lua",
+);
+const client = fs.readFileSync(clientPath, "utf8");
 const checks = {};
 
 function check(name, condition, detail) {
@@ -40,9 +49,15 @@ check(
 check(
   "every_shop_viewport_requires_current_sixteen_cards",
   shopSteps.length === 5
-    && shopSteps.every((step) =>
-      step.expectRegex?.some((pattern) =>
-        pattern.includes("cards") && pattern.endsWith("16"))),
+    && shopSteps.every((step) => {
+      const source = step.args?.code || "";
+      return step.expectRegex?.some((pattern) =>
+        pattern.includes("cards") && pattern.endsWith("16"))
+        && source.includes("local function shown(d)")
+        && source.includes("notFitNames=notFitNames")
+        && source.includes("assert(result.visible")
+        && !source.includes("d.Visible and not d.TextFits");
+    }),
   "All five viewports must fail if the current sixteen-fist catalog is incomplete.",
 );
 
@@ -86,6 +101,30 @@ check(
   "Phone target assertions must expose failing names, require zero small targets, and retain a numeric 44px floor.",
 );
 
+check(
+  "compact_honor_and_directional_punch_targets_have_real_48px_profiles",
+  client.includes("enforceReferenceTouchTarget(honorOpen)")
+    && client.includes('"CompactTransparentHit48V1"')
+    && client.includes("enforceReferenceTouchTarget(punchUpButton)")
+    && client.includes("enforceReferenceTouchTarget(punchDownButton)")
+    && client.includes('constraint.Name = "MinimumTouchTarget"')
+    && client.includes("constraint.MinSize = Vector2.new(44, 44)")
+    && client.includes('"CompactTouchPair48V1"')
+    && client.includes("punchUpButton.Size = UDim2.fromOffset(48, 48)")
+    && client.includes("punchDownButton.Size = UDim2.fromOffset(48, 48)"),
+  "The compact Honor overlay and both directional punch controls must keep explicit 48px hit areas instead of design-scale shrinking below 44px.",
+);
+
+check(
+  "long_catalog_names_and_prices_scale_inside_every_card",
+  client.includes("productNameLabel.TextScaled = true")
+    && client.includes("productNameSize.MinTextSize = compactCards and 8 or 10")
+    && client.includes("priceLabel.TextScaled = true")
+    && client.includes("priceTextSize.MaxTextSize = compactCards and 10 or 14")
+    && !client.includes("if #productName > 18 then"),
+  "Every visible long-play product name and price must use bounded scaling; short strings can still clip in narrow half-width cards.",
+);
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(JSON.stringify({
   ok: passed === Object.keys(checks).length,
@@ -94,5 +133,5 @@ console.log(JSON.stringify({
   shopViewports: shopSteps.length,
   phoneProfiles: phoneTargetSteps.length,
   checks,
-  files: [path.relative(repositoryRoot, flowPath)],
+  files: [path.relative(repositoryRoot, flowPath), path.relative(repositoryRoot, clientPath)],
 }, null, 2));
