@@ -71658,6 +71658,7 @@ shared.PunchWallHUDWidgets = {
 	QuestCard = referenceImage("QuestCard", pixel.QuestCard, 1368, 117, 294, 134),
 	NextWorldCard = referenceImage("NextWorldCard", pixel.NextWorld, 1020, 778, 194, 145),
 }
+local honorOpen
 shared.PunchWallBuildHonorHUD = function()
 	local honorCard = Instance.new("Frame")
 	honorCard.Name = "HonorCurrencyHUD"
@@ -71701,7 +71702,7 @@ shared.PunchWallBuildHonorHUD = function()
 	honorValue.Text = "0"
 	honorValue.TextColor3 = Color3.fromRGB(244, 246, 242)
 	honorValue.Parent = honorCard
-	local honorOpen = Instance.new("TextButton")
+	honorOpen = Instance.new("TextButton")
 	honorOpen.Name = "OpenHonorMenu"
 	honorOpen.BackgroundTransparency = 1
 	honorOpen.Text = ""
@@ -71709,6 +71710,7 @@ shared.PunchWallBuildHonorHUD = function()
 	honorOpen.ZIndex = 36
 	honorOpen.Active = true
 	honorOpen.Selectable = true
+	enforceReferenceTouchTarget(honorOpen)
 	honorOpen.Parent = honorCard
 	honorOpen.Activated:Connect(function()
 		shared.PunchWallSelectedHonorItemId = nil
@@ -72052,8 +72054,10 @@ local function makeDirectionalPunchButton(name, label, x, y, direction)
 	return button
 end
 
-makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
-makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
+local punchUpButton = makeDirectionalPunchButton("PunchUp", utf8.char(0x2191), 1190, 590, "Up")
+local punchDownButton = makeDirectionalPunchButton("PunchDown", utf8.char(0x2193), 1280, 590, "Down")
+enforceReferenceTouchTarget(punchUpButton)
+enforceReferenceTouchTarget(punchDownButton)
 
 local trainingOverlay = Instance.new("Frame")
 trainingOverlay.Name = "TrainingStateHUD"
@@ -73716,13 +73720,14 @@ shared.PunchWallBuildShopUI = function()
 			local productName = compactCards and compactProductNames[item.name] or nil
 			productName = productName or string.upper(item.displayName)
 			local productNameLabel = label(card, "Name", productName, UDim2.fromScale(textX, 0.08), UDim2.fromScale(featuredCard and 0.38 or 0.4, 0.2), Color3.fromRGB(250, 248, 239), compactCards and 12 or 17, Enum.Font.GothamBlack)
-			if #productName > 18 then
-				productNameLabel.TextScaled = true
-				local productNameSize = Instance.new("UITextSizeConstraint")
-				productNameSize.MinTextSize = compactCards and 8 or 10
-				productNameSize.MaxTextSize = compactCards and 12 or 17
-				productNameSize.Parent = productNameLabel
-			end
+			-- Every catalog title must remain complete as the long-play fist list
+			-- grows. TextScaled plus a bounded floor is more robust than relying
+			-- on a name-length heuristic that still clipped narrow glyph runs.
+			productNameLabel.TextScaled = true
+			local productNameSize = Instance.new("UITextSizeConstraint")
+			productNameSize.MinTextSize = compactCards and 8 or 10
+			productNameSize.MaxTextSize = compactCards and 12 or 17
+			productNameSize.Parent = productNameLabel
 			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, 11, Enum.Font.GothamBlack)
 			if compactCards and item.isHonorProduct then
 				rarityLabel.TextScaled = true
@@ -73822,6 +73827,11 @@ shared.PunchWallBuildShopUI = function()
 				or item.robux and "PRICE UNAVAILABLE"
 				or ((item.cost or 0) <= 0 and "FREE" or formatNumber(item.cost))
 			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
+			priceLabel.TextScaled = true
+			local priceTextSize = Instance.new("UITextSizeConstraint")
+			priceTextSize.MinTextSize = 7
+			priceTextSize.MaxTextSize = compactCards and 10 or 14
+			priceTextSize.Parent = priceLabel
 			if purchaseUnavailable then
 				if priceIcon:IsA("ImageLabel") then
 					priceIcon.ImageTransparency = 0.62
@@ -73830,11 +73840,6 @@ shared.PunchWallBuildShopUI = function()
 					priceIcon.BackgroundTransparency = 0.62
 				end
 				priceLabel.TextColor3 = Color3.fromRGB(185, 194, 199)
-				priceLabel.TextScaled = true
-				local unavailablePriceSize = Instance.new("UITextSizeConstraint")
-				unavailablePriceSize.MinTextSize = 7
-				unavailablePriceSize.MaxTextSize = 11
-				unavailablePriceSize.Parent = priceLabel
 			end
 			if compactCards then
 				priceIcon.Position = UDim2.fromScale(textX, 0.57)
@@ -74353,19 +74358,26 @@ applyResponsiveLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	-- Studio Device Simulator can transiently report a 1x1 camera viewport even
-	-- while the player HUD is already rasterized at the selected device size.
-	-- Use the full-screen reference HUD as the authoritative fallback so modal
-	-- geometry never collapses to 1x1 during simulator/play transitions.
-	if viewport.X < 320 or viewport.Y < 240 then
-		local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
-		local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
-		if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
+	-- Studio Device Simulator may retain the host-window camera viewport while
+	-- rasterizing ScreenGui content at the selected phone/tablet dimensions.
+	-- Prefer the actual full-screen HUD bounds whenever they disagree so compact
+	-- controls are selected from the pixels players can really touch.
+	local viewportSource = "Camera"
+	local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
+	local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
+	if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
+		if viewport.X < 320
+			or viewport.Y < 240
+			or math.abs(referenceSize.X - viewport.X) > 2
+			or math.abs(referenceSize.Y - viewport.Y) > 2
+		then
 			viewport = referenceSize
+			viewportSource = "ReferenceHUD"
 		end
 	end
 	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
 	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
+	gui:SetAttribute("ResponsiveViewportSource", viewportSource)
 	local compact = UserInputService.TouchEnabled or viewport.Y < 520
 	local coreGuiTopLeft = Vector2.zero
 	local coreGuiBottomRight = Vector2.zero
@@ -74560,6 +74572,18 @@ applyResponsiveLayout = function()
 		referenceJump.AnchorPoint = Vector2.new(1, 1)
 		referenceJump.Position = UDim2.new(1, -8, 1, -8)
 		referenceJump.Size = UDim2.fromOffset(86, 86)
+		honorOpen.AnchorPoint = Vector2.new(0.5, 0.5)
+		honorOpen.Position = UDim2.fromScale(0.5, 0.5)
+		honorOpen.Size = UDim2.fromOffset(48, 48)
+		honorOpen:SetAttribute("ResponsiveProfile", "CompactTransparentHit48V1")
+		punchUpButton.AnchorPoint = Vector2.new(1, 1)
+		punchUpButton.Position = UDim2.new(1, -306, 1, -18)
+		punchUpButton.Size = UDim2.fromOffset(48, 48)
+		punchDownButton.AnchorPoint = Vector2.new(1, 1)
+		punchDownButton.Position = UDim2.new(1, -252, 1, -18)
+		punchDownButton.Size = UDim2.fromOffset(48, 48)
+		punchUpButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
+		punchDownButton:SetAttribute("ResponsiveProfile", "CompactTouchPair48V1")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -74692,6 +74716,16 @@ applyResponsiveLayout = function()
 		referenceSpin.Position, referenceSpin.Size = designRect(16, 316, 82, 111)
 		referenceJump.AnchorPoint = Vector2.zero
 		referenceJump.Position, referenceJump.Size = designRect(1460, 694, 211, 211)
+		honorOpen.AnchorPoint = Vector2.zero
+		honorOpen.Position = UDim2.fromScale(0, 0)
+		honorOpen.Size = UDim2.fromScale(1, 1)
+		honorOpen:SetAttribute("ResponsiveProfile", "CardFill")
+		punchUpButton.AnchorPoint = Vector2.zero
+		punchUpButton.Position, punchUpButton.Size = designRect(1190, 590, 76, 76)
+		punchDownButton.AnchorPoint = Vector2.zero
+		punchDownButton.Position, punchDownButton.Size = designRect(1280, 590, 76, 76)
+		punchUpButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
+		punchDownButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
 		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
@@ -74811,6 +74845,7 @@ end
 if workspace.CurrentCamera then
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(applyResponsiveLayout)
 end
+referenceHUD:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyResponsiveLayout)
 task.defer(function()
 	applyResponsiveLayout()
 	actionRemote:FireServer({ action = "RequestSync" })
@@ -92354,7 +92389,7 @@ return PolishConfig
 				</Item>
 			</Item>
 			
-		<Item class="Model" referent="RBXF4A31818B52045628F666DD6E377D712">
+		<Item class="Model" referent="RBX1DE138C5D1A042F4A38D68086AF65A34">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -92405,10 +92440,10 @@ return PolishConfig
 					<string name="Name">CreatorStore_ArmoredClosedHeroFist</string>
 					<int64 name="SourceAssetId">1622087753</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">3b001f1118cc4f06a71945fccae4f4be</UniqueId>
+					<UniqueId name="UniqueId">6edd427ac67e4ae19881432aeba8aee8</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBX1C1B6914C5D24CA8B8C9120EFE1B5EDF">
+			<Item class="Part" referent="RBXAF1FC8B5E50E44DB983DD3915F46C0DE">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -92506,9 +92541,9 @@ return PolishConfig
 					<string name="Name">FistMesh</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">cf22f502d4c14e318c7e1aaf4531b550</UniqueId>
+					<UniqueId name="UniqueId">da0997c29a774c689f395462c15214c0</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBXF84DE8C04D394474BFA2F0B006B4FF7F">
+			<Item class="SpecialMesh" referent="RBXD9AFC285347B43C2B6D1CA2D0DF635D1">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -92535,7 +92570,7 @@ return PolishConfig
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">493423c30e604fa5966643891356a7cb</UniqueId>
+								<UniqueId name="UniqueId">1d5a22f28e394690a6b2e98297ff0ed3</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		<Item class="ModuleScript" referent="RBX1AA10873531341DE8794853199EB6898">
@@ -93691,7 +93726,7 @@ return FistVisualBuilder
 				<UniqueId name="UniqueId">d93177e95e0d495ca4cfb988dde508a0</UniqueId>
 			</Properties>
 			
-		<Item class="Model" referent="RBX4E0780A10825410E98978EE48441A3E7">
+		<Item class="Model" referent="RBXABFCDF71F76A449FB09F4CFA911AC226">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -93742,10 +93777,10 @@ return FistVisualBuilder
 					<string name="Name">Sanitized_PowerFistGoldKnuckle</string>
 					<int64 name="SourceAssetId">65566767</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">af990cad2d884b74b30d67dd7ef8f84c</UniqueId>
+					<UniqueId name="UniqueId">fe3f9fa0697a48ba99aa251648011602</UniqueId>
 				</Properties>
 				
-			<Item class="Part" referent="RBX0625EED5409A40518AE247888093D4D2">
+			<Item class="Part" referent="RBXD7FAA115F0CC4FEE80C4D9D46C276006">
 				<Properties>
 					<token name="shape">1</token>
 					<token name="formFactorRaw">1</token>
@@ -93843,9 +93878,9 @@ return FistVisualBuilder
 					<string name="Name">Handle</string>
 					<int64 name="SourceAssetId">-1</int64>
 					<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-					<UniqueId name="UniqueId">f3f02820eed94da4ac6a6187c4dfa919</UniqueId>
+					<UniqueId name="UniqueId">807cc5deae8b45f89c37d3d1ddf77442</UniqueId>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBX330232E7C1904EDA8CC09C880FAB7031">
+			<Item class="SpecialMesh" referent="RBX4207D569206943C0AACCD9B1C2CF45F3">
 							<Properties>
 								<token name="MeshType">5</token>
 								<Content name="MeshId"><url>rbxassetid://65322375</url></Content>
@@ -93872,7 +93907,7 @@ return FistVisualBuilder
 								<string name="Name">Mesh</string>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">IPVWnf7WYG/fNUCV5NnTVQ==</SharedString>
-								<UniqueId name="UniqueId">b64968f88adf460ba139eacce6778cbd</UniqueId>
+								<UniqueId name="UniqueId">6dd760b4feb04a27af3fcb90b9168b97</UniqueId>
 							</Properties>
 						</Item></Item></Item></Item>
 		
@@ -94823,7 +94858,7 @@ return InventoryViewModel
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
 				<UniqueId name="UniqueId">af4fb81b3dcd41b5b8601564c3f0e767</UniqueId>
 			</Properties>
-		</Item><Item class="Folder" referent="RBXCACD45628A1F49F1B342E7BBB1466083">
+		</Item><Item class="Folder" referent="RBX947FF3AF508245A9AAA179F722117FEC">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<SecurityCapabilities name="Capabilities">0</SecurityCapabilities>
@@ -94832,13 +94867,13 @@ return InventoryViewModel
 				<string name="Name">PunchWallVisualAssets</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-				<UniqueId name="UniqueId">a83e522f592445c6a3e3d1f81ed52aa4</UniqueId>
+				<UniqueId name="UniqueId">02ab158221fe41d0ac79e667e1c6fd34</UniqueId>
 			</Properties>
 			
 			
 			
 			
-		<Item class="Model" referent="RBX5A9E2A81D42B415FB20A443F0DD88ADB">
+		<Item class="Model" referent="RBXE0555E099A7344EA8577E48DD84AF4EA">
 				<Properties>
 					<token name="LevelOfDetail">0</token>
 					<CoordinateFrame name="ModelMeshCFrame">
@@ -94889,10 +94924,10 @@ return InventoryViewModel
 					<string name="Name">StylizedForestTreeTemplate</string>
 					<int64 name="SourceAssetId">95555308270103</int64>
 					<SharedString name="Tags">WNTyf53GVIwoqy0YbqPX9w==</SharedString>
-					<UniqueId name="UniqueId">d2243828aa90497cb24226432095e544</UniqueId>
+					<UniqueId name="UniqueId">0ce10b5957874c0cb06dd75176acffb4</UniqueId>
 				</Properties>
 				
-			<Item class="MeshPart" referent="RBX5CE0D2A2FB5740E99EEA3EA45AFE19DC">
+			<Item class="MeshPart" referent="RBX0D49B8DD3C774801A5B1FB6EB8AB3154">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95026,11 +95061,11 @@ return InventoryViewModel
 							<string name="Name">Meshes/Jungle tree trunks_Plane.006</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">d112e44763f944548c299447ff7878b6</UniqueId>
+							<UniqueId name="UniqueId">1aa4d8c765b5480885f010a36c69dd4e</UniqueId>
 						</Properties>
 						
 						
-					</Item><Item class="MeshPart" referent="RBXBE6564563FAC43C09AFC932D23AB828E">
+					</Item><Item class="MeshPart" referent="RBX7E9E8D49FC294B3D946079D8132AD5FC">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95164,11 +95199,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">ac516df07b7f444ca2727b95c350d121</UniqueId>
+							<UniqueId name="UniqueId">81c12373dc6647f6beae825e056a4d47</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXEE012912A6204389A8639088F73A9FF5">
+					<Item class="SurfaceAppearance" referent="RBX0F29E859B0804F3194C016C85CEBEA8D">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95198,10 +95233,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">aaad98979a1f49f7b3c508a29d6872ea</UniqueId>
+									<UniqueId name="UniqueId">93c71ce9d5df41f7b5c70a9b272e735d</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX66263BB6A0D14FEA95DF3FF08240EFDB">
+							</Item></Item><Item class="MeshPart" referent="RBX086EFBA6C5D5451C81B3BD83D3E7A74A">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95335,11 +95370,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">1daa16352b564b7e801d3a19da86e27d</UniqueId>
+							<UniqueId name="UniqueId">ec670b7f71da42449135debd4c8e75f4</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX9FE6BF1ED01D4426B5B334B279765F28">
+					<Item class="SurfaceAppearance" referent="RBX9582739213804BEE8788274DF8C9C9EA">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95369,10 +95404,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">435389035afe4f6cb752b3150be809f4</UniqueId>
+									<UniqueId name="UniqueId">dea87c6dbea547fe9d9e8a4fe4151679</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXA321E85589594E54AFFA370FBF53084B">
+							</Item></Item><Item class="MeshPart" referent="RBXCCE9816D3DD14B24AFC5F7507E62C608">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95506,11 +95541,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">dd8ab8a4140f4d5aa0637c5f3e611d28</UniqueId>
+							<UniqueId name="UniqueId">88d43711a82f47e496caa7ed15ca81fb</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX54A276E8ABEA49C9A8E885FE0C8AFF1B">
+					<Item class="SurfaceAppearance" referent="RBX3F701C743AFE45C096D1021E181FF719">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95540,10 +95575,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">af474282516d40cfbe3f2087587c59ce</UniqueId>
+									<UniqueId name="UniqueId">627cb356aa414e9ab4b1a3b678253a7c</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX7B2F83282CD646F78D4259860394F7F4">
+							</Item></Item><Item class="MeshPart" referent="RBXEE649EACFE4E4CA5BE391B348ADE2F80">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95677,11 +95712,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">f19b3c668b754034b2a1d849218a4b97</UniqueId>
+							<UniqueId name="UniqueId">bd15465c9c0d46d2b75fc56d1c104a0e</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXCEC92218F721403BB6FAAE3383C25A69">
+					<Item class="SurfaceAppearance" referent="RBXE98B2521C33E456884E325DF20F7C2F4">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95711,10 +95746,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">8d8230985bf14112b2ee6634c6f42238</UniqueId>
+									<UniqueId name="UniqueId">dbbdbfe770e34559bfe73edff66d0fb9</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXCC42160272B740049ED050A5F7BF8ECA">
+							</Item></Item><Item class="MeshPart" referent="RBX0598BC049704437A966770ACE4B9B5F3">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -95848,11 +95883,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">43e5b863ef7741e49e3d0736ea4d8cf7</UniqueId>
+							<UniqueId name="UniqueId">570f87ab12d24fe9a629859b2c4a0217</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX000038FE3BF64191887DE1C56C8873DB">
+					<Item class="SurfaceAppearance" referent="RBXA9BF21771C264375AD60FA136BD8707F">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -95882,10 +95917,10 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">14ecf56dfceb4cc9a0de831afe5d7f92</UniqueId>
+									<UniqueId name="UniqueId">e5bf4da1b66c43429213df7c612d0500</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX68A7FFAFA6794194B1767C5812D9BC36">
+							</Item></Item><Item class="MeshPart" referent="RBX1B2462B2C02A4D3FAE5302E4ED0997C4">
 						<Properties>
 							<bool name="DoubleSided">false</bool>
 							<bool name="HasJointOffset">false</bool>
@@ -96019,11 +96054,11 @@ return InventoryViewModel
 							<string name="Name">Leaves</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-							<UniqueId name="UniqueId">e2c075558da54d608fb02b8aa1a79272</UniqueId>
+							<UniqueId name="UniqueId">805a5fc89e5f44208f15e41a508bdbb7</UniqueId>
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX56D8FF53596846DF8DB0F9276C597F30">
+					<Item class="SurfaceAppearance" referent="RBXA8DEF8986A2549BD81DC74C833F81348">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<Color3 name="Color">
@@ -96053,7 +96088,7 @@ return InventoryViewModel
 									<string name="Name">SurfaceAppearance</string>
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">yuZpQdnvvUBOTYh1jqZ2cA==</SharedString>
-									<UniqueId name="UniqueId">a7a650406fcd443583da55ef166cc775</UniqueId>
+									<UniqueId name="UniqueId">a49ef72457e9478393854ebf91732f66</UniqueId>
 								</Properties>
 								
 							</Item></Item></Item></Item></Item>

@@ -2,16 +2,17 @@
 
 ## Scope
 
-Release-artifact remediation on `codex/fix/qc-release`, based on
-`develop@6dc441334f957d0fe6d9b086b5bb5cc3a65b1cd1`. No Roblox Studio session was
-opened.
+Final release-artifact rebuild on
+`develop@63231af87da568a4d32d84ffd6b75200bd398f0f`, after the current source
+passed the focused Studio runtime matrix. The artifact build and verification
+commands themselves did not open Roblox Studio.
 
 ## Artifact identity
 
 | File | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 5,593,417 | `9EB3133E347D5632C3A844AE5627FD3511F7E1B8105B8C1C31641C46E390574E` |
-| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 5,593,417 | `9EB3133E347D5632C3A844AE5627FD3511F7E1B8105B8C1C31641C46E390574E` |
+| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 5,595,288 | `1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A` |
+| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 5,595,288 | `1B007BE2CF90CA53438A4641F69E7BC0DF2184E5823874EA269C2E23FE40C16A` |
 
 The validation copy is byte-identical to the canonical final artifact.
 
