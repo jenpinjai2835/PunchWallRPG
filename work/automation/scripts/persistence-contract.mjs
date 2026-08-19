@@ -635,6 +635,15 @@ check(
   "Counters, flags, and epoch fields must be integral without rejecting valid fractional multipliers or crit values.",
 );
 check(
+  "legacy_fractional_fist_mastery_migrates_safely",
+  profileSource.includes("DataVersion 3 stored fractional FistMastery progress")
+    && profileSource.includes("profile.FistMastery = math.floor(profile.FistMastery)")
+    && profileSource.includes(
+      "legacy fractional FistMastery was not migrated without data loss",
+    ),
+  "Legacy DataVersion 3 profiles must retain completed mastery levels while migrating fractional FistMastery to the current integer schema.",
+);
+check(
   "json_lists_and_settings_have_typed_bounded_shapes",
   profileSource.includes('schema.jsonShape = "stringArray"')
     && profileSource.includes(

@@ -1,6 +1,6 @@
 local ProfilePersistence = {}
 
-ProfilePersistence.ContractVersion = "2.2.0"
+ProfilePersistence.ContractVersion = "2.2.1"
 ProfilePersistence.MaxReceiptLedgerEntries = 200
 ProfilePersistence.MaxSeenReceiptIds = 2048
 ProfilePersistence.MaxAuthoritativeNumber = 9007199254740991
@@ -1034,6 +1034,19 @@ function ProfilePersistence.Migrate(rawProfile, currentVersion, maxEntries)
 	if currentVersion >= 7 and sourceVersion < 7 then
 		profile.HonorPowerBonus = 0
 	end
+	-- DataVersion 3 stored fractional FistMastery progress (for example 6.25),
+	-- while the current authoritative stat is an integer counter. Preserve every
+	-- completed mastery level without inventing progress. Invalid types, nonfinite
+	-- values, and values below the historical minimum still fail schema validation.
+	if sourceVersion < currentVersion
+		and type(profile.FistMastery) == "number"
+		and profile.FistMastery == profile.FistMastery
+		and profile.FistMastery ~= math.huge
+		and profile.FistMastery ~= -math.huge
+		and profile.FistMastery >= 1
+	then
+		profile.FistMastery = math.floor(profile.FistMastery)
+	end
 	local validatedProfile, schemaError = validateAuthoritativeFields(profile)
 	if not validatedProfile then
 		return nil, schemaError
@@ -1700,6 +1713,19 @@ function ProfilePersistence.RunContractSelfTest(currentVersion)
 	assert(
 		migrated.LegacyOnlyPayload == nil,
 		"legacy migration did not drop unknown top-level fields"
+	)
+	local legacyFractionalMastery, legacyFractionalMasteryState =
+		ProfilePersistence.Migrate({
+			DataVersion = 3,
+			FistMastery = 6.25,
+			Coins = 1849,
+		}, currentVersion)
+	assert(
+		legacyFractionalMastery
+			and legacyFractionalMasteryState == "Migrated"
+			and legacyFractionalMastery.FistMastery == 6
+			and legacyFractionalMastery.Coins == 1849,
+		"legacy fractional FistMastery was not migrated without data loss"
 	)
 	for _, field in ipairs(ProfilePersistence.BoostExpiryFields) do
 		assert(type(migrated[field]) == "number", "boost migration field missing: " .. field)
