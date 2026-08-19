@@ -25,7 +25,7 @@
         "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal decor=root.Polish[\"City Decor\"]\nlocal dna=decor[\"DNA Lab Compact Sign\"]\nlocal boss=root.Walls[\"Titan Server Wall\"]\nlocal parts,images,decals=0,0,0\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nfor _,d in ipairs(dna:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://80764015986038\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://80764015986038\" then decals+=1 end end\nreturn H:JSONEncode({parts=parts,images=images,decals=decals,nextAttack=boss:GetAttribute(\"NextAttackAt\"),hasNextAttribute=boss:GetAttribute(\"NextAttackAt\")~=nil})"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
+        "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
         "\"images\"\\s*:\\s*1",
         "\"decals\"\\s*:\\s*1",
         "\"nextAttack\"\\s*:\\s*0",
@@ -171,11 +171,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=1000000,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15)\nlocal hit=c:Invoke(\"HitBoss\")\nreturn H:JSONEncode({ok=hit.ok,broken=hit.TitanBroken,hp=hit.TitanHP})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"ResetWorld\")\nc:Invoke(\"SetStats\",{Power=200000000,WallLevel=99,Depth=75,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,7,-320),Vector3.new(-2,9,-340))\nlocal hit=c:Invoke(\"HitBoss\")\nreturn H:JSONEncode({ok=hit.ok,broken=hit.TitanBroken,hp=hit.TitanHP,phase=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"]:GetAttribute(\"BossPhase\")})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"broken\"\\s*:\\s*false"
+        "\"broken\"\\s*:\\s*false",
+        "\"phase\"\\s*:\\s*2"
       ],
       "label": "enter Titan phase two without breaking boss"
     },

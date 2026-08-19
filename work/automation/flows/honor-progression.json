@@ -1,0 +1,282 @@
+{
+  "name": "honor-progression",
+  "description": "Verify server-authoritative long-play Honor milestones, qualified Titan clears, daily/cycle replay limits, capped currency, stable-id relic spending, real HUD/menu input, persistence across respawn, and reduced-motion cosmetics.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Honor Flow Desktop 1366x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1366,Height=768,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.4) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"\\s*:\\s*1366", "\"height\"\\s*:\\s*768", "\"active\"\\s*:\\s*true"],
+      "label": "lock exact desktop viewport for world relic input"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for profile and character" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture boot console" },
+    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "boot console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local depth={{10,2},{20,3},{35,5},{50,8},{65,12},{75,20}} local rebirth={{1,5},{5,10},{10,20},{25,40},{50,75}} local items={{'vanguard_trail',20,.02,10,0},{'storm_hero_aura',60,.03,20,0},{'relic_sidekick_core',120,.04,35,0},{'crown_of_the_deep',220,.05,50,0},{'titan_vanguard_trail',360,.06,65,1},{'tempest_commander_aura',540,.08,75,5},{'celestial_relic_core',780,.10,75,10},{'eternal_crown_of_honor',1100,.12,75,25}} local ok=G.DataVersion==7 and G.Honor.Version=='PrestigeHonorV1' and G.Honor.WorldClearBase==5 and G.Honor.FirstDailyClearBonus==7 and G.Honor.MaxWorldClearsPerDay==3 and G.Honor.MinimumBossContribution==.01 and G.Honor.MinimumClearIntervalSeconds==300 and #G.Honor.DepthMilestones==6 and #G.Honor.RebirthMilestones==5 and #G.HonorItems==8 for i,e in ipairs(depth) do local a=G.Honor.DepthMilestones[i] ok=ok and a.depth==e[1] and a.honor==e[2] end for i,e in ipairs(rebirth) do local a=G.Honor.RebirthMilestones[i] ok=ok and a.rebirths==e[1] and a.honor==e[2] end for i,e in ipairs(items) do local a=G.HonorItems[i] ok=ok and a.id==e[1] and a.cost==e[2] and a.powerBonus==e[3] and a.requiredDepth==e[4] and a.requiredRebirths==e[5] end for _,reward in ipairs(G.Spin.Rewards) do ok=ok and reward.kind~='Honor' end assert(ok,'Honor config mismatch') return H:JSONEncode({ok=ok,depth=#depth,rebirth=#rebirth,items=#items,spinHonor=false})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"depth\"\\s*:\\s*6", "\"rebirth\"\\s*:\\s*5", "\"items\"\\s*:\\s*8"],
+      "label": "canonical Honor earn and relic matrices are exact and Spin grants no Honor"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('ResetWorld') c:Invoke('Reset') c:Invoke('SetStats',{Power=1500000000,FistMultiplier=100,WallLevel=99,Depth=0,Honor=0,HonorMilestoneMask=0}) local rows={} for _,d in ipairs({10,20,35,50,65,75}) do local r=c:Invoke('BreakDepthBlock',{layer=d,column=6,row=2},100) local s=c:Invoke('Snapshot') assert(r.ok==true and r.outcome=='broken','depth milestone block failed '..d) rows[#rows+1]={depth=d,honor=s.Honor,mask=s.HonorMilestoneMask} end local repeatResult=c:Invoke('BreakDepthBlock',{layer=75,column=7,row=2},100) local final=c:Invoke('Snapshot') local ok=repeatResult.ok==true and repeatResult.outcome=='broken' and final.Honor==50 and final.HonorMilestoneMask==63 assert(ok,'Depth Honor milestones failed '..H:JSONEncode({rows=rows,final=final.Honor,mask=final.HonorMilestoneMask})) return H:JSONEncode({ok=ok,rows=rows,final=final.Honor,mask=final.HonorMilestoneMask})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"final\"\\s*:\\s*50", "\"mask\"\\s*:\\s*63"],
+      "label": "Depth 10 through 75 awards exact lifetime Honor once"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') local expected={{0,5,5},{4,10,15},{9,20,35},{24,40,75},{49,75,150}} local rows={} local ok=true for _,e in ipairs(expected) do local q=G.RebirthRequirement(e[1]) c:Invoke('SetStats',{Rebirths=e[1],WallLevel=q.requiredLevel,Coins=q.requiredCoins,Power=1000000}) local r=c:Invoke('Rebirth') local s=c:Invoke('Snapshot') local exact=r.ok==true and r.honor==e[2] and s.Honor==e[3] ok=ok and exact rows[#rows+1]={from=e[1],grant=r.honor,total=s.Honor,exact=exact} end local q=G.RebirthRequirement(50) c:Invoke('SetStats',{Rebirths=50,WallLevel=q.requiredLevel,Coins=q.requiredCoins,Power=1000000}) local noRepeat=c:Invoke('Rebirth') local final=c:Invoke('Snapshot') ok=ok and noRepeat.ok==true and noRepeat.honor==0 and final.Honor==150 and final.HonorRebirthMilestoneMask==31 assert(ok,'Rebirth Honor milestones failed '..H:JSONEncode(rows)) return H:JSONEncode({ok=ok,rows=rows,total=final.Honor,mask=final.HonorRebirthMilestoneMask})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"total\"\\s*:\\s*150", "\"mask\"\\s*:\\s*31"],
+      "label": "Rebirth 1 through 50 awards exact lifetime Honor once"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('ResetWorld') c:Invoke('Reset') c:Invoke('SetStats',{Power=1500000000,FistMultiplier=100,WallLevel=99,Depth=30,Honor=0,HonorMilestoneMask=3,HonorClearsToday=0,LastHonorClearAt=0,HonorClearDate='',LastHonorClearId=''}) c:Invoke('ClearCooldowns') local first=c:Invoke('HitBossWeakPoint') local s1=c:Invoke('Snapshot') c:Invoke('ResetWorld') c:Invoke('SetStats',{LastHonorClearAt=0}) c:Invoke('ClearCooldowns') local second=c:Invoke('HitBossWeakPoint') local s2=c:Invoke('Snapshot') local ok=first.ok==true and first.outcome=='broken' and second.ok==true and second.outcome=='broken' and s1.Depth==30 and s2.Depth==30 and s1.Honor==0 and s2.Honor==0 and s2.LastHonorClearId=='' assert(ok,'Depth-30 Titan must not bypass Depth-75 Honor gate '..H:JSONEncode({first=s1,second=s2})) return H:JSONEncode({ok=ok,depth1=s1.Depth,depth2=s2.Depth,honor1=s1.Honor,honor2=s2.Honor,clearId=s2.LastHonorClearId})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"depth2\"\\s*:\\s*30", "\"honor2\"\\s*:\\s*0"],
+      "label": "two Depth-30 Titan defeats cannot bypass the Depth-75 Honor milestone gate"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('ResetWorld') c:Invoke('Reset') c:Invoke('SetStats',{Power=1500000000,FistMultiplier=100,WallLevel=99,Depth=75,Honor=0,HonorMilestoneMask=63,HonorClearsToday=0,LastHonorClearAt=0,HonorClearDate='',LastHonorClearId=''}) c:Invoke('ClearCooldowns') local first=c:Invoke('HitBossWeakPoint') local s1=c:Invoke('Snapshot') local duplicate=c:Invoke('ClaimWorldHonor',1) local sd=c:Invoke('Snapshot') c:Invoke('ResetWorld') c:Invoke('SetStats',{LastHonorClearAt=0}) c:Invoke('ClearCooldowns') local second=c:Invoke('HitBossWeakPoint') local s2=c:Invoke('Snapshot') c:Invoke('ResetWorld') c:Invoke('SetStats',{LastHonorClearAt=0}) c:Invoke('ClearCooldowns') local third=c:Invoke('HitBossWeakPoint') local s3=c:Invoke('Snapshot') c:Invoke('ResetWorld') c:Invoke('SetStats',{LastHonorClearAt=0}) c:Invoke('ClearCooldowns') local fourth=c:Invoke('HitBossWeakPoint') local s4=c:Invoke('Snapshot') local ok=first.ok==true and first.outcome=='broken' and s1.Honor==12 and duplicate.ok==false and duplicate.reason=='duplicate_clear' and sd.Honor==12 and second.ok==true and s2.Honor==17 and third.ok==true and s3.Honor==22 and fourth.ok==true and s4.Honor==22 and s4.HonorClearsToday==3 assert(ok,'Qualified world Honor failed '..H:JSONEncode({first=s1.Honor,duplicate=duplicate.reason,second=s2.Honor,third=s3.Honor,fourth=s4.Honor,clears=s4.HonorClearsToday})) return H:JSONEncode({ok=ok,first=s1.Honor,duplicate=duplicate.reason,second=s2.Honor,third=s3.Honor,fourth=s4.Honor,clears=s4.HonorClearsToday})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"first\"\\s*:\\s*12", "\"second\"\\s*:\\s*17", "\"third\"\\s*:\\s*22", "\"fourth\"\\s*:\\s*22", "duplicate_clear"],
+      "label": "qualified Titan clears award 12 then 5 and 5 with cycle replay and daily cap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local P=require(game.ServerScriptService.ProfilePersistence) local c=game.ServerStorage.PunchWallAutomation c:Invoke('ResetWorld') c:Invoke('SetStats',{Depth=75,Honor=P.MaxAuthoritativeNumber-2,HonorClearsToday=0,LastHonorClearAt=0,HonorClearDate='',LastHonorClearId=''}) local r=c:Invoke('ClaimWorldHonor',1) local s=c:Invoke('Snapshot') local ok=r.ok==true and r.honorGranted==2 and s.Honor==P.MaxAuthoritativeNumber assert(ok,'Honor max clamp failed') return H:JSONEncode({ok=ok,grant=r.honorGranted,honor=s.Honor,max=P.MaxAuthoritativeNumber})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"grant\"\\s*:\\s*2"],
+      "label": "Honor gain clamps at the persistence maximum"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('SetStats',{Power=100,Depth=0,Rebirths=0,Honor=20,OwnedHonorItemsJSON='[]',EquippedHonorItem='None',HonorPowerBonus=0})"
+      },
+      "expectRegex": ["\"Honor\"\\s*:\\s*20", "\"Depth\"\\s*:\\s*0"],
+      "label": "seed true Depth-locked relic state with enough Honor"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": { "datamodel_type": "Client", "actions": [
+        { "action": "moveTo", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "PixelPerfectHeroCityHUD", "HonorCurrencyHUD", "OpenHonorMenu"] },
+        { "action": "mouseButtonDown", "mouse_button": "left", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "PixelPerfectHeroCityHUD", "HonorCurrencyHUD", "OpenHonorMenu"] },
+        { "action": "wait", "wait_time_ms": 60 },
+        { "action": "mouseButtonUp", "mouse_button": "left", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "PixelPerfectHeroCityHUD", "HonorCurrencyHUD", "OpenHonorMenu"] }
+      ] },
+      "label": "real click Honor HUD opens the canonical Honor menu"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for Honor menu render" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local row=g.GameMenu.Content:FindFirstChild('Vanguard Trail') local b=row and row:FindFirstChild('Vanguard TrailHonorAction',true) local ok=b and b.Active==false and b:GetAttribute('HonorState')=='Locked' and b.Text=='LOCKED' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 assert(ok,'Honor progression-locked UI failed '..H:JSONEncode({state=b and b:GetAttribute('HonorState'),text=b and b.Text,active=b and b.Active})) return H:JSONEncode({ok=ok,state=b:GetAttribute('HonorState'),text=b.Text,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Locked", "LOCKED"],
+      "label": "Honor menu distinguishes true progression lock from insufficient currency"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "return game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=10,Honor=19})"
+      },
+      "expectRegex": ["\"Honor\"\\s*:\\s*19", "\"Depth\"\\s*:\\s*10"],
+      "label": "seed one-Honor-short unlocked relic state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,row,b repeat s=a:Invoke('Snapshot') row=g.GameMenu.Content:FindFirstChild('Vanguard Trail') b=row and row:FindFirstChild('Vanguard TrailHonorAction',true) task.wait(.05) until (b and b:GetAttribute('HonorState')=='Insufficient') or os.clock()>=deadline local ok=s.menuVisible==true and s.activeTab=='Honor' and b and b.Active==false and b:GetAttribute('HonorItemId')=='vanguard_trail' and b:GetAttribute('HonorState')=='Insufficient' and b.Text:find('NEED 1',1,true)~=nil and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 assert(ok,'Honor insufficient UI failed '..H:JSONEncode({menu=s.menuVisible,tab=s.activeTab,state=b and b:GetAttribute('HonorState'),text=b and b.Text})) return H:JSONEncode({ok=ok,state=b:GetAttribute('HonorState'),text=b.Text,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Insufficient", "NEED 1"],
+      "label": "Honor menu shows a disabled exact shortfall state"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "return game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Honor=20})" }, "expectRegex": ["\"Honor\"\\s*:\\s*20"], "label": "seed exact Vanguard cost" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local deadline=os.clock()+4 local b; repeat local row=g.GameMenu.Content:FindFirstChild('Vanguard Trail') b=row and row:FindFirstChild('Vanguard TrailHonorAction',true) task.wait(.05) until (b and b:GetAttribute('HonorState')=='Affordable' and b.Active==true) or os.clock()>=deadline local ok=b and b:GetAttribute('HonorState')=='Affordable' and b.Active==true assert(ok,'Honor action did not become affordable') return H:JSONEncode({ok=ok,state=b and b:GetAttribute('HonorState'),active=b and b.Active,text=b and b.Text})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Affordable", "UNLOCK 20"],
+      "label": "wait for affordable Honor state"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": { "datamodel_type": "Client", "actions": [
+        { "action": "moveTo", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "GameMenu", "Content", "Vanguard Trail", "Actions", "Vanguard TrailHonorAction"] },
+        { "action": "mouseButtonDown", "mouse_button": "left", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "GameMenu", "Content", "Vanguard Trail", "Actions", "Vanguard TrailHonorAction"] },
+        { "action": "wait", "wait_time_ms": 60 },
+        { "action": "mouseButtonUp", "mouse_button": "left", "instance_path_segments": ["LocalPlayer", "PlayerGui", "PunchWallHUD", "GameMenu", "Content", "Vanguard Trail", "Actions", "Vanguard TrailHonorAction"] }
+      ] },
+      "label": "real click explicitly unlocks Vanguard Trail"
+    },
+    { "type": "wait", "ms": 450, "label": "wait for authoritative relic purchase" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local remote=game.ReplicatedStorage.PunchWallEvents.ActionRequest local before=tonumber(p:GetAttribute('LastMobileAction')) or 0 remote:FireServer({action='BuyHonorItem',target='vanguard_trail'}) local deadline=os.clock()+3 repeat task.wait(.03) until (tonumber(p:GetAttribute('LastMobileAction')) or 0)>before or os.clock()>=deadline local replayAt=tonumber(p:GetAttribute('LastMobileAction')) or 0 task.wait(.18) remote:FireServer({action='BuyHonorItem',target='client_forged_relic'}) deadline=os.clock()+3 repeat task.wait(.03) until (tonumber(p:GetAttribute('LastMobileAction')) or 0)>replayAt or os.clock()>=deadline local forgedAt=tonumber(p:GetAttribute('LastMobileAction')) or 0 local ok=replayAt>before and forgedAt>replayAt assert(ok,'Production ActionRequest route was not reached twice') return H:JSONEncode({ok=ok,before=before,replayAt=replayAt,forgedAt=forgedAt})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "production ActionRequest receives owned replay and forged relic id"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local final=c:Invoke('Snapshot') local owned=H:JSONDecode(final.OwnedHonorItemsJSON) local ok=final.Honor==0 and final.EquippedHonorItem=='vanguard_trail' and final.HonorPowerBonus==.02 and #owned==1 and owned[1]=='vanguard_trail' assert(ok,'Production remote replay/forged id mutated Honor state '..H:JSONEncode({final=final,owned=owned})) return H:JSONEncode({ok=ok,honor=final.Honor,equipped=final.EquippedHonorItem,bonus=final.HonorPowerBonus,owned=owned})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "vanguard_trail", "\"bonus\"\\s*:\\s*0.02"],
+      "label": "production replay and forged id cause zero charge duplicate or bonus mutation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local deadline=os.clock()+3 local relic repeat relic=p.Character and p.Character:FindFirstChild('Equipped Honor Relic') task.wait(.05) until relic or os.clock()>=deadline local g=p.PlayerGui.PunchWallHUD local row=g.GameMenu.Content:FindFirstChild('Vanguard Trail') local b=row and row:FindFirstChild('Vanguard TrailHonorAction',true) local ok=relic and relic:GetAttribute('HonorItem')=='vanguard_trail' and b and b:GetAttribute('HonorState')=='Equipped' and b.Active==false assert(ok,'Equipped Honor cosmetic/UI failed') return H:JSONEncode({ok=ok,item=relic and relic:GetAttribute('HonorItem'),state=b and b:GetAttribute('HonorState'),active=b and b.Active})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "vanguard_trail", "Equipped"],
+      "label": "equipped relic UI and cosmetic match the stable item id"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "return game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close Honor menu before world relic preview" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{Depth=75,Rebirths=25,Honor=0}) local move=c:Invoke('Teleport','Eternal Crown of Honor Honor Stand') assert(move.ok==true,'failed to reach Eternal Crown display') return move"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "move live player to the bottom-catalog Eternal Crown display"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "eternalCrownClickTarget",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cam=workspace.CurrentCamera local part=workspace.PunchWallRPG.Interactables['Eternal Crown of Honor Honor Stand'] cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(part.Position+Vector3.new(0,3,-11),part.Position) cam.Focus=part.CFrame task.wait(.4) local p,on=cam:WorldToViewportPoint(part.Position) assert(on,'Eternal Crown stand is offscreen') return table.concat({tostring(on),tostring(math.floor(p.X+.5)),tostring(math.floor(p.Y+.5)),tostring(cam.ViewportSize.X),tostring(cam.ViewportSize.Y)},':')"
+      },
+      "expectRegex": ["true:"],
+      "label": "center the Eternal Crown ClickDetector in the desktop viewport"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": { "datamodel_type": "Client", "actions": [
+        { "action": "moveTo", "x": 683, "y": 384 },
+        { "action": "wait", "wait_time_ms": 180 },
+        { "action": "mouseButtonClick", "mouse_button": "left" }
+      ] },
+      "label": "real world mouse click previews the Eternal Crown relic"
+    },
+    { "type": "wait", "ms": 1800, "label": "wait through stat refresh for selected relic scroll and focus" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local G=game:GetService('GuiService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local content=g.GameMenu.Content local row=content:FindFirstChild('Eternal Crown of Honor') local button=row and row:FindFirstChild('Eternal Crown of HonorHonorAction',true) local selected=G.SelectedObject local rowTop=row and row.AbsolutePosition.Y or -1 local rowBottom=row and rowTop+row.AbsoluteSize.Y or -1 local viewTop=content.AbsolutePosition.Y local viewBottom=viewTop+content.AbsoluteSize.Y local ok=g.GameMenu.Visible and g:GetAttribute('SelectedHonorItemId')=='eternal_crown_of_honor' and row and row:GetAttribute('HonorWorldSelection')=='eternal_crown_of_honor' and button and button:GetAttribute('HonorItemId')=='eternal_crown_of_honor' and selected==button and content.CanvasPosition.Y>0 and rowTop>=viewTop-2 and rowBottom<=viewBottom+2 and math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 assert(ok,'World relic selection/scroll/focus failed '..H:JSONEncode({requested=g:GetAttribute('RequestedHonorItemId'),selected=g:GetAttribute('SelectedHonorItemId'),canvas=content.CanvasPosition.Y,rowTop=rowTop,rowBottom=rowBottom,viewTop=viewTop,viewBottom=viewBottom,focus=selected and selected.Name,state=button and button:GetAttribute('HonorState')})) return H:JSONEncode({ok=ok,item=button:GetAttribute('HonorItemId'),canvas=content.CanvasPosition.Y,focus=selected.Name,state=button:GetAttribute('HonorState'),min=math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "eternal_crown_of_honor", "\"canvas\"\\s*:\\s*[1-9]"],
+      "label": "world preview selects focuses and scrolls the exact eighth relic into view"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local automation=g:WaitForChild('PunchWallClientAutomation') automation:Invoke('SetSettings',{motion=false,sound=true,uiScale=1,persist=true}) task.wait(.45) local relic=game.Players.LocalPlayer.Character:FindFirstChild('Equipped Honor Relic') local enabled=0 for _,v in ipairs(relic and relic:GetDescendants() or {}) do if (v:IsA('Trail') or v:IsA('ParticleEmitter')) and v.Enabled then enabled+=1 end end local static=relic and relic:FindFirstChild('Static Trail Badge',true) local ok=relic and relic:GetAttribute('MotionSuppressed')==true and enabled==0 and static~=nil assert(ok,'Reduced-motion Honor cosmetic failed') return H:JSONEncode({ok=ok,enabled=enabled,static=static~=nil,suppressed=relic and relic:GetAttribute('MotionSuppressed')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"enabled\"\\s*:\\s*0", "\"static\"\\s*:\\s*true"],
+      "label": "Reduced Motion suppresses animated Honor effects but keeps static identity"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "return game.ServerStorage.PunchWallAutomation:Invoke('Respawn')" }, "expectRegex": ["\"ok\"\\s*:\\s*true"], "label": "respawn after Honor equip" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local deadline=os.clock()+4 local relic repeat relic=p.Character and p.Character:FindFirstChild('Equipped Honor Relic') task.wait(.05) until relic or os.clock()>=deadline local ok=relic and relic:GetAttribute('HonorItem')=='vanguard_trail' and relic:GetAttribute('MotionSuppressed')==true assert(ok,'Honor cosmetic did not rebuild after respawn') return H:JSONEncode({ok=ok,item=relic and relic:GetAttribute('HonorItem'),suppressed=relic and relic:GetAttribute('MotionSuppressed')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "vanguard_trail", "\"suppressed\"\\s*:\\s*true"],
+      "label": "Honor ownership equip and reduced-motion cosmetic survive respawn"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local owned=H:JSONDecode(s.OwnedHonorItemsJSON) local ok=s.Honor==0 and #owned==1 and owned[1]=='vanguard_trail' and s.EquippedHonorItem=='vanguard_trail' and s.HonorPowerBonus==.02 assert(ok,'Authoritative Honor state did not survive respawn '..H:JSONEncode({honor=s.Honor,owned=owned,equipped=s.EquippedHonorItem,bonus=s.HonorPowerBonus})) return H:JSONEncode({ok=ok,honor=s.Honor,owned=owned,equipped=s.EquippedHonorItem,bonus=s.HonorPowerBonus})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "vanguard_trail", "\"bonus\"\\s*:\\s*0.02"],
+      "label": "server Honor balance ownership equip and bonus survive respawn exactly"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() local n='PunchWall Honor Flow Desktop 1366x768' local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name==n and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return H:JSONEncode({default=S:GetDeviceAsync()=='default',removed=removed})"
+      },
+      "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*1"],
+      "label": "restore default viewport after Honor flow"
+    }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local n='PunchWall Honor Flow Desktop 1366x768' for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name==n and info.IsCustom then pcall(function() S:RemoveDeviceAsync(id) end) end end return true" }, "allowError": true, "label": "cleanup Honor flow viewport" }
+  ]
+}

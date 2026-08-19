@@ -1,14 +1,19 @@
 param(
     [ValidateSet("Commerce", "Combat", "Meta", "Full")]
-    [string]$Profile = "Full"
+    [string]$Profile = "Full",
+    [string]$StudioInstanceId = "",
+    [string]$ExpectedPlaceName = ""
 )
 
-$runner = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
+$ErrorActionPreference = "Stop"
+$runner = Join-Path $PSScriptRoot "scripts\flow_runner.mjs"
 $flowsDir = Join-Path $PSScriptRoot "flows"
 $invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 
 $profiles = @{
     Commerce = @(
+        "inventory-delete-real-input",
+        "feedback-holder-presentation",
         "full-game-tester-critical-ui-and-models",
         "creator-store-commerce-npcs",
         "training-lock-motion-feedback",
@@ -36,6 +41,7 @@ $profiles = @{
         "destruction-boss-phases"
     )
     Meta = @(
+        "generic-phone-game-menu-accessibility",
         "vertical-depth-race-hud",
         "responsive-ui-inputs",
         "punchwall-mobile-controls",
@@ -61,7 +67,7 @@ $results = @()
 foreach ($flowName in $selected) {
     $flowPath = Join-Path $flowsDir ($flowName + ".json")
     $started = Get-Date
-    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -MaxAttempts 2
+    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
     $results += [pscustomobject]@{
         flow = $flowName
         ok = $run.ok

@@ -1,27 +1,93 @@
 {
   "name": "fist-arm-alignment-qc",
-  "description": "QC fist visual scale, hand alignment, and weld attachment; screenshots are captured directly through Studio MCP after regression.",
-  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "description": "QC HeroGauntletV2 scale, complete hand anatomy, current-rig R15/R6 wrist alignment, visible avatar hand, sanitized non-interactive geometry, and one real equip request per tested tier; screenshots are captured directly through Studio MCP after regression.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 6500, "label": "wait for character visual" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=1000000,Power=1000,WallLevel=99}) c:Invoke('BuyFist','Boxing Glove') return 'ready'" }, "label": "equip boxing glove" },
-    { "type": "wait", "ms": 3000, "label": "wait fist weld" },
-    { "type": "call", "tool": "execute_luau", "saveAs": "boxingAlignment", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local deadline=os.clock()+4 local g repeat local c=p.Character g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') if g and g:GetAttribute('FistStyle')=='Boxing' then break end task.wait(.1) until os.clock()>=deadline local c=p.Character local h=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 local maxDistance=0 if g then for _,d in ipairs(g:GetDescendants()) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if h then maxDistance=math.max(maxDistance,(d.Position-h.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 end end end return H:JSONEncode({ok=v~=nil,anchored=anchored,welds=welds,maxDistance=maxDistance,aligned=maxDistance<2.4,style=g and g:GetAttribute('FistStyle')})" }, "expectRegex": ["\\\"ok\\\"\\s*:\\s*true", "\\\"anchored\\\"\\s*:\\s*0", "\\\"welds\\\"\\s*:\\s*[1-9]", "\\\"aligned\\\"\\s*:\\s*true", "\\\"style\\\"\\s*:\\s*\\\"Boxing\\\""] , "label": "boxing visual fits hand contract" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation return c:Invoke('BuyFist','Iron Knuckle').item" }, "label": "equip iron" },
-    { "type": "wait", "ms": 2500, "label": "wait iron visual" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local p=game.Players.LocalPlayer local deadline=os.clock()+4 local g repeat local c=p.Character g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') if g and g:GetAttribute('FistStyle')=='Iron' then break end task.wait(.1) until os.clock()>=deadline local c=p.Character local h=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 local maxDistance=0 if g then for _,d in ipairs(g:GetDescendants()) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if h then maxDistance=math.max(maxDistance,(d.Position-h.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 end end end return tostring(v~=nil and anchored==0 and welds>0 and maxDistance<2.4 and g:GetAttribute('FistStyle')=='Iron')" }, "expectRegex": ["true"], "label": "iron visual stays on hand" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation return c:Invoke('BuyFist','Thunder Fist').item" }, "label": "equip thunder" },
-    { "type": "wait", "ms": 2500, "label": "wait thunder visual" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local p=game.Players.LocalPlayer local deadline=os.clock()+4 local g repeat local c=p.Character g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') if g and g:GetAttribute('FistStyle')=='Thunder' then break end task.wait(.1) until os.clock()>=deadline local c=p.Character local h=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 local maxDistance=0 if g then for _,d in ipairs(g:GetDescendants()) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if h then maxDistance=math.max(maxDistance,(d.Position-h.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 end end end return tostring(v~=nil and anchored==0 and welds>0 and maxDistance<2.4 and g:GetAttribute('FistStyle')=='Thunder')" }, "expectRegex": ["true"], "label": "thunder visual stays on hand" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation return c:Invoke('BuyFist','Titan Gauntlet').item" }, "label": "equip titan" },
-    { "type": "wait", "ms": 2500, "label": "wait titan visual" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local p=game.Players.LocalPlayer local deadline=os.clock()+4 local g repeat local c=p.Character g=c and c:FindFirstChild('Equipped Kaiju Gauntlet') if g and g:GetAttribute('FistStyle')=='Titan' then break end task.wait(.1) until os.clock()>=deadline local c=p.Character local h=c and (c:FindFirstChild('RightHand') or c:FindFirstChild('Right Arm')) local v=g and g:FindFirstChild('Creator Store Fist Visual',true) local anchored=0 local welds=0 local maxDistance=0 if g then for _,d in ipairs(g:GetDescendants()) do if d:IsA('BasePart') then if d.Anchored then anchored+=1 end if h then maxDistance=math.max(maxDistance,(d.Position-h.Position).Magnitude) end elseif d:IsA('WeldConstraint') then welds+=1 end end end return tostring(v~=nil and anchored==0 and welds>0 and maxDistance<2.4 and g:GetAttribute('FistStyle')=='Titan')" }, "expectRegex": ["true"], "label": "titan visual stays on hand" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for character visual"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nlocal p=game.Players:GetPlayers()[1]\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=1000000,Power=1000,Depth=75,WallLevel=99})\nlocal names={'Boxing Glove','Iron Knuckle','Thunder Fist','Titan Gauntlet'}\nlocal purchases={}\nfor _,name in ipairs(names) do\n local result=c:Invoke('BuyFist',name)\n purchases[name]=result.ok==true\n assert(result.ok==true,'failed to prepare fist '..name..': '..H:JSONEncode(result))\nend\np:SetAttribute('LastMobileAction',0)\nlocal owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value)\nlocal allOwned=true\nfor _,name in ipairs(names) do allOwned=allOwned and table.find(owned,name)~=nil end\nlocal result={valid=allOwned and p.RPGStats.EquippedFist.Value=='Titan Gauntlet',allOwned=allOwned,equipped=p.RPGStats.EquippedFist.Value,purchases=purchases,owned=owned}\nassert(result.valid,'fist alignment catalog seed failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"allOwned\"\\s*:\\s*true",
+        "\"equipped\"\\s*:\\s*\"Titan Gauntlet\""
+      ],
+      "label": "prepare four owned alignment tiers authoritatively"
+    },
+    {
+      "type": "wait",
+      "ms": 400,
+      "label": "wait for owned fist replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "alignmentMatrix",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal RS=game:GetService('ReplicatedStorage')\nlocal p=game.Players.LocalPlayer\nlocal actionRemote=RS.PunchWallEvents.ActionRequest\nlocal specs={\n {name='Boxing Glove',tier=2,style='Boxing',pattern='BoxingWrap'},\n {name='Iron Knuckle',tier=3,style='Iron',pattern='RivetedIron'},\n {name='Thunder Fist',tier=4,style='Thunder',pattern='ThunderRails'},\n {name='Titan Gauntlet',tier=5,style='Titan',pattern='SiegePlates'},\n}\nlocal required={'Hero Gauntlet Palm Shell','Hero Gauntlet Wrist Cuff','Hero Gauntlet Wrist Bridge','Hero Gauntlet Backhand Plate','Hero Closed Knuckle 1','Hero Closed Knuckle 2','Hero Closed Knuckle 3','Hero Closed Knuckle 4','Hero Folded Thumb','Hero Gauntlet Energy Core'}\nlocal function verify(spec)\n local deadline=os.clock()+4\n local character,hand,root,gauntlet\n repeat\n  character=p.Character\n  hand=character and (character:FindFirstChild('RightHand') or character:FindFirstChild('Right Arm'))\n  root=character and character:FindFirstChild('HumanoidRootPart')\n  gauntlet=character and character:FindFirstChild('Equipped Kaiju Gauntlet')\n  if p.RPGStats.EquippedFist.Value==spec.name and gauntlet and gauntlet:GetAttribute('Tier')==spec.tier and gauntlet:GetAttribute('FistStyle')==spec.style then break end\n  task.wait(.05)\n until os.clock()>=deadline\n local parts,welds,anchored,collidable,behaviorUnsafe,maxDistance=0,0,0,0,0,0\n local missing={}\n if gauntlet then\n  for _,descendant in ipairs(gauntlet:GetDescendants()) do\n   if descendant:IsA('BasePart') then\n    parts+=1\n    if descendant.Anchored then anchored+=1 end\n    if descendant.CanCollide or descendant.CanTouch or descendant.CanQuery then collidable+=1 end\n    if hand then maxDistance=math.max(maxDistance,(descendant.Position-hand.Position).Magnitude) end\n   elseif descendant:IsA('WeldConstraint') then\n    welds+=1\n   elseif descendant:IsA('LuaSourceContainer') or descendant:IsA('Tool') or descendant:IsA('RemoteEvent') or descendant:IsA('RemoteFunction') or descendant:IsA('BindableEvent') or descendant:IsA('BindableFunction') or descendant:IsA('ClickDetector') or descendant:IsA('ProximityPrompt') or descendant:IsA('Sound') or descendant:IsA('AnimationController') or descendant:IsA('Animator') or descendant:IsA('Humanoid') or descendant:IsA('BodyMover') or descendant:IsA('JointInstance') or descendant:IsA('Constraint') then\n    behaviorUnsafe+=1\n   end\n  end\n  for _,name in ipairs(required) do if not gauntlet:FindFirstChild(name,true) then table.insert(missing,name) end end\n else\n  for _,name in ipairs(required) do table.insert(missing,name) end\n end\n local boundsCFrame,boundsSize\n if gauntlet then boundsCFrame,boundsSize=gauntlet:GetBoundingBox() end\n local localCenter=hand and boundsCFrame and hand.CFrame:PointToObjectSpace(boundsCFrame.Position) or Vector3.new(99,99,99)\n local forward=root and hand and boundsCFrame and (boundsCFrame.Position-hand.Position):Dot(root.CFrame.LookVector) or -99\n local alignment=gauntlet and gauntlet:GetAttribute('AlignmentStandard') or ''\n local expectedAlignment=hand and (hand.Name=='RightHand' and 'R15RightHand' or hand.Name=='Right Arm' and 'R6DistalWrist' or '') or ''\n local ratio=tonumber(gauntlet and gauntlet:GetAttribute('VisualToHandRatio')) or 99\n local aura=gauntlet and gauntlet:GetAttribute('TierAura') or ''\n local auraRate=tonumber(gauntlet and gauntlet:GetAttribute('AuraRate')) or 0\n local complete=#missing==0\n local handVisible=hand~=nil and hand.Transparency<1\n local valid=character~=nil and hand~=nil and root~=nil and p.RPGStats.EquippedFist.Value==spec.name and gauntlet~=nil and gauntlet:GetAttribute('VisualSystem')=='HeroGauntletV2' and gauntlet:GetAttribute('VisualSource')=='ProceduralRuntime' and gauntlet:GetAttribute('ImportedRuntimeSilhouette')==false and gauntlet:GetAttribute('SilhouetteFamily')=='HeroGauntletV2' and gauntlet:GetAttribute('Tier')==spec.tier and gauntlet:GetAttribute('FistStyle')==spec.style and gauntlet:GetAttribute('ArmorPattern')==spec.pattern and gauntlet:GetAttribute('ShopArtMatchedTier')==spec.tier and alignment==expectedAlignment and expectedAlignment~='' and gauntlet:GetAttribute('KnuckleCount')==4 and gauntlet:GetAttribute('HasWristCuff')==true and gauntlet:GetAttribute('HasBackhandPlate')==true and gauntlet:GetAttribute('HasFoldedThumb')==true and gauntlet:GetAttribute('HasEnergyCore')==true and gauntlet:GetAttribute('WristAttachmentBounded')==true and gauntlet:GetAttribute('FaceOcclusionSafe')==true and gauntlet:GetAttribute('WithinVisualPartBudget')==true and gauntlet:GetAttribute('WholeHandHidden')==false and gauntlet:GetAttribute('HandTransparencyPreserved')==true and handVisible and complete and parts>=10 and parts<=28 and welds>=parts and anchored==0 and collidable==0 and behaviorUnsafe==0 and maxDistance<3.6 and ratio>=1.1 and ratio<=2.2 and math.abs(localCenter.X)<.4 and forward>.02 and aura~='' and auraRate>0\n local result={valid=valid,name=spec.name,tier=gauntlet and gauntlet:GetAttribute('Tier') or 0,style=gauntlet and gauntlet:GetAttribute('FistStyle') or '',pattern=gauntlet and gauntlet:GetAttribute('ArmorPattern') or '',rig=hand and hand.Name or '',alignment=alignment,expectedAlignment=expectedAlignment,handVisible=handVisible,handTransparency=hand and hand.Transparency or -1,parts=parts,welds=welds,anchored=anchored,collidable=collidable,unsafe=behaviorUnsafe,maxDistance=maxDistance,ratio=ratio,localX=localCenter.X,forward=forward,aura=aura,auraRate=auraRate,complete=complete,missing=missing,bounds=boundsSize and {x=boundsSize.X,y=boundsSize.Y,z=boundsSize.Z} or {}}\n assert(valid,'HeroGauntlet alignment contract failed: '..H:JSONEncode(result))\n return result\nend\nlocal results={}\nfor index,spec in ipairs(specs) do\n actionRemote:FireServer({action='EquipFist',target=spec.name})\n results[index]=verify(spec)\n if index<#specs then task.wait(.16) end\nend\nlocal result={valid=#results==#specs,count=#results,results=results}\nassert(result.valid,'alignment matrix incomplete: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*4",
+        "\"style\"\\s*:\\s*\"Boxing\"",
+        "\"style\"\\s*:\\s*\"Iron\"",
+        "\"style\"\\s*:\\s*\"Thunder\"",
+        "\"style\"\\s*:\\s*\"Titan\"",
+        "\"pattern\"\\s*:\\s*\"BoxingWrap\"",
+        "\"pattern\"\\s*:\\s*\"RivetedIron\"",
+        "\"pattern\"\\s*:\\s*\"ThunderRails\"",
+        "\"pattern\"\\s*:\\s*\"SiegePlates\"",
+        "\"anchored\"\\s*:\\s*0",
+        "\"collidable\"\\s*:\\s*0",
+        "\"unsafe\"\\s*:\\s*0",
+        "\"handVisible\"\\s*:\\s*true",
+        "\"complete\"\\s*:\\s*true"
+      ],
+      "label": "four-tier self-contained real-equip alignment matrix"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

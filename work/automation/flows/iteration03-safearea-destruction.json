@@ -1,6 +1,6 @@
 {
   "name": "iteration03-safearea-destruction",
-  "description": "Verify safe-area geometry, touch targets, mission-control banners, Armory separation, focused wall ownership, regular rebuild countdown, collapse scatter, and responsive boss HUD.",
+  "description": "Verify safe-area geometry, touch targets, mission-control banners, Armory separation, depth-block focus, bounded collapse physics, explicit world reconstruction, and responsive boss HUD.",
   "studioName": "PunchWallRPG",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -22,15 +22,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal b=root.Walls[\"Brick Wall\"]\nlocal stands={} local minSeparation=math.huge\nfor _,name in ipairs({\"Boxing Glove Stand\",\"Iron Knuckle Stand\",\"Thunder Fist Stand\",\"Titan Gauntlet Stand\"}) do local s=root.Interactables[name] table.insert(stands,s.Position.X) minSeparation=math.min(minSeparation,(s.Position-b.Position).Magnitude) end\nlocal respawnContract=true for _,w in ipairs(root.Walls:GetChildren()) do if w:IsA(\"BasePart\") and w.Name~=\"Titan Server Wall\" then respawnContract=respawnContract and w:GetAttribute(\"RespawnAt\")==0 end end\nlocal parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nreturn H:JSONEncode({parts=parts,stands=stands,minSeparation=minSeparation,respawnContract=respawnContract})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal b=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02\nlocal stands=0 local minSeparation=math.huge\nfor _,name in ipairs({\"Boxing Glove Stand\",\"Iron Knuckle Stand\",\"Thunder Fist Stand\",\"Titan Gauntlet Stand\"}) do local s=root.Interactables:FindFirstChild(name) if s then stands+=1 minSeparation=math.min(minSeparation,(s.Position-b.Position).Magnitude) end end\nlocal parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nreturn H:JSONEncode({parts=parts,armoryStands=stands,armoryClear=stands==4 and minSeparation>12,depthBlocks=#root[\"Depth Blocks\"]:GetChildren(),debrisCap=root:GetAttribute(\"MaxDepthPhysicsFragments\")})"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
-        "\"stands\"\\s*:\\s*\\[-62\\.5,-49\\.5,-36\\.5,-23\\.5\\]",
-        "\"minSeparation\"\\s*:\\s*27\\.",
-        "\"respawnContract\"\\s*:\\s*true"
+        "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
+        "\"armoryStands\"\\s*:\\s*4",
+        "\"armoryClear\"\\s*:\\s*true",
+        "\"depthBlocks\"\\s*:\\s*5400",
+        "\"debrisCap\"\\s*:\\s*120"
       ],
-      "label": "Armory is separated and walls expose rebuild timestamps"
+      "label": "Armory is separated from the bounded depth structure"
     },
     {
       "type": "call",
@@ -57,7 +58,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=20,WallLevel=1,TutorialStep=2,CritChance=0})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"ResetWorld\")\nc:Invoke(\"SetStats\",{Power=2,WallLevel=1,TutorialStep=2,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-4,6,-30),Vector3.new(-4,6,-37))\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
       },
       "label": "focus the live Brick wall"
     },
@@ -77,23 +78,27 @@
         "\"visible\"\\s*:\\s*true",
         "BRICK WALL",
         "\"context\"\\s*:\\s*false",
-        "\"highlight\"\\s*:\\s*\"Brick Wall\""
+        "\"highlight\"\\s*:\\s*\"DepthBlock_L001_C06_R02\""
       ],
-      "label": "live wall owns focus instead of Armory stand"
+      "label": "live depth block owns focus instead of Armory stand"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"SetStats\",{Power=60,WallLevel=1})\nlocal r=c:Invoke(\"BreakWall\",\"Brick Wall\",10)\nlocal root=workspace.PunchWallRPG local w=root.Walls[\"Brick Wall\"]\nlocal minT=1 for _,d in ipairs(root.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) then minT=math.min(minT,d.Transparency) end end\nreturn H:JSONEncode({broken=w:GetAttribute(\"Broken\"),scheduled=(w:GetAttribute(\"RespawnAt\") or 0)>workspace:GetServerTimeNow(),minChunkTransparency=minT})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"SetStats\",{Power=120,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nlocal r=c:Invoke(\"BreakWall\",\"Brick Wall\",1)\nlocal root=workspace.PunchWallRPG local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local debris=root[\"Depth Physics Debris\"] local chunks=0 local frontSafe=true\nfor _,d in ipairs(debris:GetChildren()) do if string.find(d.Name,w.Name,1,true)==1 then chunks+=1 if (d:GetAttribute(\"InitialForwardSpeed\") or 0)<=0 or (d:GetAttribute(\"SpawnFrontOffset\") or 0)<=0 then frontSafe=false end end end\nreturn H:JSONEncode({ok=r.ok,broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),hidden=w.Transparency==1 and not w.CanCollide and not w.CanQuery,chunks=chunks,frontSafe=frontSafe,withinBudget=#debris:GetChildren()<=120})"
       },
       "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
         "\"broken\"\\s*:\\s*true",
-        "\"scheduled\"\\s*:\\s*true",
-        "\"minChunkTransparency\"\\s*:\\s*0\\.2[4-6]"
+        "\"hp\"\\s*:\\s*0",
+        "\"hidden\"\\s*:\\s*true",
+        "\"chunks\"\\s*:\\s*6",
+        "\"frontSafe\"\\s*:\\s*true",
+        "\"withinBudget\"\\s*:\\s*true"
       ],
-      "label": "break wall with readable collapse start"
+      "label": "break depth block with bounded camera-safe physics"
     },
     {
       "type": "wait",
@@ -125,55 +130,59 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG local w=root.Walls[\"Brick Wall\"] local maxSpread,minT=0,1\nfor _,d in ipairs(root.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\",1,true) then maxSpread=math.max(maxSpread,math.abs(d.Position.X-w.Position.X)) minT=math.min(minT,d.Transparency) end end\nreturn H:JSONEncode({maxSpread=maxSpread,minTransparency=minT})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local maxTravel=0 local chunks=0 local serverOwned=true\nfor _,d in ipairs(root[\"Depth Physics Debris\"]:GetChildren()) do if string.find(d.Name,w.Name,1,true)==1 then chunks+=1 maxTravel=math.max(maxTravel,(d.Position-w.Position).Magnitude) local ok,owner=pcall(function() return d:GetNetworkOwner() end) if ok and owner~=nil then serverOwned=false end end end\nreturn H:JSONEncode({chunks=chunks,moved=maxTravel>1,serverOwned=serverOwned,withinBudget=#root[\"Depth Physics Debris\"]:GetChildren()<=120})"
       },
       "expectRegex": [
-        "\"maxSpread\"\\s*:\\s*(1[0-9]|[2-9][0-9])",
-        "\"minTransparency\"\\s*:\\s*0\\.6[4-6]"
+        "\"chunks\"\\s*:\\s*6",
+        "\"moved\"\\s*:\\s*true",
+        "\"serverOwned\"\\s*:\\s*true",
+        "\"withinBudget\"\\s*:\\s*true"
       ],
-      "label": "collapse chunks scatter away and fade"
+      "label": "collapse chunks scatter under server ownership"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hi=workspace:FindFirstChild(\"Local Target Highlight\")\nreturn H:JSONEncode({title=g.TargetWallHUD.TargetTitle.Text,detail=g.TargetWallHUD.TargetDetail.Text,context=g.ContextTarget.Visible,highlight=hi and hi.Adornee and hi.Adornee.Name or \"\"})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hi=workspace:FindFirstChild(\"Local Target Highlight\") local target=\"DepthBlock_L001_C06_R02\" local title=g.TargetWallHUD.TargetTitle.Text local detail=g.TargetWallHUD.TargetDetail.Text\nreturn H:JSONEncode({staleHighlight=hi and hi.Adornee and hi.Adornee.Name==target or false,rebuildingText=string.find(string.upper(title..\" \"..detail),\"REBUILD\",1,true)~=nil,context=g.ContextTarget.Visible})"
       },
       "expectRegex": [
-        "REBUILDING",
-        "reconstruction in [1-4]s",
-        "\"context\"\\s*:\\s*false",
-        "\"highlight\"\\s*:\\s*\"\""
+        "\"staleHighlight\"\\s*:\\s*false",
+        "\"rebuildingText\"\\s*:\\s*false",
+        "\"context\"\\s*:\\s*false"
       ],
-      "label": "broken wall shows countdown without stale highlight"
+      "label": "broken depth block clears stale target ownership"
     },
     {
       "type": "wait",
-      "ms": 3900,
-      "label": "wait for regular wall reconstruction"
+      "ms": 4300,
+      "label": "wait for depth debris lifecycle"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal w=workspace.PunchWallRPG.Walls[\"Brick Wall\"]\nreturn H:JSONEncode({broken=w:GetAttribute(\"Broken\"),respawn=w:GetAttribute(\"RespawnAt\"),hp=w:GetAttribute(\"HP\"),max=w:GetAttribute(\"MaxHP\")})"
+        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation local root=workspace.PunchWallRPG local before=#root[\"Depth Physics Debris\"]:GetChildren() c:Invoke(\"ResetWorld\") local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02\nreturn H:JSONEncode({debrisBeforeReset=before,broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),max=w:GetAttribute(\"MaxHP\"),stage=w:GetAttribute(\"DamageStage\"),restored=w.Transparency==0 and w.Anchored and w.CanCollide and w.CanQuery and w.CollisionGroup==\"DepthStructure\",resetBlocks=root:GetAttribute(\"LastWorldResetDepthBlocks\")})"
       },
       "expectRegex": [
+        "\"debrisBeforeReset\"\\s*:\\s*0",
         "\"broken\"\\s*:\\s*false",
-        "\"respawn\"\\s*:\\s*0",
-        "\"hp\"\\s*:\\s*120",
-        "\"max\"\\s*:\\s*120"
+        "\"hp\"\\s*:\\s*8",
+        "\"max\"\\s*:\\s*8",
+        "\"stage\"\\s*:\\s*0",
+        "\"restored\"\\s*:\\s*true",
+        "\"resetBlocks\"\\s*:\\s*[1-9][0-9]*"
       ],
-      "label": "wall reconstructs and clears timestamp"
+      "label": "explicit world reset reconstructs the depth block"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=1000000,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15)\nreturn c:Invoke(\"HitBoss\").TitanHP"
+        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"ResetWorld\")\nc:Invoke(\"SetStats\",{Power=200000000,WallLevel=99,Depth=75,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,7,-320),Vector3.new(-2,9,-340))\nlocal r=c:Invoke(\"HitBoss\") return r.ok and r.TitanHP or -1"
       },
       "label": "enter Titan phase two"
     },

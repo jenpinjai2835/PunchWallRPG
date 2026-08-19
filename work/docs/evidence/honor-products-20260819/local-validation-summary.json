@@ -1,0 +1,63 @@
+{
+  "status": "internal-pass-release-blocked",
+  "recordedAt": "2026-08-19T04:43:00Z",
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": 0,
+    "datamodelType": "Edit",
+    "published": false
+  },
+  "results": {
+    "honorProductReceipts": {
+      "ok": true,
+      "checks": 15,
+      "sha256": "888f8df9b151b03692597f37dbe239b4c1b3bcc4e7e211f431ebaa59961c1816"
+    },
+    "developerProductConfiguration": {
+      "ok": true,
+      "checks": 11,
+      "sha256": "8eabfca44f016593901559b325d3115cad029b725807319c498ec2722e28567c"
+    },
+    "productCompleteness": {
+      "ok": true,
+      "checks": 11,
+      "sha256": "e417a5ccdb6548382cce79c6651f62650bf420e9c25eaecaad5be504dca9d255"
+    },
+    "staticAggregate": {
+      "ok": true,
+      "nodeSyntax": 42,
+      "powerShellSyntax": 18,
+      "luauCompileCases": 27,
+      "flowJson": 112,
+      "honorProductContract": 14,
+      "persistenceContract": 28
+    }
+  },
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "3045f30fdd3851b493668af4a26dbe9be73cb9e5fa13ade73ed589e45f854c0b",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "daf08cfaf0bb3bfb3a913203896fda4924bb72fe2c28342df8614471ef323aab",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "df6ed0f3cfb666cc0d73071ccf6bc5fcc810d44529b976eb2c0deb07c0c8f5d0",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "e49ecaec98e2ba7916765c3dd98cb344dbb1bf5710b3c16966acd313ae1e79ba",
+    "work/automation/flows/honor-product-receipts.json": "24cf4c172fb14e7b05a49eaa79d8063c0cda6c9eb0e347e949a0425dc680418e",
+    "work/automation/scripts/honor-product-receipts-contract.mjs": "94a1e96a09a615fe42e51b258db6dee909063e2cec937bb2ce07ae582e48129d"
+  },
+  "regionalPriceEvidence": {
+    "file": "marketplace-regional-price-probe.json",
+    "sha256": "599680aa29941fe67c83dc7df275305dc9e174f3993704295ba51f14719b2af5"
+  },
+  "creatorDashboardEvidence": {
+    "file": "creator-dashboard-honor-products.png",
+    "sha256": "6ccfd98950f8828639a0262b5db126e23528b489b44889c668d4eb0813390c63"
+  },
+  "blocked": [
+    {
+      "gate": "current-visual-captures",
+      "reason": "Studio MCP screen_capture timed out and the Windows capture fallback failed; existing JPG/capture-summary files predate the live-ID source and are stale"
+    },
+    {
+      "gate": "published-private-uat-commerce",
+      "reason": "Real checkout, cancellation, paid ProcessReceipt delivery, and leave/rejoin DataStore durability are not testable in unpublished placeId 0"
+    }
+  ]
+}

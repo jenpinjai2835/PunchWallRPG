@@ -1,12 +1,14 @@
 param(
     [ValidateSet("Visual", "Gameplay", "UI", "Full")]
-    [string]$Profile = "Visual"
+    [string]$Profile = "Visual",
+    [string]$StudioInstanceId = "",
+    [string]$ExpectedPlaceName = ""
 )
 
 $ErrorActionPreference = "Stop"
 
-$runner = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
-$flowsDir = "F:\Roblox\PuchWall\work\automation\flows"
+$runner = Join-Path $PSScriptRoot "scripts\flow_runner.mjs"
+$flowsDir = Join-Path $PSScriptRoot "flows"
 $invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 
 $profiles = @{
@@ -28,7 +30,7 @@ $profiles = @{
 }
 
 if ($Profile -eq "Full") {
-    & "F:\Roblox\PuchWall\work\automation\run-existing-flows.ps1"
+    & (Join-Path $PSScriptRoot "run-existing-flows.ps1") -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName
     exit $LASTEXITCODE
 }
 
@@ -36,7 +38,7 @@ $results = @()
 foreach ($flowName in $profiles[$Profile]) {
     $flowPath = Join-Path $flowsDir ($flowName + ".json")
     $started = Get-Date
-    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -MaxAttempts 2
+    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
     $results += [pscustomobject]@{
         flow = $flowName
         ok = $run.ok

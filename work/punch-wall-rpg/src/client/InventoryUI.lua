@@ -8,16 +8,10 @@ InventoryUI.__index = InventoryUI
 
 local CATEGORIES = { "All", "Fists", "Pets", "Boosts", "Honor" }
 local RARITIES = { "All", "Common", "Rare", "Epic", "Legendary", "Secret", "Premium" }
-local WIDE_CATEGORY_WIDTH = 172
-local WIDE_CATEGORY_GAP = 10
-
-local CATEGORY_ICONS = {
-	All = "Menu",
-	Fists = "StarterFist",
-	Pets = "Pet",
-	Boosts = "Power",
-	Honor = "Success",
-}
+local WIDE_CATEGORY_WIDTH = 164
+local WIDE_CATEGORY_GAP = 8
+local SPARSE_SLOT_ROWS = 1
+local MAX_SPARSE_SLOT_PLACEHOLDERS = 5
 
 local PALETTE = {
 	Backdrop = Color3.fromRGB(0, 5, 10),
@@ -44,6 +38,53 @@ local PALETTE = {
 	Danger = Color3.fromRGB(230, 47, 55),
 }
 
+-- UIGradient multiplies every rendered color on its parent, including text.
+-- Text-bearing controls therefore use one neutral, high-luminance multiplier
+-- and keep their semantic color on BackgroundColor3/TextColor3.
+local TEXT_SAFE_GRADIENT_STOPS = {
+	Color3.fromRGB(255, 255, 255),
+	Color3.fromRGB(239, 246, 249),
+	Color3.fromRGB(211, 224, 230),
+}
+local TEXT_SAFE_GRADIENT = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, TEXT_SAFE_GRADIENT_STOPS[1]),
+	ColorSequenceKeypoint.new(0.52, TEXT_SAFE_GRADIENT_STOPS[2]),
+	ColorSequenceKeypoint.new(1, TEXT_SAFE_GRADIENT_STOPS[3]),
+})
+
+local ACTION_STYLES = {
+	Primary = {
+		base = Color3.fromRGB(68, 211, 42),
+		text = PALETTE.Ink,
+		stroke = Color3.fromRGB(184, 255, 119),
+	},
+	Secondary = {
+		base = Color3.fromRGB(12, 75, 151),
+		text = PALETTE.Text,
+		stroke = Color3.fromRGB(77, 205, 255),
+	},
+	Utility = {
+		base = Color3.fromRGB(225, 149, 22),
+		text = PALETTE.Ink,
+		stroke = Color3.fromRGB(255, 228, 111),
+	},
+	Fusion = {
+		base = Color3.fromRGB(113, 45, 171),
+		text = PALETTE.Text,
+		stroke = Color3.fromRGB(218, 132, 255),
+	},
+	Danger = {
+		base = Color3.fromRGB(137, 22, 31),
+		text = PALETTE.Text,
+		stroke = Color3.fromRGB(255, 97, 82),
+	},
+	Disabled = {
+		base = Color3.fromRGB(32, 44, 54),
+		text = PALETTE.Muted,
+		stroke = PALETTE.SteelLight,
+	},
+}
+
 local RARITY_COLORS = {
 	Common = Color3.fromRGB(79, 196, 112),
 	Rare = Color3.fromRGB(50, 177, 255),
@@ -60,6 +101,37 @@ local function create(className, parent, properties)
 	end
 	instance.Parent = parent
 	return instance
+end
+
+local function createPetViewport(parent, name, zIndex)
+	local viewport = create("ViewportFrame", parent, {
+		Name = name,
+		Ambient = Color3.fromRGB(128, 143, 158),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ImageColor3 = Color3.new(1, 1, 1),
+		ImageTransparency = 0,
+		LightColor = Color3.fromRGB(255, 245, 224),
+		LightDirection = Vector3.new(-1, -0.7, -0.45),
+		Position = UDim2.fromOffset(3, 3),
+		Size = UDim2.new(1, -6, 1, -6),
+		Visible = false,
+		ZIndex = zIndex,
+	})
+	local camera = Instance.new("Camera")
+	camera.Name = "PetPreviewCamera"
+	camera.FieldOfView = 34
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+	local world = Instance.new("WorldModel")
+	world.Name = "PetPreviewWorld"
+	world.Parent = viewport
+	return {
+		viewport = viewport,
+		camera = camera,
+		world = world,
+		petName = nil,
+	}
 end
 
 local function addCorner(parent, radius)
@@ -95,6 +167,49 @@ end
 local function contrastText(color)
 	local luminance = color.R * 0.299 + color.G * 0.587 + color.B * 0.114
 	return luminance >= 0.54 and PALETTE.Ink or PALETTE.Text
+end
+
+local function linearizeChannel(channel)
+	if channel <= 0.03928 then
+		return channel / 12.92
+	end
+	return ((channel + 0.055) / 1.055) ^ 2.4
+end
+
+local function relativeLuminance(color)
+	return linearizeChannel(color.R) * 0.2126
+		+ linearizeChannel(color.G) * 0.7152
+		+ linearizeChannel(color.B) * 0.0722
+end
+
+local function contrastRatio(first, second)
+	local firstLuminance = relativeLuminance(first)
+	local secondLuminance = relativeLuminance(second)
+	local lighter = math.max(firstLuminance, secondLuminance)
+	local darker = math.min(firstLuminance, secondLuminance)
+	return (lighter + 0.05) / (darker + 0.05)
+end
+
+local function multiplyColor(first, second)
+	return Color3.new(
+		first.R * second.R,
+		first.G * second.G,
+		first.B * second.B
+	)
+end
+
+local function minimumStyleContrast(style)
+	local minimum = math.huge
+	for _, multiplier in ipairs(TEXT_SAFE_GRADIENT_STOPS) do
+		minimum = math.min(
+			minimum,
+			contrastRatio(
+				multiplyColor(style.text, multiplier),
+				multiplyColor(style.base, multiplier)
+			)
+		)
+	end
+	return minimum
 end
 
 local function normalize(value)
@@ -140,6 +255,8 @@ local function actionName(action)
 		return "Unequip"
 	elseif remoteAction == "LockPet" then
 		return payload.value == true and "Lock" or "Unlock"
+	elseif remoteAction == "FusePet" then
+		return "Fuse"
 	elseif remoteAction == "DeletePet" then
 		return "Delete"
 	elseif remoteAction == "BuyPremiumProduct" or remoteAction == "BuyShopBoost" then
@@ -149,7 +266,7 @@ local function actionName(action)
 	local normalizedName = normalize(providedName)
 	if normalizedName == "equip" or normalizedName == "unequip"
 		or normalizedName == "lock" or normalizedName == "unlock"
-		or normalizedName == "delete" or normalizedName == "use"
+		or normalizedName == "delete" or normalizedName == "use" or normalizedName == "fuse"
 	then
 		return providedName
 	end
@@ -158,6 +275,29 @@ end
 
 local function actionEnabled(action)
 	return type(action) == "table" and action.enabled ~= false
+end
+
+local function actionVisualStyle(semanticName, destructive, primary, enabled)
+	if not enabled then
+		return ACTION_STYLES.Disabled, "Disabled"
+	end
+	if destructive then
+		return ACTION_STYLES.Danger, "Danger"
+	end
+	local semantic = normalize(semanticName)
+	if semantic == "equip" then
+		return ACTION_STYLES.Primary, "Primary"
+	elseif semantic == "fuse" then
+		return ACTION_STYLES.Fusion, "Fusion"
+	elseif semantic == "lock" or semantic == "unlock" then
+		return ACTION_STYLES.Utility, "Utility"
+	elseif semantic == "use" or semantic == "unequip" then
+		return ACTION_STYLES.Secondary, "Secondary"
+	end
+	if primary then
+		return ACTION_STYLES.Primary, "Primary"
+	end
+	return ACTION_STYLES.Secondary, "Secondary"
 end
 
 local function itemActions(item)
@@ -170,6 +310,62 @@ local function rectsOverlap(firstPosition, firstSize, secondPosition, secondSize
 		and firstPosition.X + firstSize.X > secondPosition.X
 		and firstPosition.Y < secondPosition.Y + secondSize.Y
 		and firstPosition.Y + firstSize.Y > secondPosition.Y
+end
+
+local function allocateToolbarWidths(totalWidth, useCompact, touchTarget)
+	totalWidth = math.max(0, math.floor((tonumber(totalWidth) or 0) + 0.5))
+	touchTarget = math.max(1, math.floor((tonumber(touchTarget) or 44) + 0.5))
+
+	local gap = useCompact and totalWidth < 420 and 6 or 8
+	local minimumSearchWidth = useCompact and touchTarget or 160
+	local minimumCapacityWidth = math.max(touchTarget, useCompact and 78 or 86)
+	local minimumRarityWidth = math.max(touchTarget, useCompact and 88 or 96)
+	local requiredWidth = minimumSearchWidth
+		+ minimumCapacityWidth
+		+ minimumRarityWidth
+		+ gap * 2
+
+	-- Compact bounds are capped by the rendered safe area. Collapse the
+	-- secondary labels before allowing any logical touch target to overlap.
+	if totalWidth < requiredWidth then
+		gap = 4
+		minimumSearchWidth = touchTarget
+		minimumCapacityWidth = touchTarget
+		minimumRarityWidth = touchTarget
+		requiredWidth = minimumSearchWidth
+			+ minimumCapacityWidth
+			+ minimumRarityWidth
+			+ gap * 2
+	end
+
+	local distributable = math.max(0, totalWidth - requiredWidth)
+	local searchExtra = math.floor(distributable * 0.60)
+	local controlsExtra = distributable - searchExtra
+	local capacityExtra = math.floor(controlsExtra * 0.55)
+	local searchWidth = minimumSearchWidth + searchExtra
+	local capacityWidth = minimumCapacityWidth + capacityExtra
+	local rarityWidth = math.max(
+		touchTarget,
+		totalWidth - searchWidth - capacityWidth - gap * 2
+	)
+
+	local usedWidth = searchWidth + capacityWidth + rarityWidth + gap * 2
+	if usedWidth > totalWidth then
+		searchWidth = math.max(touchTarget, searchWidth - (usedWidth - totalWidth))
+		usedWidth = searchWidth + capacityWidth + rarityWidth + gap * 2
+	end
+
+	return {
+		search = searchWidth,
+		capacity = capacityWidth,
+		rarity = rarityWidth,
+		gap = gap,
+		minimumSearch = useCompact and touchTarget or 160,
+		readable = useCompact or searchWidth >= 160,
+		noOverlap = usedWidth <= totalWidth,
+		total = totalWidth,
+		used = usedWidth,
+	}
 end
 
 local function hasTimedItem(snapshot)
@@ -195,13 +391,24 @@ function InventoryUI.new(options)
 	self.OnClose = options.OnClose
 	self.OpenSpin = options.OpenSpin
 	self.GetHUDHidden = options.GetHUDHidden
+	self.BuildPetPreview = options.BuildPetPreview
 
 	self._connections = {}
 	self._cardConnections = {}
 	self._actionConnections = {}
 	self._cards = {}
+	self._cardPool = {}
+	self._activeCardCount = 0
+	self._sparseSlotPool = {}
+	self._activeSparseSlotCount = 0
+	self._sparseSlotCreateCount = 0
 	self._cardRefsByKey = {}
 	self._actionButtons = {}
+	self._actionButtonRefsByKey = {}
+	self._activeActionButtons = {}
+	self._actionModelsByKey = {}
+	self._petPreviewMasters = {}
+	self._viewOnlyAction = nil
 	self._categoryButtons = {}
 	self._rarityButtons = {}
 	self._category = "All"
@@ -231,6 +438,16 @@ function InventoryUI.new(options)
 	self._diagnosticSnapshotSkipCount = 0
 	self._gridRebuildCount = 0
 	self._selectionVisualUpdateCount = 0
+	self._cardCreateCount = 0
+	self._cardReuseCount = 0
+	self._actionCreateCount = 0
+	self._actionCallbackCount = 0
+	self._detailRenderGeneration = 0
+	self._detailRenderScheduled = false
+	self._detailRenderReason = nil
+	self._detailRenderCount = 0
+	self._detailRenderCoalescedCount = 0
+	self._destroyed = false
 	self._layout = {
 		compact = false,
 		columns = 4,
@@ -250,6 +467,33 @@ function InventoryUI.new(options)
 	self.Root:SetAttribute("InventoryTimedExpiryRebuildCount", 0)
 	self.Root:SetAttribute("InventoryDeleteConfirmationScheduled", false)
 	self.Root:SetAttribute("InventoryDeleteConfirmationKey", "")
+	self.Root:SetAttribute("InventoryCardCreateCount", 0)
+	self.Root:SetAttribute("InventoryCardReuseCount", 0)
+	self.Root:SetAttribute("InventoryCardConnectionsStable", true)
+	self.Root:SetAttribute("InventorySparseSlotCreateCount", 0)
+	self.Root:SetAttribute("InventoryActiveSparseSlotCount", 0)
+	self.Root:SetAttribute("InventorySparseSlotListenerCount", 0)
+	self.Root:SetAttribute("InventorySparseSlotsBounded", true)
+	self.Root:SetAttribute("InventoryActionCreateCount", 0)
+	self.Root:SetAttribute("InventoryActionConnectionCount", 0)
+	self.Root:SetAttribute("InventoryActionConnectionsStable", true)
+	self.Root:SetAttribute("InventoryActionCallbackCount", 0)
+	self.Root:SetAttribute("InventoryDetailRenderCount", 0)
+	self.Root:SetAttribute("InventoryDetailRenderCoalescedCount", 0)
+	self.Root:SetAttribute("InventoryHoveredCategory", "")
+	self.Root:SetAttribute("InventoryCategoryConnectionCount", #CATEGORIES * 5)
+	self.Root:SetAttribute("InventoryToolbarAdaptive", true)
+	self.Root:SetAttribute("InventoryToolbarNoOverlap", true)
+	self.Root:SetAttribute("InventoryRarityMenuOpen", false)
+	self.Root:SetAttribute("InventoryRarityMenuZLayer", 170)
+	self.Root:SetAttribute("InventoryEmptyTreatment", "Hidden")
+	self.Root:SetAttribute("InventoryEmptySlotCount", 3)
+	self.Root:SetAttribute("InventoryActionContrastTarget", 4.5)
+	self.Root:SetAttribute("InventoryMinimumEnabledActionContrast", 0)
+	self.Root:SetAttribute("InventoryEnabledActionContrastPass", true)
+	self.Root:SetAttribute("InventoryActionVisualContract", "SemanticNativeV3")
+	self.Root:SetAttribute("InventoryTextGradientPolicy", "NeutralMultiplierV1")
+	self.Root:SetAttribute("InventoryAuditedTextGradientControlCount", #CATEGORIES + 3)
 	self:ApplyResponsive(self.Root.AbsoluteSize, false, 1)
 	return self
 end
@@ -282,15 +526,38 @@ function InventoryUI:_build(parent)
 		Visible = false,
 		ZIndex = 140,
 	})
-	self.Root:SetAttribute("ArtMode", "NativeFallback")
+	self.Root:SetAttribute("ArtMode", "ReferenceNativeV3")
+	self.Root:SetAttribute("ChromeAssetMode", "Native")
+	self.Root:SetAttribute("ItemArtFallback", "NativeFallback")
+	self.Root:SetAttribute("InventoryCardChromeMode", "LayeredNativeV3")
+	self.Root:SetAttribute("InventoryDetailChromeMode", "LayeredNativeV3")
+	self.Root:SetAttribute("InventoryCompositionMode", "CleanThreePaneV4")
+	self.Root:SetAttribute("InventoryFilteredPlaceholderPolicy", "HideSyntheticSlots")
+	self.Root:SetAttribute("InventoryWideActionLayout", "ThreeSingleOrFourTwoByTwo")
+	self.Root:SetAttribute("InventoryBackdropMode", "InputOnlyTransparent")
 	self.Root:SetAttribute("MagentaFree", true)
 	self.Root:SetAttribute("CheckerboardFree", true)
+
+	self.CardPool = create("Frame", self.Root, {
+		Name = "InventoryCardPool",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(0, 0),
+		Visible = false,
+	})
+	self.ActionPool = create("Frame", self.Root, {
+		Name = "InventoryActionPool",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(0, 0),
+		Visible = false,
+	})
 
 	self.Backdrop = create("TextButton", self.Root, {
 		Name = "InventoryBackdrop",
 		AutoButtonColor = false,
 		BackgroundColor3 = PALETTE.Backdrop,
-		BackgroundTransparency = 0.16,
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
 		Text = "",
@@ -299,10 +566,7 @@ function InventoryUI:_build(parent)
 	create("UIGradient", self.Backdrop, {
 		Color = ColorSequence.new(Color3.fromRGB(6, 22, 34), Color3.new(0, 0, 0)),
 		Rotation = 90,
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.08),
-			NumberSequenceKeypoint.new(1, 0.28),
-		}),
+		Transparency = NumberSequence.new(1),
 	})
 
 	self.WindowShadow = create("Frame", self.Root, {
@@ -328,7 +592,7 @@ function InventoryUI:_build(parent)
 		ZIndex = 142,
 	})
 	addCorner(self.Window, 6)
-	self.WindowStroke = addStroke(self.Window, PALETTE.Cyan, 3)
+	self.WindowStroke = addStroke(self.Window, PALETTE.Cyan, 2)
 	addGradient(self.Window, ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(14, 31, 42)),
 		ColorSequenceKeypoint.new(0.45, PALETTE.Ink),
@@ -344,14 +608,14 @@ function InventoryUI:_build(parent)
 		ZIndex = 143,
 	})
 	addCorner(self.WindowInnerFrame, 4)
-	addStroke(self.WindowInnerFrame, PALETTE.SteelLight, 1, 0.28)
+	addStroke(self.WindowInnerFrame, PALETTE.SteelLight, 1, 0.56)
 
 	self.WindowTopRail = create("Frame", self.Window, {
 		Name = "InventoryWindowTopRail",
 		BackgroundColor3 = PALETTE.Cyan,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(36, -2),
-		Size = UDim2.new(1, -72, 0, 4),
+		Size = UDim2.new(1, -72, 0, 2),
 		ZIndex = 144,
 	})
 	addGradient(self.WindowTopRail, ColorSequence.new({
@@ -366,7 +630,7 @@ function InventoryUI:_build(parent)
 		BackgroundColor3 = PALETTE.Cyan,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 36, 1, 2),
-		Size = UDim2.new(1, -72, 0, 4),
+		Size = UDim2.new(1, -72, 0, 2),
 		ZIndex = 144,
 	})
 	addGradient(self.WindowBottomRail, ColorSequence.new({
@@ -405,7 +669,7 @@ function InventoryUI:_build(parent)
 		BackgroundTransparency = 0.24,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(10, 12),
-		Size = UDim2.new(1, -20, 0, 72),
+		Size = UDim2.new(1, -20, 0, 66),
 		ZIndex = 143,
 	})
 	addCorner(self.HeaderShadow, 4)
@@ -416,11 +680,11 @@ function InventoryUI:_build(parent)
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
 		Position = UDim2.fromOffset(8, 8),
-		Size = UDim2.new(1, -16, 0, 72),
+		Size = UDim2.new(1, -16, 0, 66),
 		ZIndex = 144,
 	})
 	addCorner(self.Header, 3)
-	addStroke(self.Header, PALETTE.RedBright, 2)
+	addStroke(self.Header, PALETTE.RedBright, 1.5)
 	addGradient(self.Header, ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(101, 3, 10)),
 		ColorSequenceKeypoint.new(0.24, Color3.fromRGB(223, 15, 16)),
@@ -465,12 +729,12 @@ function InventoryUI:_build(parent)
 		Size = UDim2.new(0.28, 0, 1, -16),
 		ZIndex = 145,
 	})
-	for row = 0, 2 do
-		for column = 0, 7 do
+	for row = 0, 1 do
+		for column = 0, 5 do
 			local diamond = create("Frame", self.HeaderPattern, {
 				Name = string.format("HeaderPattern_%d_%d", row, column),
 				BackgroundColor3 = Color3.fromRGB(48, 2, 8),
-				BackgroundTransparency = 0.28 + row * 0.1,
+				BackgroundTransparency = 0.5 + row * 0.14,
 				BorderSizePixel = 0,
 				Position = UDim2.new(0, column * 18 + (row % 2) * 9, 0, row * 17 + 2),
 				Rotation = 45,
@@ -490,6 +754,7 @@ function InventoryUI:_build(parent)
 		Position = UDim2.new(0.67, 0, 0.5, 0),
 		Rotation = 31,
 		Size = UDim2.fromOffset(5, 108),
+		Visible = false,
 		ZIndex = 145,
 	})
 
@@ -498,7 +763,7 @@ function InventoryUI:_build(parent)
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamBlack,
 		Position = UDim2.fromOffset(30, 5),
-		Rotation = -1,
+		Rotation = 0,
 		Size = UDim2.new(0.57, -30, 1, -13),
 		Text = "INVENTORY",
 		TextColor3 = PALETTE.Text,
@@ -508,7 +773,7 @@ function InventoryUI:_build(parent)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 145,
 	})
-	addTextLimit(self.Title, 24, 46)
+	addTextLimit(self.Title, 22, 40)
 
 	self.Subtitle = create("TextLabel", self.Header, {
 		Name = "InventorySubtitle",
@@ -536,14 +801,14 @@ function InventoryUI:_build(parent)
 		Text = "ITEMS 0  |  PETS 0/0",
 		TextColor3 = PALETTE.Text,
 		TextSize = 12,
+		TextTruncate = Enum.TextTruncate.None,
+		TextWrapped = true,
 		ZIndex = 145,
 	})
+	self.Capacity:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
 	addCorner(self.Capacity, 3)
 	self.CapacityStroke = addStroke(self.Capacity, PALETTE.SteelLight, 1.5)
-	addGradient(self.Capacity, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
-	}), 90)
+	addGradient(self.Capacity, TEXT_SAFE_GRADIENT, 90)
 
 	self.Close = create("TextButton", self.Header, {
 		Name = "InventoryClose",
@@ -559,13 +824,10 @@ function InventoryUI:_build(parent)
 		TextSize = 24,
 		ZIndex = 146,
 	})
+	self.Close:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
 	addCorner(self.Close, 4)
 	addStroke(self.Close, Color3.fromRGB(255, 70, 50), 2.5)
-	addGradient(self.Close, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 225, 215)),
-		ColorSequenceKeypoint.new(0.52, Color3.fromRGB(225, 165, 160)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 110, 120)),
-	}), 90)
+	addGradient(self.Close, TEXT_SAFE_GRADIENT, 90)
 	create("Frame", self.Close, {
 		Name = "CloseInnerEdge",
 		BackgroundTransparency = 1,
@@ -580,8 +842,8 @@ function InventoryUI:_build(parent)
 		Name = "InventoryBody",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(8, 88),
-		Size = UDim2.new(1, -16, 1, -96),
+		Position = UDim2.fromOffset(8, 78),
+		Size = UDim2.new(1, -16, 1, -86),
 		ZIndex = 143,
 	})
 
@@ -595,7 +857,7 @@ function InventoryUI:_build(parent)
 		ZIndex = 144,
 	})
 	addCorner(self.CategoryBar, 4)
-	addStroke(self.CategoryBar, PALETTE.SteelLight, 2)
+	addStroke(self.CategoryBar, PALETTE.SteelLight, 1.5)
 	addGradient(self.CategoryBar, ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 27, 39)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 12, 19)),
@@ -609,7 +871,7 @@ function InventoryUI:_build(parent)
 	self.CategoryLayout = create("UIListLayout", self.CategoryBar, {
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		Padding = UDim.new(0, 8),
+		Padding = UDim.new(0, 6),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		VerticalAlignment = Enum.VerticalAlignment.Top,
 	})
@@ -623,7 +885,7 @@ function InventoryUI:_build(parent)
 			ClipsDescendants = false,
 			Font = Enum.Font.GothamBlack,
 			LayoutOrder = order,
-			Size = UDim2.new(1, 0, 0, 62),
+			Size = UDim2.new(1, 0, 0, 56),
 			Text = string.upper(category),
 			TextColor3 = PALETTE.Text,
 			TextSize = 13,
@@ -631,26 +893,15 @@ function InventoryUI:_build(parent)
 			ZIndex = 145,
 		})
 		button:SetAttribute("InventoryCategory", category)
+		button:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
 		addCorner(button, 3)
 		local buttonStroke = addStroke(button, PALETTE.SteelLight, 1.5, 0.1)
-		local buttonGradient = addGradient(button, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
-			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(190, 220, 235)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
-		}), 0)
+		local buttonGradient = addGradient(button, TEXT_SAFE_GRADIENT, 90)
 		local padding = create("UIPadding", button, {
 			PaddingLeft = UDim.new(0, 50),
 			PaddingRight = UDim.new(0, 13),
 		})
-		local icon = create("ImageLabel", button, {
-			Name = "CategoryIcon",
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(-43, 9),
-			Size = UDim2.fromOffset(42, 42),
-			ScaleType = Enum.ScaleType.Fit,
-			ZIndex = 146,
-		})
+		local icon = self:_createCategoryIcon(button, category)
 		local indicator = create("Frame", button, {
 			Name = "CategorySelectedIndicator",
 			BackgroundColor3 = PALETTE.Gold,
@@ -676,8 +927,7 @@ function InventoryUI:_build(parent)
 			ZIndex = 148,
 		})
 		addStroke(arrow, Color3.fromRGB(255, 232, 91), 1.5)
-		self:_applyAtlasIcon(icon, CATEGORY_ICONS[category])
-		self._categoryButtons[category] = {
+		local widgets = {
 			button = button,
 			stroke = buttonStroke,
 			gradient = buttonGradient,
@@ -685,11 +935,32 @@ function InventoryUI:_build(parent)
 			icon = icon,
 			indicator = indicator,
 			arrow = arrow,
+			hovered = false,
+			pointerHovered = false,
+			selectionHovered = false,
 		}
+		self._categoryButtons[category] = widgets
 		self:_connect(button.Activated, function()
 			self:SetCategory(category, false)
 		end)
+		self:_connect(button.MouseEnter, function()
+			widgets.pointerHovered = true
+			self:_setCategoryInteractionState(category)
+		end)
+		self:_connect(button.MouseLeave, function()
+			widgets.pointerHovered = false
+			self:_setCategoryInteractionState(category)
+		end)
+		self:_connect(button.SelectionGained, function()
+			widgets.selectionHovered = true
+			self:_setCategoryInteractionState(category)
+		end)
+		self:_connect(button.SelectionLost, function()
+			widgets.selectionHovered = false
+			self:_setCategoryInteractionState(category)
+		end)
 	end
+	self.Root:SetAttribute("InventoryCategoryConnectionCount", #CATEGORIES * 5)
 
 	self.GridPane = create("Frame", self.Body, {
 		Name = "InventoryGridPane",
@@ -700,7 +971,7 @@ function InventoryUI:_build(parent)
 		ZIndex = 144,
 	})
 	addCorner(self.GridPane, 4)
-	addStroke(self.GridPane, PALETTE.SteelLight, 2)
+	addStroke(self.GridPane, PALETTE.SteelLight, 1.5)
 	addGradient(self.GridPane, ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 27, 38)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 12, 19)),
@@ -708,7 +979,7 @@ function InventoryUI:_build(parent)
 	create("Frame", self.GridPane, {
 		Name = "GridPaneTopRail",
 		BackgroundColor3 = PALETTE.CyanSoft,
-		BackgroundTransparency = 0.1,
+		BackgroundTransparency = 0.46,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(6, 5),
 		Size = UDim2.new(1, -12, 0, 2),
@@ -725,7 +996,7 @@ function InventoryUI:_build(parent)
 		ZIndex = 146,
 	})
 	addCorner(self.Toolbar, 3)
-	addStroke(self.Toolbar, PALETTE.Steel, 1, 0.15)
+	addStroke(self.Toolbar, PALETTE.Steel, 1, 0.42)
 
 	self.Search = create("TextBox", self.Toolbar, {
 		Name = "InventorySearch",
@@ -744,7 +1015,7 @@ function InventoryUI:_build(parent)
 		ZIndex = 147,
 	})
 	addCorner(self.Search, 3)
-	addStroke(self.Search, PALETTE.SteelLight, 1.5)
+	self.SearchStroke = addStroke(self.Search, PALETTE.SteelLight, 1.5)
 	create("UIPadding", self.Search, {
 		PaddingLeft = UDim.new(0, 35),
 		PaddingRight = UDim.new(0, 10),
@@ -775,15 +1046,14 @@ function InventoryUI:_build(parent)
 		Size = UDim2.fromOffset(154, 44),
 		Text = "RARITY: ALL  v",
 		TextColor3 = PALETTE.Text,
-		TextSize = 11,
+		TextSize = 12,
+		TextWrapped = true,
 		ZIndex = 148,
 	})
+	self.RarityFilter:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
 	addCorner(self.RarityFilter, 3)
 	addStroke(self.RarityFilter, PALETTE.CyanSoft, 1.5)
-	addGradient(self.RarityFilter, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 190, 215)),
-	}), 90)
+	addGradient(self.RarityFilter, TEXT_SAFE_GRADIENT, 90)
 
 	self.Capacity.Parent = self.Toolbar
 	self.Capacity.AnchorPoint = Vector2.new(1, 0)
@@ -799,9 +1069,11 @@ function InventoryUI:_build(parent)
 		CanvasSize = UDim2.new(),
 		ClipsDescendants = true,
 		ElasticBehavior = Enum.ElasticBehavior.Never,
+		Active = true,
 		Position = UDim2.new(1, -8, 0, 56),
 		ScrollBarImageColor3 = PALETTE.Cyan,
 		ScrollBarThickness = 5,
+		ScrollingEnabled = false,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Size = UDim2.fromOffset(154, 7 * 44 + 12),
 		Visible = false,
@@ -831,8 +1103,25 @@ function InventoryUI:_build(parent)
 			Size = UDim2.new(1, 0, 0, 44),
 			Text = string.upper(rarity),
 			TextColor3 = RARITY_COLORS[rarity] or PALETTE.Text,
-			TextSize = 11,
+			TextSize = 12,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 171,
+		})
+		addCorner(option, 2)
+		addStroke(option, RARITY_COLORS[rarity] or PALETTE.Cyan, 1, 0.68)
+		create("UIPadding", option, {
+			PaddingLeft = UDim.new(0, 20),
+			PaddingRight = UDim.new(0, 8),
+		})
+		create("Frame", option, {
+			Name = "RarityMarker",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundColor3 = RARITY_COLORS[rarity] or PALETTE.Cyan,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, 9, 0.5, 0),
+			Rotation = 45,
+			Size = UDim2.fromOffset(7, 7),
+			ZIndex = 172,
 		})
 		self._rarityButtons[rarity] = option
 		self:_connect(option.Activated, function()
@@ -866,19 +1155,87 @@ function InventoryUI:_build(parent)
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	})
 
-	self.Empty = create("TextLabel", self.GridPane, {
-		Name = "InventoryEmpty",
+	self.EmptyState = create("Frame", self.GridPane, {
+		Name = "InventoryEmptyState",
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBold,
-		Position = UDim2.fromScale(0.5, 0.54),
-		Size = UDim2.new(1, -48, 0, 80),
-		Text = "NO ITEMS MATCH THIS FILTER",
-		TextColor3 = PALETTE.Muted,
-		TextSize = 14,
-		TextWrapped = true,
+		BackgroundColor3 = Color3.fromRGB(3, 13, 21),
+		BackgroundTransparency = 0.36,
+		BorderSizePixel = 0,
+		Position = UDim2.fromScale(0.5, 0.58),
+		Size = UDim2.new(1, -48, 0, 132),
 		Visible = false,
 		ZIndex = 146,
+	})
+	addCorner(self.EmptyState, 4)
+	addStroke(self.EmptyState, PALETTE.SteelLight, 1.5, 0.12)
+	addGradient(self.EmptyState, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 31, 43)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(4, 15, 23)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 9, 15)),
+	}), 90)
+	self.EmptySlotRow = create("Frame", self.EmptyState, {
+		Name = "EmptySlotPreview",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 9),
+		Size = UDim2.new(1, -20, 0, 62),
+		ZIndex = 147,
+	})
+	create("UIListLayout", self.EmptySlotRow, {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		Padding = UDim.new(0, 7),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+	})
+	self.EmptySlotLabels = {}
+	for index = 1, 3 do
+		local emptySlot = create("Frame", self.EmptySlotRow, {
+			Name = "EmptySlot" .. index,
+			BackgroundColor3 = Color3.fromRGB(5, 18, 28),
+			BorderSizePixel = 0,
+			LayoutOrder = index,
+			Size = UDim2.new(1 / 3, -5, 1, 0),
+			ZIndex = 147,
+		})
+		addCorner(emptySlot, 3)
+		addStroke(emptySlot, index == 1 and PALETTE.GoldDark or PALETTE.Steel, 1.5, 0.12)
+		create("Frame", emptySlot, {
+			Name = "SlotTopRail",
+			BackgroundColor3 = index == 1 and PALETTE.Gold or PALETTE.CyanSoft,
+			BackgroundTransparency = 0.14,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(3, 3),
+			Size = UDim2.new(1, -6, 0, 3),
+			ZIndex = 148,
+		})
+		local label = create("TextLabel", emptySlot, {
+			Name = "SlotState",
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamBlack,
+			Position = UDim2.fromOffset(4, 8),
+			Size = UDim2.new(1, -8, 1, -12),
+			Text = index == 1 and "LOCKED\nSLOT" or "EMPTY\nSLOT",
+			TextColor3 = index == 1 and PALETTE.Gold or PALETTE.Muted,
+			TextSize = 9,
+			TextWrapped = true,
+			ZIndex = 148,
+		})
+		self.EmptySlotLabels[index] = label
+	end
+
+	self.Empty = create("TextLabel", self.EmptyState, {
+		Name = "InventoryEmpty",
+		BackgroundTransparency = 1,
+		Font = Enum.Font.GothamBold,
+		Position = UDim2.fromOffset(10, 76),
+		Size = UDim2.new(1, -20, 1, -82),
+		Text = "NO ITEMS MATCH THIS FILTER",
+		TextColor3 = PALETTE.Muted,
+		TextSize = 12,
+		TextWrapped = true,
+		ZIndex = 148,
 	})
 
 	self.Detail = create("Frame", self.Body, {
@@ -896,12 +1253,41 @@ function InventoryUI:_build(parent)
 		ColorSequenceKeypoint.new(0.56, Color3.fromRGB(4, 14, 22)),
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 9, 14)),
 	}), 90)
+	self.DetailMetaStrip = create("Frame", self.Detail, {
+		Name = "DetailMetaStrip",
+		BackgroundColor3 = Color3.fromRGB(5, 18, 27),
+		BackgroundTransparency = 0.08,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 12),
+		Size = UDim2.new(1, -20, 0, 84),
+		ZIndex = 151,
+	})
+	addCorner(self.DetailMetaStrip, 3)
+	addStroke(self.DetailMetaStrip, PALETTE.SteelLight, 1, 0.3)
+	addGradient(self.DetailMetaStrip, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(16, 38, 49)),
+		ColorSequenceKeypoint.new(0.4, Color3.fromRGB(6, 20, 29)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 12, 19)),
+	}), 90)
+	for index, xPosition in ipairs({ 5, -5 }) do
+		create("Frame", self.Detail, {
+			Name = "DetailSideRail" .. index,
+			AnchorPoint = Vector2.new(index == 2 and 1 or 0, 0),
+			BackgroundColor3 = PALETTE.CyanSoft,
+			BackgroundTransparency = 0.68,
+			BorderSizePixel = 0,
+			Position = index == 1 and UDim2.fromOffset(xPosition, 12)
+				or UDim2.new(1, xPosition, 0, 12),
+			Size = UDim2.new(0, 2, 1, -24),
+			ZIndex = 151,
+		})
+	end
 	self.DetailTopRail = create("Frame", self.Detail, {
 		Name = "DetailTopRail",
 		BackgroundColor3 = PALETTE.Gold,
 		BorderSizePixel = 0,
 		Position = UDim2.fromOffset(6, 5),
-		Size = UDim2.new(1, -12, 0, 3),
+		Size = UDim2.new(1, -12, 0, 2),
 		ZIndex = 151,
 	})
 	addGradient(self.DetailTopRail, ColorSequence.new({
@@ -965,6 +1351,18 @@ function InventoryUI:_build(parent)
 		ZIndex = 151,
 	})
 	addCorner(self.DetailArtGlow, 8)
+	self.DetailArtCore = create("Frame", self.DetailArtFrame, {
+		Name = "DetailArtCore",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromScale(0.5, 0.52),
+		Rotation = 45,
+		Size = UDim2.fromScale(0.63, 0.63),
+		ZIndex = 151,
+	})
+	addCorner(self.DetailArtCore, 5)
+	self.DetailArtCoreStroke = addStroke(self.DetailArtCore, PALETTE.Gold, 1.5, 0.48)
 	self.DetailArt = create("ImageLabel", self.DetailArtFrame, {
 		Name = "DetailArt",
 		BackgroundTransparency = 1,
@@ -1036,7 +1434,9 @@ function InventoryUI:_build(parent)
 	})
 	self.DetailDescription = create("TextLabel", self.Detail, {
 		Name = "DetailDescription",
-		BackgroundTransparency = 1,
+		BackgroundColor3 = Color3.fromRGB(3, 13, 20),
+		BackgroundTransparency = 0.12,
+		BorderSizePixel = 0,
 		Font = Enum.Font.GothamMedium,
 		Position = UDim2.fromOffset(16, 326),
 		Size = UDim2.new(1, -32, 0, 94),
@@ -1047,6 +1447,15 @@ function InventoryUI:_build(parent)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		ZIndex = 152,
+	})
+	self.DetailPetPreview = createPetViewport(self.DetailArtFrame, "DetailPetPreview", 153)
+	addCorner(self.DetailDescription, 3)
+	self.DetailDescriptionStroke = addStroke(self.DetailDescription, PALETTE.Steel, 1, 0.28)
+	create("UIPadding", self.DetailDescription, {
+		PaddingBottom = UDim.new(0, 4),
+		PaddingLeft = UDim.new(0, 7),
+		PaddingRight = UDim.new(0, 7),
+		PaddingTop = UDim.new(0, 4),
 	})
 	self.DetailStats = create("Frame", self.Detail, {
 		Name = "DetailStats",
@@ -1136,6 +1545,16 @@ function InventoryUI:_build(parent)
 	})
 	addCorner(self.DetailStatus, 3)
 	addStroke(self.DetailStatus, PALETTE.CyanSoft, 1.5)
+	create("Frame", self.DetailStatus, {
+		Name = "StatusSignal",
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = PALETTE.Cyan,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, 8, 0.5, 0),
+		Rotation = 45,
+		Size = UDim2.fromOffset(7, 7),
+		ZIndex = 153,
+	})
 
 	self.DetailActions = create("Frame", self.Detail, {
 		Name = "DetailActions",
@@ -1173,6 +1592,17 @@ function InventoryUI:_build(parent)
 		if not self._updatingSearch then
 			self:SetSearch(self.Search.Text, false)
 		end
+	end)
+	self:_connect(self.Search.Focused, function()
+		self:_setRarityMenu(false)
+		self.SearchStroke.Color = PALETTE.Cyan
+		self.SearchStroke.Thickness = 2
+		self.Search:SetAttribute("InventoryFocusState", "Focused")
+	end)
+	self:_connect(self.Search.FocusLost, function()
+		self.SearchStroke.Color = PALETTE.SteelLight
+		self.SearchStroke.Thickness = 1.5
+		self.Search:SetAttribute("InventoryFocusState", "Idle")
 	end)
 	self:_connect(self.Root:GetPropertyChangedSignal("AbsoluteSize"), function()
 		local size = self.Root.AbsoluteSize
@@ -1361,7 +1791,7 @@ function InventoryUI:_refreshDeleteConfirmationLabel()
 	end
 	local awaitingConfirmation = self._deleteConfirmKey == tostring(item.key)
 		and os.clock() <= self._deleteConfirmUntil
-	for _, button in ipairs(self._actionButtons) do
+	for _, button in ipairs(self._activeActionButtons) do
 		if button:IsA("TextButton") and button:GetAttribute("Destructive") == true then
 			local semanticName = tostring(button:GetAttribute("InventoryAction") or "")
 			local normalLabel = semanticName
@@ -1421,6 +1851,153 @@ function InventoryUI:_armDeleteConfirmation(key)
 	self:_refreshDeleteConfirmationLabel()
 end
 
+function InventoryUI:_cancelPendingDetailRender()
+	self._detailRenderGeneration = self._detailRenderGeneration + 1
+	self._detailRenderScheduled = false
+	self._detailRenderReason = nil
+end
+
+function InventoryUI:_requestDetailRender(reason)
+	if self._destroyed or not self.Root or not self.Root.Parent then
+		return
+	end
+	self._detailRenderReason = tostring(reason or "unspecified")
+	if self._detailRenderScheduled then
+		self._detailRenderCoalescedCount = self._detailRenderCoalescedCount + 1
+		self.Root:SetAttribute("InventoryDetailRenderCoalescedCount", self._detailRenderCoalescedCount)
+		return
+	end
+
+	self._detailRenderScheduled = true
+	local generation = self._detailRenderGeneration
+	task.defer(function()
+		if self._destroyed
+			or generation ~= self._detailRenderGeneration
+			or not self.Root
+			or not self.Root.Parent
+		then
+			return
+		end
+		self._detailRenderScheduled = false
+		self._detailRenderCount = self._detailRenderCount + 1
+		self.Root:SetAttribute("InventoryDetailRenderCount", self._detailRenderCount)
+		self.Root:SetAttribute("InventoryDetailRenderReason", self._detailRenderReason or "")
+		self._detailRenderReason = nil
+		self:_renderDetail()
+		self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
+		self:_syncTimedRefresh()
+	end)
+end
+
+function InventoryUI:_createCategoryIcon(parent, category)
+	local accent = category == "Fists" and Color3.fromRGB(239, 61, 52)
+		or category == "Pets" and Color3.fromRGB(89, 214, 255)
+		or category == "Boosts" and Color3.fromRGB(255, 205, 46)
+		or category == "Honor" and Color3.fromRGB(255, 189, 46)
+		or Color3.fromRGB(70, 213, 255)
+	local icon = create("Frame", parent, {
+		Name = "CategoryIcon",
+		BackgroundColor3 = Color3.fromRGB(5, 17, 26),
+		BackgroundTransparency = 0,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(-41, 8),
+		Size = UDim2.fromOffset(40, 40),
+		ZIndex = 146,
+	})
+	icon:SetAttribute("InventoryCategoryIconStyle", "UnifiedProceduralGlyphV1")
+	icon:SetAttribute("InventoryCategoryIconCategory", category)
+	icon:SetAttribute("InventoryCategoryIconEmbeddedText", false)
+	addCorner(icon, 6)
+	local iconStroke = addStroke(icon, accent, 1.25, 0.22)
+	iconStroke.Name = "CategoryIconStroke"
+	addGradient(icon, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(17, 39, 51)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 12, 19)),
+	}), 90)
+	create("UIAspectRatioConstraint", icon, {
+		AspectRatio = 1,
+		AspectType = Enum.AspectType.FitWithinMaxSize,
+		DominantAxis = Enum.DominantAxis.Width,
+	})
+	local glyph = create("Frame", icon, {
+		Name = "CategoryGlyph",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromScale(0.08, 0.08),
+		Size = UDim2.fromScale(0.84, 0.84),
+		ZIndex = 147,
+	})
+
+	local function shape(name, position, size, color, radius, rotation)
+		local part = create("Frame", glyph, {
+			Name = name,
+			BackgroundColor3 = color,
+			BorderSizePixel = 0,
+			Position = position,
+			Rotation = rotation or 0,
+			Size = size,
+			ZIndex = 148,
+		})
+		if radius then addCorner(part, radius) end
+		return part
+	end
+
+	if category == "All" then
+		for index, position in ipairs({
+			UDim2.fromScale(0.13, 0.13),
+			UDim2.fromScale(0.55, 0.13),
+			UDim2.fromScale(0.13, 0.55),
+			UDim2.fromScale(0.55, 0.55),
+		}) do
+			local tile = shape("GridTile" .. index, position, UDim2.fromScale(0.32, 0.32), accent, 3)
+			addGradient(tile, ColorSequence.new(Color3.fromRGB(154, 247, 255), accent), 45)
+		end
+	elseif category == "Fists" then
+		local palm = shape("GlovePalm", UDim2.fromScale(0.25, 0.31), UDim2.fromScale(0.53, 0.43), accent, 5, -5)
+		addGradient(palm, ColorSequence.new(Color3.fromRGB(255, 109, 82), Color3.fromRGB(156, 21, 31)), 90)
+		for index = 0, 3 do
+			shape("GloveKnuckle" .. index, UDim2.fromScale(0.18 + index * 0.17, 0.14), UDim2.fromScale(0.2, 0.27), accent, 6, -5)
+		end
+		shape("GloveThumb", UDim2.fromScale(0.12, 0.43), UDim2.fromScale(0.25, 0.28), Color3.fromRGB(205, 35, 38), 5, 18)
+		shape("GloveCuff", UDim2.fromScale(0.31, 0.69), UDim2.fromScale(0.46, 0.19), Color3.fromRGB(132, 20, 28), 3, -5)
+	elseif category == "Pets" then
+		local egg = shape("PetEgg", UDim2.fromScale(0.24, 0.08), UDim2.fromScale(0.52, 0.82), Color3.fromRGB(235, 244, 238), 12)
+		addStroke(egg, accent, 1.3, 0.12)
+		addGradient(egg, ColorSequence.new(Color3.fromRGB(255, 249, 221), Color3.fromRGB(176, 226, 238)), 90)
+		shape("EggSpotA", UDim2.fromScale(0.38, 0.27), UDim2.fromScale(0.18, 0.18), accent, 6, -12)
+		shape("EggSpotB", UDim2.fromScale(0.52, 0.51), UDim2.fromScale(0.15, 0.21), Color3.fromRGB(52, 146, 230), 6, 15)
+		shape("EggSpotC", UDim2.fromScale(0.30, 0.61), UDim2.fromScale(0.13, 0.14), Color3.fromRGB(76, 187, 231), 5)
+	elseif category == "Boosts" then
+		local bolt = create("TextLabel", glyph, {
+			Name = "BoostBolt",
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.fromScale(0.05, -0.04),
+			Size = UDim2.fromScale(0.9, 1.05),
+			Font = Enum.Font.GothamBlack,
+			Text = "⚡",
+			TextColor3 = accent,
+			TextScaled = true,
+			TextStrokeColor3 = Color3.fromRGB(128, 62, 4),
+			TextStrokeTransparency = 0.18,
+			ZIndex = 148,
+		})
+		bolt:SetAttribute("SemanticGlyph", "Boost")
+	elseif category == "Honor" then
+		shape("MedalRibbonLeft", UDim2.fromScale(0.26, 0.59), UDim2.fromScale(0.22, 0.34), Color3.fromRGB(39, 132, 210), 2, 12)
+		shape("MedalRibbonRight", UDim2.fromScale(0.52, 0.59), UDim2.fromScale(0.22, 0.34), Color3.fromRGB(25, 94, 176), 2, -12)
+		local medal = shape("HonorMedal", UDim2.fromScale(0.18, 0.08), UDim2.fromScale(0.64, 0.64), accent, 12)
+		addStroke(medal, Color3.fromRGB(255, 239, 145), 1.4, 0.08)
+		addGradient(medal, ColorSequence.new(Color3.fromRGB(255, 242, 124), Color3.fromRGB(201, 112, 5)), 90)
+		local core = shape("HonorCore", UDim2.fromScale(0.32, 0.22), UDim2.fromScale(0.36, 0.36), Color3.fromRGB(17, 70, 126), 8)
+		addStroke(core, Color3.fromRGB(196, 238, 255), 1, 0.18)
+		shape("HonorDiamond", UDim2.fromScale(0.43, 0.33), UDim2.fromScale(0.14, 0.14), Color3.fromRGB(225, 247, 255), 2, 45)
+	end
+
+	return icon
+end
+
 function InventoryUI:_applyAtlasIcon(image, iconName)
 	image.Image = ""
 	image.ImageRectOffset = Vector2.zero
@@ -1434,6 +2011,83 @@ function InventoryUI:_applyAtlasIcon(image, iconName)
 		return true
 	end
 	return false
+end
+
+function InventoryUI:_getPetPreviewMaster(petName)
+	petName = tostring(petName or "")
+	if petName == "" or type(self.BuildPetPreview) ~= "function" then
+		return nil
+	end
+	local cached = self._petPreviewMasters[petName]
+	if cached ~= nil then
+		return cached ~= false and cached or nil
+	end
+	local ok, model = pcall(self.BuildPetPreview, petName)
+	if not ok or typeof(model) ~= "Instance" or not model:IsA("Model") then
+		if typeof(model) == "Instance" then model:Destroy() end
+		self._petPreviewMasters[petName] = false
+		warn("InventoryUI could not build pet preview for " .. petName)
+		return nil
+	end
+	model.Name = "InventoryPetPreviewMaster_" .. safeName(petName)
+	model.Parent = nil
+	self._petPreviewMasters[petName] = model
+	return model
+end
+
+function InventoryUI:_clearPetPreview(previewRef)
+	if not previewRef then return end
+	previewRef.world:ClearAllChildren()
+	previewRef.petName = nil
+	previewRef.viewport.Visible = false
+	previewRef.viewport:SetAttribute("PreviewPetName", "")
+	previewRef.viewport:SetAttribute("PreviewReady", false)
+end
+
+function InventoryUI:_applyPetPreview(previewRef, item)
+	if not previewRef then return false end
+	local petName = item and item.category == "Pets" and tostring(item.previewPet or "") or ""
+	if petName == "" then
+		self:_clearPetPreview(previewRef)
+		return false
+	end
+	if previewRef.petName ~= petName or #previewRef.world:GetChildren() == 0 then
+		self:_clearPetPreview(previewRef)
+		local master = self:_getPetPreviewMaster(petName)
+		if not master then return false end
+		local clone = master:Clone()
+		clone.Name = "PetPreview_" .. safeName(petName)
+		for _, descendant in ipairs(clone:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				descendant.Anchored = true
+				descendant.CanCollide = false
+				descendant.CanQuery = false
+				descendant.CanTouch = false
+			elseif descendant:IsA("ParticleEmitter")
+				or descendant:IsA("Beam")
+				or descendant:IsA("Trail")
+				or descendant:IsA("Light")
+			then
+				descendant:Destroy()
+			end
+		end
+		clone.Parent = previewRef.world
+		local boundsCFrame, boundsSize = clone:GetBoundingBox()
+		local radius = math.max(boundsSize.X, boundsSize.Y, boundsSize.Z) * 0.5
+		local distance = math.max(2.6, radius / math.tan(math.rad(previewRef.camera.FieldOfView * 0.62)))
+		local center = boundsCFrame.Position
+		previewRef.camera.CFrame = CFrame.lookAt(
+			center + Vector3.new(distance * 0.48, distance * 0.2, -distance),
+			center + Vector3.new(0, boundsSize.Y * 0.04, 0)
+		)
+		previewRef.petName = petName
+	end
+	previewRef.viewport.ImageTransparency = item.locked == true and 0.34 or 0
+	previewRef.viewport.Visible = true
+	previewRef.viewport:SetAttribute("PreviewPetName", petName)
+	previewRef.viewport:SetAttribute("PreviewReady", true)
+	previewRef.viewport:SetAttribute("PreviewSource", "ExactEquippedModel")
+	return true
 end
 
 function InventoryUI:_applyItemArt(image, item)
@@ -1462,9 +2116,26 @@ function InventoryUI:_applyItemArt(image, item)
 end
 
 function InventoryUI:_setRarityMenu(visible)
+	local opening = visible == true and not self._rarityMenuOpen
 	self._rarityMenuOpen = visible == true
 	self.RarityMenu.Visible = self._rarityMenuOpen
-	self.RarityFilter.Text = "RARITY  " .. string.upper(self._rarity) .. (self._rarityMenuOpen and "  ^" or "  v")
+	self.RarityMenu.Active = self._rarityMenuOpen
+	self.RarityMenu.ScrollingEnabled = self._rarityMenuOpen
+	if opening then
+		self.RarityMenu.CanvasPosition = Vector2.zero
+	end
+	local rarityName = string.upper(self._rarity)
+	local arrow = self._rarityMenuOpen and "^" or "v"
+	if (tonumber(self._toolbarRarityWidth) or 154) < 132 then
+		self.RarityFilter.Text = "RARITY\n" .. rarityName .. "  " .. arrow
+	else
+		self.RarityFilter.Text = "RARITY  " .. rarityName .. "  " .. arrow
+	end
+	self.RarityFilter:SetAttribute("InventoryExpanded", self._rarityMenuOpen)
+	self.RarityFilter:SetAttribute("InventoryRarityAccessibleText", "RARITY " .. rarityName)
+	self.RarityMenu:SetAttribute("InventoryZLayerIntent", "OverlayAboveGrid")
+	self.Root:SetAttribute("InventoryRarityMenuOpen", self._rarityMenuOpen)
+	self.Root:SetAttribute("InventoryRarityMenuZLayer", self.RarityMenu.ZIndex)
 end
 
 function InventoryUI:_requestClose()
@@ -1542,49 +2213,111 @@ function InventoryUI:_updateCapacity()
 	local maximum = tonumber(capacity.total or capacity.max or snapshot.petCapacity)
 		or tonumber(self.GameConfig.MaxPetInventory)
 		or 0
-	self.Capacity.Text = string.format(
-		"ITEMS %s  |  PETS %s/%s",
-		formatNumber(itemCount),
-		formatNumber(used),
-		formatNumber(maximum)
-	)
+	local itemText = formatNumber(itemCount)
+	local usedText = formatNumber(used)
+	local maximumText = formatNumber(maximum)
+	local availableWidth = tonumber(self._toolbarCapacityWidth) or WIDE_CATEGORY_WIDTH
+	local fullText = string.format("ITEMS %s  |  PETS %s/%s", itemText, usedText, maximumText)
+	if availableWidth < 116 then
+		self.Capacity.Text = string.format("ITEM %s\nPET %s/%s", itemText, usedText, maximumText)
+		self.Capacity:SetAttribute("InventoryCapacityTextMode", "Compact")
+	elseif availableWidth < 154 then
+		self.Capacity.Text = string.format("ITEMS %s\nPETS %s/%s", itemText, usedText, maximumText)
+		self.Capacity:SetAttribute("InventoryCapacityTextMode", "Condensed")
+	else
+		self.Capacity.Text = fullText
+		self.Capacity:SetAttribute("InventoryCapacityTextMode", "Full")
+	end
+	self.Capacity:SetAttribute("InventoryCapacityFullText", fullText)
+	self.Capacity:SetAttribute("InventoryCapacityRenderedText", self.Capacity.Text)
+	self.Capacity:SetAttribute("InventoryCapacityReadable", true)
 	self.Capacity:SetAttribute("Used", used)
 	self.Capacity:SetAttribute("Maximum", maximum)
 end
 
+function InventoryUI:_applyCategoryVisual(category)
+	local widgets = self._categoryButtons[category]
+	if not widgets then
+		return
+	end
+
+	local selected = category == self._category
+	local hovered = widgets.hovered == true
+	local state = selected and "Selected" or hovered and "Hovered" or "Idle"
+	widgets.button:SetAttribute("InventoryVisualState", state)
+	widgets.button:SetAttribute("InventoryHovered", hovered)
+	widgets.button.BackgroundColor3 = selected and Color3.fromRGB(34, 36, 28)
+		or hovered and Color3.fromRGB(10, 43, 57)
+		or PALETTE.PanelRaised
+	widgets.button.TextColor3 = selected and PALETTE.Gold
+		or hovered and Color3.fromRGB(165, 241, 255)
+		or PALETTE.Text
+	widgets.stroke.Color = selected and PALETTE.Gold
+		or hovered and PALETTE.Cyan
+		or PALETTE.SteelLight
+	widgets.stroke.Thickness = selected and 2.5 or hovered and 2 or 1.5
+	widgets.gradient.Color = TEXT_SAFE_GRADIENT
+	widgets.icon.BackgroundColor3 = selected and Color3.fromRGB(29, 35, 31)
+		or hovered and Color3.fromRGB(7, 34, 46)
+		or Color3.fromRGB(5, 17, 26)
+	local iconStroke = widgets.icon:FindFirstChild("CategoryIconStroke")
+	if iconStroke and iconStroke:IsA("UIStroke") then
+		iconStroke.Thickness = selected and 2 or hovered and 1.7 or 1.25
+		iconStroke.Transparency = selected and 0 or hovered and 0.08 or 0.22
+	end
+	widgets.indicator.BackgroundColor3 = selected and PALETTE.Gold or PALETTE.Cyan
+	widgets.indicator.Visible = selected or hovered
+	widgets.arrow.Visible = selected and not self._layout.compact
+end
+
+function InventoryUI:_setCategoryInteractionState(category)
+	local widgets = self._categoryButtons[category]
+	if not widgets then
+		return
+	end
+	widgets.hovered = widgets.pointerHovered == true or widgets.selectionHovered == true
+	if widgets.hovered then
+		self.Root:SetAttribute("InventoryHoveredCategory", category)
+	elseif self.Root:GetAttribute("InventoryHoveredCategory") == category then
+		self.Root:SetAttribute("InventoryHoveredCategory", "")
+	end
+	self:_applyCategoryVisual(category)
+end
+
 function InventoryUI:_renderCategories()
-	for category, widgets in pairs(self._categoryButtons) do
-		local selected = category == self._category
-		widgets.button.BackgroundColor3 = selected and Color3.fromRGB(34, 36, 28) or PALETTE.PanelRaised
-		widgets.button.TextColor3 = selected and PALETTE.Gold or PALETTE.Text
-		widgets.stroke.Color = selected and PALETTE.Gold or PALETTE.SteelLight
-		widgets.stroke.Thickness = selected and 2.5 or 1.5
-		widgets.gradient.Color = selected and ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 248, 205)),
-			ColorSequenceKeypoint.new(0.58, Color3.fromRGB(220, 205, 140)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(175, 150, 85)),
-		}) or ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 252, 255)),
-			ColorSequenceKeypoint.new(0.66, Color3.fromRGB(190, 220, 235)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(145, 185, 205)),
-		})
-		widgets.indicator.Visible = selected
-		widgets.arrow.Visible = selected and not self._layout.compact
+	for category in pairs(self._categoryButtons) do
+		self:_applyCategoryVisual(category)
 	end
 	for rarity, button in pairs(self._rarityButtons) do
-		button.BackgroundTransparency = rarity == self._rarity and 0 or 1
-		button.BackgroundColor3 = rarity == self._rarity and Color3.fromRGB(27, 45, 57) or PALETTE.PanelSoft
+		local selected = rarity == self._rarity
+		button.BackgroundTransparency = selected and 0 or 0.32
+		button.BackgroundColor3 = selected and Color3.fromRGB(27, 45, 57) or PALETTE.PanelSoft
+		button:SetAttribute("InventoryRaritySelected", selected)
+		button:SetAttribute("InventoryRarityValue", rarity)
 	end
 	self:_setRarityMenu(self._rarityMenuOpen)
 end
 
 function InventoryUI:_clearCards()
-	self:_disconnectPool(self._cardConnections)
 	table.clear(self._cardRefsByKey)
-	for _, card in ipairs(self._cards) do
-		card:Destroy()
+	self._activeCardCount = 0
+	for _, cardRef in ipairs(self._cardPool) do
+		cardRef.hovered = false
+		cardRef.key = nil
+		cardRef.item = nil
+		cardRef.card.Active = false
+		cardRef.card.Selectable = false
+		cardRef.card.Visible = false
+		cardRef.card.Parent = self.CardPool
 	end
-	table.clear(self._cards)
+	if self._destroyed then
+		self:_disconnectPool(self._cardConnections)
+		for _, card in ipairs(self._cards) do
+			card:Destroy()
+		end
+		table.clear(self._cards)
+		table.clear(self._cardPool)
+	end
 end
 
 function InventoryUI:_applyCardSelectionVisual(key, selected)
@@ -1616,140 +2349,311 @@ function InventoryUI:_applyCardSelectionVisual(key, selected)
 	return updated
 end
 
+function InventoryUI:_createSparseSlot(index)
+	local slot = create("Frame", self.CardPool, {
+		Name = "SparseSlot_Pooled",
+		Active = false,
+		BackgroundColor3 = PALETTE.Card,
+		BackgroundTransparency = 0.42,
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = 146,
+	})
+	slot:SetAttribute("InventoryPlaceholder", true)
+	slot:SetAttribute("InventoryOwnsItem", false)
+	slot:SetAttribute("InventoryInteractive", false)
+	addCorner(slot, 3)
+	local stroke = addStroke(slot, PALETTE.Steel, 1, 0.58)
+	addGradient(slot, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 25, 35)),
+		ColorSequenceKeypoint.new(0.48, Color3.fromRGB(4, 15, 23)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 8, 13)),
+	}), 90)
+	local topRail = create("Frame", slot, {
+		Name = "PlaceholderTopRail",
+		BackgroundColor3 = PALETTE.SteelLight,
+		BackgroundTransparency = 0.62,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(5, 5),
+		Size = UDim2.new(1, -10, 0, 3),
+		ZIndex = 147,
+	})
+	local label = create("TextLabel", slot, {
+		Name = "PlaceholderState",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Font = Enum.Font.GothamBlack,
+		Position = UDim2.fromOffset(7, 12),
+		Size = UDim2.new(1, -14, 1, -20),
+		Text = "EMPTY",
+		TextColor3 = PALETTE.Muted,
+		TextSize = 8,
+		TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+		TextStrokeTransparency = 0.35,
+		TextWrapped = true,
+		ZIndex = 148,
+	})
+	local ref = {
+		slot = slot,
+		stroke = stroke,
+		topRail = topRail,
+		label = label,
+		index = index,
+	}
+	self._sparseSlotPool[index] = ref
+	self._sparseSlotCreateCount = self._sparseSlotCreateCount + 1
+	self.Root:SetAttribute("InventorySparseSlotCreateCount", self._sparseSlotCreateCount)
+	return ref
+end
+
+function InventoryUI:_renderSparseSlots()
+	for _, ref in ipairs(self._sparseSlotPool) do
+		ref.slot.Visible = false
+		ref.slot.Parent = self.CardPool
+	end
+	self._activeSparseSlotCount = 0
+
+	local columns = math.clamp(math.floor(tonumber(self._layout.columns) or 1), 1, 5)
+	local targetSlots = math.min(
+		MAX_SPARSE_SLOT_PLACEHOLDERS,
+		columns * SPARSE_SLOT_ROWS
+	)
+	local filterActive = self._category ~= "All"
+		or normalize(self._search) ~= ""
+		or self._rarity ~= "All"
+	local placeholderCount = self._activeCardCount > 0 and not filterActive
+			and math.clamp(
+				targetSlots - self._activeCardCount,
+				0,
+				MAX_SPARSE_SLOT_PLACEHOLDERS
+			)
+			or 0
+	for index = 1, placeholderCount do
+		local ref = self._sparseSlotPool[index] or self:_createSparseSlot(index)
+		local displaySlot = self._activeCardCount + index
+		local locked = not filterActive and displaySlot % 5 == 0
+		local state = locked and "Locked" or "Empty"
+		ref.slot.Name = "InventoryPlaceholderSlot_" .. displaySlot
+		ref.slot.LayoutOrder = displaySlot
+		ref.slot.Parent = self.Grid
+		ref.slot.Visible = true
+		ref.slot:SetAttribute("InventoryPlaceholderState", state)
+		ref.slot:SetAttribute("InventoryDisplaySlot", displaySlot)
+		ref.stroke.Color = locked and PALETTE.GoldDark or PALETTE.Steel
+		ref.topRail.BackgroundColor3 = locked and PALETTE.Gold or PALETTE.CyanSoft
+		ref.label.Text = locked and "LOCKED" or "EMPTY"
+		ref.label.TextColor3 = locked and PALETTE.Gold
+			or PALETTE.Muted
+		self._activeSparseSlotCount = self._activeSparseSlotCount + 1
+	end
+	self.Root:SetAttribute("InventoryActiveSparseSlotCount", self._activeSparseSlotCount)
+	self.Root:SetAttribute(
+		"InventoryDisplayedSlotCount",
+		self._activeCardCount + self._activeSparseSlotCount
+	)
+	self.Root:SetAttribute("InventorySparseSlotListenerCount", 0)
+	self.Root:SetAttribute("InventorySparseSlotMode", filterActive and "FilteredHidden" or "InventoryQuiet")
+	self.Root:SetAttribute("InventoryFilteredPlaceholderCount", filterActive and self._activeSparseSlotCount or 0)
+	self.Root:SetAttribute(
+		"InventorySparseSlotsBounded",
+		self._activeSparseSlotCount <= MAX_SPARSE_SLOT_PLACEHOLDERS
+	)
+end
+
 function InventoryUI:_renderGrid()
 	self._gridRebuildCount = self._gridRebuildCount + 1
 	self:_clearCards()
-	self.Empty.Visible = #self._visibleItems == 0
+	local isEmpty = #self._visibleItems == 0
+	local inventoryHasItems = #(self._snapshot and self._snapshot.items or {}) > 0
+	self.EmptyState.Visible = isEmpty
+	if isEmpty and inventoryHasItems then
+		self.Empty.Text = "NO ITEMS MATCH THIS FILTER\nCHANGE RARITY OR CLEAR SEARCH"
+		self.EmptySlotLabels[1].Text = "NO\nMATCH"
+		self.EmptySlotLabels[2].Text = "CHANGE\nFILTER"
+		self.EmptySlotLabels[3].Text = "CLEAR\nSEARCH"
+		self.Root:SetAttribute("InventoryEmptyTreatment", "FilterEmpty")
+	elseif isEmpty then
+		self.Empty.Text = "YOUR INVENTORY IS EMPTY\nEARN OR BUY ITEMS TO FILL THESE SLOTS"
+		self.EmptySlotLabels[1].Text = "LOCKED\nSLOT"
+		self.EmptySlotLabels[2].Text = "EMPTY\nSLOT"
+		self.EmptySlotLabels[3].Text = "EARN\nITEMS"
+		self.Root:SetAttribute("InventoryEmptyTreatment", "InventoryEmpty")
+	else
+		self.Root:SetAttribute("InventoryEmptyTreatment", "Hidden")
+	end
 	for index, item in ipairs(self._visibleItems) do
 		local key = tostring(item.key or ("item:" .. index))
 		local accent = itemAccent(item)
 		local selected = key == self._selectedKey
-		local card = create("TextButton", self.Grid, {
-			Name = "ItemCard_" .. safeName(key),
-			AutoButtonColor = false,
-			BackgroundColor3 = selected and PALETTE.CardHover or PALETTE.Card,
-			BorderSizePixel = 0,
-			ClipsDescendants = true,
-			LayoutOrder = index,
-			Text = "",
-			ZIndex = 146,
-		})
-		card:SetAttribute("InventoryKey", key)
-		card:SetAttribute("InventoryCategory", tostring(item.category or ""))
-		card:SetAttribute("InventoryRarity", tostring(item.rarity or "Common"))
-		card:SetAttribute("InventoryEquipped", item.equipped == true)
-		card:SetAttribute("InventoryLocked", item.locked == true)
-		addCorner(card, 3)
-		local cardStroke = addStroke(card, selected and PALETTE.Gold or accent, selected and 3 or 1.5)
-		local cardRef = {
-			card = card,
-			stroke = cardStroke,
-			accent = accent,
-			hovered = false,
-		}
-		local keyedRefs = self._cardRefsByKey[key]
-		if not keyedRefs then
-			keyedRefs = {}
-			self._cardRefsByKey[key] = keyedRefs
-		end
-		table.insert(keyedRefs, cardRef)
-		addGradient(card, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(7, 20, 29), 0.82)),
-			ColorSequenceKeypoint.new(0.4, Color3.fromRGB(5, 17, 26)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 9, 14)),
-		}), 90)
+		local cardRef = self._cardPool[index]
+		if not cardRef then
+			local card = create("TextButton", self.CardPool, {
+				Name = "ItemCard_Pooled",
+				AutoButtonColor = false,
+				BackgroundColor3 = PALETTE.Card,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+				Text = "",
+				Visible = false,
+				ZIndex = 146,
+			})
+			addCorner(card, 3)
+			local cardStroke = addStroke(card, accent, 1.5)
+			local cardGradient = addGradient(card, ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(7, 20, 29), 0.82)),
+				ColorSequenceKeypoint.new(0.4, Color3.fromRGB(5, 17, 26)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 9, 14)),
+			}), 90)
+			local depthInset = create("Frame", card, {
+				Name = "CardDepthInset",
+				BackgroundColor3 = Color3.fromRGB(0, 4, 8),
+				BackgroundTransparency = 0.18,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(5, 7),
+				Size = UDim2.new(1, -10, 1, -13),
+				ZIndex = 146,
+			})
+			addCorner(depthInset, 2)
+			addStroke(depthInset, PALETTE.Steel, 1, 0.52)
 
-		local innerFrame = create("Frame", card, {
-			Name = "CardInnerFrame",
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(4, 4),
-			Size = UDim2.new(1, -8, 1, -8),
-			ZIndex = 147,
-		})
-		addCorner(innerFrame, 2)
-		addStroke(innerFrame, accent, 1, 0.62)
+			local innerFrame = create("Frame", card, {
+				Name = "CardInnerFrame",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(4, 4),
+				Size = UDim2.new(1, -8, 1, -8),
+				ZIndex = 147,
+			})
+			addCorner(innerFrame, 2)
+			local innerStroke = addStroke(innerFrame, accent, 1, 0.62)
 
-		local accentBar = create("Frame", card, {
-			Name = "RarityAccent",
-			BackgroundColor3 = accent,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, 0),
-			Size = UDim2.new(1, 0, 0, 3),
-			ZIndex = 147,
-		})
-		addGradient(accentBar, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, accent:Lerp(Color3.new(1, 1, 1), 0.15)),
-			ColorSequenceKeypoint.new(0.5, accent),
-			ColorSequenceKeypoint.new(1, accent:Lerp(Color3.new(0, 0, 0), 0.28)),
-		}), 0)
+			local accentBar = create("Frame", card, {
+				Name = "RarityAccent",
+				BackgroundColor3 = accent,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(0, 0),
+				Size = UDim2.new(1, 0, 0, 4),
+				ZIndex = 147,
+			})
+			local accentGradient = addGradient(accentBar, ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.new(1, 1, 1), 0.15)),
+				ColorSequenceKeypoint.new(0.5, accent),
+				ColorSequenceKeypoint.new(1, accent:Lerp(Color3.new(0, 0, 0), 0.28)),
+			}), 0)
 
-		local artFrame = create("Frame", card, {
-			Name = "ItemArtFrame",
-			BackgroundColor3 = Color3.fromRGB(2, 10, 16),
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(6, 7),
-			Size = UDim2.new(1, -12, 1, -43),
-			ZIndex = 147,
-		})
-		addCorner(artFrame, 2)
-		addStroke(artFrame, PALETTE.Steel, 1, 0.18)
-		addGradient(artFrame, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(5, 14, 21), 0.88)),
-			ColorSequenceKeypoint.new(0.55, Color3.fromRGB(3, 12, 19)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(1, 7, 11)),
-		}), 90)
-		local art = create("ImageLabel", artFrame, {
-			Name = "ItemArt",
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(3, 3),
-			ScaleType = Enum.ScaleType.Fit,
-			Size = UDim2.new(1, -6, 1, -6),
-			ZIndex = 148,
-		})
-		local artMode = self:_applyItemArt(art, item)
-		card:SetAttribute("ArtMode", artMode)
+			local artFrame = create("Frame", card, {
+				Name = "ItemArtFrame",
+				BackgroundColor3 = Color3.fromRGB(2, 10, 16),
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(6, 8),
+				Size = UDim2.new(1, -12, 1, -45),
+				ZIndex = 147,
+			})
+			addCorner(artFrame, 2)
+			local artFrameStroke = addStroke(artFrame, PALETTE.Steel, 1, 0.18)
+			local artFrameGradient = addGradient(artFrame, ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(5, 14, 21), 0.88)),
+				ColorSequenceKeypoint.new(0.55, Color3.fromRGB(3, 12, 19)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(1, 7, 11)),
+			}), 90)
+			local artBloom = create("Frame", artFrame, {
+				Name = "ItemArtBloom",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = accent,
+				BackgroundTransparency = 0.9,
+				BorderSizePixel = 0,
+				Position = UDim2.fromScale(0.5, 0.52),
+				Rotation = 45,
+				Size = UDim2.fromScale(0.54, 0.54),
+				ZIndex = 147,
+			})
+			addCorner(artBloom, 5)
+			local art = create("ImageLabel", artFrame, {
+				Name = "ItemArt",
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(3, 3),
+				ScaleType = Enum.ScaleType.Fit,
+				Size = UDim2.new(1, -6, 1, -6),
+				ZIndex = 148,
+			})
+			local petPreview = createPetViewport(artFrame, "ItemPetPreview", 149)
+			local lockedVeil = create("Frame", artFrame, {
+				Name = "LockedArtVeil",
+				BackgroundColor3 = Color3.fromRGB(1, 5, 9),
+				BackgroundTransparency = 0.24,
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(2, 2),
+				Size = UDim2.new(1, -4, 1, -4),
+				Visible = false,
+				ZIndex = 149,
+			})
+			addCorner(lockedVeil, 2)
+			local lockedMessage = create("TextLabel", lockedVeil, {
+				Name = "LockedArtMessage",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BackgroundColor3 = PALETTE.RedDark,
+				BackgroundTransparency = 0.04,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBlack,
+				Position = UDim2.fromScale(0.5, 0.56),
+				Size = UDim2.new(1, -14, 0, 28),
+				Text = "[ LOCKED ]",
+				TextColor3 = PALETTE.Text,
+				TextSize = 9,
+				TextWrapped = true,
+				ZIndex = 150,
+			})
+			addCorner(lockedMessage, 2)
+			addStroke(lockedMessage, Color3.fromRGB(255, 94, 75), 1, 0.12)
 
-		local rarity = create("TextLabel", card, {
-			Name = "ItemRarity",
-			BackgroundColor3 = accent,
-			BackgroundTransparency = 0.02,
-			BorderSizePixel = 0,
-			Font = Enum.Font.GothamBlack,
-			Position = UDim2.fromOffset(7, 9),
-			Size = UDim2.new(0.62, -7, 0, 18),
-			Text = string.upper(tostring(item.rarity or "Common")),
-			TextColor3 = contrastText(accent),
-			TextSize = 9,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 149,
-		})
-		addCorner(rarity, 2)
-		create("UIPadding", rarity, {
-			PaddingLeft = UDim.new(0, 6),
-			PaddingRight = UDim.new(0, 4),
-		})
+			local rarity = create("TextLabel", card, {
+				Name = "ItemRarity",
+				BackgroundColor3 = accent,
+				BackgroundTransparency = 0.02,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBlack,
+				Position = UDim2.fromOffset(7, 10),
+				Size = UDim2.new(0.62, -7, 0, 18),
+				Text = "",
+				TextSize = 9,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				ZIndex = 149,
+			})
+			addCorner(rarity, 2)
+			create("UIPadding", rarity, {
+				PaddingLeft = UDim.new(0, 6),
+				PaddingRight = UDim.new(0, 4),
+			})
 
-		local name = create("TextLabel", card, {
-			Name = "ItemName",
-			BackgroundColor3 = Color3.fromRGB(2, 9, 14),
-			BackgroundTransparency = 0.04,
-			BorderSizePixel = 0,
-			Font = Enum.Font.GothamBlack,
-			Position = UDim2.new(0, 6, 1, -35),
-			Size = UDim2.new(1, -12, 0, 29),
-			Text = tostring(item.displayName or item.name or "Unknown Item"),
-			TextColor3 = PALETTE.Text,
-			TextScaled = true,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			TextWrapped = true,
-			ZIndex = 149,
-		})
-		addTextLimit(name, 8, 12)
+			local name = create("TextLabel", card, {
+				Name = "ItemName",
+				BackgroundColor3 = Color3.fromRGB(2, 9, 14),
+				BackgroundTransparency = 0.04,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBlack,
+				Position = UDim2.new(0, 6, 1, -36),
+				Size = UDim2.new(1, -12, 0, 30),
+				Text = "",
+				TextColor3 = PALETTE.Text,
+				TextScaled = true,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				TextWrapped = true,
+				ZIndex = 149,
+			})
+			addTextLimit(name, 8, 12)
+			local footerRail = create("Frame", card, {
+				Name = "CardFooterRail",
+				AnchorPoint = Vector2.new(0, 1),
+				BackgroundColor3 = accent,
+				BackgroundTransparency = 0.18,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0, 6, 1, -5),
+				Size = UDim2.new(1, -12, 0, 2),
+				ZIndex = 150,
+			})
 
-		if (tonumber(item.quantity) or 1) > 1 then
 			local quantity = create("TextLabel", card, {
 				Name = "ItemQuantity",
 				AnchorPoint = Vector2.new(1, 0),
@@ -1759,33 +2663,31 @@ function InventoryUI:_renderGrid()
 				Font = Enum.Font.GothamBlack,
 				Position = UDim2.new(1, -7, 0, 9),
 				Size = UDim2.fromOffset(38, 22),
-				Text = "x" .. formatNumber(item.quantity),
+				Text = "",
 				TextColor3 = PALETTE.Text,
 				TextSize = 11,
+				Visible = false,
 				ZIndex = 151,
 			})
 			addCorner(quantity, 2)
-			addStroke(quantity, accent, 1, 0.25)
-		end
+			local quantityStroke = addStroke(quantity, accent, 1, 0.25)
 
-		if item.equipped == true then
 			local equipped = create("TextLabel", card, {
 				Name = "EquippedBadge",
 				BackgroundColor3 = PALETTE.Green,
 				BorderSizePixel = 0,
 				Font = Enum.Font.GothamBlack,
-				Position = UDim2.fromOffset(8, 32),
+				Position = UDim2.fromOffset(8, 34),
 				Size = UDim2.fromOffset(62, 20),
 				Text = "EQUIPPED",
 				TextColor3 = Color3.fromRGB(4, 20, 8),
 				TextSize = 8,
+				Visible = false,
 				ZIndex = 151,
 			})
 			addCorner(equipped, 2)
 			addStroke(equipped, Color3.fromRGB(173, 255, 138), 1, 0.28)
-		end
 
-		if item.locked == true then
 			local locked = create("TextLabel", card, {
 				Name = "LockedBadge",
 				AnchorPoint = Vector2.new(1, 0),
@@ -1797,36 +2699,260 @@ function InventoryUI:_renderGrid()
 				Text = "LOCKED",
 				TextColor3 = PALETTE.Text,
 				TextSize = 8,
+				Visible = false,
 				ZIndex = 151,
 			})
 			addCorner(locked, 2)
 			addStroke(locked, Color3.fromRGB(255, 105, 83), 1, 0.18)
+
+			cardRef = {
+				card = card,
+				stroke = cardStroke,
+				gradient = cardGradient,
+				innerStroke = innerStroke,
+				accentBar = accentBar,
+				accentGradient = accentGradient,
+				artFrameStroke = artFrameStroke,
+				artFrameGradient = artFrameGradient,
+				artBloom = artBloom,
+				art = art,
+				petPreview = petPreview,
+				lockedVeil = lockedVeil,
+				lockedMessage = lockedMessage,
+				footerRail = footerRail,
+				rarity = rarity,
+				name = name,
+				quantity = quantity,
+				quantityStroke = quantityStroke,
+				equipped = equipped,
+				locked = locked,
+				accent = accent,
+				hovered = false,
+			}
+			self._cardPool[index] = cardRef
+			table.insert(self._cards, card)
+			self._cardCreateCount = self._cardCreateCount + 1
+
+			self:_connectScoped(self._cardConnections, card.MouseEnter, function()
+				local boundKey = cardRef.key
+				if not boundKey or not card.Visible then
+					return
+				end
+				cardRef.hovered = true
+				self:_applyCardSelectionVisual(boundKey, boundKey == self._selectedKey)
+			end)
+			self:_connectScoped(self._cardConnections, card.MouseLeave, function()
+				local boundKey = cardRef.key
+				if not boundKey or not card.Visible then
+					return
+				end
+				cardRef.hovered = false
+				self:_applyCardSelectionVisual(boundKey, boundKey == self._selectedKey)
+			end)
+			self:_connectScoped(self._cardConnections, card.Activated, function()
+				local key = cardRef.key
+				if key and card.Visible and card.Active then
+					self:SelectItem(key, false)
+				end
+			end)
+		else
+			self._cardReuseCount = self._cardReuseCount + 1
 		end
 
-		self:_connectScoped(self._cardConnections, card.MouseEnter, function()
-			cardRef.hovered = true
-			self:_applyCardSelectionVisual(key, key == self._selectedKey)
-		end)
-		self:_connectScoped(self._cardConnections, card.MouseLeave, function()
-			cardRef.hovered = false
-			self:_applyCardSelectionVisual(key, key == self._selectedKey)
-		end)
-		self:_connectScoped(self._cardConnections, card.Activated, function()
-			self:SelectItem(key, false)
-		end)
-		table.insert(self._cards, card)
+		local card = cardRef.card
+		local accentChanged = cardRef.accent ~= accent
+		cardRef.key = key
+		cardRef.item = item
+		cardRef.accent = accent
+		cardRef.hovered = false
+		card.Name = "ItemCard_" .. safeName(key)
+		card.Active = true
+		card.BackgroundColor3 = selected and PALETTE.CardHover or PALETTE.Card
+		card.LayoutOrder = index
+		card.Parent = self.Grid
+		card.Selectable = true
+		card.Visible = true
+		card:SetAttribute("InventoryKey", key)
+		card:SetAttribute("InventoryCategory", tostring(item.category or ""))
+		card:SetAttribute("InventoryRarity", tostring(item.rarity or "Common"))
+		card:SetAttribute("InventoryEquipped", item.equipped == true)
+		card:SetAttribute("InventoryLocked", item.locked == true)
+		card:SetAttribute(
+			"InventoryLockedTreatment",
+			item.locked == true and "VeilAndBadge" or "Unlocked"
+		)
+		cardRef.stroke.Color = selected and PALETTE.Gold or accent
+		cardRef.stroke.Thickness = selected and 3 or 1.5
+		if accentChanged then
+			cardRef.gradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(7, 20, 29), 0.82)),
+				ColorSequenceKeypoint.new(0.4, Color3.fromRGB(5, 17, 26)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(2, 9, 14)),
+			})
+			cardRef.innerStroke.Color = accent
+			cardRef.accentBar.BackgroundColor3 = accent
+			cardRef.accentGradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.new(1, 1, 1), 0.15)),
+				ColorSequenceKeypoint.new(0.5, accent),
+				ColorSequenceKeypoint.new(1, accent:Lerp(Color3.new(0, 0, 0), 0.28)),
+			})
+			cardRef.artFrameStroke.Color = accent:Lerp(PALETTE.Steel, 0.42)
+			cardRef.artFrameGradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, accent:Lerp(Color3.fromRGB(5, 14, 21), 0.88)),
+				ColorSequenceKeypoint.new(0.55, Color3.fromRGB(3, 12, 19)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(1, 7, 11)),
+			})
+			cardRef.artBloom.BackgroundColor3 = accent
+			cardRef.footerRail.BackgroundColor3 = accent
+		end
+		local art = cardRef.art
+		local usesPetPreview = self:_applyPetPreview(cardRef.petPreview, item)
+		local artMode = usesPetPreview and "ModelMatchedViewportV1" or self:_applyItemArt(art, item)
+		card:SetAttribute("ArtMode", artMode)
+		card:SetAttribute("PreviewPetName", usesPetPreview and tostring(item.previewPet or "") or "")
+		art.Visible = not usesPetPreview
+		art.ImageTransparency = item.locked == true and 0.34 or 0
+		cardRef.rarity.BackgroundColor3 = accent
+		cardRef.rarity.Text = string.upper(tostring(item.rarity or "Common"))
+		cardRef.rarity.TextColor3 = contrastText(accent)
+		cardRef.name.Text = tostring(item.displayName or item.name or "Unknown Item")
+		local quantityValue = tonumber(item.quantity) or 1
+		cardRef.quantity.Visible = quantityValue > 1
+		cardRef.quantity.Text = "x" .. formatNumber(quantityValue)
+		cardRef.quantityStroke.Color = accent
+		cardRef.equipped.Visible = item.equipped == true
+		cardRef.locked.Visible = item.locked == true
+		cardRef.lockedVeil.Visible = item.locked == true
+
+		local keyedRefs = self._cardRefsByKey[key]
+		if not keyedRefs then
+			keyedRefs = {}
+			self._cardRefsByKey[key] = keyedRefs
+		end
+		table.insert(keyedRefs, cardRef)
+		self._activeCardCount = self._activeCardCount + 1
 	end
+	self:_renderSparseSlots()
 	self.Root:SetAttribute("InventoryGridRebuildCount", self._gridRebuildCount)
-	self.Root:SetAttribute("InventoryLiveCardCount", #self._cards)
+	self.Root:SetAttribute("InventoryLiveCardCount", self._activeCardCount)
 	self.Root:SetAttribute("InventoryCardConnectionCount", #self._cardConnections)
+	self.Root:SetAttribute("InventoryCardCreateCount", self._cardCreateCount)
+	self.Root:SetAttribute("InventoryCardReuseCount", self._cardReuseCount)
+	self.Root:SetAttribute(
+		"InventoryCardConnectionsStable",
+		#self._cardConnections == (#self._cards * 3)
+	)
 end
 
 function InventoryUI:_clearActionButtons()
-	self:_disconnectPool(self._actionConnections)
+	table.clear(self._activeActionButtons)
+	table.clear(self._actionModelsByKey)
 	for _, button in ipairs(self._actionButtons) do
-		button:Destroy()
+		button.Visible = false
+		button.Parent = self.ActionPool
+		if button:IsA("TextButton") then
+			button.Active = false
+			button.Selectable = false
+			button:SetAttribute("BoundInventoryKey", "")
+		end
 	end
-	table.clear(self._actionButtons)
+	self.Root:SetAttribute("InventoryActiveActionCount", 0)
+	self.Root:SetAttribute("InventoryEnabledActionCount", 0)
+	self.Root:SetAttribute("InventoryMinimumEnabledActionContrast", 0)
+	self.Root:SetAttribute("InventoryEnabledActionContrastPass", true)
+end
+
+function InventoryUI:_createActionButton(controlKey)
+	local initialStyle = ACTION_STYLES.Disabled
+	local button = create("TextButton", self.ActionPool, {
+		Name = "Action" .. safeName(controlKey),
+		AutoButtonColor = false,
+		BackgroundColor3 = initialStyle.base,
+		BorderSizePixel = 0,
+		Font = Enum.Font.GothamBlack,
+		Size = UDim2.new(1, 0, 0, 44),
+		Text = "",
+		TextColor3 = initialStyle.text,
+		TextSize = 12,
+		Visible = false,
+		ZIndex = 153,
+	})
+	button:SetAttribute("InventoryActionControlKey", controlKey)
+	button:SetAttribute("InventoryActionVisualState", "Disabled")
+	button:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
+	addCorner(button, 3)
+	local stroke = addStroke(button, initialStyle.stroke, 1.5, 0.15)
+	local gradient = addGradient(button, TEXT_SAFE_GRADIENT, 90)
+
+	local buttonRef = {
+		button = button,
+		stroke = stroke,
+		gradient = gradient,
+		controlKey = controlKey,
+	}
+	self._actionButtonRefsByKey[controlKey] = buttonRef
+	table.insert(self._actionButtons, button)
+	self:_connectScoped(self._actionConnections, button.Activated, function()
+		local boundModel = self._actionModelsByKey[controlKey]
+		if self._destroyed
+			or not button.Visible
+			or not button.Active
+			or type(boundModel) ~= "table"
+		then
+			return
+		end
+		self._actionCallbackCount = self._actionCallbackCount + 1
+		self.Root:SetAttribute("InventoryActionCallbackCount", self._actionCallbackCount)
+		self:InvokeAction({
+			key = boundModel.itemKey,
+			action = boundModel.semanticName,
+		})
+	end)
+	self._actionCreateCount = self._actionCreateCount + 1
+	self.Root:SetAttribute("InventoryActionCreateCount", self._actionCreateCount)
+	self.Root:SetAttribute(
+		"InventoryAuditedTextGradientControlCount",
+		#CATEGORIES + 3 + self._actionCreateCount + (self._viewOnlyAction and 1 or 0)
+	)
+	self.Root:SetAttribute("InventoryActionConnectionCount", #self._actionConnections)
+	self.Root:SetAttribute(
+		"InventoryActionConnectionsStable",
+		#self._actionConnections == self._actionCreateCount
+	)
+	return buttonRef
+end
+
+function InventoryUI:_ensureViewOnlyAction()
+	if self._viewOnlyAction and self._viewOnlyAction.Parent then
+		return self._viewOnlyAction
+	end
+	local label = create("TextLabel", self.ActionPool, {
+		Name = "ActionViewOnly",
+		BackgroundColor3 = ACTION_STYLES.Disabled.base,
+		BorderSizePixel = 0,
+		Font = Enum.Font.GothamBlack,
+		LayoutOrder = 1,
+		Size = UDim2.new(1, 0, 0, 44),
+		Text = "VIEW ONLY",
+		TextColor3 = PALETTE.Muted,
+		TextSize = 11,
+		Visible = false,
+		ZIndex = 153,
+	})
+	label:SetAttribute("InventoryActionVisualState", "Disabled")
+	label:SetAttribute("InventoryActionStyle", "Disabled")
+	label:SetAttribute("InventoryActionContrastRatio", minimumStyleContrast(ACTION_STYLES.Disabled))
+	label:SetAttribute("InventoryTextGradientMode", "NeutralMultiplier")
+	addCorner(label, 3)
+	addStroke(label, PALETTE.SteelLight, 1.5, 0.25)
+	addGradient(label, TEXT_SAFE_GRADIENT, 90)
+	self._viewOnlyAction = label
+	table.insert(self._actionButtons, label)
+	self.Root:SetAttribute(
+		"InventoryAuditedTextGradientControlCount",
+		#CATEGORIES + 4 + self._actionCreateCount
+	)
+	return label
 end
 
 function InventoryUI:_renderDetail()
@@ -1843,10 +2969,18 @@ function InventoryUI:_renderDetail()
 		self.DetailCategoryTag.BackgroundColor3 = Color3.fromRGB(5, 26, 36)
 		self.DetailDescription.Text = "Choose an item to inspect its live server-backed state."
 		self.DetailStatus.Text = "NO ITEM SELECTED"
+		self.DetailStatus.Visible = true
+		self.Root:SetAttribute("InventoryDetailStatusTreatment", "EmptyPrompt")
 		self.DetailArt.Image = ""
+		self.DetailArt.Visible = true
+		self:_clearPetPreview(self.DetailPetPreview)
+		self.DetailArtFrame:SetAttribute("ArtMode", "NativeFallback")
 		self.DetailArtGlow.BackgroundColor3 = PALETTE.Cyan
 		self.DetailStroke.Color = PALETTE.CyanSoft
 		self.DetailArtStroke.Color = PALETTE.CyanSoft
+		self.DetailArtCoreStroke.Color = PALETTE.CyanSoft
+		self.DetailDescriptionStroke.Color = PALETTE.Steel
+		self.DetailStatus.StatusSignal.BackgroundColor3 = PALETTE.Cyan
 		for _, widgets in ipairs(self.DetailStatRows) do
 			widgets.value.Text = "--"
 			widgets.value.TextColor3 = PALETTE.Muted
@@ -1872,10 +3006,18 @@ function InventoryUI:_renderDetail()
 		and ("OWNED ITEM  //  SLOT " .. tostring(item.slot))
 		or "OWNED ITEM  //  SERVER VERIFIED"
 	self.DetailDescription.Text = tostring(item.description or item.detail or "No additional item details.")
+	self.DetailStatus.Visible = false
+	self.Root:SetAttribute("InventoryDetailStatusTreatment", "StateRowAndAction")
 	self.DetailStroke.Color = accent
 	self.DetailArtStroke.Color = accent
+	self.DetailArtCoreStroke.Color = accent
+	self.DetailDescriptionStroke.Color = accent:Lerp(PALETTE.Steel, 0.52)
 	self.DetailArtGlow.BackgroundColor3 = accent
-	self:_applyItemArt(self.DetailArt, item)
+	local usesPetPreview = self:_applyPetPreview(self.DetailPetPreview, item)
+	local detailArtMode = usesPetPreview and "ModelMatchedViewportV1" or self:_applyItemArt(self.DetailArt, item)
+	self.DetailArt.Visible = not usesPetPreview
+	self.DetailArtFrame:SetAttribute("ArtMode", detailArtMode)
+	self.DetailArtFrame:SetAttribute("PreviewPetName", usesPetPreview and tostring(item.previewPet or "") or "")
 
 	local statusParts = {}
 	if item.equipped == true then
@@ -1895,6 +3037,7 @@ function InventoryUI:_renderDetail()
 	end
 	self.DetailStatus.Text = table.concat(statusParts, "  |  ")
 	self.DetailStatus.TextColor3 = item.locked == true and PALETTE.Gold or item.equipped == true and PALETTE.Green or PALETTE.Cyan
+	self.DetailStatus.StatusSignal.BackgroundColor3 = self.DetailStatus.TextColor3
 	local stateName = item.locked == true and "LOCKED"
 		or item.equipped == true and "EQUIPPED"
 		or item.viewOnly == true and "VIEW ONLY"
@@ -1907,63 +3050,105 @@ function InventoryUI:_renderDetail()
 		widgets.marker.BackgroundColor3 = statColors[index]
 	end
 
+	local renderedCount = 0
 	local enabledCount = 0
+	local minimumEnabledContrast = math.huge
+	local actionKeyOccurrences = {}
 	for order, action in ipairs(itemActions(item)) do
-		if actionEnabled(action) then
+		local actionModel = type(action) == "table" and action or {
+			name = tostring(action or "Action"),
+			enabled = false,
+		}
+		local enabled = actionEnabled(actionModel)
+		renderedCount = renderedCount + 1
+		if enabled then
 			enabledCount = enabledCount + 1
-			local semanticName = actionName(action)
-			local destructive = action.destructive == true or action.confirm == true or normalize(semanticName) == "delete"
-			local awaitingConfirmation = destructive
-				and self._deleteConfirmKey == tostring(item.key)
-				and os.clock() <= self._deleteConfirmUntil
-			local buttonColor = destructive and PALETTE.Danger or asColor(action.accent, order == 1 and PALETTE.Green or PALETTE.CyanSoft)
-			local label = awaitingConfirmation and "CONFIRM DELETE" or tostring(action.label or semanticName)
-			local button = create("TextButton", self.DetailActions, {
-				Name = "Action" .. safeName(semanticName),
-				AutoButtonColor = false,
-				BackgroundColor3 = buttonColor,
-				BorderSizePixel = 0,
-				Font = Enum.Font.GothamBlack,
-				LayoutOrder = action.primary == true and 0 or order,
-				Size = UDim2.new(1, 0, 0, 44),
-				Text = string.upper(label),
-				TextColor3 = PALETTE.Text,
-				TextSize = 12,
-				ZIndex = 153,
-			})
-			button:SetAttribute("InventoryAction", semanticName)
-			button:SetAttribute("Destructive", destructive)
-			addCorner(button, 3)
-			addStroke(button, destructive and Color3.fromRGB(255, 113, 83) or Color3.fromRGB(155, 236, 255), 1.5, 0.15)
-			addGradient(button, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(0.52, Color3.fromRGB(215, 235, 245)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 185, 205)),
-			}), 90)
-			self:_connectScoped(self._actionConnections, button.Activated, function()
-				self:InvokeAction(semanticName)
-			end)
-			table.insert(self._actionButtons, button)
 		end
+		local semanticName = actionName(actionModel)
+		local semanticKey = normalize(semanticName)
+		if semanticKey == "" then
+			semanticKey = "action"
+		end
+		actionKeyOccurrences[semanticKey] = (actionKeyOccurrences[semanticKey] or 0) + 1
+		local controlKey = actionKeyOccurrences[semanticKey] == 1
+			and semanticKey
+			or string.format("%s:%d", semanticKey, actionKeyOccurrences[semanticKey])
+		local destructive = actionModel.destructive == true
+			or actionModel.confirm == true
+			or normalize(semanticName) == "delete"
+		local awaitingConfirmation = enabled
+			and destructive
+			and self._deleteConfirmKey == tostring(item.key)
+			and os.clock() <= self._deleteConfirmUntil
+		local label = awaitingConfirmation
+			and "CONFIRM DELETE"
+			or tostring(actionModel.label or semanticName)
+		local style, styleName = actionVisualStyle(
+			semanticName,
+			destructive,
+			actionModel.primary == true,
+			enabled
+		)
+		local styleContrast = minimumStyleContrast(style)
+		local buttonRef = self._actionButtonRefsByKey[controlKey]
+			or self:_createActionButton(controlKey)
+		local button = buttonRef.button
+		button.Name = "Action" .. safeName(controlKey)
+		button.Active = enabled
+		button.BackgroundColor3 = style.base
+		button.BackgroundTransparency = enabled and 0 or 0.08
+		button.LayoutOrder = actionModel.primary == true and 0 or order
+		button.Parent = self.DetailActions
+		button.Selectable = enabled
+		button.Text = string.upper(label)
+		button.TextColor3 = style.text
+		button.TextStrokeColor3 = style.text == PALETTE.Ink and Color3.fromRGB(255, 255, 255)
+			or Color3.fromRGB(0, 0, 0)
+		button.TextStrokeTransparency = enabled and 0.82 or 1
+		button.Visible = true
+		button:SetAttribute("InventoryAction", semanticName)
+		button:SetAttribute("InventoryActionEnabled", enabled)
+		button:SetAttribute("InventoryActionVisualState", enabled and "Enabled" or "Disabled")
+		button:SetAttribute("InventoryActionStyle", styleName)
+		button:SetAttribute("InventoryActionBaseColor", style.base)
+		button:SetAttribute("InventoryActionContrastRatio", styleContrast)
+		button:SetAttribute("Destructive", destructive)
+		button:SetAttribute("BoundInventoryKey", tostring(item.key))
+		buttonRef.stroke.Color = style.stroke
+		buttonRef.stroke.Transparency = enabled and 0.05 or 0.38
+		buttonRef.stroke.Thickness = enabled and 2 or 1.25
+		buttonRef.gradient.Color = TEXT_SAFE_GRADIENT
+		if enabled then
+			minimumEnabledContrast = math.min(minimumEnabledContrast, styleContrast)
+			self._actionModelsByKey[controlKey] = {
+				itemKey = tostring(item.key),
+				semanticName = semanticName,
+			}
+		end
+		table.insert(self._activeActionButtons, button)
 	end
 
-	if enabledCount == 0 then
-		local label = create("TextLabel", self.DetailActions, {
-			Name = "ActionViewOnly",
-			BackgroundColor3 = PALETTE.Disabled,
-			BorderSizePixel = 0,
-			Font = Enum.Font.GothamBlack,
-			LayoutOrder = 1,
-			Size = UDim2.new(1, 0, 0, 44),
-			Text = "VIEW ONLY",
-			TextColor3 = PALETTE.Muted,
-			TextSize = 11,
-			ZIndex = 153,
-		})
-		addCorner(label, 3)
-		addStroke(label, PALETTE.SteelLight, 1.5, 0.25)
-		table.insert(self._actionButtons, label)
+	if renderedCount == 0 then
+		local label = self:_ensureViewOnlyAction()
+		label.Parent = self.DetailActions
+		label.Visible = true
+		table.insert(self._activeActionButtons, label)
 	end
+	self.Root:SetAttribute("InventoryEnabledActionCount", enabledCount)
+	self.Root:SetAttribute(
+		"InventoryMinimumEnabledActionContrast",
+		minimumEnabledContrast < math.huge and minimumEnabledContrast or 0
+	)
+	self.Root:SetAttribute(
+		"InventoryEnabledActionContrastPass",
+		enabledCount == 0 or minimumEnabledContrast >= 4.5
+	)
+	self.Root:SetAttribute("InventoryActiveActionCount", #self._activeActionButtons)
+	self.Root:SetAttribute("InventoryActionConnectionCount", #self._actionConnections)
+	self.Root:SetAttribute(
+		"InventoryActionConnectionsStable",
+		#self._actionConnections == self._actionCreateCount
+	)
 	self:_syncDetailVisibility()
 end
 
@@ -1998,7 +3183,8 @@ function InventoryUI:_applyFilter(resetDrawer)
 	self:_updateCapacity()
 	self:_renderCategories()
 	self:_renderGrid()
-	self:_renderDetail()
+	self:_clearActionButtons()
+	self:_requestDetailRender("filter")
 	self.Root:SetAttribute("InventoryCategory", self._category)
 	self.Root:SetAttribute("InventorySearch", self._search)
 	self.Root:SetAttribute("InventoryRarity", self._rarity)
@@ -2018,6 +3204,7 @@ function InventoryUI:SetVisible(visible)
 		self:ApplyResponsive(viewport, viewport.X < 900 or viewport.Y < 520, self._layout.uiScale)
 	else
 		self:_cancelDeleteConfirmation(false)
+		self:_cancelPendingDetailRender()
 		self:_setRarityMenu(false)
 	end
 	self.Root.Visible = visible
@@ -2063,6 +3250,9 @@ function InventoryUI:SetCategory(name, includeDiagnostics)
 	local requested = normalize(name)
 	for _, category in ipairs(CATEGORIES) do
 		if normalize(category) == requested then
+			if self._rarityMenuOpen then
+				self:_setRarityMenu(false)
+			end
 			self._category = category
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
@@ -2074,6 +3264,9 @@ function InventoryUI:SetCategory(name, includeDiagnostics)
 end
 
 function InventoryUI:SetSearch(text, includeDiagnostics)
+	if self._rarityMenuOpen then
+		self:_setRarityMenu(false)
+	end
 	self._search = tostring(text or "")
 	if self.Search.Text ~= self._search then
 		self._updatingSearch = true
@@ -2090,6 +3283,9 @@ function InventoryUI:SetRarity(name, includeDiagnostics)
 	local requested = normalize(name)
 	for _, rarity in ipairs(RARITIES) do
 		if normalize(rarity) == requested then
+			if self._rarityMenuOpen then
+				self:_setRarityMenu(false)
+			end
 			self._rarity = rarity
 			self:_applyFilter(true)
 			self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
@@ -2105,6 +3301,9 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 	if not item then
 		return self:_snapshotResult(includeDiagnostics)
 	end
+	if self._rarityMenuOpen then
+		self:_setRarityMenu(false)
+	end
 	local previousKey = self._selectedKey
 	self:_cancelDeleteConfirmation(false)
 	self._selectedKey = tostring(item.key)
@@ -2116,7 +3315,8 @@ function InventoryUI:SelectItem(key, includeDiagnostics)
 		self._selectionVisualUpdateCount = self._selectionVisualUpdateCount + 1
 		self.Root:SetAttribute("InventorySelectionVisualUpdateCount", self._selectionVisualUpdateCount)
 	end
-	self:_renderDetail()
+	self:_clearActionButtons()
+	self:_requestDetailRender("selection")
 	self:ApplyResponsive(self._layout.viewport, self._layout.compact, self._layout.uiScale)
 	self:_syncTimedRefresh()
 	self.Root:SetAttribute("InventorySelectedKey", self._selectedKey)
@@ -2172,7 +3372,7 @@ function InventoryUI:InvokeAction(request)
 			self:_armDeleteConfirmation(key)
 			return false, "confirmation_required"
 		end
-		self:_cancelDeleteConfirmation(false)
+		self:_cancelDeleteConfirmation(true)
 	end
 
 	local payload = action.payload
@@ -2188,7 +3388,7 @@ function InventoryUI:InvokeAction(request)
 	end
 	self.Root:SetAttribute("LastInventoryAction", tostring(semanticName))
 	self.Root:SetAttribute("LastInventoryActionKey", tostring(item.key))
-	self:_renderDetail()
+	self:_requestDetailRender("action_dispatch")
 	return true
 end
 
@@ -2199,17 +3399,26 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	if viewport.X < 1 or viewport.Y < 1 then
 		viewport = Vector2.new(1280, 720)
 	end
-	local scale = math.clamp(tonumber(uiScale) or 1, 0.75, 1.15)
+	local scale = math.clamp(tonumber(uiScale) or 1, 0.75, 1.20)
 	local availableWidth = viewport.X / scale
 	local availableHeight = viewport.Y / scale
 	local useCompact = compact == true or viewport.X < 900 or viewport.Y < 520
-	local touchTarget = math.ceil(44 / math.min(scale, 1))
-	local headerHeight = useCompact and math.max(60, touchTarget + 12) or math.max(80, touchTarget + 24)
-	local windowWidth = useCompact and math.max(480, availableWidth - 12)
-		or math.min(1180, availableWidth - 32)
-	local windowHeight = useCompact and math.max(300, availableHeight - 12) or math.min(720, availableHeight - 28)
-	windowWidth = math.max(480, windowWidth)
-	windowHeight = math.max(300, windowHeight)
+	local touchTarget = math.ceil(44 / scale)
+	local headerHeight = useCompact and math.max(54, touchTarget + 10) or math.max(68, touchTarget + 16)
+	local compactSafeInsetX = 20
+	local compactSafeInsetY = 24
+	local compactMinimumWidth = 320 / scale
+	local compactMinimumHeight = 280 / scale
+	local compactMaximumWidth = math.max(1, (viewport.X - compactSafeInsetX) / scale)
+	local compactMaximumHeight = math.max(1, (viewport.Y - compactSafeInsetY) / scale)
+	local compactDesiredWidth = math.max(compactMinimumWidth, availableWidth - 12)
+	local compactDesiredHeight = math.max(compactMinimumHeight, availableHeight - 12)
+	local windowWidth = useCompact
+			and math.min(compactDesiredWidth, compactMaximumWidth)
+		or math.max(320, math.min(1180, availableWidth - 32))
+	local windowHeight = useCompact
+			and math.min(compactDesiredHeight, compactMaximumHeight)
+		or math.max(280, math.min(720, availableHeight - 28))
 
 	self._layout.viewport = viewport
 	self._layout.compact = useCompact
@@ -2220,7 +3429,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.WindowShadow.Size = UDim2.fromOffset(windowWidth * scale, windowHeight * scale)
 	self.Header.Size = UDim2.new(1, -16, 0, headerHeight)
 	self.HeaderShadow.Size = UDim2.new(1, -20, 0, headerHeight)
-	local bodyTop = headerHeight + 16
+	local bodyTop = headerHeight + 12
 	self.Body.Position = UDim2.fromOffset(8, bodyTop)
 	self.Body.Size = UDim2.new(1, -16, 1, -(bodyTop + 8))
 	self.Subtitle.Visible = false
@@ -2230,24 +3439,53 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	local titleLeft = useCompact and 145 or 30
 	self.Title.Position = UDim2.fromOffset(titleLeft, 5)
 	self.Title.Size = UDim2.new(1, -(titleLeft + math.max(touchTarget, useCompact and 44 or 50) + 30), 1, -13)
-	self.HeaderPattern.Visible = not useCompact
-	self.HeaderSlash.Visible = not useCompact
+	self.HeaderPattern.Visible = not useCompact and windowWidth >= 980
+	self.HeaderSlash.Visible = false
 	self.Close.Size = UDim2.fromOffset(math.max(touchTarget, useCompact and 44 or 50), math.max(touchTarget, useCompact and 44 or 50))
 
 	local bodyWidth = windowWidth - 16
 	local bodyHeight = windowHeight - bodyTop - 8
+	local wideCategoryWidth = math.clamp(windowWidth * 0.145, 152, WIDE_CATEGORY_WIDTH)
+	local detailWidth = math.clamp(windowWidth * 0.285, 282, 320)
+	local gridPaneWidth = useCompact and bodyWidth - 8
+		or bodyWidth
+			- (4 + wideCategoryWidth + WIDE_CATEGORY_GAP)
+			- detailWidth
+			- 12
 	local toolbarHeight = touchTarget
-	local capacityWidth = useCompact and 150 or 172
-	local rarityWidth = useCompact and 132 or 142
-	local toolbarGap = 8
+	local toolbarContentWidth = math.max(0, gridPaneWidth - 16)
+	local toolbarWidths = allocateToolbarWidths(toolbarContentWidth, useCompact, touchTarget)
+	local capacityWidth = toolbarWidths.capacity
+	local rarityWidth = toolbarWidths.rarity
+	local searchWidth = toolbarWidths.search
+	local toolbarGap = toolbarWidths.gap
+	self._toolbarCapacityWidth = capacityWidth
+	self._toolbarRarityWidth = rarityWidth
 	self.Toolbar.Size = UDim2.new(1, -16, 0, toolbarHeight)
-	self.Search.Size = UDim2.new(1, -(capacityWidth + rarityWidth + toolbarGap * 2), 0, toolbarHeight)
+	self.Search.Size = UDim2.fromOffset(searchWidth, toolbarHeight)
+	self.Search.TextSize = useCompact and 12 or 13
 	self.SearchGlyph.Size = UDim2.fromOffset(20, toolbarHeight)
-	self.RarityFilter.Position = UDim2.new(1, -(capacityWidth + toolbarGap), 0, 0)
+	self.RarityFilter.AnchorPoint = Vector2.zero
+	self.RarityFilter.Position = UDim2.fromOffset(searchWidth + toolbarGap, 0)
 	self.RarityFilter.Size = UDim2.fromOffset(rarityWidth, toolbarHeight)
-	self.Capacity.Position = UDim2.fromScale(1, 0)
+	self.Capacity.AnchorPoint = Vector2.zero
+	self.Capacity.Position = UDim2.fromOffset(
+		searchWidth + toolbarGap + rarityWidth + toolbarGap,
+		0
+	)
 	self.Capacity.Size = UDim2.fromOffset(capacityWidth, toolbarHeight)
-	self.Capacity.TextSize = useCompact and 9 or 10
+	self.Capacity.TextSize = capacityWidth < 104 and 10 or useCompact and 11 or 12
+	self.RarityFilter.TextSize = rarityWidth < 104 and 10 or useCompact and 11 or 12
+	self:_updateCapacity()
+	self:_setRarityMenu(self._rarityMenuOpen)
+	self.Toolbar:SetAttribute("InventoryToolbarContentWidth", toolbarWidths.total * scale)
+	self.Toolbar:SetAttribute("InventoryToolbarUsedWidth", toolbarWidths.used * scale)
+	self.Toolbar:SetAttribute("InventoryToolbarNoOverlap", toolbarWidths.noOverlap)
+	self.Search:SetAttribute("InventoryAdaptiveMinimumWidth", toolbarWidths.minimumSearch * scale)
+	self.Search:SetAttribute("InventoryExpectedWidth", searchWidth * scale)
+	self.Search:SetAttribute("InventoryReadableWidth", toolbarWidths.readable)
+	self.RarityFilter:SetAttribute("InventoryExpectedWidth", rarityWidth * scale)
+	self.Capacity:SetAttribute("InventoryExpectedWidth", capacityWidth * scale)
 	local rarityMenuTop = toolbarHeight + 12
 	local desiredRarityMenuHeight = #RARITIES * touchTarget + 12
 	local availableRarityMenuHeight = bodyHeight - rarityMenuTop - 12
@@ -2259,7 +3497,8 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		touchTarget + 12,
 		math.min(desiredRarityMenuHeight, math.max(touchTarget + 12, availableRarityMenuHeight))
 	)
-	self.RarityMenu.Position = UDim2.new(1, -(8 + capacityWidth + toolbarGap), 0, rarityMenuTop)
+	self.RarityMenu.AnchorPoint = Vector2.zero
+	self.RarityMenu.Position = UDim2.fromOffset(8 + searchWidth + toolbarGap, rarityMenuTop)
 	self.RarityMenu.Size = UDim2.fromOffset(rarityWidth, rarityMenuHeight)
 	self.RarityMenu.ScrollBarThickness = rarityMenuHeight < desiredRarityMenuHeight and 5 or 0
 	self.RarityMenu:SetAttribute("InventoryRarityEntryHeight", touchTarget * scale)
@@ -2267,23 +3506,49 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.RarityMenu:SetAttribute("InventoryRarityMenuHeight", rarityMenuHeight * scale)
 	for _, button in pairs(self._rarityButtons) do
 		button.Size = UDim2.new(1, 0, 0, touchTarget)
+		button.TextSize = useCompact and 11 or 13
 	end
 	local gridTop = toolbarHeight + 16
 	self.Grid.Position = UDim2.fromOffset(8, gridTop)
 	self.Grid.Size = UDim2.new(1, -16, 1, -(gridTop + 8))
+	local gridPaneHeightForEmpty = useCompact
+			and math.max(0, bodyHeight - (touchTarget + 8) - 12)
+			or math.max(0, bodyHeight - 8)
+	local availableEmptyHeight = math.max(48, gridPaneHeightForEmpty - gridTop - 16)
+	local emptyHeight = math.min(useCompact and 104 or 132, availableEmptyHeight)
+	local emptyCenterY = gridTop + math.max(0, gridPaneHeightForEmpty - gridTop) * 0.5
+	self.EmptyState.Position = UDim2.new(0.5, 0, 0, math.floor(emptyCenterY))
+	self.EmptyState.Size = UDim2.new(1, useCompact and -24 or -48, 0, emptyHeight)
+	self.EmptySlotRow.Visible = emptyHeight >= 88
+	if self.EmptySlotRow.Visible then
+		local emptySlotHeight = math.clamp(math.floor(emptyHeight * 0.47), 42, 62)
+		self.EmptySlotRow.Size = UDim2.new(1, -20, 0, emptySlotHeight)
+		self.Empty.Position = UDim2.fromOffset(10, emptySlotHeight + 14)
+		self.Empty.Size = UDim2.new(1, -20, 1, -(emptySlotHeight + 20))
+	else
+		self.Empty.Position = UDim2.fromOffset(8, 5)
+		self.Empty.Size = UDim2.new(1, -16, 1, -10)
+	end
+	self.Empty.TextSize = useCompact and 11 or 12
+	self.DetailMetaStrip.Visible = not useCompact
 	if useCompact then
 		local shortCompact = bodyHeight < 330
+		self.DetailArtFrame.AnchorPoint = Vector2.zero
+		self.Root:SetAttribute("InventoryWideActionColumns", 0)
 		self.CategoryBar.Position = UDim2.fromOffset(4, 4)
-		self.CategoryBar.Size = UDim2.new(1, -8, 0, touchTarget + 8)
-		self.CategoryPadding.PaddingTop = UDim.new(0, 4)
-		self.CategoryPadding.PaddingBottom = UDim.new(0, 4)
+		self.CategoryBar.Size = UDim2.new(1, -8, 0, touchTarget + 4)
+		self.CategoryPadding.PaddingTop = UDim.new(0, 2)
+		self.CategoryPadding.PaddingBottom = UDim.new(0, 2)
 		self.CategoryPadding.PaddingLeft = UDim.new(0, 4)
 		self.CategoryPadding.PaddingRight = UDim.new(0, 4)
 		self.CategoryLayout.FillDirection = Enum.FillDirection.Horizontal
 		self.CategoryLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		self.CategoryLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		self.CategoryLayout.Padding = UDim.new(0, 5)
-		local categoryWidth = math.max(78, math.floor((bodyWidth - 8 - 16 - 20) / #CATEGORIES))
+		local categoryWidth = math.max(
+			touchTarget,
+			math.floor((bodyWidth - 8 - 16 - 20) / #CATEGORIES)
+		)
 		for _, category in ipairs(CATEGORIES) do
 			local widgets = self._categoryButtons[category]
 			widgets.button.Size = UDim2.fromOffset(categoryWidth, touchTarget)
@@ -2297,7 +3562,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 			widgets.arrow.Visible = false
 		end
 
-		local categoryHeight = touchTarget + 8
+		local categoryHeight = touchTarget + 4
 		local drawerOpen = self._detailExpanded and self._selectedItem ~= nil
 		local contentHeight = math.max(0, bodyHeight - categoryHeight - 12)
 		local drawerHeight = drawerOpen and contentHeight or 0
@@ -2316,29 +3581,35 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.CompactDetailDrawer.Visible = drawerOpen
 		self.DetailStats.Visible = false
 		self:_syncDetailVisibility()
+		local actionCount = math.max(1, #self._activeActionButtons)
+		local actionColumns = actionCount == 4 and 2 or math.min(3, actionCount)
+		local actionRows = math.ceil(actionCount / actionColumns)
+		local actionAreaHeight = actionRows * touchTarget + math.max(0, actionRows - 1) * 6
 
 		if shortCompact then
 			self.DetailArtFrame.Position = UDim2.fromOffset(12, 14)
 			self.DetailArtFrame.Size = UDim2.fromOffset(76, math.max(80, drawerHeight - 28))
 			self.DetailRarity.Position = UDim2.fromOffset(98, 10)
 			self.DetailRarity.Size = UDim2.fromOffset(92, 17)
-			self.DetailRarity.TextSize = 8
+			self.DetailRarity.TextSize = 9
 			self.DetailCategoryTag.Visible = false
 			self.DetailName.Position = UDim2.fromOffset(98, 29)
 			self.DetailName.Size = UDim2.new(0.48, -106, 0, 30)
 			self.DetailInternalName.Position = UDim2.fromOffset(98, 60)
 			self.DetailInternalName.Size = UDim2.new(0.48, -106, 0, 14)
+			self.DetailInternalName.TextSize = 9
 			self.DetailDescription.Visible = false
 			self.DetailStatus.Position = UDim2.fromOffset(98, math.max(74, drawerHeight - 42))
 			self.DetailStatus.Size = UDim2.new(0.48, -106, 0, 32)
-			self.DetailActions.Position = UDim2.new(0.58, 0, 1, -(touchTarget + 8))
-			self.DetailActions.Size = UDim2.new(0.42, -(touchTarget + 14), 0, touchTarget)
+			self.DetailStatus.TextSize = 10
+			self.DetailActions.Position = UDim2.new(0.58, 0, 1, -(actionAreaHeight + 8))
+			self.DetailActions.Size = UDim2.new(0.42, -(touchTarget + 14), 0, actionAreaHeight)
 		else
 			self.DetailArtFrame.Position = UDim2.fromOffset(12, 18)
 			self.DetailArtFrame.Size = UDim2.fromOffset(118, math.max(112, drawerHeight - 30))
 			self.DetailRarity.Position = UDim2.fromOffset(142, 15)
 			self.DetailRarity.Size = UDim2.fromOffset(100, 19)
-			self.DetailRarity.TextSize = 9
+			self.DetailRarity.TextSize = 10
 			self.DetailCategoryTag.AnchorPoint = Vector2.new(0, 0)
 			self.DetailCategoryTag.Position = UDim2.fromOffset(250, 15)
 			self.DetailCategoryTag.Size = UDim2.fromOffset(92, 19)
@@ -2347,20 +3618,20 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 			self.DetailName.Size = UDim2.new(1, -202, 0, 34)
 			self.DetailInternalName.Position = UDim2.fromOffset(142, 73)
 			self.DetailInternalName.Size = UDim2.new(1, -202, 0, 16)
+			self.DetailInternalName.TextSize = 10
 			self.DetailDescription.Visible = true
 			self.DetailDescription.Position = UDim2.fromOffset(142, 93)
 			self.DetailDescription.Size = UDim2.new(0.47, -28, 1, -103)
-			self.DetailDescription.TextSize = 10
+			self.DetailDescription.TextSize = 11
 			self.DetailStatus.Position = UDim2.new(0.56, 0, 0, 62)
 			self.DetailStatus.Size = UDim2.new(0.44, -14, 0, 34)
+			self.DetailStatus.TextSize = 11
 			self.DetailActions.Position = UDim2.new(0.56, 0, 0, 102)
 			self.DetailActions.Size = UDim2.new(0.44, -14, 1, -112)
 		end
 		self.DetailActionLayout.FillDirection = Enum.FillDirection.Horizontal
 		self.DetailActionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 		self.DetailActionLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		local actionCount = math.max(1, #self._actionButtons)
-		local actionColumns = math.min(3, actionCount)
 		local detailPanelWidth = bodyWidth - 8
 		local actionPanelWidth = shortCompact
 			and (detailPanelWidth * 0.42 - touchTarget - 14)
@@ -2369,7 +3640,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.DetailActionLayout.FillDirectionMaxCells = actionColumns
 		self.DetailActionLayout.CellPadding = UDim2.fromOffset(6, 6)
 		self.DetailActionLayout.CellSize = UDim2.fromOffset(actionWidth, touchTarget)
-		for _, button in ipairs(self._actionButtons) do
+		for _, button in ipairs(self._activeActionButtons) do
 			if button:IsA("TextButton") or button:IsA("TextLabel") then
 				button.TextSize = actionWidth < 84 and 9 or 11
 			end
@@ -2379,8 +3650,8 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.GridPane.Visible = true
 		self.Toolbar.Visible = true
 		self.Grid.Visible = true
-		self.CategoryBar.Position = UDim2.fromOffset(-(WIDE_CATEGORY_WIDTH + WIDE_CATEGORY_GAP), 4)
-		self.CategoryBar.Size = UDim2.fromOffset(WIDE_CATEGORY_WIDTH, bodyHeight - 8)
+		self.CategoryBar.Position = UDim2.fromOffset(4, 4)
+		self.CategoryBar.Size = UDim2.fromOffset(wideCategoryWidth, bodyHeight - 8)
 		self.CategoryPadding.PaddingTop = UDim.new(0, 8)
 		self.CategoryPadding.PaddingBottom = UDim.new(0, 8)
 		self.CategoryPadding.PaddingLeft = UDim.new(0, 8)
@@ -2388,22 +3659,21 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.CategoryLayout.FillDirection = Enum.FillDirection.Vertical
 		self.CategoryLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		self.CategoryLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-		self.CategoryLayout.Padding = UDim.new(0, 8)
+		self.CategoryLayout.Padding = UDim.new(0, 6)
 		for _, category in ipairs(CATEGORIES) do
 			local widgets = self._categoryButtons[category]
-			widgets.button.Size = UDim2.new(1, 0, 0, math.max(62, touchTarget))
+			widgets.button.Size = UDim2.new(1, 0, 0, math.max(56, touchTarget))
 			widgets.button.TextSize = 13
 			widgets.padding.PaddingLeft = UDim.new(0, 50)
 			widgets.padding.PaddingRight = UDim.new(0, 13)
-			widgets.icon.Position = UDim2.fromOffset(-43, 10)
-			widgets.icon.Size = UDim2.fromOffset(42, 42)
+			widgets.icon.Position = UDim2.fromOffset(-41, 8)
+			widgets.icon.Size = UDim2.fromOffset(40, 40)
 			widgets.indicator.Position = UDim2.fromOffset(-50, 5)
 			widgets.indicator.Size = UDim2.new(0, 4, 1, -10)
 			widgets.arrow.Visible = category == self._category
 		end
 
-		local detailWidth = math.clamp(windowWidth * 0.275, 270, 310)
-		local gridX = 4
+		local gridX = 4 + wideCategoryWidth + WIDE_CATEGORY_GAP
 		self.Detail.Position = UDim2.new(1, -detailWidth - 4, 0, 4)
 		self.Detail.Size = UDim2.new(0, detailWidth, 1, -8)
 		self.Detail.Visible = true
@@ -2415,83 +3685,130 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		local detailHeight = bodyHeight - 8
 		self.DetailRarity.Position = UDim2.fromOffset(14, 16)
 		self.DetailRarity.Size = UDim2.fromOffset(104, 22)
-		self.DetailRarity.TextSize = 10
+		self.DetailRarity.TextSize = 11
 		self.DetailCategoryTag.AnchorPoint = Vector2.new(1, 0)
 		self.DetailCategoryTag.Position = UDim2.new(1, -14, 0, 16)
 		self.DetailCategoryTag.Size = UDim2.fromOffset(98, 22)
+		self.DetailCategoryTag.TextSize = 10
 		self.DetailCategoryTag.Visible = true
 		self.DetailName.Position = UDim2.fromOffset(14, 43)
 		self.DetailName.Size = UDim2.new(1, -28, 0, 36)
 		self.DetailInternalName.Position = UDim2.fromOffset(14, 79)
 		self.DetailInternalName.Size = UDim2.new(1, -28, 0, 16)
+		self.DetailInternalName.TextSize = 11
 
 		local artY = 102
-		local artHeight = math.clamp(detailHeight * 0.28, 132, 174)
-		self.DetailArtFrame.Position = UDim2.fromOffset(14, artY)
-		self.DetailArtFrame.Size = UDim2.new(1, -28, 0, artHeight)
-		local artBottom = artY + artHeight
-		local actionRows = math.ceil(math.max(1, #self._actionButtons) / 2)
+		local artSize = math.clamp(detailHeight * 0.245, 124, 154)
+		self.DetailArtFrame.AnchorPoint = Vector2.new(0.5, 0)
+		self.DetailArtFrame.Position = UDim2.new(0.5, 0, 0, artY)
+		self.DetailArtFrame.Size = UDim2.fromOffset(artSize, artSize)
+		local artBottom = artY + artSize
+		local wideActionCount = math.max(1, #self._activeActionButtons)
+		local actionColumns = wideActionCount == 4 and 2 or math.min(3, wideActionCount)
+		self.Root:SetAttribute("InventoryWideActionColumns", actionColumns)
+		local actionRows = math.ceil(wideActionCount / actionColumns)
 		local actionAreaHeight = actionRows * touchTarget + math.max(0, actionRows - 1) * 6
-		local statusY = detailHeight - actionAreaHeight - 58
+		local actionY = detailHeight - actionAreaHeight - 8
+		local statusY = actionY - (self.DetailStatus.Visible and 50 or 0)
 		local statsHeight = 86
 		local statsY = statusY - statsHeight - 8
 		local descriptionY = artBottom + 10
-		local showStats = detailHeight >= 540 and statsY >= descriptionY + 46
+		local showStats = detailHeight >= 430 and statsY >= descriptionY + 46
 		local descriptionBottom = showStats and statsY - 8 or statusY - 8
 		self.DetailDescription.Position = UDim2.fromOffset(16, descriptionY)
 		self.DetailDescription.Size = UDim2.new(1, -32, 0, math.max(42, descriptionBottom - descriptionY))
-		self.DetailDescription.TextSize = 11
+		self.DetailDescription.TextSize = 12
 		self.DetailStats.Visible = showStats
 		self.DetailStats.Position = UDim2.fromOffset(14, statsY)
 		self.DetailStats.Size = UDim2.new(1, -28, 0, statsHeight)
 		self.DetailStatus.Position = UDim2.fromOffset(14, statusY)
 		self.DetailStatus.Size = UDim2.new(1, -28, 0, 42)
-		self.DetailActions.Position = UDim2.fromOffset(14, statusY + 50)
+		self.DetailStatus.TextSize = 11
+		self.DetailActions.Position = UDim2.fromOffset(14, actionY)
 		self.DetailActions.Size = UDim2.new(1, -28, 0, actionAreaHeight)
 		self.DetailActionLayout.FillDirection = Enum.FillDirection.Horizontal
 		self.DetailActionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		self.DetailActionLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		local actionColumns = math.min(2, math.max(1, #self._actionButtons))
 		local actionWidth = math.floor((detailWidth - 28 - math.max(0, actionColumns - 1) * 6) / actionColumns)
 		self.DetailActionLayout.FillDirectionMaxCells = actionColumns
 		self.DetailActionLayout.CellPadding = UDim2.fromOffset(6, 6)
 		self.DetailActionLayout.CellSize = UDim2.fromOffset(actionWidth, touchTarget)
-		for _, button in ipairs(self._actionButtons) do
+		for _, button in ipairs(self._activeActionButtons) do
 			if button:IsA("TextButton") or button:IsA("TextLabel") then
 				button.TextSize = 12
 			end
 		end
+		for _, widgets in ipairs(self.DetailStatRows) do
+			widgets.label.TextSize = 10
+			widgets.value.TextSize = 10
+		end
 	end
 
-	local gridPaneWidth = useCompact and bodyWidth - 8
-		or bodyWidth - 4 - math.clamp(windowWidth * 0.275, 270, 310) - 12
-	local gridContentWidth = math.max(280, gridPaneWidth - 24)
-	local columns
+	local gridContentWidth = math.max(1, gridPaneWidth - 24)
+	local preferredColumns
 	if useCompact and viewport.X < 800 then
-		columns = 3
-	elseif useCompact and viewport.X < 900 then
-		columns = 4
+		preferredColumns = 3
+	elseif useCompact then
+		preferredColumns = 4
 	elseif gridContentWidth >= 600 then
-		columns = 5
-	elseif gridContentWidth >= 555 then
-		columns = 4
-	elseif gridContentWidth >= 390 then
-		columns = 3
+		preferredColumns = 5
+	elseif gridContentWidth >= 440 then
+		preferredColumns = 4
 	else
-		columns = 2
+		preferredColumns = 3
 	end
 	local padding = 8
-	local cellWidth = math.max(92, math.floor((gridContentWidth - (columns - 1) * padding) / columns))
+	local minimumCellWidth = math.max(touchTarget, 92)
+	local fittingColumns = math.max(
+		1,
+		math.floor((gridContentWidth + padding) / (minimumCellWidth + padding))
+	)
+	local columns = math.min(preferredColumns, fittingColumns)
+	local cellWidth = math.max(
+		touchTarget,
+		math.floor((gridContentWidth - (columns - 1) * padding) / columns)
+	)
 	local cellHeight = useCompact and math.max(112, math.min(132, cellWidth * 0.9))
 		or math.max(132, math.min(154, cellWidth))
+	for _, cardRef in ipairs(self._cardPool) do
+		cardRef.rarity.TextSize = useCompact and 9 or 10
+		cardRef.quantity.TextSize = useCompact and 10 or 11
+		cardRef.equipped.TextSize = useCompact and 8 or 9
+		cardRef.locked.TextSize = useCompact and 8 or 9
+		cardRef.lockedMessage.TextSize = useCompact and 8 or 9
+	end
+	for _, label in ipairs(self.EmptySlotLabels) do
+		label.TextSize = useCompact and 8 or 9
+	end
 	self._layout.columns = columns
 	self.GridLayout.FillDirectionMaxCells = columns
 	self.GridLayout.CellPadding = UDim2.fromOffset(padding, padding)
 	self.GridLayout.CellSize = UDim2.fromOffset(cellWidth, cellHeight)
+	if self._snapshot then
+		self:_renderSparseSlots()
+	end
+	for _, ref in ipairs(self._sparseSlotPool) do
+		ref.label.TextSize = useCompact and 8 or 9
+	end
 	self.Root:SetAttribute("InventoryCompact", useCompact)
 	self.Root:SetAttribute("InventoryColumns", columns)
 	self.Root:SetAttribute("InventoryMinimumTouchTarget", touchTarget * scale)
 	self.Root:SetAttribute("InventoryDetailMode", self._layout.detailMode)
+	self.Root:SetAttribute("InventoryUIScale", scale)
+	self.Root:SetAttribute("InventoryUIScaleContractMax", 1.20)
+	self.Root:SetAttribute("InventoryRenderedWindowWidth", windowWidth * scale)
+	self.Root:SetAttribute("InventoryRenderedWindowHeight", windowHeight * scale)
+	self.Root:SetAttribute("InventoryViewportWidth", viewport.X)
+	self.Root:SetAttribute("InventoryViewportHeight", viewport.Y)
+	self.Root:SetAttribute(
+		"InventoryWindowBoundsSafe",
+		windowWidth * scale <= viewport.X + 0.5
+			and windowHeight * scale <= viewport.Y + 0.5
+	)
+	self.Root:SetAttribute("InventoryToolbarNoOverlap", toolbarWidths.noOverlap)
+	self.Root:SetAttribute("InventorySearchReadable", toolbarWidths.readable)
+	self.Root:SetAttribute("InventorySearchExpectedWidth", searchWidth * scale)
+	self.Root:SetAttribute("InventorySearchMinimumWidth", toolbarWidths.minimumSearch * scale)
 end
 
 function InventoryUI:_enabledActionNames(item)
@@ -2630,6 +3947,12 @@ function InventoryUI:GetSnapshot()
 			slot = tonumber(item.slot),
 			equipped = item.equipped == true,
 			locked = item.locked == true,
+			artKey = tostring(item.artKey or ""),
+			previewPet = tostring(item.previewPet or ""),
+			fusionOwned = tonumber(item.fusionOwned) or 0,
+			fusionRequired = tonumber(item.fusionRequired) or 0,
+			fusionNextStars = tonumber(item.fusionNextStars) or 0,
+			fusionEnabled = item.fusionEnabled == true,
 			actions = self:_enabledActionNames(item),
 		}
 	end
@@ -2640,6 +3963,16 @@ function InventoryUI:GetSnapshot()
 		if ok then
 			hudHidden = result == true
 		end
+	end
+	local actionVisuals = {}
+	for _, control in ipairs(self._activeActionButtons) do
+		table.insert(actionVisuals, {
+			action = tostring(control:GetAttribute("InventoryAction") or control.Name),
+			enabled = control:GetAttribute("InventoryActionEnabled") == true,
+			state = tostring(control:GetAttribute("InventoryActionVisualState") or ""),
+			style = tostring(control:GetAttribute("InventoryActionStyle") or ""),
+			contrast = tonumber(control:GetAttribute("InventoryActionContrastRatio")) or 0,
+		})
 	end
 	local hasUploadedArt = item and type(item.art) == "string" and item.art ~= ""
 	return {
@@ -2656,8 +3989,25 @@ function InventoryUI:GetSnapshot()
 		layout = {
 			compact = self._layout.compact,
 			columns = self._layout.columns,
+			uiScale = self._layout.uiScale,
 			minTouchTarget = self:_minimumTouchTarget(),
 			detailMode = self._layout.detailMode,
+			renderedWindowWidth = tonumber(self.Root:GetAttribute("InventoryRenderedWindowWidth")) or 0,
+			renderedWindowHeight = tonumber(self.Root:GetAttribute("InventoryRenderedWindowHeight")) or 0,
+			viewportWidth = tonumber(self.Root:GetAttribute("InventoryViewportWidth")) or 0,
+			viewportHeight = tonumber(self.Root:GetAttribute("InventoryViewportHeight")) or 0,
+			boundsSafe = self.Root:GetAttribute("InventoryWindowBoundsSafe") == true,
+			searchWidth = tonumber(self.Root:GetAttribute("InventorySearchExpectedWidth")) or 0,
+			searchMinimum = tonumber(self.Root:GetAttribute("InventorySearchMinimumWidth")) or 0,
+			searchReadable = self.Root:GetAttribute("InventorySearchReadable") == true,
+			toolbarNoOverlap = self.Root:GetAttribute("InventoryToolbarNoOverlap") == true,
+			hoveredCategory = tostring(self.Root:GetAttribute("InventoryHoveredCategory") or ""),
+			capacityMode = tostring(self.Capacity:GetAttribute("InventoryCapacityTextMode") or ""),
+			capacityText = tostring(self.Capacity:GetAttribute("InventoryCapacityRenderedText") or ""),
+			capacityFullText = tostring(self.Capacity:GetAttribute("InventoryCapacityFullText") or ""),
+			capacityReadable = self.Capacity:GetAttribute("InventoryCapacityReadable") == true,
+			rarityMenuOpen = self.Root:GetAttribute("InventoryRarityMenuOpen") == true,
+			rarityMenuZLayer = tonumber(self.Root:GetAttribute("InventoryRarityMenuZLayer")) or 0,
 			rarityMenuBounded = self.RarityMenu:GetAttribute("InventoryRarityMenuBounded") == true,
 			rarityMenuHeight = tonumber(self.RarityMenu:GetAttribute("InventoryRarityMenuHeight")) or 0,
 			rarityEntryHeight = tonumber(self.RarityMenu:GetAttribute("InventoryRarityEntryHeight")) or 0,
@@ -2667,8 +4017,28 @@ function InventoryUI:GetSnapshot()
 		},
 		art = {
 			mode = hasUploadedArt and "UploadedItemArt" or "NativeFallback",
+			chromeMode = tostring(self.Root:GetAttribute("ArtMode") or "ReferenceNativeV3"),
+			cardChromeMode = tostring(self.Root:GetAttribute("InventoryCardChromeMode") or ""),
+			detailChromeMode = tostring(self.Root:GetAttribute("InventoryDetailChromeMode") or ""),
+			emptyTreatment = tostring(self.Root:GetAttribute("InventoryEmptyTreatment") or "Hidden"),
 			magentaFree = true,
 			checkerboardFree = true,
+		},
+		accessibility = {
+			actionContrastTarget = tonumber(self.Root:GetAttribute("InventoryActionContrastTarget")) or 4.5,
+			minimumEnabledActionContrast = tonumber(
+				self.Root:GetAttribute("InventoryMinimumEnabledActionContrast")
+			) or 0,
+			enabledActionContrastPass = self.Root:GetAttribute(
+				"InventoryEnabledActionContrastPass"
+			) == true,
+			textGradientPolicy = tostring(
+				self.Root:GetAttribute("InventoryTextGradientPolicy") or ""
+			),
+			auditedTextGradientControls = tonumber(
+				self.Root:GetAttribute("InventoryAuditedTextGradientControlCount")
+			) or 0,
+			actionVisuals = actionVisuals,
 		},
 		performance = {
 			diagnosticSnapshots = self._diagnosticSnapshotCount,
@@ -2676,8 +4046,23 @@ function InventoryUI:GetSnapshot()
 			gridRebuilds = self._gridRebuildCount,
 			selectionVisualUpdates = self._selectionVisualUpdateCount,
 			liveCards = #self._cards,
+			activeCards = self._activeCardCount,
+			pooledCards = math.max(0, #self._cards - self._activeCardCount),
+			cardCreates = self._cardCreateCount,
+			cardReuses = self._cardReuseCount,
+			sparseSlots = self._activeSparseSlotCount,
+			sparseSlotCreates = self._sparseSlotCreateCount,
+			sparseSlotListeners = 0,
+			sparseSlotsBounded = self._activeSparseSlotCount <= MAX_SPARSE_SLOT_PLACEHOLDERS,
 			cardConnections = #self._cardConnections,
 			cardConnectionBounded = #self._cardConnections <= (#self._cards * 3),
+			actionControls = self._actionCreateCount,
+			activeActions = #self._activeActionButtons,
+			actionConnections = #self._actionConnections,
+			actionCallbacks = self._actionCallbackCount,
+			actionConnectionBounded = #self._actionConnections == self._actionCreateCount,
+			detailRenders = self._detailRenderCount,
+			detailRendersCoalesced = self._detailRenderCoalescedCount,
 			timedRefreshMode = tostring(self.Root:GetAttribute("InventoryTimedRefreshMode") or "Stopped"),
 			timedDetailUpdates = self._timedDetailUpdateCount,
 			timedExpiryRebuilds = self._timedExpiryRebuildCount,
@@ -2687,16 +4072,25 @@ function InventoryUI:GetSnapshot()
 end
 
 function InventoryUI:Destroy()
+	self._destroyed = true
+	self:_cancelPendingDetailRender()
 	self:_cancelDeleteConfirmation(false)
 	self:_stopTimedRefresh()
 	for _, connection in ipairs(self._connections) do
 		connection:Disconnect()
 	end
 	table.clear(self._connections)
-	self:_disconnectPool(self._cardConnections)
+	self:_clearCards()
 	self:_disconnectPool(self._actionConnections)
+	table.clear(self._actionButtonRefsByKey)
+	table.clear(self._activeActionButtons)
+	table.clear(self._actionModelsByKey)
 	table.clear(self._cardRefsByKey)
-	table.clear(self._cards)
+	table.clear(self._sparseSlotPool)
+	for _, master in pairs(self._petPreviewMasters) do
+		if typeof(master) == "Instance" then master:Destroy() end
+	end
+	table.clear(self._petPreviewMasters)
 	if self.Root then
 		self.Root:Destroy()
 	end

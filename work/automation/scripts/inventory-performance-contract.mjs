@@ -3,8 +3,10 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const valueAfter = (name, fallback) => {
   const index = args.indexOf(name);
   return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
@@ -13,15 +15,9 @@ const iterations = Math.max(1, Number(valueAfter("--iterations", "10000")) || 10
 const studioName = valueAfter("--studio-name", "PunchWallRPG");
 const runner = valueAfter(
   "--runner",
-  path.join(
-    os.homedir(),
-    ".codex",
-    "skills",
-    "roblox-studio-mcp-automation",
-    "scripts",
-    "flow_runner.mjs",
-  ),
+  path.join(scriptDirectory, "flow_runner.mjs"),
 );
+const studioInstanceId = valueAfter("--studio-instance-id", "");
 
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`Usage:
@@ -177,7 +173,9 @@ const flow = {
 
 try {
   fs.writeFileSync(flowPath, `${JSON.stringify(flow, null, 2)}\n`, "utf8");
-  const result = spawnSync(process.execPath, [runner, "--flow", flowPath], {
+  const runnerArguments = [runner, "--flow", flowPath];
+  if (studioInstanceId) runnerArguments.push("--studio-instance-id", studioInstanceId);
+  const result = spawnSync(process.execPath, runnerArguments, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     timeout: 120000,

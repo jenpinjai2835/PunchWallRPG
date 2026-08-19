@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "training-station-progression",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean",
+        "four-station matrix and Pet Lab annex are exact and non-overlapping",
+        "threshold minus one rejects base Power even with huge multipliers and never pays later",
+        "each exact threshold starts without free payout then earns its exact one-second rate",
+        "same station is idempotent and active switch pays only the new station rate",
+        "wait for switched training HUD",
+        "switched station HUD and continuous animation display the authoritative station and rate",
+        "switch to Celestial preserves payout serial for compact HUD verification",
+        "wait for compact Celestial training HUD",
+        "compact Celestial HUD keeps station and rate visible without restarting the animation loop",
+        "world reset preserves and reanchors active training without a duplicate payout",
+        "record the single active client loop before stopping",
+        "stop clears movement lock and no server tick leaks afterward",
+        "stop hides the training HUD without starting another client animation loop",
+        "selected station survives respawn and canonical offline gains use its rate and eight-hour cap",
+        "a real rookie station tick crosses the canonical Power growth boundary",
+        "training clamps at the persistence maximum while live growth stays under the gameplay opening",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

@@ -14,7 +14,18 @@ const clientPath = path.join(
   "client",
   "PunchWallClient.client.lua",
 );
+const fistVisualBuilderPath = path.join(
+  repositoryRoot,
+  "work",
+  "punch-wall-rpg",
+  "src",
+  "shared",
+  "FistVisualBuilder.lua",
+);
 const client = fs.readFileSync(clientPath, "utf8").replace(/\r\n?/g, "\n");
+const fistVisualBuilder = fs
+  .readFileSync(fistVisualBuilderPath, "utf8")
+  .replace(/\r\n?/g, "\n");
 const checks = {};
 
 function check(name, condition, detail) {
@@ -143,7 +154,8 @@ check(
   "shop_signature_covers_state_and_layout",
   shop.includes('"HeroShopStateV1"')
     && shop.includes("shopRuntime.CanonicalOwnedList(latestStats.OwnedFistsJSON")
-    && shop.includes("shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumFistsJSON")
+    && shop.includes("shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumPetsJSON")
+    && shop.includes("shopRuntime.CanonicalOwnedList(latestStats.EquippedPetsJSON")
     && shop.includes("latestStats.EquippedFist")
     && shop.includes("shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now)")
     && shop.includes("shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now)")
@@ -212,6 +224,71 @@ check(
   "StatsChanged must still request a refresh; the signature decides whether work is needed.",
 );
 
+check(
+  "studio_harness_uses_isolated_register_frame",
+  client.includes(
+    '\t(function()\n\tlocal automation = gui:FindFirstChild("PunchWallClientAutomation")',
+  )
+    && client.includes("\tend)()\nend\n\nplayer.CharacterAdded:Connect"),
+  "Studio automation must live in a separate closure so production/client locals compile at every optimization level.",
+);
+check(
+  "visual_sanitizer_is_strict_fail_closed",
+  fistVisualBuilder.includes('local SANITIZER_VERSION = "StrictVisualAllowlistV1"')
+    && fistVisualBuilder.includes("local ALLOWED_VISUAL_CLASSES = {")
+    && fistVisualBuilder.includes("if isAllowedVisual(child) then")
+    && fistVisualBuilder.includes("child:Destroy()")
+    && fistVisualBuilder.includes("FistVisualBuilder.AssertSanitizedVisual(root)")
+    && !fistVisualBuilder.includes("removeUnsafeDescendants"),
+  "Imported visuals must use an allowlist, remove every other descendant, and assert the sanitized result.",
+);
+check(
+  "visual_attestation_is_exact_before_clone",
+  client.includes("companionRuntime.PrepareVisualAsset(visualAssetFolder, importedSource)")
+    && client.includes("companionRuntime.CloneSanitizedVisual(importedSource)")
+    && client.includes('container:GetAttribute("SanitizedVisualOnly") == true')
+    && client.includes('asset:GetAttribute("VisualSanitizerVerified") == true')
+    && !client.includes('visualAssetFolder:GetAttribute("SanitizedVisualOnly") ~= false'),
+  "Every imported source/container and runtime clone requires verified true attestation; nil must fail closed.",
+);
+check(
+  "pet_slot_three_is_rear_and_off_center",
+  client.includes("local thirdSlotMultiplier = isPremium and (1.12 + zoomAlpha * 0.1) or 1.65")
+    && client.includes("local thirdSlotRear = isPremium and 0.5 or 1.25")
+    && client.includes("-sideSpacing * thirdSlotMultiplier")
+    && client.includes("rearSpacing + thirdSlotRear / boundedDistanceScale")
+    && !client.includes(
+      "offset = Vector3.new(0, followHeight or 1.05, -2.1 - zoomAlpha * 0.35)",
+    ),
+  "The third companion must remain behind the avatar and outside the centerline.",
+);
+check(
+  "pet_screen_budget_is_enforced",
+  client.includes("function companionRuntime.ResolveVisualPolicy")
+    && client.includes('"Repositioned"')
+    && client.includes('"BudgetLOD"')
+    && client.includes('"CulledAfterBudgetLOD"')
+    && client.includes('model:SetAttribute("BudgetEnforcementOrder", "Reposition>Scale>LOD>Cull")')
+    && client.includes("actualScreenArea > effectiveBudget + 0.0005"),
+  "Screen-area limits must drive bounded reposition, scale, LOD, and final culling rather than telemetry only.",
+);
+check(
+  "reduced_motion_suppresses_high_motion_feedback",
+  client.includes('gui:SetAttribute("ReducedMotionDebrisSuppressed", true)')
+    && client.includes('gui:SetAttribute("ReducedMotionCoinTravelSuppressed", true)')
+    && client.includes('gui:SetAttribute("ReducedMotionTrailSuppressed", true)')
+    && client.includes('gui:SetAttribute("PunchMotionPhase", "StaticFeedback")')
+    && client.includes("if not clientSettings.motion then\n\t\tif updatePunchMotion then updatePunchMotion() end"),
+  "Reduced motion must suppress debris, coin travel, trails, and joint animation while retaining semantic feedback.",
+);
+check(
+  "punch_motion_has_one_deterministic_update_owner",
+  (client.match(/RunService\.PreSimulation:Connect\(updatePunchMotion\)/g) || []).length === 1
+    && !client.includes("RunService.Heartbeat:Connect(updatePunchMotion)")
+    && !client.includes("while punchMotionState == startedState"),
+  "The punch state may be advanced only from PreSimulation, never a per-punch loop plus Heartbeat.",
+);
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -220,7 +297,10 @@ console.log(
       passed,
       total: Object.keys(checks).length,
       checks,
-      files: [path.relative(repositoryRoot, clientPath)],
+      files: [
+        path.relative(repositoryRoot, clientPath),
+        path.relative(repositoryRoot, fistVisualBuilderPath),
+      ],
     },
     null,
     2,

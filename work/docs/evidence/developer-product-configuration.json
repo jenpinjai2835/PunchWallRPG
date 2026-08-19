@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "developer-product-configuration",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for product catalog and regional prices",
+        "live Roblox Developer Product identities and regional prices are available",
+        "all four world offers expose configured authoritative purchase paths",
+        "Shop, Spin modal, and world boards display each player's live regional price",
+        "server automation proves all four authoritative grant mappings then resets state",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

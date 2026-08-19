@@ -1,0 +1,17 @@
+[PunchWallRPG] DataStore disabled for this session: You must publish this place to the web to access DataStore.
+Insufficent permissions to set DevCameraOcclusionMode
+VirtualInput::SendMousePosition: position (1128.3, 108.0) hits CoreGUI.
+Stack Begin
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 284
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 162
+Stack End
+VirtualInput::SendMousePosition: position (1133.8, 122.8) hits CoreGUI.
+Stack Begin
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 284
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 162
+Stack End
+VirtualInput::SendMousePosition: position (1140.4, 140.7) hits CoreGUI.
+Stack Begin
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 284
+Script 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 162
+Stack End

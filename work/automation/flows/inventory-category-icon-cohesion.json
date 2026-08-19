@@ -1,0 +1,38 @@
+{
+  "name": "inventory-category-icon-cohesion",
+  "description": "Verify all five Inventory category icons use one text-free procedural tile system with equal bounds, semantic glyphs, clean alignment, responsive scaling support, and intact category selection.",
+  "studioName": "PunchWallRPG",
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 60000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for Inventory UI" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') assert(a:Invoke('OpenInventory')~=nil,'Inventory did not open') task.wait(.3) local root=g:FindFirstChild('InventoryRoot',true) or g local expected={All='GridTile1',Fists='GlovePalm',Pets='PetEgg',Boosts='BoostBolt',Honor='HonorMedal'} local rows,ok={},true for _,category in ipairs({'All','Fists','Pets','Boosts','Honor'}) do local button=root:FindFirstChild('Category'..category,true) local icon=button and button:FindFirstChild('CategoryIcon') local glyph=icon and icon:FindFirstChild('CategoryGlyph') local semantic=glyph and glyph:FindFirstChild(expected[category],true) local noRaster=icon and icon:FindFirstChildWhichIsA('ImageLabel',true)==nil local sameSize=icon and icon.AbsoluteSize.X==40 and icon.AbsoluteSize.Y==40 local inside=button and icon and icon.AbsolutePosition.X>=button.AbsolutePosition.X and icon.AbsolutePosition.Y>=button.AbsolutePosition.Y and icon.AbsolutePosition.X+icon.AbsoluteSize.X<=button.AbsolutePosition.X+button.AbsoluteSize.X and icon.AbsolutePosition.Y+icon.AbsoluteSize.Y<=button.AbsolutePosition.Y+button.AbsoluteSize.Y local row={category=category,button=button~=nil,icon=icon~=nil,frame=icon and icon:IsA('Frame'),style=icon and icon:GetAttribute('InventoryCategoryIconStyle')=='UnifiedProceduralGlyphV1',embeddedText=icon and icon:GetAttribute('InventoryCategoryIconEmbeddedText'),glyph=semantic~=nil,noRaster=noRaster,sameSize=sameSize,inside=inside} ok=ok and row.button and row.icon and row.frame and row.style and row.embeddedText==false and row.glyph and row.noRaster and row.sameSize and row.inside table.insert(rows,row) end local result={ok=ok and #rows==5,count=#rows,rows=rows} assert(result.ok,'Inventory category icon cohesion mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*5", "\"frame\"\\s*:\\s*true", "\"style\"\\s*:\\s*true", "\"embeddedText\"\\s*:\\s*false", "\"glyph\"\\s*:\\s*true", "\"noRaster\"\\s*:\\s*true", "\"sameSize\"\\s*:\\s*true", "\"inside\"\\s*:\\s*true"],
+      "label": "five category icons share equal text-free procedural tiles"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local root=g:FindFirstChild('InventoryRoot',true) or g local rows,ok={},true for _,category in ipairs({'All','Fists','Pets','Boosts','Honor'}) do assert(a:Invoke('SelectInventoryCategory',category)~=nil,'failed to select '..category) task.wait(.08) local button=root:FindFirstChild('Category'..category,true) local icon=button and button:FindFirstChild('CategoryIcon') local stroke=icon and icon:FindFirstChild('CategoryIconStroke') local row={category=category,state=button and button:GetAttribute('InventoryVisualState'),stroke=stroke and stroke.Thickness or 0,selected=button and button:GetAttribute('InventoryVisualState')=='Selected' and stroke and stroke.Thickness==2} ok=ok and row.selected table.insert(rows,row) end local result={ok=ok and #rows==5,count=#rows,rows=rows} assert(result.ok,'Inventory category selection cohesion mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*5", "\"state\"\\s*:\\s*\"Selected\"", "\"selected\"\\s*:\\s*true"],
+      "label": "every category keeps selected-state feedback and unified icon stroke"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Inventory_Category_Icon_Cohesion" }, "label": "capture polished Inventory category rail" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleBeforeStop", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleBeforeStop", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

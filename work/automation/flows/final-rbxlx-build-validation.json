@@ -1,12 +1,31 @@
 {
   "name": "final-rbxlx-build-validation",
   "description": "Open a byte-for-byte validation copy of the rebuilt final RBXLX and verify the embedded scripts bootstrap the complete player-facing release.",
-  "studioName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+  "studioName": "^PunchWallRPGPlayable_v1_final_validation[.]rbxlx$",
   "pollAttempts": 20,
   "pollMs": 2500,
   "steps": [
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start rebuilt final copy" },
     { "type": "wait", "ms": 8000, "label": "wait for embedded scripts to bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local SSS=game:GetService('ServerScriptService') local SPS=game:GetService('StarterPlayer'):WaitForChild('StarterPlayerScripts') local specs={{RS,'GameConfig','ModuleScript'},{RS,'PolishConfig','ModuleScript'},{RS,'ForestVisualBuilder','ModuleScript'},{RS,'FistVisualBuilder','ModuleScript'},{RS,'InventoryViewModel','ModuleScript'},{SSS,'ProfilePersistence','ModuleScript'},{SSS,'PunchWallBootstrap','Script'},{SPS,'InventoryUI','ModuleScript'},{SPS,'PunchWallClient','LocalScript'}} local wanted={} for _,s in ipairs(specs) do wanted[s[2]]=true end local counts={} for _,d in ipairs(game:GetDescendants()) do if wanted[d.Name] then counts[d.Name]=(counts[d.Name] or 0)+1 end end local exactParents=true local exactClasses=true local unique=true for _,s in ipairs(specs) do local item=s[1]:FindFirstChild(s[2]) exactParents=exactParents and item~=nil and item.Parent==s[1] exactClasses=exactClasses and item~=nil and item.ClassName==s[3] unique=unique and counts[s[2]]==1 end return H:JSONEncode({ok=#specs==9 and exactParents and exactClasses and unique,moduleCount=#specs,exactParents=exactParents,exactClasses=exactClasses,uniqueNames=unique,profile=SSS:FindFirstChild('ProfilePersistence')~=nil,inventoryUI=SPS:FindFirstChild('InventoryUI')~=nil,viewModel=RS:FindFirstChild('InventoryViewModel')~=nil})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"moduleCount\":9",
+        "\"exactParents\":true",
+        "\"exactClasses\":true",
+        "\"uniqueNames\":true",
+        "\"profile\":true",
+        "\"inventoryUI\":true",
+        "\"viewModel\":true"
+      ],
+      "label": "rebuilt final exposes the exact nine-module source map"
+    },
     {
       "type": "call",
       "tool": "execute_luau",

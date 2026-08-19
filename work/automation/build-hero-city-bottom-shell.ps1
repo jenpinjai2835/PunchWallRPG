@@ -1,9 +1,14 @@
 param(
-    [string]$Source = 'C:\Users\JENNAR~1\AppData\Local\Temp\codex-clipboard-bd92603a-d62a-4f52-b48e-46594fb538c8.png',
-    [string]$Output = 'F:\Roblox\PuchWall\work\assets\generated\hero-city-pixel-ui'
+    [Parameter(Mandatory = $true)]
+    [string]$Source,
+    [string]$Output = ""
 )
 
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($Output)) {
+    $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
+    $Output = Join-Path $repositoryRoot "work\assets\generated\hero-city-pixel-ui"
+}
 Add-Type -AssemblyName System.Drawing
 New-Item -ItemType Directory -Force -Path $Output | Out-Null
 $sourceImage = [System.Drawing.Bitmap]::FromFile($Source)

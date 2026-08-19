@@ -1,0 +1,224 @@
+{
+  "name": "inventory-visual-responsive",
+  "description": "Validate the desktop Inventory toolbar at the reported 1277 px viewport plus narrow-phone rendered bounds at UI scales 0.8, 1, and 1.2, bounded compact controls, 44 px touch targets, category hover/focus feedback, selected-state precedence, and clean modal chrome.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='Inventory Visual QA Desktop 1277x720' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1277,Height=720,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": [
+        "\"width\"\\s*:\\s*1277",
+        "\"height\"\\s*:\\s*720",
+        "\"active\"\\s*:\\s*true"
+      ],
+      "label": "set the reported desktop viewport"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 60000,
+      "label": "start desktop play"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for player UI"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') local a=c:Invoke('GrantPet',{name='Forest Pup',stars=1}) local b=c:Invoke('GrantPet',{name='Miner Cat',stars=1}) return H:JSONEncode({ok=a.ok==true and b.ok==true,first=a.ok,second=b.ok})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "seed two normal pets for deterministic composition"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') a:Invoke('OpenInventory') task.wait(.35) local r=g.GameMenu.FunctionalInventory local w=r.InventoryWindow local b=w.InventoryBody local p=b.InventoryGridPane local t=p.InventoryToolbar local s=t.InventorySearch local f=t.RarityFilter local c=t.InventoryCapacity local function overlap(x,y) local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local function inside(x,y) local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X>=yp.X-1 and xp.Y>=yp.Y-1 and xp.X+xs.X<=yp.X+ys.X+1 and xp.Y+xs.Y<=yp.Y+ys.Y+1 end local controlsOk=s.AbsoluteSize.X>=160 and math.min(s.AbsoluteSize.Y,f.AbsoluteSize.X,f.AbsoluteSize.Y,c.AbsoluteSize.X,c.AbsoluteSize.Y)>=44 local bounded=inside(s,t) and inside(f,t) and inside(c,t) and not overlap(s,f) and not overlap(s,c) and not overlap(f,c) local attrs=t:GetAttribute('InventoryToolbarNoOverlap')==true and s:GetAttribute('InventoryReadableWidth')==true and (r:GetAttribute('InventorySearchExpectedWidth') or 0)>=160 and r:GetAttribute('InventorySearchReadable')==true return H:JSONEncode({ok=controlsOk and bounded and attrs,searchWidth=s.AbsoluteSize.X,searchHeight=s.AbsoluteSize.Y,rarityWidth=f.AbsoluteSize.X,capacityWidth=c.AbsoluteSize.X,bounded=bounded,toolbarNoOverlap=t:GetAttribute('InventoryToolbarNoOverlap'),searchReadable=s:GetAttribute('InventoryReadableWidth'),expected=r:GetAttribute('InventorySearchExpectedWidth'),capacityMode=c:GetAttribute('InventoryCapacityTextMode'),capacityFull=c:GetAttribute('InventoryCapacityFullText')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"searchWidth\"\\s*:\\s*(1[6-9][0-9]|[2-9][0-9]{2,})(\\.[0-9]+)?",
+        "\"bounded\"\\s*:\\s*true",
+        "\"toolbarNoOverlap\"\\s*:\\s*true",
+        "\"searchReadable\"\\s*:\\s*true"
+      ],
+      "label": "desktop search stays readable and every toolbar control is bounded"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local G=game:GetService('GuiService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local r=g.GameMenu.FunctionalInventory local bar=r.InventoryWindow.InventoryBody.CategoryBar local fists=bar.CategoryFists local idle=fists:GetAttribute('InventoryVisualState') G.SelectedObject=fists task.wait(.15) local hover=fists:GetAttribute('InventoryVisualState') local hoveredCategory=r:GetAttribute('InventoryHoveredCategory') a:Invoke('SelectInventoryCategory','Fists') task.wait(.15) local selected=fists:GetAttribute('InventoryVisualState') G.SelectedObject=nil task.wait(.1) local selectedAfterFocus=fists:GetAttribute('InventoryVisualState') a:Invoke('SelectInventoryCategory','All') task.wait(.1) local final=fists:GetAttribute('InventoryVisualState') return H:JSONEncode({ok=idle=='Idle' and hover=='Hovered' and hoveredCategory=='Fists' and selected=='Selected' and selectedAfterFocus=='Selected' and final=='Idle' and r:GetAttribute('InventoryCategoryConnectionCount')==25,idle=idle,hover=hover,hoveredCategory=hoveredCategory,selected=selected,selectedAfterFocus=selectedAfterFocus,final=final,connections=r:GetAttribute('InventoryCategoryConnectionCount')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"idle\"\\s*:\\s*\"Idle\"",
+        "\"hover\"\\s*:\\s*\"Hovered\"",
+        "\"hoveredCategory\"\\s*:\\s*\"Fists\"",
+        "\"selected\"\\s*:\\s*\"Selected\"",
+        "\"selectedAfterFocus\"\\s*:\\s*\"Selected\"",
+        "\"final\"\\s*:\\s*\"Idle\"",
+        "\"connections\"\\s*:\\s*25"
+      ],
+      "label": "category focus feedback works and selected state has precedence"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('SelectInventoryCategory','Pets') task.wait(.45) local r=g.GameMenu.FunctionalInventory local parent=r.Parent local parentStroke=parent:FindFirstChildOfClass('UIStroke') local parentAccent=parent:FindFirstChild('HeroAccent') local parentChrome=parent:GetAttribute('InventoryParentChromeSuppressed')==true and parentStroke and parentStroke.Transparency==1 and parentAccent and parentAccent.Visible==false local backdropClean=r:GetAttribute('InventoryBackdropMode')=='InputOnlyTransparent' and r.InventoryBackdrop.BackgroundTransparency==1 local w=r.InventoryWindow local b=w.InventoryBody local bar=b.CategoryBar local pane=b.InventoryGridPane local detail=b.InventoryDetail local grid=pane.InventoryGrid local visibleCards=0 local visiblePlaceholders=0 for _,x in ipairs(grid:GetChildren()) do if x:IsA('GuiObject') and x.Visible then if x:GetAttribute('InventoryPlaceholder')==true then visiblePlaceholders+=1 elseif x:GetAttribute('InventoryKey') then visibleCards+=1 end end end local scale=math.max(.75,tonumber(r:GetAttribute('InventoryUIScale')) or 1) local gapCategory=(pane.AbsolutePosition.X-(bar.AbsolutePosition.X+bar.AbsoluteSize.X))/scale local gapDetail=(detail.AbsolutePosition.X-(pane.AbsolutePosition.X+pane.AbsoluteSize.X))/scale local art=detail.DetailArtFrame local square=math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<=1.5 local actions=0 for _,x in ipairs(detail.DetailActions:GetChildren()) do if (x:IsA('TextButton') or x:IsA('TextLabel')) and x.Visible then actions+=1 end end local logicalHeader=w.InventoryHeader.AbsoluteSize.Y/scale local ok=parentChrome and backdropClean and r:GetAttribute('InventoryCompositionMode')=='CleanThreePaneV4' and r:GetAttribute('InventoryFilteredPlaceholderPolicy')=='HideSyntheticSlots' and r:GetAttribute('InventorySparseSlotMode')=='FilteredHidden' and (r:GetAttribute('InventoryFilteredPlaceholderCount') or -1)==0 and visiblePlaceholders==0 and visibleCards>=2 and gapCategory>=7 and gapDetail>=7 and square and logicalHeader<=70.5 and actions==4 and r:GetAttribute('InventoryWideActionColumns')==2 return H:JSONEncode({ok=ok,parentChrome=parentChrome,backdropClean=backdropClean,cards=visibleCards,placeholders=visiblePlaceholders,sparseMode=r:GetAttribute('InventorySparseSlotMode'),composition=r:GetAttribute('InventoryCompositionMode'),gapCategory=gapCategory,gapDetail=gapDetail,artSquare=square,header=logicalHeader,actions=actions,actionColumns=r:GetAttribute('InventoryWideActionColumns')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"parentChrome\"\\s*:\\s*true",
+        "\"backdropClean\"\\s*:\\s*true",
+        "\"placeholders\"\\s*:\\s*0",
+        "\"sparseMode\"\\s*:\\s*\"FilteredHidden\"",
+        "\"composition\"\\s*:\\s*\"CleanThreePaneV4\"",
+        "\"artSquare\"\\s*:\\s*true",
+        "\"actions\"\\s*:\\s*4",
+        "\"actionColumns\"\\s*:\\s*2"
+      ],
+      "label": "Pets view uses quiet filtering and balanced wide composition"
+    },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": { "capture_id": "Inventory_Visual_Responsive_1277x720" },
+      "label": "capture corrected desktop Inventory"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture visual regression console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "visual regression console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "label": "stop desktop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local n='Inventory Visual QA Phone 568x320' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=568,Height=320,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": [
+        "\"width\"\\s*:\\s*568",
+        "\"height\"\\s*:\\s*320",
+        "\"active\"\\s*:\\s*true"
+      ],
+      "label": "set narrow phone viewport"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 60000,
+      "label": "start narrow phone play"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for narrow phone UI"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') a:Invoke('OpenInventory') task.wait(.35) local r=g.GameMenu.FunctionalInventory local w=r.InventoryWindow local t=w.InventoryBody.InventoryGridPane.InventoryToolbar local s=t.InventorySearch local f=t.RarityFilter local c=t.InventoryCapacity local bar=w.InventoryBody.CategoryBar local function inside(x,y) local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X>=yp.X-1 and xp.Y>=yp.Y-1 and xp.X+xs.X<=yp.X+ys.X+1 and xp.Y+xs.Y<=yp.Y+ys.Y+1 end local function overlap(x,y) local xp,xs,yp,ys=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return xp.X<yp.X+ys.X and xp.X+xs.X>yp.X and xp.Y<yp.Y+ys.Y and xp.Y+xs.Y>yp.Y end local samples={} local all=true for _,scale in ipairs({.8,1,1.2}) do a:Invoke('SetSettings',{uiScale=scale,persist=false}) task.wait(.3) local snap=a:Invoke('InventorySnapshot') local l=snap.layout local toolbarOk=inside(s,t) and inside(f,t) and inside(c,t) and not overlap(s,f) and not overlap(s,c) and not overlap(f,c) local categoriesOk=true for _,button in ipairs(bar:GetChildren()) do if button:IsA('TextButton') and button.Visible then categoriesOk=categoriesOk and math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=43.5 and inside(button,bar) end end local renderedOk=l.boundsSafe and l.insideSafeArea and l.renderedWindowWidth<=l.viewportWidth+.5 and l.renderedWindowHeight<=l.viewportHeight+.5 and w.AbsoluteSize.X<=r.AbsoluteSize.X+1 and w.AbsoluteSize.Y<=r.AbsoluteSize.Y+1 local ok=renderedOk and toolbarOk and categoriesOk and l.toolbarNoOverlap and l.minTouchTarget>=43.5 all=all and ok samples[tostring(scale)]={ok=ok,touch=l.minTouchTarget,width=l.renderedWindowWidth,height=l.renderedWindowHeight,viewportWidth=l.viewportWidth,viewportHeight=l.viewportHeight,columns=l.columns,toolbar=toolbarOk,categories=categoriesOk} end return H:JSONEncode({ok=all,samples=samples})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"0\\.8\"\\s*:\\s*\\{[^}]*\"ok\"\\s*:\\s*true",
+        "\"1\"\\s*:\\s*\\{[^}]*\"ok\"\\s*:\\s*true",
+        "\"1\\.2\"\\s*:\\s*\\{[^}]*\"ok\"\\s*:\\s*true"
+      ],
+      "label": "narrow phone stays bounded and touch safe across every supported UI scale"
+    },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": { "capture_id": "Inventory_Visual_Responsive_Phone_568x320_Scale120" },
+      "label": "capture narrow Inventory at 120 percent scale"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "phoneConsole",
+      "label": "capture narrow visual regression console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "phoneConsole",
+      "label": "narrow visual regression console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "label": "stop narrow phone play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local names={['Inventory Visual QA Desktop 1277x720']=true,['Inventory Visual QA Phone 568x320']=true} local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return H:JSONEncode({default=S:GetDeviceAsync()=='default',removed=removed})"
+      },
+      "expectRegex": [
+        "\"default\"\\s*:\\s*true",
+        "\"removed\"\\s*:\\s*2"
+      ],
+      "label": "restore default viewport and remove both custom devices"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup visual playtest"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local names={['Inventory Visual QA Desktop 1277x720']=true,['Inventory Visual QA Phone 568x320']=true} for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then pcall(function() S:RemoveDeviceAsync(id) end) end end return true"
+      },
+      "allowError": true,
+      "label": "cleanup custom visual viewports"
+    }
+  ]
+}

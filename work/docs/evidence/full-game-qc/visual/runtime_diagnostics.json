@@ -1,0 +1,90 @@
+{
+  "baselineCommit": "fb73c57",
+  "studioModeAfterCleanup": "Edit",
+  "device": "default",
+  "customDeviceProfiles": [],
+  "viewport": [1277, 801],
+  "camera": {
+    "type": "Custom",
+    "occlusionMode": "Invisicam",
+    "note": "The console permission message did not change the observed runtime occlusion mode."
+  },
+  "inventory": {
+    "artMode": "NativeFallback",
+    "window": {
+      "x": 306,
+      "y": 160.51998901367188,
+      "width": 665,
+      "height": 396
+    },
+    "inventoryButton": {
+      "x": 1121.1937255859375,
+      "y": 208.4324951171875,
+      "width": 58.04545593261719,
+      "height": 58.04545593261719,
+      "image": "rbxassetid://123409223461276"
+    },
+    "shopButton": {
+      "x": 1199.096923828125,
+      "y": 193.96173095703125,
+      "width": 66.44676971435547,
+      "height": 84.77690887451172,
+      "image": "rbxassetid://104281527974467"
+    }
+  },
+  "forestAssets": {
+    "runtimeFolder": "Workspace.PunchWallRPG.Polish.World 1 Forest",
+    "directChildren": 127,
+    "descendantModels": 88,
+    "creatorStoreTemplateUsedTrue": 44,
+    "proceduralFallbackTrue": 0,
+    "unattributedInnerModels": 44,
+    "externalTreeTemplate": "ReplicatedStorage.PunchWallExternalAssets.Sanitized_ForestTreeSingle",
+    "visualTreeTemplate": "ReplicatedStorage.PunchWallVisualAssets.StylizedForestTreeTemplate"
+  },
+  "starterFistR15": {
+    "hand": "RightHand",
+    "handSize": [0.6980193853378296, 1.0611552000045776, 0.869873583316803],
+    "handTransparency": 1,
+    "handLocalTransparencyModifier": 0,
+    "gripProfile": "ArmoredFistWristAligned",
+    "alignmentStandard": "R15RightHand",
+    "gauntletBoundsSize": [1.141772508621216, 1.7190723419189453, 1.5159999132156372],
+    "gauntletBoundsCenterInHandSpace": [-8.381903171539307e-8, -0.18497604131698608, -0.2945171296596527],
+    "visualParts": 7,
+    "welds": 7,
+    "maxPartDistanceFromHand": 0.9118853211402893
+  },
+  "premiumPetFormation": {
+    "formationFormula": {
+      "side": "odd=-1, even=+1",
+      "x": "side * (2.65 + row * 0.85) + sway",
+      "z": "3.0 + row * 1.3",
+      "snapThresholdStuds": 36,
+      "smoothing": "ExponentialCFrame"
+    },
+    "pets": [
+      {
+        "name": "Crimson Phoenix",
+        "bounds": [5.191615581512451, 2.999999761581421, 1.814866304397583],
+        "targetHeight": 3,
+        "distanceFromRootAtSample": 4.369620323181152,
+        "followResponsiveness": 6.4
+      },
+      {
+        "name": "Storm Wyvern",
+        "bounds": [13.583218574523926, 2.549999237060547, 8.701375007629395],
+        "targetHeight": 2.55,
+        "distanceFromRootAtSample": 4.354348659515381,
+        "followResponsiveness": 7
+      },
+      {
+        "name": "Celestial Guardian",
+        "bounds": [1.9890015125274658, 2.8499999046325684, 3.108092784881592],
+        "targetHeight": 2.85,
+        "distanceFromRootAtSample": 5.64652156829834,
+        "followResponsiveness": 7.5
+      }
+    ]
+  }
+}

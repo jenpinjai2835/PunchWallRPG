@@ -1,0 +1,127 @@
+{
+  "name": "pet-size-position-qc",
+  "description": "QC one and three pet formations for world size, slot spacing, avatar separation, camera readability, premium visual budget, smooth follow, and reduced-motion stability.",
+  "studioName": "^PunchWallRPG(?:Playable_v1_final(?:_validation)?|_ManualPlaytest_[0-9]{8}(?:_[A-Za-z0-9]+)?)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for character and companion runtime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') local r=c:Invoke('GrantPet',{name='Forest Pup',stars=1}) return H:JSONEncode({ok=r.ok==true,pet=r.pet,equipped=r.EquippedPetsJSON})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Forest Pup"],
+      "label": "equip one normal pet"
+    },
+    { "type": "wait", "ms": 900, "label": "wait for one-pet formation" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "onePetMetrics",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local m=folder and folder:FindFirstChildWhichIsA('Model') local cf,size if m then cf,size=m:GetBoundingBox() end local localPos=(root and cf) and root.CFrame:PointToObjectSpace(cf.Position) or Vector3.new(99,99,99) local largest=size and math.max(size.X,size.Y,size.Z) or 99 local distance=(root and cf) and (cf.Position-root.Position).Magnitude or 99 local valid=folder and #folder:GetChildren()==1 and m and m:GetAttribute('PetDefinitionName')=='Forest Pup' and largest>=0.65 and largest<=1.66 and distance>=2 and distance<=5.5 and localPos.X<=-1.7 and localPos.Y>=0.2 and localPos.Y<=3.8 and localPos.Z>=0 and m:GetAttribute('CompanionBudgetCulled')~=true and m:GetAttribute('ScreenAreaWithinBudget')==true local result={valid=valid==true,count=folder and #folder:GetChildren() or 0,name=m and m:GetAttribute('PetDefinitionName') or '',largest=largest,distance=distance,x=localPos.X,y=localPos.Y,z=localPos.Z,policy=m and m:GetAttribute('CompanionBudgetPolicy') or '',screen=m and m:GetAttribute('EstimatedScreenArea') or 0} assert(valid,'one-pet size/position failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"count\"\\s*:\\s*1", "\"name\"\\s*:\\s*\"Forest Pup\""],
+      "label": "one pet stays compact and beside avatar"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local a=c:Invoke('GrantPet',{name='Miner Cat',stars=1}) local b=c:Invoke('GrantPet',{name='Crystal Fox',stars=1}) return H:JSONEncode({ok=a.ok==true and b.ok==true,a=a.pet,b=b.pet,equipped=b.EquippedPetsJSON})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Miner Cat", "Crystal Fox"],
+      "label": "equip three normal pets"
+    },
+    { "type": "wait", "ms": 1000, "label": "wait for three-pet formation" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "threeNormalMetrics",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local rows={} for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then local index=tonumber(m.Name:match('(%d+)$')) or 0 local cf,size=m:GetBoundingBox() local lp=root.CFrame:PointToObjectSpace(cf.Position) rows[index]={model=m,position=cf.Position,x=lp.X,y=lp.Y,z=lp.Z,largest=math.max(size.X,size.Y,size.Z),culled=m:GetAttribute('CompanionBudgetCulled')==true,screen=m:GetAttribute('EstimatedScreenArea') or 0} end end local minPair=99 for i=1,3 do for j=i+1,3 do minPair=math.min(minPair,(rows[i].position-rows[j].position).Magnitude) end end local formation=rows[1] and rows[2] and rows[3] and rows[1].x<0 and rows[2].x>0 and rows[3].x<rows[1].x-0.35 and rows[3].y>rows[1].y+0.1 and rows[3].z>rows[1].z+0.45 local bounded=true for i=1,3 do local r=rows[i] bounded=bounded and r and r.largest>=0.65 and r.largest<=1.66 and not r.culled and r.screen<=0.18 end local valid=#folder:GetChildren()==3 and formation and bounded and minPair>=1.25 local summary={} for i=1,3 do local r=rows[i] summary[i]={x=r.x,y=r.y,z=r.z,largest=r.largest,screen=r.screen} end local result={valid=valid==true,count=#folder:GetChildren(),formation=formation==true,bounded=bounded,minPair=minPair,rows=summary} assert(valid,'three-normal-pet formation failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "\"formation\"\\s*:\\s*true", "\"bounded\"\\s*:\\s*true"],
+      "label": "three normal pets preserve readable formation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') local names={'Crimson Phoenix','Storm Wyvern','Celestial Guardian'} local granted=0 for _,name in ipairs(names) do local r=c:Invoke('GrantPremiumPet',name) if r.ok then granted+=1 end end local p=game.Players:GetPlayers()[1] return H:JSONEncode({ok=granted==3,granted=granted,equipped=p.RPGStats.EquippedPetsJSON.Value})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"granted\"\\s*:\\s*3", "Crimson Phoenix", "Storm Wyvern", "Celestial Guardian"],
+      "label": "equip all three premium pets"
+    },
+    { "type": "wait", "ms": 1200, "label": "wait for premium formation" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "premiumCameraMatrix",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local cam=workspace.CurrentCamera local matrix={} local allValid=true for _,distance in ipairs({6,12,18}) do local pos=root.Position-root.CFrame.LookVector*distance+Vector3.new(0,2.2,0) cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(pos,root.Position+Vector3.new(0,1.5,0)) cam.Focus=CFrame.new(root.Position+Vector3.new(0,1.5,0)) task.wait(1) local visible,culled,maxLargest,maxScreen,minAvatarSeparation=0,0,0,0,99 local viewport=cam.ViewportSize local rootPoint,rootOn=cam:WorldToViewportPoint(root.Position+Vector3.new(0,1.4,0)) for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') then local cf,size=m:GetBoundingBox() local largest=math.max(size.X,size.Y,size.Z) local point,on=cam:WorldToViewportPoint(cf.Position) if on and point.Z>0 then visible+=1 end if m:GetAttribute('CompanionBudgetCulled')==true then culled+=1 end maxLargest=math.max(maxLargest,largest) maxScreen=math.max(maxScreen,m:GetAttribute('EstimatedScreenArea') or 0) local separation=(Vector2.new(point.X,point.Y)-Vector2.new(rootPoint.X,rootPoint.Y)).Magnitude minAvatarSeparation=math.min(minAvatarSeparation,separation) end end local combined=p.PlayerGui.PunchWallHUD:GetAttribute('CompanionCombinedScreenAreaEstimate') or 0 local valid=#folder:GetChildren()==3 and visible==3 and culled==0 and maxLargest<=1.81 and maxScreen<=0.18 and combined<=0.35 and minAvatarSeparation>=24 and rootOn allValid=allValid and valid matrix[tostring(distance)]={valid=valid,visible=visible,culled=culled,maxLargest=maxLargest,maxScreen=maxScreen,combined=combined,minAvatarSeparation=minAvatarSeparation,viewportX=viewport.X,viewportY=viewport.Y} end local result={valid=allValid,count=#folder:GetChildren(),matrix=matrix,policy=p.PlayerGui.PunchWallHUD:GetAttribute('CompanionCameraPolicy')} assert(allValid,'premium camera/size matrix failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "\"policy\"\\s*:\\s*\"CameraSafeThreePetLOD1\"", "\"visible\"\\s*:\\s*3", "\"culled\"\\s*:\\s*0"],
+      "label": "premium pets remain visible and bounded at near mid far cameras"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "premiumScreenSeparation",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local cam=workspace.CurrentCamera local function rectFor(cf,size) local minX,minY,maxX,maxY=math.huge,math.huge,-math.huge,-math.huge local visible=false for sx=-1,1,2 do for sy=-1,1,2 do for sz=-1,1,2 do local point=cam:WorldToViewportPoint(cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5))) if point.Z>0 then visible=true minX=math.min(minX,point.X) minY=math.min(minY,point.Y) maxX=math.max(maxX,point.X) maxY=math.max(maxY,point.Y) end end end end return visible and {minX=minX,minY=minY,maxX=maxX,maxY=maxY} or nil end local function overlapRatio(a,b) if not a or not b then return 1 end local width=math.max(0,math.min(a.maxX,b.maxX)-math.max(a.minX,b.minX)) local height=math.max(0,math.min(a.maxY,b.maxY)-math.max(a.minY,b.minY)) local area=width*height local areaA=math.max((a.maxX-a.minX)*(a.maxY-a.minY),1) local areaB=math.max((b.maxX-b.minX)*(b.maxY-b.minY),1) return area/math.min(areaA,areaB) end local matrix={} local allValid=true for _,distance in ipairs({6,12,18}) do local pos=root.Position-root.CFrame.LookVector*distance+Vector3.new(0,2.2,0) cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(pos,root.Position+Vector3.new(0,1.5,0)) cam.Focus=CFrame.new(root.Position+Vector3.new(0,1.5,0)) task.wait(1) local avatarCf,avatarSize=character:GetBoundingBox() local avatarRect=rectFor(avatarCf,avatarSize) local pets={} for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') then local cf,size=m:GetBoundingBox() table.insert(pets,{name=m:GetAttribute('PetDefinitionName'),position=cf.Position,rect=rectFor(cf,size),formation=m:GetAttribute('FormationPolicy')}) end end local maxAvatarOverlap,maxPairOverlap,minWorldPair=0,0,99 for i=1,#pets do maxAvatarOverlap=math.max(maxAvatarOverlap,overlapRatio(pets[i].rect,avatarRect)) for j=i+1,#pets do maxPairOverlap=math.max(maxPairOverlap,overlapRatio(pets[i].rect,pets[j].rect)) minWorldPair=math.min(minWorldPair,(pets[i].position-pets[j].position).Magnitude) end end local valid=#pets==3 and maxAvatarOverlap<=.08 and maxPairOverlap<=.08 and minWorldPair>=1.45 for _,pet in ipairs(pets) do valid=valid and pet.formation=='BoundsAwarePremiumFormationV2' end allValid=allValid and valid matrix[tostring(distance)]={valid=valid,maxAvatarOverlap=maxAvatarOverlap,maxPairOverlap=maxPairOverlap,minWorldPair=minWorldPair} end local formation=p.PlayerGui.PunchWallHUD:GetAttribute('CompanionFormationPolicy') local result={valid=allValid,formation=formation,matrix=matrix} assert(allValid and formation=='BoundsAwarePremiumFormationV2','premium screen separation failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"formation\"\\s*:\\s*\"BoundsAwarePremiumFormationV2\""],
+      "label": "premium formation clears avatar and each pet at near mid far cameras"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "premiumSafeFrame",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local cam=workspace.CurrentCamera local matrix={} local failures={} local allValid=true for _,distance in ipairs({6,12,18}) do local pos=root.Position-root.CFrame.LookVector*distance+Vector3.new(0,2.2,0) cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(pos,root.Position+Vector3.new(0,1.5,0)) cam.Focus=CFrame.new(root.Position+Vector3.new(0,1.5,0)) task.wait(1) local viewport=cam.ViewportSize local inset=math.min(viewport.X,viewport.Y)*.01 local rows={} local valid=true for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') then local cf,size=m:GetBoundingBox() local minX,minY,maxX,maxY=math.huge,math.huge,-math.huge,-math.huge for sx=-1,1,2 do for sy=-1,1,2 do for sz=-1,1,2 do local point=cam:WorldToViewportPoint(cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5))) minX=math.min(minX,point.X) minY=math.min(minY,point.Y) maxX=math.max(maxX,point.X) maxY=math.max(maxY,point.Y) end end end local safe=minX>=inset and minY>=inset and maxX<=viewport.X-inset and maxY<=viewport.Y-inset valid=valid and safe local row={name=m:GetAttribute('PetDefinitionName'),safe=safe} table.insert(rows,row) if not safe then table.insert(failures,{distance=distance,name=row.name,minX=math.floor(minX),minY=math.floor(minY),maxX=math.ceil(maxX),maxY=math.ceil(maxY),viewportX=viewport.X,viewportY=viewport.Y,inset=inset}) end end end valid=valid and #rows==3 allValid=allValid and valid matrix[tostring(distance)]={valid=valid,rows=rows,inset=inset} end local result={valid=allValid,matrix=matrix,failures=failures} assert(allValid,'premium safe-frame failed '..H:JSONEncode({failures=failures})) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"safe\"\\s*:\\s*true"],
+      "label": "premium models stay fully inside near mid far safe frame"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "premiumFollowMotion",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local pet for _,m in ipairs(folder:GetChildren()) do if m:GetAttribute('PetDefinitionName')=='Celestial Guardian' then pet=m break end end local before=pet:GetBoundingBox().Position root.Anchored=true root.CFrame=root.CFrame+root.CFrame.RightVector*8 task.wait(.05) local early=pet:GetBoundingBox().Position task.wait(.85) local late=pet:GetBoundingBox().Position root.Anchored=false local earlyMove=(early-before).Magnitude local lateMove=(late-before).Magnitude local valid=pet:GetAttribute('SmoothFollowReady')==true and earlyMove>0.01 and earlyMove<7.5 and lateMove>earlyMove+0.8 and lateMove<11 local result={valid=valid,early=earlyMove,late=lateMove,ready=pet:GetAttribute('SmoothFollowReady'),smoothing=pet:GetAttribute('FollowSmoothing')} assert(valid,'premium pet follow failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"ready\"\\s*:\\s*true", "\"smoothing\"\\s*:\\s*\"ExponentialCFrame\""],
+      "label": "premium pet follows smoothly after player movement"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "petReducedMotion",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation local folder=workspace:FindFirstChild(p.Name..' Client Companions') a:Invoke('SetSettings',{motion=false,persist=false}) task.wait(.55) local valid=true local rates={} for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') then local hz=m:GetAttribute('CompanionMotionHz') or 0 rates[#rates+1]=hz valid=valid and hz==20 and m:GetAttribute('CompanionBudgetCulled')~=true and m:GetAttribute('ScreenAreaWithinBudget')==true end end a:Invoke('SetSettings',{motion=true,persist=false}) local result={valid=valid,count=#folder:GetChildren(),rates=rates} assert(valid and #folder:GetChildren()==3,'pet reduced-motion stability failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "\"rates\"\\s*:\\s*\\[20,20,20\\]"],
+      "label": "reduced motion keeps stable 20 Hz pet formation"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

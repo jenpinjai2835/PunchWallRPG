@@ -1,7 +1,7 @@
 {
   "name": "hero-city-reference-ui",
-  "description": "Verify the supplied Hero City image is the live sprite source for HUD icons, action buttons, shop cards, tabs, notifications, Armory nameplates, and the world shop billboard.",
-  "studioName": "PunchWallRPG",
+  "description": "Verify current Hero City HUD crops, uploaded Shop and Inventory actions, live Shop and Inventory art contracts, and the two-sided world shop sign.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -22,34 +22,46 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local id=\"rbxassetid://104014193600358\" local sign=root[\"Fist Shop Sign\"] local signImages,signDecals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==id then signImages+=1 elseif d:IsA(\"Decal\") and d.Texture==id then signDecals+=1 end end local nameplateIcons=0 for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local plate=root.Polish[\"City Decor\"][name..\" Armory Nameplate\"] for _,d in ipairs(plate:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==id then nameplateIcons+=1 end end end return H:JSONEncode({signImages=signImages,signDecals=signDecals,nameplateIcons=nameplateIcons,theme=sign:GetAttribute(\"Theme\")})"
+        "code": "local H=game:GetService('HttpService') local root=workspace:WaitForChild('PunchWallRPG') local sign=root:WaitForChild('Fist Shop Sign') local frontId='rbxassetid://104014193600358' local backId='rbxassetid://111791716595528' local surfaces,decals=0,0 local frontDecal,backDecal,frontImage,backImage,frontCopy,backCopy=false,false,false,false,false,false for _,d in ipairs(sign:GetDescendants()) do if d:IsA('Decal') and d.Name=='Hero City Artwork Decal' then decals+=1 if d.Face==Enum.NormalId.Front and d.Texture==frontId then frontDecal=true elseif d.Face==Enum.NormalId.Back and d.Texture==backId then backDecal=true end elseif d:IsA('SurfaceGui') and d.Name=='Generated Graphic' then surfaces+=1 local image=d:FindFirstChild('Hero City Artwork') local expectedId=d.Face==Enum.NormalId.Front and frontId or d.Face==Enum.NormalId.Back and backId or '' if image and image:IsA('ImageLabel') and image.Image==expectedId then if d.Face==Enum.NormalId.Front then frontImage=true elseif d.Face==Enum.NormalId.Back then backImage=true end end local hasTitle,hasSubtitle=false,false for _,label in ipairs(d:GetDescendants()) do if label:IsA('TextLabel') then if d.Face==Enum.NormalId.Front and label.Text=='HERO FIST HQ' then hasTitle=true elseif d.Face==Enum.NormalId.Front and label.Text=='CHOOSE | EQUIP | POWER UP' then hasSubtitle=true elseif d.Face==Enum.NormalId.Back and label.Text=='SMASH!' then hasTitle=true elseif d.Face==Enum.NormalId.Back and label.Text=='HERO CITY' then hasSubtitle=true end end end if d.Face==Enum.NormalId.Front then frontCopy=hasTitle and hasSubtitle elseif d.Face==Enum.NormalId.Back then backCopy=hasTitle and hasSubtitle end end end local frontArt=frontDecal and frontImage local backArt=backDecal and backImage local worldSign=sign.Parent==root and sign.Anchored and sign.Size==Vector3.new(36,10,.8) and surfaces==2 and decals==2 and frontArt and backArt and frontCopy and backCopy return H:JSONEncode({worldSign=worldSign,surfaces=surfaces,decals=decals,frontArt=frontArt,backArt=backArt,frontCopy=frontCopy,backCopy=backCopy})"
       },
       "expectRegex": [
-        "\"signImages\"\\s*:\\s*2",
-        "\"signDecals\"\\s*:\\s*2",
-        "\"nameplateIcons\"\\s*:\\s*8"
+        "\"worldSign\"\\s*:\\s*true",
+        "\"surfaces\"\\s*:\\s*2",
+        "\"decals\"\\s*:\\s*2",
+        "\"frontArt\"\\s*:\\s*true",
+        "\"backArt\"\\s*:\\s*true",
+        "\"frontCopy\"\\s*:\\s*true",
+        "\"backCopy\"\\s*:\\s*true"
       ],
-      "label": "world Armory uses supplied Hero City image"
+      "label": "current two-sided world shop sign uses approved art and copy"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local id=\"rbxassetid://104014193600358\" local function read(parent,name) local d=parent:FindFirstChild(name,true) return d and string.format(\"%d,%d,%d,%d\",d.ImageRectOffset.X,d.ImageRectOffset.Y,d.ImageRectSize.X,d.ImageRectSize.Y) or \"\" end local old=0 local current=0 for _,d in ipairs(g:GetDescendants()) do if d:IsA(\"ImageLabel\") then if d.Image==\"rbxassetid://134314320646796\" then old+=1 elseif d.Image==id then current+=1 end end end local banner=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\") local boxing=g.GameMenu.Content:FindFirstChild(\"Street Boxing Fist\",true) local titan=g.GameMenu.Content:FindFirstChild(\"Titan Siege Fist\",true) return H:JSONEncode({currentEnough=current>=20,old=old,power=read(g.StatsPanel:FindFirstChild(\"Power\",true),\"StatIcon\"),punch=read(g.MobileControls.ActionPunch,\"ActionIcon\"),train=read(g.MobileControls.ActionTrain,\"ActionIcon\"),settings=read(g.GameMenu.Tabs.SettingsTab,\"TabIcon\"),banner=read(g.GameMenu.Content,\"Hero City Generated Banner\"),boxing=boxing and read(boxing,\"ProductIcon\") or {},titan=titan and read(titan,\"ProductIcon\") or {}})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local r=g:WaitForChild('PixelPerfectHeroCityHUD') local atlasId='rbxassetid://104014193600358' local function read(parent,name) local d=parent and parent:FindFirstChild(name,true) return d and string.format('%d,%d,%d,%d',d.ImageRectOffset.X,d.ImageRectOffset.Y,d.ImageRectSize.X,d.ImageRectSize.Y) or '' end local old,current=0,0 for _,d in ipairs(g:GetDescendants()) do if d:IsA('ImageLabel') then if d.Image=='rbxassetid://134314320646796' then old+=1 elseif d.Image==atlasId then current+=1 end end end local shopButton=r:WaitForChild('ShopButton') local inventoryButton=r:WaitForChild('InventoryButton') local actionArt=shopButton.Image=='rbxassetid://104281527974467' and inventoryButton.Image=='rbxassetid://123409223461276' and inventoryButton:GetAttribute('ToolAction')=='OpenInventory' and inventoryButton:GetAttribute('MenuRow')=='Shop' a:Invoke('OpenTab','Fists') task.wait(.4) local shop=g.GameMenu:WaitForChild('FunctionalHeroShop') local shopCards,shopArt,shopPresentations,shopChrome=0,0,0,0 for _,card in ipairs(shop:GetChildren()) do if card:IsA('Frame') and card.Name:match('ShopCard$') then shopCards+=1 local tier=tonumber(card:GetAttribute('ShopFistTier')) or 0 local art=card:FindFirstChild('ProductArt') local chrome=card:FindFirstChild('HeroGauntletTierChrome') local partCount=tonumber(card:GetAttribute('StaticPreviewPartCount')) or 0 local artOk=art and art:IsA('ImageLabel') and art.Image~='' and art.ImageColor3==Color3.new(1,1,1) and art.ImageTransparency==0 and art:GetAttribute('LoadedArtUnobscured')==true and art:GetAttribute('HeroGauntletArtVariant')==card:GetAttribute('ShopFistArtVariant') and art:GetAttribute('HeroGauntletTier')==tier if artOk then shopArt+=1 end local presentationOk=card:GetAttribute('ShopFistPresentation')=='HeroGauntletV2StaticChrome' and card:GetAttribute('StaticPreviewRenderLoop')==false and card:GetAttribute('StaticPreviewChromeOnly')==true and card:GetAttribute('StaticPreviewChromeCoverage')=='PerimeterOnlyV1' and partCount==tier+1 and partCount>=2 and partCount<=6 if presentationOk then shopPresentations+=1 end local chromeOk=chrome and chrome:IsA('Frame') and chrome.Active==false and chrome.Selectable==false and chrome:FindFirstChild('StaticTierOutline')~=nil and chrome:FindFirstChild('StaticTierRail')~=nil and card:FindFirstChild('HeroGauntletV2StaticSilhouette')==nil if chromeOk then shopChrome+=1 end end end a:Invoke('OpenInventory') task.wait(.4) local inventory=g.GameMenu:WaitForChild('FunctionalInventory') local inventoryTitle=inventory:FindFirstChild('InventoryTitle',true) local inventoryArt=inventory.Visible and inventory:GetAttribute('ArtMode')=='ReferenceNativeV3' and inventory:GetAttribute('ChromeAssetMode')=='Native' and inventory:GetAttribute('ItemArtFallback')=='NativeFallback' and inventoryTitle and inventoryTitle.Text=='INVENTORY' and inventory:FindFirstChild('InventoryWindow',true)~=nil and inventory:FindFirstChild('InventoryHeader',true)~=nil a:Invoke('CloseMenus') return H:JSONEncode({currentEnough=current>=20,old=old,actionArt=actionArt,shopIcon=shopButton.Image,inventoryIcon=inventoryButton.Image,shopCards=shopCards,shopArt=shopArt,shopPresentations=shopPresentations,shopChrome=shopChrome,inventoryArt=inventoryArt,inventoryMode=inventory:GetAttribute('ArtMode'),inventoryChrome=inventory:GetAttribute('ChromeAssetMode'),power=read(g.StatsPanel:FindFirstChild('Power',true),'StatIcon'),punch=read(g.MobileControls.ActionPunch,'ActionIcon'),train=read(g.MobileControls.ActionTrain,'ActionIcon'),settings=read(g.GameMenu.Tabs.SettingsTab,'TabIcon')})"
       },
+      "saveAs": "currentReferencePresentation",
       "expectRegex": [
         "\"currentEnough\"\\s*:\\s*true",
         "\"old\"\\s*:\\s*0",
+        "\"actionArt\"\\s*:\\s*true",
+        "\"shopIcon\"\\s*:\\s*\"rbxassetid://104281527974467\"",
+        "\"inventoryIcon\"\\s*:\\s*\"rbxassetid://123409223461276\"",
+        "\"shopCards\"\\s*:\\s*5",
+        "\"shopArt\"\\s*:\\s*5",
+        "\"shopPresentations\"\\s*:\\s*5",
+        "\"shopChrome\"\\s*:\\s*5",
+        "\"inventoryArt\"\\s*:\\s*true",
+        "\"inventoryMode\"\\s*:\\s*\"ReferenceNativeV3\"",
+        "\"inventoryChrome\"\\s*:\\s*\"Native\"",
         "\"power\"\\s*:\\s*\"10,64,73,78\"",
         "\"punch\"\\s*:\\s*\"18,154,147,172\"",
         "\"train\"\\s*:\\s*\"442,222,66,78\"",
-        "\"settings\"\\s*:\\s*\"587,307,60,48\"",
-        "\"banner\"\\s*:\\s*\"174,134,271,66\"",
-        "\"boxing\"\\s*:\\s*\"191,187,70,122\"",
-        "\"titan\"\\s*:\\s*\"347,179,78,134\""
+        "\"settings\"\\s*:\\s*\"587,307,60,48\""
       ],
-      "label": "HUD and shop crop the supplied sprite regions"
+      "label": "current HUD Shop Inventory and live product art contracts are active"
     },
     {
       "type": "call",

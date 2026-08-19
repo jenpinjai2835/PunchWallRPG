@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "capturedAtUtc": "2026-08-18T18:49:03.852Z",
+  "captures": [
+    {
+      "page": "Fists",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\long-run-catalog-20260819\\shop\\fists.jpg",
+      "diagnostics": {
+        "cards": 16,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Fists"
+      }
+    },
+    {
+      "page": "FistsEndgame",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\long-run-catalog-20260819\\shop\\fists-endgame.jpg",
+      "diagnostics": {
+        "cards": 16,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Fists"
+      }
+    },
+    {
+      "page": "Premium",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\long-run-catalog-20260819\\shop\\premium.jpg",
+      "diagnostics": {
+        "cards": 3,
+        "previewFits": 3,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Premium"
+      }
+    },
+    {
+      "page": "Boosts",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\long-run-catalog-20260819\\shop\\boosts.jpg",
+      "diagnostics": {
+        "cards": 3,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Boosts"
+      }
+    },
+    {
+      "page": "Robux",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\long-run-catalog-20260819\\shop\\robux.jpg",
+      "diagnostics": {
+        "cards": 4,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Robux"
+      }
+    }
+  ],
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "sourceFingerprints": {
+    "F:\\Roblox\\PuchWall-inventory-integration\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua": "4664031fcf5ab94a37d1086a63575695b91d7bff952f8bb59e14585257e5ba7d",
+    "F:\\Roblox\\PuchWall-inventory-integration\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua": "768d82ae016a9218cfc7baf09d9a25916d813b88ec0460e275b08cef166f2bd3",
+    "F:\\Roblox\\PuchWall-inventory-integration\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua": "b6885651f8948e011dff7c1c3eab8a4b2c8de3fc67e83093fe72356b2b8f1fe7",
+    "F:\\Roblox\\PuchWall-inventory-integration\\work\\automation\\flows\\long-run-catalog-progression.json": "82e74c208ad5b42016cfb28e4cc680f8b5fba07cfdf686cfae0ceab7773fac6d",
+    "F:\\Roblox\\PuchWall-inventory-integration\\work\\automation\\scripts\\long-run-content-contract.mjs": "57e91591ea4460f526bfd71cca96bdab16539ba794fafcd6adecaf6d3dda5d24"
+  }
+}

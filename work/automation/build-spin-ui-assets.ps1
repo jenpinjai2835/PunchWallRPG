@@ -1,9 +1,16 @@
 param(
-    [string]$SourceRoot = "C:\Users\Jennarong Pinjai\Downloads",
-    [string]$OutputRoot = "F:\Roblox\PuchWall\work\assets\user-supplied\spin-ui"
+    [string]$SourceRoot = "",
+    [string]$OutputRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
+    $SourceRoot = Join-Path ([Environment]::GetFolderPath("UserProfile")) "Downloads"
+}
+if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
+    $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
+    $OutputRoot = Join-Path $repositoryRoot "work\assets\user-supplied\spin-ui"
+}
 Add-Type -AssemblyName System.Drawing
 
 if (-not ("PunchWall.AlphaBackgroundCleaner" -as [type])) {

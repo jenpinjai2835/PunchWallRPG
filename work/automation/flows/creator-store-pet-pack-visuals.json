@@ -1,0 +1,82 @@
+{
+  "name": "creator-store-pet-pack-visuals",
+  "description": "Verify the user-approved free pack contributes exactly eight preloaded visual-only pet templates, all normal and premium Inventory previews match those templates, the raw 3,003-part pack is absent, and premium companions use the same bounded models.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local cfg=require(RS.GameConfig) local polish=require(RS.PolishConfig) local builder=require(RS.FistVisualBuilder) local expected={['Forest Pup']={'Sanitized_ForestPupPet','Dowodle'},['Miner Cat']={'Sanitized_MinerCatPet','Catmouse'},['Crystal Fox']={'Sanitized_CrystalFoxPet','Ocelot'},['Lava Dragon']={'Sanitized_LavaDragonPet','Mythic Autumn Dragon'},['Secret Titan Golem']={'Sanitized_SecretTitanGolemPet','Dark Guardian'},['Crimson Phoenix']={'Sanitized_CrimsonPhoenixPet','Enraged Phoenix'},['Storm Wyvern']={'Sanitized_StormWyvernPet','Electra Hydra'},['Celestial Guardian']={'Sanitized_CelestialGuardianPet','Mythic Radiant One'}} local packSources={['Dowodle']=true,['Catmouse']=true,['Ocelot']=true,['Mythic Autumn Dragon']=true,['Dark Guardian']=true,['Enraged Phoenix']=true,['Electra Hydra']=true,['Mythic Radiant One']=true} local folder=RS:FindFirstChild('PunchWallExternalAssets') local found,unsafe,parts,effects=0,0,0,0 local rows={} for pet,map in pairs(expected) do local m=folder and folder:FindFirstChild(map[1]) local row={template=map[1],source=map[2],ready=false} if m then for _,d in ipairs(m:GetDescendants()) do if d:IsA('BasePart') then parts+=1 elseif d:IsA('ParticleEmitter') or d:IsA('Trail') or d:IsA('Beam') or d:IsA('Light') then effects+=1 elseif d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('BindableEvent') or d:IsA('BindableFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('Humanoid') or d:IsA('AnimationController') or d:IsA('Animator') then unsafe+=1 end end row.ready=m:GetAttribute('PetDefinitionName')==pet and m:GetAttribute('SourcePackModelName')==map[2] and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('PreloadedOnly')==true and builder.IsSanitizedVisual(m) if row.ready then found+=1 end end rows[pet]=row end local configured=0 local configOk=true for _,pet in ipairs(cfg.AllPets()) do local map=expected[pet.name] if map then configured+=1 configOk=configOk and pet.templateName==map[1] and pet.packModel==map[2] end end local preloaded=0 for _,entry in ipairs(polish.ExternalVisualTemplates) do if tonumber(entry.assetId)==70715599928632 then preloaded+=1 configOk=configOk and entry.preloadedOnly==true and packSources[entry.sourceModel]==true end end local ok=folder and found==8 and configured==8 and preloaded==8 and unsafe==0 and parts<=90 and effects<=16 and folder:GetAttribute('PetPackTemplateCount')==8 and workspace:FindFirstChild('Pet pack')==nil and workspace:FindFirstChild('Pets')==nil and workspace:FindFirstChild('BGC Pets Pack')==nil and configOk return H:JSONEncode({ok=ok==true,found=found,configured=configured,preloaded=preloaded,unsafe=unsafe,parts=parts,effects=effects,rawPack=workspace:FindFirstChild('Pet pack')~=nil,rows=rows})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"found\"\\s*:\\s*8",
+        "\"configured\"\\s*:\\s*8",
+        "\"preloaded\"\\s*:\\s*8",
+        "\"unsafe\"\\s*:\\s*0",
+        "\"rawPack\"\\s*:\\s*false",
+        "Mythic Radiant One",
+        "Electra Hydra",
+        "Dowodle"
+      ],
+      "label": "eight extracted pack templates are exact safe and bounded"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for runtime templates and Inventory" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} a:Invoke('Reset') local s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),EquippedPetsJSON='[]',LockedPetsJSON='[]',DiscoveredPetsJSON=H:JSONEncode(names)}) local root=workspace.PunchWallRPG local ok=s.ok==true and root:GetAttribute('ExternalTemplatePreloadedOnlyCount')==8 and root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount')==0 and root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')==true return H:JSONEncode({ok=ok,inventory=s.PetInventoryJSON,preloaded=root:GetAttribute('ExternalTemplatePreloadedOnlyCount'),missing=root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount'),failClosed=root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"preloaded\"\\s*:\\s*8", "\"missing\"\\s*:\\s*0", "\"failClosed\"\\s*:\\s*true"],
+      "label": "runtime keeps all preloaded children and never loads the complete pack"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local expected={['Forest Pup']='Dowodle',['Miner Cat']='Catmouse',['Crystal Fox']='Ocelot',['Lava Dragon']='Mythic Autumn Dragon',['Secret Titan Golem']='Dark Guardian',['Crimson Phoenix']='Enraged Phoenix',['Storm Wyvern']='Electra Hydra',['Celestial Guardian']='Mythic Radiant One'} a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('RequestAction',{action='RequestSync'}) task.wait(1) local grid=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local cards,matched,unsafe=0,0,0 local seen={} for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') if model then for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end end local good=expected[name] and card:GetAttribute('ArtMode')=='ModelMatchedViewportV1' and vp and vp:GetAttribute('PreviewReady')==true and model and model:GetAttribute('PetDefinitionName')==name and model:GetAttribute('SourcePackModelName')==expected[name] and tostring(model:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' if good and not seen[name] then matched+=1 seen[name]=true end end end return H:JSONEncode({ok=cards==8 and matched==8 and unsafe==0,cards=cards,matched=matched,unsafe=unsafe,seen=seen})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"cards\"\\s*:\\s*8", "\"matched\"\\s*:\\s*8", "\"unsafe\"\\s*:\\s*0", "Celestial Guardian", "Secret Titan Golem"],
+      "label": "all eight Inventory cards render the exact equipped-model source"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Creator_Store_Pet_Pack_Inventory" }, "label": "capture eight model-matched Inventory previews" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') local granted=0 for _,name in ipairs({'Crimson Phoenix','Storm Wyvern','Celestial Guardian'}) do if a:Invoke('GrantPremiumPet',name).ok then granted+=1 end end return H:JSONEncode({ok=granted==3,granted=granted})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"granted\"\\s*:\\s*3"],
+      "label": "equip all three premium pack pets"
+    },
+    { "type": "wait", "ms": 1600, "label": "wait for premium formation" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:WaitForChild(p.Name..' Client Companions',5) local expected={['Crimson Phoenix']='Enraged Phoenix',['Storm Wyvern']='Electra Hydra',['Celestial Guardian']='Mythic Radiant One'} local matched,unsafe=0,0 local centers={} for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and expected[m:GetAttribute('PetDefinitionName')] then local name=m:GetAttribute('PetDefinitionName') for _,d in ipairs(m:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end if m:GetAttribute('SourcePackModelName')==expected[name] and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('VisualSource')=='ExternalTemplate' then matched+=1 end centers[name]=m:GetBoundingBox().Position end end local minDistance=999 for _,a in pairs(centers) do for _,b in pairs(centers) do if a~=b then minDistance=math.min(minDistance,(a-b).Magnitude) end end end return H:JSONEncode({ok=matched==3 and unsafe==0 and minDistance>=1.1,matched=matched,unsafe=unsafe,minDistance=minDistance,centers=centers})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"matched\"\\s*:\\s*3", "\"unsafe\"\\s*:\\s*0"],
+      "label": "premium companions keep exact pack identities and non-overlapping formation"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Creator_Store_Pet_Pack_Premium" }, "label": "capture premium pack companions" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleBeforeStop", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleBeforeStop", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

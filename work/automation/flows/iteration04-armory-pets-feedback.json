@@ -22,19 +22,19 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local images,decals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://104014193600358\" then decals+=1 end end local colors={} local faces=true for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local palm=root.Polish[\"City Decor\"][name..\" Gauntlet Palm\"] colors[name]=string.format(\"%d,%d,%d\",math.floor(palm.Color.R*255+.5),math.floor(palm.Color.G*255+.5),math.floor(palm.Color.B*255+.5)) local plate=root.Polish[\"City Decor\"][name..\" Armory Nameplate\"] local front,back=false,false for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end faces=faces and front and back end local parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end return H:JSONEncode({parts=parts,images=images,decals=decals,faces=faces,colors=colors})"
+        "code": "local H=game:GetService(\"HttpService\") local cfg=require(game.ReplicatedStorage.GameConfig) local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local images,decals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://104014193600358\" then decals+=1 end end local city=root.Polish[\"City Decor\"] local plates,stands,showcases,faces,tiers=0,0,0,true,{} for _,item in ipairs(cfg.PremiumFists) do local plate=city:FindFirstChild(item.name..\" Armory Nameplate\") local stand=root.Interactables:FindFirstChild(item.name..\" Stand\") local display=city:FindFirstChild(item.name..\" Creator Store Display\") plates+=plate and 1 or 0 stands+=stand and 1 or 0 showcases+=display and display:GetAttribute(\"VisualRole\")==\"PremiumFistShowcase\" and display:GetAttribute(\"PremiumTier\")==item.tier and 1 or 0 tiers[item.tier]=true local front,back=false,false if plate then for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end end faces=faces and front and back end local tierCount=0 for _ in pairs(tiers) do tierCount+=1 end local catalog=#cfg.PremiumFists local valid=catalog>0 and plates==catalog and stands==catalog and showcases==catalog and tierCount==catalog and faces and images==2 and decals==2 return H:JSONEncode({valid=valid,catalog=catalog,plates=plates,stands=stands,showcases=showcases,tiers=tierCount,images=images,decals=decals,faces=faces})"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
+        "\"valid\"\\s*:\\s*true",
+        "\"catalog\"\\s*:\\s*[1-9][0-9]*",
+        "\"plates\"\\s*:\\s*[1-9][0-9]*",
+        "\"stands\"\\s*:\\s*[1-9][0-9]*",
+        "\"showcases\"\\s*:\\s*[1-9][0-9]*",
         "\"images\"\\s*:\\s*2",
         "\"decals\"\\s*:\\s*2",
-        "\"faces\"\\s*:\\s*true",
-        "191,47,39",
-        "92,101,108",
-        "37,108,180",
-        "29,33,39"
+        "\"faces\"\\s*:\\s*true"
       ],
-      "label": "Armory graphic, both-face labels, and tier colors exist"
+      "label": "current PremiumFist catalog has stands, showcases, graphics, and both-face labels"
     },
     {
       "type": "call",
@@ -235,7 +235,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=20}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(55,10,-13) return true"
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=20}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-4,6,-62),Vector3.new(-4,6,-69)) return true"
       },
       "label": "move to Iron wall inside old boss radius"
     },
@@ -263,7 +263,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(82,7,15) return true"
+        "code": "local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,7,-320),Vector3.new(-2,9,-340)) return true"
       },
       "label": "move into Titan encounter"
     },

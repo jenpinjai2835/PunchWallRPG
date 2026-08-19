@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "premium pet follows smoothly after player movement",
+        "reduced motion keeps stable 20 Hz pet formation",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

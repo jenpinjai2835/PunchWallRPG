@@ -1,0 +1,105 @@
+{
+  "name": "standalone-player-windows",
+  "description": "Verify the combined five-tab menu is removed from player routes and Rebirth, Settings, and Missions render as exclusive compact-safe surfaces.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Standalone Windows 740x360' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local d={Name=n,Width=740,Height=360,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,d) else id=S:CreateDeviceAsync(d) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.35) local r=S:GetResolutionAsync() return H:JSONEncode({active=S:GetDeviceAsync()==id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": ["\"active\"\\s*:\\s*true", "\"width\"\\s*:\\s*740", "\"height\"\\s*:\\s*360"],
+      "label": "lock standalone windows phone viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start standalone windows play" },
+    { "type": "wait", "ms": 6500, "label": "wait for standalone windows runtime" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture standalone windows boot console" },
+    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "standalone windows boot console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 45000,
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local l=p:WaitForChild('leaderstats') l.WallLevel.Value=54 return H:JSONEncode({WallLevel=l.WallLevel.Value})" },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*54"],
+      "label": "seed standalone Rebirth locked state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 45000,
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local l=p.leaderstats l.Coins.Value=1000000 return H:JSONEncode({Coins=l.Coins.Value,Rebirths=l.Rebirths.Value})" },
+      "expectRegex": ["\"Coins\"\\s*:\\s*1000000", "\"Rebirths\"\\s*:\\s*0"],
+      "label": "seed standalone Rebirth coins"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation return a:Invoke('OpenRebirth','hud_route')" },
+      "label": "Rebirth HUD route opens standalone window"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for standalone Rebirth render" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local w=g.RebirthWindow local old=g.GameMenu local active=0 for _,n in ipairs({'RebirthWindow','SettingsWindow','GameMenu'}) do local x=g:FindFirstChild(n) if x and x.Visible then active+=1 end end local min=math.huge local bad={} for _,x in ipairs(w:GetDescendants()) do if x:IsA('GuiButton') and x.Visible then min=math.min(min,x.AbsoluteSize.X,x.AbsoluteSize.Y) elseif x:IsA('TextLabel') and x.Visible and x.Text~='' and not x.TextFits then table.insert(bad,x.Name..'='..x.Text) end end local function overlaps(a,b) if not a or not b then return true end local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return ap.X<bp.X+bs.X and bp.X<ap.X+as.X and ap.Y<bp.Y+bs.Y and bp.Y<ap.Y+as.Y end local reward=w.Body:FindFirstChild('RewardCard') local icon=reward and reward:FindFirstChild('RewardIcon') local title=reward and reward:FindFirstChild('RewardTitle') local value=reward and reward:FindFirstChild('RewardValue') local headerIcon=w.Header:FindFirstChild('HeaderIcon') local rewardClear=not overlaps(icon,title) and not overlaps(icon,value) and not overlaps(title,value) local headerSafe=(w:GetAttribute('CompactHeaderSafeLeft') or 0)>=90 and headerIcon and headerIcon.AbsolutePosition.X>=90 local ok=w.Visible and active==1 and old.Tabs.Visible==false and w:GetAttribute('RebirthState')=='LOCKED' and w.Body.WallLevelRequirement and w.Body.CoinsRequirement and min>=44 and #bad==0 and rewardClear and headerSafe assert(ok,'standalone Rebirth diagnostics failed '..H:JSONEncode({active=active,min=min,bad=bad,state=w:GetAttribute('RebirthState'),rewardClear=rewardClear,headerSafe=headerSafe})) return H:JSONEncode({ok=ok,active=active,min=min,bad=#bad,state=w:GetAttribute('RebirthState'),rewardClear=rewardClear,headerSafe=headerSafe})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"active\"\\s*:\\s*1", "\"bad\"\\s*:\\s*0"],
+      "label": "standalone Rebirth is exclusive readable and touch safe"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation return a:Invoke('CloseMenus')" }, "label": "close standalone Rebirth" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation return a:Invoke('OpenSettings','settings_tool_route')" },
+      "label": "Settings tool route opens standalone window"
+    },
+    { "type": "wait", "ms": 300, "label": "wait for standalone Settings render" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local w=g.SettingsWindow local active=0 for _,n in ipairs({'RebirthWindow','SettingsWindow','GameMenu'}) do local x=g:FindFirstChild(n) if x and x.Visible then active+=1 end end local rows={'SOUNDSetting','MOTIONSetting','UI SIZESetting'} local min=math.huge local bad=0 local exact=true for _,n in ipairs(rows) do exact=exact and w.Body:FindFirstChild(n)~=nil end for _,x in ipairs(w:GetDescendants()) do if x:IsA('GuiButton') and x.Visible then min=math.min(min,x.AbsoluteSize.X,x.AbsoluteSize.Y) elseif x:IsA('TextLabel') and x.Visible and x.Text~='' and not x.TextFits then bad+=1 end end local soundIcon=w.Body.SOUNDSetting:FindFirstChild('SettingIcon') local motionIcon=w.Body.MOTIONSetting:FindFirstChild('SettingIcon') local iconExact=soundIcon and soundIcon:GetAttribute('ThemeIcon')=='SoundTool' and soundIcon:GetAttribute('ThemeIconSource')=='StandaloneAsset' and motionIcon and motionIcon:GetAttribute('ThemeIcon')=='Punch' and motionIcon:GetAttribute('ThemeIconSource')=='Atlas' local ok=w.Visible and active==1 and g.GameMenu.Tabs.Visible==false and exact and iconExact and min>=44 and bad==0 assert(ok,'standalone Settings diagnostics failed '..H:JSONEncode({active=active,min=min,bad=bad,exact=exact,iconExact=iconExact})) return H:JSONEncode({ok=ok,active=active,min=min,bad=bad,exact=exact,iconExact=iconExact})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"active\"\\s*:\\s*1", "\"exact\"\\s*:\\s*true"],
+      "label": "standalone Settings is exclusive readable and touch safe"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation return tostring(a:Invoke('ToggleSound'))" },
+      "expectRegex": ["false"],
+      "label": "Settings sound callback applies immediately"
+    },
+    { "type": "wait", "ms": 250, "label": "wait for Settings authority sync" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=H:JSONDecode(p.RPGStats.SettingsJSON.Value) assert(s.sound==false and s.motion==true and s.uiScale==1,'Settings did not persist exact state') return H:JSONEncode({ok=true,sound=s.sound,motion=s.motion,uiScale=s.uiScale})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"sound\"\\s*:\\s*false", "\"uiScale\"\\s*:\\s*1"],
+      "label": "standalone Settings reaches server normalization"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('CloseMenus') return a:Invoke('OpenMore')" }, "label": "open standalone Missions surface" },
+    { "type": "wait", "ms": 250, "label": "wait for Missions render" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local m=g.GameMenu local title=m.StandaloneHostTitle local oldRebirth=m.Content:FindFirstChild('HERO REBIRTH • READY') or m.Content:FindFirstChild('HERO REBIRTH • LOCKED') local ok=m.Visible and title.Visible and title.Text=='MISSIONS' and m.Tabs.Visible==false and oldRebirth==nil assert(ok,'Missions surface still exposes combined tabs/Rebirth') return H:JSONEncode({ok=ok,title=title.Text,tabs=m.Tabs.Visible,rebirth=oldRebirth~=nil})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"title\"\\s*:\\s*\"MISSIONS\"", "\"tabs\"\\s*:\\s*false"],
+      "label": "Missions surface has no combined tabs or embedded Rebirth"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture standalone windows runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "standalone windows runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop standalone windows play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture standalone windows post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "standalone windows post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Edit", "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Standalone Windows 740x360' S:StopSimulationAsync() local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name==n and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return H:JSONEncode({default=S:GetDeviceAsync()=='default',removed=removed})" },
+      "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*1"],
+      "label": "restore default simulator and remove standalone windows device"
+    }
+  ]
+}

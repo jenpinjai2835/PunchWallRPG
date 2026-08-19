@@ -10,63 +10,26 @@
     {
       "type": "call",
       "tool": "execute_luau",
-      "timeoutMs": 90000,
-      "saveAs": "centerStress",
+      "timeoutMs": 360000,
+      "saveAs": "stressMatrix",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='center',x=-2,power=15,cycles=8,attempts=5,resetTotal=true,expectedTotal=40}) return H:JSONEncode(r)"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local specs={{name='center',x=-2,power=15,cycles=8,attempts=5,resetTotal=true,expectedTotal=40},{name='edge',x=18,power=6000,cycles=8,attempts=5,expectedTotal=80},{name='corner',x=20,targetX=-2,power=6000,cycles=8,attempts=5,expectedTotal=120},{name='tunnel',x=-2,power=1500000000,cycles=8,attempts=5,expectedTotal=160},{name='rubble',x=2,power=1500000000,rubble=true,cycles=8,attempts=5,expectedTotal=200}} local results={} local allValid=true for index,spec in ipairs(specs) do local result=c:Invoke('StressPunchCase',spec) local expectedPunches=spec.cycles*spec.attempts local minimumSuccess=math.ceil(expectedPunches*.925) local contractValid=type(result)=='table' and result.valid==true and result.name==spec.name and result.punches==expectedPunches and (result.success or -1)>=minimumSuccess and result.total==spec.expectedTotal and result.overlaps==0 and result.corrections==0 and result.stuck==0 and (result.maxBack or math.huge)<.5 and result.platform==false and result.sit==false and result.state~='Missing' and result.endpointMode=='DamageThenSweep' local row=type(result)=='table' and result or {name=spec.name,resultType=type(result)} row.contractValid=contractValid row.expectedPunches=expectedPunches row.expectedTotal=spec.expectedTotal results[index]=row allValid=allValid and contractValid end local finalResult=results[#results] local diagnostics={valid=allValid and #results==5 and finalResult.total==200,batches=#results,total=finalResult.total or -1,cases=results} assert(diagnostics.valid,'200-punch self-contained stress contract failed: '..H:JSONEncode(diagnostics)) return H:JSONEncode(diagnostics)"
       },
-      "label": "center batch 40 punches"
+      "expectRegex": [
+        "\"valid\"[ ]*:[ ]*true",
+        "\"batches\"[ ]*:[ ]*5",
+        "\"total\"[ ]*:[ ]*200",
+        "\"name\"[ ]*:[ ]*\"center\"",
+        "\"name\"[ ]*:[ ]*\"edge\"",
+        "\"name\"[ ]*:[ ]*\"corner\"",
+        "\"name\"[ ]*:[ ]*\"tunnel\"",
+        "\"name\"[ ]*:[ ]*\"rubble\"",
+        "\"contractValid\"[ ]*:[ ]*true",
+        "\"endpointMode\"[ ]*:[ ]*\"DamageThenSweep\""
+      ],
+      "label": "run and positively verify five fresh batches totaling 200 punches"
     },
-    { "type": "assertNoConsoleErrors", "source": "centerStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "center batch valid" },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "timeoutMs": 90000,
-      "saveAs": "edgeStress",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='edge',x=18,power=6000,cycles=8,attempts=5,expectedTotal=80}) return H:JSONEncode(r)"
-      },
-      "label": "edge batch 40 punches"
-    },
-    { "type": "assertNoConsoleErrors", "source": "edgeStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "edge batch valid" },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "timeoutMs": 90000,
-      "saveAs": "cornerStress",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='corner',x=20,targetX=-2,power=6000,cycles=8,attempts=5,expectedTotal=120}) return H:JSONEncode(r)"
-      },
-      "label": "corner batch 40 punches"
-    },
-    { "type": "assertNoConsoleErrors", "source": "cornerStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "corner batch valid" },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "timeoutMs": 90000,
-      "saveAs": "tunnelStress",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='tunnel',x=-2,power=1500000000,cycles=8,attempts=5,expectedTotal=160}) return H:JSONEncode(r)"
-      },
-      "label": "tunnel batch 40 punches"
-    },
-    { "type": "assertNoConsoleErrors", "source": "tunnelStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "tunnel batch valid" },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "timeoutMs": 90000,
-      "saveAs": "rubbleStress",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local r=c:Invoke('StressPunchCase',{name='rubble',x=2,power=1500000000,rubble=true,cycles=8,attempts=5,expectedTotal=200}) return H:JSONEncode(r)"
-      },
-      "label": "rubble batch completes 200 punches"
-    },
-    { "type": "assertNoConsoleErrors", "source": "rubbleStress", "patterns": ["\"valid\"[ ]*:[ ]*false"], "label": "rubble batch valid and total is 200" },
     { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
     { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }

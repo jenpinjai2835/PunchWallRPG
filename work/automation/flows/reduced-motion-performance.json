@@ -69,17 +69,33 @@
     {
       "type": "call",
       "tool": "execute_luau",
+      "timeoutMs": 60000,
+      "saveAs": "reducedCameraDiagnostics",
       "args": {
-        "datamodel_type": "Server",
-        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=500,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\ncommand:Invoke(\"BreakWallCycles\",\"Brick Wall\",20)\nlocal root=workspace.PunchWallRPG\nlocal result={parts=0,sounds=0,loaded=0,particles=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then result.parts+=1 elseif d:IsA(\"Sound\") then result.sounds+=1 if d.IsLoaded then result.loaded+=1 end elseif d:IsA(\"ParticleEmitter\") then result.particles+=1 end end\nreturn HttpService:JSONEncode(result)"
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) local result=a:Invoke(\"__RunCamera\",3) a:Invoke(\"SetSettings\",{motion=true,sound=true,uiScale=1,persist=false}) result.reducedValid=result.actions==3 and result.initialOrbitSettled==true and result.settleTimedOut~=true and (result.maxStep or math.huge)<=.05 and (result.zoomDelta or math.huge)<.08 and (result.angle or math.huge)<.25 and (result.visibleRatio or 0)>=.9 and result.inside==0 and (result.maxBack or math.huge)<.5 and result.type==\"Custom\" and result.handoffActive~=true and (result.lead or math.huge)<.2 return H:JSONEncode(result)"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
-        "\"sounds\"\\s*:\\s*15",
-        "\"loaded\"\\s*:\\s*15",
-        "\"particles\"\\s*:\\s*26"
+        "\"reducedValid\"\\s*:\\s*true",
+        "\"actions\"\\s*:\\s*3",
+        "\"inside\"\\s*:\\s*0",
+        "\"type\"\\s*:\\s*\"Custom\""
       ],
-      "label": "scene cost stable after repeated destruction"
+      "label": "reduced camera is judged by suppressed-motion invariants without an unconditional lead requirement"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=500,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nlocal root=workspace.PunchWallRPG\nlocal function sample()\n local result={parts=0,sounds=0,loaded=0,particles=0,debris=#root[\"Depth Physics Debris\"]:GetChildren()}\n for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then result.parts+=1 elseif d:IsA(\"Sound\") then result.sounds+=1 if d.IsLoaded then result.loaded+=1 end elseif d:IsA(\"ParticleEmitter\") then result.particles+=1 end end\n return result\nend\nlocal before=sample()\ncommand:Invoke(\"BreakWallCycles\",\"Brick Wall\",20)\ntask.wait(5)\nlocal after=sample()\nlocal stable=after.parts==before.parts and after.sounds==before.sounds and after.particles==before.particles and after.debris==0\nlocal loadedAll=before.sounds>0 and before.loaded==before.sounds and after.loaded==after.sounds\nreturn HttpService:JSONEncode({stable=stable,loadedAll=loadedAll,before=before,after=after})"
+      },
+      "expectRegex": [
+        "\"stable\"\\s*:\\s*true",
+        "\"loadedAll\"\\s*:\\s*true",
+        "\"debris\"\\s*:\\s*0"
+      ],
+      "label": "scene composition returns to its own deterministic baseline after repeated destruction"
     },
     {
       "type": "call",

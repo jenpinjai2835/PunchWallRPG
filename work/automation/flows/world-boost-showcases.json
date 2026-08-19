@@ -1,0 +1,188 @@
+{
+  "name": "world-boost-showcases",
+  "description": "Validate three collision-free 3D Boost product showcases beside the depth entrance, real keyboard/mouse/phone-simulator touch interaction, declared ButtonX binding with the same server route, exact Boosts-page routing, bounded static visuals, and clean runtime shutdown.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Gate3 Flow Desktop 1366x768' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=1366,Height=768,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.4) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"\\s*:\\s*1366", "\"height\"\\s*:\\s*768", "\"active\"\\s*:\\s*true"],
+      "label": "activate fixed desktop viewport for real input routes"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for world commerce and HUD" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "startupConsole", "label": "capture startup console" },
+    { "type": "assertNoConsoleErrors", "source": "startupConsole", "label": "startup console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "showcaseStructure",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local root=workspace:FindFirstChild('PunchWallRPG') local folder=root and root:FindFirstChild('Depth Entrance Boost Showcases',true) if not root or not folder then return 'missing' end return table.concat({tostring(root:GetAttribute('WorldBoostShowcaseCount')),tostring(#folder:GetChildren()),tostring(root:GetAttribute('WorldBoostShowcasePartCount')),tostring(folder:GetAttribute('StaticVisualPartBudget')),tostring(root:GetAttribute('WorldBoostShowcaseValidated')),tostring(folder:GetAttribute('ContainsRuntimeLoops'))},':')"
+      },
+      "expectRegex": ["3:3:43:48:true:false"],
+      "label": "three bounded static showcase models are built"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local root=workspace:FindFirstChild('PunchWallRPG') local folder=root:FindFirstChild('Depth Entrance Boost Showcases',true) local parts=0 local safe=true local laneClear=true for _,d in ipairs(folder:GetDescendants()) do if d:IsA('BasePart') then parts+=1 safe=safe and d.Anchored and not d.CanCollide and not d.CanTouch laneClear=laneClear and d.Position.X-d.Size.X*.5>=24 end end return tostring(parts)..':'..tostring(safe)..':'..tostring(laneClear)"
+      },
+      "expectRegex": ["43:true:true"],
+      "label": "all product geometry stays anchored non-colliding and outside the lane"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local root=workspace:FindFirstChild('PunchWallRPG') local folder=root:FindFirstChild('Depth Entrance Boost Showcases',true) local ok=true for _,id in ipairs({'CoinBoost','SpeedBoost','DamageBoost'}) do local model=folder:FindFirstChild(id..' World Showcase') local primary=model and model.PrimaryPart local prompt=primary and primary:FindFirstChild(id..' Open Boost Shop') local click=primary and primary:FindFirstChild(id..' Open Boost Shop Click') ok=ok and model:GetAttribute('VisualRole')=='WorldBoostProductModel' and model:GetAttribute('ShopPage')=='Boosts' and model:GetAttribute('HighTrafficRoute')=='SpawnToDepthEntrance' and model:GetAttribute('WithinVisualPartBudget')==true and prompt:IsA('ProximityPrompt') and prompt.ActionText=='VIEW BOOSTS' and prompt.KeyboardKeyCode==Enum.KeyCode.E and prompt.GamepadKeyCode==Enum.KeyCode.ButtonX and prompt.ClickablePrompt and prompt.RequiresLineOfSight==false and click:IsA('ClickDetector') and click.MaxActivationDistance==16 end return tostring(ok)"
+      },
+      "expectRegex": ["true"],
+      "label": "keyboard gamepad touch and mouse bindings are configured"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local result=game.ServerStorage.PunchWallAutomation:Invoke('OpenWorldBoostKiosk','CoinBoost') return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"page\"\\s*:\\s*\"Boosts\"", "\"boostId\"\\s*:\\s*\"CoinBoost\""],
+      "label": "invoke the same server route used by prompt and click"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local result=game.ServerStorage.PunchWallAutomation:Invoke('OpenWorldBoostKiosk','CoinBoost') return H:JSONEncode(result)"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*false", "\"reason\"\\s*:\\s*\"cooldown\""],
+      "label": "rapid repeat is throttled server-side"
+    },
+    { "type": "wait", "ms": 500, "label": "wait for client shop transition" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "shopRoute",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local shop=g.GameMenu:FindFirstChild('FunctionalHeroShop') local cards=0 for _,name in ipairs({'CoinBoostShopCard','SpeedBoostShopCard','DamageBoostShopCard'}) do if shop and shop:FindFirstChild(name,true) then cards+=1 end end local tab=shop and shop:FindFirstChild('BoostsShopTab',true) local selected=tab and tab:FindFirstChild('SelectedRail')~=nil local reason=shop and shop:GetAttribute('RefreshReason') local ok=g.GameMenu.Visible and shop and shop.Visible and selected and cards==3 and reason=='world-commerce-showcase' return table.concat({tostring(ok),tostring(g.GameMenu.Visible),tostring(shop and shop.Visible),tostring(selected),tostring(cards),tostring(reason)},':')"
+      },
+      "expectRegex": ["true:true:true:true:3:world-commerce-showcase"],
+      "label": "kiosk lands on the exact Boosts catalog"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') return g.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close shop before real keyboard prompt test" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local result=game.ServerStorage.PunchWallAutomation:Invoke('Teleport','CoinBoost Showcase Interaction Plinth') return result.ok" }, "expectRegex": ["true"], "label": "move the live player into Coin Boost prompt range" },
+    { "type": "wait", "ms": 500, "label": "wait for proximity prompt visibility" },
+    {
+      "type": "call",
+      "tool": "user_keyboard_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          { "action": "keyDown", "key_code": "E" },
+          { "action": "wait", "wait_time_ms": 180 },
+          { "action": "keyUp", "key_code": "E" }
+        ]
+      },
+      "label": "press E through the live player input path"
+    },
+    { "type": "wait", "ms": 600, "label": "wait for keyboard-opened shop" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local shop=g.GameMenu:FindFirstChild('FunctionalHeroShop') local tab=shop and shop:FindFirstChild('BoostsShopTab',true) local selected=tab and tab:FindFirstChild('SelectedRail')~=nil local cards=0 for _,name in ipairs({'CoinBoostShopCard','SpeedBoostShopCard','DamageBoostShopCard'}) do if shop and shop:FindFirstChild(name,true) then cards+=1 end end return table.concat({tostring(g.GameMenu.Visible),tostring(shop and shop.Visible),tostring(selected),tostring(cards),tostring(g:GetAttribute('LastWorldBoostShowcase'))},':')"
+      },
+      "expectRegex": ["true:true:true:3:CoinBoost"],
+      "label": "real E input opens the exact Boosts page"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') return g.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close shop before live mouse test" },
+    { "type": "wait", "ms": 700, "label": "wait beyond kiosk throttle for mouse test" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local result=game.ServerStorage.PunchWallAutomation:Invoke('Teleport','SpeedBoost Showcase Interaction Plinth') return result.ok" }, "expectRegex": ["true"], "label": "move live player to Speed showcase" },
+    { "type": "call", "tool": "execute_luau", "saveAs": "desktopClickTarget", "args": { "datamodel_type": "Client", "code": "local cam=workspace.CurrentCamera local part=workspace.PunchWallRPG.Interactables['Depth Entrance Boost Showcases']['SpeedBoost World Showcase']['SpeedBoost Showcase Interaction Plinth'] cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(part.Position+Vector3.new(0,4,8),part.Position) cam.Focus=part.CFrame task.wait(.35) local p,on=cam:WorldToViewportPoint(part.Position) return table.concat({tostring(on),tostring(math.floor(p.X+.5)),tostring(math.floor(p.Y+.5)),tostring(cam.ViewportSize.X),tostring(cam.ViewportSize.Y)},':')" }, "expectRegex": ["true:"], "label": "center Speed world click target in fixed viewport" },
+    { "type": "wait", "ms": 500, "label": "wait for Speed click target" },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          { "action": "moveTo", "x": 683, "y": 384 },
+          { "action": "wait", "wait_time_ms": 180 },
+          { "action": "mouseButtonClick", "mouse_button": "left" }
+        ]
+      },
+      "label": "click Speed showcase through the live mouse path"
+    },
+    { "type": "wait", "ms": 600, "label": "wait for mouse-opened shop" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local shop=g.GameMenu:FindFirstChild('FunctionalHeroShop') return table.concat({tostring(g.GameMenu.Visible),tostring(shop and shop.Visible),tostring(g:GetAttribute('LastWorldBoostShowcase'))},':')" }, "expectRegex": ["true:true:SpeedBoost"], "label": "real mouse click opens Speed Boosts page" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') return g.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close shop before ButtonX binding route validation" },
+    { "type": "wait", "ms": 700, "label": "wait beyond kiosk throttle for ButtonX binding route validation" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local result=game.ServerStorage.PunchWallAutomation:Invoke('Teleport','DamageBoost Showcase Interaction Plinth') return result.ok" }, "expectRegex": ["true"], "label": "move live player to Damage showcase" },
+    { "type": "wait", "ms": 500, "label": "wait for Damage ButtonX-bound prompt" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local prompt=workspace.PunchWallRPG.Interactables['Depth Entrance Boost Showcases']['DamageBoost World Showcase']['DamageBoost Showcase Interaction Plinth']['DamageBoost Open Boost Shop'] assert(prompt.GamepadKeyCode==Enum.KeyCode.ButtonX,'Damage prompt gamepad binding changed') local result=game.ServerStorage.PunchWallAutomation:Invoke('OpenWorldBoostKiosk','DamageBoost') return H:JSONEncode(result)" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"boostId\"\\s*:\\s*\"DamageBoost\""], "label": "verify Damage server route paired with ButtonX-bound prompt" },
+    { "type": "wait", "ms": 600, "label": "wait for ButtonX-bound route shop" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local shop=g.GameMenu:FindFirstChild('FunctionalHeroShop') return table.concat({tostring(g.GameMenu.Visible),tostring(shop and shop.Visible),tostring(g:GetAttribute('LastWorldBoostShowcase'))},':')" }, "expectRegex": ["true:true:DamageBoost"], "label": "ButtonX-bound prompt opens Damage Boosts page" },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_World_Boost_Showcases" }, "label": "capture Boosts page reached from validated desktop routes" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Gate3 Flow Phone 844x390' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=844,Height=390,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.4) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+      },
+      "expectRegex": ["\"width\"\\s*:\\s*844", "\"height\"\\s*:\\s*390", "\"active\"\\s*:\\s*true"],
+      "label": "activate phone simulator for touch route"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start phone touch play" },
+    { "type": "wait", "ms": 7000, "label": "wait for phone world and HUD" },
+    { "type": "call", "tool": "execute_luau", "saveAs": "phoneDevice", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local U=game:GetService('UserInputService') local cam=workspace.CurrentCamera return H:JSONEncode({touch=U.TouchEnabled,keyboard=U.KeyboardEnabled,viewportX=cam.ViewportSize.X,viewportY=cam.ViewportSize.Y})" }, "expectRegex": ["\"touch\"\\s*:\\s*true", "\"viewportX\"\\s*:\\s*844", "\"viewportY\"\\s*:\\s*369"], "label": "phone simulator exposes touch input" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local result=game.ServerStorage.PunchWallAutomation:Invoke('Teleport','CoinBoost Showcase Interaction Plinth') return result.ok" }, "expectRegex": ["true"], "label": "move phone player to Coin showcase" },
+    { "type": "call", "tool": "execute_luau", "saveAs": "phoneClickTarget", "args": { "datamodel_type": "Client", "code": "local cam=workspace.CurrentCamera local part=workspace.PunchWallRPG.Interactables['Depth Entrance Boost Showcases']['CoinBoost World Showcase']['CoinBoost Showcase Interaction Plinth'] cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=CFrame.lookAt(part.Position+Vector3.new(0,4,8),part.Position) cam.Focus=part.CFrame task.wait(.35) local p,on=cam:WorldToViewportPoint(part.Position) return table.concat({tostring(on),tostring(math.floor(p.X+.5)),tostring(math.floor(p.Y+.5)),tostring(cam.ViewportSize.X),tostring(cam.ViewportSize.Y)},':')" }, "expectRegex": ["true:422:174:844:369"], "label": "center Coin touch target in phone viewport" },
+    { "type": "wait", "ms": 500, "label": "wait for phone clickable prompt" },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          { "action": "moveTo", "x": 422, "y": 174 },
+          { "action": "wait", "wait_time_ms": 180 },
+          { "action": "mouseButtonClick", "mouse_button": "left" }
+        ]
+      },
+      "label": "tap Coin showcase in the live phone simulator"
+    },
+    { "type": "wait", "ms": 600, "label": "wait for touch-opened shop" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local U=game:GetService('UserInputService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local shop=g.GameMenu:FindFirstChild('FunctionalHeroShop') return table.concat({tostring(U.TouchEnabled),tostring(g.GameMenu.Visible),tostring(shop and shop.Visible),tostring(g:GetAttribute('LastWorldBoostShowcase'))},':')" }, "expectRegex": ["true:true:true:CoinBoost"], "label": "phone simulator tap opens exact Coin Boosts page" },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_World_Boost_Showcases_Phone" }, "label": "capture phone Boosts page reached by simulator tap" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "phoneConsole", "label": "capture phone runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "phoneConsole", "label": "phone runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop phone touch play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "phoneConsoleAfterStop", "label": "capture phone post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "phoneConsoleAfterStop", "label": "phone post-stop console clean" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() local names={['PunchWall Gate3 Flow Desktop 1366x768']=true,['PunchWall Gate3 Flow Phone 844x390']=true} local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return {default=S:GetDeviceAsync()=='default',removed=removed}" }, "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*2"], "label": "restore default viewport after touch route" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local names={['PunchWall Gate3 Flow Desktop 1366x768']=true,['PunchWall Gate3 Flow Phone 844x390']=true} for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if names[info.Name] and info.IsCustom then S:RemoveDeviceAsync(id) end end return true" }, "allowError": true, "label": "cleanup gate3 simulators" }
+  ]
+}

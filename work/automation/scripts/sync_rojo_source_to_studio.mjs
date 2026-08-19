@@ -4,11 +4,16 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertPlaceIdentity,
+  inspectSelectedPlace,
+  selectStudioStrict,
+  waitForDataModels,
+} from "./studio_mcp_client.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(
-  process.env.PUNCH_WALL_PROJECT_ROOT || path.join(SCRIPT_DIR, "..", "..", "punch-wall-rpg"),
-);
+const REPOSITORY_ROOT = path.resolve(SCRIPT_DIR, "..", "..", "..");
+const PROJECT_ROOT = path.join(REPOSITORY_ROOT, "work", "punch-wall-rpg");
 const DEFAULT_STUDIO_NAME = "PunchWallRPGPrototype";
 
 const SCRIPT_MAPPINGS = [
@@ -48,6 +53,13 @@ const SCRIPT_MAPPINGS = [
     name: "InventoryViewModel",
   },
   {
+    source: path.join(PROJECT_ROOT, "src", "server", "ProfilePersistence.lua"),
+    datamodelType: "Edit",
+    className: "ModuleScript",
+    service: "ServerScriptService",
+    name: "ProfilePersistence",
+  },
+  {
     source: path.join(PROJECT_ROOT, "src", "server", "PunchWallBootstrap.server.lua"),
     datamodelType: "Edit",
     className: "Script",
@@ -81,12 +93,24 @@ function parseArgs(argv) {
     } else if (key === "--studio-mcp") {
       args.studioMcp = value;
       index += 1;
+    } else if (key === "--studio-instance-id") {
+      args.studioInstanceId = value;
+      index += 1;
+    } else if (key === "--place-name") {
+      args.placeName = value;
+      index += 1;
+    } else if (key === "--place-id") {
+      args.placeId = value;
+      index += 1;
     } else if (key === "--help" || key === "-h") {
       console.log(`Usage:
-  node sync_rojo_source_to_studio.mjs [--studio-name PunchWallRPGPrototype] [--studio-mcp path]
+  node sync_rojo_source_to_studio.mjs [--studio-name PunchWallRPGPrototype]
+    [--studio-instance-id exact-id] [--place-name regex] [--studio-mcp path]
 
 Pushes local Rojo source scripts into the active Roblox Studio edit DataModel through Studio MCP.`);
       process.exit(0);
+    } else {
+      throw new Error(`Unknown argument: ${key}`);
     }
   }
   return args;
@@ -190,29 +214,13 @@ class McpClient {
     return {
       raw: response,
       text: textOf(response),
-      isError: response?.result?.isError === true,
+      isError: response?.error !== undefined || response?.result?.isError === true,
     };
   }
 
   close() {
     this.child.kill();
   }
-}
-
-async function selectStudio(client, studioName) {
-  let studios = [];
-  for (let attempt = 1; attempt <= 15; attempt += 1) {
-    const list = await client.callTool("list_roblox_studios", {});
-    studios = JSON.parse(list.text).studios ?? [];
-    if (studios.length) break;
-    await sleep(3000);
-  }
-  if (!studios.length) throw new Error("No Roblox Studio instances registered with MCP");
-
-  const matcher = new RegExp(studioName ?? DEFAULT_STUDIO_NAME, "i");
-  const studio = studios.find((item) => matcher.test(item.name)) ?? studios[0];
-  await client.callTool("set_active_studio", { studio_id: studio.id });
-  return studio;
 }
 
 function syncCode(mapping, source) {
@@ -241,10 +249,76 @@ function targetPath(mapping) {
   return `game.${mapping.service}.${mapping.name}`;
 }
 
+function splitUtf8Chunks(value, maximumBytes) {
+  const chunks = [];
+  let current = "";
+  let currentBytes = 0;
+  for (const character of value) {
+    const characterBytes = Buffer.byteLength(character, "utf8");
+    if (current && currentBytes + characterBytes > maximumBytes) {
+      chunks.push(current);
+      current = "";
+      currentBytes = 0;
+    }
+    current += character;
+    currentBytes += characterBytes;
+  }
+  if (current || chunks.length === 0) chunks.push(current);
+  return chunks;
+}
+
+function sourceFingerprint(value) {
+  let a = 1;
+  let b = 0;
+  for (const byte of Buffer.from(value, "utf8")) {
+    a = (a + byte) % 65521;
+    b = (b + a) % 65521;
+  }
+  return {
+    length: Buffer.byteLength(value, "utf8"),
+    adler32: b * 65536 + a,
+  };
+}
+
+async function verifySyncedSource(client, mapping, source) {
+  const expected = sourceFingerprint(source);
+  const verify = await client.callTool("execute_luau", {
+    datamodel_type: mapping.datamodelType,
+    code: `
+local H=game:GetService("HttpService")
+local value=${targetPath(mapping)}.Source
+local a,b=1,0
+for index=1,#value do
+\ta=(a+string.byte(value,index))%65521
+\tb=(b+a)%65521
+end
+return H:JSONEncode({
+\tlength=#value,
+\tadler32=b*65536+a,
+\thasSentinel=string.find(value,"CODEX_CHUNK_SYNC",1,true)~=nil,
+})
+`,
+  }, 45000);
+  const lengthMatch = verify.text.match(/"length"\s*:\s*(\d+)/i);
+  const adlerMatch = verify.text.match(/"adler32"\s*:\s*(\d+)/i);
+  const sentinelMatch = verify.text.match(/"hasSentinel"\s*:\s*(true|false)/i);
+  if (
+    verify.isError
+    || Number(lengthMatch?.[1]) !== expected.length
+    || Number(adlerMatch?.[1]) !== expected.adler32
+    || sentinelMatch?.[1]?.toLowerCase() !== "false"
+  ) {
+    throw new Error(
+      `Exact sync verification failed for ${mapping.name}: expected ${JSON.stringify(expected)}, received ${verify.text}`,
+    );
+  }
+  return expected;
+}
+
 async function syncMapping(client, mapping, source) {
   const directLimit = 165000;
   const chunkSize = 110000;
-  if (source.length <= directLimit) {
+  if (Buffer.byteLength(source, "utf8") <= directLimit) {
     const result = await client.callTool("execute_luau", {
       datamodel_type: mapping.datamodelType,
       code: syncCode(mapping, source),
@@ -252,14 +326,12 @@ async function syncMapping(client, mapping, source) {
     if (result.isError || !/synced/i.test(result.text)) {
       throw new Error(`Failed to sync ${mapping.name}: ${result.text}`);
     }
-    return result;
+    const fingerprint = await verifySyncedSource(client, mapping, source);
+    return { ...result, fingerprint };
   }
 
   const sentinel = `\n--[[CODEX_CHUNK_SYNC_${mapping.name}_SENTINEL]]`;
-  const chunks = [];
-  for (let offset = 0; offset < source.length; offset += chunkSize) {
-    chunks.push(source.slice(offset, offset + chunkSize));
-  }
+  const chunks = splitUtf8Chunks(source, chunkSize);
   const initial = await client.callTool("execute_luau", {
     datamodel_type: mapping.datamodelType,
     code: syncCode(mapping, chunks[0] + sentinel),
@@ -285,14 +357,12 @@ async function syncMapping(client, mapping, source) {
   if (finalize.isError) {
     throw new Error(`Failed to finalize chunked sync for ${mapping.name}: ${finalize.text}`);
   }
-  const verify = await client.callTool("execute_luau", {
-    datamodel_type: mapping.datamodelType,
-    code: `local value = ${targetPath(mapping)}.Source\nreturn {length = #value, hasSentinel = string.find(value, "CODEX_CHUNK_SYNC", 1, true) ~= nil}`,
-  }, 45000);
-  if (verify.isError || !verify.text.includes(`"length":${source.length}`) || !verify.text.includes('"hasSentinel":false')) {
-    throw new Error(`Chunked sync verification failed for ${mapping.name}: ${verify.text}`);
-  }
-  return { text: `synced ${mapping.name} in ${chunks.length} chunks`, isError: false };
+  const fingerprint = await verifySyncedSource(client, mapping, source);
+  return {
+    text: `synced ${mapping.name} in ${chunks.length} chunks`,
+    isError: false,
+    fingerprint,
+  };
 }
 
 async function main() {
@@ -302,21 +372,50 @@ async function main() {
   const synced = [];
   try {
     await client.initialize();
-    const selectedStudio = await selectStudio(client, args.studioName ?? DEFAULT_STUDIO_NAME);
+    const selectedStudio = await selectStudioStrict(client, {
+      studioInstanceId: args.studioInstanceId,
+      studioName: args.studioName ?? DEFAULT_STUDIO_NAME,
+      pollAttempts: 15,
+      pollMs: 3000,
+    });
+    const selectedPlace = await inspectSelectedPlace(client);
+    assertPlaceIdentity(selectedPlace, {
+      placeName: args.placeName,
+      placeId: args.placeId,
+    });
     const state = await client.callTool("get_studio_state", {});
     if (/Current Studio Mode:\s*Play/i.test(state.text)) {
       await client.callTool("start_stop_play", { is_start: false }, 45000);
-      await sleep(3000);
+      await waitForDataModels(client, ["Edit"], 60000);
     }
-    for (const mapping of SCRIPT_MAPPINGS) {
+    const mappings = SCRIPT_MAPPINGS.filter((mapping) => {
+      if (fs.existsSync(mapping.source)) return true;
+      if (mapping.optional) return false;
+      throw new Error(`Required Rojo source missing: ${mapping.source}`);
+    });
+    await waitForDataModels(client, ["Edit"], 60000);
+    for (const mapping of mappings) {
       // Roblox normalizes Script.Source line endings to LF. Normalize before
       // chunking so the post-sync length check measures the exact stored text.
       const source = fs.readFileSync(mapping.source, "utf8").replace(/\r\n?/g, "\n");
       const result = await syncMapping(client, mapping, source);
-      synced.push({ name: mapping.name, source: mapping.source, result: result.text });
+      synced.push({
+        name: mapping.name,
+        source: mapping.source,
+        result: result.text,
+        fingerprint: result.fingerprint,
+      });
     }
 
-    console.log(JSON.stringify({ ok: true, studioMcp, selectedStudio, synced }, null, 2));
+    console.log(JSON.stringify({
+      ok: true,
+      repositoryRoot: REPOSITORY_ROOT,
+      projectRoot: PROJECT_ROOT,
+      studioMcp,
+      selectedStudio,
+      selectedPlace,
+      synced,
+    }, null, 2));
   } finally {
     client.close();
   }

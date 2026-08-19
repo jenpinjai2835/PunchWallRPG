@@ -1,7 +1,7 @@
 {
   "name": "punchwall-player-state",
-  "description": "Validate fresh player stat structure and HUD sync after leaderstats/RPGStats update.",
-  "studioName": "PunchWallRPGPrototype",
+  "description": "Validate the current authoritative fresh-player stat schema, defaults, Studio automation mutation path, and replicated Hero City HUD state.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -24,41 +24,56 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal player = Players:GetPlayers()[1]\nassert(player, \"missing player\")\nlocal leaderstats = player:WaitForChild(\"leaderstats\", 5)\nlocal stats = player:WaitForChild(\"RPGStats\", 5)\nassert(leaderstats and stats, \"missing stat folders\")\nlocal function setValue(folder, name, value)\n\tlocal instance = folder:FindFirstChild(name)\n\tassert(instance, \"missing \" .. name)\n\tinstance.Value = value\nend\nsetValue(leaderstats, \"Power\", 15)\nsetValue(leaderstats, \"Coins\", 0)\nsetValue(leaderstats, \"WallLevel\", 1)\nsetValue(leaderstats, \"Rebirths\", 0)\nsetValue(stats, \"FistMastery\", 1)\nsetValue(stats, \"BreakSpeed\", 1)\nsetValue(stats, \"CritChance\", 5)\nsetValue(stats, \"Luck\", 1)\nsetValue(stats, \"FistMultiplier\", 1)\nsetValue(stats, \"PetMultiplier\", 0)\nsetValue(stats, \"EquippedFist\", \"Starter Glove\")\nsetValue(stats, \"Pet\", \"None\")\nreturn HttpService:JSONEncode({ power = leaderstats.Power.Value, coins = leaderstats.Coins.Value, wallLevel = leaderstats.WallLevel.Value, rebirths = leaderstats.Rebirths.Value, equippedFist = stats.EquippedFist.Value, pet = stats.Pet.Value })"
+        "code": "local H=game:GetService('HttpService') local c=game:GetService('ServerStorage'):WaitForChild('PunchWallAutomation',5) assert(c,'missing current Studio automation') local reset=c:Invoke('Reset') assert(reset.ok==true,'authoritative reset failed') local p=game.Players:GetPlayers()[1] assert(p,'missing player') local l=p:WaitForChild('leaderstats',5) local r=p:WaitForChild('RPGStats',5) assert(l and r,'missing stat folders') local leaderNames={'Depth','Score','Power','Coins','Honor','WallLevel','WallXP','Rebirths'} local rpgNumberNames={'FistMastery','BreakSpeed','CritChance','Luck','FistMultiplier','PetMultiplier','TutorialStep','DailyBreaks','DailyQuestClaimed','PlaytimeSeconds','PlaytimeClaimed','HonorPowerBonus','LastSpinAt','SpinCredits','TrainingActive','TrainingUpdatedAt','LastHonorCycle','PetDropPity'} local rpgTextNames={'EquippedFist','Pet','OwnedFistsJSON','OwnedPremiumFistsJSON','OwnedPremiumPetsJSON','OwnedHonorItemsJSON','EquippedHonorItem','PetInventoryJSON','EquippedPetsJSON','DiscoveredPetsJSON','LockedPetsJSON','LastDailyDate','DailyQuestDate','SettingsJSON'} local missing={} for _,name in ipairs(leaderNames) do local v=l:FindFirstChild(name) if not (v and v:IsA('NumberValue')) then table.insert(missing,'leaderstats.'..name) end end for _,name in ipairs(rpgNumberNames) do local v=r:FindFirstChild(name) if not (v and v:IsA('NumberValue')) then table.insert(missing,'RPGStats.'..name) end end for _,name in ipairs(rpgTextNames) do local v=r:FindFirstChild(name) if not (v and v:IsA('StringValue')) then table.insert(missing,'RPGStats.'..name) end end local fresh=l.Power.Value==15 and l.Coins.Value==0 and l.Honor.Value==0 and l.Depth.Value==0 and l.Score.Value==0 and l.WallLevel.Value==1 and l.WallXP.Value==0 and l.Rebirths.Value==0 and r.FistMastery.Value==1 and r.BreakSpeed.Value==1 and r.CritChance.Value==5 and r.Luck.Value==1 and r.FistMultiplier.Value==1 and r.PetMultiplier.Value==0 and r.EquippedFist.Value=='Starter Glove' and r.Pet.Value=='None' and r.OwnedFistsJSON.Value=='[\"Starter Glove\"]' assert(#missing==0 and fresh,'fresh authoritative schema/default mismatch') local seeded=c:Invoke('SetStats',{Power=321,Coins=654,Depth=7,Score=987,WallLevel=4,DailyBreaks=3}) local seededOk=seeded.ok==true and seeded.Power==321 and seeded.Coins==654 and seeded.Depth==7 and seeded.Score==987 and seeded.WallLevel==4 and seeded.DailyBreaks==3 assert(seededOk,'authoritative SetStats snapshot mismatch') return H:JSONEncode({schema=true,leaderNumbers=#leaderNames,rpgNumbers=#rpgNumberNames,rpgText=#rpgTextNames,fresh=fresh,seeded=seededOk,power=seeded.Power,coins=seeded.Coins,depth=seeded.Depth,score=seeded.Score,wallLevel=seeded.WallLevel,breaks=seeded.DailyBreaks,equippedFist=seeded.EquippedFist,pet=seeded.Pet})"
       },
       "saveAs": "serverStats",
       "expectRegex": [
-        "\"power\"\\s*:\\s*15",
-        "\"coins\"\\s*:\\s*0",
-        "\"wallLevel\"\\s*:\\s*1",
-        "\"rebirths\"\\s*:\\s*0",
-        "Starter Glove",
+        "\"schema\"\\s*:\\s*true",
+        "\"leaderNumbers\"\\s*:\\s*8",
+        "\"rpgNumbers\"\\s*:\\s*18",
+        "\"rpgText\"\\s*:\\s*14",
+        "\"fresh\"\\s*:\\s*true",
+        "\"seeded\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*321",
+        "\"coins\"\\s*:\\s*654",
+        "\"depth\"\\s*:\\s*7",
+        "\"score\"\\s*:\\s*987",
+        "\"wallLevel\"\\s*:\\s*4",
+        "\"breaks\"\\s*:\\s*3",
+        "\"equippedFist\"\\s*:\\s*\"Starter Glove\"",
         "\"pet\"\\s*:\\s*\"None\""
       ],
-      "label": "default stats exist"
+      "label": "fresh authoritative schema defaults and seeded snapshot are current"
     },
     {
       "type": "wait",
-      "ms": 800,
-      "label": "wait for stat remote"
+      "ms": 1000,
+      "label": "wait for authoritative stat replication"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal player = Players.LocalPlayer\nassert(player, \"missing local player\")\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nassert(gui, \"missing PunchWallHUD\")\nlocal wanted = { Power = true, Coins = true, WallLevel = true, EquippedFist = true, Pet = true, Rebirths = true }\nlocal labels = {}\nfor _, descendant in ipairs(gui:GetDescendants()) do\n\tif descendant:IsA(\"TextLabel\") and wanted[descendant.Name] then\n\t\tlabels[descendant.Name] = descendant.Text\n\tend\nend\nreturn HttpService:JSONEncode(labels)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer assert(p,'missing local player') local l=p:WaitForChild('leaderstats',5) local r=p:WaitForChild('RPGStats',5) local g=p:WaitForChild('PlayerGui'):WaitForChild('PunchWallHUD',5) local h=g:WaitForChild('PixelPerfectHeroCityHUD',5) assert(l and r and g and h,'missing replicated player/HUD state') local power=h.PowerCard.PowerValue local coins=h.CoinsCard.CoinsValue local depth=h.WallCard.DepthValue local legacyPower=g.StatsPanel:FindFirstChild('Power',true) local legacyCoins=g.StatsPanel:FindFirstChild('Coins',true) local legacyWall=g.StatsPanel:FindFirstChild('WallLevel',true) local legacyFist=g.StatsPanel:FindFirstChild('EquippedFist',true) local legacyPet=g.StatsPanel:FindFirstChild('Pet',true) local legacyRebirth=g.StatsPanel:FindFirstChild('Rebirths',true) local rankStats=h.DepthRankHUD:FindFirstChild('RankStatsData') local marker=h.DepthRankHUD:FindFirstChild('HeroDepthMarker1',true) local markerName=marker and marker:FindFirstChild('HeroName') local stateExact=l.Power.Value==321 and l.Coins.Value==654 and l.Depth.Value==7 and l.Score.Value==987 and l.WallLevel.Value==4 and l.Rebirths.Value==0 and r.DailyBreaks.Value==3 and r.EquippedFist.Value=='Starter Glove' and r.Pet.Value=='None' local heroExact=power.Text=='321' and coins.Text=='654' and depth.Text=='7' and power.TextFits and coins.TextFits and depth.TextFits and h:GetAttribute('AuthoritativeDepth')==7 and h:GetAttribute('AuthoritativeQuestBreaks')==3 and h.QuestCard.QuestProgress.Text=='3 / 10' and string.find(h.NextWorldCard.WorldProgress.Text,'D7/75',1,true)~=nil and rankStats and string.find(rankStats.Text,'DEPTH 7',1,true)~=nil and string.find(rankStats.Text,'SCORE 987',1,true)~=nil and markerName and string.find(markerName.Text,'D7',1,true)~=nil local legacyExact=legacyPower and legacyPower.Text=='Power: 321' and legacyCoins and legacyCoins.Text=='Coins: 654' and legacyWall and string.find(legacyWall.Text,'Wall Lv: 4',1,true)==1 and legacyFist and legacyFist.Text=='Fist: Starter Fist' and legacyPet and legacyPet.Text=='Pets: None  x1.00' and legacyRebirth and legacyRebirth.Text=='Rebirths: 0  x1.00' local valid=stateExact and heroExact and legacyExact return H:JSONEncode({valid=valid,stateExact=stateExact,heroExact=heroExact,legacyExact=legacyExact,power=power.Text,coins=coins.Text,depth=depth.Text,quest=h.QuestCard.QuestProgress.Text,world=h.NextWorldCard.WorldProgress.Text,rank=rankStats and rankStats.Text or '',marker=markerName and markerName.Text or '',legacyFist=legacyFist and legacyFist.Text or '',legacyPet=legacyPet and legacyPet.Text or ''})"
       },
       "saveAs": "hudStats",
       "expectRegex": [
-        "Power: 15",
-        "Coins: 0",
-        "Wall Lv: 1",
+        "\"valid\"\\s*:\\s*true",
+        "\"stateExact\"\\s*:\\s*true",
+        "\"heroExact\"\\s*:\\s*true",
+        "\"legacyExact\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*\"321\"",
+        "\"coins\"\\s*:\\s*\"654\"",
+        "\"depth\"\\s*:\\s*\"7\"",
+        "\"quest\"\\s*:\\s*\"3 / 10\"",
+        "D7/75",
+        "DEPTH 7",
+        "SCORE 987",
         "Fist: Starter Fist",
-        "Pets: None  x1.00",
-        "Rebirths: 0  x1.00"
+        "Pets: None  x1.00"
       ],
-      "label": "hud labels synced"
+      "label": "current Hero City and legacy status labels mirror authoritative state"
     },
     {
       "type": "call",

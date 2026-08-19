@@ -121,13 +121,15 @@ PolishConfig.WallTiers = {
 		window = Color3.fromRGB(80, 222, 247),
 	},
 	["Titan Server Wall"] = {
-		color = Color3.fromRGB(22, 27, 37),
-		accent = Color3.fromRGB(231, 48, 43),
-		pad = Color3.fromRGB(47, 43, 44),
-		crack = Color3.fromRGB(10, 12, 15),
+		-- Keep the final wall dark, but retain enough value separation for its
+		-- panels, damage seams, and weak points to survive the HQ lighting pass.
+		color = Color3.fromRGB(50, 60, 75),
+		accent = Color3.fromRGB(244, 66, 52),
+		pad = Color3.fromRGB(63, 69, 79),
+		crack = Color3.fromRGB(20, 24, 32),
 		material = Enum.Material.Metal,
 		label = "Titan HQ Core",
-		window = Color3.fromRGB(238, 62, 55),
+		window = Color3.fromRGB(255, 91, 72),
 	},
 }
 
@@ -155,6 +157,27 @@ PolishConfig.Environment = {
 	CityGroundOverlays = false,
 }
 
+-- Native, deterministic world accents only. The presentation builder enforces
+-- this cap at runtime so polish cannot quietly grow into an expensive second
+-- map layer.
+PolishConfig.WorldPresentation = {
+	Version = 2,
+	MaxDecorativeParts = 128,
+	ForestWood = Color3.fromRGB(101, 70, 40),
+	ForestAccent = Color3.fromRGB(255, 194, 68),
+	DepthMetal = Color3.fromRGB(27, 35, 40),
+	TrainingAccent = Color3.fromRGB(218, 66, 48),
+	-- Ordered darkest-to-lightest so the Titan facade remains dark sci-fi
+	-- without collapsing into one near-black silhouette at runtime.
+	TitanInset = Color3.fromRGB(30, 38, 52),
+	TitanPanel = Color3.fromRGB(52, 62, 77),
+	TitanMetal = Color3.fromRGB(76, 87, 103),
+	TitanSeam = Color3.fromRGB(96, 109, 126),
+	TitanEdge = Color3.fromRGB(128, 142, 158),
+	TitanAccent = Color3.fromRGB(244, 66, 52),
+	TitanWeakPointAccent = Color3.fromRGB(255, 180, 68),
+}
+
 PolishConfig.FreeAssetCandidates = {
 	{ use = "Sanitized stylized forest trees", assetId = "95555308270103", name = "Stylized Anime Tree Cartoon Plant Forest Nature", creator = "SwitchpmPixeld111933", hasScripts = true, fallback = "Source-built wood trunks and leafy canopies; imported scripts are never retained" },
 	{ use = "Sanitized detailed Hero City skyline", assetId = "3346479763", name = "City Buildings", creator = "Zackgamer_awesome1", hasScripts = false, fallback = "Existing source-built skyline remains when runtime insertion is unavailable" },
@@ -177,9 +200,17 @@ PolishConfig.ExternalVisualTemplates = {
 	{ templateName = "Sanitized_PremiumBionicHeroNPC", assetId = 3162411898, name = "Bionic Ninja Size Corrected", creator = "Mario5697", use = "Premium Robux fist and pet merchant NPC" },
 	{ templateName = "Sanitized_PetLabScientistNPC", assetId = 103629315510813, name = "Pet Lab Scientist", creator = "XxWillowV3nomxX2016", use = "Pet shop NPC" },
 	{ templateName = "Sanitized_ForestTreeSingle", assetId = 10042451801, name = "low poly tree", creator = "ScriptedNex", use = "Single-tree forest scenery without pack-sized canopies" },
-	{ templateName = "Sanitized_CrimsonPhoenixPet", assetId = 86478691482535, name = "Mythical Phoenix pet", creator = "IAmASwedishMale", use = "Crimson Phoenix premium pet showcase" },
-	{ templateName = "Sanitized_StormWyvernPet", assetId = 83562531232957, name = "Adopt Me! Wyvern Dragon Pet Fantasy Roleplay", creator = "XzG0ldeneJGlitchQJCy", use = "Storm Wyvern premium pet showcase" },
-	{ templateName = "Sanitized_CelestialGuardianPet", assetId = 121956330907081, name = "Innovation Robot Dog", creator = "SirRioter", use = "Celestial Guardian premium pet showcase" },
+	-- These eight templates are extracted from one user-approved free pack in
+	-- Studio, sanitized, and retained in PunchWallExternalAssets. Never load the
+	-- complete 3,000-part pack at runtime when a preloaded child is absent.
+	{ templateName = "Sanitized_ForestPupPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Forest Pup from Dowodle", sourceModel = "Dowodle", preloadedOnly = true },
+	{ templateName = "Sanitized_MinerCatPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Miner Cat from Catmouse", sourceModel = "Catmouse", preloadedOnly = true },
+	{ templateName = "Sanitized_CrystalFoxPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Crystal Fox from Ocelot", sourceModel = "Ocelot", preloadedOnly = true },
+	{ templateName = "Sanitized_LavaDragonPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Lava Dragon from Mythic Autumn Dragon", sourceModel = "Mythic Autumn Dragon", preloadedOnly = true },
+	{ templateName = "Sanitized_SecretTitanGolemPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Secret Titan Golem from Dark Guardian", sourceModel = "Dark Guardian", preloadedOnly = true },
+	{ templateName = "Sanitized_CrimsonPhoenixPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Crimson Phoenix from Enraged Phoenix", sourceModel = "Enraged Phoenix", preloadedOnly = true },
+	{ templateName = "Sanitized_StormWyvernPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Storm Wyvern from Electra Hydra", sourceModel = "Electra Hydra", preloadedOnly = true },
+	{ templateName = "Sanitized_CelestialGuardianPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Celestial Guardian from Mythic Radiant One", sourceModel = "Mythic Radiant One", preloadedOnly = true },
 }
 
 return PolishConfig

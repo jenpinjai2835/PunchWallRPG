@@ -1,0 +1,140 @@
+{
+  "name": "pet-egg-world-pickup",
+  "description": "Verify depth pity spawns a server-owned mystery egg on the ground, blocks instant pickup, grants only after an in-range owner claim, enforces drop cooldown, and exposes a stronger deep-wall pool.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for runtime and sanitized templates" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('Teleport','DepthStart') local drop=c:Invoke('ForcePetEggDrop',1) local snap=c:Invoke('PetEggDropSnapshot') local folder=workspace.PunchWallRPG.Interactables['Pet Egg Drops'] local model=folder:FindFirstChildWhichIsA('Model') local egg=model and model:FindFirstChild('Mystery Pet Egg') local prompt=egg and egg:FindFirstChild('Pick Up Pet Egg') local click=egg and egg:FindFirstChild('Pet Egg Click Pickup') local cfg=require(game.ReplicatedStorage.GameConfig) local immediate=c:Invoke('ClaimPetEggDrop') local valid=drop.ok and drop.dropped and drop.drop.pendingPickup and snap.active and model and model:GetAttribute('ServerAuthoritative')==true and model:GetAttribute('OwnerUserId')==p.UserId and model:GetAttribute('RewardHiddenUntilClaim')==true and prompt and prompt:IsA('ProximityPrompt') and prompt.KeyboardKeyCode==Enum.KeyCode.E and prompt.GamepadKeyCode==Enum.KeyCode.ButtonX and prompt.ClickablePrompt and click and click:IsA('ClickDetector') and p.RPGStats.PetInventoryJSON.Value=='[]' and immediate.ok==false and immediate.claim.reason=='pickup_arming' and cfg.PetDrops.LifetimeSeconds==24 and cfg.PetDrops.SpawnCooldownSeconds==8 and drop.drop.poolMinPet=='Forest Pup' and drop.drop.poolMaxPet=='Forest Pup' return H:JSONEncode({valid=valid==true,drop=drop.ok,pending=drop.drop and drop.drop.pendingPickup,active=snap.active,server=model and model:GetAttribute('ServerAuthoritative'),owner=model and model:GetAttribute('OwnerUserId'),hidden=model and model:GetAttribute('RewardHiddenUntilClaim'),prompt=prompt~=nil,keyboard=prompt and prompt.KeyboardKeyCode.Name,gamepad=prompt and prompt.GamepadKeyCode.Name,click=click~=nil,inventory=p.RPGStats.PetInventoryJSON.Value,immediateOk=immediate.ok,immediateReason=immediate.claim and immediate.claim.reason,lifetime=cfg.PetDrops.LifetimeSeconds,cooldown=cfg.PetDrops.SpawnCooldownSeconds,poolMin=drop.drop and drop.drop.poolMinPet,poolMax=drop.drop and drop.drop.poolMaxPet})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"pending\"\\s*:\\s*true",
+        "\"server\"\\s*:\\s*true",
+        "\"hidden\"\\s*:\\s*true",
+        "\"keyboard\"\\s*:\\s*\"E\"",
+        "\"gamepad\"\\s*:\\s*\"ButtonX\"",
+        "\"immediateReason\"\\s*:\\s*\"pickup_arming\"",
+        "\"lifetime\"\\s*:\\s*24",
+        "\"cooldown\"\\s*:\\s*8",
+        "\"poolMin\"\\s*:\\s*\"Forest Pup\""
+      ],
+      "label": "spawn owner-only ground egg and reject instant claim"
+    },
+    { "type": "wait", "ms": 900, "label": "wait for pickup arm window" },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Pet_Egg_World_Pickup" }, "label": "capture landed pickup egg" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local claim=c:Invoke('ClaimPetEggDrop') local snap=c:Invoke('PetEggDropSnapshot') local folder=workspace.PunchWallRPG.Interactables['Pet Egg Drops'] local valid=claim.ok and claim.claim.pickup and claim.claim.petName=='Forest Pup' and snap.active==false and #folder:GetChildren()==0 and p.RPGStats.PetInventoryJSON.Value:find('Forest Pup',1,true)~=nil and p:GetAttribute('ActivePetEggDropId')==nil return H:JSONEncode({valid=valid==true,claim=claim.ok,pickup=claim.claim and claim.claim.pickup,pet=claim.claim and claim.claim.petName,active=snap.active,worldDrops=#folder:GetChildren(),inventory=p.RPGStats.PetInventoryJSON.Value,cooldownUntil=p:GetAttribute('PetDropCooldownUntil')})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"claim\"\\s*:\\s*true",
+        "\"pickup\"\\s*:\\s*true",
+        "\"pet\"\\s*:\\s*\"Forest Pup\"",
+        "\"active\"\\s*:\\s*false",
+        "\"worldDrops\"\\s*:\\s*0"
+      ],
+      "label": "claim armed egg and grant pet exactly once"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('SetStats',{PetDropPity=45,Power=1e12,WallLevel=99}) local before=p.RPGStats.PetInventoryJSON.Value local broken=c:Invoke('BreakDepthBlock',{layer=1,column=7,row=1},2) local snap=c:Invoke('PetEggDropSnapshot') local valid=broken.ok and snap.active==false and p.RPGStats.PetInventoryJSON.Value==before and p.RPGStats.PetDropPity.Value==45 return H:JSONEncode({valid=valid==true,broken=broken.ok,active=snap.active,pity=p.RPGStats.PetDropPity.Value,unchanged=p.RPGStats.PetInventoryJSON.Value==before})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*false",
+        "\"pity\"\\s*:\\s*45",
+        "\"unchanged\"\\s*:\\s*true"
+      ],
+      "label": "drop cooldown prevents burst eggs without consuming pity"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local deep=c:Invoke('ForcePetEggDrop',62) local model=workspace.PunchWallRPG.Interactables['Pet Egg Drops']:FindFirstChildWhichIsA('Model') local cfg=require(game.ReplicatedStorage.GameConfig) local templates={} for _,pet in ipairs(cfg.Pets) do templates[pet.name]=pet.templateName or 'ProceduralPetV2' end local valid=deep.ok and deep.drop.pendingPickup and deep.drop.poolMinPet=='Thunder Roc' and deep.drop.poolMaxPet=='Void Hound' and model and model:GetAttribute('Depth')==62 and model:GetAttribute('Rarity')~='Premium' and templates['Forest Pup']=='Sanitized_ForestPupPet' and templates['Miner Cat']=='Sanitized_MinerCatPet' and templates['Crystal Fox']=='Sanitized_CrystalFoxPet' and templates['Lava Dragon']=='Sanitized_LavaDragonPet' and templates['Thunder Roc']=='Sanitized_CrimsonPhoenixPet' and templates['Void Hound']=='Sanitized_ForestPupPet' and templates['Secret Titan Golem']=='Sanitized_SecretTitanGolemPet' return H:JSONEncode({valid=valid==true,pending=deep.drop and deep.drop.pendingPickup,poolMin=deep.drop and deep.drop.poolMinPet,poolMax=deep.drop and deep.drop.poolMaxPet,depth=model and model:GetAttribute('Depth'),rarity=model and model:GetAttribute('Rarity'),templates=templates})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"poolMin\"\\s*:\\s*\"Thunder Roc\"",
+        "\"poolMax\"\\s*:\\s*\"Void Hound\"",
+        "\"depth\"\\s*:\\s*62",
+        "Sanitized_MinerCatPet",
+        "Sanitized_CrystalFoxPet",
+        "Sanitized_LavaDragonPet",
+        "Sanitized_CrimsonPhoenixPet",
+        "Sanitized_SecretTitanGolemPet"
+      ],
+      "label": "deep wall uses stronger non-premium pool and curated visual mappings"
+    },
+    { "type": "wait", "ms": 900, "label": "arm deep egg for inventory boundary" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local cfg=require(game.ReplicatedStorage.GameConfig) local full={} for i=1,cfg.MaxPetInventory do full[i]='Forest Pup' end c:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(full),EquippedPetsJSON='[]'}) local blocked=c:Invoke('ClaimPetEggDrop') local held=c:Invoke('PetEggDropSnapshot') c:Invoke('SetStats',{PetInventoryJSON='[]',EquippedPetsJSON='[]'}) local claimed=c:Invoke('ClaimPetEggDrop') local after=c:Invoke('PetEggDropSnapshot') local valid=blocked.ok==false and blocked.claim.reason=='inventory_full' and held.active and claimed.ok and claimed.claim.pickup and after.active==false return H:JSONEncode({valid=valid==true,blocked=blocked.ok,reason=blocked.claim and blocked.claim.reason,held=held.active,claimed=claimed.ok,pickup=claimed.claim and claimed.claim.pickup,active=after.active})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"blocked\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"inventory_full\"",
+        "\"held\"\\s*:\\s*true",
+        "\"claimed\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*false"
+      ],
+      "label": "full inventory preserves egg until the player frees a slot"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local before=p.RPGStats.PetInventoryJSON.Value local drop=c:Invoke('ForcePetEggDrop',12) p:SetAttribute('FlowPetEggExpiryInventory',before) return H:JSONEncode({ok=drop.ok,pending=drop.drop and drop.drop.pendingPickup,lifetime=require(game.ReplicatedStorage.GameConfig).PetDrops.LifetimeSeconds})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"pending\"\\s*:\\s*true",
+        "\"lifetime\"\\s*:\\s*24"
+      ],
+      "label": "spawn unattended egg for expiry cleanup"
+    },
+    { "type": "wait", "ms": 24800, "label": "wait past unattended egg lifetime" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local snap=c:Invoke('PetEggDropSnapshot') local folder=workspace.PunchWallRPG.Interactables['Pet Egg Drops'] local unchanged=p.RPGStats.PetInventoryJSON.Value==p:GetAttribute('FlowPetEggExpiryInventory') local valid=snap.active==false and #folder:GetChildren()==0 and p:GetAttribute('ActivePetEggDropId')==nil and unchanged return H:JSONEncode({valid=valid==true,active=snap.active,worldDrops=#folder:GetChildren(),dropId=p:GetAttribute('ActivePetEggDropId'),unchanged=unchanged})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*false",
+        "\"worldDrops\"\\s*:\\s*0",
+        "\"unchanged\"\\s*:\\s*true"
+      ],
+      "label": "expired egg disappears without granting a pet"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

@@ -10,86 +10,462 @@ local Debris = game:GetService("Debris")
 local HttpService = game:GetService("HttpService")
 local HapticService = game:GetService("HapticService")
 local StarterGui = game:GetService("StarterGui")
+local GuiService = game:GetService("GuiService")
 
 local player = Players.LocalPlayer
 do
-	local scheduledCharacter
-	local function ensureDefaultAnimateEmoteHook(character)
+	local repairGeneration = 0
+	local activeConnections = {}
+
+	local function disconnectAnimateRepair()
+		for _, connection in ipairs(activeConnections) do
+			connection:Disconnect()
+		end
+		table.clear(activeConnections)
+	end
+
+	local function scheduleDefaultAnimateRepair(character)
+		repairGeneration += 1
+		local generation = repairGeneration
+		disconnectAnimateRepair()
 		if not character then return end
-		local animate = character:FindFirstChild("Animate")
-			or character:WaitForChild("Animate", 4)
-		if not animate
-			or not animate:IsA("LocalScript")
-		then
-			return
-		end
-		local existingPlayEmote = animate:FindFirstChild("PlayEmote")
-		if existingPlayEmote then
-			if not existingPlayEmote:IsA("BindableFunction") then
-				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
-			end
-			return
-		end
-		-- The engine normally parents this BindableFunction with Animate. Give
-		-- that replication one short scheduling window before repairing a rare
-		-- partial bootstrap, well before Animate's infinite-yield warning.
-		existingPlayEmote = animate:WaitForChild("PlayEmote", 0.25)
-		if existingPlayEmote then
-			if not existingPlayEmote:IsA("BindableFunction") then
-				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
-			end
-			return
-		end
-		if player.Character ~= character
-			or not character.Parent
-			or animate.Parent ~= character
-			or animate:FindFirstChild("PlayEmote") then
-			return
-		end
-		local playEmote = Instance.new("BindableFunction")
-		playEmote.Name = "PlayEmote"
-		-- BindableFunction:Invoke waits for a callback. Keep the repaired hook
-		-- responsive during the tiny window before Animate installs its handler.
-		playEmote.OnInvoke = function()
+
+		local animate
+		local fallback
+		local fallbackCallback = function()
 			return false
 		end
-		local duplicateConnection = animate.ChildAdded:Connect(function(child)
-			if child ~= playEmote
-				and child.Name == "PlayEmote"
-				and playEmote.Parent == animate then
-				child:Destroy()
-				character:SetAttribute("PunchWallRemovedDuplicatePlayEmoteHook", true)
+		local finished = false
+		local function isCurrent()
+			return not finished
+				and generation == repairGeneration
+				and player.Character == character
+				and character.Parent ~= nil
+		end
+		local function finish(reason)
+			if finished then return end
+			finished = true
+			disconnectAnimateRepair()
+			if character.Parent then
+				character:SetAttribute("PunchWallAnimateRepairState", reason)
+			end
+		end
+		local function acceptPlayEmote(playEmote, reason)
+			if not isCurrent() or not playEmote then return end
+			if not playEmote:IsA("BindableFunction") then
+				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", playEmote.ClassName)
+				finish("ClassMismatch")
+				return
+			end
+			if fallback and playEmote ~= fallback and fallback.Parent == animate then
+				-- Prefer the late engine-owned hook and remove only the fallback
+				-- we own. BindableFunction.OnInvoke is write-only to game scripts,
+				-- so its callback must never be read or copied here.
+				fallback:Destroy()
+				character:SetAttribute("PunchWallAdoptedLatePlayEmoteHook", true)
+			end
+			finish(reason)
+		end
+		local function bindAnimate(candidate)
+			if not isCurrent() or animate then return end
+			if not candidate:IsA("LocalScript") then
+				character:SetAttribute("PunchWallAnimateClassMismatch", candidate.ClassName)
+				finish("AnimateClassMismatch")
+				return
+			end
+			animate = candidate
+			local existing = animate:FindFirstChild("PlayEmote")
+			if existing then
+				acceptPlayEmote(existing, "EngineHookReady")
+				return
+			end
+			table.insert(activeConnections, animate.ChildAdded:Connect(function(child)
+				if child.Name == "PlayEmote" and child:GetAttribute("PunchWallOwnedFallback") ~= true then
+					acceptPlayEmote(child, fallback and "LateEngineHookAdopted" or "EngineHookReady")
+				end
+			end))
+			-- One short, bounded grace window lets the default Animate hierarchy
+			-- finish parenting before we repair a partial character bootstrap.
+			task.delay(0.35, function()
+				if not isCurrent() or animate.Parent ~= character or animate:FindFirstChild("PlayEmote") then return end
+				fallback = Instance.new("BindableFunction")
+				fallback.Name = "PlayEmote"
+				fallback.OnInvoke = fallbackCallback
+				fallback:SetAttribute("PunchWallOwnedFallback", true)
+				fallback.Parent = animate
+				character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
+				character:SetAttribute("PunchWallAnimateRepairState", "FallbackInstalled")
+			end)
+		end
+
+		local existingAnimate = character:FindFirstChild("Animate")
+		if existingAnimate then
+			bindAnimate(existingAnimate)
+		else
+			table.insert(activeConnections, character.ChildAdded:Connect(function(child)
+				if child.Name == "Animate" then bindAnimate(child) end
+			end))
+		end
+		-- The listener is never allowed to survive the bootstrap window. A future
+		-- respawn increments the generation and disconnects it immediately.
+		task.delay(6, function()
+			if isCurrent() then
+				finish(animate and (fallback and "FallbackBoundedComplete" or "HookMissing") or "AnimateMissing")
 			end
 		end)
-		existingPlayEmote = animate:FindFirstChild("PlayEmote")
-		if existingPlayEmote then
-			duplicateConnection:Disconnect()
-			playEmote:Destroy()
-			if not existingPlayEmote:IsA("BindableFunction") then
-				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", existingPlayEmote.ClassName)
-			end
-			return
-		end
-		playEmote.Parent = animate
-		character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
-	end
-	local function scheduleDefaultAnimateRepair(character)
-		if not character or scheduledCharacter == character then return end
-		scheduledCharacter = character
-		task.spawn(ensureDefaultAnimateEmoteHook, character)
 	end
 	player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
 	scheduleDefaultAnimateRepair(player.Character)
 end
-pcall(function()
-	player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom
-end)
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
 local FistVisualBuilder = require(ReplicatedStorage:WaitForChild("FistVisualBuilder"))
 local InventoryUI = require(script.Parent:WaitForChild("InventoryUI"))
 FistVisualBuilder.Ensure()
 local palette = PolishConfig.Palette
+local gui
+
+shared.PunchWallPurchaseRuntime = {}
+
+shared.PunchWallPurchaseRuntime.GamePassPriceCache = {}
+shared.PunchWallPurchaseRuntime.GamePassPricePending = {}
+shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks = {}
+
+shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice = function(item, displayPrice, resolved, state)
+	local root = workspace:FindFirstChild("PunchWallRPG")
+	if not root or not item then return end
+	local text = resolved
+		and ("R$ %d | PERMANENT | x%.1f"):format(displayPrice, item.mult)
+		or state == "Loading" and "CHECKING LOCAL PRICE..."
+		or "PRICE SHOWN AT CHECKOUT | PERMANENT"
+	for _, objectName in ipairs({
+		item.name .. " Premium Pet Stand",
+		item.name .. " Premium Pet Price",
+	}) do
+		local object = root:FindFirstChild(objectName, true)
+		if object then
+			object:SetAttribute("DefaultRobuxPrice", item.robux)
+			object:SetAttribute("DisplayedRobuxPrice", resolved and displayPrice or 0)
+			object:SetAttribute("RegionalPriceResolved", resolved)
+			object:SetAttribute("RegionalPriceState", state)
+			if objectName:find(" Price$", 1, false) then
+				for _, descendant in ipairs(object:GetDescendants()) do
+					if descendant:IsA("TextLabel") and descendant.Name == "Subtitle" then
+						descendant.Text = text
+					end
+				end
+			end
+		end
+	end
+end
+
+shared.PunchWallPurchaseRuntime.HasConfiguredGamePass = function(item)
+	local gamePassId = item and tonumber(item.gamePassId)
+	return gamePassId ~= nil and gamePassId > 0
+end
+
+shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct = function(product)
+	local productId = product and tonumber(product.productId)
+	if productId == nil or productId <= 0 or productId % 1 ~= 0 then
+		return false
+	end
+	local matches = 0
+	for _, candidate in ipairs(GameConfig.PremiumProducts) do
+		if tonumber(candidate.productId) == productId then
+			matches += 1
+		end
+	end
+	return matches == 1
+end
+
+shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice = function(item, onResolved)
+	local gamePassId = item and tonumber(item.gamePassId)
+	local fallbackPrice = math.max(0, math.floor(tonumber(item and item.robux) or 0))
+	if not gamePassId or gamePassId <= 0 then
+		return fallbackPrice, false, "Unconfigured"
+	end
+
+	local cached = shared.PunchWallPurchaseRuntime.GamePassPriceCache[gamePassId]
+	if cached then
+		shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, cached.price, cached.resolved, cached.state)
+		return cached.price, cached.resolved, cached.state
+	end
+
+	if onResolved then
+		local callbacks = shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId]
+		if not callbacks then
+			callbacks = {}
+			shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId] = callbacks
+		end
+		callbacks[onResolved] = true
+	end
+	shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, fallbackPrice, false, "Loading")
+
+	if not shared.PunchWallPurchaseRuntime.GamePassPricePending[gamePassId] then
+		shared.PunchWallPurchaseRuntime.GamePassPricePending[gamePassId] = true
+		task.spawn(function()
+			local marketplaceService = game:GetService("MarketplaceService")
+			local lookupOk, info = pcall(
+				marketplaceService.GetProductInfoAsync,
+				marketplaceService,
+				gamePassId,
+				Enum.InfoType.GamePass
+			)
+			local livePrice = lookupOk and type(info) == "table" and tonumber(info.PriceInRobux) or nil
+			local resolved = livePrice ~= nil and livePrice > 0 and info.IsForSale == true
+			local result = {
+				price = resolved and math.floor(livePrice) or fallbackPrice,
+				resolved = resolved,
+				state = resolved and "Resolved" or "CheckoutOnly",
+			}
+			shared.PunchWallPurchaseRuntime.GamePassPriceCache[gamePassId] = result
+			shared.PunchWallPurchaseRuntime.GamePassPricePending[gamePassId] = nil
+			shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
+			-- The replicated world board can arrive after MarketplaceService. One
+			-- bounded re-apply keeps it truthful without adding a polling loop.
+			task.delay(3, function()
+				shared.PunchWallPurchaseRuntime.ApplyPremiumPetWorldPrice(item, result.price, result.resolved, result.state)
+			end)
+			local callbacks = shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId]
+			shared.PunchWallPurchaseRuntime.GamePassPriceCallbacks[gamePassId] = nil
+			if callbacks then
+				for callback in pairs(callbacks) do
+					task.defer(callback)
+				end
+			end
+		end)
+	end
+
+	return fallbackPrice, false, "Loading"
+end
+
+task.defer(function()
+	for _, item in ipairs(GameConfig.PremiumPets) do
+		if shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item) then
+			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(item)
+		end
+	end
+end)
+
+shared.PunchWallPurchaseRuntime.DeveloperProductPriceCache = {}
+shared.PunchWallPurchaseRuntime.DeveloperProductPricePending = {}
+shared.PunchWallPurchaseRuntime.DeveloperProductPriceCallbacks = {}
+shared.PunchWallPurchaseRuntime.DeveloperProductPriceRevision = 0
+shared.PunchWallPurchaseRuntime.ProductUiState = {}
+shared.PunchWallPurchaseRuntime.ActivePromptProductId = nil
+
+shared.PunchWallPurchaseRuntime.SetProductUiState = function(productKey, state, message)
+	productKey = tostring(productKey or "")
+	if productKey == "" then return end
+	shared.PunchWallPurchaseRuntime.ProductUiState[productKey] = {
+		state = tostring(state or "Idle"),
+		message = tostring(message or ""),
+		updatedAt = workspace:GetServerTimeNow(),
+	}
+	shared.PunchWallPurchaseRuntime.DeveloperProductPriceRevision += 1
+	if gui then
+		gui:SetAttribute("PurchaseUiProduct", productKey)
+		gui:SetAttribute("PurchaseUiState", tostring(state or "Idle"))
+		gui:SetAttribute("PurchaseUiMessage", tostring(message or ""))
+	end
+	if shared.PunchWallHeroShopRefresh then
+		shared.PunchWallHeroShopRefresh({ force = true, reason = "purchase-ui-state" })
+	end
+end
+
+shared.PunchWallPurchaseRuntime.ApplyDeveloperProductWorldPrice = function(product, displayPrice, resolved, state)
+	local root = workspace:FindFirstChild("PunchWallRPG")
+	if not root or not product then return end
+	local board = root:FindFirstChild(product.displayName .. " Premium Offer", true)
+	if not board then return end
+	board:SetAttribute("DefaultRobuxPrice", product.robux)
+	board:SetAttribute("DisplayedRobuxPrice", resolved and displayPrice or 0)
+	board:SetAttribute("RegionalPriceResolved", resolved)
+	board:SetAttribute("RegionalPriceState", state)
+	local text = resolved
+		and ("%s  |  R$ %d"):format(product.displayName, displayPrice)
+		or state == "Loading" and (product.displayName .. "  |  CHECKING LOCAL PRICE...")
+		or state == "CheckoutOnly" and (product.displayName .. "  |  PRICE SHOWN AT CHECKOUT")
+		or state == "OffSale" and (product.displayName .. "  |  OFF SALE")
+		or (product.displayName .. "  |  PRICE UNAVAILABLE")
+	for _, descendant in ipairs(board:GetDescendants()) do
+		local surface = descendant.Parent
+		if descendant:IsA("TextLabel")
+			and descendant.Name == "Subtitle"
+			and surface
+			and surface:IsA("SurfaceGui")
+			and surface.Face == Enum.NormalId.Front then
+			descendant.Text = text
+		end
+	end
+end
+
+shared.PunchWallPurchaseRuntime.GetDeveloperProductDisplayPrice = function(product, onResolved)
+	local productId = product and tonumber(product.productId)
+	local fallbackPrice = math.max(0, math.floor(tonumber(product and product.robux) or 0))
+	if not productId or productId <= 0 then
+		return fallbackPrice, false, "Unconfigured"
+	end
+
+	local cached = shared.PunchWallPurchaseRuntime.DeveloperProductPriceCache[productId]
+	if cached then
+		shared.PunchWallPurchaseRuntime.ApplyDeveloperProductWorldPrice(product, cached.price, cached.resolved, cached.state)
+		return cached.price, cached.resolved, cached.state
+	end
+
+	if onResolved then
+		local callbacks = shared.PunchWallPurchaseRuntime.DeveloperProductPriceCallbacks[productId]
+		if not callbacks then
+			callbacks = {}
+			shared.PunchWallPurchaseRuntime.DeveloperProductPriceCallbacks[productId] = callbacks
+		end
+		callbacks[onResolved] = true
+	end
+	shared.PunchWallPurchaseRuntime.ApplyDeveloperProductWorldPrice(product, fallbackPrice, false, "Loading")
+
+	if not shared.PunchWallPurchaseRuntime.DeveloperProductPricePending[productId] then
+		shared.PunchWallPurchaseRuntime.DeveloperProductPricePending[productId] = true
+		task.spawn(function()
+			local marketplaceService = game:GetService("MarketplaceService")
+			local lookupOk, info = pcall(
+				marketplaceService.GetProductInfoAsync,
+				marketplaceService,
+				productId,
+				Enum.InfoType.Product
+			)
+			local validInfo = lookupOk and type(info) == "table"
+			local identityValid = validInfo and tostring(info.Name or "") == tostring(product.displayName or "")
+			local livePrice = validInfo and tonumber(info.PriceInRobux) or nil
+			local state = not validInfo and "LookupFailed"
+				or not identityValid and "WrongProduct"
+				or info.IsForSale ~= true and "OffSale"
+				or livePrice ~= nil and livePrice > 0 and "Resolved"
+				or "CheckoutOnly"
+			local resolved = state == "Resolved"
+			local result = {
+				price = resolved and math.floor(livePrice) or fallbackPrice,
+				resolved = resolved,
+				state = state,
+			}
+			shared.PunchWallPurchaseRuntime.DeveloperProductPriceCache[productId] = result
+			shared.PunchWallPurchaseRuntime.DeveloperProductPricePending[productId] = nil
+			shared.PunchWallPurchaseRuntime.DeveloperProductPriceRevision += 1
+			shared.PunchWallPurchaseRuntime.ApplyDeveloperProductWorldPrice(product, result.price, result.resolved, result.state)
+			task.delay(3, function()
+				shared.PunchWallPurchaseRuntime.ApplyDeveloperProductWorldPrice(product, result.price, result.resolved, result.state)
+			end)
+			local callbacks = shared.PunchWallPurchaseRuntime.DeveloperProductPriceCallbacks[productId]
+			shared.PunchWallPurchaseRuntime.DeveloperProductPriceCallbacks[productId] = nil
+			if callbacks then
+				for callback in pairs(callbacks) do
+					task.defer(callback, result)
+				end
+			end
+		end)
+	end
+
+	return fallbackPrice, false, "Loading"
+end
+
+shared.PunchWallPurchaseRuntime.ApplyDeveloperProductControlPrice = function(product, control, prefix)
+	local function update()
+		if not control.Parent then return end
+		local displayPrice, resolved, state =
+			shared.PunchWallPurchaseRuntime.GetDeveloperProductDisplayPrice(product)
+		local priceCopy = resolved and ("R$ %d"):format(displayPrice)
+			or state == "Loading" and "CHECKING PRICE"
+			or state == "CheckoutOnly" and "PRICE AT CHECKOUT"
+			or state == "OffSale" and "OFF SALE"
+			or state == "WrongProduct" and "PRODUCT UNAVAILABLE"
+			or "PRICE UNAVAILABLE"
+		control:SetAttribute("ProductId", tonumber(product.productId) or 0)
+		control:SetAttribute("DefaultRobuxPrice", tonumber(product.robux) or 0)
+		control:SetAttribute("DisplayedRobuxPrice", resolved and displayPrice or 0)
+		control:SetAttribute("RegionalPriceResolved", resolved)
+		control:SetAttribute("RegionalPriceState", state)
+		if control:IsA("TextButton") then
+			control.Text = prefix .. "  |  " .. priceCopy
+		elseif control:IsA("ImageButton") then
+			local label = control:FindFirstChild("RegionalPriceLabel")
+			if not label then
+				label = Instance.new("TextLabel")
+				label.Name = "RegionalPriceLabel"
+				label.AnchorPoint = Vector2.new(1, 1)
+				label.Position = UDim2.fromScale(0.98, 0.98)
+				label.Size = UDim2.fromScale(0.58, 0.38)
+				label.BackgroundColor3 = Color3.fromRGB(5, 14, 22)
+				label.BackgroundTransparency = 0.08
+				label.BorderSizePixel = 0
+				label.Font = Enum.Font.GothamBlack
+				label.TextColor3 = Color3.fromRGB(255, 223, 83)
+				label.TextScaled = true
+				label.ZIndex = control.ZIndex + 2
+				label.Parent = control
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 4)
+				corner.Parent = label
+			end
+			label.Text = priceCopy
+		end
+	end
+	local _, _, state = shared.PunchWallPurchaseRuntime.GetDeveloperProductDisplayPrice(product, update)
+	update()
+	return state
+end
+
+task.defer(function()
+	for _, product in ipairs(GameConfig.PremiumProducts) do
+		if shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct(product) then
+			shared.PunchWallPurchaseRuntime.GetDeveloperProductDisplayPrice(product)
+		end
+	end
+end)
+
+shared.PunchWallPurchaseRuntime.FindPremiumProduct = function(productKey)
+	for _, product in ipairs(GameConfig.PremiumProducts) do
+		if product.id == productKey then return product end
+	end
+	return nil
+end
+
+shared.PunchWallPurchaseRuntime.MarkControlUnavailable = function(button, message, reason)
+	button.Active = false
+	button.Selectable = false
+	button.AutoButtonColor = false
+	button:SetAttribute("PurchaseConfigured", false)
+	button:SetAttribute("PurchaseUnavailable", true)
+	button:SetAttribute("UnavailableReason", reason or "PurchaseIdNotConfigured")
+	if button:IsA("TextButton") then
+		button.Text = message or "UNAVAILABLE"
+		button.BackgroundColor3 = Color3.fromRGB(61, 68, 73)
+		button.TextColor3 = Color3.fromRGB(205, 211, 214)
+	elseif button:IsA("ImageButton") then
+		button.ImageTransparency = math.max(button.ImageTransparency, 0.58)
+		local unavailable = Instance.new("TextLabel")
+		unavailable.Name = "UnavailableLabel"
+		unavailable.BackgroundColor3 = Color3.fromRGB(20, 25, 29)
+		unavailable.BackgroundTransparency = 0.08
+		unavailable.BorderSizePixel = 0
+		unavailable.Size = UDim2.fromScale(1, 1)
+		unavailable.Font = Enum.Font.GothamBlack
+		unavailable.Text = message or "UNAVAILABLE"
+		unavailable.TextColor3 = Color3.fromRGB(225, 229, 231)
+		unavailable.TextScaled = true
+		unavailable.TextWrapped = true
+		unavailable.ZIndex = button.ZIndex + 1
+		unavailable.Parent = button
+		local textConstraint = Instance.new("UITextSizeConstraint")
+		textConstraint.MinTextSize = 8
+		textConstraint.MaxTextSize = 16
+		textConstraint.Parent = unavailable
+	end
+end
+
+shared.PunchWallPurchaseRuntime.MarkControlConfigured = function(button)
+	button:SetAttribute("PurchaseConfigured", true)
+	button:SetAttribute("PurchaseUnavailable", false)
+end
+
 local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
 local notifyRemote = remotes:WaitForChild("Notify")
 local statRemote = remotes:WaitForChild("StatsChanged")
@@ -101,10 +477,22 @@ local clientSettings = { motion = true, sound = true, uiScale = 1 }
 local tutorialObjectiveText = "OBJECTIVE  |  Train at the Power Bag"
 local openGameTab = function() end
 local applyResponsiveLayout = function() end
-local gui
+shared.PunchWallOpenRebirthPanel = function() end
+shared.PunchWallRebirthRuntime = {
+	armed = false,
+	pending = false,
+	expiresAt = 0,
+	signature = "",
+	generation = 0,
+	origin = "",
+}
 
 local function requestAction(action)
-	actionRemote:FireServer(action)
+	if action == "Train" and gui then
+		actionRemote:FireServer({ action = action, target = gui:GetAttribute("ContextualActionTarget") })
+	else
+		actionRemote:FireServer(action)
+	end
 end
 
 local function requestHumanoidJump()
@@ -131,10 +519,25 @@ end
 
 local function applyThemeIcon(imageLabel, iconName)
 	local atlas = GameConfig.UIIconAtlas
-	local region = atlas.regions[iconName] or atlas.regions.Warning
-	imageLabel.Image = atlas.image
-	imageLabel.ImageRectOffset = Vector2.new(region[1], region[2])
-	imageLabel.ImageRectSize = Vector2.new(region[3], region[4])
+	local region = atlas.regions[iconName]
+	local standaloneAsset = GameConfig.HeroCityPixelUI and GameConfig.HeroCityPixelUI[iconName]
+	if region then
+		imageLabel.Image = atlas.image
+		imageLabel.ImageRectOffset = Vector2.new(region[1], region[2])
+		imageLabel.ImageRectSize = Vector2.new(region[3], region[4])
+		imageLabel:SetAttribute("ThemeIconSource", "Atlas")
+	elseif type(standaloneAsset) == "string" and standaloneAsset ~= "" then
+		imageLabel.Image = standaloneAsset
+		imageLabel.ImageRectOffset = Vector2.zero
+		imageLabel.ImageRectSize = Vector2.zero
+		imageLabel:SetAttribute("ThemeIconSource", "StandaloneAsset")
+	else
+		local fallback = atlas.regions.Warning
+		imageLabel.Image = atlas.image
+		imageLabel.ImageRectOffset = Vector2.new(fallback[1], fallback[2])
+		imageLabel.ImageRectSize = Vector2.new(fallback[3], fallback[4])
+		imageLabel:SetAttribute("ThemeIconSource", "WarningFallback")
+	end
 	imageLabel.ScaleType = Enum.ScaleType.Fit
 	imageLabel.BackgroundTransparency = 1
 	imageLabel.BorderSizePixel = 0
@@ -241,10 +644,77 @@ shared.PunchWallApplySoundSetting = function(enabled, persist)
 	return clientSettings.sound
 end
 
-shared.PunchWallSetModalCoreGuiHidden = function(hidden)
-	pcall(function() StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, not hidden) end)
-	pcall(function() StarterGui:SetCore("TopbarEnabled", not hidden) end)
-	if gui then gui:SetAttribute("ModalCoreGuiHidden", hidden == true) end
+do
+local modalCoreGuiRuntime = {
+	owners = {},
+	snapshot = nil,
+}
+
+local function captureCoreGuiSnapshot()
+	local snapshot = {
+		types = {},
+		topbarKnown = false,
+		topbarEnabled = false,
+	}
+	for _, coreGuiType in ipairs(Enum.CoreGuiType:GetEnumItems()) do
+		if coreGuiType ~= Enum.CoreGuiType.All then
+			local ok, enabled = pcall(function()
+				return StarterGui:GetCoreGuiEnabled(coreGuiType)
+			end)
+			if ok then snapshot.types[coreGuiType] = enabled == true end
+		end
+	end
+	local ok, enabled = pcall(function()
+		return StarterGui:GetCore("TopbarEnabled")
+	end)
+	if ok then
+		snapshot.topbarKnown = true
+		snapshot.topbarEnabled = enabled == true
+	end
+	return snapshot
+end
+
+local function coreGuiOwnerCount()
+	local count = 0
+	for _ in pairs(modalCoreGuiRuntime.owners) do count += 1 end
+	return count
+end
+
+local function applyModalCoreGuiState()
+	local ownerCount = coreGuiOwnerCount()
+	if ownerCount > 0 then
+		pcall(function() StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false) end)
+		pcall(function() StarterGui:SetCore("TopbarEnabled", false) end)
+	elseif modalCoreGuiRuntime.snapshot then
+		for coreGuiType, enabled in pairs(modalCoreGuiRuntime.snapshot.types) do
+			pcall(function() StarterGui:SetCoreGuiEnabled(coreGuiType, enabled) end)
+		end
+		if modalCoreGuiRuntime.snapshot.topbarKnown then
+			pcall(function()
+				StarterGui:SetCore("TopbarEnabled", modalCoreGuiRuntime.snapshot.topbarEnabled)
+			end)
+		end
+		modalCoreGuiRuntime.snapshot = nil
+	end
+	if gui then
+		gui:SetAttribute("ModalCoreGuiHidden", ownerCount > 0)
+		gui:SetAttribute("ModalCoreGuiOwnerCount", ownerCount)
+		gui:SetAttribute("ModalCoreGuiRestoreMode", "ExactPerTypeSnapshotV1")
+	end
+end
+
+shared.PunchWallSetModalCoreGuiHidden = function(hidden, owner)
+	local ownerKey = tostring(owner or "DefaultModal")
+	if hidden == true then
+		if coreGuiOwnerCount() == 0 then
+			modalCoreGuiRuntime.snapshot = captureCoreGuiSnapshot()
+		end
+		modalCoreGuiRuntime.owners[ownerKey] = true
+	else
+		modalCoreGuiRuntime.owners[ownerKey] = nil
+	end
+	applyModalCoreGuiState()
+end
 end
 
 do
@@ -1259,6 +1729,8 @@ toastHolder.Position = UDim2.new(0.5, 0, 0, 24)
 toastHolder.Size = UDim2.fromOffset(460, 160)
 toastHolder.Visible = false
 toastHolder.Parent = gui
+toastHolder:SetAttribute("PresentationMode", "BoundedVisibleQueueV1")
+toastHolder:SetAttribute("MaxVisibleItems", 3)
 
 local toastLayout = Instance.new("UIListLayout")
 toastLayout.Padding = UDim.new(0, 8)
@@ -1274,6 +1746,8 @@ rewardHolder.Position = UDim2.fromScale(0.5, 0.48)
 rewardHolder.Size = UDim2.fromOffset(520, 220)
 rewardHolder.Visible = false
 rewardHolder.Parent = gui
+rewardHolder:SetAttribute("PresentationMode", "BoundedVisibleQueueV1")
+rewardHolder:SetAttribute("MaxVisibleItems", 3)
 
 local rewardLayout = Instance.new("UIListLayout")
 rewardLayout.Padding = UDim.new(0, 6)
@@ -1281,6 +1755,63 @@ rewardLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 rewardLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 rewardLayout.SortOrder = Enum.SortOrder.LayoutOrder
 rewardLayout.Parent = rewardHolder
+
+local feedbackPresentation = {
+	maxToasts = 3,
+	maxRewards = 3,
+	toasts = {},
+	rewards = {},
+	retireTasks = setmetatable({}, { __mode = "k" }),
+}
+
+function feedbackPresentation.CompactList(list)
+	for index = #list, 1, -1 do
+		if not list[index].Parent or not list[index].Visible then
+			table.remove(list, index)
+		end
+	end
+end
+
+function feedbackPresentation.CancelRetirement(item)
+	local retireThread = feedbackPresentation.retireTasks[item]
+	feedbackPresentation.retireTasks[item] = nil
+	if retireThread and retireThread ~= coroutine.running() then
+		pcall(task.cancel, retireThread)
+	end
+end
+
+function feedbackPresentation.UpdateHolder(holder, list)
+	feedbackPresentation.CompactList(list)
+	local visibleCount = 0
+	for _, child in ipairs(holder:GetChildren()) do
+		if child:IsA("GuiObject") and child.Visible then visibleCount += 1 end
+	end
+	holder.Visible = visibleCount > 0
+	holder:SetAttribute("VisibleItemCount", visibleCount)
+end
+
+function feedbackPresentation.Present(holder, list, item, limit)
+	feedbackPresentation.CompactList(list)
+	while #list >= limit do
+		local oldest = table.remove(list, 1)
+		if oldest then
+			feedbackPresentation.CancelRetirement(oldest)
+			if oldest.Parent then oldest:Destroy() end
+		end
+	end
+	table.insert(list, item)
+	item.LayoutOrder = (holder:GetAttribute("PresentationSequence") or 0) + 1
+	holder:SetAttribute("PresentationSequence", item.LayoutOrder)
+	feedbackPresentation.UpdateHolder(holder, list)
+end
+
+function feedbackPresentation.Retire(holder, list, item)
+	feedbackPresentation.CancelRetirement(item)
+	local index = table.find(list, item)
+	if index then table.remove(list, index) end
+	if item and item.Parent then item:Destroy() end
+	feedbackPresentation.UpdateHolder(holder, list)
+end
 
 local function feedbackText(payload)
 	if payload.type == "Punch" then
@@ -1297,13 +1828,25 @@ local function feedbackText(payload)
 	elseif payload.type == "Train" then
 		return ("+%s %s"):format(tostring(payload.gain or ""), tostring(payload.stat or "Stat"))
 	elseif payload.type == "Shop" then
-		return ("Equipped %s"):format(GameConfig.FistDefinition(payload.target).displayName)
+		local message = tostring(payload.message or "")
+		if message ~= "" then
+			return string.upper(message)
+		end
+		local target = tostring(payload.target or "")
+		if target == "" then
+			return "SHOP"
+		end
+		local fist = GameConfig.FistDefinition(target)
+		if fist and fist.name == target then
+			return ("EQUIPPED | %s"):format(string.upper(tostring(fist.displayName or target)))
+		end
+		return ("SHOP | %s"):format(string.upper(target))
 	elseif payload.type == "Pet" then
 		return ("Recruited %s!"):format(tostring(payload.target or "Sidekick"))
 	elseif payload.type == "PetFusion" then
 		return tostring(payload.message or ("Fused " .. tostring(payload.target or "Sidekick")))
 	elseif payload.type == "Rebirth" then
-		return "REBIRTH COMPLETE"
+		return tostring(payload.message or "REBIRTH COMPLETE")
 	elseif payload.type == "Boss" then
 		return "TITAN WALL SHATTERED"
 	elseif payload.type == "BossPhase" then
@@ -1365,6 +1908,12 @@ localCoinFolder.Parent = workspace
 
 local function spawnLocalBreakDebris(target)
 	if not target or not target:IsA("BasePart") then return end
+	if not clientSettings.motion then
+		gui:SetAttribute("LastLocalDebrisCount", 0)
+		gui:SetAttribute("ReducedMotionDebrisSuppressed", true)
+		return
+	end
+	gui:SetAttribute("ReducedMotionDebrisSuppressed", false)
 	local available = math.max(0, 64 - #localDebrisFolder:GetChildren())
 	local fragmentCount = math.min(8, available)
 	if fragmentCount <= 0 then return end
@@ -1396,6 +1945,13 @@ end
 
 local function spawnCoinCollectVFX(payload)
 	if not payload.wallBreak or (tonumber(payload.coins) or 0) <= 0 then return end
+	if not clientSettings.motion then
+		playUISound(GameConfig.Audio.CoinCollect, 0.28, 1.06)
+		gui:SetAttribute("LastCoinBurstCount", 0)
+		gui:SetAttribute("ReducedMotionCoinTravelSuppressed", true)
+		return
+	end
+	gui:SetAttribute("ReducedMotionCoinTravelSuppressed", false)
 	local root = workspace:FindFirstChild("PunchWallRPG")
 	local depthBlocks = root and root:FindFirstChild("Depth Blocks")
 	local walls = root and root:FindFirstChild("Walls")
@@ -1485,15 +2041,284 @@ local function showWorldDamage(payload)
 	Debris:AddItem(billboard, 0.72)
 end
 
+local combatFeedbackRuntime = {
+	pool = {},
+	nextIndex = 0,
+	maxPoolSize = 3,
+}
+
+function combatFeedbackRuntime.CreateRecord()
+	local rays = Instance.new("Frame")
+	rays.Name = "PooledCombatSparkRays"
+	rays.AnchorPoint = Vector2.new(0.5, 0.5)
+	rays.Position = UDim2.fromScale(0.545, 0.505)
+	rays.Size = UDim2.fromOffset(380, 300)
+	rays.BackgroundTransparency = 1
+	rays.ZIndex = 44
+	rays.Visible = false
+	rays.Parent = gui
+	for index = 1, 20 do
+		local ray = Instance.new("Frame")
+		ray.Name = "SparkRay"
+		ray.AnchorPoint = Vector2.new(0.5, 1)
+		ray.Position = UDim2.fromScale(0.5, 0.5)
+		ray.Size = UDim2.fromOffset(index % 3 == 0 and 11 or 7, 132 + (index % 5) * 19)
+		ray.Rotation = (index - 1) * (360 / 20)
+		ray.BackgroundColor3 = index % 2 == 0 and Color3.fromRGB(255, 183, 38) or Color3.fromRGB(255, 99, 27)
+		ray.BorderSizePixel = 0
+		ray.ZIndex = 44
+		ray.Parent = rays
+	end
+
+	local impactCore = Instance.new("Frame")
+	impactCore.Name = "PooledCombatImpactCore"
+	impactCore.AnchorPoint = Vector2.new(0.5, 0.5)
+	impactCore.Position = UDim2.fromScale(0.545, 0.505)
+	impactCore.Size = UDim2.fromOffset(118, 118)
+	impactCore.Rotation = 45
+	impactCore.BackgroundColor3 = Color3.fromRGB(255, 218, 72)
+	impactCore.BackgroundTransparency = 1
+	impactCore.BorderSizePixel = 0
+	impactCore.ZIndex = 43
+	impactCore.Visible = false
+	impactCore.Parent = gui
+	local impactCorner = Instance.new("UICorner")
+	impactCorner.CornerRadius = UDim.new(0.28, 0)
+	impactCorner.Parent = impactCore
+	local impactScale = Instance.new("UIScale")
+	impactScale.Scale = 1
+	impactScale.Parent = impactCore
+
+	local burst = Instance.new("TextLabel")
+	burst.Name = "PooledCombatDamageBurst"
+	burst.AnchorPoint = Vector2.new(0.5, 0.5)
+	burst.Position = UDim2.fromScale(0.545, 0.505)
+	burst.Size = UDim2.fromOffset(320, 140)
+	burst.BackgroundTransparency = 1
+	burst.BorderSizePixel = 0
+	burst.Font = Enum.Font.GothamBlack
+	burst.TextColor3 = Color3.new(1, 1, 1)
+	burst.TextStrokeColor3 = Color3.fromRGB(12, 13, 15)
+	burst.TextStrokeTransparency = 1
+	burst.Rotation = -2
+	burst.ZIndex = 46
+	burst.Visible = false
+	burst.Parent = gui
+	local burstScale = Instance.new("UIScale")
+	burstScale.Scale = 1
+	burstScale.Parent = burst
+
+	local record = {
+		rays = rays,
+		impactCore = impactCore,
+		impactScale = impactScale,
+		burst = burst,
+		burstScale = burstScale,
+		tweens = {},
+		generation = 0,
+		active = false,
+	}
+	table.insert(combatFeedbackRuntime.pool, record)
+	gui:SetAttribute("CombatVfxPoolSize", #combatFeedbackRuntime.pool)
+	gui:SetAttribute("CombatVfxPoolLimit", combatFeedbackRuntime.maxPoolSize)
+	gui:SetAttribute("CombatVfxPoolMode", "BoundedReuseV1")
+	return record
+end
+
+function combatFeedbackRuntime.ActiveCount()
+	local count = 0
+	for _, record in ipairs(combatFeedbackRuntime.pool) do
+		if record.active then count += 1 end
+	end
+	return count
+end
+
+function combatFeedbackRuntime.Acquire()
+	local record
+	if #combatFeedbackRuntime.pool < combatFeedbackRuntime.maxPoolSize then
+		record = combatFeedbackRuntime.CreateRecord()
+	else
+		combatFeedbackRuntime.nextIndex = combatFeedbackRuntime.nextIndex % #combatFeedbackRuntime.pool + 1
+		record = combatFeedbackRuntime.pool[combatFeedbackRuntime.nextIndex]
+	end
+	if record.retireThread then
+		pcall(task.cancel, record.retireThread)
+		record.retireThread = nil
+	end
+	for _, tween in ipairs(record.tweens) do pcall(function() tween:Cancel() end) end
+	table.clear(record.tweens)
+	record.generation += 1
+	record.active = true
+	return record
+end
+
+function combatFeedbackRuntime.Play(payload)
+	local record = combatFeedbackRuntime.Acquire()
+	local generation = record.generation
+	local reducedMotion = clientSettings.motion ~= true
+	record.rays.Name = "CombatSparkRays"
+	record.impactCore.Name = "CombatImpactCore"
+	record.burst.Name = "CombatDamageBurst"
+	record.rays.Visible = not reducedMotion
+	record.rays.Size = UDim2.fromOffset(380, 300)
+	record.impactCore.Visible = true
+	record.impactCore.Size = UDim2.fromOffset(reducedMotion and 72 or 118, reducedMotion and 72 or 118)
+	record.impactCore.Rotation = 45
+	record.impactCore.BackgroundColor3 = payload.color or Color3.fromRGB(255, 218, 72)
+	record.impactCore.BackgroundTransparency = reducedMotion and 0.25 or 0.12
+	record.impactScale.Scale = reducedMotion and 1 or 0.42
+	record.burst.Visible = true
+	record.burst.Position = UDim2.fromScale(0.545, 0.505)
+	record.burst.Text = payload.critical and ("CRITICAL!  %s"):format(formatNumber(payload.damage or 0))
+		or formatNumber(payload.damage or 0)
+	record.burst.TextSize = reducedMotion and (payload.critical and 48 or 54) or (payload.critical and 76 or 96)
+	record.burst.TextTransparency = 0
+	record.burst.TextStrokeTransparency = 0
+	record.burstScale.Scale = reducedMotion and 1 or 0.45
+
+	if not reducedMotion then
+		local impactIn = TweenService:Create(record.impactScale, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 })
+		local burstIn = TweenService:Create(record.burstScale, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 })
+		local coreOut = TweenService:Create(record.impactCore, TweenInfo.new(0.34), { BackgroundTransparency = 1, Rotation = 70 })
+		table.insert(record.tweens, impactIn)
+		table.insert(record.tweens, burstIn)
+		table.insert(record.tweens, coreOut)
+		impactIn:Play()
+		burstIn:Play()
+		coreOut:Play()
+		task.delay(0.28, function()
+			if record.generation ~= generation or not record.active then return end
+			local burstOut = TweenService:Create(record.burst, TweenInfo.new(0.28), {
+				TextTransparency = 1,
+				TextStrokeTransparency = 1,
+				Position = record.burst.Position - UDim2.fromOffset(0, 28),
+			})
+			local raysOut = TweenService:Create(record.rays, TweenInfo.new(0.22), { Size = UDim2.fromOffset(470, 370) })
+			table.insert(record.tweens, burstOut)
+			table.insert(record.tweens, raysOut)
+			burstOut:Play()
+			raysOut:Play()
+		end)
+	else
+		task.delay(0.16, function()
+			if record.generation ~= generation or not record.active then return end
+			local burstOut = TweenService:Create(record.burst, TweenInfo.new(0.12), {
+				TextTransparency = 1,
+				TextStrokeTransparency = 1,
+			})
+			local coreOut = TweenService:Create(record.impactCore, TweenInfo.new(0.12), {
+				BackgroundTransparency = 1,
+			})
+			table.insert(record.tweens, burstOut)
+			table.insert(record.tweens, coreOut)
+			burstOut:Play()
+			coreOut:Play()
+		end)
+	end
+
+	local lifetime = reducedMotion and 0.32 or 0.65
+	record.retireThread = task.delay(lifetime, function()
+		if record.generation ~= generation then return end
+		record.active = false
+		record.rays.Visible = false
+		record.impactCore.Visible = false
+		record.burst.Visible = false
+		record.rays.Name = "PooledCombatSparkRays"
+		record.impactCore.Name = "PooledCombatImpactCore"
+		record.burst.Name = "PooledCombatDamageBurst"
+		record.retireThread = nil
+		table.clear(record.tweens)
+		gui:SetAttribute("CombatVfxActiveCount", combatFeedbackRuntime.ActiveCount())
+	end)
+	gui:SetAttribute("CombatVfxActiveCount", combatFeedbackRuntime.ActiveCount())
+	gui:SetAttribute("CombatVfxPresentation", reducedMotion and "ReducedStaticReadable" or "FullMotion")
+end
+
 local function showFeedback(payload)
 	if typeof(payload) ~= "table" then
 		return
 	end
+	if payload.type == "PremiumPrompt" and payload.product then
+		shared.PunchWallPurchaseRuntime.ActivePromptProductId = tonumber(payload.productId)
+		shared.PunchWallPurchaseRuntime.SetProductUiState(payload.product, "CheckoutOpen", payload.message or "CHECKOUT OPEN")
+	elseif payload.type == "PremiumSetup" and payload.product then
+		shared.PunchWallPurchaseRuntime.ActivePromptProductId = nil
+		shared.PunchWallPurchaseRuntime.SetProductUiState(payload.product, "Rejected", payload.message or "PURCHASE UNAVAILABLE")
+	elseif payload.type == "PremiumPurchase" and payload.product then
+		shared.PunchWallPurchaseRuntime.ActivePromptProductId = nil
+		if gui then
+			gui:SetAttribute("PurchaseUiHonor", tonumber(payload.honor) or 0)
+			gui:SetAttribute("PurchaseUiBalance", tonumber(payload.newHonorBalance) or 0)
+		end
+		shared.PunchWallPurchaseRuntime.SetProductUiState(payload.product, "Granted", payload.message or "PURCHASE GRANTED")
+		task.delay(2, function()
+			local entry = shared.PunchWallPurchaseRuntime.ProductUiState[payload.product]
+			if entry and entry.state == "Granted" then
+				shared.PunchWallPurchaseRuntime.SetProductUiState(payload.product, "Idle", "")
+			end
+		end)
+	end
 	if payload.type == "OpenMenu" then
-		task.defer(function() openGameTab(tostring(payload.tab or payload.target or "Fists")) end)
+		local requested = tostring(payload.tab or payload.target or "Fists")
+		if requested == "Rebirth" or tostring(payload.selected or payload.target or "") == "Rebirth" then
+			task.defer(function() shared.PunchWallOpenRebirthPanel(tostring(payload.source or "world")) end)
+			return
+		end
+		if requested == "Honor" and payload.selected ~= nil then
+			-- World relic displays are previews, not instant purchases. Preserve the
+			-- exact server-selected relic through the deferred menu render so long
+			-- catalogs open at the item the player actually inspected.
+			shared.PunchWallSelectedHonorItemId = tostring(payload.selected)
+			gui:SetAttribute("RequestedHonorItemId", shared.PunchWallSelectedHonorItemId)
+		end
+		if table.find({ "Fists", "Premium", "Boosts", "Honor", "Robux" }, requested) then
+			local menu = gui:FindFirstChild("GameMenu")
+			local shop = menu and menu:FindFirstChild("FunctionalHeroShop")
+			local samePageOpen = menu ~= nil
+				and menu.Visible
+				and shop ~= nil
+				and shop.Visible
+				and shared.PunchWallHeroShopPage == requested
+			gui:SetAttribute("LastWorldBoostShowcase", tostring(payload.target or ""))
+			-- World commerce showcases enter through the same modal and page state
+			-- as the HUD shop.  Set the requested page before opening the Fists host
+			-- so keyboard, gamepad, touch and click interactions all land on the
+			-- intended catalog instead of silently falling back to Fists.
+			shared.PunchWallHeroShopPage = requested
+			task.defer(function()
+				openGameTab("Fists")
+				if shared.PunchWallHeroShopRefresh then
+					if shop then
+						shop:SetAttribute("RefreshReason", "world-commerce-showcase")
+					end
+					shared.PunchWallHeroShopRefresh({
+						force = not samePageOpen,
+						reason = "world-commerce-showcase",
+					})
+				end
+			end)
+		else
+			task.defer(function() openGameTab(requested) end)
+		end
 		return
 	elseif payload.type == "SpinResult" and shared.PunchWallShowSpinResult then
 		shared.PunchWallShowSpinResult(payload)
+	end
+	if (payload.type == "Fail" and payload.target == "Rebirth") or payload.type == "Rebirth" then
+		shared.PunchWallRebirthRuntime.armed = false
+		shared.PunchWallRebirthRuntime.pending = false
+		shared.PunchWallRebirthRuntime.expiresAt = 0
+		shared.PunchWallRebirthRuntime.signature = ""
+		shared.PunchWallRebirthRuntime.generation += 1
+		if gui then
+			gui:SetAttribute("RebirthConfirmationState", payload.type == "Rebirth" and "Complete" or "Rejected")
+			gui:SetAttribute("RebirthPending", false)
+			if payload.type == "Rebirth" and shared.PunchWallCloseStandaloneWindows then
+				shared.PunchWallCloseStandaloneWindows("Complete")
+			elseif payload.type == "Fail" then
+				task.defer(function() shared.PunchWallOpenRebirthPanel("server_reject") end)
+			end
+		end
 	end
 	local count = (gui:GetAttribute("FeedbackCount") or 0) + 1
 	gui:SetAttribute("FeedbackCount", count)
@@ -1534,12 +2359,18 @@ local function showFeedback(payload)
 		elseif payload.type == "StructuralCollapse" then
 			pulseHaptic(0.5, 0.11)
 			playUISound(GameConfig.Audio.Collapse, 0.32, 0.92)
-		elseif payload.type == "SpinResult" or payload.type == "Honor" or payload.type == "HonorShop" or payload.type == "Pet" or payload.type == "PetFusion"
+		elseif payload.type == "SpinResult" or payload.type == "Honor" or payload.type == "HonorShop" or payload.type == "Pet" or payload.type == "PetFusion" or payload.type == "Rebirth"
 			or payload.type == "PremiumPurchase" or payload.type == "OfflineTraining" or payload.type == "TrainingState"
-			or payload.type == "PremiumSetup" then
-			shared.PunchWallPlayRewardSound()
+			or payload.type == "PremiumPrompt" or payload.type == "PremiumSetup" or payload.type == "Fail" or payload.type == "Shop" then
+			if payload.type ~= "Fail" and payload.type ~= "PremiumSetup" and payload.type ~= "PremiumPrompt" and payload.type ~= "Shop" then
+				shared.PunchWallPlayRewardSound()
+			end
 			if shared.PunchWallShowToast then
-				shared.PunchWallShowToast(feedbackText(payload), payload.color or palette.Reward, feedbackIcon(payload.type))
+				local presentationColor = payload.color
+					or payload.type == "Fail" and palette.Fail
+					or payload.type == "PremiumSetup" and palette.Train
+					or palette.Reward
+				shared.PunchWallShowToast(feedbackText(payload), presentationColor, feedbackIcon(payload.type))
 			end
 		end
 		if milestoneFeedback and shared.PunchWallShowToast then
@@ -1552,74 +2383,7 @@ local function showFeedback(payload)
 		local feedbackNow = os.clock()
 		if feedbackNow - lastPunchFeedbackAt < 0.12 then return end
 		lastPunchFeedbackAt = feedbackNow
-		local rays = Instance.new("Frame")
-		rays.Name = "CombatSparkRays"
-		rays.AnchorPoint = Vector2.new(0.5, 0.5)
-		rays.Position = UDim2.fromScale(0.545, 0.505)
-		rays.Size = UDim2.fromOffset(380, 300)
-		rays.BackgroundTransparency = 1
-		rays.ZIndex = 44
-		rays.Parent = gui
-		local impactCore = Instance.new("Frame")
-		impactCore.Name = "CombatImpactCore"
-		impactCore.AnchorPoint = Vector2.new(0.5, 0.5)
-		impactCore.Position = UDim2.fromScale(0.545, 0.505)
-		impactCore.Size = UDim2.fromOffset(118, 118)
-		impactCore.Rotation = 45
-		impactCore.BackgroundColor3 = Color3.fromRGB(255, 218, 72)
-		impactCore.BackgroundTransparency = 0.12
-		impactCore.BorderSizePixel = 0
-		impactCore.ZIndex = 43
-		impactCore.Parent = gui
-		local impactCorner = Instance.new("UICorner")
-		impactCorner.CornerRadius = UDim.new(0.28, 0)
-		impactCorner.Parent = impactCore
-		local impactScale = Instance.new("UIScale")
-		impactScale.Scale = 0.42
-		impactScale.Parent = impactCore
-		TweenService:Create(impactScale, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-		for index = 1, 20 do
-			local ray = Instance.new("Frame")
-			ray.Name = "SparkRay"
-			ray.AnchorPoint = Vector2.new(0.5, 1)
-			ray.Position = UDim2.fromScale(0.5, 0.5)
-			ray.Size = UDim2.fromOffset(index % 3 == 0 and 11 or 7, 132 + (index % 5) * 19)
-			ray.Rotation = (index - 1) * (360 / 20)
-			ray.BackgroundColor3 = index % 2 == 0 and Color3.fromRGB(255, 183, 38) or Color3.fromRGB(255, 99, 27)
-			ray.BorderSizePixel = 0
-			ray.ZIndex = 44
-			ray.Parent = rays
-		end
-		local burst = Instance.new("TextLabel")
-		burst.Name = "CombatDamageBurst"
-		burst.AnchorPoint = Vector2.new(0.5, 0.5)
-		burst.Position = UDim2.fromScale(0.545, 0.505)
-		burst.Size = UDim2.fromOffset(320, 140)
-		burst.BackgroundTransparency = 1
-		burst.BorderSizePixel = 0
-		burst.Font = Enum.Font.GothamBlack
-		burst.Text = payload.critical and ("CRITICAL!  %s"):format(formatNumber(payload.damage or 0)) or formatNumber(payload.damage or 0)
-		burst.TextColor3 = Color3.new(1, 1, 1)
-		burst.TextSize = payload.critical and 76 or 96
-		burst.TextStrokeColor3 = Color3.fromRGB(12, 13, 15)
-		burst.TextStrokeTransparency = 0
-		burst.Rotation = -2
-		burst.ZIndex = 46
-		burst.Parent = gui
-		local burstScale = Instance.new("UIScale")
-		burstScale.Scale = 0.45
-		burstScale.Parent = burst
-		TweenService:Create(burstScale, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-		task.delay(0.28, function()
-			if burst.Parent then
-				TweenService:Create(burst, TweenInfo.new(0.28), { TextTransparency = 1, TextStrokeTransparency = 1, Position = burst.Position - UDim2.fromOffset(0, 28) }):Play()
-			end
-			if rays.Parent then TweenService:Create(rays, TweenInfo.new(0.22), { Size = UDim2.fromOffset(470, 370) }):Play() end
-		end)
-		Debris:AddItem(burst, 0.65)
-		Debris:AddItem(rays, 0.5)
-		TweenService:Create(impactCore, TweenInfo.new(0.34), { BackgroundTransparency = 1, Rotation = 70 }):Play()
-		Debris:AddItem(impactCore, 0.4)
+		combatFeedbackRuntime.Play(payload)
 		hitFlash.BackgroundColor3 = payload.color or palette.Punch
 		hitFlash.BackgroundTransparency = 0.93
 		hitFlash.Visible = true
@@ -1659,6 +2423,7 @@ local function showFeedback(payload)
 	pop.Position = UDim2.fromScale(0.5, 0.5)
 	pop.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 300 or 320, UserInputService.TouchEnabled and 44 or 50)
 	pop.Parent = rewardHolder
+	feedbackPresentation.Present(rewardHolder, feedbackPresentation.rewards, pop, feedbackPresentation.maxRewards)
 	addHeroAccent(pop, color)
 	local popPadding = Instance.new("UIPadding")
 	popPadding.PaddingLeft = UDim.new(0, 52)
@@ -1691,10 +2456,8 @@ local function showFeedback(payload)
 		scale.Scale = 1
 	end
 
-	task.delay(PolishConfig.Motion.RewardPopSeconds + 0.08, function()
-		if pop.Parent then
-			pop:Destroy()
-		end
+	feedbackPresentation.retireTasks[pop] = task.delay(PolishConfig.Motion.RewardPopSeconds + 0.08, function()
+		feedbackPresentation.Retire(rewardHolder, feedbackPresentation.rewards, pop)
 	end)
 end
 
@@ -1711,6 +2474,7 @@ shared.PunchWallShowToast = function(message, color, iconName)
 	toast.TextXAlignment = Enum.TextXAlignment.Left
 	toast.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 300 or 440, UserInputService.TouchEnabled and 44 or 46)
 	toast.Parent = toastHolder
+	feedbackPresentation.Present(toastHolder, feedbackPresentation.toasts, toast, feedbackPresentation.maxToasts)
 	addHeroAccent(toast, color or palette.Train)
 	local toastPadding = Instance.new("UIPadding")
 	toastPadding.PaddingLeft = UDim.new(0, 50)
@@ -1737,7 +2501,7 @@ shared.PunchWallShowToast = function(message, color, iconName)
 		}):Play()
 	end
 
-	task.delay(3, function()
+	feedbackPresentation.retireTasks[toast] = task.delay(3, function()
 		if toast.Parent then
 			if clientSettings.motion then
 				local tween = TweenService:Create(toast, TweenInfo.new(0.22), {
@@ -1747,8 +2511,8 @@ shared.PunchWallShowToast = function(message, color, iconName)
 				tween:Play()
 				tween.Completed:Wait()
 			end
-			toast:Destroy()
 		end
+		feedbackPresentation.Retire(toastHolder, feedbackPresentation.toasts, toast)
 	end)
 end
 
@@ -1757,7 +2521,17 @@ local renderOpenPanel = function() end
 local applyReferenceHUDState = function() end
 
 statRemote.OnClientEvent:Connect(function(payload)
+	local previousRebirths = tonumber(latestStats.Rebirths) or 0
 	latestStats = payload
+	if shared.PunchWallRebirthRuntime.pending and (tonumber(payload.Rebirths) or 0) ~= previousRebirths then
+		shared.PunchWallRebirthRuntime.armed = false
+		shared.PunchWallRebirthRuntime.pending = false
+		shared.PunchWallRebirthRuntime.expiresAt = 0
+		shared.PunchWallRebirthRuntime.signature = ""
+		shared.PunchWallRebirthRuntime.generation += 1
+		gui:SetAttribute("RebirthConfirmationState", "Complete")
+		gui:SetAttribute("RebirthPending", false)
+	end
 	clientSettings = decodeJSON(payload.SettingsJSON, clientSettings)
 	shared.PunchWallApplySoundSetting(clientSettings.sound, false)
 	statusValues.Power.Text = formatNumber(payload.Power or 0)
@@ -1798,10 +2572,34 @@ statRemote.OnClientEvent:Connect(function(payload)
 	refreshCharacterVisuals()
 	if shared.PunchWallSetTrainingAnimation then shared.PunchWallSetTrainingAnimation((payload.TrainingActive or 0) >= 1) end
 	renderOpenPanel()
+	if shared.PunchWallRefreshStandaloneWindows then shared.PunchWallRefreshStandaloneWindows("StatsChanged") end
 end)
 
 notifyRemote.OnClientEvent:Connect(shared.PunchWallShowToast)
 feedbackRemote.OnClientEvent:Connect(showFeedback)
+
+game:GetService("MarketplaceService").PromptProductPurchaseFinished:Connect(function(userId, productId, wasPurchased)
+	if tonumber(userId) ~= player.UserId then return end
+	local product
+	for _, candidate in ipairs(GameConfig.PremiumProducts) do
+		if tonumber(candidate.productId) == tonumber(productId) then
+			product = candidate
+			break
+		end
+	end
+	if not product then return end
+	shared.PunchWallPurchaseRuntime.ActivePromptProductId = nil
+	if wasPurchased then
+		-- Prompt closure is not a grant. ProcessReceipt is authoritative and will
+		-- replace this state with Granted only after durable persistence succeeds.
+		shared.PunchWallPurchaseRuntime.SetProductUiState(product.id, "Verifying", "VERIFYING PURCHASE...")
+	else
+		shared.PunchWallPurchaseRuntime.SetProductUiState(product.id, "Canceled", "PURCHASE CANCELED • NO CHARGE")
+		if shared.PunchWallShowToast then
+			shared.PunchWallShowToast("PURCHASE CANCELED • NO CHARGE", palette.Train, feedbackIcon("PremiumSetup"))
+		end
+	end
+end)
 
 local menuButton = Instance.new("TextButton")
 menuButton.Name = "MenuButton"
@@ -1867,12 +2665,35 @@ local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(0, 7)
 closeCorner.Parent = closeButton
 
-local tabBar = Instance.new("Frame")
+local tabBar = Instance.new("ScrollingFrame")
 tabBar.Name = "Tabs"
 tabBar.Position = UDim2.fromOffset(12, 12)
 tabBar.Size = UDim2.new(1, -72, 0, 48)
 tabBar.BackgroundTransparency = 1
+tabBar.BorderSizePixel = 0
+tabBar.CanvasSize = UDim2.new()
+tabBar.AutomaticCanvasSize = Enum.AutomaticSize.X
+tabBar.ScrollingDirection = Enum.ScrollingDirection.X
+tabBar.ScrollBarThickness = 0
+tabBar.ElasticBehavior = Enum.ElasticBehavior.Never
+tabBar.SelectionGroup = true
+tabBar:SetAttribute("GamepadFocusMode", "CyclicTabsV1")
+tabBar:SetAttribute("LegacyCombinedNavigationRemoved", true)
+tabBar.Visible = false
 tabBar.Parent = mainPanel
+
+shared.PunchWallStandaloneHostTitle = Instance.new("TextLabel")
+shared.PunchWallStandaloneHostTitle.Name = "StandaloneHostTitle"
+shared.PunchWallStandaloneHostTitle.Position = UDim2.fromOffset(18, 12)
+shared.PunchWallStandaloneHostTitle.Size = UDim2.new(1, -86, 0, 44)
+shared.PunchWallStandaloneHostTitle.BackgroundTransparency = 1
+shared.PunchWallStandaloneHostTitle.Font = Enum.Font.GothamBlack
+shared.PunchWallStandaloneHostTitle.Text = ""
+shared.PunchWallStandaloneHostTitle.TextColor3 = palette.Text
+shared.PunchWallStandaloneHostTitle.TextSize = 22
+shared.PunchWallStandaloneHostTitle.TextXAlignment = Enum.TextXAlignment.Left
+shared.PunchWallStandaloneHostTitle.Visible = false
+shared.PunchWallStandaloneHostTitle.Parent = mainPanel
 
 local tabLayout = Instance.new("UIListLayout")
 tabLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -1909,7 +2730,18 @@ contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
 contentLayout.Parent = content
 
 local activeTab = "Fists"
+mainPanel:SetAttribute("SurfaceRole", "NeutralModalHost")
+mainPanel:SetAttribute("LegacyCombinedMenuRemoved", true)
 local tabButtons = {}
+local orderedTabButtons = {}
+local legacyPetMenuRuntime = {
+	deleteKey = nil,
+	deleteToken = nil,
+	deleteIndex = nil,
+	deleteExpiresAt = 0,
+	deleteGeneration = 0,
+	deleteConfirmationSeconds = 3,
+}
 
 local function setRounded(instance, radius)
 	local corner = Instance.new("UICorner")
@@ -1933,6 +2765,77 @@ local function makeMenuCommand(parent, name, textValue, color, callback)
 	return button
 end
 
+function legacyPetMenuRuntime.DeleteKey(index, token)
+	return ("slot:%d:%s"):format(math.max(1, math.floor(tonumber(index) or 1)), tostring(token or ""))
+end
+
+function legacyPetMenuRuntime.ClearDelete(reason)
+	legacyPetMenuRuntime.deleteKey = nil
+	legacyPetMenuRuntime.deleteToken = nil
+	legacyPetMenuRuntime.deleteIndex = nil
+	legacyPetMenuRuntime.deleteExpiresAt = 0
+	legacyPetMenuRuntime.deleteGeneration += 1
+	gui:SetAttribute("LegacyPetDeleteConfirmationScheduled", false)
+	gui:SetAttribute("LegacyPetDeleteConfirmationKey", "")
+	gui:SetAttribute("LegacyPetDeleteConfirmationIndex", 0)
+	gui:SetAttribute("LegacyPetDeleteConfirmationToken", "")
+	gui:SetAttribute("LegacyPetDeleteConfirmationReason", tostring(reason or "cleared"))
+end
+
+function legacyPetMenuRuntime.ValidateDelete(inventory)
+	if legacyPetMenuRuntime.deleteKey == nil then return false end
+	local index = legacyPetMenuRuntime.deleteIndex
+	local token = legacyPetMenuRuntime.deleteToken
+	local valid = type(inventory) == "table"
+		and type(index) == "number"
+		and legacyPetMenuRuntime.deleteKey == legacyPetMenuRuntime.DeleteKey(index, token)
+		and legacyPetMenuRuntime.deleteExpiresAt > os.clock()
+		and inventory[index] == token
+	if not valid then
+		legacyPetMenuRuntime.ClearDelete("expired_or_slot_changed")
+	end
+	return valid
+end
+
+function legacyPetMenuRuntime.IsDeleteArmed(index, token, inventory)
+	if not legacyPetMenuRuntime.ValidateDelete(inventory) then return false end
+	local normalizedIndex = math.max(1, math.floor(tonumber(index) or 1))
+	-- Rendering another row is only a query, never an invalidation. The armed
+	-- record is cleared exclusively when its stored exact slot expires or no
+	-- longer contains the same token.
+	return legacyPetMenuRuntime.deleteIndex == normalizedIndex
+		and legacyPetMenuRuntime.deleteToken == token
+		and legacyPetMenuRuntime.deleteKey == legacyPetMenuRuntime.DeleteKey(normalizedIndex, token)
+end
+
+function legacyPetMenuRuntime.ArmDelete(index, token)
+	index = math.max(1, math.floor(tonumber(index) or 1))
+	legacyPetMenuRuntime.deleteGeneration += 1
+	local generation = legacyPetMenuRuntime.deleteGeneration
+	legacyPetMenuRuntime.deleteKey = legacyPetMenuRuntime.DeleteKey(index, token)
+	legacyPetMenuRuntime.deleteToken = token
+	legacyPetMenuRuntime.deleteIndex = index
+	legacyPetMenuRuntime.deleteExpiresAt = os.clock() + legacyPetMenuRuntime.deleteConfirmationSeconds
+	gui:SetAttribute("LegacyPetDeleteConfirmationScheduled", true)
+	gui:SetAttribute("LegacyPetDeleteConfirmationKey", legacyPetMenuRuntime.deleteKey)
+	gui:SetAttribute("LegacyPetDeleteConfirmationIndex", index)
+	gui:SetAttribute("LegacyPetDeleteConfirmationToken", tostring(token))
+	gui:SetAttribute("LegacyPetDeleteConfirmationReason", "armed")
+	gui:SetAttribute("LegacyPetDeleteConfirmationSeconds", legacyPetMenuRuntime.deleteConfirmationSeconds)
+	gui:SetAttribute("LegacyPetDeleteFirstClickMutationGuard", true)
+	gui:SetAttribute("LegacyPetExactSlotDispatch", true)
+	task.delay(legacyPetMenuRuntime.deleteConfirmationSeconds, function()
+		if generation ~= legacyPetMenuRuntime.deleteGeneration
+			or legacyPetMenuRuntime.deleteExpiresAt > os.clock() then
+			return
+		end
+		legacyPetMenuRuntime.ClearDelete("timeout")
+		if mainPanel.Visible and activeTab == "Pets" then
+			renderOpenPanel()
+		end
+	end)
+end
+
 for order, tabName in ipairs({ "Fists", "Pets", "Honor", "Tasks", "Settings" }) do
 	local tab = makeMenuCommand(tabBar, tabName .. "Tab", string.upper(tabName), palette.PanelSoft, function()
 		activeTab = tabName
@@ -1942,6 +2845,7 @@ for order, tabName in ipairs({ "Fists", "Pets", "Honor", "Tasks", "Settings" }) 
 	tab.LayoutOrder = order
 	tab.TextSize = 11
 	tab.TextXAlignment = Enum.TextXAlignment.Right
+	tab.Selectable = true
 	local tabPadding = Instance.new("UIPadding")
 	tabPadding.PaddingLeft = UDim.new(0, 36)
 	tabPadding.PaddingRight = UDim.new(0, 8)
@@ -1951,9 +2855,17 @@ for order, tabName in ipairs({ "Fists", "Pets", "Honor", "Tasks", "Settings" }) 
 		or tabName == "Honor" and "Success"
 		or tabName == "Tasks" and "Quest"
 		or "Settings"
-	createThemeIcon(tab, tabIcon, UDim2.fromOffset(-31, 8), UDim2.fromOffset(28, 28), "TabIcon")
+	createThemeIcon(tab, tabIcon, UDim2.fromOffset(6, 8), UDim2.fromOffset(28, 28), "TabIcon")
 	tabButtons[tabName] = tab
+	table.insert(orderedTabButtons, tab)
 end
+
+for index, tab in ipairs(orderedTabButtons) do
+	tab.NextSelectionLeft = orderedTabButtons[index == 1 and #orderedTabButtons or index - 1]
+	tab.NextSelectionRight = orderedTabButtons[index == #orderedTabButtons and 1 or index + 1]
+end
+closeButton.Selectable = true
+closeButton.NextSelectionLeft = orderedTabButtons[#orderedTabButtons]
 
 local function clearContent()
 	for _, child in ipairs(content:GetChildren()) do
@@ -1978,7 +2890,7 @@ local function addGeneratedBanner()
 		or isSettings and "HERO CONTROL"
 		or "HERO FIST HQ"
 	local bannerSubtitle = isPets and "RECRUIT | EQUIP | TEAM UP"
-		or isHonor and "CLEAR WORLD 1 | CLAIM RELICS"
+		or isHonor and "DEPTH • REBIRTH • TITAN | EQUIP ONE RELIC"
 		or isTasks and "SMASH | CLAIM | RANK UP"
 		or isSettings and "MOTION | SOUND | ACCESS"
 		or "BUILD | EQUIP | POWER UP"
@@ -2031,29 +2943,41 @@ local function addGeneratedBanner()
 	subtitle.Parent = banner
 end
 
+local function genericMenuIsCompact()
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize or Vector2.new(800, 600)
+	return UserInputService.TouchEnabled or viewport.Y < 520
+end
+
 local function addSection(textValue, color)
+	local compactSection = genericMenuIsCompact()
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
-	label.Size = UDim2.new(1, -4, 0, 30)
+	label.Size = UDim2.new(1, -4, 0, compactSection and 44 or 30)
 	label.Font = Enum.Font.GothamBold
 	label.Text = textValue
 	label.TextColor3 = color or palette.Text
-	label.TextSize = 14
+	label.TextSize = compactSection and 12 or 14
+	label.TextWrapped = compactSection
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.Parent = content
 	return label
 end
 
-local function addRow(name, description, accent, iconName)
+local function addRow(name, description, accent, iconName, layoutMode)
+	local compactRow = genericMenuIsCompact() and layoutMode ~= "CompactInline"
+	local rebirthLayout = layoutMode == "Rebirth"
+	local rowHeight = rebirthLayout and (compactRow and 148 or 94) or compactRow and 116 or 64
 	local row = Instance.new("Frame")
 	row.Name = name
-	row.Size = UDim2.new(1, -4, 0, 64)
+	row.Size = UDim2.new(1, -4, 0, rowHeight)
 	row.BackgroundColor3 = Color3.fromRGB(27, 38, 49)
 	row.BorderSizePixel = 0
 	row.Parent = content
+	row:SetAttribute("GenericPhoneLayout", compactRow and "StackedActionsV1" or "InlineActionsV1")
 	setRounded(row, 6)
 	local stripe = Instance.new("Frame")
-	stripe.Size = UDim2.fromOffset(5, 64)
+	stripe.Size = UDim2.fromOffset(5, rowHeight)
 	stripe.BackgroundColor3 = accent or palette.Use
 	stripe.BorderSizePixel = 0
 	stripe.Parent = row
@@ -2065,7 +2989,7 @@ local function addRow(name, description, accent, iconName)
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.BackgroundTransparency = 1
 	titleLabel.Position = UDim2.fromOffset(textLeft, 7)
-	titleLabel.Size = UDim2.new(1, -(textLeft + 255), 0, 23)
+	titleLabel.Size = UDim2.new(1, -(textLeft + (compactRow and 10 or 255)), 0, 23)
 	titleLabel.Font = Enum.Font.GothamBold
 	titleLabel.Text = name
 	titleLabel.TextColor3 = palette.Text
@@ -2076,19 +3000,24 @@ local function addRow(name, description, accent, iconName)
 	local descLabel = Instance.new("TextLabel")
 	descLabel.BackgroundTransparency = 1
 	descLabel.Position = UDim2.fromOffset(textLeft, 31)
-	descLabel.Size = UDim2.new(1, -(textLeft + 255), 0, 22)
+	descLabel.Size = UDim2.new(1, -(textLeft + (compactRow and 10 or 255)), 0, rebirthLayout and (compactRow and 62 or 48) or compactRow and 34 or 22)
 	descLabel.Font = Enum.Font.Gotham
 	descLabel.Text = description
 	descLabel.TextColor3 = palette.MutedText
 	descLabel.TextSize = 12
 	descLabel.TextXAlignment = Enum.TextXAlignment.Left
-	descLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	descLabel.TextWrapped = compactRow or rebirthLayout
+	descLabel.TextTruncate = (compactRow or rebirthLayout) and Enum.TextTruncate.None or Enum.TextTruncate.AtEnd
 	descLabel.Parent = row
 	local actions = Instance.new("Frame")
 	actions.Name = "Actions"
-	actions.AnchorPoint = Vector2.new(1, 0.5)
-	actions.Position = UDim2.new(1, -8, 0.5, 0)
-	actions.Size = UDim2.fromOffset(238, 44)
+	actions.AnchorPoint = compactRow and Vector2.new(0, 1)
+		or rebirthLayout and Vector2.new(1, 1)
+		or Vector2.new(1, 0.5)
+	actions.Position = compactRow and UDim2.new(0, 10, 1, -6)
+		or rebirthLayout and UDim2.new(1, -8, 1, -6)
+		or UDim2.new(1, -8, 0.5, 0)
+	actions.Size = compactRow and UDim2.new(1, -18, 0, 44) or UDim2.fromOffset(238, 44)
 	actions.BackgroundTransparency = 1
 	actions.Parent = row
 	local actionsLayout = Instance.new("UIListLayout")
@@ -2107,6 +3036,7 @@ local function countNames(list)
 end
 
 local function renderFists()
+	local compactCards = genericMenuIsCompact()
 	addSection("HERO FISTS  |  POWER PROGRESSION", palette.RoadLine)
 	addRow(
 		"COMBAT POWER",
@@ -2122,13 +3052,16 @@ local function renderFists()
 	local ownedPremium = decodeJSON(latestStats.OwnedPremiumFistsJSON, {})
 	local shelf = Instance.new("Frame")
 	shelf.Name = "FistProductCards"
-	shelf.Size = UDim2.new(1, -4, 0, 342)
+	local cardColumns = compactCards and 2 or 3
+	local cardHeight = 190
+	local cardRows = math.ceil(#GameConfig.Fists / cardColumns)
+	shelf.Size = UDim2.new(1, -4, 0, cardRows * cardHeight + math.max(0, cardRows - 1) * 8)
 	shelf.BackgroundTransparency = 1
 	shelf.Parent = content
 	local grid = Instance.new("UIGridLayout")
 	grid.CellPadding = UDim2.fromOffset(8, 8)
-	grid.CellSize = UDim2.new(0.333, -6, 0, 165)
-	grid.FillDirectionMaxCells = 3
+	grid.CellSize = UDim2.new(1 / cardColumns, -6, 0, cardHeight)
+	grid.FillDirectionMaxCells = cardColumns
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = shelf
 	for _, item in ipairs(GameConfig.Fists) do
@@ -2184,7 +3117,7 @@ local function renderFists()
 		end)
 		button.AnchorPoint = Vector2.new(0.5, 1)
 		button.Position = UDim2.new(0.5, 0, 1, -6)
-		button.Size = UDim2.new(1, -12, 0, 24)
+		button.Size = UDim2.new(1, -12, 0, 44)
 		button.TextSize = 10
 		button.Active = not equipped
 	end
@@ -2192,18 +3125,39 @@ local function renderFists()
 	for _, item in ipairs(GameConfig.PremiumFists) do
 		local isOwned = table.find(ownedPremium, item.name) ~= nil
 		local equipped = latestStats.EquippedFist == item.name
+		local purchaseConfigured = shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item)
+		local purchaseUnavailable = not isOwned and not purchaseConfigured
 		local _, actions = addRow(
 			item.displayName,
-			("R$ %d  |  Permanent x%.1f Power  |  Tier %d Aura"):format(item.robux, item.mult, item.tier),
+			purchaseUnavailable
+				and ("UNAVAILABLE  |  Permanent x%.1f Power  |  Pass ID not configured"):format(item.mult)
+				or isOwned and not purchaseConfigured
+					and ("OWNED  |  Permanent x%.1f Power  |  Equip anytime"):format(item.mult)
+				or ("R$ %d  |  Permanent x%.1f Power  |  Tier %d Aura"):format(item.robux, item.mult, item.tier),
 			item.accent,
 			item.icon
 		)
-		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or ("R$ " .. item.robux), equipped and palette.Reward or item.accent, function()
+		local button = makeMenuCommand(actions, item.name .. "PremiumAction", equipped and "EQUIPPED" or isOwned and "EQUIP" or purchaseConfigured and ("R$ " .. item.robux) or "UNAVAILABLE", equipped and palette.Reward or purchaseUnavailable and palette.MutedText or item.accent, function()
 			if equipped then return end
-			actionRemote:FireServer({ action = isOwned and "EquipFist" or "BuyPremiumFist", target = item.name })
+			if isOwned then
+				actionRemote:FireServer({ action = "EquipFist", target = item.name })
+			elseif purchaseConfigured then
+				actionRemote:FireServer({ action = "BuyPremiumFist", target = item.name })
+			end
 		end)
 		button.Size = UDim2.fromOffset(112, 44)
-		button.Active = not equipped
+		button.Active = not equipped and (isOwned or purchaseConfigured)
+		button.Selectable = button.Active
+		button.AutoButtonColor = button.Active
+		if purchaseUnavailable then
+			shared.PunchWallPurchaseRuntime.MarkControlUnavailable(
+				button,
+				"UNAVAILABLE",
+				"GamePassIdNotConfigured"
+			)
+		else
+			shared.PunchWallPurchaseRuntime.MarkControlConfigured(button)
+		end
 	end
 end
 
@@ -2226,16 +3180,54 @@ local function renderPets()
 	local ownedPremiumPets = decodeJSON(latestStats.OwnedPremiumPetsJSON, {})
 	for _, pet in ipairs(GameConfig.PremiumPets) do
 		local owned = table.find(ownedPremiumPets, pet.name) ~= nil
-		local _, actions = addRow(pet.name, ("R$ %d  |  Permanent Power +%.0f%%  |  Premium Aura"):format(pet.robux, pet.mult * 100), pet.accent, "Pet")
-		local button = makeMenuCommand(actions, pet.name .. "PremiumPet", owned and "EQUIP" or ("R$ " .. pet.robux), pet.accent, function()
-			actionRemote:FireServer({ action = "BuyPremiumPet", target = pet.name })
+		local purchaseConfigured = shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(pet)
+		local purchaseUnavailable = not owned and not purchaseConfigured
+		local displayPrice, regionalPriceResolved, regionalPriceState =
+			shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(pet, renderOpenPanel)
+		local priceCopy = regionalPriceResolved and ("R$ %d"):format(displayPrice)
+			or regionalPriceState == "Loading" and "CHECKING PRICE"
+			or "PRICE AT CHECKOUT"
+		local _, actions = addRow(
+			pet.name,
+			purchaseUnavailable
+				and ("UNAVAILABLE  |  Permanent Power +%.0f%%  |  Pass ID not configured"):format(pet.mult * 100)
+				or owned and not purchaseConfigured
+					and ("OWNED  |  Permanent Power +%.0f%%  |  Equip anytime"):format(pet.mult * 100)
+				or ("%s  |  Permanent Power +%.0f%%  |  Premium Aura"):format(priceCopy, pet.mult * 100),
+			pet.accent,
+			"Pet"
+		)
+		local button = makeMenuCommand(actions, pet.name .. "PremiumPet", owned and "EQUIP" or purchaseConfigured and priceCopy or "UNAVAILABLE", purchaseUnavailable and palette.MutedText or pet.accent, function()
+			if owned or purchaseConfigured then
+				actionRemote:FireServer({ action = "BuyPremiumPet", target = pet.name })
+			end
 		end)
+		button:SetAttribute("GamePassId", tonumber(pet.gamePassId) or 0)
+		button:SetAttribute("DefaultRobuxPrice", tonumber(pet.robux) or 0)
+		button:SetAttribute("DisplayedRobuxPrice", regionalPriceResolved and displayPrice or 0)
+		button:SetAttribute("RegionalPriceResolved", regionalPriceResolved)
+		button:SetAttribute("RegionalPriceState", regionalPriceState)
 		button.Size = UDim2.fromOffset(112, 44)
+		button.Active = owned or purchaseConfigured
+		button.Selectable = button.Active
+		button.AutoButtonColor = button.Active
+		if purchaseUnavailable then
+			shared.PunchWallPurchaseRuntime.MarkControlUnavailable(
+				button,
+				"UNAVAILABLE",
+				"GamePassIdNotConfigured"
+			)
+		else
+			shared.PunchWallPurchaseRuntime.MarkControlConfigured(button)
+		end
 	end
 	addSection("INVENTORY", palette.Text)
 	local inventory = decodeJSON(latestStats.PetInventoryJSON, {})
 	local equipped = decodeJSON(latestStats.EquippedPetsJSON, {})
 	local locked = decodeJSON(latestStats.LockedPetsJSON, {})
+	if legacyPetMenuRuntime.deleteKey ~= nil then
+		legacyPetMenuRuntime.ValidateDelete(inventory)
+	end
 	local equippedCounts = countNames(equipped)
 	local unlockedInventoryCounts = {}
 	for slot, token in ipairs(inventory) do
@@ -2244,12 +3236,17 @@ local function renderPets()
 		end
 	end
 	for index, petToken in ipairs(inventory) do
-		local petName, stars = GameConfig.ParsePetToken(petToken)
+		-- Snapshot the exact occurrence for every callback. Duplicate tokens are
+		-- intentionally distinguished by slot index and must never inherit the
+		-- loop's next/final control values.
+		local slotIndex = index
+		local slotPetToken = petToken
+		local petName, stars = GameConfig.ParsePetToken(slotPetToken)
 		local pet = GameConfig.PetDefinition(petName)
 		pet = pet or { rarity = "Unknown", mult = 0, color = palette.MutedText }
 		local starText = string.rep("*", stars)
-		local multiplier = GameConfig.PetMultiplierForToken(petToken)
-		local row, actions, titleLabel, descLabel = addRow(("#%02d  [%s] %s  %s"):format(index, pet.rarity, petName, starText), ("Power +%.0f%%  |  %d Star"):format(multiplier * 100, stars), pet.color)
+		local multiplier = GameConfig.PetMultiplierForToken(slotPetToken)
+		local row, actions, titleLabel, descLabel = addRow(("#%02d  [%s] %s  %s"):format(slotIndex, pet.rarity, petName, starText), ("Power +%.0f%%  |  %d Star"):format(multiplier * 100, stars), pet.color)
 		local thumbnail = Instance.new("ImageLabel")
 		thumbnail.Name = "Pet Rarity Thumbnail"
 		thumbnail.Position = UDim2.fromOffset(12, 10)
@@ -2263,59 +3260,190 @@ local function renderPets()
 		setRounded(thumbnail, 6)
 		titleLabel.Position = UDim2.fromOffset(64, 7)
 		descLabel.Position = UDim2.fromOffset(64, 31)
-		titleLabel.Size = UDim2.new(1, -319, 0, 23)
-		descLabel.Size = UDim2.new(1, -319, 0, 22)
-		local equippedNow = (equippedCounts[petToken] or 0) > 0
-		if equippedNow then equippedCounts[petToken] -= 1 end
-		makeMenuCommand(actions, "Equip" .. index, equippedNow and "UNEQUIP" or "EQUIP", equippedNow and palette.Train or palette.Use, function()
-			actionRemote:FireServer({ action = equippedNow and "UnequipPet" or "EquipPet", target = petToken })
+		local compactPetRow = genericMenuIsCompact()
+		if not compactPetRow then
+			actions.Size = UDim2.fromOffset(286, 44)
+		end
+		titleLabel.Size = UDim2.new(1, compactPetRow and -74 or -319, 0, 23)
+		descLabel.Size = UDim2.new(1, compactPetRow and -74 or -319, 0, compactPetRow and 34 or 22)
+		local equippedNow = (equippedCounts[slotPetToken] or 0) > 0
+		if equippedNow then equippedCounts[slotPetToken] -= 1 end
+		makeMenuCommand(actions, "Equip" .. slotIndex, equippedNow and "UNEQUIP" or "EQUIP", equippedNow and palette.Train or palette.Use, function()
+			local petAction = equippedNow and "UnequipPet" or "EquipPet"
+			if RunService:IsStudio() then
+				-- Studio-only callback attestation lets real-input automation
+				-- distinguish a delivered click from a tool-level no-op when a
+				-- scrolling row was recreated or clipped before activation.
+				gui:SetAttribute(
+					"LegacyPetActionCallbackSequence",
+					(gui:GetAttribute("LegacyPetActionCallbackSequence") or 0) + 1
+				)
+				gui:SetAttribute("LegacyPetActionCallback", petAction)
+				gui:SetAttribute("LegacyPetActionCallbackIndex", slotIndex)
+				gui:SetAttribute("LegacyPetActionCallbackToken", slotPetToken)
+			end
+			actionRemote:FireServer({
+				action = petAction,
+				target = slotPetToken,
+				index = slotIndex,
+			})
 		end).Size = UDim2.fromOffset(70, 44)
-		local slotToken = "slot:" .. index
-		local isLocked = table.find(locked, slotToken) ~= nil or table.find(locked, petToken) ~= nil
+		local slotToken = "slot:" .. slotIndex
+		local isLocked = table.find(locked, slotToken) ~= nil or table.find(locked, slotPetToken) ~= nil
 		local required = stars < GameConfig.MaxPetStars and GameConfig.PetFusionRequirement(stars) or 0
-		local canFuse = required > 0 and (unlockedInventoryCounts[petToken] or 0) >= required and not isLocked
-		local fuseButton = makeMenuCommand(actions, "Fuse" .. index, required > 0 and ("FUSE " .. required) or "MAX", canFuse and palette.Reward or palette.PanelSoft, function()
-			if canFuse then actionRemote:FireServer({ action = "FusePet", target = petToken }) end
+		local canFuse = required > 0 and (unlockedInventoryCounts[slotPetToken] or 0) >= required and not isLocked
+		local fuseButton = makeMenuCommand(actions, "Fuse" .. slotIndex, required > 0 and ("FUSE " .. required) or "MAX", canFuse and palette.Reward or palette.PanelSoft, function()
+			if canFuse then actionRemote:FireServer({ action = "FusePet", target = slotPetToken }) end
 		end)
 		fuseButton.Size = UDim2.fromOffset(64, 44)
 		fuseButton.Active = canFuse
-		makeMenuCommand(actions, "Lock" .. index, isLocked and "UNLOCK" or "LOCK", isLocked and palette.Train or palette.PanelSoft, function()
-			actionRemote:FireServer({ action = "LockPet", target = petToken, value = not isLocked, index = index })
+		makeMenuCommand(actions, "Lock" .. slotIndex, isLocked and "UNLOCK" or "LOCK", isLocked and palette.Train or palette.PanelSoft, function()
+			actionRemote:FireServer({ action = "LockPet", target = slotPetToken, value = not isLocked, index = slotIndex })
 		end).Size = UDim2.fromOffset(62, 44)
-		makeMenuCommand(actions, "Delete" .. index, "DEL", isLocked and palette.PanelSoft or palette.Fail, function()
-			if isLocked then return end
-			actionRemote:FireServer({ action = "DeletePet", target = petToken, index = index })
-		end).Size = UDim2.fromOffset(54, 44)
+		local deleteArmed = not isLocked and legacyPetMenuRuntime.IsDeleteArmed(slotIndex, slotPetToken, inventory)
+		local deleteButton = makeMenuCommand(
+			actions,
+			"Delete" .. slotIndex,
+			isLocked and "LOCKED" or deleteArmed and "CONFIRM" or "DEL",
+			isLocked and palette.PanelSoft or deleteArmed and palette.Reward or palette.Fail,
+			function()
+				if isLocked then
+					legacyPetMenuRuntime.ClearDelete("locked_guard")
+					return
+				end
+				if legacyPetMenuRuntime.IsDeleteArmed(slotIndex, slotPetToken, inventory) then
+					legacyPetMenuRuntime.ClearDelete("confirmed")
+					actionRemote:FireServer({ action = "DeletePet", target = slotPetToken, index = slotIndex })
+					return
+				end
+				-- The first click only arms a short-lived, exact-slot confirmation.
+				-- It deliberately performs no remote mutation.
+				legacyPetMenuRuntime.ArmDelete(slotIndex, slotPetToken)
+				task.defer(renderOpenPanel)
+			end
+		)
+		deleteButton.Size = UDim2.fromOffset(isLocked and 64 or deleteArmed and 72 or 54, 44)
+		deleteButton.Active = not isLocked
+		deleteButton.Selectable = not isLocked
+		deleteButton.AutoButtonColor = not isLocked
+		deleteButton:SetAttribute("ExactInventoryIndex", slotIndex)
+		deleteButton:SetAttribute("PetToken", slotPetToken)
+		deleteButton:SetAttribute("ConfirmationArmed", deleteArmed)
+		deleteButton:SetAttribute("FirstClickMutatesServer", false)
 	end
 	if #inventory == 0 then addSection("No sidekicks yet. Smash depth blocks until a hidden egg drops.", palette.MutedText) end
 end
 
 local function renderHonor()
-	addSection(("WORLD HONOR  |  %s AVAILABLE"):format(formatNumber(latestStats.Honor or 0)), palette.Reward)
-	addRow(
-		"HOW TO EARN HONOR",
-		("Break the final Depth %d block in World 1. Each world-clear cycle awards %d Honor."):format(GameConfig.WorldProgressTarget, GameConfig.HonorPerWorldClear),
-		palette.Use,
-		"Wall"
+	local honorBalance = math.max(0, tonumber(latestStats.Honor) or 0)
+	local compactHonor = genericMenuIsCompact()
+	local requestedItemId = tostring(shared.PunchWallSelectedHonorItemId or "")
+	local highlightedItemId = requestedItemId ~= "" and requestedItemId
+		or tostring(gui:GetAttribute("SelectedHonorItemId") or "")
+	local selectedRow
+	local selectedButton
+	addSection(("WORLD HONOR  |  %s AVAILABLE  |  ONE RELIC ACTIVE"):format(formatNumber(honorBalance)), palette.Reward)
+	if compactHonor then
+		addSection("EARN: DEPTH + REBIRTH MILESTONES • TITAN CLEARS 12/5/5 • HERO SPIN: NO HONOR", palette.MutedText)
+	else
+		addRow(
+			"HOW TO EARN HONOR",
+			"Reach Depth milestones • Rebirth milestones • Defeat Titan after Depth 75 (first clear today 12 Honor, then 5, max 3/day)",
+			palette.Use,
+			"Wall"
+		)
+		addSection("HONOR IS PRESTIGE CURRENCY • HERO SPIN DOES NOT AWARD HONOR", palette.MutedText)
+	end
+	local _, honorPackActions = addRow(
+		"OPTIONAL HONOR PACKS",
+		"Currency only • relic Depth and Rebirth gates still apply",
+		palette.Reward,
+		"Honor"
 	)
+	local getHonorButton = makeMenuCommand(honorPackActions, "GetHonorPacks", "GET HONOR", palette.Reward, function()
+		shared.PunchWallHeroShopPage = "Honor"
+		openGameTab("Fists")
+		if shared.PunchWallHeroShopRefresh then
+			shared.PunchWallHeroShopRefresh({ force = true, reason = "honor-catalog-get-honor" })
+		end
+	end)
+	getHonorButton.Size = UDim2.fromOffset(118, 44)
+	getHonorButton:SetAttribute("ShopPage", "Honor")
 	local owned = decodeJSON(latestStats.OwnedHonorItemsJSON, {})
 	for _, item in ipairs(GameConfig.HonorItems) do
-		local isOwned = table.find(owned, item.name) ~= nil
-		local equipped = latestStats.EquippedHonorItem == item.name
-		local _, actions = addRow(
+		local isOwned = table.find(owned, item.id) ~= nil or table.find(owned, item.name) ~= nil
+		local equipped = latestStats.EquippedHonorItem == item.id or latestStats.EquippedHonorItem == item.name
+		local unlocked = GameConfig.HonorItemUnlocked(item, latestStats.Depth, latestStats.Rebirths)
+		local requirement = ("REQ DEPTH %d"):format(item.requiredDepth or 0)
+		if (item.requiredRebirths or 0) > 0 then
+			requirement ..= (" • REBIRTH %d"):format(item.requiredRebirths)
+		end
+		local row, actions = addRow(
 			item.displayName,
-			("%d HONOR  |  +%d%% total Power  |  Permanent relic"):format(item.cost, math.floor(item.powerBonus * 100 + 0.5)),
+			("%s • %d HONOR • +%d%% EQUIPPED POWER • %s"):format(item.rarity or "RELIC", item.cost, math.floor(item.powerBonus * 100 + 0.5), requirement),
 			item.color,
-			item.icon or "Success"
+			item.icon or "Success",
+			compactHonor and "CompactInline" or nil
 		)
-		local caption = equipped and "EQUIPPED" or isOwned and "EQUIP" or (item.cost .. " HONOR")
+		local canAfford = honorBalance >= item.cost
+		local caption = equipped and "EQUIPPED"
+			or isOwned and "EQUIP"
+			or not unlocked and "LOCKED"
+			or not canAfford and ("NEED %s"):format(formatNumber(item.cost - honorBalance))
+			or ("UNLOCK %s"):format(formatNumber(item.cost))
+		local actionable = not equipped and (isOwned or (unlocked and canAfford))
 		local button = makeMenuCommand(actions, item.name .. "HonorAction", caption, equipped and palette.Reward or item.color, function()
-			if not equipped then actionRemote:FireServer({ action = "BuyHonorItem", target = item.name }) end
+			if actionable then actionRemote:FireServer({ action = "BuyHonorItem", target = item.id }) end
 		end)
 		button.Size = UDim2.fromOffset(118, 44)
-		button.Active = not equipped
+		button.Active = actionable
+		button.AutoButtonColor = actionable
+		button:SetAttribute("HonorItemId", item.id)
+		button:SetAttribute("HonorState", equipped and "Equipped" or isOwned and "Owned" or not unlocked and "Locked" or canAfford and "Affordable" or "Insufficient")
+		if highlightedItemId ~= "" and item.id == highlightedItemId then
+			row:SetAttribute("HonorWorldSelection", item.id)
+			row.BackgroundColor3 = Color3.fromRGB(42, 49, 58):Lerp(item.color, 0.18)
+			local selectionStroke = Instance.new("UIStroke")
+			selectionStroke.Name = "HonorWorldSelectionStroke"
+			selectionStroke.Color = item.color
+			selectionStroke.Thickness = 2
+			selectionStroke.Transparency = 0.08
+			selectionStroke.Parent = row
+			if requestedItemId ~= "" then
+				selectedRow = row
+				selectedButton = button
+			end
+		end
 	end
-	addSection("NEXT RELEASE: Honor will also unlock the next world. Your relics and Honor balance are already saved.", palette.MutedText)
+	if selectedRow and selectedButton then
+		task.defer(function()
+			if not selectedRow.Parent or not selectedButton.Parent or not mainPanel.Visible or activeTab ~= "Honor" then return end
+			-- AutomaticCanvasSize settles one or more frames after the rows are
+			-- parented, especially on compact phone layouts. Wait boundedly for the
+			-- real canvas before clamping, otherwise a bottom relic can remain at Y=0.
+			local layoutDeadline = os.clock() + 1.25
+			repeat
+				RunService.Heartbeat:Wait()
+			until content.AbsoluteCanvasSize.Y > content.AbsoluteSize.Y or os.clock() >= layoutDeadline
+			local rowCenter = selectedRow.AbsolutePosition.Y + selectedRow.AbsoluteSize.Y * 0.5
+			local viewportCenter = content.AbsolutePosition.Y + content.AbsoluteSize.Y * 0.5
+			local maxY = math.max(0, content.AbsoluteCanvasSize.Y - content.AbsoluteSize.Y)
+			content.CanvasPosition = Vector2.new(0, math.clamp(content.CanvasPosition.Y + rowCenter - viewportCenter, 0, maxY))
+			GuiService.SelectedObject = selectedButton
+			gui:SetAttribute("SelectedHonorItemId", requestedItemId)
+			gui:SetAttribute("SelectedHonorCanvasY", content.CanvasPosition.Y)
+			-- Clear only after the final live render consumed the request. Responsive
+			-- layout may rebuild Content after openGameTab; clearing before that
+			-- rebuild made compact selection intermittently snap back to the top.
+			if shared.PunchWallSelectedHonorItemId == requestedItemId then
+				shared.PunchWallSelectedHonorItemId = nil
+			end
+		end)
+	end
+	addSection(
+		"OWNED RELICS ARE PERMANENT • EQUIPPING AN OWNED RELIC COSTS 0 HONOR",
+		palette.MutedText
+	)
 end
 
 local function renderTasks()
@@ -2350,10 +3478,165 @@ local function renderTasks()
 	makeMenuCommand(spinActions, "OpenSpin", spinReady and "SPIN" or "VIEW", spinReady and palette.Reward or palette.PanelSoft, function()
 		if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() end
 	end).Size = UDim2.fromOffset(100, 44)
-	local _, rebirthActions = addRow("Hero Rebirth", ("Need Wall Lv 55 + 1M coins  |  Next permanent bonus x%.2f"):format((latestStats.RebirthBonus or 1) + 0.25), Color3.fromRGB(171, 133, 219), "Rebirth")
-	makeMenuCommand(rebirthActions, "RebirthNow", "REBIRTH", Color3.fromRGB(142, 88, 203), function()
-		actionRemote:FireServer({ action = "Rebirth" })
-	end).Size = UDim2.fromOffset(100, 44)
+	-- Rebirth moved to its own child-friendly modal. Missions intentionally end
+	-- here so the old combined Tasks/Rebirth presentation can never render.
+	if false then -- retained temporarily for selector compatibility; never player-visible
+	local currentRebirths = math.max(0, math.floor(tonumber(latestStats.Rebirths) or 0))
+	local requirement = GameConfig.RebirthRequirement(currentRebirths)
+	local currentLevel = math.max(1, math.floor(tonumber(latestStats.WallLevel) or 1))
+	local currentCoins = math.max(0, math.floor(tonumber(latestStats.Coins) or 0))
+	local ready = not requirement.maxed
+		and currentLevel >= requirement.requiredLevel
+		and currentCoins >= requirement.requiredCoins
+	local signature = ("%d:%d:%d:%d:%d"):format(
+		currentRebirths,
+		currentLevel,
+		currentCoins,
+		requirement.requiredLevel,
+		requirement.requiredCoins
+	)
+	if shared.PunchWallRebirthRuntime.armed and (shared.PunchWallRebirthRuntime.expiresAt <= os.clock() or shared.PunchWallRebirthRuntime.signature ~= signature or not ready) then
+		shared.PunchWallRebirthRuntime.armed = false
+		shared.PunchWallRebirthRuntime.pending = false
+		shared.PunchWallRebirthRuntime.signature = ""
+		shared.PunchWallRebirthRuntime.expiresAt = 0
+		shared.PunchWallRebirthRuntime.generation += 1
+	end
+	local stateName = requirement.maxed and "MAXED"
+		or ready and (shared.PunchWallRebirthRuntime.pending and "PENDING" or shared.PunchWallRebirthRuntime.armed and "CONFIRM" or "READY")
+		or "LOCKED"
+	local description
+	if requirement.maxed then
+		description = ("MAX %d REBIRTHS • PERMANENT POWER x%.2f"):format(GameConfig.Rebirth.MaxRebirths, GameConfig.RebirthBonus(currentRebirths))
+	elseif ready then
+		description = ("GAIN REBIRTH %d • PERMANENT POWER x%.2f\nRESET POWER→%s • COINS→0 • WALL LV→1 • FIST→STARTER | KEEP DEPTH • GEAR • PETS • HONOR"):format(
+			requirement.nextRebirths,
+			requirement.permanentMultiplier,
+			formatNumber(GameConfig.Rebirth.StartingPower)
+		)
+	else
+		local missingLevel = math.max(0, requirement.requiredLevel - currentLevel)
+		local missingCoins = math.max(0, requirement.requiredCoins - currentCoins)
+		local missingLevelUnit = missingLevel == 1 and "LEVEL" or "LEVELS"
+		description = ("WALL LV %d/%d • COINS %s/%s\nNEED %d %s + %s COINS • NEXT POWER x%.2f"):format(
+			currentLevel,
+			requirement.requiredLevel,
+			formatNumber(currentCoins),
+			formatNumber(requirement.requiredCoins),
+			missingLevel,
+			missingLevelUnit,
+			formatNumber(missingCoins),
+			requirement.permanentMultiplier
+		)
+	end
+	local rebirthRow, rebirthActions = addRow(
+		("HERO REBIRTH • %s"):format(stateName),
+		description,
+		ready and Color3.fromRGB(205, 164, 63) or Color3.fromRGB(126, 83, 160),
+		"Rebirth",
+		"Rebirth"
+	)
+	rebirthRow:SetAttribute("RebirthState", stateName)
+	rebirthRow:SetAttribute("CurrentRebirths", currentRebirths)
+	rebirthRow:SetAttribute("RequiredLevel", requirement.requiredLevel)
+	rebirthRow:SetAttribute("RequiredCoins", requirement.requiredCoins)
+	rebirthRow:SetAttribute("NextPermanentMultiplier", requirement.permanentMultiplier)
+	rebirthRow:SetAttribute("ResetContract", "PowerCoinsWallLevelWallXPEquippedFistTraining")
+	rebirthRow:SetAttribute("RetainContract", "DepthScoreOwnedGearPetsHonorPremiumSettingsBoosts")
+	local function cancelRebirthConfirmation()
+		shared.PunchWallRebirthRuntime.armed = false
+		shared.PunchWallRebirthRuntime.signature = ""
+		shared.PunchWallRebirthRuntime.expiresAt = 0
+		shared.PunchWallRebirthRuntime.generation += 1
+		gui:SetAttribute("RebirthConfirmationState", "Canceled")
+		shared.PunchWallSelectedTaskItem = "Rebirth"
+		renderOpenPanel()
+	end
+	local function confirmRebirth()
+		if shared.PunchWallRebirthRuntime.pending or not shared.PunchWallRebirthRuntime.armed or shared.PunchWallRebirthRuntime.signature ~= signature or shared.PunchWallRebirthRuntime.expiresAt <= os.clock() then return end
+		shared.PunchWallRebirthRuntime.pending = true
+		gui:SetAttribute("RebirthConfirmationState", "Pending")
+		gui:SetAttribute("RebirthPending", true)
+		gui:SetAttribute("RebirthRequestCount", (gui:GetAttribute("RebirthRequestCount") or 0) + 1)
+		shared.PunchWallSelectedTaskItem = "Rebirth"
+		actionRemote:FireServer({
+			action = "Rebirth",
+			value = { confirmed = true, expectedRebirths = currentRebirths },
+		})
+		renderOpenPanel()
+	end
+	local function reviewRebirth()
+		shared.PunchWallRebirthRuntime.armed = true
+		shared.PunchWallRebirthRuntime.pending = false
+		shared.PunchWallRebirthRuntime.signature = signature
+		shared.PunchWallRebirthRuntime.expiresAt = os.clock() + GameConfig.Rebirth.ConfirmationSeconds
+		shared.PunchWallRebirthRuntime.generation += 1
+		local generation = shared.PunchWallRebirthRuntime.generation
+		gui:SetAttribute("RebirthConfirmationState", "Armed")
+		gui:SetAttribute("RebirthFirstActivationMutationGuard", true)
+		shared.PunchWallSelectedTaskItem = "Rebirth"
+		task.delay(GameConfig.Rebirth.ConfirmationSeconds, function()
+			if generation ~= shared.PunchWallRebirthRuntime.generation or shared.PunchWallRebirthRuntime.expiresAt > os.clock() then return end
+			shared.PunchWallRebirthRuntime.armed = false
+			shared.PunchWallRebirthRuntime.signature = ""
+			shared.PunchWallRebirthRuntime.expiresAt = 0
+			gui:SetAttribute("RebirthConfirmationState", "Expired")
+			if mainPanel.Visible and activeTab == "Tasks" then renderOpenPanel() end
+		end)
+		renderOpenPanel()
+	end
+	shared.PunchWallRebirthActionCallbacks = {
+		Cancel = cancelRebirthConfirmation,
+		Confirm = confirmRebirth,
+		Review = reviewRebirth,
+	}
+	local focusButton
+	if requirement.maxed or not ready then
+		focusButton = makeMenuCommand(rebirthActions, "RebirthLocked", requirement.maxed and "MAXED" or "LOCKED", palette.PanelSoft, function() end)
+		focusButton.Active = false
+		focusButton.Selectable = false
+		focusButton.AutoButtonColor = false
+	elseif shared.PunchWallRebirthRuntime.pending then
+		focusButton = makeMenuCommand(rebirthActions, "RebirthPending", "REBIRTHING…", palette.PanelSoft, function() end)
+		focusButton.Active = false
+		focusButton.Selectable = false
+		focusButton.AutoButtonColor = false
+	elseif shared.PunchWallRebirthRuntime.armed then
+		local cancelButton = makeMenuCommand(rebirthActions, "CancelRebirth", "CANCEL", palette.PanelSoft, cancelRebirthConfirmation)
+		cancelButton.Size = UDim2.fromOffset(112, 44)
+		cancelButton:SetAttribute("MinimumTouchTarget", 44)
+		focusButton = makeMenuCommand(rebirthActions, "ConfirmRebirth", "CONFIRM", Color3.fromRGB(142, 88, 203), confirmRebirth)
+		cancelButton.NextSelectionRight = focusButton
+		focusButton.NextSelectionLeft = cancelButton
+	else
+		focusButton = makeMenuCommand(rebirthActions, "ReviewRebirth", "REVIEW", Color3.fromRGB(142, 88, 203), reviewRebirth)
+	end
+	if focusButton then
+		focusButton.Size = UDim2.fromOffset(112, 44)
+		focusButton:SetAttribute("MinimumTouchTarget", 44)
+		focusButton:SetAttribute("RebirthSemanticAction", stateName)
+	end
+	if shared.PunchWallSelectedTaskItem == "Rebirth" then
+		task.defer(function()
+			local deadline = os.clock() + 1.25
+			repeat RunService.Heartbeat:Wait()
+			until content.AbsoluteCanvasSize.Y > 0 or os.clock() >= deadline
+			if not mainPanel.Visible or activeTab ~= "Tasks" or not rebirthRow.Parent then return end
+			local rowCenter = rebirthRow.AbsolutePosition.Y - content.AbsolutePosition.Y + content.CanvasPosition.Y + rebirthRow.AbsoluteSize.Y / 2
+			local maxY = math.max(0, content.AbsoluteCanvasSize.Y - content.AbsoluteSize.Y)
+			content.CanvasPosition = Vector2.new(0, math.clamp(rowCenter - content.AbsoluteSize.Y / 2, 0, maxY))
+			if focusButton and focusButton.Active and focusButton.Selectable then
+				local lastInput = UserInputService:GetLastInputType()
+				local usesSelection = lastInput == Enum.UserInputType.Keyboard
+					or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+				GuiService.SelectedObject = usesSelection and focusButton or nil
+			end
+			gui:SetAttribute("SelectedTaskItem", "Rebirth")
+			gui:SetAttribute("SelectedRebirthCanvasY", content.CanvasPosition.Y)
+			shared.PunchWallSelectedTaskItem = nil
+		end)
+	end
+	end
 end
 
 local function renderSettings()
@@ -2365,6 +3648,12 @@ local function renderSettings()
 				shared.PunchWallApplySoundSetting(not clientSettings.sound, true)
 			else
 				clientSettings[key] = not clientSettings[key]
+				if key == "motion" and shared.PunchWallApplyFistAuraMotion then
+					shared.PunchWallApplyFistAuraMotion()
+				end
+				if key == "motion" and shared.PunchWallRefreshHonorMotion then
+					shared.PunchWallRefreshHonorMotion()
+				end
 				actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
 			end
 			renderOpenPanel()
@@ -2389,11 +3678,540 @@ local function renderSettings()
 	end
 end
 
+-- Standalone player windows -------------------------------------------------
+-- Shop and Inventory still share the neutral modal host for compatibility,
+-- but the old five-tab launcher is no longer a player-facing surface.
+(function()
+local standaloneWindows = {}
+shared.PunchWallStandaloneWindows = standaloneWindows
+local standaloneDimmer = Instance.new("TextButton")
+standaloneDimmer.Name = "StandaloneWindowDimmer"
+standaloneDimmer.Size = UDim2.fromScale(1, 1)
+standaloneDimmer.BackgroundColor3 = Color3.fromRGB(2, 5, 9)
+standaloneDimmer.BackgroundTransparency = 0.28
+standaloneDimmer.BorderSizePixel = 0
+standaloneDimmer.Text = ""
+standaloneDimmer.AutoButtonColor = false
+standaloneDimmer.Active = true
+standaloneDimmer.Visible = false
+standaloneDimmer.ZIndex = 70
+standaloneDimmer.Parent = gui
+
+local function createStandalonePanel(name, titleText, accent, iconName)
+	local root = Instance.new("Frame")
+	root.Name = name
+	root.AnchorPoint = Vector2.new(0.5, 0.5)
+	root.Position = UDim2.fromScale(0.5, 0.5)
+	root.Size = UDim2.fromOffset(720, 468)
+	root.BackgroundColor3 = Color3.fromRGB(8, 15, 23)
+	root.BorderSizePixel = 0
+	root.Visible = false
+	root.ZIndex = 71
+	root.Parent = gui
+	root:SetAttribute("StandaloneWindow", true)
+	root:SetAttribute("MinimumTouchTarget", 44)
+	setRounded(root, 12)
+	local stroke = Instance.new("UIStroke")
+	stroke.Name = "StandaloneStroke"
+	stroke.Color = accent
+	stroke.Thickness = 3
+	stroke.Transparency = 0.08
+	stroke.Parent = root
+	local header = Instance.new("Frame")
+	header.Name = "Header"
+	header.Size = UDim2.new(1, 0, 0, 70)
+	header.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
+	header.BorderSizePixel = 0
+	header.ZIndex = 72
+	header.Parent = root
+	setRounded(header, 12)
+	createThemeIcon(header, iconName, UDim2.fromOffset(16, 11), UDim2.fromOffset(48, 48), "HeaderIcon").ZIndex = 73
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Name = "Title"
+	titleLabel.Position = UDim2.fromOffset(76, 8)
+	titleLabel.Size = UDim2.new(1, -148, 0, 34)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Font = Enum.Font.GothamBlack
+	titleLabel.Text = titleText
+	titleLabel.TextColor3 = palette.Text
+	titleLabel.TextSize = 26
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.ZIndex = 73
+	titleLabel.Parent = header
+	local subtitle = Instance.new("TextLabel")
+	subtitle.Name = "Subtitle"
+	subtitle.Position = UDim2.fromOffset(77, 40)
+	subtitle.Size = UDim2.new(1, -152, 0, 20)
+	subtitle.BackgroundTransparency = 1
+	subtitle.Font = Enum.Font.GothamBold
+	subtitle.Text = ""
+	subtitle.TextColor3 = accent
+	subtitle.TextSize = 12
+	subtitle.TextScaled = true
+	subtitle.TextXAlignment = Enum.TextXAlignment.Left
+	subtitle.ZIndex = 73
+	subtitle.Parent = header
+	local subtitleTextSize = Instance.new("UITextSizeConstraint")
+	subtitleTextSize.MinTextSize = 8
+	subtitleTextSize.MaxTextSize = 12
+	subtitleTextSize.Parent = subtitle
+	local close = Instance.new("TextButton")
+	close.Name = "Close"
+	close.AnchorPoint = Vector2.new(1, 0)
+	close.Position = UDim2.new(1, -10, 0, 10)
+	close.Size = UDim2.fromOffset(48, 48)
+	close.BackgroundColor3 = palette.Fail
+	close.BorderSizePixel = 0
+	close.Font = Enum.Font.GothamBlack
+	close.Text = "X"
+	close.TextColor3 = Color3.new(1, 1, 1)
+	close.TextSize = 19
+	close.ZIndex = 74
+	close.Parent = root
+	setRounded(close, 8)
+	local body = Instance.new("Frame")
+	body.Name = "Body"
+	body.Position = UDim2.fromOffset(12, 82)
+	body.Size = UDim2.new(1, -24, 1, -94)
+	body.BackgroundTransparency = 1
+	body.ZIndex = 72
+	body.Parent = root
+	return root, body, close, subtitle
+end
+
+local rebirthPanel, rebirthBody, rebirthClose, rebirthSubtitle = createStandalonePanel(
+	"RebirthWindow",
+	"REBIRTH",
+	Color3.fromRGB(181, 111, 239),
+	"Rebirth"
+)
+local settingsPanel, settingsBody, settingsClose, settingsSubtitle = createStandalonePanel(
+	"SettingsWindow",
+	"SETTINGS",
+	Color3.fromRGB(46, 205, 255),
+	"Settings"
+)
+settingsPanel.Size = UDim2.fromOffset(640, 420)
+
+local function setDescendantZIndex(root, zIndex)
+	for _, descendant in ipairs(root:GetDescendants()) do
+		if descendant:IsA("GuiObject") and descendant.ZIndex < zIndex then
+			descendant.ZIndex = zIndex
+		end
+	end
+end
+
+local function clearStandaloneBody(body)
+	for _, child in ipairs(body:GetChildren()) do
+		if child:IsA("GuiObject") or child:IsA("UIComponent") then
+			child:Destroy()
+		end
+	end
+end
+
+local function standaloneLabel(parent, name, textValue, position, size, color, textSize, font, alignment)
+	local label = Instance.new("TextLabel")
+	label.Name = name
+	label.Position = position
+	label.Size = size
+	label.BackgroundTransparency = 1
+	label.Font = font or Enum.Font.GothamBold
+	label.Text = textValue
+	label.TextColor3 = color or palette.Text
+	label.TextSize = textSize or 14
+	label.TextScaled = true
+	label.TextWrapped = true
+	label.TextXAlignment = alignment or Enum.TextXAlignment.Left
+	label.TextYAlignment = Enum.TextYAlignment.Center
+	label.ZIndex = 74
+	label.Parent = parent
+	local textConstraint = Instance.new("UITextSizeConstraint")
+	textConstraint.MinTextSize = math.min(7, textSize or 14)
+	textConstraint.MaxTextSize = textSize or 14
+	textConstraint.Parent = label
+	return label
+end
+
+local function standaloneCard(parent, name, position, size, accent)
+	local card = Instance.new("Frame")
+	card.Name = name
+	card.Position = position
+	card.Size = size
+	card.BackgroundColor3 = Color3.fromRGB(17, 27, 39)
+	card.BorderSizePixel = 0
+	card.ZIndex = 73
+	card.Parent = parent
+	setRounded(card, 9)
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = accent
+	stroke.Thickness = 2
+	stroke.Transparency = 0.18
+	stroke.Parent = card
+	return card
+end
+
+local function shortReadyText(current, required, formatter)
+	formatter = formatter or tostring
+	return ("%s / %s"):format(formatter(math.min(current, required)), formatter(required))
+end
+
+local function rebirthUiRequirement()
+	local currentRebirths = math.max(0, math.floor(tonumber(latestStats.Rebirths) or 0))
+	local canonical = GameConfig.RebirthRequirement(currentRebirths)
+	local requiredLevel = math.max(1, math.floor(tonumber(latestStats.RebirthRequiredLevel) or canonical.requiredLevel))
+	local requiredCoins = math.max(0, math.floor(tonumber(latestStats.RebirthRequiredCoins) or canonical.requiredCoins))
+	local nextRebirths = math.max(currentRebirths, math.floor(tonumber(latestStats.RebirthNextCount) or canonical.nextRebirths))
+	local nextBonus = tonumber(latestStats.RebirthNextBonus) or canonical.permanentMultiplier
+	local maxed = latestStats.RebirthMaxed == true or canonical.maxed
+	local currentLevel = math.max(1, math.floor(tonumber(latestStats.WallLevel) or 1))
+	local currentCoins = math.max(0, math.floor(tonumber(latestStats.Coins) or 0))
+	local ready = not maxed and currentLevel >= requiredLevel and currentCoins >= requiredCoins
+	return {
+		currentRebirths = currentRebirths,
+		nextRebirths = nextRebirths,
+		currentBonus = GameConfig.RebirthBonus(currentRebirths),
+		nextBonus = nextBonus,
+		requiredLevel = requiredLevel,
+		requiredCoins = requiredCoins,
+		currentLevel = currentLevel,
+		currentCoins = currentCoins,
+		maxed = maxed,
+		ready = ready,
+		policyVersion = GameConfig.Rebirth.Version,
+	}
+end
+
+local function resetRebirthConfirmation(state)
+	shared.PunchWallRebirthRuntime.armed = false
+	shared.PunchWallRebirthRuntime.pending = false
+	shared.PunchWallRebirthRuntime.signature = ""
+	shared.PunchWallRebirthRuntime.expiresAt = 0
+	shared.PunchWallRebirthRuntime.generation += 1
+	gui:SetAttribute("RebirthConfirmationState", state or "Closed")
+	gui:SetAttribute("RebirthPending", false)
+end
+
+local renderStandaloneRebirth
+local renderStandaloneSettings
+local closeStandaloneWindows
+renderStandaloneRebirth = function()
+	if not rebirthPanel.Visible then return end
+	clearStandaloneBody(rebirthBody)
+	local q = rebirthUiRequirement()
+	local signature = ("%s:%d:%d:%d:%d:%d"):format(q.policyVersion, q.currentRebirths, q.currentLevel, q.currentCoins, q.requiredLevel, q.requiredCoins)
+	if shared.PunchWallRebirthRuntime.armed and (
+		shared.PunchWallRebirthRuntime.expiresAt <= os.clock()
+		or shared.PunchWallRebirthRuntime.signature ~= signature
+		or not q.ready
+	) then
+		resetRebirthConfirmation("Expired")
+	end
+	local stateName = q.maxed and "MAXED"
+		or q.ready and (shared.PunchWallRebirthRuntime.pending and "PENDING" or shared.PunchWallRebirthRuntime.armed and "CONFIRM" or "READY")
+		or "LOCKED"
+	rebirthPanel:SetAttribute("RebirthState", stateName)
+	rebirthPanel:SetAttribute("CurrentRebirths", q.currentRebirths)
+	rebirthPanel:SetAttribute("RequiredLevel", q.requiredLevel)
+	rebirthPanel:SetAttribute("RequiredCoins", q.requiredCoins)
+	rebirthPanel:SetAttribute("NextPermanentMultiplier", q.nextBonus)
+	rebirthPanel:SetAttribute("PolicyVersion", q.policyVersion)
+	rebirthPanel:SetAttribute("UsesServerPreviewFields", true)
+	rebirthPanel:SetAttribute("LegacyCombinedTabsVisible", false)
+	rebirthSubtitle.Text = q.maxed and ("MAX %d • POWER x%.2f"):format(GameConfig.Rebirth.MaxRebirths, q.currentBonus)
+		or ("REBIRTH #%d → #%d • PERMANENT POWER"):format(q.currentRebirths, q.nextRebirths)
+
+	local reward = standaloneCard(rebirthBody, "RewardCard", UDim2.fromScale(0, 0), UDim2.fromScale(0.28, 0.48), Color3.fromRGB(181, 111, 239))
+	createThemeIcon(reward, "Rebirth", UDim2.new(0.5, -39, 0, 10), UDim2.fromOffset(78, 78), "RewardIcon")
+	local rewardTitle = standaloneLabel(reward, "RewardTitle", "POWER", UDim2.fromScale(0.08, 0.54), UDim2.fromScale(0.84, 0.18), Color3.fromRGB(218, 184, 255), 12, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
+	rewardTitle.TextWrapped = false
+	local rewardValue = standaloneLabel(reward, "RewardValue", ("x%.2f → x%.2f"):format(q.currentBonus, q.nextBonus), UDim2.fromScale(0.04, 0.71), UDim2.fromScale(0.92, 0.25), Color3.fromRGB(255, 222, 89), 18, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
+	rewardValue.TextWrapped = false
+
+	local levelMet = q.currentLevel >= q.requiredLevel
+	local levelCard = standaloneCard(rebirthBody, "WallLevelRequirement", UDim2.fromScale(0.30, 0), UDim2.fromScale(0.335, 0.48), levelMet and palette.Reward or palette.Fail)
+	createThemeIcon(levelCard, "Wall", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
+	standaloneLabel(levelCard, "RequirementTitle", "WALL LEVEL", UDim2.fromOffset(82, 9), UDim2.new(1, -92, 0, 28), palette.Text, 13, Enum.Font.GothamBlack)
+	standaloneLabel(levelCard, "RequirementValue", shortReadyText(q.currentLevel, q.requiredLevel, formatNumber), UDim2.fromOffset(82, 34), UDim2.new(1, -92, 0, 32), levelMet and palette.Reward or palette.Text, 19, Enum.Font.GothamBlack)
+	standaloneLabel(levelCard, "RequirementState", levelMet and "READY" or ("NEED %s"):format(formatNumber(q.requiredLevel - q.currentLevel)), UDim2.new(0, 12, 1, -42), UDim2.new(1, -24, 0, 30), levelMet and palette.Reward or palette.Fail, 12, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
+	levelCard:SetAttribute("Met", levelMet)
+
+	local coinsMet = q.currentCoins >= q.requiredCoins
+	local coinCard = standaloneCard(rebirthBody, "CoinsRequirement", UDim2.fromScale(0.65, 0), UDim2.fromScale(0.35, 0.48), coinsMet and palette.Reward or palette.Fail)
+	createThemeIcon(coinCard, "Coin", UDim2.fromOffset(12, 14), UDim2.fromOffset(64, 64), "RequirementIcon")
+	standaloneLabel(coinCard, "RequirementTitle", "COINS", UDim2.fromOffset(82, 9), UDim2.new(1, -92, 0, 28), palette.Text, 13, Enum.Font.GothamBlack)
+	standaloneLabel(coinCard, "RequirementValue", shortReadyText(q.currentCoins, q.requiredCoins, formatNumber), UDim2.fromOffset(82, 34), UDim2.new(1, -92, 0, 32), coinsMet and palette.Reward or palette.Text, 18, Enum.Font.GothamBlack)
+	standaloneLabel(coinCard, "RequirementState", coinsMet and "READY" or ("NEED %s"):format(formatNumber(q.requiredCoins - q.currentCoins)), UDim2.new(0, 12, 1, -42), UDim2.new(1, -24, 0, 30), coinsMet and palette.Reward or palette.Fail, 12, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
+	coinCard:SetAttribute("Met", coinsMet)
+
+	local resetCard = standaloneCard(rebirthBody, "ResetContract", UDim2.fromScale(0, 0.51), UDim2.fromScale(0.49, 0.23), Color3.fromRGB(224, 70, 66))
+	createThemeIcon(resetCard, "Warning", UDim2.fromOffset(12, 10), UDim2.fromOffset(44, 44), "ContractIcon")
+	standaloneLabel(resetCard, "ContractTitle", "RESET", UDim2.fromOffset(64, 5), UDim2.new(1, -72, 0, 24), Color3.fromRGB(255, 117, 107), 12, Enum.Font.GothamBlack)
+	standaloneLabel(resetCard, "ContractValue", "POWER 25 • COINS 0 • WALL LV 1\nSTARTER FIST • TRAINING STOPS", UDim2.fromOffset(64, 24), UDim2.new(1, -72, 0, 40), palette.Text, 10, Enum.Font.GothamBold)
+	resetCard:SetAttribute("ResetContract", "PowerCoinsWallLevelWallXPEquippedFistTraining")
+
+	local keepCard = standaloneCard(rebirthBody, "KeepContract", UDim2.fromScale(0.51, 0.51), UDim2.fromScale(0.49, 0.23), palette.Reward)
+	createThemeIcon(keepCard, "Success", UDim2.fromOffset(12, 10), UDim2.fromOffset(44, 44), "ContractIcon")
+	standaloneLabel(keepCard, "ContractTitle", "KEEP", UDim2.fromOffset(64, 5), UDim2.new(1, -72, 0, 24), palette.Reward, 12, Enum.Font.GothamBlack)
+	standaloneLabel(keepCard, "ContractValue", "DEPTH • GEAR • PETS • HONOR • BOOSTS", UDim2.fromOffset(64, 26), UDim2.new(1, -72, 0, 34), palette.Text, 11, Enum.Font.GothamBold)
+	keepCard:SetAttribute("RetainContract", "DepthScoreOwnedGearPetsHonorPremiumSettingsBoosts")
+
+	local actionBand = Instance.new("Frame")
+	actionBand.Name = "Actions"
+	actionBand.Position = UDim2.fromScale(0, 0.77)
+	actionBand.Size = UDim2.fromScale(1, 0.23)
+	actionBand.BackgroundTransparency = 1
+	actionBand.ZIndex = 73
+	actionBand.Parent = rebirthBody
+	local focusButton
+	local function cancelReview()
+		resetRebirthConfirmation("Canceled")
+		renderStandaloneRebirth()
+	end
+	local function confirmRebirth()
+		if shared.PunchWallRebirthRuntime.pending
+			or not shared.PunchWallRebirthRuntime.armed
+			or shared.PunchWallRebirthRuntime.signature ~= signature
+			or shared.PunchWallRebirthRuntime.expiresAt <= os.clock() then return end
+		shared.PunchWallRebirthRuntime.pending = true
+		gui:SetAttribute("RebirthConfirmationState", "Pending")
+		gui:SetAttribute("RebirthPending", true)
+		gui:SetAttribute("RebirthRequestCount", (gui:GetAttribute("RebirthRequestCount") or 0) + 1)
+		actionRemote:FireServer({
+			action = "Rebirth",
+			value = {
+				confirmed = true,
+				expectedRebirths = q.currentRebirths,
+				policyVersion = q.policyVersion,
+			},
+		})
+		renderStandaloneRebirth()
+	end
+	local function reviewRebirth()
+		shared.PunchWallRebirthRuntime.armed = true
+		shared.PunchWallRebirthRuntime.pending = false
+		shared.PunchWallRebirthRuntime.signature = signature
+		shared.PunchWallRebirthRuntime.expiresAt = os.clock() + GameConfig.Rebirth.ConfirmationSeconds
+		shared.PunchWallRebirthRuntime.generation += 1
+		local generation = shared.PunchWallRebirthRuntime.generation
+		gui:SetAttribute("RebirthConfirmationState", "Armed")
+		gui:SetAttribute("RebirthFirstActivationMutationGuard", true)
+		task.delay(GameConfig.Rebirth.ConfirmationSeconds, function()
+			if generation ~= shared.PunchWallRebirthRuntime.generation or shared.PunchWallRebirthRuntime.expiresAt > os.clock() then return end
+			resetRebirthConfirmation("Expired")
+			renderStandaloneRebirth()
+		end)
+		renderStandaloneRebirth()
+	end
+	shared.PunchWallRebirthActionCallbacks = { Cancel = cancelReview, Confirm = confirmRebirth, Review = reviewRebirth }
+	if q.maxed or not q.ready then
+		focusButton = makeMenuCommand(actionBand, "RebirthLocked", q.maxed and "MAX REBIRTH" or "NOT READY", palette.PanelSoft, function() end)
+		focusButton.Active = false
+		focusButton.Selectable = false
+		focusButton.AutoButtonColor = false
+	elseif shared.PunchWallRebirthRuntime.pending then
+		focusButton = makeMenuCommand(actionBand, "RebirthPending", "REBIRTHING…", palette.PanelSoft, function() end)
+		focusButton.Active = false
+		focusButton.Selectable = false
+		focusButton.AutoButtonColor = false
+	elseif shared.PunchWallRebirthRuntime.armed then
+		standaloneLabel(actionBand, "ConfirmQuestion", ("RESET NOW? • %ds"):format(math.max(0, math.ceil(shared.PunchWallRebirthRuntime.expiresAt - os.clock()))), UDim2.fromScale(0, 0), UDim2.fromScale(0.48, 1), Color3.fromRGB(255, 222, 89), 15, Enum.Font.GothamBlack)
+		local cancel = makeMenuCommand(actionBand, "CancelRebirth", "CANCEL", palette.PanelSoft, cancelReview)
+		cancel.AnchorPoint = Vector2.new(1, 0.5)
+		cancel.Position = UDim2.fromScale(0.75, 0.5)
+		cancel.Size = UDim2.fromOffset(112, 48)
+		focusButton = makeMenuCommand(actionBand, "ConfirmRebirth", "REBIRTH NOW", Color3.fromRGB(142, 88, 203), confirmRebirth)
+		focusButton.AnchorPoint = Vector2.new(1, 0.5)
+		focusButton.Position = UDim2.fromScale(1, 0.5)
+		focusButton.Size = UDim2.fromOffset(140, 48)
+		cancel.NextSelectionRight = focusButton
+		focusButton.NextSelectionLeft = cancel
+		-- Safe default: gamepad/keyboard lands on Cancel, never destructive Confirm.
+		focusButton = cancel
+	else
+		standaloneLabel(actionBand, "ReadyHint", "READY • REVIEW BEFORE RESET", UDim2.fromScale(0, 0), UDim2.fromScale(0.63, 1), palette.Reward, 12, Enum.Font.GothamBold)
+		focusButton = makeMenuCommand(actionBand, "ReviewRebirth", "REVIEW REBIRTH", Color3.fromRGB(142, 88, 203), reviewRebirth)
+		focusButton.AnchorPoint = Vector2.new(1, 0.5)
+		focusButton.Position = UDim2.fromScale(1, 0.5)
+		focusButton.Size = UDim2.fromOffset(180, 48)
+	end
+	if focusButton then
+		focusButton:SetAttribute("MinimumTouchTarget", 44)
+		focusButton:SetAttribute("RebirthSemanticAction", stateName)
+	end
+	setDescendantZIndex(rebirthPanel, 72)
+	task.defer(function()
+		if not rebirthPanel.Visible then return end
+		local lastInput = UserInputService:GetLastInputType()
+		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+		GuiService.SelectedObject = selectionInput and (focusButton and focusButton.Selectable and focusButton or rebirthClose) or nil
+	end)
+	task.defer(applyResponsiveLayout)
+end
+
+renderStandaloneSettings = function()
+	if not settingsPanel.Visible then return end
+	clearStandaloneBody(settingsBody)
+	settingsSubtitle.Text = "SOUND • MOTION • UI SIZE"
+	settingsPanel:SetAttribute("SoundEnabled", clientSettings.sound == true)
+	settingsPanel:SetAttribute("MotionEnabled", clientSettings.motion == true)
+	settingsPanel:SetAttribute("UiScale", tonumber(clientSettings.uiScale) or 1)
+	settingsPanel:SetAttribute("LegacyCombinedTabsVisible", false)
+	local firstControl
+	local function makeSettingRow(rowIndex, iconName, titleText, helperText, options, selectedValue, onSelect)
+		local row = standaloneCard(settingsBody, titleText .. "Setting", UDim2.new(0, 0, 0, (rowIndex - 1) * 82), UDim2.new(1, 0, 0, 72), Color3.fromRGB(46, 205, 255))
+		createThemeIcon(row, iconName, UDim2.fromOffset(12, 12), UDim2.fromOffset(48, 48), "SettingIcon")
+		standaloneLabel(row, "SettingTitle", titleText, UDim2.fromOffset(70, 7), UDim2.fromOffset(130, 25), palette.Text, 14, Enum.Font.GothamBlack)
+		standaloneLabel(row, "SettingHelper", helperText, UDim2.fromOffset(70, 31), UDim2.fromOffset(170, 28), palette.MutedText, 10, Enum.Font.GothamBold)
+		local optionArea = Instance.new("Frame")
+		optionArea.Name = "Options"
+		optionArea.AnchorPoint = Vector2.new(1, 0.5)
+		optionArea.Position = UDim2.new(1, -10, 0.5, 0)
+		optionArea.Size = UDim2.fromOffset(math.min(318, 86 * #options), 48)
+		optionArea.BackgroundTransparency = 1
+		optionArea.ZIndex = 74
+		optionArea.Parent = row
+		local layout = Instance.new("UIListLayout")
+		layout.FillDirection = Enum.FillDirection.Horizontal
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		layout.VerticalAlignment = Enum.VerticalAlignment.Center
+		layout.Padding = UDim.new(0, 6)
+		layout.Parent = optionArea
+		local previous
+		for _, option in ipairs(options) do
+			local selected = option.value == selectedValue
+			local button = makeMenuCommand(optionArea, option.name, option.label, selected and palette.Reward or palette.PanelSoft, function()
+				onSelect(option.value)
+				renderStandaloneSettings()
+			end)
+			button.Size = UDim2.fromOffset(option.width or 78, 44)
+			button:SetAttribute("MinimumTouchTarget", 44)
+			button:SetAttribute("SettingValue", tostring(option.value))
+			if not firstControl then firstControl = button end
+			if previous then previous.NextSelectionRight = button button.NextSelectionLeft = previous end
+			previous = button
+		end
+	end
+	makeSettingRow(1, "SoundTool", "SOUND", "MUSIC + SFX", {
+		{ name = "SoundOn", label = "ON", value = true },
+		{ name = "SoundOff", label = "OFF", value = false },
+	}, clientSettings.sound == true, function(value)
+		shared.PunchWallApplySoundSetting(value, true)
+	end)
+	makeSettingRow(2, "Punch", "MOTION", "CAMERA + PUNCH FX", {
+		{ name = "MotionOn", label = "ON", value = true },
+		{ name = "MotionCalm", label = "CALM", value = false },
+	}, clientSettings.motion == true, function(value)
+		clientSettings.motion = value
+		if shared.PunchWallApplyFistAuraMotion then shared.PunchWallApplyFistAuraMotion() end
+		if shared.PunchWallRefreshHonorMotion then shared.PunchWallRefreshHonorMotion() end
+		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+	end)
+	makeSettingRow(3, "Menu", "UI SIZE", "TEXT + BUTTONS", {
+		{ name = "Scale80", label = "80%", value = 0.8, width = 72 },
+		{ name = "Scale100", label = "100%", value = 1, width = 72 },
+		{ name = "Scale120", label = "120%", value = 1.2, width = 72 },
+	}, tonumber(clientSettings.uiScale) or 1, function(value)
+		clientSettings.uiScale = value
+		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
+		task.defer(applyResponsiveLayout)
+	end)
+	local footer = Instance.new("Frame")
+	footer.Name = "Footer"
+	footer.Position = UDim2.new(0, 0, 1, -56)
+	footer.Size = UDim2.new(1, 0, 0, 56)
+	footer.BackgroundTransparency = 1
+	footer.ZIndex = 73
+	footer.Parent = settingsBody
+	standaloneLabel(footer, "ApplyHint", "CHANGES APPLY NOW", UDim2.fromScale(0, 0), UDim2.fromScale(0.62, 1), palette.MutedText, 11, Enum.Font.GothamBold)
+	local done = makeMenuCommand(footer, "Done", "DONE", Color3.fromRGB(31, 148, 206), function() closeStandaloneWindows("SettingsDone") end)
+	done.AnchorPoint = Vector2.new(1, 0.5)
+	done.Position = UDim2.fromScale(1, 0.5)
+	done.Size = UDim2.fromOffset(130, 48)
+	done:SetAttribute("MinimumTouchTarget", 44)
+	setDescendantZIndex(settingsPanel, 72)
+	task.defer(function()
+		if not settingsPanel.Visible then return end
+		local lastInput = UserInputService:GetLastInputType()
+		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+		GuiService.SelectedObject = selectionInput and firstControl or nil
+	end)
+	task.defer(applyResponsiveLayout)
+end
+
+closeStandaloneWindows = function(reason)
+	if shared.PunchWallRebirthRuntime.armed or shared.PunchWallRebirthRuntime.pending then
+		resetRebirthConfirmation(reason == "Escape" and "Canceled" or "Closed")
+	end
+	rebirthPanel.Visible = false
+	settingsPanel.Visible = false
+	standaloneDimmer.Visible = false
+	gui:SetAttribute("ActiveStandaloneWindow", "")
+	gui:SetAttribute("StandaloneModalVisible", false)
+	if GuiService.SelectedObject and (GuiService.SelectedObject:IsDescendantOf(rebirthPanel) or GuiService.SelectedObject:IsDescendantOf(settingsPanel)) then
+		GuiService.SelectedObject = nil
+	end
+	shared.PunchWallSetModalCoreGuiHidden(false, "StandaloneWindow")
+	applyReferenceHUDState(true)
+end
+shared.PunchWallCloseStandaloneWindows = closeStandaloneWindows
+
+local function openStandaloneWindow(windowName, origin)
+	mainPanel.Visible = false
+	rebirthPanel.Visible = windowName == "Rebirth"
+	settingsPanel.Visible = windowName == "Settings"
+	standaloneDimmer.Visible = true
+	gui:SetAttribute("ActiveStandaloneWindow", windowName)
+	gui:SetAttribute("StandaloneModalVisible", true)
+	gui:SetAttribute(windowName .. "OpenOrigin", tostring(origin or "hud"))
+	shared.PunchWallSetModalCoreGuiHidden(true, "StandaloneWindow")
+	applyReferenceHUDState(true)
+	task.defer(applyResponsiveLayout)
+	if windowName == "Rebirth" then renderStandaloneRebirth() else renderStandaloneSettings() end
+end
+
+shared.PunchWallOpenSettingsPanel = function(origin)
+	openStandaloneWindow("Settings", origin or "settings_tool")
+end
+shared.PunchWallRefreshStandaloneWindows = function()
+	if rebirthPanel.Visible then renderStandaloneRebirth() end
+	if settingsPanel.Visible then renderStandaloneSettings() end
+end
+standaloneWindows.RebirthPanel = rebirthPanel
+standaloneWindows.RebirthBody = rebirthBody
+standaloneWindows.SettingsPanel = settingsPanel
+standaloneWindows.SettingsBody = settingsBody
+standaloneWindows.Open = openStandaloneWindow
+standaloneWindows.Close = closeStandaloneWindows
+standaloneWindows.Refresh = shared.PunchWallRefreshStandaloneWindows
+
+rebirthClose.Activated:Connect(function() closeStandaloneWindows("RebirthClose") end)
+settingsClose.Activated:Connect(function() closeStandaloneWindows("SettingsClose") end)
+standaloneDimmer.Activated:Connect(function()
+	if shared.PunchWallRebirthRuntime.armed then
+		resetRebirthConfirmation("Canceled")
+		renderStandaloneRebirth()
+	else
+		closeStandaloneWindows("Dimmer")
+	end
+end)
+end)()
+
 renderOpenPanel = function()
 	applyReferenceHUDState()
 	if not mainPanel.Visible then
 		return
 	end
+	tabBar.Visible = false
+	local standaloneHostPage = activeTab == "Tasks" or activeTab == "Honor"
+	shared.PunchWallStandaloneHostTitle.Visible = standaloneHostPage
+	shared.PunchWallStandaloneHostTitle.Text = activeTab == "Tasks" and "MISSIONS" or activeTab == "Honor" and "HALL OF HONOR" or ""
+	content.Position = UDim2.fromOffset(12, standaloneHostPage and 62 or 12)
+	content.Size = UDim2.new(1, -24, 1, standaloneHostPage and -74 or -24)
+	local previouslyRenderedTab = tostring(gui:GetAttribute("RenderedGenericTab") or "")
+	local preserveCanvasY = previouslyRenderedTab == activeTab and content.CanvasPosition.Y or 0
+	local selectedObject = GuiService.SelectedObject
+	local preserveHonorFocusId = activeTab == "Honor" and selectedObject
+		and tostring(selectedObject:GetAttribute("HonorItemId") or "") or ""
 	if activeTab == "Inventory" then
 		clearContent()
 		for _, button in pairs(tabButtons) do button.BackgroundColor3 = palette.PanelSoft end
@@ -2414,6 +4232,25 @@ renderOpenPanel = function()
 	elseif activeTab == "Honor" then renderHonor()
 	elseif activeTab == "Tasks" then renderTasks()
 	else renderSettings() end
+	gui:SetAttribute("RenderedGenericTab", activeTab)
+	if preserveCanvasY > 0 then
+		task.defer(function()
+			local deadline = os.clock() + 1.25
+			repeat RunService.Heartbeat:Wait()
+			until content.AbsoluteCanvasSize.Y > content.AbsoluteSize.Y or os.clock() >= deadline
+			if not mainPanel.Visible or activeTab ~= previouslyRenderedTab then return end
+			local maxY = math.max(0, content.AbsoluteCanvasSize.Y - content.AbsoluteSize.Y)
+			content.CanvasPosition = Vector2.new(0, math.clamp(preserveCanvasY, 0, maxY))
+			if preserveHonorFocusId ~= "" then
+				for _, descendant in ipairs(content:GetDescendants()) do
+					if descendant:IsA("GuiButton") and tostring(descendant:GetAttribute("HonorItemId") or "") == preserveHonorFocusId then
+						GuiService.SelectedObject = descendant
+						break
+					end
+				end
+			end
+		end)
+	end
 end
 
 if RunService:IsStudio() then
@@ -2478,23 +4315,54 @@ createDockButton(leftDock, "DailyButton", "DAILY", "Coin", palette.Reward, funct
 createDockButton(leftDock, "SpinButton", "SPIN", "Success", palette.Use, function()
 	if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() else requestAction("Spin") end
 end)
-createDockButton(leftDock, "RebirthButton", "REBIRTH", "Rebirth", palette.Train, function() openGameTab("Tasks") end)
+createDockButton(leftDock, "RebirthButton", "REBIRTH", "Rebirth", palette.Train, function() shared.PunchWallOpenRebirthPanel("legacy_dock") end)
 createDockButton(rightDock, "ShopButton", "SHOP", "Shop", palette.Reward, function() openGameTab("Fists") end)
 createDockButton(rightDock, "PetsButton", "PETS", "Pet", palette.Use, function() openGameTab("Pets") end)
 createDockButton(rightDock, "QuestsButton", "QUESTS", "Quest", palette.Reward, function() openGameTab("Tasks") end)
 
 local function setMenuVisible(visible)
+	if visible and shared.PunchWallCloseStandaloneWindows then shared.PunchWallCloseStandaloneWindows("OpenHost") end
 	mainPanel.Visible = visible
 	panel.Visible = false
 	menuButton.Visible = false
 	applyReferenceHUDState()
-	if visible then renderOpenPanel() end
+	if visible then
+		renderOpenPanel()
+		if string.find(UserInputService:GetLastInputType().Name, "Gamepad", 1, true) then
+			task.defer(function()
+				if mainPanel.Visible then
+					GuiService.SelectedObject = tabButtons[activeTab] or orderedTabButtons[1]
+				end
+			end)
+		end
+	elseif GuiService.SelectedObject and GuiService.SelectedObject:IsDescendantOf(mainPanel) then
+		GuiService.SelectedObject = nil
+	end
 end
 
 openGameTab = function(tabName)
-	if tabButtons[tabName] or tabName == "Inventory" then activeTab = tabName end
+	if tabName == "Settings" then
+		shared.PunchWallOpenSettingsPanel("legacy_route")
+		return
+	elseif tabName == "Rebirth" then
+		shared.PunchWallOpenRebirthPanel("legacy_route")
+		return
+	elseif tabName == "Pets" then
+		activeTab = "Inventory"
+	elseif tabButtons[tabName] or tabName == "Inventory" then
+		activeTab = tabName
+	end
 	setMenuVisible(true)
+	if tabName == "Pets" and shared.PunchWallInventoryController then
+		shared.PunchWallInventoryController:SetCategory("Pets")
+	end
 	task.defer(applyResponsiveLayout)
+end
+
+shared.PunchWallOpenRebirthPanel = function(origin)
+	shared.PunchWallRebirthRuntime.origin = tostring(origin or "hud")
+	gui:SetAttribute("RebirthOpenOrigin", shared.PunchWallRebirthRuntime.origin)
+	shared.PunchWallStandaloneWindows.Open("Rebirth", shared.PunchWallRebirthRuntime.origin)
 end
 
 local function toggleMenu()
@@ -2505,7 +4373,7 @@ menuButton.Activated:Connect(toggleMenu)
 closeButton.Activated:Connect(function() setMenuVisible(false) end)
 mainPanel:GetPropertyChangedSignal("Visible"):Connect(function()
 	local visible = mainPanel.Visible
-	shared.PunchWallSetModalCoreGuiHidden(visible)
+	shared.PunchWallSetModalCoreGuiHidden(visible, "GameMenu")
 	panel.Visible = false
 	menuButton.Visible = false
 	applyReferenceHUDState()
@@ -2517,6 +4385,97 @@ companionsFolder.Name = player.Name .. " Client Companions"
 companionsFolder.Parent = workspace
 local companionModels = {}
 local companionMotionVersion = "DampedFollowV2"
+local companionRuntime = {
+	cameraPolicy = "CameraSafeThreePetLOD1",
+	formationPolicy = "BoundsAwarePremiumFormationV2",
+	perPetScreenAreaBudget = 0.18,
+	combinedScreenAreaBudget = 0.35,
+	visualAttestationCache = setmetatable({}, { __mode = "k" }),
+	visualAttestationWatch = setmetatable({}, { __mode = "k" }),
+	visualRetryGeneration = 0,
+	visualRetryScheduled = false,
+	visualRetryAttempt = 0,
+	visualRetryMaxAttempts = 3,
+	visualRetryDeadlineSeconds = 0.8,
+	visualRetryCoalescedCount = 0,
+	visualRetryConnection = nil,
+}
+
+function companionRuntime.UpdateVisualRetryAttributes(state)
+	gui:SetAttribute("HeroGauntletRetryState", state)
+	gui:SetAttribute("HeroGauntletRetryGeneration", companionRuntime.visualRetryGeneration)
+	gui:SetAttribute("HeroGauntletRetryScheduled", companionRuntime.visualRetryScheduled)
+	gui:SetAttribute("HeroGauntletRetryAttempt", companionRuntime.visualRetryAttempt)
+	gui:SetAttribute("HeroGauntletRetryMaxAttempts", companionRuntime.visualRetryMaxAttempts)
+	gui:SetAttribute("HeroGauntletRetryCoalescedCount", companionRuntime.visualRetryCoalescedCount)
+	gui:SetAttribute("HeroGauntletRetryDeadlineSeconds", companionRuntime.visualRetryDeadlineSeconds)
+	gui:SetAttribute("HeroGauntletRetrySingleFlight", true)
+	gui:SetAttribute("HeroGauntletRetryEventDriven", true)
+end
+
+function companionRuntime.CancelVisualRetry(reason)
+	companionRuntime.visualRetryGeneration += 1
+	companionRuntime.visualRetryScheduled = false
+	companionRuntime.visualRetryAttempt = 0
+	if companionRuntime.visualRetryConnection then
+		companionRuntime.visualRetryConnection:Disconnect()
+		companionRuntime.visualRetryConnection = nil
+	end
+	companionRuntime.UpdateVisualRetryAttributes(reason or "Cancelled")
+end
+
+function companionRuntime.ScheduleVisualRetry()
+	if companionRuntime.visualRetryScheduled then
+		companionRuntime.visualRetryCoalescedCount += 1
+		companionRuntime.UpdateVisualRetryAttributes("Coalesced")
+		return false
+	end
+	if companionRuntime.visualRetryAttempt >= companionRuntime.visualRetryMaxAttempts then
+		companionRuntime.UpdateVisualRetryAttributes("Exhausted")
+		return false
+	end
+	local character = player.Character
+	if not character then
+		companionRuntime.UpdateVisualRetryAttributes("WaitingForCharacter")
+		return false
+	end
+
+	companionRuntime.visualRetryScheduled = true
+	companionRuntime.visualRetryAttempt += 1
+	local generation = companionRuntime.visualRetryGeneration
+	local finished = false
+	local function finish(state)
+		if finished or generation ~= companionRuntime.visualRetryGeneration then return end
+		finished = true
+		companionRuntime.visualRetryScheduled = false
+		if companionRuntime.visualRetryConnection then
+			companionRuntime.visualRetryConnection:Disconnect()
+			companionRuntime.visualRetryConnection = nil
+		end
+		companionRuntime.UpdateVisualRetryAttributes(state)
+		task.defer(function()
+			if generation == companionRuntime.visualRetryGeneration then
+				refreshCharacterVisuals()
+			end
+		end)
+	end
+
+	companionRuntime.visualRetryConnection = character.ChildAdded:Connect(function(child)
+		if child.Name == "RightHand" or child.Name == "Right Arm" then
+			finish("HandReady")
+		end
+	end)
+	companionRuntime.UpdateVisualRetryAttributes("WaitingForHand")
+	if character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm") then
+		finish("HandAlreadyReady")
+	else
+		task.delay(companionRuntime.visualRetryDeadlineSeconds, function()
+			finish("DeadlineRetry")
+		end)
+	end
+	return true
+end
+
 local visualSignature = ""
 local currentGauntlet
 local currentTrail
@@ -2531,7 +4490,26 @@ local function visualPart(parent, name, size, color, material, shape)
 	part.Shape = shape or Enum.PartType.Block
 	part.Anchored = true
 	part.CanCollide = false
+	part.CanTouch = false
 	part.CanQuery = false
+	part.Massless = true
+	part.CastShadow = true
+	part.Parent = parent
+	return part
+end
+
+function companionRuntime.VisualWedge(parent, name, size, color, material, targetCFrame)
+	local part = Instance.new("WedgePart")
+	part.Name = name
+	part.Size = size
+	part.Color = color
+	part.Material = material or Enum.Material.Metal
+	part.CFrame = targetCFrame
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	part.Massless = true
 	part.CastShadow = true
 	part.Parent = parent
 	return part
@@ -2565,19 +4543,173 @@ local function addCompanionAura(model, targetPart, definition, stars)
 	model:SetAttribute("AuraTier", stars + (definition.rarity == "Premium" and 5 or 0))
 end
 
-local function premiumCompanionTemplate(definition)
-	if definition.rarity ~= "Premium" or not definition.templateName then return nil, nil end
+function companionRuntime.PrepareVisualAsset(container, asset)
+	if not container or not asset or not asset.Parent then return false end
+	if asset ~= container and not asset:IsDescendantOf(container) then return false end
+	if companionRuntime.visualAttestationCache[container] == true
+		and companionRuntime.visualAttestationCache[asset] == true
+		and container:GetAttribute("SanitizedVisualOnly") == true
+		and container:GetAttribute("VisualSanitizerVerified") == true
+		and asset:GetAttribute("SanitizedVisualOnly") == true
+		and asset:GetAttribute("VisualSanitizerVerified") == true
+		and FistVisualBuilder.IsSanitizedVisual(asset) then
+		return true
+	end
+	local containerOk = pcall(FistVisualBuilder.SanitizeVisual, container)
+	if not containerOk or not asset.Parent then return false end
+	local assetOk = pcall(FistVisualBuilder.SanitizeVisual, asset)
+	if not assetOk then return false end
+	local verified = container:GetAttribute("SanitizedVisualOnly") == true
+		and container:GetAttribute("VisualSanitizerVerified") == true
+		and asset:GetAttribute("SanitizedVisualOnly") == true
+		and asset:GetAttribute("VisualSanitizerVerified") == true
+		and FistVisualBuilder.IsSanitizedVisual(container)
+		and FistVisualBuilder.IsSanitizedVisual(asset)
+	if verified then
+		companionRuntime.visualAttestationCache[container] = true
+		companionRuntime.visualAttestationCache[asset] = true
+		if not companionRuntime.visualAttestationWatch[container] then
+			local added = container.DescendantAdded:Connect(function()
+				companionRuntime.visualAttestationCache[container] = nil
+			end)
+			local removing = container.DescendantRemoving:Connect(function()
+				companionRuntime.visualAttestationCache[container] = nil
+			end)
+			companionRuntime.visualAttestationWatch[container] = { added, removing }
+		end
+	end
+	return verified
+end
+
+function companionRuntime.CloneSanitizedVisual(source)
+	if not source or not FistVisualBuilder.IsSanitizedVisual(source) then return nil end
+	local clone = source:Clone()
+	local ok = pcall(FistVisualBuilder.SanitizeVisual, clone)
+	if not ok or not FistVisualBuilder.IsSanitizedVisual(clone) then
+		clone:Destroy()
+		return nil
+	end
+	return clone
+end
+
+function companionRuntime.CloneSanitizedCatalogVisual(visualAssetFolder, importedSource)
+	if not visualAssetFolder
+		or not importedSource
+		or not importedSource.Parent
+		or not companionRuntime.PrepareVisualAsset(visualAssetFolder, importedSource)
+	then
+		return nil
+	end
+	return companionRuntime.CloneSanitizedVisual(importedSource)
+end
+
+function companionRuntime.StyleNormalCatalogPet(model, definition)
+	if not model or definition.rarity == "Premium" then return model end
+	local primary = definition.color or Color3.fromRGB(120, 170, 210)
+	local accent = primary:Lerp(Color3.new(1, 1, 1), 0.38)
+	local shadow = primary:Lerp(Color3.fromRGB(20, 27, 34), 0.48)
+	local boundsCFrame, boundsSize = model:GetBoundingBox()
+	local tintStrength = definition.rarity == "Secret" and 0.5
+		or definition.rarity == "Legendary" and 0.42
+		or definition.rarity == "Epic" and 0.34
+		or definition.rarity == "Rare" and 0.28
+		or 0.2
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			local brightness = (descendant.Color.R + descendant.Color.G + descendant.Color.B) / 3
+			local target = brightness < 0.32 and shadow or brightness > 0.78 and accent or primary
+			-- Preserve the authored pack texture and silhouette. A bounded tint is
+			-- enough to match the inventory rarity palette without flattening the
+			-- model into a single material-colored blob.
+			descendant.Color = descendant.Color:Lerp(target, tintStrength)
+			if definition.rarity == "Legendary" or definition.rarity == "Secret" then
+				descendant.Material = descendant.Material == Enum.Material.Neon
+					and Enum.Material.Neon
+					or Enum.Material.Metal
+			end
+		end
+	end
+
+	local function styledPart(name, sizeScale, offsetScale, color, material, shape)
+		local part = Instance.new("Part")
+		part.Name = name
+		part.Size = Vector3.new(
+			math.max(0.08, boundsSize.X * sizeScale.X),
+			math.max(0.08, boundsSize.Y * sizeScale.Y),
+			math.max(0.08, boundsSize.Z * sizeScale.Z)
+		)
+		part.CFrame = boundsCFrame * CFrame.new(
+			boundsSize.X * offsetScale.X,
+			boundsSize.Y * offsetScale.Y,
+			boundsSize.Z * offsetScale.Z
+		)
+		part.Color = color
+		part.Material = material
+		part.Shape = shape or Enum.PartType.Block
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanTouch = false
+		part.CanQuery = false
+		part.CastShadow = material ~= Enum.Material.Neon
+		part.Parent = model
+		return part
+	end
+
+	if definition.name == "Miner Cat" then
+		styledPart("Miner Helmet", Vector3.new(0.42, 0.2, 0.72), Vector3.new(-0.26, 0.46, 0), shadow, Enum.Material.Metal, Enum.PartType.Ball)
+		local lamp = styledPart("Miner Lamp", Vector3.new(0.13, 0.24, 0.32), Vector3.new(-0.44, 0.5, -0.3), Color3.fromRGB(255, 214, 62), Enum.Material.Neon, Enum.PartType.Ball)
+		local light = Instance.new("PointLight")
+		light.Name = "Miner Lamp Glow"
+		light.Color = lamp.Color
+		light.Brightness = 0.45
+		light.Range = 3
+		light.Shadows = false
+		light.Parent = lamp
+	elseif definition.name == "Crystal Fox" then
+		for side = -1, 1, 2 do
+			local shard = styledPart(
+				"Crystal Fox Shard " .. side,
+				Vector3.new(0.18, 0.72, 0.18),
+				Vector3.new(side * 0.34, 0.48, 0.12),
+				accent,
+				Enum.Material.Neon
+			)
+			shard.CFrame *= CFrame.Angles(0, 0, math.rad(side * 16))
+		end
+		styledPart("Crystal Tail Core", Vector3.new(0.34, 0.34, 0.28), Vector3.new(0, 0.05, 0.54), accent, Enum.Material.Neon, Enum.PartType.Ball)
+	elseif definition.name == "Lava Dragon" then
+		styledPart("Lava Dragon Ember Core", Vector3.new(0.24, 0.3, 0.18), Vector3.new(0, 0.04, -0.5), Color3.fromRGB(255, 218, 71), Enum.Material.Neon, Enum.PartType.Ball)
+		for side = -1, 1, 2 do
+			styledPart("Lava Wing Core " .. side, Vector3.new(0.12, 0.5, 0.12), Vector3.new(side * 0.48, 0.34, 0.08), accent, Enum.Material.Neon)
+		end
+	elseif definition.name == "Secret Titan Golem" then
+		styledPart("Titan Golem Core", Vector3.new(0.38, 0.28, 0.16), Vector3.new(0, 0.02, -0.5), Color3.fromRGB(255, 82, 62), Enum.Material.Neon, Enum.PartType.Ball)
+		for side = -1, 1, 2 do
+			styledPart("Titan Shoulder " .. side, Vector3.new(0.42, 0.26, 0.46), Vector3.new(side * 0.46, 0.28, 0), shadow, Enum.Material.DiamondPlate, Enum.PartType.Ball)
+		end
+	end
+	model:SetAttribute("CatalogPetStyleVersion", "CreatorStorePackMatchedV2")
+	model:SetAttribute("CatalogPetThemeMatched", true)
+	model:SetAttribute("CatalogPetColorMatched", true)
+	return model
+end
+
+local function catalogCompanionTemplate(definition)
+	if not definition.templateName then return nil, nil end
 	local externalAssets = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
 	local externalTemplate = externalAssets and externalAssets:FindFirstChild(definition.templateName)
-	if externalTemplate and externalTemplate:IsA("Model") then
+	if externalTemplate
+		and externalTemplate:IsA("Model")
+		and companionRuntime.PrepareVisualAsset(externalAssets, externalTemplate) then
 		return externalTemplate, "ExternalTemplate"
 	end
-	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+	local gameRoot = definition.rarity == "Premium" and workspace:FindFirstChild("PunchWallRPG") or nil
 	if gameRoot then
 		for _, candidate in ipairs(gameRoot:GetDescendants()) do
 			if candidate:IsA("Model")
 				and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
-				and candidate:GetAttribute("PetTemplate") == definition.templateName then
+				and candidate:GetAttribute("PetTemplate") == definition.templateName
+				and companionRuntime.PrepareVisualAsset(candidate, candidate) then
 				return candidate, "ShowcaseClone"
 			end
 		end
@@ -2585,15 +4717,187 @@ local function premiumCompanionTemplate(definition)
 	return nil, nil
 end
 
-local function initialCompanionBoundsCFrame(rootPart, index, followHeight)
-	local side = index % 2 == 0 and 1 or -1
-	local row = math.floor((index - 1) / 2)
-	return rootPart.CFrame
-		* CFrame.new(side * (2.65 + row * 0.85), followHeight or 1.05, 3.0 + row * 1.3)
-		* CFrame.Angles(0, math.pi, 0)
+function companionRuntime.CameraDistance(rootPart)
+	local camera = workspace.CurrentCamera
+	return camera and math.clamp((camera.CFrame.Position - rootPart.Position).Magnitude, 6, 18) or 12
+end
+
+function companionRuntime.BoundsCFrame(
+	rootPart,
+	index,
+	followHeight,
+	cameraDistance,
+	distanceScale,
+	boundsSize,
+	isPremium
+)
+	local zoomAlpha = math.clamp(((cameraDistance or 12) - 6) / 12, 0, 1)
+	local boundedDistanceScale = math.clamp(tonumber(distanceScale) or 1, 1, 1.65)
+	local visualHalfWidth = boundsSize
+		and math.max(boundsSize.X, boundsSize.Z * 0.55) * 0.5
+		or 0
+	local avatarClearance = isPremium and (1.55 + visualHalfWidth + 0.65) or 0
+	local sideSpacing = (isPremium
+		and avatarClearance
+		or (2.65 + zoomAlpha * 0.55)) * boundedDistanceScale
+	local rearSpacing = isPremium
+		and 0.65
+		or math.max(0.35, (0.45 + zoomAlpha * 1.1) / boundedDistanceScale)
+	local resolvedHeight = tonumber(followHeight) or 1.05
+	if isPremium then
+		-- Premium models are wider and their authored follow heights can put their
+		-- silhouette over the avatar's head. Preserve their hero scale while
+		-- moving the formation outward and slightly below the face line.
+		resolvedHeight = math.clamp(resolvedHeight, 1.15, 1.45)
+	end
+	local offset
+	if index == 1 then
+		offset = Vector3.new(-sideSpacing, resolvedHeight, rearSpacing)
+	elseif index == 2 then
+		offset = Vector3.new(sideSpacing, resolvedHeight, rearSpacing)
+	elseif index == 3 then
+		-- Slot three must clear slot one by at least one full premium-model width.
+		-- Keep it in the rear row rather than stacking it above the avatar.
+		-- Pull the wide premium rear slot slightly toward center at close zoom so
+		-- even the broad Celestial wings remain inside the camera safe frame.
+		-- Restore a little lateral spacing as the camera zooms out, where there is
+		-- enough screen room and the extra separation improves silhouette clarity.
+		-- Normal companions also need a distinct rear-left silhouette once the
+		-- hero reaches maximum Power growth. The wider offset prevents slot three
+		-- from merging with slot one without scaling either pet.
+		local thirdSlotMultiplier = isPremium and (1.12 + zoomAlpha * 0.1) or 1.65
+		local thirdSlotLift = isPremium and 2.1 or 0.55
+		local thirdSlotRear = isPremium and 0.5 or 1.25
+		offset = Vector3.new(
+			-sideSpacing * thirdSlotMultiplier,
+			resolvedHeight + thirdSlotLift,
+			rearSpacing + thirdSlotRear / boundedDistanceScale
+		)
+	else
+		local side = index % 2 == 0 and 1 or -1
+		local row = math.floor((index - 1) / 2)
+		offset = Vector3.new(side * (sideSpacing + row * 0.6), resolvedHeight, rearSpacing + row * 0.8)
+	end
+	return rootPart.CFrame * CFrame.new(offset) * CFrame.Angles(0, math.pi, 0)
+end
+
+function companionRuntime.ScreenArea(boundsSize, worldPosition)
+	local camera = workspace.CurrentCamera
+	if not camera then return 0 end
+	local viewport = camera.ViewportSize
+	local aspect = math.max(viewport.X / math.max(viewport.Y, 1), 0.5)
+	local distance = math.max((camera.CFrame.Position - worldPosition).Magnitude, 1)
+	local halfFrustum = math.tan(math.rad(math.clamp(camera.FieldOfView, 35, 100) * 0.5))
+	local largest = math.max(boundsSize.X, boundsSize.Y, boundsSize.Z)
+	local heightFraction = largest / math.max(2 * distance * halfFrustum, 0.01)
+	local widthFraction = heightFraction / aspect
+	return math.clamp(widthFraction * heightFraction, 0, 1)
+end
+
+function companionRuntime.ResolveVisualPolicy(state, rootPart, cameraDistance, availableBudget)
+	local budget = math.min(
+		companionRuntime.perPetScreenAreaBudget,
+		math.max(tonumber(availableBudget) or 0, 0)
+	)
+	local normalTarget = companionRuntime.BoundsCFrame(
+		rootPart,
+		state.index,
+		state.followHeight,
+		cameraDistance,
+		1,
+		state.normalizedBoundsSize,
+		state.premium
+	)
+	local normalArea = companionRuntime.ScreenArea(state.normalizedBoundsSize, normalTarget.Position)
+	if normalArea <= budget then
+		return normalTarget, 1, "Normal", normalArea
+	end
+
+	local repositionedTarget = companionRuntime.BoundsCFrame(
+		rootPart,
+		state.index,
+		state.followHeight,
+		cameraDistance,
+		1.55,
+		state.normalizedBoundsSize,
+		state.premium
+	)
+	local repositionedArea = companionRuntime.ScreenArea(state.normalizedBoundsSize, repositionedTarget.Position)
+	if repositionedArea <= budget then
+		return repositionedTarget, 1, "Repositioned", repositionedArea
+	end
+
+	local scale = math.clamp(
+		math.sqrt(budget / math.max(repositionedArea, 0.000001)) * 0.96,
+		0.58,
+		0.92
+	)
+	local scaledArea = repositionedArea * scale * scale
+	if scaledArea <= budget then
+		local policy = scale <= 0.72 and "BudgetLOD" or "Scaled"
+		return repositionedTarget, scale, policy, scaledArea
+	end
+
+	-- Secondary effects enter the budget LOD before the lowest-priority visual
+	-- is culled. Geometry still exceeds the hard bound at minimum scale, so
+	-- keeping it visible would only report the budget rather than enforce it.
+	return repositionedTarget, 0.58, "CulledAfterBudgetLOD", 0
+end
+
+function companionRuntime.ApplyVisualScale(state, visualScale)
+	visualScale = math.clamp(tonumber(visualScale) or 1, 0.58, 1)
+	if math.abs((state.currentVisualScale or 1) - visualScale) <= 0.005 then return true end
+	local ok = pcall(function()
+		state.model:ScaleTo(state.baseModelScale * visualScale)
+	end)
+	if not ok then return false end
+	local boundsCFrame, boundsSize = state.model:GetBoundingBox()
+	state.currentVisualScale = visualScale
+	state.pivotToBounds = state.model:GetPivot():ToObjectSpace(boundsCFrame)
+	state.boundsSize = boundsSize
+	return true
+end
+
+function companionRuntime.ApplyRenderPolicy(state, policy, lod, motionEnabled)
+	local renderKey = table.concat({ tostring(policy), tostring(lod), tostring(motionEnabled) }, ":")
+	if state.renderPolicyKey == renderKey then return end
+	state.renderPolicyKey = renderKey
+	state.budgetPolicy = policy
+	local culled = policy == "CulledAfterBudgetLOD"
+	local budgetLOD = policy == "BudgetLOD" or culled
+	local rateScale = not motionEnabled and 0.25
+		or lod == "Near60" and 1
+		or lod == "Mid30" and 0.72
+		or 0.45
+	if budgetLOD then rateScale = 0 end
+	for _, partState in ipairs(state.renderParts) do
+		if partState.part.Parent then
+			partState.part.LocalTransparencyModifier = culled and 1 or partState.baseLocalTransparency
+		end
+	end
+	for _, emitterState in ipairs(state.renderEmitters) do
+		if emitterState.emitter.Parent then
+			emitterState.emitter.Enabled = not budgetLOD and emitterState.baseEnabled
+			emitterState.emitter.Rate = emitterState.baseRate * rateScale
+		end
+	end
+	for _, effectState in ipairs(state.renderEffects) do
+		if effectState.effect.Parent then
+			effectState.effect.Enabled = not budgetLOD and effectState.baseEnabled
+		end
+	end
+	state.model:SetAttribute("CompanionLOD", lod)
+	state.model:SetAttribute("CompanionBudgetPolicy", policy)
+	state.model:SetAttribute("CompanionBudgetCulled", culled)
+	state.model:SetAttribute("CompanionVisualScale", state.currentVisualScale or 1)
 end
 
 local function registerCompanion(model, token, index, definition, stars, visualSource)
+	local sanitized = pcall(FistVisualBuilder.SanitizeVisual, model)
+	if not sanitized or not FistVisualBuilder.IsSanitizedVisual(model) then
+		model:Destroy()
+		return nil
+	end
 	model.Name = token .. " Companion " .. index
 	model:SetAttribute("PetStars", stars)
 	model:SetAttribute("PetDefinitionName", definition.name)
@@ -2608,12 +4912,7 @@ local function registerCompanion(model, token, index, definition, stars, visualS
 	local primaryPart = model.PrimaryPart
 	local partCount = 0
 	for _, descendant in ipairs(model:GetDescendants()) do
-		if descendant:IsA("LuaSourceContainer")
-			or descendant:IsA("RemoteEvent") or descendant:IsA("RemoteFunction")
-			or descendant:IsA("ClickDetector") or descendant:IsA("ProximityPrompt")
-			or descendant:IsA("Tool") or descendant:IsA("Humanoid") then
-			descendant:Destroy()
-		elseif descendant:IsA("BasePart") then
+		if descendant:IsA("BasePart") then
 			partCount += 1
 			primaryPart = primaryPart or descendant
 			descendant.Anchored = true
@@ -2642,9 +4941,15 @@ local function registerCompanion(model, token, index, definition, stars, visualS
 		or (definition.rarity == "Secret" and 2.55)
 		or (definition.rarity == "Legendary" and 2.35)
 		or 2.1
-	if initialSize.Y > 0.01 then
+	local targetMaxDimension = definition.rarity == "Premium" and 1.8
+		or definition.rarity == "Secret" and 1.75
+		or definition.rarity == "Legendary" and 1.72
+		or 1.65
+	local initialLargest = math.max(initialSize.X, initialSize.Y, initialSize.Z)
+	if initialSize.Y > 0.01 and initialLargest > 0.01 then
+		local normalizedScale = math.min(targetHeight / initialSize.Y, targetMaxDimension / initialLargest)
 		pcall(function()
-			model:ScaleTo(model:GetScale() * (targetHeight / initialSize.Y))
+			model:ScaleTo(model:GetScale() * normalizedScale)
 		end)
 	end
 	local boundsCFrame, boundsSize = model:GetBoundingBox()
@@ -2652,24 +4957,76 @@ local function registerCompanion(model, token, index, definition, stars, visualS
 	local assetId = tonumber(model:GetAttribute("AssetId")) or 0
 	local premiumParity = definition.rarity == "Premium"
 		and definition.templateName ~= nil
-		and visualSource ~= "ProceduralFallback"
+		and string.find(visualSource, "ProceduralFallback", 1, true) == nil
 	model:SetAttribute("PremiumVisualParity", premiumParity)
 	model:SetAttribute("SourceAssetId", assetId)
 	model:SetAttribute("VisualPartCount", partCount)
 	model:SetAttribute("CompanionTargetHeight", targetHeight)
+	model:SetAttribute("CompanionTargetMaxDimension", targetMaxDimension)
 	model:SetAttribute("FollowResponsiveness", tonumber(definition.followResponsiveness) or 8)
 	model:SetAttribute("FollowSmoothing", "ExponentialCFrame")
 	model:SetAttribute("ModelBoundsHeight", boundsSize.Y)
+	model:SetAttribute("ModelBoundsWidth", boundsSize.X)
+	model:SetAttribute("ModelBoundsDepth", boundsSize.Z)
+	model:SetAttribute("NormalizedMaxDimension", math.max(boundsSize.X, boundsSize.Y, boundsSize.Z))
+	model:SetAttribute("BoundsCacheMode", "NormalizedOnceV1")
+	model:SetAttribute("CameraPolicy", companionRuntime.cameraPolicy)
+	model:SetAttribute("FormationPolicy", companionRuntime.formationPolicy)
+	model:SetAttribute("PerPetScreenAreaBudget", companionRuntime.perPetScreenAreaBudget)
+	model:SetAttribute("BudgetEnforcementOrder", "Reposition>Scale>LOD>Cull")
 	addCompanionAura(model, primaryPart, definition, stars)
+	FistVisualBuilder.SanitizeVisual(model)
+	FistVisualBuilder.AssertSanitizedVisual(model)
+
+	local renderEmitters = {}
+	local renderParts = {}
+	local renderEffects = {}
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("ParticleEmitter") then
+			table.insert(renderEmitters, {
+				emitter = descendant,
+				baseEnabled = descendant.Enabled,
+				baseRate = descendant.Rate,
+			})
+		elseif descendant:IsA("BasePart") then
+			table.insert(renderParts, {
+				part = descendant,
+				baseLocalTransparency = descendant.LocalTransparencyModifier,
+			})
+		elseif descendant:IsA("Trail")
+			or descendant:IsA("Beam")
+			or descendant:IsA("PointLight")
+			or descendant:IsA("SpotLight")
+			or descendant:IsA("SurfaceLight")
+			or descendant:IsA("Highlight") then
+			table.insert(renderEffects, {
+				effect = descendant,
+				baseEnabled = descendant.Enabled,
+			})
+		end
+	end
 
 	local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	local initialBounds = rootPart
-		and initialCompanionBoundsCFrame(rootPart, index, definition.followHeight)
+		and companionRuntime.BoundsCFrame(
+			rootPart,
+			index,
+			definition.followHeight,
+			companionRuntime.CameraDistance(rootPart),
+			1,
+			boundsSize,
+			definition.rarity == "Premium"
+		)
 		or boundsCFrame
 	model:PivotTo(initialBounds * pivotToBounds:Inverse())
 	table.insert(companionModels, {
+		index = index,
 		model = model,
 		pivotToBounds = pivotToBounds,
+		boundsSize = boundsSize,
+		normalizedBoundsSize = boundsSize,
+		baseModelScale = model:GetScale(),
+		currentVisualScale = 1,
 		currentBoundsCFrame = initialBounds,
 		followHeight = tonumber(definition.followHeight) or 1.05,
 		followResponsiveness = tonumber(definition.followResponsiveness) or 8,
@@ -2677,65 +5034,274 @@ local function registerCompanion(model, token, index, definition, stars, visualS
 		phase = index * 1.73,
 		premium = definition.rarity == "Premium",
 		motionFrames = 0,
+		updateAccumulator = 0,
+		lod = "",
+		budgetPolicy = "Normal",
+		renderParts = renderParts,
+		renderEmitters = renderEmitters,
+		renderEffects = renderEffects,
+		lastScreenArea = companionRuntime.ScreenArea(boundsSize, initialBounds.Position),
 	})
+	return model
+end
+
+function companionRuntime.BuildProceduralPet(definition)
+	local model = Instance.new("Model")
+	local species = tostring(definition.visual or definition.name or "Hero Sidekick")
+	local primary = definition.color or Color3.fromRGB(112, 178, 92)
+	local accent = definition.accent or primary:Lerp(Color3.new(1, 1, 1), 0.34)
+	local shadow = primary:Lerp(Color3.new(0, 0, 0), 0.28)
+	local featureCount = 0
+	local body
+	local function part(name, size, color, material, shape, targetCFrame)
+		local created = visualPart(model, name, size, color, material, shape)
+		created.CFrame = targetCFrame or CFrame.new()
+		featureCount += 1
+		return created
+	end
+	local function wedge(name, size, color, material, targetCFrame)
+		featureCount += 1
+		return companionRuntime.VisualWedge(model, name, size, color, material, targetCFrame)
+	end
+	local function eyes(headCFrame, spacing, y, z)
+		for side = -1, 1, 2 do
+			part(
+				"Readable Eye " .. side,
+				Vector3.new(0.18, 0.22, 0.14),
+				Color3.fromRGB(10, 20, 27),
+				Enum.Material.Neon,
+				Enum.PartType.Ball,
+				headCFrame * CFrame.new(side * spacing, y, z)
+			)
+		end
+	end
+
+	local isGuardian = string.find(species, "Golem", 1, true)
+		or string.find(species, "Celestial", 1, true)
+	local isDragon = string.find(species, "Dragon", 1, true)
+		or string.find(species, "Wyvern", 1, true)
+	local isPhoenix = string.find(species, "Phoenix", 1, true)
+	local isFox = string.find(species, "Fox", 1, true)
+	local isCat = string.find(species, "Cat", 1, true)
+
+	if isGuardian then
+		body = part("Guardian Armored Torso", Vector3.new(1.65, 1.55, 1.35), shadow, Enum.Material.Metal, Enum.PartType.Block, CFrame.new())
+		local head = part("Guardian Helmet", Vector3.new(1.05, 0.88, 1.02), primary, Enum.Material.Metal, Enum.PartType.Block, CFrame.new(0, 1.15, -0.08))
+		eyes(head.CFrame, 0.25, 0.04, -0.52)
+		part("Guardian Visor", Vector3.new(0.72, 0.2, 0.12), accent, Enum.Material.Neon, Enum.PartType.Block, head.CFrame * CFrame.new(0, 0.03, -0.55))
+		for side = -1, 1, 2 do
+			part("Guardian Shoulder " .. side, Vector3.new(0.72, 0.72, 0.72), primary, Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(side * 1.08, 0.42, 0))
+			part("Guardian Fist " .. side, Vector3.new(0.62, 0.66, 0.62), shadow, Enum.Material.DiamondPlate, Enum.PartType.Ball, CFrame.new(side * 1.12, -0.44, -0.12))
+			part("Guardian Foot " .. side, Vector3.new(0.62, 0.48, 0.8), shadow, Enum.Material.Metal, Enum.PartType.Block, CFrame.new(side * 0.48, -1.02, 0.12))
+			wedge("Guardian Crown " .. side, Vector3.new(0.3, 0.7, 0.48), accent, Enum.Material.Neon, head.CFrame * CFrame.new(side * 0.38, 0.68, 0.1) * CFrame.Angles(0, 0, math.rad(side * 12)))
+		end
+		part("Guardian Rune Core", Vector3.new(0.68, 0.68, 0.24), accent, Enum.Material.Neon, Enum.PartType.Ball, body.CFrame * CFrame.new(0, 0.18, -0.74))
+	elseif isPhoenix then
+		body = part("Phoenix Feather Body", Vector3.new(1.35, 1.55, 1.55), primary, Enum.Material.SmoothPlastic, Enum.PartType.Ball, CFrame.new())
+		local head = part("Phoenix Head", Vector3.new(0.92, 0.92, 0.94), accent, Enum.Material.SmoothPlastic, Enum.PartType.Ball, CFrame.new(0, 0.86, -0.72))
+		eyes(head.CFrame, 0.22, 0.08, -0.43)
+		wedge("Phoenix Beak", Vector3.new(0.44, 0.34, 0.72), Color3.fromRGB(255, 190, 47), Enum.Material.Metal, head.CFrame * CFrame.new(0, -0.06, -0.68) * CFrame.Angles(math.rad(-90), 0, 0))
+		for side = -1, 1, 2 do
+			wedge("Phoenix Wing " .. side, Vector3.new(0.36, 1.65, 1.75), accent, Enum.Material.Neon, CFrame.new(side * 1.03, 0.18, 0.18) * CFrame.Angles(0, math.rad(side * 14), math.rad(side * 24)))
+			wedge("Phoenix Crest " .. side, Vector3.new(0.2, 0.78, 0.42), primary, Enum.Material.Neon, head.CFrame * CFrame.new(side * 0.22, 0.65, 0.1) * CFrame.Angles(0, 0, math.rad(side * 16)))
+		end
+		for plume = -1, 1 do
+			wedge("Phoenix Tail Plume " .. plume, Vector3.new(0.28, 0.55, 1.65), plume == 0 and accent or primary, Enum.Material.Neon, body.CFrame * CFrame.new(plume * 0.38, -0.2, 1.35) * CFrame.Angles(math.rad(-18), 0, math.rad(plume * 12)))
+		end
+		part("Phoenix Heart Core", Vector3.new(0.42, 0.42, 0.2), accent, Enum.Material.Neon, Enum.PartType.Ball, body.CFrame * CFrame.new(0, 0.18, -0.78))
+	elseif isDragon then
+		body = part("Dragon Armored Body", Vector3.new(1.45, 1.05, 2.05), primary, Enum.Material.Metal, Enum.PartType.Ball, CFrame.new())
+		local head = part("Dragon Head", Vector3.new(1.12, 0.9, 1.12), primary:Lerp(accent, 0.12), Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(0, 0.38, -1.16))
+		part("Dragon Muzzle", Vector3.new(0.72, 0.46, 0.72), shadow, Enum.Material.Metal, Enum.PartType.Block, head.CFrame * CFrame.new(0, -0.16, -0.66))
+		eyes(head.CFrame, 0.26, 0.12, -0.5)
+		for side = -1, 1, 2 do
+			wedge("Dragon Wing " .. side, Vector3.new(0.28, 1.25, 1.65), accent, Enum.Material.Neon, body.CFrame * CFrame.new(side * 0.92, 0.34, 0.12) * CFrame.Angles(0, math.rad(side * 15), math.rad(side * 28)))
+			wedge("Dragon Horn " .. side, Vector3.new(0.22, 0.64, 0.48), accent, Enum.Material.Metal, head.CFrame * CFrame.new(side * 0.32, 0.58, 0.08) * CFrame.Angles(0, 0, math.rad(side * 18)))
+			part("Dragon Foot " .. side, Vector3.new(0.42, 0.34, 0.62), shadow, Enum.Material.Metal, Enum.PartType.Ball, body.CFrame * CFrame.new(side * 0.5, -0.62, -0.25))
+		end
+		for segment = 1, 3 do
+			part(
+				"Dragon Tail Segment " .. segment,
+				Vector3.new(0.48 - segment * 0.07, 0.42 - segment * 0.05, 0.72),
+				segment == 3 and accent or shadow,
+				segment == 3 and Enum.Material.Neon or Enum.Material.Metal,
+				Enum.PartType.Ball,
+				body.CFrame * CFrame.new(0, 0.05 + segment * 0.04, 1.02 + segment * 0.55) * CFrame.Angles(math.rad(-12), 0, 0)
+			)
+		end
+		part("Dragon Ember Core", Vector3.new(0.46, 0.46, 0.2), accent, Enum.Material.Neon, Enum.PartType.Ball, body.CFrame * CFrame.new(0, 0.14, -1.02))
+	else
+		body = part("Companion Body", Vector3.new(isFox and 1.38 or 1.55, 1.05, isFox and 2.05 or 1.85), primary, Enum.Material.SmoothPlastic, Enum.PartType.Ball, CFrame.new())
+		local head = part("Companion Head", Vector3.new(isFox and 1.02 or 1.15, 1.12, isFox and 1.16 or 1.08), primary:Lerp(Color3.new(1, 1, 1), 0.08), definition.rarity == "Epic" and Enum.Material.Glass or Enum.Material.SmoothPlastic, Enum.PartType.Ball, CFrame.new(0, 0.3, -1.08))
+		eyes(head.CFrame, 0.25, 0.12, -0.51)
+		if isCat or isFox then
+			for side = -1, 1, 2 do
+				wedge(
+					(isFox and "Fox Pointed Ear " or "Cat Pointed Ear ") .. side,
+					Vector3.new(0.38, isFox and 0.78 or 0.66, 0.34),
+					isFox and accent or primary,
+					Enum.Material.SmoothPlastic,
+					head.CFrame * CFrame.new(side * 0.34, 0.68, 0.04) * CFrame.Angles(0, 0, math.rad(side * 8))
+				)
+			end
+		else
+			for side = -1, 1, 2 do
+				part("Pup Floppy Ear " .. side, Vector3.new(0.34, 0.62, 0.3), shadow, Enum.Material.SmoothPlastic, Enum.PartType.Ball, head.CFrame * CFrame.new(side * 0.5, 0.18, 0.05) * CFrame.Angles(0, 0, math.rad(side * 20)))
+			end
+		end
+		part(
+			isCat and "Cat Muzzle" or isFox and "Fox Muzzle" or "Pup Muzzle",
+			Vector3.new(isFox and 0.52 or 0.64, 0.4, isFox and 0.68 or 0.52),
+			primary:Lerp(Color3.new(1, 1, 1), 0.35),
+			Enum.Material.SmoothPlastic,
+			Enum.PartType.Ball,
+			head.CFrame * CFrame.new(0, -0.16, -0.55)
+		)
+		part("Readable Nose", Vector3.new(0.2, 0.17, 0.14), Color3.fromRGB(18, 24, 29), Enum.Material.SmoothPlastic, Enum.PartType.Ball, head.CFrame * CFrame.new(0, -0.13, -0.9))
+		for side = -1, 1, 2 do
+			for front = -1, 1, 2 do
+				part("Companion Paw " .. side .. " " .. front, Vector3.new(0.36, 0.27, 0.5), shadow, Enum.Material.SmoothPlastic, Enum.PartType.Ball, body.CFrame * CFrame.new(side * 0.48, -0.58, front * 0.52))
+			end
+		end
+		if isCat then
+			part("Miner Helmet", Vector3.new(1.28, 0.38, 1.2), Color3.fromRGB(57, 65, 72), Enum.Material.Metal, Enum.PartType.Ball, head.CFrame * CFrame.new(0, 0.48, 0))
+			part("Miner Lamp", Vector3.new(0.34, 0.34, 0.22), accent, Enum.Material.Neon, Enum.PartType.Ball, head.CFrame * CFrame.new(0, 0.54, -0.56))
+			part("Cat Tail Base", Vector3.new(0.3, 0.3, 1.05), shadow, Enum.Material.SmoothPlastic, Enum.PartType.Ball, body.CFrame * CFrame.new(0.48, 0.1, 1.22) * CFrame.Angles(math.rad(-24), math.rad(-12), 0))
+			part("Cat Tail Tip", Vector3.new(0.26, 0.26, 0.72), accent, Enum.Material.SmoothPlastic, Enum.PartType.Ball, body.CFrame * CFrame.new(0.68, 0.42, 1.84) * CFrame.Angles(math.rad(28), math.rad(-18), 0))
+		elseif isFox then
+			part("Fox Tail", Vector3.new(0.62, 0.62, 1.5), primary, Enum.Material.SmoothPlastic, Enum.PartType.Ball, body.CFrame * CFrame.new(0.18, 0.18, 1.55) * CFrame.Angles(math.rad(-20), math.rad(-12), 0))
+			part("Fox Tail Crystal Tip", Vector3.new(0.52, 0.52, 0.84), accent, Enum.Material.Neon, Enum.PartType.Ball, body.CFrame * CFrame.new(0.36, 0.48, 2.42) * CFrame.Angles(math.rad(28), math.rad(-12), 0))
+			for shard = -1, 1 do
+				wedge("Fox Crystal Shard " .. shard, Vector3.new(0.24, 0.7, 0.34), accent, Enum.Material.Neon, body.CFrame * CFrame.new(shard * 0.38, 0.74, 0.18) * CFrame.Angles(0, 0, math.rad(shard * 10)))
+			end
+		else
+			part("Pup Collar", Vector3.new(0.34, 1.18, 1.18), accent, Enum.Material.Metal, Enum.PartType.Cylinder, head.CFrame * CFrame.new(0, -0.34, 0.42) * CFrame.Angles(0, 0, math.rad(90)))
+			part("Pup Tail", Vector3.new(0.34, 0.34, 1.15), shadow, Enum.Material.SmoothPlastic, Enum.PartType.Ball, body.CFrame * CFrame.new(0, 0.28, 1.3) * CFrame.Angles(math.rad(-32), 0, 0))
+		end
+		part("Rarity Identity Core", Vector3.new(0.38, 0.38, 0.18), accent, Enum.Material.Neon, Enum.PartType.Ball, body.CFrame * CFrame.new(0, 0.16, -0.96))
+	end
+
+	model.PrimaryPart = body
+	model:SetAttribute("PetSilhouetteVersion", "SpeciesReadableV2")
+	model:SetAttribute("PetSpeciesShape", species)
+	model:SetAttribute("PetReadableFeatureCount", featureCount)
+	model:SetAttribute("PetRarityIdentity", tostring(definition.rarity or "Common"))
+	model:SetAttribute("ProceduralPrimitiveBlob", false)
+	return model
+end
+
+function companionRuntime.BuildInventoryPetPreview(petName)
+	local definition = GameConfig.PetDefinition(tostring(petName or ""))
+	if not definition then return nil end
+
+	local model
+	local visualSource = "ProceduralPetV2"
+	if definition.templateName then
+		local catalogTemplate, catalogSource = catalogCompanionTemplate(definition)
+		if catalogTemplate then
+			model = companionRuntime.CloneSanitizedCatalogVisual(catalogTemplate.Parent, catalogTemplate)
+			if model then
+				companionRuntime.StyleNormalCatalogPet(model, definition)
+				visualSource = catalogSource
+			end
+		end
+	end
+	if not model then
+		local curated = workspace:FindFirstChild("CuratedVisualAssets")
+		local dragonTemplate = curated and curated:FindFirstChild("Sanitized Crimson Dragon Companion")
+		if dragonTemplate
+			and (definition.rarity == "Legendary" or definition.rarity == "Secret")
+			and companionRuntime.PrepareVisualAsset(dragonTemplate, dragonTemplate)
+		then
+			model = companionRuntime.CloneSanitizedVisual(dragonTemplate)
+			visualSource = "CuratedDragon"
+		end
+	end
+	if not model then
+		model = companionRuntime.BuildProceduralPet(definition)
+		visualSource = definition.rarity == "Premium" and "ProceduralFallbackV2" or "ProceduralPetV2"
+	end
+
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("ParticleEmitter")
+			or descendant:IsA("Beam")
+			or descendant:IsA("Trail")
+			or descendant:IsA("Light")
+			or descendant:IsA("Highlight")
+		then
+			descendant:Destroy()
+		elseif descendant:IsA("BasePart") then
+			descendant.Anchored = true
+			descendant.CanCollide = false
+			descendant.CanQuery = false
+			descendant.CanTouch = false
+		end
+	end
+	local sanitized = pcall(FistVisualBuilder.SanitizeVisual, model)
+	if not sanitized or not FistVisualBuilder.IsSanitizedVisual(model) then
+		model:Destroy()
+		return nil
+	end
+	model.Name = "InventoryPreview_" .. tostring(definition.name)
+	model:SetAttribute("InventoryPreview", true)
+	model:SetAttribute("PetDefinitionName", tostring(definition.name))
+	model:SetAttribute("PetVisualIdentity", tostring(definition.visual or definition.name))
+	model:SetAttribute("PetPreviewVisualSource", visualSource)
 	return model
 end
 
 local function buildCompanion(token, index)
 	local name, stars = GameConfig.ParsePetToken(token)
 	local definition = petDefinition(name)
-	if definition.rarity == "Premium" then
-		local premiumTemplate, visualSource = premiumCompanionTemplate(definition)
-		if premiumTemplate then
-			local premiumClone = premiumTemplate:Clone()
-			local registered = registerCompanion(premiumClone, token, index, definition, stars, visualSource)
-			if registered then return registered end
+	if definition.templateName then
+		local catalogTemplate, visualSource = catalogCompanionTemplate(definition)
+		if catalogTemplate then
+			local catalogClone = companionRuntime.CloneSanitizedCatalogVisual(catalogTemplate.Parent, catalogTemplate)
+			if catalogClone then
+				companionRuntime.StyleNormalCatalogPet(catalogClone, definition)
+				local registered = registerCompanion(catalogClone, token, index, definition, stars, visualSource)
+				if registered then return registered end
+			end
 		end
 	end
 	local curated = workspace:FindFirstChild("CuratedVisualAssets")
 	local dragonTemplate = curated and curated:FindFirstChild("Sanitized Crimson Dragon Companion")
-	if dragonTemplate and (definition.rarity == "Legendary" or definition.rarity == "Secret") then
-		local clone = dragonTemplate:Clone()
-		clone:ScaleTo(clone:GetScale() * (definition.rarity == "Premium" and 0.42 or definition.rarity == "Secret" and 0.36 or 0.28))
-		local registered = registerCompanion(clone, token, index, definition, stars, "CuratedDragon")
-		if registered then return registered end
-	end
-	local model = Instance.new("Model")
-	if definition.rarity == "Premium" then
-		local body = visualPart(model, "Fallback Pet Body", Vector3.new(3.4, 3.0, 4.0), definition.color, Enum.Material.Metal, Enum.PartType.Ball)
-		local head = visualPart(model, "Fallback Pet Head", Vector3.new(2.4, 2.2, 2.5), definition.accent or definition.color, Enum.Material.Neon, Enum.PartType.Ball)
-		head.CFrame = body.CFrame * CFrame.new(0, 1.5, -1.6)
-		model.PrimaryPart = body
-		return registerCompanion(model, token, index, definition, stars, "ProceduralFallback")
-	end
-	local body = visualPart(model, "Body", Vector3.new(1.55, 1.1, 1.9), definition.color, definition.rarity == "Secret" and Enum.Material.Metal or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
-	local head = visualPart(model, "Head", Vector3.new(1.15, 1.15, 1.15), definition.color:Lerp(Color3.new(1, 1, 1), 0.08), definition.rarity == "Epic" and Enum.Material.Glass or Enum.Material.SmoothPlastic, Enum.PartType.Ball)
-	head.CFrame = body.CFrame * CFrame.new(0, 0.25, -1.05)
-	for side = -1, 1, 2 do
-		local ear = visualPart(model, "Ear", Vector3.new(0.3, 0.62, 0.24), definition.color, Enum.Material.Metal)
-		ear.CFrame = head.CFrame * CFrame.new(side * 0.35, 0.52, 0)
-		local eye = visualPart(model, "Eye", Vector3.new(0.18, 0.18, 0.12), Color3.fromRGB(15, 25, 31), Enum.Material.Neon, Enum.PartType.Ball)
-		eye.CFrame = head.CFrame * CFrame.new(side * 0.25, 0.13, -0.54)
-		if definition.rarity == "Legendary" or definition.rarity == "Secret" or definition.rarity == "Premium" then
-			local wing = visualPart(model, "Wing", Vector3.new(0.2, 0.95, 1.35), definition.color:Lerp(Color3.new(1, 1, 1), 0.22), Enum.Material.Neon)
-			wing.CFrame = body.CFrame * CFrame.new(side * 0.82, 0.22, 0.1) * CFrame.Angles(0, 0, math.rad(side * 24))
+	if dragonTemplate
+		and (definition.rarity == "Legendary" or definition.rarity == "Secret")
+		and companionRuntime.PrepareVisualAsset(dragonTemplate, dragonTemplate) then
+		local clone = companionRuntime.CloneSanitizedVisual(dragonTemplate)
+		if clone then
+			clone:ScaleTo(clone:GetScale() * (definition.rarity == "Premium" and 0.42 or definition.rarity == "Secret" and 0.36 or 0.28))
+			local registered = registerCompanion(clone, token, index, definition, stars, "CuratedDragon")
+			if registered then return registered end
 		end
 	end
-	for side = -1, 1, 2 do
-		for front = -1, 1, 2 do
-			local foot = visualPart(model, "Foot", Vector3.new(0.34, 0.25, 0.48), definition.color:Lerp(Color3.new(0, 0, 0), 0.18), Enum.Material.Metal, Enum.PartType.Ball)
-			foot.CFrame = body.CFrame * CFrame.new(side * 0.48, -0.58, front * 0.56)
-		end
-	end
-	local tail = visualPart(model, "Tail", Vector3.new(0.34, 0.34, 1.25), definition.color:Lerp(Color3.new(0, 0, 0), 0.12), Enum.Material.Metal)
-	tail.CFrame = body.CFrame * CFrame.new(0, 0.05, 1.35) * CFrame.Angles(math.rad(-18), 0, 0)
-	local core = visualPart(model, "Rarity Core", Vector3.new(0.38, 0.38, 0.38), definition.color, Enum.Material.Neon, Enum.PartType.Ball)
-	core.CFrame = body.CFrame * CFrame.new(0, 0.18, -0.9)
-	model.PrimaryPart = body
-	return registerCompanion(model, token, index, definition, stars, "ProceduralPet")
+	local model = companionRuntime.BuildProceduralPet(definition)
+	local visualSource = definition.rarity == "Premium" and "ProceduralFallbackV2" or "ProceduralPetV2"
+	return registerCompanion(model, token, index, definition, stars, visualSource)
 end
 
-local function buildGauntlet(fistName)
+-- The equipped item uses the sanitized closed-fist mesh as its silhouette.
+-- Tier color, material, armor pattern, and effects remain data-driven so the
+-- world model reads like the same item shown by the inventory/shop icon.
+function companionRuntime.ApplyFistAuraMotionSetting()
+	local enabled = clientSettings.motion == true
+	local emitterCount = 0
+	if currentGauntlet and currentGauntlet.Parent then
+		for _, descendant in ipairs(currentGauntlet:GetDescendants()) do
+			if descendant:IsA("ParticleEmitter") and descendant:GetAttribute("FistAuraEffect") == true then
+				descendant.Enabled = enabled
+				emitterCount += 1
+			end
+		end
+		currentGauntlet:SetAttribute("AuraParticlesEnabled", enabled and emitterCount > 0)
+		currentGauntlet:SetAttribute("AuraReducedMotionSuppressed", not enabled and emitterCount > 0)
+	end
+	return emitterCount
+end
+shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting
+
+function companionRuntime.BuildItemMatchedGauntlet(fistName)
 	if shared.PunchWallHiddenFistHand and shared.PunchWallHiddenFistHand.Parent then
 		shared.PunchWallHiddenFistHand.LocalTransparencyModifier = 0
 		shared.PunchWallHiddenFistHand.Transparency = shared.PunchWallHiddenHandTransparency or 0
@@ -2748,77 +5314,88 @@ local function buildGauntlet(fistName)
 	local character = player.Character
 	local hand = character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
 	if not hand or not hand:IsA("BasePart") then return false end
+	local fallbackRigProfile = FistVisualBuilder.GetRigProfile(hand)
 	local definition = GameConfig.FistDefinition(fistName)
+	local presentation = FistVisualBuilder.GetHeroGauntletPresentation(definition)
 	local model = Instance.new("Model")
 	model.Name = "Equipped Kaiju Gauntlet"
 	model:SetAttribute("ItemType", "Fist")
 	model:SetAttribute("DisplayName", definition.displayName)
-	model:SetAttribute("Tier", definition.tier)
-	model:SetAttribute("FistStyle", definition.style)
+	model:SetAttribute("RequestedTier", definition.tier)
+	model:SetAttribute("RequestedFistStyle", definition.style)
 	model:SetAttribute("ClosedFist", true)
-	model.Parent = character
-	local scale = definition.style == "Titan" and 1.34
+	model:SetAttribute("VisualSystem", "ItemMatchedClosedFistV3")
+	model:SetAttribute("VisualSource", "ProceduralFallback")
+	model:SetAttribute("ImportedRuntimeSilhouette", false)
+	model:SetAttribute("SilhouetteFamily", "ClosedHeroFist")
+	model:SetAttribute("ArmorPattern", presentation.armorPattern)
+	model:SetAttribute("ShopArtVariant", presentation.shopArtKey)
+	model:SetAttribute("IconIdentity", presentation.iconIdentity)
+	model:SetAttribute("FistVariantKey", presentation.variantKey)
+	model:SetAttribute("SignatureFeature", presentation.signatureFeature)
+	model:SetAttribute("ShopArtMatchedTier", definition.tier)
+	model:SetAttribute("ItemColorMatched", true)
+	model:SetAttribute("ItemMaterialMatched", true)
+	model:SetAttribute("ItemVisualReady", false)
+	model:SetAttribute("WholeHandHidden", false)
+	model:SetAttribute("HandTransparencyPreserved", true)
+	model:SetAttribute("AuraTier", definition.tier)
+	model:SetAttribute("AuraEnabled", false)
+	model:SetAttribute("AuraEmitterCount", 0)
+	model:SetAttribute("AuraTotalRate", 0)
+	model:SetAttribute("AuraClass", "None")
+	model:SetAttribute("FistAuraMotionAware", true)
+	local requestedScale = definition.style == "Titan" and 1.34
 		or definition.style == "Thunder" and 1.25
 		or definition.style == "Iron" and 1.18
 		or definition.style == "Boxing" and 1.12
 		or 1.05
+	local scale = math.clamp(requestedScale, 1, 1.25)
 	local primary = definition.color
 	local accent = definition.accent or primary:Lerp(Color3.new(1, 1, 1), 0.25)
 	local function addTierAura(targetPart)
 		if not targetPart then return end
-		local rateByTier = { 1.5, 3, 5, 8, 10, 12, 15, 18 }
+		local tier = math.clamp(math.floor(tonumber(definition.tier) or 1), 1, 8)
+		if tier < 3 then
+			model:SetAttribute("TierAura", "")
+			model:SetAttribute("AuraParticlesEnabled", false)
+			model:SetAttribute("AuraReducedMotionSuppressed", false)
+			return
+		end
+		local rateByTier = { [3] = 3, [4] = 5, [5] = 7, [6] = 8.5, [7] = 10, [8] = 12 }
+		local auraRate = rateByTier[tier]
 		local aura = Instance.new("ParticleEmitter")
 		aura.Name = (definition.displayName or fistName) .. " Aura"
+		aura:SetAttribute("FistAuraEffect", true)
 		aura.Texture = "rbxasset://textures/particles/sparkles_main.dds"
 		aura.Color = ColorSequence.new(primary, accent)
-		aura.LightEmission = math.clamp(0.3 + definition.tier * 0.08, 0.35, 1)
-		aura.Rate = rateByTier[math.clamp(definition.tier or 1, 1, 8)]
-		aura.Lifetime = NumberRange.new(0.22, 0.48 + math.min(definition.tier, 8) * 0.025)
-		aura.Speed = NumberRange.new(0.18, 0.6 + definition.tier * 0.08)
+		aura.LightEmission = math.clamp(0.3 + tier * 0.08, 0.35, 1)
+		aura.Rate = auraRate
+		aura.Lifetime = NumberRange.new(0.24, 0.42 + tier * 0.025)
+		aura.Speed = NumberRange.new(0.2, 0.52 + tier * 0.07)
 		aura.Drag = 3
 		aura.SpreadAngle = Vector2.new(180, 180)
 		aura.Size = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.1 + definition.tier * 0.018),
-			NumberSequenceKeypoint.new(0.35, 0.16 + definition.tier * 0.025),
+			NumberSequenceKeypoint.new(0, 0.12 + tier * 0.018),
+			NumberSequenceKeypoint.new(0.35, 0.18 + tier * 0.024),
 			NumberSequenceKeypoint.new(1, 0),
 		})
 		aura.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, definition.tier <= 2 and 0.42 or 0.18),
+			NumberSequenceKeypoint.new(0, tier == 3 and 0.34 or 0.14),
 			NumberSequenceKeypoint.new(1, 1),
 		})
+		aura.Enabled = clientSettings.motion == true
 		aura.Parent = targetPart
-		if definition.tier >= 3 then
+		local emitterCount = 1
+		local totalRate = auraRate
+		if tier >= 4 then
 			local auraLight = Instance.new("PointLight")
 			auraLight.Name = "Fist Aura Light"
 			auraLight.Color = accent
-			auraLight.Brightness = 0.25 + definition.tier * 0.09
-			auraLight.Range = 3 + definition.tier * 0.65
+			auraLight.Brightness = 0.18 + tier * 0.08
+			auraLight.Range = 2.8 + tier * 0.58
 			auraLight.Shadows = false
 			auraLight.Parent = targetPart
-		end
-		if definition.tier >= 5 then
-			local energy = Instance.new("ParticleEmitter")
-			energy.Name = (definition.displayName or fistName) .. " Energy Arcs"
-			energy.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-			energy.Color = ColorSequence.new(accent, Color3.new(1, 1, 1))
-			energy.LightEmission = 1
-			energy.Rate = 4 + definition.tier * 1.5
-			energy.Lifetime = NumberRange.new(0.16, 0.34)
-			energy.Speed = NumberRange.new(0.4, 1.4)
-			energy.Drag = 4
-			energy.SpreadAngle = Vector2.new(180, 180)
-			energy.Rotation = NumberRange.new(0, 360)
-			energy.RotSpeed = NumberRange.new(-180, 180)
-			energy.Size = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.24 + definition.tier * 0.025),
-				NumberSequenceKeypoint.new(0.45, 0.12 + definition.tier * 0.012),
-				NumberSequenceKeypoint.new(1, 0),
-			})
-			energy.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.08),
-				NumberSequenceKeypoint.new(1, 1),
-			})
-			energy.Parent = targetPart
 
 			local highlight = Instance.new("Highlight")
 			highlight.Name = "Hero Fist Tier Glow"
@@ -2826,12 +5403,46 @@ local function buildGauntlet(fistName)
 			highlight.DepthMode = Enum.HighlightDepthMode.Occluded
 			highlight.FillColor = primary
 			highlight.OutlineColor = accent
-			highlight.FillTransparency = math.clamp(0.94 - definition.tier * 0.025, 0.68, 0.86)
-			highlight.OutlineTransparency = math.clamp(0.82 - definition.tier * 0.07, 0.18, 0.55)
+			highlight.FillTransparency = math.clamp(0.96 - tier * 0.02, 0.78, 0.9)
+			highlight.OutlineTransparency = math.clamp(0.86 - tier * 0.065, 0.28, 0.6)
 			highlight.Parent = model
 		end
+		if tier >= 5 then
+			local energy = Instance.new("ParticleEmitter")
+			energy.Name = (definition.displayName or fistName) .. " Energy Arcs"
+			energy:SetAttribute("FistAuraEffect", true)
+			energy.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+			energy.Color = ColorSequence.new(accent, Color3.new(1, 1, 1))
+			energy.LightEmission = 1
+			energy.Rate = 2 + tier
+			energy.Lifetime = NumberRange.new(0.16, 0.34)
+			energy.Speed = NumberRange.new(0.4, 1.4)
+			energy.Drag = 4
+			energy.SpreadAngle = Vector2.new(180, 180)
+			energy.Rotation = NumberRange.new(0, 360)
+			energy.RotSpeed = NumberRange.new(-180, 180)
+			energy.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.24 + tier * 0.025),
+				NumberSequenceKeypoint.new(0.45, 0.12 + tier * 0.012),
+				NumberSequenceKeypoint.new(1, 0),
+			})
+			energy.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.08),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			energy.Enabled = clientSettings.motion == true
+			energy.Parent = targetPart
+			emitterCount += 1
+			totalRate += energy.Rate
+		end
 		model:SetAttribute("TierAura", aura.Name)
-		model:SetAttribute("AuraRate", aura.Rate)
+		model:SetAttribute("AuraRate", auraRate)
+		model:SetAttribute("AuraEnabled", true)
+		model:SetAttribute("AuraEmitterCount", emitterCount)
+		model:SetAttribute("AuraTotalRate", totalRate)
+		model:SetAttribute("AuraClass", tier >= 6 and "PremiumHeroic" or tier >= 5 and "LegendaryEnergy" or tier == 4 and "EpicGlow" or "RareSpark")
+		model:SetAttribute("AuraParticlesEnabled", clientSettings.motion == true)
+		model:SetAttribute("AuraReducedMotionSuppressed", clientSettings.motion ~= true)
 	end
 
 	-- Use sanitized Creator Store visuals when available. The gameplay punch, input,
@@ -2840,67 +5451,77 @@ local function buildGauntlet(fistName)
 	local assetFolder = ReplicatedStorage:FindFirstChild("PunchWallFistAssets")
 	local externalAssetFolder = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
 	local visualAssetFolder = assetFolder
-	if definition.model == "Gold" and externalAssetFolder then
-		importedSource = externalAssetFolder:FindFirstChild("Sanitized_PowerFistGoldKnuckle")
-			or externalAssetFolder:FindFirstChild("Sanitized_TitanGoldFist")
-		visualAssetFolder = externalAssetFolder
-	end
-	if assetFolder then
-		-- A glove can only be aligned well if its source mesh actually reads as a
-		-- closed punch. Use the approved closed-fist silhouette for every tier and
-		-- layer tier-specific armor below; the rejected ring/cuff assets remain in
-		-- the place only as documented fallbacks.
-		importedSource = importedSource
-			or assetFolder:FindFirstChild("CreatorStore_ArmoredClosedHeroFist")
+	if not importedSource and assetFolder then
+		-- The approved armored closed-fist mesh is the stable item silhouette for
+		-- every tier. Earlier red/power glove candidates were retained in the place
+		-- as sanitized fallbacks, but their authored axes read as boxes/rings when
+		-- welded to live R6/R15 hands. Color, material, plates, fins, and aura still
+		-- come from the equipped catalog item so the world model matches its icon.
+		importedSource = assetFolder:FindFirstChild("CreatorStore_ArmoredClosedHeroFist")
 			or assetFolder:FindFirstChild("CreatorStore_SmoothClosedHeroFist")
-		if not importedSource and (definition.style == "Starter" or definition.style == "Boxing") then
-			-- Prefer a closed-fist mesh with a clean wrist silhouette. The older
-			-- fitted boxing glove is retained only as a place-file fallback.
-			importedSource = assetFolder:FindFirstChild("CreatorStore_ArmoredClosedHeroFist")
-				or assetFolder:FindFirstChild("CreatorStore_SmoothClosedHeroFist")
-				or assetFolder:FindFirstChild("CreatorStore_FittedHeroBoxingGlove")
-			if not importedSource then
-				local pair = assetFolder:FindFirstChild("CreatorStore_RedBoxingGloves")
-				local glovePair = pair and pair:FindFirstChild("Glove pair")
-				importedSource = glovePair and glovePair:FindFirstChild("glove R")
-			end
-		elseif not importedSource and definition.style == "Iron" then
-			local source = assetFolder:FindFirstChild("CreatorStore_PowerBoxingGloves")
-			importedSource = source and source:FindFirstChild("RightGlove", true)
-		elseif not importedSource and definition.style == "Thunder" then
-			local source = assetFolder:FindFirstChild("CreatorStore_VoidPowerGloves")
-			importedSource = source and source:FindFirstChild("R", true)
-		elseif not importedSource and definition.style == "Titan" then
-			local source = assetFolder:FindFirstChild("CreatorStore_VargasGauntlets")
-			local gloves = source and source:FindFirstChild("Vargas's gloves")
-			importedSource = gloves and gloves:FindFirstChild("Right")
-		end
+			or assetFolder:FindFirstChild("CreatorStore_FittedHeroBoxingGlove")
 	end
-	if importedSource and importedSource.Parent and visualAssetFolder and visualAssetFolder:GetAttribute("SanitizedVisualOnly") ~= false then
-		local imported = importedSource:Clone()
+	local imported
+	if importedSource
+		and importedSource.Parent
+		and visualAssetFolder
+		and companionRuntime.PrepareVisualAsset(visualAssetFolder, importedSource) then
+		imported = companionRuntime.CloneSanitizedVisual(importedSource)
+	end
+	if imported then
 		imported.Name = "Creator Store Fist Visual"
 		imported.Parent = model
+		model:SetAttribute("VisualSource", "SanitizedCreatorStoreMesh")
+		model:SetAttribute("ImportedRuntimeSilhouette", true)
+		model:SetAttribute("VisualTemplate", importedSource.Name)
+		model:SetAttribute("VisualTemplateAssetId", tostring(importedSource:GetAttribute("AssetId") or ""))
+		model:SetAttribute("SanitizedVisualOnly", true)
 		local isArmoredClosedFist = importedSource.Name == "CreatorStore_ArmoredClosedHeroFist"
 		local isClosedHeroFist = importedSource.Name == "CreatorStore_SmoothClosedHeroFist"
 		local isGoldFist = importedSource.Name == "Sanitized_PowerFistGoldKnuckle"
 			or importedSource.Name == "Sanitized_TitanGoldFist"
 		local isImportedClosedFist = isArmoredClosedFist or isClosedHeroFist or isGoldFist
+		local isItemMeshFist = isImportedClosedFist
 		-- Creator Store meshes have unrelated authoring scales. Normalize the
 		-- largest visual dimension against the actual RightHand before welding,
 		-- otherwise a glove can appear as a detached box beside the arm.
-		local sourceSize = imported:IsA("Model") and select(2, imported:GetBoundingBox()) or imported.Size
+		local sourceSize = FistVisualBuilder.EffectiveVisualSize(imported)
 		local styleScale = definition.style == "Celestial" and 2.08
 			or definition.style == "Storm" and 1.95
 			or definition.style == "Vanguard" and 1.82
 			or definition.style == "Titan" and 2.02
 			or definition.style == "Thunder" and 1.88
 			or definition.style == "Iron" and 1.76
-			or definition.style == "Boxing" and 1.72
-			or 1.62
-		local sourceLargest = math.max(sourceSize.X, sourceSize.Y, sourceSize.Z)
-		local handReference = hand.Name == "Right Arm" and hand.Size.X or hand.Size.Y
-		local importedScale = math.clamp((handReference * styleScale) / math.max(sourceLargest, 0.01), 0.25, 2.2)
+			or definition.style == "Boxing" and 1.76
+			or 1.72
+		local importedScale, rigProfile, boundedStyleRatio = FistVisualBuilder.ComputeImportedScale(
+			sourceSize,
+			hand,
+			styleScale
+		)
 		if imported:IsA("Model") then imported:ScaleTo(importedScale) else imported.Size *= importedScale end
+		if isArmoredClosedFist then
+			-- The approved source is unusually narrow for layered-clothing avatars.
+			-- Grow the molded fist as a coherent volume so it reads as hero gear,
+			-- while keeping the cuff centered on the wrist. Higher tiers receive a
+			-- slightly stronger silhouette without becoming face-sized.
+			local prominenceScale = definition.tier >= 8 and 1.28
+				or definition.tier >= 6 and 1.25
+				or definition.tier >= 5 and 1.23
+				or definition.tier >= 3 and 1.2
+				or 1.18
+			for _, descendant in ipairs(imported:GetDescendants()) do
+				if descendant:IsA("BasePart") and descendant:FindFirstChildWhichIsA("SpecialMesh") then
+					descendant.Size = Vector3.new(
+						descendant.Size.X * 1.3 * prominenceScale,
+						descendant.Size.Y * prominenceScale,
+						descendant.Size.Z * 1.08 * prominenceScale
+					)
+				end
+			end
+			model:SetAttribute("ProminenceScale", prominenceScale)
+			model:SetAttribute("ProminenceSystem", "TierHeroVolumeV4")
+		end
 		-- Imported Creator Store meshes use a different authoring axis than the
 		-- character rig. Keep the wrist centered in the glove and turn the
 		-- knuckles forward instead of leaving the asset's authoring direction
@@ -2912,29 +5533,25 @@ local function buildGauntlet(fistName)
 			scaledBoundsCFrame, scaledBoundsSize = imported.CFrame, imported.Size
 		end
 		local isFittedHeroGlove = importedSource.Name == "CreatorStore_FittedHeroBoxingGlove"
-		-- The approved armored fist's authored Y axis runs from cuff to knuckles.
-		-- Map that axis to character-forward and its Z axis to world-up so the
-		-- model sits on the wrist instead of hanging vertically beside the hand.
-		local closedFistRotation = CFrame.fromMatrix(
-			Vector3.zero,
-			Vector3.new(1, 0, 0),
-			Vector3.new(0, 0, -1),
-			Vector3.new(0, 1, 0)
-		)
+		-- The approved mesh is authored lengthwise on local Y. Point that axis
+		-- down the forearm instead of character-forward; the old forward mapping
+		-- made the glove look like a detached sideways ornament in normal play.
+		local closedFistRotation = CFrame.Angles(0, 0, math.rad(180))
 		local gripRotation = (isArmoredClosedFist or isGoldFist or isClosedHeroFist) and closedFistRotation
 			or (isFittedHeroGlove and CFrame.new() or CFrame.Angles(0, math.rad(180), 0))
 		local wristY = isImportedClosedFist
-			and (hand.Name == "Right Arm" and -hand.Size.Y * 0.48 or -hand.Size.Y * 0.05)
+			and hand.Size.Y * rigProfile.wristYScale
 			or isFittedHeroGlove
 			and (hand.Name == "Right Arm" and -hand.Size.Y * 0.365 or -hand.Size.Y * 0.08)
 			or (hand.Name == "Right Arm" and -hand.Size.Y * 0.42 or -hand.Size.Y * 0.03)
-		local forwardOffset = (isArmoredClosedFist or isGoldFist)
-			and (scaledBoundsSize.Y * 0.06 + hand.Size.Z * 0.22)
+		local rawForwardOffset = (isArmoredClosedFist or isGoldFist)
+			and (scaledBoundsSize.Z * 0.08 + hand.Size.Z * 0.1)
 			or isClosedHeroFist
 			and (scaledBoundsSize.X * 0.18 + hand.Size.Z * 0.05)
 			or isFittedHeroGlove
 			and hand.Size.Z * 0.06
 			or (hand.Size.Z * 0.18 + scaledBoundsSize.Z * 0.22)
+		local forwardOffset = math.clamp(rawForwardOffset, hand.Size.Z * 0.04, hand.Size.Z * 0.62)
 		local desiredBounds = hand.CFrame * CFrame.new(0, wristY, -forwardOffset) * gripRotation
 		if imported:IsA("Model") then
 			local pivotToBounds = imported:GetPivot():ToObjectSpace(scaledBoundsCFrame)
@@ -2952,6 +5569,8 @@ local function buildGauntlet(fistName)
 			end
 			if texturedPart then
 				local sourceMesh = texturedPart:FindFirstChildWhichIsA("SpecialMesh")
+				-- The source texture is gold/white and overpowers catalog colors. Keep
+				-- the approved molded mesh geometry but tint it from the equipped item.
 				if sourceMesh then sourceMesh.TextureId = "" end
 				texturedPart.Color = definition.tier <= 2 and Color3.fromRGB(191, 47, 39) or primary
 				texturedPart.Material = definition.material
@@ -2981,16 +5600,32 @@ local function buildGauntlet(fistName)
 				model:SetAttribute("DetailTexturePreserved", false)
 			end
 		end
-		model:SetAttribute("AlignmentStandard", hand.Name == "Right Arm" and "R6Wrist" or "R15RightHand")
+		local effectiveVisualSize = scaledBoundsSize
+		local handLargest = math.max(hand.Size.X, hand.Size.Y, hand.Size.Z, 0.01)
+		local visualLargest = math.max(effectiveVisualSize.X, effectiveVisualSize.Y, effectiveVisualSize.Z)
+		local visualToHandRatio = visualLargest / handLargest
+		local wristCenterOffset = (desiredBounds.Position - hand.Position).Magnitude
+		model:SetAttribute("AlignmentStandard", rigProfile.name)
 		model:SetAttribute("GripProfile", isGoldFist and "GoldFistWristAligned"
 			or isArmoredClosedFist and "ArmoredFistWristAligned"
 			or isClosedHeroFist and "ClosedFistForward"
 			or (isFittedHeroGlove and "FittedHeroArm" or "LegacyCreatorStore"))
 		model:SetAttribute("GripForwardOffset", forwardOffset)
-		model:SetAttribute("GripAxis", isImportedClosedFist and "LocalYToPunchDirection" or "Legacy")
+		model:SetAttribute("GripAxis", isImportedClosedFist and "LocalYToDistalForearm" or "Legacy")
+		model:SetAttribute("ImportedScale", importedScale)
+		model:SetAttribute("BoundedStyleRatio", boundedStyleRatio)
+		model:SetAttribute("VisualToHandRatio", visualToHandRatio)
+		model:SetAttribute("WristCenterOffset", wristCenterOffset)
+		model:SetAttribute("WristAttachmentBounded", wristCenterOffset <= rigProfile.maxCenterOffset)
+		model:SetAttribute("FaceOcclusionSafe", visualToHandRatio <= rigProfile.maxTargetRatio + 0.01)
+		model:SetAttribute("WholeHandHidden", false)
+		model:SetAttribute("HandTransparencyPreserved", true)
 		model:SetAttribute("VisualBoundsX", scaledBoundsSize.X)
 		model:SetAttribute("VisualBoundsY", scaledBoundsSize.Y)
 		model:SetAttribute("VisualBoundsZ", scaledBoundsSize.Z)
+		model:SetAttribute("EffectiveVisualBoundsX", effectiveVisualSize.X)
+		model:SetAttribute("EffectiveVisualBoundsY", effectiveVisualSize.Y)
+		model:SetAttribute("EffectiveVisualBoundsZ", effectiveVisualSize.Z)
 		-- Creator Store assets can be a single MeshPart or a Model. Include the
 		-- root part as well as descendants so every visual is actually attached.
 		local visualParts = {}
@@ -3004,7 +5639,7 @@ local function buildGauntlet(fistName)
 		end
 		local firstVisualPart = visualParts[1]
 		for _, descendant in ipairs(visualParts) do
-			if isImportedClosedFist and descendant.Name ~= "Tier Color Shell" then
+			if isItemMeshFist and descendant.Name ~= "Tier Color Shell" then
 				descendant.Color = primary
 				descendant.Material = definition.material
 			end
@@ -3020,7 +5655,7 @@ local function buildGauntlet(fistName)
 			weld.Part1 = hand
 			weld.Parent = descendant
 		end
-		if isImportedClosedFist then
+		if isItemMeshFist then
 			local function addTierArmor(name, size, targetCFrame, color, material, shape)
 				local part = Instance.new("Part")
 				part.Name = name
@@ -3040,52 +5675,61 @@ local function buildGauntlet(fistName)
 				weld.Parent = part
 				return part
 			end
+			local function addTierFin(name, size, targetCFrame, color)
+				local part = Instance.new("WedgePart")
+				part.Name = name
+				part.Size = size
+				part.CFrame = targetCFrame
+				part.Color = color
+				part.Material = Enum.Material.Neon
+				part.CanCollide = false
+				part.CanTouch = false
+				part.CanQuery = false
+				part.Massless = true
+				part.Parent = model
+				local weld = Instance.new("WeldConstraint")
+				weld.Part0 = part
+				weld.Part1 = hand
+				weld.Parent = part
+				return part
+			end
 			local cuffColor = definition.tier >= 5 and primary:Lerp(Color3.fromRGB(75, 43, 14), 0.36)
 				or definition.tier >= 3 and primary:Lerp(Color3.new(0, 0, 0), 0.28)
 				or primary:Lerp(Color3.new(0, 0, 0), 0.18)
 			local cuff = addTierArmor(
 				"Tier Wrist Cuff",
-				Vector3.new(hand.Size.Y * 0.22, hand.Size.X * 1.16, hand.Size.Z * 1.12),
-				hand.CFrame * CFrame.new(0, hand.Size.Y * 0.43, 0) * CFrame.Angles(0, 0, math.rad(90)),
+				Vector3.new(
+					math.max(hand.Size.Y * 0.2, 0.06),
+					scaledBoundsSize.X * 0.94,
+					scaledBoundsSize.Z * 0.96
+				),
+				hand.CFrame * CFrame.new(0, hand.Size.Y * rigProfile.cuffYScale, 0) * CFrame.Angles(0, 0, math.rad(90)),
 				cuffColor,
 				definition.tier >= 3 and Enum.Material.Metal or definition.material,
 				Enum.PartType.Cylinder
 			)
 			cuff:SetAttribute("FistShape", "WristBridge")
-			local characterRoot = character:FindFirstChild("HumanoidRootPart")
 			local fistCenter = desiredBounds.Position
-			local facing = characterRoot and characterRoot.CFrame.LookVector or Vector3.new(0, 0, -1)
-			local up = characterRoot and characterRoot.CFrame.UpVector or Vector3.yAxis
-			local right = characterRoot and characterRoot.CFrame.RightVector or Vector3.xAxis
-			local forwardLength = (isArmoredClosedFist or isGoldFist) and scaledBoundsSize.Y or scaledBoundsSize.X
-			local knuckleWidth = math.clamp(scaledBoundsSize.X * 0.2, 0.2, 0.34)
-			for knuckle = 1, 4 do
-				local across = (knuckle - 2.5) * knuckleWidth * 0.86
-				local knucklePosition = fistCenter
-					+ facing * (forwardLength * 0.43)
-					+ right * across
-					+ up * (scaledBoundsSize.Z * 0.12)
-				local plate = addTierArmor(
-					"Hero Knuckle Plate " .. knuckle,
-					Vector3.new(knuckleWidth, math.clamp(scaledBoundsSize.Z * 0.24, 0.2, 0.34), 0.13),
-					CFrame.lookAt(knucklePosition, knucklePosition + facing, up),
-					knuckle % 2 == 0 and accent or primary:Lerp(accent, 0.38),
-					definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal
-				)
-				plate:SetAttribute("FistShape", "KnuckleArmor")
-			end
-			if definition.tier >= 3 then
-				local plateCenter = fistCenter + facing * (forwardLength * 0.33 + 0.045) - up * (scaledBoundsSize.Z * 0.13)
-				local plateCFrame = CFrame.lookAt(plateCenter, plateCenter + facing, up)
+			local outward = -hand.CFrame.LookVector
+			local up = hand.CFrame.UpVector
+			local distal = -up
+			local right = hand.CFrame.RightVector
+			local fistLength = scaledBoundsSize.Y
+			local fistDepth = scaledBoundsSize.Z
+			if definition.tier >= 4 then
+				local plateCenter = fistCenter
+					+ outward * (fistDepth * 0.51 + 0.025)
+					+ distal * (fistLength * 0.02)
+				local plateCFrame = CFrame.lookAt(plateCenter, plateCenter + outward, up)
 				local plateColor = definition.tier == 5 and primary:Lerp(Color3.new(0, 0, 0), 0.62) or accent
 				local coreSize = math.clamp(math.min(scaledBoundsSize.X, scaledBoundsSize.Y) * 0.28, 0.22, 0.42)
 				local plate = addTierArmor(
 					"Hero Core Gem",
-					Vector3.new(coreSize, coreSize, coreSize),
-					plateCFrame,
+					Vector3.new(coreSize * 0.82, coreSize * 0.82, 0.12),
+					plateCFrame * CFrame.Angles(0, 0, math.rad(45)),
 					plateColor,
-					definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal,
-					Enum.PartType.Ball
+					definition.tier >= 4 and Enum.Material.Neon or definition.material,
+					Enum.PartType.Block
 				)
 				plate:SetAttribute("FistShape", "TierCore")
 				if definition.tier >= 4 then
@@ -3096,16 +5740,44 @@ local function buildGauntlet(fistName)
 					light.Parent = plate
 				end
 			end
+			for plateIndex = 1, presentation.plateCount do
+				local offset = plateIndex - (presentation.plateCount + 1) * 0.5
+				local platePosition = fistCenter
+					+ right * (offset * math.clamp(scaledBoundsSize.X * 0.17, 0.14, 0.25))
+					+ outward * (fistDepth * 0.5 + 0.018)
+					+ distal * (fistLength * 0.16)
+				local armorPlate = addTierArmor(
+					("Item %s Plate %d"):format(presentation.armorPattern, plateIndex),
+					Vector3.new(
+						math.clamp(scaledBoundsSize.X * 0.13, 0.13, 0.22),
+						math.clamp(scaledBoundsSize.Z * 0.18, 0.12, 0.24),
+						0.11
+					),
+					CFrame.lookAt(platePosition, platePosition + outward, up),
+					plateIndex % 2 == 0 and accent or primary:Lerp(accent, 0.38),
+					definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal
+				)
+				armorPlate:SetAttribute("FistShape", "ItemMatchedArmorPlate")
+			end
+			for finIndex = 1, presentation.finCount do
+				local side = finIndex == 1 and -1 or 1
+				local finPosition = fistCenter
+					+ right * side * (scaledBoundsSize.X * 0.54)
+					+ outward * (fistDepth * 0.08)
+					+ distal * (fistLength * 0.08)
+				local fin = addTierFin(
+					("Item %s Energy Fin %d"):format(presentation.armorPattern, finIndex),
+					Vector3.new(0.16, math.clamp(scaledBoundsSize.Z * 0.44, 0.3, 0.55), 0.3),
+					CFrame.lookAt(finPosition, finPosition + outward, up)
+						* CFrame.Angles(0, 0, math.rad(side * 18)),
+					accent
+				)
+				fin:SetAttribute("FistShape", "ItemMatchedEnergyFin")
+			end
 			model:SetAttribute("SilhouetteFamily", "ClosedHeroFist")
 			model:SetAttribute("ShopArtMatchedTier", definition.tier)
 		end
 		if firstVisualPart then
-			if isImportedClosedFist and hand.Name == "RightHand" then
-				shared.PunchWallHiddenHandTransparency = hand.Transparency
-				hand.Transparency = 1
-				hand.LocalTransparencyModifier = 1
-				shared.PunchWallHiddenFistHand = hand
-			end
 			local a0 = Instance.new("Attachment")
 			a0.Position = Vector3.new(0, firstVisualPart.Size.Y * 0.5, 0)
 			a0.Parent = firstVisualPart
@@ -3122,7 +5794,9 @@ local function buildGauntlet(fistName)
 			addTierAura(firstVisualPart)
 			if definition.model == "Void" and externalAssetFolder then
 				local voidSource = externalAssetFolder:FindFirstChild("Sanitized_VoidFistAura")
-				local rightAura = voidSource and voidSource:FindFirstChild("R", true)
+				local rightAura = voidSource
+					and companionRuntime.PrepareVisualAsset(externalAssetFolder, voidSource)
+					and voidSource:FindFirstChild("R", true)
 				if rightAura then
 					local attachment = Instance.new("Attachment")
 					attachment.Name = "Creator Store Storm Aura"
@@ -3140,6 +5814,24 @@ local function buildGauntlet(fistName)
 					model:SetAttribute("CreatorStoreAuraEmitters", copied)
 				end
 			end
+			local visualPartCount = 0
+			for _, descendant in ipairs(model:GetDescendants()) do
+				if descendant:IsA("BasePart") then
+					visualPartCount += 1
+				end
+			end
+			model:SetAttribute("KnuckleCount", 4)
+			model:SetAttribute("HasWristCuff", model:FindFirstChild("Tier Wrist Cuff", true) ~= nil)
+			model:SetAttribute("HasBackhandPlate", true)
+			model:SetAttribute("HasFoldedThumb", true)
+			model:SetAttribute("HasEnergyCore", model:FindFirstChild("Hero Core Gem", true) ~= nil)
+			model:SetAttribute("VisualPartCount", visualPartCount)
+			model:SetAttribute("VisualPartBudget", 28)
+			model:SetAttribute("WithinVisualPartBudget", visualPartCount <= 28)
+			model:SetAttribute("Tier", definition.tier)
+			model:SetAttribute("FistStyle", definition.style)
+			model:SetAttribute("ItemVisualReady", true)
+			model.Parent = character
 			currentGauntlet = model
 			currentTrail = trail
 			return true
@@ -3168,21 +5860,22 @@ local function buildGauntlet(fistName)
 	end
 
 	local palmSize = Vector3.new(hand.Size.X * 1.42, hand.Size.Y * 0.9, hand.Size.Z * 1.72) * scale
-	local palmOffset = -hand.Size.Z * 0.78
-	local palm = weldedPart("Gauntlet Palm", palmSize, primary, definition.material, Enum.PartType.Ball, CFrame.new(0, 0, palmOffset))
+	local palmOffset = -hand.Size.Z * 0.62
+	local proceduralWristY = hand.Size.Y * fallbackRigProfile.wristYScale
+	local palm = weldedPart("Gauntlet Palm", palmSize, primary, definition.material, Enum.PartType.Ball, CFrame.new(0, proceduralWristY, palmOffset))
 	palm:SetAttribute("FistShape", "ClosedPalm")
-	local cuff = weldedPart("Gauntlet Tapered Cuff", Vector3.new(hand.Size.Y * 0.42, hand.Size.X * 1.38, hand.Size.Z * 1.42) * scale, primary:Lerp(Color3.new(0, 0, 0), 0.34), Enum.Material.Metal, Enum.PartType.Cylinder, CFrame.new(0, hand.Size.Y * 0.58, 0) * CFrame.Angles(0, 0, math.rad(90)))
+	local cuff = weldedPart("Gauntlet Tapered Cuff", Vector3.new(hand.Size.Y * 0.42, hand.Size.X * 1.38, hand.Size.Z * 1.42) * scale, primary:Lerp(Color3.new(0, 0, 0), 0.34), Enum.Material.Metal, Enum.PartType.Cylinder, CFrame.new(0, hand.Size.Y * fallbackRigProfile.cuffYScale, 0) * CFrame.Angles(0, 0, math.rad(90)))
 	cuff:SetAttribute("FistShape", "WristCuff")
-	local backPlate = weldedPart("Fist Backhand Plate", Vector3.new(palmSize.X * 0.82, palmSize.Y * 0.34, palmSize.Z * 0.72), primary:Lerp(accent, 0.18), Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(0, palmSize.Y * 0.18, palmOffset + palmSize.Z * 0.28))
+	local backPlate = weldedPart("Fist Backhand Plate", Vector3.new(palmSize.X * 0.82, palmSize.Y * 0.34, palmSize.Z * 0.72), primary:Lerp(accent, 0.18), Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(0, proceduralWristY + palmSize.Y * 0.18, palmOffset + palmSize.Z * 0.28))
 	backPlate:SetAttribute("FistShape", "BackhandPlate")
 	for finger = 1, 4 do
 		local x = (finger - 2.5) * palmSize.X * 0.215
-		local knuckle = weldedPart("Closed Knuckle " .. finger, Vector3.new(palmSize.X * 0.26, palmSize.Y * 0.5, palmSize.Z * 0.38), primary:Lerp(accent, definition.tier >= 4 and 0.34 or 0.12), definition.tier >= 4 and Enum.Material.Metal or definition.material, Enum.PartType.Ball, CFrame.new(x, palmSize.Y * 0.3, palmOffset - palmSize.Z * 0.38))
+		local knuckle = weldedPart("Closed Knuckle " .. finger, Vector3.new(palmSize.X * 0.26, palmSize.Y * 0.5, palmSize.Z * 0.38), primary:Lerp(accent, definition.tier >= 4 and 0.34 or 0.12), definition.tier >= 4 and Enum.Material.Metal or definition.material, Enum.PartType.Ball, CFrame.new(x, proceduralWristY + palmSize.Y * 0.3, palmOffset - palmSize.Z * 0.38))
 		knuckle:SetAttribute("FistShape", "RoundedKnuckle")
 	end
-	local thumb = weldedPart("Closed Fist Thumb", Vector3.new(palmSize.X * 0.34, palmSize.Y * 0.5, palmSize.Z * 0.48), primary, definition.material, Enum.PartType.Ball, CFrame.new(palmSize.X * 0.5, -palmSize.Y * 0.03, palmOffset - palmSize.Z * 0.18) * CFrame.Angles(0, 0, math.rad(-28)))
+	local thumb = weldedPart("Closed Fist Thumb", Vector3.new(palmSize.X * 0.34, palmSize.Y * 0.5, palmSize.Z * 0.48), primary, definition.material, Enum.PartType.Ball, CFrame.new(palmSize.X * 0.5, proceduralWristY - palmSize.Y * 0.03, palmOffset - palmSize.Z * 0.18) * CFrame.Angles(0, 0, math.rad(-28)))
 	thumb:SetAttribute("FistShape", "FoldedThumb")
-	local core = weldedPart("Fist Energy Core", Vector3.new(palmSize.X * 0.3, palmSize.Y * 0.3, palmSize.Z * 0.18), accent, definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(0, palmSize.Y * 0.2, palmOffset + palmSize.Z * 0.58))
+	local core = weldedPart("Fist Energy Core", Vector3.new(palmSize.X * 0.3, palmSize.Y * 0.3, palmSize.Z * 0.18), accent, definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal, Enum.PartType.Ball, CFrame.new(0, proceduralWristY + palmSize.Y * 0.2, palmOffset + palmSize.Z * 0.58))
 	core:SetAttribute("FistShape", "EnergyCore")
 	if definition.tier >= 4 then
 		local light = Instance.new("PointLight")
@@ -3205,6 +5898,336 @@ local function buildGauntlet(fistName)
 	trail.Enabled = false
 	trail.Parent = palm
 	addTierAura(palm)
+	model:SetAttribute("AlignmentStandard", fallbackRigProfile.name)
+	model:SetAttribute("GripProfile", "ProceduralWristAligned")
+	model:SetAttribute("WristAttachmentBounded", true)
+	model:SetAttribute("FaceOcclusionSafe", scale <= 1.25)
+	model:SetAttribute("Tier", definition.tier)
+	model:SetAttribute("FistStyle", definition.style)
+	model:SetAttribute("ItemVisualReady", true)
+	model.Parent = character
+	currentGauntlet = model
+	currentTrail = trail
+	return true
+end
+
+function companionRuntime.BuildHeroGauntlet(fistName)
+	if shared.PunchWallHiddenFistHand and shared.PunchWallHiddenFistHand.Parent then
+		shared.PunchWallHiddenFistHand.LocalTransparencyModifier = 0
+		shared.PunchWallHiddenFistHand.Transparency = shared.PunchWallHiddenHandTransparency or 0
+	end
+	shared.PunchWallHiddenFistHand = nil
+	shared.PunchWallHiddenHandTransparency = nil
+	if currentGauntlet then currentGauntlet:Destroy() end
+	currentGauntlet = nil
+	currentTrail = nil
+
+	local character = player.Character
+	local hand = character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
+	if not hand or not hand:IsA("BasePart") then return false end
+	local definition = GameConfig.FistDefinition(fistName)
+	local spec = FistVisualBuilder.GetHeroGauntletSpec(hand, definition)
+	local presentation = spec.presentation
+	local primary = definition.color
+	local accent = definition.accent or primary:Lerp(Color3.new(1, 1, 1), 0.3)
+	local shadow = primary:Lerp(Color3.new(0, 0, 0), 0.34)
+
+	local model = Instance.new("Model")
+	model.Name = "Equipped Kaiju Gauntlet"
+	model:SetAttribute("ItemType", "Fist")
+	model:SetAttribute("DisplayName", definition.displayName)
+	model:SetAttribute("Tier", definition.tier)
+	model:SetAttribute("FistStyle", definition.style)
+	model:SetAttribute("ClosedFist", true)
+	model:SetAttribute("VisualSystem", spec.version)
+	model:SetAttribute("VisualSource", "ProceduralRuntime")
+	model:SetAttribute("ImportedRuntimeSilhouette", false)
+	model:SetAttribute("SilhouetteFamily", spec.version)
+	model:SetAttribute("ArmorPattern", presentation.armorPattern)
+	model:SetAttribute("ShopArtVariant", presentation.shopArtKey)
+	model:SetAttribute("IconIdentity", presentation.iconIdentity)
+	model:SetAttribute("FistVariantKey", presentation.variantKey)
+	model:SetAttribute("SignatureFeature", presentation.signatureFeature)
+	model:SetAttribute("ShopArtMatchedTier", definition.tier)
+	model:SetAttribute("WholeHandHidden", false)
+	model:SetAttribute("HandTransparencyPreserved", true)
+	model.Parent = character
+
+	local visualPartCount = 0
+	local function weldedPart(name, size, color, material, shape, localCFrame, fistShape)
+		local part = Instance.new("Part")
+		part.Name = name
+		part.Size = size
+		part.Color = color
+		part.Material = material
+		part.Shape = shape or Enum.PartType.Block
+		part.CanCollide = false
+		part.CanTouch = false
+		part.CanQuery = false
+		part.Massless = true
+		part.CastShadow = true
+		part.CFrame = hand.CFrame * localCFrame
+		part:SetAttribute("FistShape", fistShape or name)
+		part.Parent = model
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = part
+		weld.Part1 = hand
+		weld.Parent = part
+		visualPartCount += 1
+		return part
+	end
+	local function weldedWedge(name, size, color, material, localCFrame, fistShape)
+		local part = Instance.new("WedgePart")
+		part.Name = name
+		part.Size = size
+		part.Color = color
+		part.Material = material
+		part.CanCollide = false
+		part.CanTouch = false
+		part.CanQuery = false
+		part.Massless = true
+		part.CastShadow = true
+		part.CFrame = hand.CFrame * localCFrame
+		part:SetAttribute("FistShape", fistShape or name)
+		part.Parent = model
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = part
+		weld.Part1 = hand
+		weld.Parent = part
+		visualPartCount += 1
+		return part
+	end
+
+	local palm = weldedPart(
+		"Hero Gauntlet Palm Shell",
+		spec.palmSize,
+		primary,
+		definition.material,
+		Enum.PartType.Ball,
+		spec.palmCFrame,
+		"ClosedPalm"
+	)
+	local cuff = weldedPart(
+		"Hero Gauntlet Wrist Cuff",
+		spec.cuffSize,
+		shadow,
+		Enum.Material.Metal,
+		Enum.PartType.Cylinder,
+		spec.cuffCFrame,
+		"WristCuff"
+	)
+	weldedPart(
+		"Hero Gauntlet Wrist Bridge",
+		Vector3.new(spec.palmSize.X * 0.9, spec.unit * 0.42, spec.palmSize.Z * 0.78),
+		primary:Lerp(shadow, 0.22),
+		Enum.Material.Metal,
+		Enum.PartType.Block,
+		spec.palmCFrame * CFrame.new(0, spec.palmSize.Y * 0.44, spec.palmSize.Z * 0.12),
+		"WristBridge"
+	)
+	weldedPart(
+		"Hero Gauntlet Backhand Plate",
+		spec.backPlateSize,
+		primary:Lerp(accent, 0.2),
+		definition.tier >= 3 and Enum.Material.Metal or definition.material,
+		Enum.PartType.Ball,
+		spec.backPlateCFrame,
+		"BackhandPlate"
+	)
+
+	for finger = 1, 4 do
+		local x = (finger - 2.5) * spec.palmSize.X * 0.225
+		weldedPart(
+			"Hero Closed Knuckle " .. finger,
+			spec.knuckleSize,
+			finger % 2 == 0 and primary:Lerp(accent, 0.24) or primary,
+			definition.tier >= 3 and Enum.Material.Metal or definition.material,
+			Enum.PartType.Ball,
+			CFrame.new(x, spec.knuckleY, spec.knuckleZ),
+			"RoundedKnuckle"
+		)
+	end
+	weldedPart(
+		"Hero Folded Thumb",
+		spec.thumbSize,
+		primary:Lerp(accent, definition.tier >= 4 and 0.18 or 0.04),
+		definition.material,
+		Enum.PartType.Ball,
+		spec.thumbCFrame,
+		"FoldedThumb"
+	)
+	local core = weldedPart(
+		"Hero Gauntlet Energy Core",
+		spec.coreSize,
+		accent,
+		definition.tier >= 3 and Enum.Material.Neon or Enum.Material.Metal,
+		Enum.PartType.Ball,
+		spec.coreCFrame,
+		"TierCore"
+	)
+
+	for plateIndex = 1, presentation.plateCount do
+		local offset = plateIndex - (presentation.plateCount + 1) * 0.5
+		weldedPart(
+			("Hero %s Armor Plate %d"):format(presentation.armorPattern, plateIndex),
+			Vector3.new(spec.palmSize.X * 0.14, spec.palmSize.Y * 0.18, spec.palmSize.Z * 0.5),
+			plateIndex % 2 == 0 and accent or primary:Lerp(accent, 0.42),
+			definition.tier >= 4 and Enum.Material.Neon or Enum.Material.Metal,
+			Enum.PartType.Block,
+			spec.backPlateCFrame * CFrame.new(offset * spec.palmSize.X * 0.18, 0.04, 0.04),
+			"TierArmorPlate"
+		)
+	end
+	for finIndex = 1, presentation.finCount do
+		local side = finIndex == 1 and -1 or 1
+		weldedWedge(
+			"Hero Energy Fin " .. finIndex,
+			Vector3.new(spec.unit * 0.22, spec.unit * 0.58, spec.unit * 0.52),
+			accent,
+			Enum.Material.Neon,
+			spec.palmCFrame
+				* CFrame.new(side * spec.palmSize.X * 0.62, spec.palmSize.Y * 0.12, spec.palmSize.Z * 0.22)
+				* CFrame.Angles(0, math.rad(side * 14), math.rad(side * 18)),
+			"TierEnergyFin"
+		)
+	end
+	if presentation.armorPattern == "BoxingWrap" then
+		for band = -1, 1, 2 do
+			weldedPart(
+				"Boxing Wrist Wrap " .. band,
+				Vector3.new(spec.unit * 0.18, spec.unit * 1.2, spec.unit * 1.16),
+				band == -1 and accent or Color3.fromRGB(236, 230, 213),
+				Enum.Material.Fabric,
+				Enum.PartType.Cylinder,
+				spec.cuffCFrame * CFrame.new(band * spec.unit * 0.18, 0, 0),
+				"BoxingWrapBand"
+			)
+		end
+	elseif presentation.armorPattern == "RivetedIron" then
+		for side = -1, 1, 2 do
+			weldedPart(
+				"Iron Backhand Rivet " .. side,
+				Vector3.new(spec.unit * 0.14, spec.unit * 0.14, spec.unit * 0.12),
+				accent,
+				Enum.Material.Neon,
+				Enum.PartType.Ball,
+				spec.coreCFrame * CFrame.new(side * spec.palmSize.X * 0.28, 0, -spec.unit * 0.02),
+				"ArmorRivet"
+			)
+		end
+	elseif presentation.armorPattern == "SiegePlates"
+		or presentation.armorPattern == "CelestialCrown" then
+		for side = -1, 1, 2 do
+			weldedWedge(
+				"Siege Crown Plate " .. side,
+				Vector3.new(spec.unit * 0.28, spec.unit * 0.5, spec.unit * 0.36),
+				accent,
+				Enum.Material.Metal,
+				spec.backPlateCFrame
+					* CFrame.new(side * spec.palmSize.X * 0.42, spec.palmSize.Y * 0.28, 0)
+					* CFrame.Angles(0, 0, math.rad(side * 18)),
+				"SiegeCrown"
+			)
+		end
+	end
+
+	local aura = Instance.new("ParticleEmitter")
+	aura.Name = (definition.displayName or fistName) .. " Aura"
+	aura.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	aura.Color = ColorSequence.new(primary, accent)
+	aura.LightEmission = math.clamp(0.28 + definition.tier * 0.09, 0.35, 1)
+	aura.Rate = math.min(18, 1.5 + definition.tier * 1.65)
+	aura.Lifetime = NumberRange.new(0.22, 0.46)
+	aura.Speed = NumberRange.new(0.16, 0.72)
+	aura.Drag = 3
+	aura.SpreadAngle = Vector2.new(180, 180)
+	aura.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1 + definition.tier * 0.016),
+		NumberSequenceKeypoint.new(1, 0),
+	})
+	aura.Parent = core
+	model:SetAttribute("TierAura", aura.Name)
+	model:SetAttribute("AuraRate", aura.Rate)
+	if definition.tier >= 3 then
+		local light = Instance.new("PointLight")
+		light.Name = "Hero Gauntlet Core Light"
+		light.Color = accent
+		light.Brightness = 0.2 + definition.tier * 0.1
+		light.Range = math.min(8, 2.8 + definition.tier * 0.62)
+		light.Shadows = false
+		light.Parent = core
+	end
+	if definition.tier >= 5 then
+		local energy = aura:Clone()
+		energy.Name = (definition.displayName or fistName) .. " Energy Arcs"
+		energy.Color = ColorSequence.new(accent, Color3.new(1, 1, 1))
+		energy.Rate = math.min(12, 2 + definition.tier)
+		energy.Lifetime = NumberRange.new(0.14, 0.28)
+		energy.Parent = core
+		local highlight = Instance.new("Highlight")
+		highlight.Name = "Hero Fist Tier Glow"
+		highlight.Adornee = model
+		highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+		highlight.FillColor = primary
+		highlight.OutlineColor = accent
+		highlight.FillTransparency = 0.82
+		highlight.OutlineTransparency = 0.28
+		highlight.Parent = model
+	end
+
+	local a0 = Instance.new("Attachment")
+	a0.Position = Vector3.new(-palm.Size.X * 0.44, 0, 0)
+	a0.Parent = palm
+	local a1 = Instance.new("Attachment")
+	a1.Position = Vector3.new(palm.Size.X * 0.44, 0, 0)
+	a1.Parent = palm
+	local trail = Instance.new("Trail")
+	trail.Attachment0 = a0
+	trail.Attachment1 = a1
+	trail.Color = ColorSequence.new(accent, primary:Lerp(Color3.new(1, 1, 1), 0.35))
+	trail.Lifetime = 0.16
+	trail.Enabled = false
+	trail.Parent = palm
+
+	local boundsCFrame, boundsSize = model:GetBoundingBox()
+	local maxPartCenterDistance = 0
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			maxPartCenterDistance = math.max(
+				maxPartCenterDistance,
+				(descendant.Position - hand.Position).Magnitude
+			)
+		end
+	end
+	local visualLargest = math.max(boundsSize.X, boundsSize.Y, boundsSize.Z)
+	local visualToHandRatio = visualLargest / math.max(spec.unit, 0.01)
+	local wristCenterOffset = (boundsCFrame.Position - hand.Position).Magnitude
+	local wristBounded = wristCenterOffset <= spec.maxCenterOffset
+		and maxPartCenterDistance <= spec.maxCenterOffset + spec.unit * 0.72
+	local faceSafe = visualToHandRatio <= spec.maxVisualRatio + 0.12
+		and maxPartCenterDistance <= spec.maxCenterOffset + spec.unit * 0.72
+	model:SetAttribute("AlignmentStandard", spec.alignmentStandard)
+	model:SetAttribute("GripProfile", spec.version .. ":" .. spec.rig)
+	model:SetAttribute("GripAxis", "HandLocalNegativeZ")
+	model:SetAttribute("VisualToHandRatio", visualToHandRatio)
+	model:SetAttribute("WristCenterOffset", wristCenterOffset)
+	model:SetAttribute("MaxPartCenterDistance", maxPartCenterDistance)
+	model:SetAttribute("WristAttachmentBounded", wristBounded)
+	model:SetAttribute("FaceOcclusionSafe", faceSafe)
+	model:SetAttribute("HandCoverageRatioX", spec.palmSize.X / math.max(hand.Size.X, 0.01))
+	model:SetAttribute("HandCoverageRatioZ", spec.palmSize.Z / math.max(hand.Size.Z, 0.01))
+	model:SetAttribute("KnuckleCount", 4)
+	model:SetAttribute("HasWristCuff", cuff ~= nil)
+	model:SetAttribute("HasBackhandPlate", true)
+	model:SetAttribute("HasFoldedThumb", true)
+	model:SetAttribute("HasEnergyCore", true)
+	model:SetAttribute("VisualPartCount", visualPartCount)
+	model:SetAttribute("VisualPartBudget", 28)
+	model:SetAttribute("WithinVisualPartBudget", visualPartCount <= 28)
+	model:SetAttribute("VisualBoundsX", boundsSize.X)
+	model:SetAttribute("VisualBoundsY", boundsSize.Y)
+	model:SetAttribute("VisualBoundsZ", boundsSize.Z)
+
 	currentGauntlet = model
 	currentTrail = trail
 	return true
@@ -3219,8 +6242,9 @@ local function buildHonorCosmetic(itemName)
 	if not definition or not rootPart then return end
 	local model = Instance.new("Model")
 	model.Name = "Equipped Honor Relic"
-	model:SetAttribute("HonorItem", definition.name)
+	model:SetAttribute("HonorItem", definition.id)
 	model:SetAttribute("PowerBonus", definition.powerBonus)
+	model:SetAttribute("MotionSuppressed", clientSettings.motion ~= true)
 	model.Parent = character
 	local anchor = Instance.new("Part")
 	anchor.Name = "Honor Visual Anchor"
@@ -3250,13 +6274,28 @@ local function buildHonorCosmetic(itemName)
 		trail.LightEmission = 0.65
 		trail.Lifetime = 0.45
 		trail.MinLength = 0.1
+		trail.Enabled = clientSettings.motion == true
 		trail.Parent = anchor
+		if clientSettings.motion ~= true then
+			local badge = Instance.new("Part")
+			badge.Name = "Static Trail Badge"
+			badge.Size = Vector3.new(0.22, 2.8, 0.18)
+			badge.Color = definition.color
+			badge.Material = Enum.Material.Neon
+			badge.CanCollide, badge.CanTouch, badge.CanQuery, badge.Massless = false, false, false, true
+			badge.CFrame = rootPart.CFrame * CFrame.new(0, 0, 0.82)
+			badge.Parent = model
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0, weld.Part1, weld.Parent = badge, rootPart, badge
+		end
 	elseif definition.visual == "Storm" then
 		local attachment = Instance.new("Attachment")
 		attachment.Parent = anchor
 		local external = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
 		local source = external and external:FindFirstChild("Sanitized_VoidFistAura")
-		local auraPart = source and source:FindFirstChild("R", true)
+		local auraPart = source
+			and companionRuntime.PrepareVisualAsset(external, source)
+			and source:FindFirstChild("R", true)
 		local copied = 0
 		if auraPart then
 			for _, descendant in ipairs(auraPart:GetDescendants()) do
@@ -3264,6 +6303,7 @@ local function buildHonorCosmetic(itemName)
 					local emitter = descendant:Clone()
 					emitter.Rate = math.clamp(emitter.Rate, 1, 8)
 					emitter.Lifetime = NumberRange.new(math.min(emitter.Lifetime.Min, 0.7), math.min(emitter.Lifetime.Max, 1.1))
+					emitter.Enabled = clientSettings.motion == true
 					emitter.Parent = attachment
 					copied += 1
 				end
@@ -3277,7 +6317,21 @@ local function buildHonorCosmetic(itemName)
 			aura.Lifetime = NumberRange.new(0.35, 0.7)
 			aura.Speed = NumberRange.new(0.5, 1.4)
 			aura.SpreadAngle = Vector2.new(180, 180)
+			aura.Enabled = clientSettings.motion == true
 			aura.Parent = attachment
+		end
+		if clientSettings.motion ~= true then
+			local core = Instance.new("Part")
+			core.Name = "Static Storm Core"
+			core.Shape = Enum.PartType.Ball
+			core.Size = Vector3.new(0.72, 0.72, 0.72)
+			core.Color = definition.color
+			core.Material = Enum.Material.Neon
+			core.CanCollide, core.CanTouch, core.CanQuery, core.Massless = false, false, false, true
+			core.CFrame = rootPart.CFrame * CFrame.new(0, 0.65, 0.85)
+			core.Parent = model
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0, weld.Part1, weld.Parent = core, rootPart, core
 		end
 	elseif definition.visual == "Relic" then
 		local core = Instance.new("Part")
@@ -3298,8 +6352,8 @@ local function buildHonorCosmetic(itemName)
 		weld.Parent = core
 		local light = Instance.new("PointLight")
 		light.Color = definition.color
-		light.Brightness = 1.2
-		light.Range = 8
+		light.Brightness = clientSettings.motion == true and 1.2 or 0.35
+		light.Range = clientSettings.motion == true and 8 or 4
 		light.Parent = core
 	elseif definition.visual == "Crown" then
 		local head = character:FindFirstChild("Head")
@@ -3326,6 +6380,10 @@ local function buildHonorCosmetic(itemName)
 	currentHonorCosmetic = model
 end
 
+shared.PunchWallRefreshHonorMotion = function()
+	buildHonorCosmetic(latestStats.EquippedHonorItem)
+end
+
 refreshCharacterVisuals = function()
 	local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
 	local signature = tostring(latestStats.EquippedFist or "Starter Glove")
@@ -3333,11 +6391,12 @@ refreshCharacterVisuals = function()
 		.. "|" .. tostring(latestStats.EquippedHonorItem or "None")
 		.. "|" .. tostring(player.Character)
 	if signature == visualSignature and currentGauntlet and currentGauntlet.Parent then return end
-	if not buildGauntlet(latestStats.EquippedFist or "Starter Glove") then
+	if not companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove") then
 		visualSignature = ""
-		task.delay(0.4, refreshCharacterVisuals)
+		companionRuntime.ScheduleVisualRetry()
 		return
 	end
+	companionRuntime.CancelVisualRetry("BuildSucceeded")
 	visualSignature = signature
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
 	companionsFolder:ClearAllChildren()
@@ -3356,6 +6415,10 @@ refreshCharacterVisuals = function()
 		end
 	end
 	gui:SetAttribute("CompanionMotionSystem", companionMotionVersion)
+	gui:SetAttribute("CompanionCameraPolicy", companionRuntime.cameraPolicy)
+	gui:SetAttribute("CompanionFormationPolicy", companionRuntime.formationPolicy)
+	gui:SetAttribute("CompanionPerPetScreenAreaBudget", companionRuntime.perPetScreenAreaBudget)
+	gui:SetAttribute("CompanionCombinedScreenAreaBudget", companionRuntime.combinedScreenAreaBudget)
 	gui:SetAttribute("PremiumCompanionCount", premiumCount)
 	gui:SetAttribute("PremiumPetVisualParity", premiumCount == premiumParityCount)
 end
@@ -3407,18 +6470,39 @@ performPunchAnimation = function(directionName)
 	if currentTrail then
 		local trailForPunch = currentTrail
 		trailForPunch.Enabled = false
-		task.delay(0.16, function()
-			if trailForPunch and trailForPunch.Parent then trailForPunch.Enabled = true end
-		end)
-		task.delay(0.4, function()
-			if trailForPunch and trailForPunch.Parent then trailForPunch.Enabled = false end
-		end)
+		if clientSettings.motion then
+			gui:SetAttribute("ReducedMotionTrailSuppressed", false)
+			task.delay(0.16, function()
+				if trailForPunch and trailForPunch.Parent then trailForPunch.Enabled = true end
+			end)
+			task.delay(0.4, function()
+				if trailForPunch and trailForPunch.Parent then trailForPunch.Enabled = false end
+			end)
+		else
+			gui:SetAttribute("ReducedMotionTrailSuppressed", true)
+		end
 	end
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not character or not humanoid then return false end
 	directionName = tostring(directionName or "Forward")
 	if latestStats.TrainingActive ~= 1 then humanoid.AutoRotate = true end
+	if not clientSettings.motion then
+		if updatePunchMotion then updatePunchMotion() end
+		gui:SetAttribute("CharacterPunchMotionActive", false)
+		gui:SetAttribute("CharacterPunchMotionSuppressed", true)
+		gui:SetAttribute("CharacterPunchReducedMotion", true)
+		gui:SetAttribute("CharacterPunchRig", humanoid.RigType == Enum.HumanoidRigType.R15 and "R15" or "R6")
+		gui:SetAttribute("PunchMotionPhase", "StaticFeedback")
+		gui:SetAttribute("PunchContactAt", now)
+		gui:SetAttribute("CharacterPunchCount", (gui:GetAttribute("CharacterPunchCount") or 0) + 1)
+		task.delay(0.12, function()
+			if not clientSettings.motion and not punchMotionState then
+				gui:SetAttribute("PunchMotionPhase", "Idle")
+			end
+		end)
+		return true
+	end
 	local rightShoulder = findRigMotor(character, { "RightShoulder", "Right Shoulder" }, { "RightUpperArm", "Right Arm" })
 	if not rightShoulder then return false end
 	local leftShoulder = findRigMotor(character, { "LeftShoulder", "Left Shoulder" }, { "LeftUpperArm", "Left Arm" })
@@ -3445,13 +6529,6 @@ performPunchAnimation = function(directionName)
 	gui:SetAttribute("PunchMotionPhase", "Windup")
 	gui:SetAttribute("PunchContactAt", now + 0.2)
 	gui:SetAttribute("CharacterPunchCount", (gui:GetAttribute("CharacterPunchCount") or 0) + 1)
-	local startedState = punchMotionState
-	task.spawn(function()
-		while punchMotionState == startedState do
-			if updatePunchMotion then updatePunchMotion() end
-			task.wait(1 / 60)
-		end
-	end)
 	return true
 end
 
@@ -3461,6 +6538,16 @@ local trainingAnimationActive = nil
 local trainingAnimationLoopStartCount = 0
 shared.PunchWallSetTrainingAnimation = function(active)
 	active = active == true
+	local station = GameConfig.TrainingStation(latestStats.TrainingStationId)
+		or GameConfig.TrainingStation(GameConfig.Training.DefaultStationId)
+	if shared.PunchWallTrainingLabel and station then
+		shared.PunchWallTrainingLabel.Text = ("%s\n+%s POWER / SEC"):format(
+			string.upper(station.hudName or station.displayName),
+			formatNumber(station.gain)
+		)
+	end
+	gui:SetAttribute("ActiveTrainingStationId", station and station.id or "")
+	gui:SetAttribute("ActiveTrainingPowerPerSecond", station and station.gain or 0)
 	if gui:GetAttribute("ContinuousTrainingAnimation") ~= active then
 		gui:SetAttribute("ContinuousTrainingAnimation", active)
 	end
@@ -3487,10 +6574,12 @@ shared.PunchWallSetTrainingAnimation = function(active)
 			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 			local world = workspace:FindFirstChild("PunchWallRPG")
 			local interactables = world and world:FindFirstChild("Interactables")
-			local bag = interactables and interactables:FindFirstChild("Power Bag")
-			if rootPart and bag and (rootPart.Position - bag.Position).Magnitude <= 18 then
+			local activeStation = GameConfig.TrainingStation(latestStats.TrainingStationId)
+			local target = activeStation and interactables and interactables:FindFirstChild(activeStation.name)
+			if rootPart and target and (rootPart.Position - target.Position).Magnitude <= 18 then
 				performPunchAnimation()
 				gui:SetAttribute("LastTrainingAnimationAt", os.clock())
+				gui:SetAttribute("TrainingAnimationTarget", activeStation.id)
 			end
 			task.wait(1)
 		end
@@ -3578,6 +6667,23 @@ end
 updatePunchMotion = function()
 	local state = punchMotionState
 	if not state then return end
+	if not clientSettings.motion then
+		if state.rightShoulder and state.rightShoulder.Parent then state.rightShoulder.Transform = CFrame.new() end
+		if state.leftShoulder and state.leftShoulder.Parent then state.leftShoulder.Transform = CFrame.new() end
+		if state.waist and state.waist.Parent then state.waist.Transform = CFrame.new() end
+		if state.neck and state.neck.Parent then state.neck.Transform = CFrame.new() end
+		if state.rightHip and state.rightHip.Parent then state.rightHip.Transform = CFrame.new() end
+		if state.leftHip and state.leftHip.Parent then state.leftHip.Transform = CFrame.new() end
+		state.animationFinished = true
+		punchMotionState = nil
+		gui:SetAttribute("CharacterPunchMotionActive", false)
+		gui:SetAttribute("CharacterPunchMotionSuppressed", true)
+		gui:SetAttribute("CharacterPunchReducedMotion", true)
+		gui:SetAttribute("PunchMotionPhase", "Idle")
+		gui:SetAttribute("CharacterPunchAppliedAngle", 0)
+		gui:SetAttribute("CharacterPunchAppliedOffset", 0)
+		return
+	end
 	local now = os.clock()
 	local elapsed = now - state.startedAt
 	local progress = math.clamp(elapsed / state.duration, 0, 1)
@@ -3666,12 +6772,10 @@ updatePunchMotion = function()
 	end
 end
 
--- Animator updates joint transforms during PreAnimation. Apply the authored
--- pose in PreSimulation so the rig solver consumes it during the same frame.
--- Heartbeat/render-only writes are overwritten before an AnimationConstraint
--- can move the limb, which leaves the avatar sliding with a visually idle arm.
+-- Animator updates joint transforms during PreAnimation. PreSimulation is the
+-- single deterministic owner of the authored punch pose; a second Heartbeat or
+-- per-punch scheduler would advance and write the same state multiple times.
 RunService.PreSimulation:Connect(updatePunchMotion)
-RunService.Heartbeat:Connect(updatePunchMotion)
 gui:SetAttribute("CharacterPunchRenderOverride", true)
 gui:SetAttribute("CharacterPunchSimulationOverride", true)
 
@@ -3901,6 +7005,15 @@ end
 RunService:BindToRenderStep("PunchWallDelayedCameraFollow", Enum.RenderPriority.Camera.Value + 1, function(deltaTime)
 	lastPunchCameraRenderAt = os.clock()
 	updatePunchCameraFollow(deltaTime)
+end)
+
+shared.PunchWallStandaloneWindows.RebirthPanel:GetPropertyChangedSignal("Visible"):Connect(function()
+	if shared.PunchWallStandaloneWindows.RebirthPanel.Visible then shared.PunchWallStandaloneWindows.Refresh() end
+	applyReferenceHUDState(true)
+end)
+shared.PunchWallStandaloneWindows.SettingsPanel:GetPropertyChangedSignal("Visible"):Connect(function()
+	if shared.PunchWallStandaloneWindows.SettingsPanel.Visible then shared.PunchWallStandaloneWindows.Refresh() end
+	applyReferenceHUDState(true)
 end)
 
 -- Studio automation and minimized clients can temporarily suspend rendering.
@@ -4424,14 +7537,21 @@ if RunService:IsStudio() then
 		player.CameraMinZoomDistance = originalMinZoom
 		return result
 	end
+	(function()
 	local automation = gui:FindFirstChild("PunchWallClientAutomation")
 	if automation then
 		local harnessConfig = GameConfig.StudioTestHarness or {}
 		local harnessVersion = tostring(harnessConfig.Version or "1.0.0")
 		local maxHarnessSequenceSteps = math.clamp(tonumber(harnessConfig.MaxSequenceSteps) or 50, 1, 100)
+		local purchaseTestRuntime = {
+			Active = false,
+			Originals = {},
+			MaxOverrides = 6,
+			MaxTestId = 2147483647,
+		}
 		local clientCommandNames = {
 			"Describe", "Sequence", "Snapshot", "Punch", "Jump", "SpinNow", "OpenSpin",
-			"OpenTab", "OpenShopPage", "InvokeShopAction", "CloseMenus", "ToggleSound",
+			"OpenTab", "OpenRebirth", "OpenSettings", "OpenHonorItem", "OpenShopPage", "SetPurchaseUiState", "ConfigurePurchaseTestIds", "InvokeShopAction", "InvokeRebirthAction", "CloseMenus", "ToggleSound",
 			"OpenInventory", "CloseInventory", "SelectInventoryCategory", "SetInventorySearch",
 			"SetInventoryRarity", "SetInventoryRarityMenuOpen", "SelectInventoryItem",
 			"InvokeInventoryAction", "InventorySnapshot",
@@ -4457,8 +7577,11 @@ if RunService:IsStudio() then
 			local inventory = shared.PunchWallInventoryController
 			return {
 				ok = true,
-				menuVisible = mainPanel.Visible,
+				menuVisible = mainPanel.Visible or shared.PunchWallStandaloneWindows.RebirthPanel.Visible or shared.PunchWallStandaloneWindows.SettingsPanel.Visible,
 				activeTab = activeTab,
+				activeWindow = tostring(gui:GetAttribute("ActiveStandaloneWindow") or (mainPanel.Visible and activeTab or "")),
+				rebirthVisible = shared.PunchWallStandaloneWindows.RebirthPanel.Visible,
+				settingsVisible = shared.PunchWallStandaloneWindows.SettingsPanel.Visible,
 				shopVisible = shop and shop.Visible or false,
 				shopPage = shared.PunchWallHeroShopPage,
 				inventoryVisible = inventory and inventory:IsVisible() or false,
@@ -4475,6 +7598,132 @@ if RunService:IsStudio() then
 				feedbackCount = gui:GetAttribute("FeedbackCount") or 0,
 				lastFeedbackType = gui:GetAttribute("LastFeedbackType"),
 				lastFeedbackTarget = gui:GetAttribute("LastFeedbackTarget"),
+			}
+		end
+		function purchaseTestRuntime.ResolveCatalog(catalogName)
+			if catalogName == "PremiumFists" then
+				return GameConfig.PremiumFists, "name", "gamePassId"
+			end
+			if catalogName == "PremiumPets" then
+				return GameConfig.PremiumPets, "name", "gamePassId"
+			end
+			if catalogName == "PremiumProducts" then
+				return GameConfig.PremiumProducts, "id", "productId"
+			end
+			return nil
+		end
+		function purchaseTestRuntime.Refresh(reason)
+			assert(shared.PunchWallHeroShopRefresh, "purchase test shop refresh is unavailable")
+			shared.PunchWallHeroShopRefresh({
+				force = true,
+				reason = tostring(reason or "studio-purchase-test"),
+			})
+			renderOpenPanel()
+			if shared.PunchWallRefreshSpin then
+				shared.PunchWallRefreshSpin()
+			end
+		end
+		function purchaseTestRuntime.Restore()
+			local originals = purchaseTestRuntime.Originals
+			purchaseTestRuntime.Originals = {}
+			purchaseTestRuntime.Active = false
+			for index = #originals, 1, -1 do
+				local original = originals[index]
+				original.item[original.idField] = original.value
+			end
+			local refreshed, refreshError = pcall(
+				purchaseTestRuntime.Refresh,
+				"studio-purchase-test-restore"
+			)
+			return {
+				ok = refreshed,
+				mode = "Restore",
+				active = false,
+				restored = #originals,
+				reason = refreshed and nil or tostring(refreshError),
+			}
+		end
+		function purchaseTestRuntime.Apply(options)
+			if not RunService:IsStudio() then
+				return { ok = false, reason = "studio_only" }
+			end
+			if purchaseTestRuntime.Active then
+				return { ok = false, reason = "override_already_active" }
+			end
+			local overrides = typeof(options) == "table" and options.overrides or nil
+			if typeof(overrides) ~= "table"
+				or #overrides < 1
+				or #overrides > purchaseTestRuntime.MaxOverrides
+			then
+				return { ok = false, reason = "invalid_override_count" }
+			end
+
+			local prepared = {}
+			local seen = {}
+			for index, override in ipairs(overrides) do
+				if typeof(override) ~= "table" then
+					return { ok = false, reason = "invalid_override_" .. index }
+				end
+				local catalogName = tostring(override.catalog or "")
+				local key = tostring(override.key or "")
+				local testId = tonumber(override.id)
+				local catalog, keyField, idField = purchaseTestRuntime.ResolveCatalog(catalogName)
+				if not catalog or key == "" or #key > 80 then
+					return { ok = false, reason = "invalid_target_" .. index }
+				end
+				if not testId
+					or testId <= 0
+					or testId > purchaseTestRuntime.MaxTestId
+					or math.floor(testId) ~= testId
+				then
+					return { ok = false, reason = "invalid_test_id_" .. index }
+				end
+				local identity = catalogName .. "\0" .. key
+				if seen[identity] then
+					return { ok = false, reason = "duplicate_target_" .. index }
+				end
+				seen[identity] = true
+				local item
+				for _, candidate in ipairs(catalog) do
+					if tostring(candidate[keyField] or "") == key then
+						item = candidate
+						break
+					end
+				end
+				if not item then
+					return { ok = false, reason = "missing_target_" .. index }
+				end
+				table.insert(prepared, {
+					item = item,
+					idField = idField,
+					value = item[idField],
+					testId = testId,
+				})
+			end
+
+			purchaseTestRuntime.Originals = prepared
+			local applied, applyError = xpcall(function()
+				for _, entry in ipairs(prepared) do
+					entry.item[entry.idField] = entry.testId
+				end
+				purchaseTestRuntime.Active = true
+				purchaseTestRuntime.Refresh("studio-purchase-test-apply")
+			end, debug.traceback)
+			if not applied then
+				for index = #prepared, 1, -1 do
+					local entry = prepared[index]
+					entry.item[entry.idField] = entry.value
+				end
+				purchaseTestRuntime.Originals = {}
+				purchaseTestRuntime.Active = false
+				pcall(purchaseTestRuntime.Refresh, "studio-purchase-test-rollback")
+				return { ok = false, reason = tostring(applyError) }
+			end
+			return {
+				ok = true,
+				mode = "Apply",
+				active = true,
+				applied = #prepared,
 			}
 		end
 		automation.OnInvoke = function(action, value)
@@ -4499,6 +7748,22 @@ if RunService:IsStudio() then
 				return false
 			end
 			if action == "OpenTab" then openGameTab(tostring(value or "Fists")) return true end
+			if action == "OpenRebirth" then shared.PunchWallOpenRebirthPanel(tostring(value or "automation")) return true end
+			if action == "OpenSettings" then shared.PunchWallOpenSettingsPanel(tostring(value or "automation")) return true end
+			if action == "InvokeRebirthAction" then
+				local callbacks = shared.PunchWallRebirthActionCallbacks
+				local callback = callbacks and callbacks[tostring(value or "")]
+				if type(callback) ~= "function" then return false end
+				callback()
+				return true
+			end
+			if action == "OpenHonorItem" then
+				local itemId = tostring(value or "")
+				if not GameConfig.HonorItemDefinition(itemId) then return false end
+				shared.PunchWallSelectedHonorItemId = itemId
+				openGameTab("Honor")
+				return true
+			end
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
 			if action == "OpenMore" then
 				openGameTab("Tasks")
@@ -4550,9 +7815,57 @@ if RunService:IsStudio() then
 				return succeeded, reason
 			end
 			if action == "OpenShopPage" then
-				shared.PunchWallHeroShopPage = tostring(value or "Fists")
-				if shared.PunchWallHeroShopRefresh then shared.PunchWallHeroShopRefresh() end
+				local page = tostring(value or "Fists")
+				if not table.find({ "Fists", "Premium", "Boosts", "Honor", "Robux" }, page) then
+					return false
+				end
+				shared.PunchWallHeroShopPage = page
+				if shared.PunchWallHeroShopRefresh then
+					shared.PunchWallHeroShopRefresh({
+						force = true,
+						reason = "studio-automation-open-shop-page",
+					})
+				end
 				return true
+			end
+			if action == "SetPurchaseUiState" then
+				if not RunService:IsStudio() or typeof(value) ~= "table" then
+					return false
+				end
+				local productKey = tostring(value.productKey or "")
+				local state = tostring(value.state or "")
+				local allowedStates = {
+					Idle = true,
+					Opening = true,
+					CheckoutOpen = true,
+					Verifying = true,
+					Canceled = true,
+					Rejected = true,
+					Granted = true,
+				}
+				if not shared.PunchWallPurchaseRuntime.FindPremiumProduct(productKey)
+					or allowedStates[state] ~= true
+				then
+					return false
+				end
+				shared.PunchWallShopFocusedProductId = productKey
+				shared.PunchWallPurchaseRuntime.SetProductUiState(
+					productKey,
+					state,
+					tostring(value.message or state)
+				)
+				return true
+			end
+			if action == "ConfigurePurchaseTestIds" then
+				local options = typeof(value) == "table" and value or {}
+				local mode = tostring(options.mode or "")
+				if mode == "Apply" then
+					return purchaseTestRuntime.Apply(options)
+				end
+				if mode == "Restore" then
+					return purchaseTestRuntime.Restore()
+				end
+				return { ok = false, reason = "invalid_mode" }
 			end
 			if action == "InvokeShopAction" then
 				local callback = shared.PunchWallShopActions and shared.PunchWallShopActions[tostring(value or "")]
@@ -4561,9 +7874,11 @@ if RunService:IsStudio() then
 			end
 			if action == "CloseMenus" then
 				setMenuVisible(false)
+				shared.PunchWallStandaloneWindows.Close("AutomationClose")
 				local spinModal = gui:FindFirstChild("HeroSpinModal")
 				if spinModal then spinModal.Visible = false end
-				shared.PunchWallSetModalCoreGuiHidden(false)
+				shared.PunchWallSetModalCoreGuiHidden(false, "GameMenu")
+				shared.PunchWallSetModalCoreGuiHidden(false, "SpinModal")
 				return true
 			end
 			if action == "SetCamera" then
@@ -4590,12 +7905,17 @@ if RunService:IsStudio() then
 			if action == "SetSettings" then
 				local options = typeof(value) == "table" and value or {}
 				if options.sound ~= nil then shared.PunchWallApplySoundSetting(options.sound == true, false) end
-				if options.motion ~= nil then clientSettings.motion = options.motion == true end
+				if options.motion ~= nil then
+					clientSettings.motion = options.motion == true
+					if shared.PunchWallApplyFistAuraMotion then shared.PunchWallApplyFistAuraMotion() end
+					if shared.PunchWallRefreshHonorMotion then shared.PunchWallRefreshHonorMotion() end
+				end
 				if options.uiScale ~= nil then clientSettings.uiScale = math.clamp(tonumber(options.uiScale) or 1, 0.8, 1.2) end
 				if options.persist ~= false then
 					actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
 				end
 				applyResponsiveLayout()
+				if shared.PunchWallStandaloneWindows.SettingsPanel.Visible then shared.PunchWallStandaloneWindows.Refresh() end
 				return clientSnapshot()
 			end
 			if action == "ClearMarkers" then
@@ -4693,6 +8013,7 @@ if RunService:IsStudio() then
 			gui:SetAttribute("StudioTestHarnessVersion", harnessVersion)
 		end
 	end
+	end)()
 end
 
 player.CharacterAdded:Connect(function()
@@ -4700,8 +8021,9 @@ player.CharacterAdded:Connect(function()
 	activePunchCamera = nil
 	shared.PunchWallCameraBaselineCFrame = nil
 	shared.PunchWallCameraBaselineFocus = nil
+	companionRuntime.CancelVisualRetry("CharacterAdded")
 	visualSignature = ""
-	task.delay(1, refreshCharacterVisuals)
+	task.defer(refreshCharacterVisuals)
 end)
 
 task.defer(function()
@@ -4719,36 +8041,100 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	local rootVelocity = rootPart.AssemblyLinearVelocity
 	local forwardSpeed = rootVelocity:Dot(rootPart.CFrame.LookVector)
 	local sideSpeed = rootVelocity:Dot(rootPart.CFrame.RightVector)
+	local cameraDistance = companionRuntime.CameraDistance(rootPart)
+	local lod = cameraDistance <= 8 and "Near60"
+		or cameraDistance <= 14 and "Mid30"
+		or "Far20"
+	local updateInterval = clientSettings.motion
+		and (lod == "Near60" and 0 or lod == "Mid30" and (1 / 30) or (1 / 20))
+		or (1 / 20)
+	local combinedScreenArea = 0
 	for index, state in ipairs(companionModels) do
 		local model = state.model
 		if model and model.Parent and model.PrimaryPart then
-			local side = index % 2 == 0 and 1 or -1
-			local row = math.floor((index - 1) / 2)
-			local hover = math.sin(now * (state.premium and 2.25 or 2.8) + state.phase) * state.hoverAmplitude
-			local sway = math.sin(now * 1.35 + state.phase * 0.7) * 0.14
-			local pitch = math.rad(math.clamp(-forwardSpeed * 0.16, -6, 6))
-			local roll = math.rad(math.clamp(-sideSpeed * 0.2, -8, 8))
-				+ math.rad(math.sin(now * 1.8 + state.phase) * 1.7)
-			local targetBounds = rootPart.CFrame
-				* CFrame.new(
-					side * (2.65 + row * 0.85) + sway,
-					state.followHeight + hover,
-					3.0 + row * 1.3
+			state.updateAccumulator += deltaTime
+			if updateInterval == 0 or state.updateAccumulator >= updateInterval then
+				local effectiveDelta = math.min(state.updateAccumulator, 0.1)
+				state.updateAccumulator = 0
+				local availableBudget = math.max(
+					companionRuntime.combinedScreenAreaBudget - combinedScreenArea,
+					0
 				)
-				* CFrame.Angles(pitch, math.pi, roll)
-			local distance = (state.currentBoundsCFrame.Position - targetBounds.Position).Magnitude
-			if distance > 36 then
-				state.currentBoundsCFrame = targetBounds
-			else
-				local alpha = 1 - math.exp(-state.followResponsiveness * deltaTime)
-				state.currentBoundsCFrame = state.currentBoundsCFrame:Lerp(targetBounds, alpha)
+				local policyTarget, visualScale, budgetPolicy = companionRuntime.ResolveVisualPolicy(
+					state,
+					rootPart,
+					cameraDistance,
+					availableBudget
+				)
+				if not companionRuntime.ApplyVisualScale(state, visualScale) then
+					budgetPolicy = "CulledAfterBudgetLOD"
+					model:SetAttribute("CompanionScaleApplyFailed", true)
+				else
+					model:SetAttribute("CompanionScaleApplyFailed", false)
+				end
+				local hover = clientSettings.motion
+					and math.sin(now * (state.premium and 2.25 or 2.8) + state.phase) * state.hoverAmplitude
+					or 0
+				local sway = clientSettings.motion and math.sin(now * 1.35 + state.phase * 0.7) * 0.14 or 0
+				local pitch = clientSettings.motion and math.rad(math.clamp(-forwardSpeed * 0.16, -6, 6)) or 0
+				local roll = clientSettings.motion
+					and (math.rad(math.clamp(-sideSpeed * 0.2, -8, 8))
+						+ math.rad(math.sin(now * 1.8 + state.phase) * 1.7))
+					or 0
+				local targetBounds = policyTarget
+					* CFrame.new(sway, hover, 0)
+					* CFrame.Angles(pitch, 0, roll)
+				local distance = (state.currentBoundsCFrame.Position - targetBounds.Position).Magnitude
+				if distance > 36 then
+					state.currentBoundsCFrame = targetBounds
+				else
+					local alpha = 1 - math.exp(-state.followResponsiveness * effectiveDelta)
+					state.currentBoundsCFrame = state.currentBoundsCFrame:Lerp(targetBounds, alpha)
+				end
+				model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
+				state.motionFrames += 1
+				local actualScreenArea = companionRuntime.ScreenArea(state.boundsSize, state.currentBoundsCFrame.Position)
+				local effectiveBudget = math.min(companionRuntime.perPetScreenAreaBudget, availableBudget)
+				if budgetPolicy == "CulledAfterBudgetLOD"
+					or actualScreenArea > effectiveBudget + 0.0005 then
+					budgetPolicy = "CulledAfterBudgetLOD"
+					state.lastScreenArea = 0
+				else
+					state.lastScreenArea = actualScreenArea
+				end
+				state.lod = lod
+				companionRuntime.ApplyRenderPolicy(state, budgetPolicy, lod, clientSettings.motion)
+				local motionHz = updateInterval == 0 and 60 or math.floor(1 / updateInterval + 0.5)
+				if state.motionHz ~= motionHz then
+					state.motionHz = motionHz
+					model:SetAttribute("CompanionMotionHz", motionHz)
+				end
+				if state.motionFrames >= 3 and model:GetAttribute("SmoothFollowReady") ~= true then
+					model:SetAttribute("SmoothFollowReady", true)
+				end
 			end
-			model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
-			state.motionFrames += 1
-			if state.motionFrames >= 3 and model:GetAttribute("SmoothFollowReady") ~= true then
-				model:SetAttribute("SmoothFollowReady", true)
+			combinedScreenArea += state.lastScreenArea or 0
+		end
+	end
+	companionRuntime.telemetryAccumulator = (companionRuntime.telemetryAccumulator or 0) + deltaTime
+	if companionRuntime.telemetryAccumulator >= 0.25 then
+		companionRuntime.telemetryAccumulator = 0
+		for _, state in ipairs(companionModels) do
+			if state.model and state.model.Parent then
+				state.model:SetAttribute("EstimatedScreenArea", state.lastScreenArea or 0)
+				state.model:SetAttribute(
+					"ScreenAreaWithinBudget",
+					(state.lastScreenArea or 0) <= companionRuntime.perPetScreenAreaBudget
+				)
 			end
 		end
+		gui:SetAttribute("CompanionLOD", lod)
+		gui:SetAttribute("CompanionCameraDistance", cameraDistance)
+		gui:SetAttribute("CompanionCombinedScreenAreaEstimate", combinedScreenArea)
+		gui:SetAttribute(
+			"CompanionCombinedScreenAreaWithinBudget",
+			combinedScreenArea <= companionRuntime.combinedScreenAreaBudget
+		)
 	end
 end)
 
@@ -4957,6 +8343,82 @@ local tutorialWaypointStroke = Instance.new("UIStroke")
 tutorialWaypointStroke.Color = Color3.fromRGB(255, 244, 166)
 tutorialWaypointStroke.Thickness = 2
 tutorialWaypointStroke.Parent = tutorialWaypointLabel
+
+function clientRuntime.IsTrainingTarget(candidate)
+	if not candidate then return false end
+	return candidate:GetAttribute("TrainingStationId") ~= nil
+		and candidate:GetAttribute("PowerPerSecond") ~= nil
+end
+
+function clientRuntime.IsUseTarget(candidate)
+	if not candidate then return false end
+	if candidate:GetAttribute("PremiumOnly") == true then
+		return candidate:GetAttribute("PurchaseConfigured") == true
+	end
+	return candidate.Name == "Pet Egg Machine"
+		or candidate.Name == "Rebirth Shrine"
+		or candidate:GetAttribute("InteractionMenu") ~= nil
+end
+
+function clientRuntime.SetContextualAction(actionName, target)
+	clientRuntime.ContextualActionName = actionName
+	clientRuntime.ContextualActionTarget = target
+	local targetName = target and target.Name or ""
+	local trainingAlreadyActive = actionName == "Train" and latestStats.TrainingActive == 1
+	local available = actionName ~= nil and target ~= nil and not trainingAlreadyActive
+	local trainingRequired = actionName == "Train" and tonumber(target:GetAttribute("RequiredPower")) or 0
+	local trainingGain = actionName == "Train" and tonumber(target:GetAttribute("PowerPerSecond")) or 0
+	local trainingEligible = actionName ~= "Train" or (tonumber(latestStats.BasePower or latestStats.Power) or 0) >= trainingRequired
+	trainButton.Visible = available and actionName == "Train"
+	trainButton.Active = trainButton.Visible and trainingEligible
+	trainButton.AutoButtonColor = trainButton.Active
+	trainButton.Text = trainingEligible and "TRAIN" or "LOCKED"
+	useButton.Visible = available and actionName == "Use"
+	contextLabel.Visible = gui:GetAttribute("PixelReferenceHUDActive") ~= true
+		and available
+		and not mainPanel.Visible
+		and gui:GetAttribute("StandaloneModalVisible") ~= true
+	if available then
+		contextLabel.Text = actionName == "Train"
+			and (trainingEligible and ("TRAIN +%s/s | %s"):format(formatNumber(trainingGain), targetName)
+				or ("LOCKED | NEED %s POWER"):format(formatNumber(trainingRequired)))
+			or targetName
+	end
+
+	local button = shared.PunchWallContextActionButton
+	if button then
+		button.Visible = available
+			and gui:GetAttribute("PixelReferenceHUDActive") == true
+			and not mainPanel.Visible
+			and gui:GetAttribute("StandaloneModalVisible") ~= true
+		button.Active = button.Visible and trainingEligible
+		button.AutoButtonColor = button.Active
+		button.Text = available and (actionName == "Train"
+			and (trainingEligible
+				and ("TRAIN +%s/s  |  %s"):format(formatNumber(trainingGain), string.upper(targetName))
+				or ("LOCKED  |  NEED %s POWER"):format(formatNumber(trainingRequired)))
+			or ("%s  |  %s"):format(string.upper(actionName), string.upper(targetName)))
+			or "ACTION"
+		button.BackgroundColor3 = actionName == "Train" and palette.Train or palette.Use
+		button:SetAttribute("Action", actionName or "")
+		button:SetAttribute("Target", targetName)
+		button:SetAttribute("ExactRequestPayload", actionName or "")
+		button:SetAttribute("TrainingEligible", trainingEligible)
+		button:SetAttribute("TrainingRequiredPower", trainingRequired)
+		button:SetAttribute("TrainingPowerPerSecond", trainingGain)
+		local icon = button:FindFirstChild("ActionIcon")
+		if icon then applyThemeIcon(icon, actionName == "Train" and "Train" or "Use") end
+	end
+	gui:SetAttribute("ContextualActionAvailable", available)
+	gui:SetAttribute("ContextualActionName", actionName or "")
+	gui:SetAttribute("ContextualActionTarget", targetName)
+	gui:SetAttribute("ContextualTrainingEligible", trainingEligible)
+	gui:SetAttribute("ContextualTrainingRequiredPower", trainingRequired)
+	gui:SetAttribute("ContextualTrainingPowerPerSecond", trainingGain)
+	gui:SetAttribute("ContextualActionScanInterval", 0.15)
+	gui:SetAttribute("ContextualActionUsesExistingTargetScan", true)
+end
+
 local targetTimer = 0
 RunService.Heartbeat:Connect(function(delta)
 	targetTimer += delta
@@ -4969,7 +8431,10 @@ RunService.Heartbeat:Connect(function(delta)
 		clientRuntime.RefreshGameRoot()
 		gameRoot = clientRuntime.GameRoot
 	end
-	if not rootPart or not gameRoot then return end
+	if not rootPart or not gameRoot then
+		clientRuntime.SetContextualAction(nil, nil)
+		return
+	end
 	if (clientRuntime.WallsFolder and (clientRuntime.WallsFolder.Parent ~= gameRoot or clientRuntime.WallsFolder.Name ~= "Walls"))
 		or (clientRuntime.InteractablesFolder and (clientRuntime.InteractablesFolder.Parent ~= gameRoot or clientRuntime.InteractablesFolder.Name ~= "Interactables"))
 		or (clientRuntime.DepthBlocksFolder and (clientRuntime.DepthBlocksFolder.Parent ~= gameRoot or clientRuntime.DepthBlocksFolder.Name ~= "Depth Blocks"))
@@ -5038,15 +8503,16 @@ RunService.Heartbeat:Connect(function(delta)
 		gui:SetAttribute("OnboardingWaypointTarget", "")
 		gui:SetAttribute("OnboardingWaypointVisible", false)
 	end
-	local tutorialStep = latestStats.TutorialStep or 1
-	local isTutorialAction = tutorial and nearest and nearest.Name == tutorial.target
-	local nearbyAction = not focusedWall and nearest and nearestDistance <= 12 and (tutorialStep > 1 or isTutorialAction)
-	trainButton.Visible = nearbyAction and (nearest.Name == "Power Bag" or nearest.Name == "Speed Dummy" or nearest.Name == "Focus Stone")
-	useButton.Visible = nearbyAction and not trainButton.Visible
-	contextLabel.Visible = gui:GetAttribute("PixelReferenceHUDActive") ~= true and nearbyAction and not mainPanel.Visible
-	if nearbyAction then
-		contextLabel.Text = nearest.Name
+	local nearbyAction = not focusedWall
+		and nearest
+		and nearestDistance <= 18
+	local contextualAction
+	if nearbyAction and clientRuntime.IsTrainingTarget(nearest) then
+		contextualAction = "Train"
+	elseif nearbyAction and clientRuntime.IsUseTarget(nearest) then
+		contextualAction = "Use"
 	end
+	clientRuntime.SetContextualAction(contextualAction, contextualAction and nearest or nil)
 	targetHUD.Visible = false
 end)
 end
@@ -5104,13 +8570,14 @@ RunService.Heartbeat:Connect(function(delta)
 	local boss = walls and walls:FindFirstChild("Titan Server Wall")
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	if not boss or not rootPart then bossHUD.Visible = false help.Visible = not mainPanel.Visible return end
+	local modalVisible = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
+	if not boss or not rootPart then bossHUD.Visible = false help.Visible = not modalVisible return end
 	local hp = boss:GetAttribute("HP") or 0
 	local maxHP = math.max(1, boss:GetAttribute("MaxHP") or 1)
 	local broken = boss:GetAttribute("Broken") == true
 	local nearby = (boss.Position - rootPart.Position).Magnitude <= 55
-	bossHUD.Visible = (broken or nearby or hp < maxHP) and not targetHUD.Visible and not mainPanel.Visible
-	help.Visible = not mainPanel.Visible
+	bossHUD.Visible = (broken or nearby or hp < maxHP) and not targetHUD.Visible and not modalVisible
+	help.Visible = not modalVisible
 	if not bossHUD.Visible then return end
 	local phase = boss:GetAttribute("BossPhase") or 1
 	bossTitle.Text = UserInputService.TouchEnabled and ("TITAN P%d  |  WEAK x1.5"):format(phase)
@@ -5331,6 +8798,21 @@ shared.PunchWallBuildHonorHUD = function()
 	honorValue.Text = "0"
 	honorValue.TextColor3 = Color3.fromRGB(244, 246, 242)
 	honorValue.Parent = honorCard
+	local honorOpen = Instance.new("TextButton")
+	honorOpen.Name = "OpenHonorMenu"
+	honorOpen.BackgroundTransparency = 1
+	honorOpen.Text = ""
+	honorOpen.Size = UDim2.fromScale(1, 1)
+	honorOpen.ZIndex = 36
+	honorOpen.Active = true
+	honorOpen.Selectable = true
+	honorOpen.Parent = honorCard
+	honorOpen.Activated:Connect(function()
+		shared.PunchWallSelectedHonorItemId = nil
+		gui:SetAttribute("SelectedHonorItemId", nil)
+		openGameTab("Honor")
+	end)
+	honorCard:SetAttribute("OpensMenu", "Honor")
 	shared.PunchWallHUDWidgets.HonorValue = honorValue
 end
 shared.PunchWallBuildHonorHUD()
@@ -5340,7 +8822,7 @@ shared.PunchWallSoundToolButton = referenceButton("SoundTool", pixel.SoundTool, 
 	shared.PunchWallApplySoundSetting(not clientSettings.sound, true)
 end)
 shared.PunchWallSoundToolButton:SetAttribute("ToolAction", "ToggleSound")
-referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() openGameTab("Settings") end)
+referenceButton("SettingsTool", pixel.SettingsTool, 1526, 22, 60, 64, function() shared.PunchWallOpenSettingsPanel("reference_settings") end)
 shared.PunchWallMoreToolButton = referenceButton("MoreTool", pixel.MoreTool, 1587, 22, 64, 64, function()
 	openGameTab("Tasks")
 end)
@@ -5353,14 +8835,34 @@ referenceButton("DailyButton", pixel.Daily, 16, 201, 82, 111, function() openGam
 referenceButton("SpinButton", pixel.Spin, 16, 316, 82, 111, function()
 	if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() else requestAction("Spin") end
 end)
-referenceButton("RebirthButton", pixel.Rebirth, 16, 429, 82, 111, function() openGameTab("Tasks") end)
+shared.PunchWallReferenceRebirth = referenceButton("RebirthButton", pixel.Rebirth, 16, 429, 82, 111, function() shared.PunchWallOpenRebirthPanel("reference_hud") end)
+shared.PunchWallReferenceRebirth:SetAttribute("ToolAction", "OpenRebirthReview")
+local rightMenuIconWidth = 87
+local rightMenuIconHeight = 111
+local rightMenuIconGap = 3
+local rightMenuTop = 296
+local rightMenuColumnX = 1570
+local inventoryMenuX = rightMenuColumnX - rightMenuIconWidth - rightMenuIconGap
+referenceHUD:SetAttribute("RightMenuLayoutMode", "UniformIconGridV1")
+referenceHUD:SetAttribute("RightMenuIconSize", string.format("%dx%d", rightMenuIconWidth, rightMenuIconHeight))
+referenceHUD:SetAttribute("RightMenuIconGap", rightMenuIconGap)
+referenceHUD:SetAttribute("RightMenuArtMode", "AspectSafeCropWithUniformFrameV2")
+referenceHUD:SetAttribute("RightMenuOpticalBox", "81x86@3,0")
 local uploadedInventoryIcon = type(pixel.Inventory) == "string"
 	and string.match(pixel.Inventory, "^rbxassetid://%d+$") ~= nil
 local inventoryIconAsset = uploadedInventoryIcon and pixel.Inventory or pixel.MoreTool
 local inventoryIconSourceMode = uploadedInventoryIcon and "UploadedUserAsset" or "ApprovedAssetFallback"
-local referenceInventory = referenceButton("InventoryButton", inventoryIconAsset, 1468, 313, 76, 76, function()
+local referenceInventory = referenceButton(
+	"InventoryButton",
+	inventoryIconAsset,
+	inventoryMenuX,
+	rightMenuTop,
+	rightMenuIconWidth,
+	rightMenuIconHeight,
+	function()
 	openGameTab("Inventory")
-end)
+	end
+)
 referenceInventory:SetAttribute("ToolAction", "OpenInventory")
 referenceInventory:SetAttribute("MenuRow", "Shop")
 referenceInventory:SetAttribute("IconSourceMode", inventoryIconSourceMode)
@@ -5395,9 +8897,71 @@ inventoryFallbackTextSize.MaxTextSize = 12
 inventoryFallbackTextSize.Parent = inventoryFallbackLabel
 referenceHUD:SetAttribute("InventoryIconSourceMode", inventoryIconSourceMode)
 referenceHUD:SetAttribute("InventoryIconPendingUpload", not uploadedInventoryIcon)
-referenceButton("ShopButton", pixel.Shop, 1570, 296, 87, 111, function() openGameTab("Fists") end)
-referenceButton("PetsButton", pixel.Pets, 1570, 410, 87, 104, function() openGameTab("Pets") end)
-referenceButton("QuestsButton", pixel.Quests, 1570, 515, 87, 103, function() openGameTab("Tasks") end)
+local referenceShop = referenceButton("ShopButton", pixel.Shop, rightMenuColumnX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Fists") end)
+local referencePets = referenceButton("PetsButton", pixel.Pets, rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Pets") end)
+local referenceQuests = referenceButton("QuestsButton", pixel.Quests, rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight, function() openGameTab("Tasks") end)
+
+local function applyRightMenuOpticalArt(button, cropOffset, cropSize, displaySize)
+	button.ImageTransparency = 1
+	button:SetAttribute("ArtPresentation", "AspectSafeCropWithUniformFrameV2")
+	button:SetAttribute("ArtCrop", string.format(
+		"%d,%d,%d,%d",
+		cropOffset.X,
+		cropOffset.Y,
+		cropSize.X,
+		cropSize.Y
+	))
+	button:SetAttribute("ArtDisplaySize", string.format("%dx%d", displaySize.X, displaySize.Y))
+	local opticalFrame = Instance.new("Frame")
+	opticalFrame.Name = "RightMenuOpticalFrame"
+	opticalFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	opticalFrame.Position = UDim2.fromScale(43.5 / rightMenuIconWidth, 43 / rightMenuIconHeight)
+	opticalFrame.Size = UDim2.fromScale(81 / rightMenuIconWidth, 86 / rightMenuIconHeight)
+	opticalFrame.BackgroundColor3 = Color3.fromRGB(5, 12, 19)
+	opticalFrame.BackgroundTransparency = 0.38
+	opticalFrame.BorderSizePixel = 0
+	opticalFrame.Active = false
+	opticalFrame.Selectable = false
+	opticalFrame.ZIndex = button.ZIndex
+	opticalFrame:SetAttribute("OpticalBox", "81x86@3,0")
+	opticalFrame.Parent = button
+	local opticalCorner = Instance.new("UICorner")
+	opticalCorner.CornerRadius = UDim.new(0.1, 0)
+	opticalCorner.Parent = opticalFrame
+	local opticalStroke = Instance.new("UIStroke")
+	opticalStroke.Name = "UniformBorder"
+	opticalStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	opticalStroke.Color = Color3.fromRGB(61, 94, 116)
+	opticalStroke.Thickness = 1.25
+	opticalStroke.Transparency = 0.08
+	opticalStroke.Parent = opticalFrame
+	local art = Instance.new("ImageLabel")
+	art.Name = "RightMenuArt"
+	art.AnchorPoint = Vector2.new(0.5, 0.5)
+	art.Position = UDim2.fromScale(0.5, 0.5)
+	art.Size = UDim2.fromScale(displaySize.X / 81, displaySize.Y / 86)
+	art.BackgroundTransparency = 1
+	art.BorderSizePixel = 0
+	art.Image = button.Image
+	art.ImageRectOffset = cropOffset
+	art.ImageRectSize = cropSize
+	-- ImageRectSize changes the sampled region, but Roblox Fit still uses the full
+	-- texture aspect ratio. The display boxes below match each crop's own aspect,
+	-- so Stretch maps the crop 1:1 without the tall distortion of the old buttons.
+	art.ScaleType = Enum.ScaleType.Stretch
+	art.Active = false
+	art.Selectable = false
+	art.ZIndex = button.ZIndex + 1
+	art:SetAttribute("OpticalBox", "81x86@3,0")
+	art:SetAttribute("PreserveAspectRatio", true)
+	art:SetAttribute("AspectSafeCrop", true)
+	art.Parent = opticalFrame
+end
+
+applyRightMenuOpticalArt(referenceInventory, Vector2.new(51, 28), Vector2.new(395, 439), Vector2.new(72, 80))
+applyRightMenuOpticalArt(referenceShop, Vector2.new(6, 3), Vector2.new(75, 80), Vector2.new(75, 80))
+applyRightMenuOpticalArt(referencePets, Vector2.new(6, 2), Vector2.new(76, 76), Vector2.new(76, 76))
+applyRightMenuOpticalArt(referenceQuests, Vector2.new(8, 2), Vector2.new(72, 71), Vector2.new(76, 75))
 
 local referencePunch = referenceButton("ActionPunch", pixel.Punch, 1211, 669, 250, 250)
 referencePunch.MouseButton1Down:Connect(function() setPunchHeld(true) end)
@@ -5406,6 +8970,68 @@ referencePunch.MouseLeave:Connect(function() setPunchHeld(false) end)
 local referenceJump = referenceButton("ActionJump", pixel.Jump, 1460, 694, 211, 211, function()
 	requestHumanoidJump()
 end)
+
+shared.PunchWallContextActionButton = Instance.new("TextButton")
+shared.PunchWallContextActionButton.Name = "ContextAction"
+shared.PunchWallContextActionButton.AnchorPoint = Vector2.new(0.5, 1)
+shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.56, 0.79)
+shared.PunchWallContextActionButton.Size = UDim2.fromScale(0.22, 0.078)
+shared.PunchWallContextActionButton.BackgroundColor3 = palette.Use
+shared.PunchWallContextActionButton.BackgroundTransparency = 0.04
+shared.PunchWallContextActionButton.BorderSizePixel = 0
+shared.PunchWallContextActionButton.AutoButtonColor = true
+shared.PunchWallContextActionButton.Font = Enum.Font.GothamBlack
+shared.PunchWallContextActionButton.Text = "ACTION"
+shared.PunchWallContextActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+shared.PunchWallContextActionButton.TextScaled = true
+shared.PunchWallContextActionButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+shared.PunchWallContextActionButton.TextStrokeTransparency = 0.22
+shared.PunchWallContextActionButton.TextXAlignment = Enum.TextXAlignment.Right
+shared.PunchWallContextActionButton.Visible = false
+shared.PunchWallContextActionButton.Active = false
+shared.PunchWallContextActionButton.Selectable = true
+shared.PunchWallContextActionButton.ZIndex = 44
+shared.PunchWallContextActionButton.Parent = referenceHUD
+setRounded(shared.PunchWallContextActionButton, 8)
+local contextActionStroke = Instance.new("UIStroke")
+contextActionStroke.Color = Color3.fromRGB(255, 213, 67)
+contextActionStroke.Thickness = 3
+contextActionStroke.Transparency = 0.04
+contextActionStroke.Parent = shared.PunchWallContextActionButton
+local contextActionPadding = Instance.new("UIPadding")
+contextActionPadding.PaddingLeft = UDim.new(0, 54)
+contextActionPadding.PaddingRight = UDim.new(0, 12)
+contextActionPadding.Parent = shared.PunchWallContextActionButton
+local contextActionSize = Instance.new("UISizeConstraint")
+contextActionSize.MinSize = Vector2.new(160, 44)
+contextActionSize.MaxSize = Vector2.new(340, 74)
+contextActionSize.Parent = shared.PunchWallContextActionButton
+local contextActionTextSize = Instance.new("UITextSizeConstraint")
+contextActionTextSize.MinTextSize = 10
+contextActionTextSize.MaxTextSize = 18
+contextActionTextSize.Parent = shared.PunchWallContextActionButton
+createThemeIcon(
+	shared.PunchWallContextActionButton,
+	"Use",
+	UDim2.fromOffset(8, 7),
+	UDim2.fromOffset(40, 40),
+	"ActionIcon"
+)
+shared.PunchWallContextActionButton:SetAttribute("MinimumTouchTarget", 44)
+shared.PunchWallContextActionButton:SetAttribute("SafeAreaLane", "CenterAboveTraining")
+shared.PunchWallContextActionButton:SetAttribute("ReusesTargetScan", true)
+shared.PunchWallContextActionButton:SetAttribute("Action", "")
+shared.PunchWallContextActionButton:SetAttribute("Target", "")
+shared.PunchWallContextActionButton.Activated:Connect(function()
+	local actionName = shared.PunchWallContextActionButton:GetAttribute("Action")
+	if actionName ~= "Train" and actionName ~= "Use" then return end
+	gui:SetAttribute("LastContextualActionRequested", actionName)
+	gui:SetAttribute("LastContextualActionTarget", shared.PunchWallContextActionButton:GetAttribute("Target") or "")
+	requestAction(actionName)
+end)
+referenceHUD:SetAttribute("ContextualActionAffordance", "TargetScanV1")
+referenceHUD:SetAttribute("ContextualActionMinimumTouchTarget", 44)
+referenceHUD:SetAttribute("ContextualActionSafeAreaLane", "CenterAboveTraining")
 
 local function makeDirectionalPunchButton(name, label, x, y, direction)
 	local button = Instance.new("TextButton")
@@ -5466,6 +9092,7 @@ trainingLabel.TextScaled = true
 trainingLabel.TextXAlignment = Enum.TextXAlignment.Left
 trainingLabel.ZIndex = 41
 trainingLabel.Parent = trainingOverlay
+shared.PunchWallTrainingLabel = trainingLabel
 local trainingTextLimit = Instance.new("UITextSizeConstraint")
 trainingTextLimit.MinTextSize = 10
 trainingTextLimit.MaxTextSize = 24
@@ -5809,12 +9436,29 @@ local function buildLegacySpinUI()
 	buySpins.BackgroundColor3 = Color3.fromRGB(23, 93, 146)
 	buySpins.BorderSizePixel = 0
 	buySpins.Font = Enum.Font.GothamBlack
-	buySpins.Text = "3 BONUS SPINS  |  R$39"
+	buySpins.Text = "3 BONUS SPINS  |  CHECKING PRICE"
 	buySpins.TextColor3 = Color3.new(1, 1, 1)
 	buySpins.TextSize = 13
 	buySpins.ZIndex = 184
 	buySpins.Parent = panel
 	setRounded(buySpins, 6)
+	local bonusSpinProduct = shared.PunchWallPurchaseRuntime.FindPremiumProduct("SpinPack")
+	local bonusSpinPurchaseConfigured =
+		shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct(bonusSpinProduct)
+	if bonusSpinPurchaseConfigured then
+		shared.PunchWallPurchaseRuntime.MarkControlConfigured(buySpins)
+		shared.PunchWallPurchaseRuntime.ApplyDeveloperProductControlPrice(
+			bonusSpinProduct,
+			buySpins,
+			"3 BONUS SPINS"
+		)
+	else
+		shared.PunchWallPurchaseRuntime.MarkControlUnavailable(
+			buySpins,
+			"BONUS SPINS  |  UNAVAILABLE",
+			"ProductIdNotConfigured"
+		)
+	end
 	local spinScale = Instance.new("UIScale")
 	spinScale.Name = "ResponsiveSpinScale"
 	spinScale.Parent = panel
@@ -5860,7 +9504,7 @@ local function buildLegacySpinUI()
 		spinOverlay.Visible = true
 		applySpinLayout()
 		gui:SetAttribute("SpinModalVisible", true)
-		shared.PunchWallSetModalCoreGuiHidden(true)
+		shared.PunchWallSetModalCoreGuiHidden(true, "SpinModal")
 		shared.PunchWallRefreshSpin()
 	end
 	shared.PunchWallShowSpinResult = function(payload)
@@ -5889,13 +9533,15 @@ local function buildLegacySpinUI()
 			if spinning then spinning = false; shared.PunchWallRefreshSpin() end
 		end)
 	end
-	buySpins.Activated:Connect(function()
-		actionRemote:FireServer({ action = "BuyPremiumProduct", target = "SpinPack" })
-	end)
+	if bonusSpinPurchaseConfigured then
+		buySpins.Activated:Connect(function()
+			actionRemote:FireServer({ action = "BuyPremiumProduct", target = "SpinPack" })
+		end)
+	end
 	close.Activated:Connect(function()
 		spinOverlay.Visible = false
 		gui:SetAttribute("SpinModalVisible", false)
-		shared.PunchWallSetModalCoreGuiHidden(false)
+		shared.PunchWallSetModalCoreGuiHidden(false, "SpinModal")
 	end)
 end
 
@@ -5945,6 +9591,23 @@ shared.PunchWallBuildSpinUI = function()
 	local freeReady = imageLayer("ImageLabel", "FreeSpinReadyArt", GameConfig.SpinArt.FreeSpinReady, UDim2.fromScale(0.60, 0.38), UDim2.fromScale(0.35, 0.18), 184)
 	local spinButton = imageLayer("ImageButton", "SpinNow", GameConfig.SpinArt.SpinNow, UDim2.fromScale(0.59, 0.60), UDim2.fromScale(0.37, 0.17), 185)
 	local buySpins = imageLayer("ImageButton", "BuyBonusSpins", GameConfig.SpinArt.BonusSpins, UDim2.fromScale(0.59, 0.80), UDim2.fromScale(0.37, 0.12), 185)
+	local bonusSpinProduct = shared.PunchWallPurchaseRuntime.FindPremiumProduct("SpinPack")
+	local bonusSpinPurchaseConfigured =
+		shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct(bonusSpinProduct)
+	if bonusSpinPurchaseConfigured then
+		shared.PunchWallPurchaseRuntime.MarkControlConfigured(buySpins)
+		shared.PunchWallPurchaseRuntime.ApplyDeveloperProductControlPrice(
+			bonusSpinProduct,
+			buySpins,
+			"3 BONUS SPINS"
+		)
+	else
+		shared.PunchWallPurchaseRuntime.MarkControlUnavailable(
+			buySpins,
+			"BONUS SPINS\nUNAVAILABLE",
+			"ProductIdNotConfigured"
+		)
+	end
 
 	local info = Instance.new("TextLabel")
 	info.Name = "SpinInfo"
@@ -6017,7 +9680,7 @@ shared.PunchWallBuildSpinUI = function()
 		setMenuVisible(false)
 		spinOverlay.Visible = true
 		gui:SetAttribute("SpinModalVisible", true)
-		shared.PunchWallSetModalCoreGuiHidden(true)
+		shared.PunchWallSetModalCoreGuiHidden(true, "SpinModal")
 		applySpinLayout()
 		shared.PunchWallRefreshSpin()
 	end
@@ -6056,11 +9719,15 @@ shared.PunchWallBuildSpinUI = function()
 	spinButton.Activated:Connect(function()
 		shared.PunchWallTriggerSpin()
 	end)
-	buySpins.Activated:Connect(function() actionRemote:FireServer({ action = "BuyPremiumProduct", target = "SpinPack" }) end)
+	if bonusSpinPurchaseConfigured then
+		buySpins.Activated:Connect(function()
+			actionRemote:FireServer({ action = "BuyPremiumProduct", target = "SpinPack" })
+		end)
+	end
 	close.Activated:Connect(function()
 		spinOverlay.Visible = false
 		gui:SetAttribute("SpinModalVisible", false)
-		shared.PunchWallSetModalCoreGuiHidden(false)
+		shared.PunchWallSetModalCoreGuiHidden(false, "SpinModal")
 	end)
 	gui:SetAttribute("SpinUsesSuppliedLayers", true)
 	gui:SetAttribute("SpinLayerCount", 9)
@@ -6127,7 +9794,7 @@ shared.PunchWallBuildShopUI = function()
 	shared.PunchWallShopDimmer = shopDimmer
 	shared.PunchWallHeroShopPage = shared.PunchWallHeroShopPage or "Fists"
 	local shopRuntime = {
-		Pages = { "Fists", "Premium", "Boosts", "Robux" },
+		Pages = { "Fists", "Premium", "Boosts", "Honor", "Robux" },
 		LastSignature = nil,
 		RefreshRequestCount = 0,
 		RefreshBuildCount = 0,
@@ -6173,15 +9840,176 @@ shared.PunchWallBuildShopUI = function()
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedFistsJSON, { "Starter Glove" }))
 			table.insert(fields, tostring(latestStats.EquippedFist or ""))
 		elseif page == "Premium" then
-			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumFistsJSON, {}))
-			table.insert(fields, tostring(latestStats.EquippedFist or ""))
+			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumPetsJSON, {}))
+			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.EquippedPetsJSON, {}))
 		elseif page == "Boosts" then
 			local boostInfo = latestStats.ShopBoosts or {}
 			table.insert(fields, shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now))
 			table.insert(fields, shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now))
 			table.insert(fields, shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now))
+		elseif page == "Honor" then
+			table.insert(fields, math.max(0, math.floor(tonumber(latestStats.Honor) or 0)))
+		end
+		if page == "Honor" or page == "Robux" then
+			table.insert(fields, shared.PunchWallPurchaseRuntime.DeveloperProductPriceRevision or 0)
+			local uiState = shared.PunchWallPurchaseRuntime.ProductUiState or {}
+			for _, product in ipairs(GameConfig.PremiumProducts) do
+				if (product.shopPage or "Robux") == page then
+					local entry = uiState[product.id]
+					table.insert(fields, product.id .. ":" .. tostring(entry and entry.state or "Idle"))
+				end
+			end
 		end
 		return HttpService:JSONEncode(fields), page
+	end
+
+	function shopRuntime.AddStaticFistPresentation(card, icon, item)
+		local presentation = FistVisualBuilder.GetHeroGauntletPresentation(item)
+		card:SetAttribute("ShopFistPresentation", presentation.version .. "StaticChrome")
+		card:SetAttribute("ShopFistTier", presentation.tier)
+		card:SetAttribute("ShopFistStyle", presentation.style)
+		card:SetAttribute("ShopFistArmorPattern", presentation.armorPattern)
+		card:SetAttribute("ShopFistArtVariant", presentation.shopArtKey)
+		card:SetAttribute("ShopFistIconIdentity", presentation.iconIdentity)
+		card:SetAttribute("ShopFistVariantKey", presentation.variantKey)
+		card:SetAttribute("ShopFistSignatureFeature", presentation.signatureFeature)
+		card:SetAttribute("StaticPreviewRenderLoop", false)
+		card:SetAttribute("StaticPreviewChromeOnly", false)
+		card:SetAttribute("StaticPreviewChromeCoverage", "TintBadgeFeatureV1")
+		icon.ImageColor3 = Color3.new(1, 1, 1):Lerp(presentation.imageTint, 0.32)
+		icon.ImageTransparency = 0
+		icon:SetAttribute("HeroGauntletArtVariant", presentation.shopArtKey)
+		icon:SetAttribute("HeroGauntletTier", presentation.tier)
+		icon:SetAttribute("HeroGauntletIconIdentity", presentation.iconIdentity)
+		icon:SetAttribute("HeroGauntletVariantKey", presentation.variantKey)
+		icon:SetAttribute("HeroGauntletTintMatched", true)
+		icon:SetAttribute("LoadedArtUnobscured", icon.Image ~= "")
+
+		-- The three uploaded silhouettes are deliberately reused as lightweight
+		-- bases. Per-item palette tint, tier badge, armor signature, plates, and
+		-- fins make every catalog icon visually and machine-identifiable unique.
+		local chrome = Instance.new("Frame")
+		chrome.Name = "HeroGauntletTierChrome"
+		chrome.BackgroundTransparency = 1
+		chrome.BorderSizePixel = 0
+		chrome.Position = icon.Position
+		chrome.Size = icon.Size
+		chrome.ZIndex = icon.ZIndex + 1
+		chrome.Active = false
+		chrome.Selectable = false
+		chrome.Parent = card
+		local chromeCorner = Instance.new("UICorner")
+		chromeCorner.CornerRadius = UDim.new(0, 6)
+		chromeCorner.Parent = chrome
+		local chromeStroke = Instance.new("UIStroke")
+		chromeStroke.Name = "StaticTierOutline"
+		chromeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		chromeStroke.Color = presentation.accent
+		chromeStroke.Thickness = presentation.tier >= 4 and 2 or 1
+		chromeStroke.Transparency = presentation.tier >= 4 and 0.18 or 0.38
+		chromeStroke.Parent = chrome
+
+		local tierBadge = Instance.new("Frame")
+		tierBadge.Name = "StaticTierBadge"
+		tierBadge.AnchorPoint = Vector2.new(1, 0)
+		tierBadge.Position = UDim2.new(1, -4, 0, 5)
+		tierBadge.Size = UDim2.fromOffset(28, 17)
+		tierBadge.BackgroundColor3 = presentation.accent
+		tierBadge.BackgroundTransparency = 0.04
+		tierBadge.BorderSizePixel = 0
+		tierBadge.ZIndex = chrome.ZIndex + 1
+		tierBadge.Parent = chrome
+		local tierBadgeCorner = Instance.new("UICorner")
+		tierBadgeCorner.CornerRadius = UDim.new(0, 4)
+		tierBadgeCorner.Parent = tierBadge
+		local tierText = Instance.new("TextLabel")
+		tierText.Name = "StaticTierNumber"
+		tierText.BackgroundTransparency = 1
+		tierText.Size = UDim2.fromScale(1, 1)
+		tierText.Font = Enum.Font.GothamBlack
+		tierText.Text = ("T%02d"):format(presentation.tier)
+		tierText.TextColor3 = Color3.fromRGB(2, 8, 12)
+		tierText.TextSize = 9
+		tierText.ZIndex = tierBadge.ZIndex + 1
+		tierText.Parent = tierBadge
+
+		local featureLabel = Instance.new("TextLabel")
+		featureLabel.Name = "StaticSignatureFeature"
+		featureLabel.AnchorPoint = Vector2.new(0.5, 1)
+		featureLabel.Position = UDim2.new(0.5, 0, 1, -4)
+		featureLabel.Size = UDim2.new(0.72, 0, 0, 14)
+		featureLabel.BackgroundColor3 = Color3.fromRGB(2, 8, 12)
+		featureLabel.BackgroundTransparency = 0.12
+		featureLabel.BorderSizePixel = 0
+		featureLabel.Font = Enum.Font.GothamBlack
+		featureLabel.Text = presentation.signatureFeature
+		featureLabel.TextColor3 = presentation.accent
+		featureLabel.TextSize = 8
+		featureLabel.ZIndex = chrome.ZIndex + 1
+		featureLabel.Parent = chrome
+		local featureCorner = Instance.new("UICorner")
+		featureCorner.CornerRadius = UDim.new(0, 3)
+		featureCorner.Parent = featureLabel
+
+		local tierRail = Instance.new("Frame")
+		tierRail.Name = "StaticTierRail"
+		tierRail.AnchorPoint = Vector2.new(0.5, 0)
+		tierRail.Position = UDim2.new(0.5, 0, 0, 2)
+		tierRail.Size = UDim2.new(0.38, 0, 0, 3)
+		tierRail.BackgroundColor3 = presentation.accent
+		tierRail.BackgroundTransparency = 0.2
+		tierRail.BorderSizePixel = 0
+		tierRail.ZIndex = chrome.ZIndex
+		tierRail.Parent = chrome
+		local railCorner = Instance.new("UICorner")
+		railCorner.CornerRadius = UDim.new(1, 0)
+		railCorner.Parent = tierRail
+
+		local previewParts = 4
+		local tierPipCount = math.clamp(math.ceil(presentation.tier / 3), 1, 6)
+		for tierIndex = 1, tierPipCount do
+			local pip = Instance.new("Frame")
+			pip.Name = "StaticTierPip" .. tierIndex
+			pip.Position = UDim2.fromOffset(6 + (tierIndex - 1) * 7, 8)
+			pip.Size = UDim2.fromOffset(4, 3)
+			pip.BackgroundColor3 = presentation.accent
+			pip.BackgroundTransparency = 0.14
+			pip.BorderSizePixel = 0
+			pip.ZIndex = chrome.ZIndex
+			pip.Parent = chrome
+			local pipCorner = Instance.new("UICorner")
+			pipCorner.CornerRadius = UDim.new(1, 0)
+			pipCorner.Parent = pip
+			previewParts += 1
+		end
+		for plateIndex = 1, presentation.plateCount do
+			local plate = Instance.new("Frame")
+			plate.Name = "StaticArmorPlate" .. plateIndex
+			plate.AnchorPoint = Vector2.new(1, 0.5)
+			plate.Position = UDim2.new(1, -4, 0.38 + (plateIndex - 1) * 0.1, 0)
+			plate.Size = UDim2.fromOffset(7, 3)
+			plate.BackgroundColor3 = presentation.imageTint:Lerp(presentation.accent, 0.45)
+			plate.BorderSizePixel = 0
+			plate.Rotation = plateIndex % 2 == 0 and -18 or 18
+			plate.ZIndex = chrome.ZIndex
+			plate.Parent = chrome
+			previewParts += 1
+		end
+		for finIndex = 1, presentation.finCount do
+			local fin = Instance.new("Frame")
+			fin.Name = "StaticArmorFin" .. finIndex
+			fin.AnchorPoint = Vector2.new(0, 0.5)
+			fin.Position = UDim2.new(0, 4, 0.42 + (finIndex - 1) * 0.18, 0)
+			fin.Size = UDim2.fromOffset(10, 2)
+			fin.BackgroundColor3 = presentation.accent
+			fin.BorderSizePixel = 0
+			fin.Rotation = finIndex == 1 and -28 or 28
+			fin.ZIndex = chrome.ZIndex
+			fin.Parent = chrome
+			previewParts += 1
+		end
+		card:SetAttribute("StaticPreviewPartCount", previewParts)
+		card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistIconV1")
 	end
 
 	function shopRuntime.ScheduleBoostTick(page, now)
@@ -6303,6 +10131,113 @@ shared.PunchWallBuildShopUI = function()
 		local function compactStat(value)
 			return value == math.floor(value) and tostring(math.floor(value)) or ("%.1f"):format(value)
 		end
+		local function addPetPreview(parent, item, position, size)
+			local holder = Instance.new("Frame")
+			holder.Name = "PremiumPetPreviewPlate"
+			holder.BackgroundColor3 = item.accent:Lerp(Color3.fromRGB(5, 11, 15), 0.86)
+			holder.BackgroundTransparency = 0.06
+			holder.BorderSizePixel = 0
+			holder.ClipsDescendants = true
+			holder.Position = position
+			holder.Size = size
+			holder.ZIndex = parent.ZIndex + 2
+			holder.Parent = parent
+			addCorner(holder, 6)
+			local holderStroke = addStroke(holder, item.accent, 1.5)
+			holderStroke.Transparency = 0.32
+			local holderGradient = Instance.new("UIGradient")
+			holderGradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, item.color:Lerp(Color3.fromRGB(7, 14, 19), 0.74)),
+				ColorSequenceKeypoint.new(0.55, Color3.fromRGB(8, 16, 22)),
+				ColorSequenceKeypoint.new(1, item.accent:Lerp(Color3.fromRGB(3, 8, 12), 0.88)),
+			})
+			holderGradient.Rotation = 22
+			holderGradient.Parent = holder
+
+			local viewport = Instance.new("ViewportFrame")
+			viewport.Name = "PremiumPetPreview"
+			viewport.Ambient = Color3.fromRGB(165, 178, 191)
+			viewport.BackgroundTransparency = 1
+			viewport.BorderSizePixel = 0
+			viewport.LightColor = Color3.fromRGB(255, 246, 224)
+			viewport.LightDirection = Vector3.new(-1, -0.7, -0.45)
+			viewport.Position = UDim2.fromScale(0.04, 0.04)
+			viewport.Size = UDim2.fromScale(0.92, 0.92)
+			viewport.ZIndex = holder.ZIndex + 1
+			viewport.Parent = holder
+
+			local camera = Instance.new("Camera")
+			camera.Name = "PremiumPetPreviewCamera"
+			camera.FieldOfView = 34
+			camera.Parent = viewport
+			viewport.CurrentCamera = camera
+			local world = Instance.new("WorldModel")
+			world.Name = "PremiumPetPreviewWorld"
+			world.Parent = viewport
+
+			local model
+			local previewSource = "ProceduralPremiumFallbackV1"
+			local gameRoot = workspace:FindFirstChild("PunchWallRPG")
+			if gameRoot then
+				for _, candidate in ipairs(gameRoot:GetDescendants()) do
+					if candidate:IsA("Model")
+						and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
+						and candidate:GetAttribute("PetTemplate") == item.templateName
+						and FistVisualBuilder.IsSanitizedVisual(candidate)
+					then
+						model = companionRuntime.CloneSanitizedVisual(candidate)
+						previewSource = "SanitizedWorldShowcaseCloneV1"
+						break
+					end
+				end
+			end
+			if not model then
+				model = companionRuntime.BuildProceduralPet(item)
+				local sanitized = pcall(FistVisualBuilder.SanitizeVisual, model)
+				if not sanitized or not FistVisualBuilder.IsSanitizedVisual(model) then
+					model:Destroy()
+					model = nil
+				end
+			end
+			if not model then
+				holder:Destroy()
+				return nil
+			end
+			for _, descendant in ipairs(model:GetDescendants()) do
+				if descendant:IsA("BasePart") then
+					descendant.Anchored = true
+					descendant.CanCollide = false
+					descendant.CanQuery = false
+					descendant.CanTouch = false
+				elseif descendant:IsA("ParticleEmitter")
+					or descendant:IsA("Beam")
+					or descendant:IsA("Trail")
+					or descendant:IsA("Light")
+				then
+					descendant:Destroy()
+				end
+			end
+			model.Parent = world
+			local boundsCFrame, boundsSize = model:GetBoundingBox()
+			local radius = math.max(0.5, boundsSize.Magnitude * 0.5)
+			-- Fit the complete bounding sphere, not just the largest axis. Imported
+			-- companions have very different wing, tail, and height proportions.
+			local fitPadding = item.name == "Celestial Guardian" and 0.82 or 0.66
+			local distance = math.max(3.2, radius / math.sin(math.rad(camera.FieldOfView * 0.5)) * fitPadding)
+			local center = boundsCFrame.Position
+			camera.CFrame = CFrame.lookAt(
+				center + Vector3.new(distance * 0.22, distance * 0.1, -distance),
+				center + Vector3.new(0, boundsSize.Y * 0.04, 0)
+			)
+			viewport:SetAttribute("PreviewPetName", item.name)
+			viewport:SetAttribute("PreviewReady", true)
+			viewport:SetAttribute("PreviewSource", previewSource)
+			viewport:SetAttribute("PreviewFit", "BoundingSphereSafeV2")
+			viewport:SetAttribute("PreviewFitPadding", fitPadding)
+			holder:SetAttribute("PreviewPetName", item.name)
+			holder:SetAttribute("PreviewReady", true)
+			return viewport
+		end
 
 		local innerBevel = Instance.new("Frame")
 		innerBevel.Name = "ShopInnerBevel"
@@ -6319,36 +10254,52 @@ shared.PunchWallBuildShopUI = function()
 		header.BackgroundColor3 = Color3.fromRGB(11, 15, 19)
 		header.BorderSizePixel = 0
 		header.ClipsDescendants = true
-		header.Position = UDim2.fromScale(0.018, 0.018)
-		header.Size = UDim2.fromScale(0.964, 0.155)
+		header.Position = UDim2.fromScale(0.018, 0.025)
+		header.Size = UDim2.fromScale(0.964, 0.125)
 		header.ZIndex = 102
 		header.Parent = shopReference
-		addCorner(header, 4)
-		addStroke(header, Color3.fromRGB(17, 35, 45), 3)
+		addCorner(header, 7)
+		addStroke(header, Color3.fromRGB(49, 122, 154), 2)
 		local headerGradient = Instance.new("UIGradient")
 		headerGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(142, 12, 18)),
-			ColorSequenceKeypoint.new(0.62, Color3.fromRGB(88, 7, 13)),
-			ColorSequenceKeypoint.new(0.72, Color3.fromRGB(8, 75, 128)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(4, 24, 61)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(132, 13, 22)),
+			ColorSequenceKeypoint.new(0.54, Color3.fromRGB(84, 8, 19)),
+			ColorSequenceKeypoint.new(0.56, Color3.fromRGB(12, 44, 66)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 25, 43)),
 		})
 		headerGradient.Parent = header
-		for index = 1, 12 do
-			local slash = Instance.new("Frame")
-			slash.Name = "HeaderSlash" .. index
-			slash.BackgroundColor3 = index <= 7 and Color3.fromRGB(225, 21 + index * 3, 24) or Color3.fromRGB(21, 133 + index * 4, 224)
-			slash.BackgroundTransparency = 0.16
-			slash.BorderSizePixel = 0
-			slash.Position = UDim2.fromScale(0.018 + (index - 1) * 0.078, -0.42 + (index % 3) * 0.05)
-			slash.Size = UDim2.fromScale(0.03 + (index % 3) * 0.009, 1.85 - (index % 2) * 0.12)
-			slash.Rotation = 21 + (index % 2) * 3
-			slash.ZIndex = 103
-			slash.Parent = header
-		end
-		label(header, "TitleShadow", "SHOP MENU", UDim2.fromScale(0.192, 0.055), UDim2.fromScale(0.62, 0.9), Color3.fromRGB(0, 0, 0), 48, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
-		local title = label(header, "Title", "SHOP MENU", UDim2.fromScale(0.19, 0), UDim2.fromScale(0.62, 0.9), Color3.fromRGB(255, 249, 237), 48, Enum.Font.GothamBlack, Enum.TextXAlignment.Center)
+		local redRail = Instance.new("Frame")
+		redRail.Name = "HeaderRedRail"
+		redRail.BackgroundColor3 = Color3.fromRGB(255, 50, 47)
+		redRail.BorderSizePixel = 0
+		redRail.Position = UDim2.fromScale(0.018, 0.84)
+		redRail.Size = UDim2.fromScale(0.42, 0.055)
+		redRail.ZIndex = 103
+		redRail.Parent = header
+		addCorner(redRail, 4)
+		local cyanRail = redRail:Clone()
+		cyanRail.Name = "HeaderCyanRail"
+		cyanRail.BackgroundColor3 = Color3.fromRGB(45, 205, 255)
+		cyanRail.Position = UDim2.fromScale(0.445, 0.84)
+		cyanRail.Size = UDim2.fromScale(0.42, 0.055)
+		cyanRail.Parent = header
+		label(header, "Eyebrow", "HERO CITY ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
+		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
 		title.TextStrokeTransparency = 0.08
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+		local compactHeader = UserInputService.TouchEnabled
+			or (workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize.Y < 520)
+		local honorBalanceText = formatNumber(math.max(0, tonumber(latestStats.Honor) or 0))
+		local headerSubtitle = page == "Honor"
+			and ((compactHeader and "HONOR %s  •  CURRENCY ONLY  •  GATES APPLY"
+				or "HONOR %s  •  CURRENCY ONLY  •  RELIC GATES STILL APPLY"):format(honorBalanceText))
+			or "GEAR  •  COMPANIONS  •  BOOSTS"
+		local headerSubtitleLabel = label(header, "Subtitle", headerSubtitle, UDim2.fromScale(0.4, 0.3), UDim2.fromScale(0.45, 0.38), Color3.fromRGB(190, 222, 235), 12, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		headerSubtitleLabel.TextScaled = page == "Honor"
+		local headerSubtitleSize = Instance.new("UITextSizeConstraint")
+		headerSubtitleSize.MinTextSize = 9
+		headerSubtitleSize.MaxTextSize = 12
+		headerSubtitleSize.Parent = headerSubtitleLabel
 
 		local close = Instance.new("TextButton")
 		close.Name = "CloseShop"
@@ -6356,7 +10307,7 @@ shared.PunchWallBuildShopUI = function()
 		close.BorderSizePixel = 0
 		close.AnchorPoint = Vector2.new(1, 0.5)
 		close.Position = UDim2.fromScale(0.975, 0.5)
-		close.Size = UDim2.fromScale(0.075, 0.72)
+		close.Size = UDim2.new(0, 50, 0, 50)
 		close.Font = Enum.Font.GothamBlack
 		close.Text = "X"
 		close.TextColor3 = Color3.fromRGB(255, 247, 238)
@@ -6364,8 +10315,8 @@ shared.PunchWallBuildShopUI = function()
 		close.TextStrokeTransparency = 0.15
 		close.ZIndex = 106
 		close.Parent = header
-		addCorner(close, 3)
-		addStroke(close, Color3.fromRGB(9, 12, 15), 3)
+		addCorner(close, 7)
+		addStroke(close, Color3.fromRGB(255, 102, 93), 2)
 		local closeSize = Instance.new("UISizeConstraint")
 		closeSize.MinSize = Vector2.new(44, 44)
 		closeSize.Parent = close
@@ -6373,22 +10324,25 @@ shared.PunchWallBuildShopUI = function()
 		close.Activated:Connect(function() setMenuVisible(false) end)
 
 		local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
-		local ownedPremium = decodeJSON(latestStats.OwnedPremiumFistsJSON, {})
+		local ownedPremium = decodeJSON(latestStats.OwnedPremiumPetsJSON, {})
+		local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
 		local tabBand = Instance.new("Frame")
 		tabBand.Name = "ShopTabs"
 		tabBand.BackgroundTransparency = 1
-		tabBand.Position = UDim2.fromScale(0.025, 0.175)
-		tabBand.Size = UDim2.fromScale(0.95, 0.075)
+		tabBand.Position = UDim2.fromScale(0.025, 0.162)
+		tabBand.Size = UDim2.fromScale(0.95, 0.085)
 		tabBand.ZIndex = 102
 		tabBand.Parent = shopReference
+		local tabGap = 0.012
+		local tabWidth = (1 - tabGap * (#shopRuntime.Pages - 1)) / #shopRuntime.Pages
 		for index, pageName in ipairs(shopRuntime.Pages) do
 			local selected = page == pageName
 			local tab = Instance.new("TextButton")
 			tab.Name = pageName .. "ShopTab"
 			tab.BackgroundColor3 = selected and Color3.fromRGB(20, 134, 205) or Color3.fromRGB(25, 35, 42)
 			tab.BorderSizePixel = 0
-			tab.Position = UDim2.fromScale((index - 1) * 0.252, 0)
-			tab.Size = UDim2.fromScale(0.238, 1)
+			tab.Position = UDim2.fromScale((index - 1) * (tabWidth + tabGap), 0)
+			tab.Size = UDim2.fromScale(tabWidth, 1)
 			tab.Font = Enum.Font.GothamBlack
 			tab.Text = string.upper(pageName)
 			tab.TextColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(191, 205, 212)
@@ -6402,6 +10356,18 @@ shared.PunchWallBuildShopUI = function()
 			tabSize.Parent = tab
 			addCorner(tab, 4)
 			addStroke(tab, selected and Color3.fromRGB(71, 205, 255) or Color3.fromRGB(48, 67, 76), selected and 2 or 1)
+			if selected then
+				local selectedRail = Instance.new("Frame")
+				selectedRail.Name = "SelectedRail"
+				selectedRail.AnchorPoint = Vector2.new(0.5, 1)
+				selectedRail.Position = UDim2.fromScale(0.5, 1)
+				selectedRail.Size = UDim2.new(0.58, 0, 0, 4)
+				selectedRail.BackgroundColor3 = Color3.fromRGB(255, 202, 48)
+				selectedRail.BorderSizePixel = 0
+				selectedRail.ZIndex = tab.ZIndex + 1
+				selectedRail.Parent = tab
+				addCorner(selectedRail, 3)
+			end
 			bindButtonMotion(tab, tab.BackgroundColor3)
 			tab.Activated:Connect(function()
 				shared.PunchWallHeroShopPage = pageName
@@ -6415,9 +10381,26 @@ shared.PunchWallBuildShopUI = function()
 		if page == "Fists" then
 			for _, item in ipairs(GameConfig.Fists) do table.insert(products, item) end
 		elseif page == "Premium" then
-			for _, source in ipairs(GameConfig.PremiumFists) do
+			for _, source in ipairs(GameConfig.PremiumPets) do
 				local item = table.clone(source)
-				item.isPremium = true
+				item.displayName = item.name
+				item.isPremiumPet = true
+				item.rarity = "PREMIUM COMPANION"
+				item.detail = ("Permanent sidekick  •  +%d%% Power  •  +%d%% Luck"):format(
+					math.floor(item.mult * 100 + 0.5),
+					math.floor(item.luckGain * 100 + 0.5)
+				)
+				local displayPrice, regionalPriceResolved, regionalPriceState =
+					shared.PunchWallPurchaseRuntime.GetGamePassDisplayPrice(
+						item,
+						shared.PunchWallHeroShopRefresh
+					)
+				item.displayRobuxPrice = displayPrice
+				item.regionalPriceResolved = regionalPriceResolved
+				item.regionalPriceState = regionalPriceState
+				item.regionalPriceCopy = regionalPriceResolved and ("R$ %d"):format(displayPrice)
+					or regionalPriceState == "Loading" and "CHECKING PRICE"
+					or "PRICE AT CHECKOUT"
 				table.insert(products, item)
 			end
 		elseif page == "Boosts" then
@@ -6426,23 +10409,48 @@ shared.PunchWallBuildShopUI = function()
 				{ name = "SpeedBoost", displayName = "SPEED BOOST", rarity = "RARE", cost = 8000, art = GameConfig.ShopArt.SpeedBoost, accent = Color3.fromRGB(58, 201, 248), detail = "Move faster through the Hero City course.", endsAt = boostInfo.SpeedEndsAt or 0 },
 				{ name = "DamageBoost", displayName = "DAMAGE BOOST", rarity = "EPIC", cost = 12000, art = GameConfig.ShopArt.DamageBoost, accent = Color3.fromRGB(239, 112, 51), detail = "Deal 2x wall damage for 15 minutes.", endsAt = boostInfo.DamageEndsAt or 0 },
 			}
-		else
-			for index, source in ipairs(GameConfig.PremiumProducts) do
+		elseif page == "Honor" or page == "Robux" then
+			local commercePalette = { Color3.fromRGB(255, 190, 40), Color3.fromRGB(57, 199, 249), Color3.fromRGB(190, 80, 244), Color3.fromRGB(59, 218, 150) }
+			for _, source in ipairs(GameConfig.PremiumProducts) do
+				if (source.shopPage or "Robux") ~= page then
+					continue
+				end
 				local item = table.clone(source)
 				item.name = item.name or item.id
 				item.isRobuxProduct = true
-				item.rarity = "HERO OFFER"
-				item.accent = ({ Color3.fromRGB(255, 190, 40), Color3.fromRGB(57, 199, 249), Color3.fromRGB(190, 80, 244), Color3.fromRGB(59, 218, 150) })[index]
-				item.detail = item.coins and ("Receive " .. formatNumber(item.coins) .. " Coins instantly.")
+				item.isHonorProduct = item.honor ~= nil
+				item.honorPackTier = item.isHonorProduct and (#products + 1) or nil
+				item.rarity = item.isHonorProduct
+					and (("+%s HONOR  •  %s"):format(formatNumber(item.honor), item.valueBadge or "HONOR PACK"))
+					or "HERO OFFER"
+				item.accent = item.accent or commercePalette[(#products % #commercePalette) + 1]
+				item.detail = item.honor and (("+%s Honor after Roblox confirms payment. Relic gates still apply."):format(formatNumber(item.honor)))
+					or item.coins and ("Receive " .. formatNumber(item.coins) .. " Coins instantly.")
 					or item.spins and ("Receive " .. item.spins .. " Hero Spins.")
 					or item.boost == "TrainingBoostExpiresAt" and "Train Power 2x faster for 15 minutes."
 					or "Earn 2x more Coins for 15 minutes."
-				item.icon = item.spins and "Success" or item.boost == "TrainingBoostExpiresAt" and "Train" or "Coin"
-				item.art = item.id == "CoinPack" and GameConfig.ShopArt.ShopCoinIcon
+				item.icon = item.honor and "Honor" or item.spins and "Success" or item.boost == "TrainingBoostExpiresAt" and "Train" or "Coin"
+				item.art = item.honor and GameConfig.ShopArt.HonorIcon
+					or item.id == "CoinPack" and GameConfig.ShopArt.ShopCoinIcon
 					or item.id == "SpinPack" and GameConfig.ShopArt.SpinPack
 					or item.id == "CoinBoost" and GameConfig.ShopArt.CoinBoost
 					or item.id == "TrainingBoost" and GameConfig.ShopArt.SpeedBoost
 					or nil
+				item.displayRobuxPrice, item.regionalPriceResolved, item.regionalPriceState =
+					shared.PunchWallPurchaseRuntime.GetDeveloperProductDisplayPrice(
+						item,
+						function()
+							shared.PunchWallHeroShopRefresh({
+								force = true,
+								reason = "developer-product-price-resolved",
+							})
+						end
+					)
+				item.regionalPriceCopy = item.regionalPriceResolved and ("R$ %d"):format(item.displayRobuxPrice)
+					or item.regionalPriceState == "Loading" and "CHECKING PRICE"
+					or item.regionalPriceState == "CheckoutOnly" and "PRICE AT CHECKOUT"
+					or item.regionalPriceState == "OffSale" and "OFF SALE"
+					or "PRICE UNAVAILABLE"
 				table.insert(products, item)
 			end
 		end
@@ -6453,10 +10461,45 @@ shared.PunchWallBuildShopUI = function()
 			tabBand.Size = UDim2.new(0.95, 0, 0, 44)
 		end
 		local rowCount = math.max(1, math.ceil(#products / 2))
-		local cardsTop = compactCards and 0.315 or 0.27
-		local cardsBottom = compactCards and 0.835 or 0.902
+		-- Compact tabs have a fixed 44 px touch target, so proportional card
+		-- placement must reserve enough room even on 270-336 px tall phones.
+		local cardsTop = compactCards and 0.34 or 0.265
+		local cardsBottom = compactCards and 0.88 or 0.89
 		local rowGap = compactCards and 0.01 or 0.014
 		local cardHeight = (cardsBottom - cardsTop - rowGap * (rowCount - 1)) / rowCount
+		local catalogScrollable = page == "Fists" and #products > 6
+		local scrollCardHeight = compactCards and 118 or 154
+		local scrollRowGap = compactCards and 7 or 9
+		local cardsHost = shopReference
+		if catalogScrollable then
+			local catalogScroll = Instance.new("ScrollingFrame")
+			catalogScroll.Name = "FistCatalogScroll"
+			catalogScroll.BackgroundTransparency = 1
+			catalogScroll.BorderSizePixel = 0
+			catalogScroll.Position = UDim2.fromScale(0, cardsTop)
+			catalogScroll.Size = UDim2.fromScale(1, cardsBottom - cardsTop)
+			catalogScroll.CanvasSize = UDim2.fromOffset(
+				0,
+				rowCount * scrollCardHeight + math.max(0, rowCount - 1) * scrollRowGap
+			)
+			catalogScroll.ScrollBarImageColor3 = Color3.fromRGB(45, 205, 255)
+			catalogScroll.ScrollBarImageTransparency = 0.12
+			catalogScroll.ScrollBarThickness = compactCards and 5 or 7
+			catalogScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+			catalogScroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+			catalogScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+			catalogScroll.ZIndex = 102
+			catalogScroll.Parent = shopReference
+			cardsHost = catalogScroll
+			shopReference:SetAttribute("ShopCatalogScrollable", true)
+			shopReference:SetAttribute("ShopCatalogItemCount", #products)
+			shopReference:SetAttribute("ShopCatalogRowCount", rowCount)
+			shopReference:SetAttribute("ShopCatalogScrollMode", "FixedReadableCardsV1")
+		else
+			shopReference:SetAttribute("ShopCatalogScrollable", false)
+			shopReference:SetAttribute("ShopCatalogItemCount", #products)
+			shopReference:SetAttribute("ShopCatalogRowCount", rowCount)
+		end
 		local compactProductNames = {
 			["Boxing Glove"] = "STREET FIST",
 			["Iron Knuckle"] = "IRON FIST",
@@ -6464,26 +10507,93 @@ shared.PunchWallBuildShopUI = function()
 			["Crimson Vanguard Fist"] = "VANGUARD FIST",
 			["Stormbreaker Fist"] = "STORM FIST",
 			["Celestial Titan Fist"] = "TITAN FIST",
+			["Crimson Phoenix"] = "PHOENIX",
+			["Storm Wyvern"] = "WYVERN",
+			["Celestial Guardian"] = "GUARDIAN",
 			CoinPack = "COIN PACK",
 			SpinPack = "SPIN PACK",
 			CoinBoost = "2X COINS",
 			TrainingBoost = "2X TRAINING",
+			HonorPouch25 = "25 HONOR",
+			HonorCache90 = "90 HONOR",
+			HonorVault300 = "300 HONOR",
+			HonorTreasury850 = "850 HONOR",
 		}
 		for index, item in ipairs(products) do
 			local column = (index - 1) % 2
 			local row = math.floor((index - 1) / 2)
-			local wideCard = index == #products and #products % 2 == 1
+			local featuredCard = index == #products and #products % 2 == 1
 			local card = Instance.new("Frame")
 			card.Name = item.name .. "ShopCard"
 			card.BackgroundColor3 = Color3.fromRGB(10, 18, 23)
 			card.BorderSizePixel = 0
-			card.Position = UDim2.fromScale(wideCard and 0.03 or 0.03 + column * 0.485, cardsTop + row * (cardHeight + rowGap))
-			card.Size = UDim2.fromScale(wideCard and 0.94 or 0.455, cardHeight)
+			if catalogScrollable then
+				card.Position = UDim2.new(
+					featuredCard and 0.03 or 0.03 + column * 0.485,
+					0,
+					0,
+					row * (scrollCardHeight + scrollRowGap)
+				)
+				card.Size = UDim2.new(featuredCard and 0.94 or 0.455, 0, 0, scrollCardHeight)
+			else
+				card.Position = UDim2.fromScale(
+					featuredCard and 0.03 or 0.03 + column * 0.485,
+					cardsTop + row * (cardHeight + rowGap)
+				)
+				card.Size = UDim2.fromScale(featuredCard and 0.94 or 0.455, cardHeight)
+			end
+			card:SetAttribute("ShopCardLayout", featuredCard and "FeaturedFullWidthV2" or "StandardHalfWidthV2")
+			card:SetAttribute("CatalogScrollable", catalogScrollable)
 			card.ZIndex = 102
 			card.ClipsDescendants = true
-			card.Parent = shopReference
+			card.Parent = cardsHost
 			addCorner(card, 5)
 			local equippedCard = latestStats.EquippedFist == item.name
+			local premiumOwned = item.isPremiumPet
+				and table.find(ownedPremium, item.name) ~= nil
+			local purchaseConfigured = true
+			local purchaseReady = true
+			local purchaseLoading = false
+			local purchaseUiEntry = item.isRobuxProduct
+				and shared.PunchWallPurchaseRuntime.ProductUiState[item.id]
+				or nil
+			local purchaseUiState = tostring(purchaseUiEntry and purchaseUiEntry.state or "Idle")
+			local purchaseBusy = table.find({ "Opening", "CheckoutOpen", "Verifying", "Granted" }, purchaseUiState) ~= nil
+			if item.isPremiumPet then
+				purchaseConfigured =
+					shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(item)
+			elseif item.isRobuxProduct then
+				purchaseConfigured =
+					shared.PunchWallPurchaseRuntime.HasConfiguredDeveloperProduct(item)
+				purchaseLoading = purchaseConfigured and item.regionalPriceState == "Loading"
+				purchaseReady = purchaseConfigured
+					and (item.regionalPriceState == "Resolved" or item.regionalPriceState == "CheckoutOnly")
+			end
+			local purchaseUnavailable = false
+			if item.isPremiumPet then
+				purchaseUnavailable = not premiumOwned and not purchaseConfigured
+			elseif item.isRobuxProduct then
+				purchaseUnavailable = not purchaseConfigured
+					or item.regionalPriceState == "OffSale"
+					or item.regionalPriceState == "LookupFailed"
+					or item.regionalPriceState == "WrongProduct"
+			end
+			card:SetAttribute("PurchaseConfigured", purchaseConfigured)
+			card:SetAttribute("PurchaseReady", purchaseReady)
+			card:SetAttribute("PurchaseLoading", purchaseLoading)
+			card:SetAttribute("PurchaseUnavailable", purchaseUnavailable)
+			card:SetAttribute("PurchaseUiState", purchaseUiState)
+			if item.isRobuxProduct then
+				card:SetAttribute("ProductId", tonumber(item.productId) or 0)
+				card:SetAttribute("DefaultRobuxPrice", tonumber(item.robux) or 0)
+				card:SetAttribute("DisplayedRobuxPrice", item.regionalPriceResolved and item.displayRobuxPrice or 0)
+				card:SetAttribute("RegionalPriceResolved", item.regionalPriceResolved)
+				card:SetAttribute("RegionalPriceState", item.regionalPriceState)
+			end
+			card:SetAttribute(
+				"OfferKind",
+				item.isPremiumPet and "GamePass" or item.isRobuxProduct and "DeveloperProduct" or "GameCurrency"
+			)
 			addStroke(card, item.accent, equippedCard and 3 or 1.5)
 			local cardGradient = Instance.new("UIGradient")
 			cardGradient.Color = ColorSequence.new({
@@ -6502,52 +10612,184 @@ shared.PunchWallBuildShopUI = function()
 			accentRail.ZIndex = 103
 			accentRail.Parent = card
 
+			local fistPresentation = item.tier
+				and FistVisualBuilder.GetHeroGauntletPresentation(item)
+				or nil
 			local art
 			if item.art then
 				art = item.art
-			elseif item.style == "Vanguard" then
-				art = GameConfig.ShopArt.StarterGlove
-			elseif item.style == "Storm" then
-				art = GameConfig.ShopArt.ChampionGlove
-			elseif item.style == "Celestial" then
-				art = GameConfig.ShopArt.TitanGlove
+			elseif fistPresentation then
+				art = GameConfig.ShopArt[fistPresentation.shopArtKey] or ""
 			else
-				art = item.tier == 1 and GameConfig.ShopArt.StarterGlove
-					or item.tier and item.tier >= 5 and GameConfig.ShopArt.TitanGlove
-					or item.tier and GameConfig.ShopArt.ChampionGlove
-					or ""
+				art = ""
 			end
-			local iconX, iconWidth = 0.025, wideCard and 0.18 or 0.275
+			local iconWidth = featuredCard and 0.18 or 0.25
+			if item.isRobuxProduct then
+				iconWidth = item.id == "SpinPack" and 0.17
+					or item.id == "TrainingBoost" and 0.18
+					or 0.2
+			elseif page == "Boosts" then
+				iconWidth = featuredCard and 0.18 or item.name == "SpeedBoost" and 0.2 or 0.22
+			elseif item.isPremiumPet then
+				iconWidth = featuredCard and 0.2 or 0.255
+			end
+			local visualColumnWidth = featuredCard and 0.22 or 0.285
+			local iconX = 0.025 + math.max(0, (visualColumnWidth - iconWidth) * 0.5)
+			local artPlate = Instance.new("Frame")
+			artPlate.Name = "ProductArtPlate"
+			artPlate.BackgroundColor3 = item.accent:Lerp(Color3.fromRGB(4, 10, 14), 0.9)
+			artPlate.BackgroundTransparency = 0.12
+			artPlate.BorderSizePixel = 0
+			artPlate.Position = UDim2.fromScale(iconX, 0.07)
+			artPlate.Size = UDim2.fromScale(iconWidth, 0.84)
+			artPlate.ZIndex = 103
+			artPlate.Parent = card
+			addCorner(artPlate, 6)
+			local artPlateStroke = addStroke(artPlate, item.accent, 1)
+			artPlateStroke.Transparency = 0.48
 			local icon = Instance.new("ImageLabel")
 			icon.Name = "ProductArt"
 			icon.BackgroundTransparency = 1
 			icon.Image = art
 			icon.ScaleType = Enum.ScaleType.Fit
-			icon.Position = UDim2.fromScale(iconX, 0.06)
-			icon.Size = UDim2.fromScale(iconWidth, 0.88)
+			icon.Position = UDim2.fromScale(iconX + 0.012, 0.095)
+			icon.Size = UDim2.fromScale(iconWidth - 0.024, 0.79)
 			icon.ZIndex = 105
 			icon.Parent = card
+			if item.isPremiumPet then
+				artPlate.Visible = false
+				local petPreview = addPetPreview(card, item, UDim2.fromScale(iconX, 0.07), UDim2.fromScale(iconWidth, 0.84))
+				icon.Visible = petPreview == nil
+				card:SetAttribute("PremiumPetPreviewReady", petPreview ~= nil)
+				card:SetAttribute("GamePassId", tonumber(item.gamePassId) or 0)
+			end
 			local fallbackName = item.icon or (item.name == "CoinBoost" and "Coin" or item.name == "SpeedBoost" and "Train" or "Punch")
 			local fallback = createThemeIcon(card, fallbackName, icon.Position, icon.Size, "ProductArtFallback")
 			fallback.ZIndex = 104
 			-- A visible atlas placeholder bleeds old labels through transparent product art.
-			fallback.Visible = art == ""
+			fallback.Visible = art == "" and not item.isPremiumPet
+			if fistPresentation then
+				shopRuntime.AddStaticFistPresentation(card, icon, item)
+			end
+			if item.isHonorProduct then
+				local pipHolder = Instance.new("Frame")
+				pipHolder.Name = "HonorPackTierPips"
+				pipHolder.AnchorPoint = Vector2.new(0.5, 1)
+				pipHolder.Position = UDim2.new(iconX + iconWidth * 0.5, 0, 0.88, 0)
+				pipHolder.Size = UDim2.fromOffset(58, 10)
+				pipHolder.BackgroundTransparency = 1
+				pipHolder.ZIndex = 108
+				pipHolder.Parent = card
+				local pipLayout = Instance.new("UIListLayout")
+				pipLayout.FillDirection = Enum.FillDirection.Horizontal
+				pipLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				pipLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+				pipLayout.Padding = UDim.new(0, 4)
+				pipLayout.Parent = pipHolder
+				for pipIndex = 1, math.clamp(tonumber(item.honorPackTier) or 1, 1, 4) do
+					local pip = Instance.new("Frame")
+					pip.Name = ("TierPip%d"):format(pipIndex)
+					pip.Size = UDim2.fromOffset(9, 6)
+					pip.BackgroundColor3 = item.accent
+					pip.BorderSizePixel = 0
+					pip.ZIndex = pipHolder.ZIndex + 1
+					pip.Parent = pipHolder
+					addCorner(pip, 3)
+				end
+				card:SetAttribute("HonorPackPipCount", item.honorPackTier)
+			end
 
-			local textX = wideCard and 0.215 or 0.32
-			local rarity = item.rarity or (item.tier == 1 and "COMMON" or item.tier >= 5 and "LEGENDARY" or item.tier >= 4 and "EPIC" or "RARE")
+			local textX = featuredCard and 0.24 or 0.31
+			local rarity = compactCards and item.isHonorProduct and (item.valueBadge or "HONOR PACK")
+				or compactCards and item.isPremiumPet and "PREMIUM"
+				or item.rarity
+				or (item.tier == 1 and "COMMON" or item.tier >= 5 and "LEGENDARY" or item.tier >= 4 and "EPIC" or "RARE")
 			local productName = compactCards and compactProductNames[item.name] or nil
 			productName = productName or string.upper(item.displayName)
-			label(card, "Name", productName, UDim2.fromScale(textX, 0.07), UDim2.fromScale(wideCard and 0.48 or 0.41, 0.22), Color3.fromRGB(250, 248, 239), compactCards and 12 or 17, Enum.Font.GothamBlack)
-			label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(0.36, 0.15), item.accent, 11, Enum.Font.GothamBlack)
-			local detailText = item.detail or ("Built for deeper walls.  " .. compactStat(item.mult) .. "x Power.")
-			local detail = label(card, "Detail", detailText, UDim2.fromScale(textX, 0.42), UDim2.fromScale(wideCard and 0.47 or 0.39, 0.34), Color3.fromRGB(210, 221, 226), 11, Enum.Font.Gotham, Enum.TextXAlignment.Left, true)
+			local productNameLabel = label(card, "Name", productName, UDim2.fromScale(textX, 0.08), UDim2.fromScale(featuredCard and 0.38 or 0.4, 0.2), Color3.fromRGB(250, 248, 239), compactCards and 12 or 17, Enum.Font.GothamBlack)
+			if #productName > 18 then
+				productNameLabel.TextScaled = true
+				local productNameSize = Instance.new("UITextSizeConstraint")
+				productNameSize.MinTextSize = compactCards and 8 or 10
+				productNameSize.MaxTextSize = compactCards and 12 or 17
+				productNameSize.Parent = productNameLabel
+			end
+			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, 11, Enum.Font.GothamBlack)
+			if compactCards and item.isHonorProduct then
+				rarityLabel.TextScaled = true
+				local raritySize = Instance.new("UITextSizeConstraint")
+				raritySize.MinTextSize = 8
+				raritySize.MaxTextSize = 11
+				raritySize.Parent = rarityLabel
+			end
+			local requiredDepth = math.max(0, math.floor(tonumber(item.unlockDepth) or 0))
+			-- Keep the client lock display aligned with the server-authoritative
+			-- tunnel progression rule. WallLevel is deliberately not a fallback.
+			local playerProgressDepth = math.max(0, math.floor(tonumber(latestStats.Depth) or 0))
+			local fistOwnedForGate = page == "Fists" and table.find(owned, item.name) ~= nil
+			local depthLocked = page == "Fists"
+				and not fistOwnedForGate
+				and playerProgressDepth < requiredDepth
+			card:SetAttribute("RequiredDepth", requiredDepth)
+			card:SetAttribute("DepthLocked", depthLocked)
+			local detailText = purchaseUnavailable
+				and (item.isHonorProduct and (("+%s Honor • Temporarily unavailable until Roblox product setup is verified."):format(formatNumber(item.honor)))
+					or "This offer is unavailable until its purchase ID is configured.")
+				or depthLocked and ("Reach Depth %d to unlock this fist."):format(requiredDepth)
+				or item.detail
+				or ("Built for deeper walls.  " .. compactStat(item.mult) .. "x Power.")
+			local detailPosition = UDim2.fromScale(textX, 0.43)
+			local detailSize = UDim2.fromScale(featuredCard and 0.43 or 0.38, 0.23)
+			local detailBackdrop = Instance.new("Frame")
+			detailBackdrop.Name = "DetailReadabilityPanel"
+			detailBackdrop.BackgroundColor3 = Color3.fromRGB(3, 9, 13)
+			detailBackdrop.BackgroundTransparency = 0.18
+			detailBackdrop.BorderSizePixel = 0
+			detailBackdrop.Position = UDim2.new(
+				detailPosition.X.Scale - 0.008,
+				detailPosition.X.Offset,
+				detailPosition.Y.Scale - 0.025,
+				detailPosition.Y.Offset
+			)
+			detailBackdrop.Size = UDim2.new(
+				detailSize.X.Scale + 0.016,
+				detailSize.X.Offset,
+				detailSize.Y.Scale + 0.05,
+				detailSize.Y.Offset
+			)
+			detailBackdrop.ZIndex = card.ZIndex + 1
+			detailBackdrop.Visible = not compactCards
+			detailBackdrop.Parent = card
+			addCorner(detailBackdrop, 4)
+			local detailStroke = addStroke(detailBackdrop, item.accent, 1)
+			detailStroke.Transparency = 0.72
+			local detail = label(card, "Detail", detailText, detailPosition, detailSize, Color3.fromRGB(236, 242, 244), 12, Enum.Font.GothamMedium, Enum.TextXAlignment.Left, true)
 			detail.TextYAlignment = Enum.TextYAlignment.Top
+			detail.TextStrokeTransparency = 0.35
+			detail.LineHeight = 1.08
 			detail.Visible = not compactCards
+			detail:SetAttribute("DescriptionReadabilityMode", "HighContrastPanelV1")
+			card:SetAttribute("DescriptionReadabilityMode", "HighContrastPanelV1")
 
-			local priceX = wideCard and 0.755 or 0.735
+			local priceX = featuredCard and 0.7 or 0.72
 			local priceIcon
 			if item.robux then
-				priceIcon = createThemeIcon(card, "Shop", UDim2.fromScale(priceX, 0.08), UDim2.fromScale(wideCard and 0.035 or 0.06, 0.22), "PriceIcon")
+				priceIcon = Instance.new("TextLabel")
+				priceIcon.Name = "PriceIcon"
+				priceIcon.BackgroundColor3 = Color3.fromRGB(22, 121, 82)
+				priceIcon.BackgroundTransparency = 0.08
+				priceIcon.BorderSizePixel = 0
+				priceIcon.Font = Enum.Font.GothamBlack
+				priceIcon.Text = "R$"
+				priceIcon.TextColor3 = Color3.fromRGB(220, 255, 231)
+				priceIcon.TextSize = 10
+				priceIcon.TextStrokeTransparency = 0.7
+				priceIcon.Position = UDim2.fromScale(priceX, 0.1)
+				priceIcon.Size = UDim2.fromScale(0.055, 0.18)
+				priceIcon.Parent = card
+				addCorner(priceIcon, 4)
+				local priceIconStroke = addStroke(priceIcon, Color3.fromRGB(73, 226, 146), 1)
+				priceIconStroke.Transparency = 0.28
 			else
 				priceIcon = Instance.new("ImageLabel")
 				priceIcon.Name = "PriceIcon"
@@ -6556,38 +10798,81 @@ shared.PunchWallBuildShopUI = function()
 				priceIcon.Image = GameConfig.ShopArt.ShopCoinIcon
 				priceIcon.ScaleType = Enum.ScaleType.Fit
 				priceIcon.Position = UDim2.fromScale(priceX, 0.08)
-				priceIcon.Size = UDim2.fromScale(wideCard and 0.035 or 0.06, 0.22)
+				priceIcon.Size = UDim2.fromScale(0.06, 0.22)
 				priceIcon.Parent = card
 			end
 			priceIcon.ZIndex = 105
-			local priceText = item.robux and ("R$ " .. item.robux) or ((item.cost or 0) <= 0 and "FREE" or formatNumber(item.cost))
-			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + (wideCard and 0.04 or 0.065), 0.07), UDim2.fromScale(wideCard and 0.18 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
+			local priceText = purchaseUnavailable and (item.regionalPriceState == "OffSale" and "OFF SALE"
+				or item.isHonorProduct and "PRICE UNAVAILABLE"
+				or "UNAVAILABLE")
+				or purchaseLoading and "CHECKING PRICE"
+				or depthLocked and ("DEPTH " .. tostring(requiredDepth))
+				or item.isPremiumPet and premiumOwned and not purchaseConfigured and "OWNED"
+				or item.robux and item.regionalPriceResolved and tostring(item.displayRobuxPrice)
+				or item.robux and item.regionalPriceState == "CheckoutOnly" and "AT CHECKOUT"
+				or item.robux and "PRICE UNAVAILABLE"
+				or ((item.cost or 0) <= 0 and "FREE" or formatNumber(item.cost))
+			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
+			if purchaseUnavailable then
+				if priceIcon:IsA("ImageLabel") then
+					priceIcon.ImageTransparency = 0.62
+				else
+					priceIcon.TextTransparency = 0.52
+					priceIcon.BackgroundTransparency = 0.62
+				end
+				priceLabel.TextColor3 = Color3.fromRGB(185, 194, 199)
+				priceLabel.TextScaled = true
+				local unavailablePriceSize = Instance.new("UITextSizeConstraint")
+				unavailablePriceSize.MinTextSize = 7
+				unavailablePriceSize.MaxTextSize = 11
+				unavailablePriceSize.Parent = priceLabel
+			end
 			if compactCards then
 				priceIcon.Position = UDim2.fromScale(textX, 0.57)
-				priceIcon.Size = UDim2.fromScale(wideCard and 0.035 or 0.06, 0.26)
-				priceLabel.Position = UDim2.fromScale(textX + (wideCard and 0.04 or 0.065), 0.54)
-				priceLabel.Size = UDim2.fromScale(wideCard and 0.25 or 0.28, 0.3)
+				priceIcon.Size = UDim2.fromScale(0.06, 0.26)
+				priceLabel.Position = UDim2.fromScale(textX + 0.065, 0.54)
+				priceLabel.Size = UDim2.fromScale(0.28, 0.3)
 				priceLabel.TextSize = 10
 			end
 
 			local actionColor = Color3.fromRGB(232, 157, 22)
 			local actionText = "BUY"
 			local actionCallback
+			local actionEnabled = true
 			if page == "Fists" then
 				local equipped = latestStats.EquippedFist == item.name
 				local isOwned = table.find(owned, item.name) ~= nil
-				actionText = equipped and "EQUIPPED" or isOwned and "EQUIP" or "BUY"
-				actionColor = equipped and Color3.fromRGB(45, 145, 60) or isOwned and Color3.fromRGB(53, 159, 63) or actionColor
+				actionText = equipped and "EQUIPPED"
+					or isOwned and "EQUIP"
+					or depthLocked and ("DEPTH " .. tostring(requiredDepth))
+					or "BUY"
+				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+					or isOwned and Color3.fromRGB(53, 159, 63)
+					or depthLocked and Color3.fromRGB(61, 68, 73)
+					or actionColor
+				actionEnabled = not equipped and not depthLocked
 				actionCallback = function()
-					if not equipped then actionRemote:FireServer({ action = isOwned and "EquipFist" or "BuyFist", target = item.name }) end
+					if not equipped and not depthLocked then
+						actionRemote:FireServer({ action = isOwned and "EquipFist" or "BuyFist", target = item.name })
+					end
 				end
 			elseif page == "Premium" then
-				local equipped = latestStats.EquippedFist == item.name
-				local isOwned = table.find(ownedPremium, item.name) ~= nil
-				actionText = equipped and "EQUIPPED" or isOwned and "EQUIP" or ("R$ " .. item.robux)
-				actionColor = equipped and Color3.fromRGB(45, 145, 60) or isOwned and Color3.fromRGB(53, 159, 63) or item.accent
+				local equipped = table.find(equippedPets, item.name) ~= nil
+				local isOwned = premiumOwned
+				actionText = equipped and "EQUIPPED"
+					or isOwned and "EQUIP"
+					or purchaseConfigured and "BUY"
+					or "UNAVAILABLE"
+				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+					or isOwned and Color3.fromRGB(53, 159, 63)
+					or purchaseConfigured and Color3.fromRGB(31, 174, 102)
+					or Color3.fromRGB(61, 68, 73)
+				actionEnabled = not equipped and (isOwned or purchaseConfigured)
 				actionCallback = function()
-					if not equipped then actionRemote:FireServer({ action = isOwned and "EquipFist" or "BuyPremiumFist", target = item.name }) end
+					if equipped then return end
+					if isOwned or purchaseConfigured then
+						actionRemote:FireServer({ action = "BuyPremiumPet", target = item.name })
+					end
 				end
 			elseif page == "Boosts" then
 				local seconds = math.max(0, math.floor((item.endsAt or 0) - now))
@@ -6595,9 +10880,28 @@ shared.PunchWallBuildShopUI = function()
 				actionColor = seconds > 0 and Color3.fromRGB(45, 145, 60) or actionColor
 				actionCallback = function() actionRemote:FireServer({ action = "BuyShopBoost", target = item.name }) end
 			else
-				actionText = "R$ " .. item.robux
-				actionColor = item.accent
-				actionCallback = function() actionRemote:FireServer({ action = "BuyPremiumProduct", target = item.id }) end
+				actionText = purchaseUiState == "Opening" and (compactCards and "OPEN" or "OPENING...")
+					or purchaseUiState == "CheckoutOpen" and (compactCards and "ROBLOX" or "CHECKOUT OPEN")
+					or purchaseUiState == "Verifying" and (compactCards and "VERIFY" or "VERIFYING...")
+					or purchaseUiState == "Granted" and (compactCards and "ADDED" or "GRANTED")
+					or purchaseLoading and "WAIT"
+					or item.regionalPriceState == "CheckoutOnly" and "SEE PRICE"
+					or purchaseReady and "BUY"
+					or compactCards and item.isHonorProduct and "NOT READY"
+					or "UNAVAILABLE"
+				actionColor = purchaseReady and not purchaseBusy and Color3.fromRGB(31, 174, 102)
+					or purchaseUiState == "Granted" and Color3.fromRGB(45, 145, 60)
+					or Color3.fromRGB(61, 68, 73)
+				actionEnabled = purchaseReady
+					and not purchaseBusy
+					and shared.PunchWallPurchaseRuntime.ActivePromptProductId == nil
+				actionCallback = function()
+					if not actionEnabled then return end
+					shared.PunchWallPurchaseRuntime.ActivePromptProductId = tonumber(item.productId)
+					shared.PunchWallShopFocusedProductId = item.id
+					shared.PunchWallPurchaseRuntime.SetProductUiState(item.id, "Opening", "OPENING PURCHASE...")
+					actionRemote:FireServer({ action = "BuyPremiumProduct", target = item.id })
+				end
 			end
 
 			local actionShadow = Instance.new("Frame")
@@ -6607,7 +10911,8 @@ shared.PunchWallBuildShopUI = function()
 			actionShadow.BorderSizePixel = 0
 			actionShadow.AnchorPoint = Vector2.new(1, 1)
 			actionShadow.Position = UDim2.fromScale(0.97, 0.92)
-			actionShadow.Size = compactCards and UDim2.new(wideCard and 0.18 or 0.25, 0, 0, 44) or UDim2.fromScale(wideCard and 0.18 or 0.25, 0.38)
+			local actionWidth = featuredCard and 0.18 or 0.23
+			actionShadow.Size = compactCards and UDim2.new(actionWidth, 0, 0, 44) or UDim2.fromScale(actionWidth, 0.32)
 			actionShadow.ZIndex = 104
 			actionShadow.Parent = card
 			addCorner(actionShadow, 4)
@@ -6617,7 +10922,7 @@ shared.PunchWallBuildShopUI = function()
 			action.BorderSizePixel = 0
 			action.AnchorPoint = Vector2.new(1, 1)
 			action.Position = UDim2.fromScale(0.962, 0.89)
-			action.Size = compactCards and UDim2.new(wideCard and 0.18 or 0.25, 0, 0, 44) or UDim2.fromScale(wideCard and 0.18 or 0.25, 0.38)
+			action.Size = compactCards and UDim2.new(actionWidth, 0, 0, 44) or UDim2.fromScale(actionWidth, 0.32)
 			action.Font = Enum.Font.GothamBlack
 			action.Text = actionText
 			action.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -6625,51 +10930,111 @@ shared.PunchWallBuildShopUI = function()
 			action.TextStrokeTransparency = 0.2
 			action.ZIndex = 106
 			action.Parent = card
+			if item.isRobuxProduct and compactCards then
+				-- Compact purchase-state labels must remain legible inside the 44px touch
+				-- target while the card moves through opening/checkout/receipt states.
+				action.TextScaled = true
+				action.TextWrapped = false
+				local compactActionTextConstraint = Instance.new("UITextSizeConstraint")
+				compactActionTextConstraint.MinTextSize = 7
+				compactActionTextConstraint.MaxTextSize = 10
+				compactActionTextConstraint.Parent = action
+			end
+			if purchaseUnavailable then
+				-- TextScaled enables wrapping internally on narrow mobile cards. Keep the
+				-- unavailable state on one deliberate line so the disabled CTA still
+				-- reads as a button instead of a broken two-line label.
+				action.TextScaled = false
+				action.TextWrapped = false
+				action.TextTruncate = Enum.TextTruncate.AtEnd
+				action.TextSize = compactCards and 8 or 12
+			end
+			if item.isRobuxProduct then
+				action:SetAttribute("ProductKey", item.id)
+				action:SetAttribute("ProductId", tonumber(item.productId) or 0)
+				action:SetAttribute("DefaultRobuxPrice", tonumber(item.robux) or 0)
+				action:SetAttribute("DisplayedRobuxPrice", item.regionalPriceResolved and item.displayRobuxPrice or 0)
+				action:SetAttribute("RegionalPriceResolved", item.regionalPriceResolved)
+				action:SetAttribute("RegionalPriceState", item.regionalPriceState)
+				action:SetAttribute("PurchaseUiState", purchaseUiState)
+				action.SelectionGained:Connect(function()
+					shared.PunchWallShopFocusedProductId = item.id
+				end)
+			end
+			if item.isPremiumPet then
+				action:SetAttribute("GamePassId", tonumber(item.gamePassId) or 0)
+				action:SetAttribute("DefaultRobuxPrice", tonumber(item.robux) or 0)
+				action:SetAttribute("DisplayedRobuxPrice", item.regionalPriceResolved and item.displayRobuxPrice or 0)
+				action:SetAttribute("RegionalPriceResolved", item.regionalPriceResolved)
+				action:SetAttribute("RegionalPriceState", item.regionalPriceState)
+			end
 			local actionSize = Instance.new("UISizeConstraint")
 			actionSize.Name = "MinimumTouchTarget"
 			actionSize.MinSize = Vector2.new(44, 44)
 			actionSize.Parent = action
 			addCorner(action, 4)
 			addStroke(action, Color3.fromRGB(5, 9, 11), 2)
-			bindButtonMotion(action, actionColor)
-			shared.PunchWallShopActions[item.name] = actionCallback
-			action.Activated:Connect(actionCallback)
+			action.Active = actionEnabled
+			action.Selectable = actionEnabled
+			action.AutoButtonColor = actionEnabled
+			action:SetAttribute("PurchaseConfigured", purchaseConfigured)
+			action:SetAttribute("PurchaseUnavailable", purchaseUnavailable)
+			if actionEnabled then
+				bindButtonMotion(action, actionColor)
+				shared.PunchWallShopActions[item.name] = actionCallback
+				action.Activated:Connect(actionCallback)
+				action:SetAttribute("ShopActionBound", true)
+			else
+				shared.PunchWallShopActions[item.name] = nil
+				action:SetAttribute("ShopActionBound", false)
+				if purchaseUnavailable then
+					shared.PunchWallPurchaseRuntime.MarkControlUnavailable(
+						action,
+						compactCards and item.isHonorProduct and "NOT READY" or "UNAVAILABLE",
+						item.isPremiumPet and "GamePassIdNotConfigured" or "ProductIdNotConfigured"
+					)
+					if item.isHonorProduct then
+						action:SetAttribute("AvailabilityCopy", "TEMPORARILY UNAVAILABLE")
+					end
+				end
+			end
+		end
+		local rememberedProductId = shared.PunchWallShopFocusedProductId
+		local lastInput = UserInputService:GetLastInputType()
+		if rememberedProductId
+			and (lastInput == Enum.UserInputType.Gamepad1 or lastInput == Enum.UserInputType.Keyboard)
+		then
+			task.defer(function()
+				if not shopReference.Parent then return end
+				for _, descendant in ipairs(shopReference:GetDescendants()) do
+					if descendant:IsA("GuiButton")
+						and descendant:GetAttribute("ProductKey") == rememberedProductId
+						and descendant.Selectable
+					then
+						GuiService.SelectedObject = descendant
+						break
+					end
+				end
+			end)
 		end
 
 		local footerBand = Instance.new("Frame")
 		footerBand.Name = "ShopFooter"
 		footerBand.BackgroundColor3 = Color3.fromRGB(8, 15, 19)
 		footerBand.BorderSizePixel = 0
-		footerBand.Position = compactCards and UDim2.fromScale(0.018, 0.85) or UDim2.fromScale(0.018, 0.91)
-		footerBand.Size = compactCards and UDim2.new(0.964, 0, 0, 46) or UDim2.fromScale(0.964, 0.075)
+		footerBand.Position = UDim2.fromScale(0.018, 0.905)
+		footerBand.Size = UDim2.fromScale(0.964, 0.07)
 		footerBand.ZIndex = 102
 		footerBand.Parent = shopReference
 		addCorner(footerBand, 4)
 		addStroke(footerBand, Color3.fromRGB(40, 61, 70), 1.5)
-		label(footerBand, "SecureLabel", "HERO INVENTORY SYNCED", UDim2.fromScale(0.025, 0), UDim2.fromScale(0.34, 1), Color3.fromRGB(184, 201, 209), 11, Enum.Font.GothamBold)
-		local bottomClose = Instance.new("TextButton")
-		bottomClose.Name = "CloseShopBottom"
-		bottomClose.BackgroundColor3 = Color3.fromRGB(192, 24, 22)
-		bottomClose.BorderSizePixel = 0
-		bottomClose.AnchorPoint = Vector2.new(0.5, 0.5)
-		bottomClose.Position = UDim2.fromScale(0.5, 0.5)
-		bottomClose.Size = compactCards and UDim2.new(0.24, 0, 0, 44) or UDim2.fromScale(0.24, 0.94)
-		bottomClose.Font = Enum.Font.GothamBlack
-		bottomClose.Text = "CLOSE"
-		bottomClose.TextColor3 = Color3.fromRGB(255, 250, 240)
-		bottomClose.TextSize = 16
-		bottomClose.TextStrokeTransparency = 0.18
-		bottomClose.ZIndex = 106
-		bottomClose.Parent = footerBand
-		local bottomCloseSize = Instance.new("UISizeConstraint")
-		bottomCloseSize.Name = "MinimumTouchTarget"
-		bottomCloseSize.MinSize = Vector2.new(44, 44)
-		bottomCloseSize.Parent = bottomClose
-		addCorner(bottomClose, 4)
-		addStroke(bottomClose, Color3.fromRGB(4, 8, 10), 3)
-		bindButtonMotion(bottomClose, bottomClose.BackgroundColor3)
-		bottomClose.Activated:Connect(function() setMenuVisible(false) end)
-		label(footerBand, "ServerLabel", "SERVER VERIFIED PURCHASES", UDim2.fromScale(0.64, 0), UDim2.fromScale(0.335, 1), Color3.fromRGB(81, 190, 235), 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		local pageSummary = page == "Premium" and "PREMIUM COMPANIONS"
+			or page == "Honor" and "HONOR PACKS"
+			or page == "Robux" and "ROBUX OFFERS"
+			or page == "Boosts" and "BOOSTS"
+			or "HERO FISTS"
+		label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), 11, Enum.Font.GothamBold)
+		label(footerBand, "ServerLabel", "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
 		shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
 		return true
 	end
@@ -6696,6 +11061,7 @@ shared.PunchWallInventoryController = InventoryUI.new({
 	GetStats = function()
 		return latestStats
 	end,
+	BuildPetPreview = companionRuntime.BuildInventoryPetPreview,
 	GetHUDHidden = function()
 		return not referenceHUD.Visible
 			and not mobileControls.Visible
@@ -6720,10 +11086,14 @@ local function setVisibleIfChanged(object, visible)
 end
 
 applyReferenceHUDState = function(force)
-	local menuVisible = mainPanel.Visible
-	local shopVisible = menuVisible and activeTab == "Fists"
-	local inventoryVisible = menuVisible and activeTab == "Inventory"
-	local stateKey = ("%s:%s"):format(menuVisible and "open" or "closed", tostring(activeTab))
+	local hostVisible = mainPanel.Visible
+	local standaloneVisible = shared.PunchWallStandaloneWindows.RebirthPanel.Visible
+		or shared.PunchWallStandaloneWindows.SettingsPanel.Visible
+	local menuVisible = hostVisible or standaloneVisible
+	local shopVisible = hostVisible and activeTab == "Fists"
+	local inventoryVisible = hostVisible and activeTab == "Inventory"
+	local activeSurface = standaloneVisible and tostring(gui:GetAttribute("ActiveStandaloneWindow") or "Standalone") or tostring(activeTab)
+	local stateKey = ("%s:%s"):format(menuVisible and "open" or "closed", activeSurface)
 	if force ~= true and stateKey == referenceHUDStateKey then
 		return false
 	end
@@ -6739,6 +11109,12 @@ applyReferenceHUDState = function(force)
 	setVisibleIfChanged(bossHUD, false)
 	setVisibleIfChanged(contextLabel, false)
 	setVisibleIfChanged(referenceHUD, not menuVisible)
+	local contextActionVisible = not menuVisible
+		and gui:GetAttribute("ContextualActionAvailable") == true
+	setVisibleIfChanged(shared.PunchWallContextActionButton, contextActionVisible)
+	if shared.PunchWallContextActionButton then
+		shared.PunchWallContextActionButton.Active = contextActionVisible
+	end
 
 	local shopWasVisible = shared.PunchWallShopReference.Visible
 	setVisibleIfChanged(shared.PunchWallShopReference, shopVisible)
@@ -6755,6 +11131,14 @@ applyReferenceHUDState = function(force)
 	if mainPanel.BackgroundTransparency ~= backgroundTransparency then
 		mainPanel.BackgroundTransparency = backgroundTransparency
 	end
+	-- Inventory owns a complete modal frame. Suppress the generic GameMenu
+	-- outline/accent while it is active so two unrelated frames do not stack.
+	mainStroke.Transparency = inventoryVisible and 1 or 0
+	local mainAccent = mainPanel:FindFirstChild("HeroAccent")
+	if mainAccent then
+		mainAccent.Visible = not inventoryVisible
+	end
+	mainPanel:SetAttribute("InventoryParentChromeSuppressed", inventoryVisible)
 
 	gui:SetAttribute("HUDVisibilitySyncMode", "EventDrivenV2")
 	gui:SetAttribute("HUDVisibilityApplyCount", referenceHUDStateApplications)
@@ -6921,19 +11305,165 @@ ContextActionService:BindAction("KaijuUse", function(_, state)
 end, false, Enum.KeyCode.E, Enum.KeyCode.ButtonY)
 
 ContextActionService:BindAction("KaijuMenu", function(_, state)
-	if state == Enum.UserInputState.Begin then toggleMenu() end
+	if state == Enum.UserInputState.Begin then
+		if shared.PunchWallStandaloneWindows.RebirthPanel.Visible and shared.PunchWallRebirthRuntime.armed and shared.PunchWallRebirthActionCallbacks then
+			shared.PunchWallRebirthActionCallbacks.Cancel()
+		elseif shared.PunchWallStandaloneWindows.RebirthPanel.Visible or shared.PunchWallStandaloneWindows.SettingsPanel.Visible then
+			shared.PunchWallStandaloneWindows.Close("Escape")
+		elseif mainPanel.Visible then
+			setMenuVisible(false)
+		else
+			shared.PunchWallOpenSettingsPanel("menu_key")
+		end
+	end
 	return Enum.ContextActionResult.Sink
-end, false, Enum.KeyCode.B, Enum.KeyCode.ButtonSelect)
+end, false, Enum.KeyCode.B, Enum.KeyCode.Escape, Enum.KeyCode.ButtonSelect, Enum.KeyCode.ButtonB)
 
 applyResponsiveLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
+	-- Studio Device Simulator can transiently report a 1x1 camera viewport even
+	-- while the player HUD is already rasterized at the selected device size.
+	-- Use the full-screen reference HUD as the authoritative fallback so modal
+	-- geometry never collapses to 1x1 during simulator/play transitions.
+	if viewport.X < 320 or viewport.Y < 240 then
+		local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
+		local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
+		if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
+			viewport = referenceSize
+		end
+	end
+	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
+	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
 	local compact = UserInputService.TouchEnabled or viewport.Y < 520
+	local coreGuiTopLeft = Vector2.zero
+	local coreGuiBottomRight = Vector2.zero
+	pcall(function()
+		coreGuiTopLeft, coreGuiBottomRight = GuiService:GetGuiInset()
+	end)
+	gui:SetAttribute("CoreGuiInsetLeft", math.floor(coreGuiTopLeft.X + 0.5))
+	gui:SetAttribute("CoreGuiInsetTop", math.floor(coreGuiTopLeft.Y + 0.5))
+	gui:SetAttribute("CoreGuiInsetRight", math.floor(coreGuiBottomRight.X + 0.5))
+	gui:SetAttribute("CoreGuiInsetBottom", math.floor(coreGuiBottomRight.Y + 0.5))
 	local userScale = math.clamp(tonumber(clientSettings.uiScale) or 1, 0.8, 1.2)
+	if compact then
+		local rebirthWidth = math.min(820, math.max(1, viewport.X - 24))
+		local rebirthHeight = math.min(350, math.max(1, viewport.Y - 24))
+		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(rebirthWidth, rebirthHeight)
+		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(math.min(700, math.max(1, viewport.X - 24)), math.min(326, math.max(1, viewport.Y - 24)))
+		-- Keep standalone headers outside Roblox's top-left system cluster on
+		-- compact devices. This reserve remains necessary even when CoreGui is
+		-- temporarily hidden because the platform controls can overlay one frame.
+		local compactHeaderLeft = math.max(90, math.floor(coreGuiTopLeft.X + 8))
+		for _, panel in ipairs({ shared.PunchWallStandaloneWindows.RebirthPanel, shared.PunchWallStandaloneWindows.SettingsPanel }) do
+			local header = panel:FindFirstChild("Header")
+			local headerIcon = header and header:FindFirstChild("HeaderIcon")
+			local title = header and header:FindFirstChild("Title")
+			local subtitle = header and header:FindFirstChild("Subtitle")
+			if headerIcon then headerIcon.Position = UDim2.fromOffset(compactHeaderLeft, 11) end
+			if title then
+				title.Position = UDim2.fromOffset(compactHeaderLeft + 60, 8)
+				title.Size = UDim2.new(1, -(compactHeaderLeft + 132), 0, 34)
+			end
+			if subtitle then
+				subtitle.Position = UDim2.fromOffset(compactHeaderLeft + 61, 40)
+				subtitle.Size = UDim2.new(1, -(compactHeaderLeft + 136), 0, 20)
+			end
+			panel:SetAttribute("CompactHeaderSafeLeft", compactHeaderLeft)
+		end
+		-- The compact reward card is only ~116px tall. Use an explicit vertical
+		-- stack so the icon, POWER label and multiplier never overlap.
+		local reward = shared.PunchWallStandaloneWindows.RebirthBody:FindFirstChild("RewardCard")
+		local rewardIcon = reward and reward:FindFirstChild("RewardIcon")
+		local rewardTitle = reward and reward:FindFirstChild("RewardTitle")
+		local rewardValue = reward and reward:FindFirstChild("RewardValue")
+		if rewardIcon then
+			rewardIcon.Position = UDim2.new(0.5, -24, 0, 6)
+			rewardIcon.Size = UDim2.fromOffset(48, 48)
+		end
+		if rewardTitle then
+			rewardTitle.Position = UDim2.new(0.08, 0, 0, 56)
+			rewardTitle.Size = UDim2.new(0.84, 0, 0, 18)
+		end
+		if rewardValue then
+			rewardValue.Position = UDim2.new(0.04, 0, 0, 76)
+			rewardValue.Size = UDim2.new(0.92, 0, 0, 30)
+		end
+		for rowIndex, rowName in ipairs({ "SOUNDSetting", "MOTIONSetting", "UI SIZESetting" }) do
+			local row = shared.PunchWallStandaloneWindows.SettingsBody:FindFirstChild(rowName)
+			if row then
+				row.Position = UDim2.fromOffset(0, (rowIndex - 1) * 56)
+				row.Size = UDim2.new(1, 0, 0, 52)
+			end
+		end
+		local settingsFooter = shared.PunchWallStandaloneWindows.SettingsBody:FindFirstChild("Footer")
+		if settingsFooter then
+			settingsFooter.Position = UDim2.new(0, 0, 1, -52)
+			settingsFooter.Size = UDim2.new(1, 0, 0, 52)
+		end
+		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
+		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
+	else
+		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(720, 468)
+		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(640, 420)
+		for _, panel in ipairs({ shared.PunchWallStandaloneWindows.RebirthPanel, shared.PunchWallStandaloneWindows.SettingsPanel }) do
+			local header = panel:FindFirstChild("Header")
+			local headerIcon = header and header:FindFirstChild("HeaderIcon")
+			local title = header and header:FindFirstChild("Title")
+			local subtitle = header and header:FindFirstChild("Subtitle")
+			if headerIcon then headerIcon.Position = UDim2.fromOffset(16, 11) end
+			if title then
+				title.Position = UDim2.fromOffset(76, 8)
+				title.Size = UDim2.new(1, -148, 0, 34)
+			end
+			if subtitle then
+				subtitle.Position = UDim2.fromOffset(77, 40)
+				subtitle.Size = UDim2.new(1, -152, 0, 20)
+			end
+			panel:SetAttribute("CompactHeaderSafeLeft", 0)
+		end
+		local reward = shared.PunchWallStandaloneWindows.RebirthBody:FindFirstChild("RewardCard")
+		local rewardIcon = reward and reward:FindFirstChild("RewardIcon")
+		local rewardTitle = reward and reward:FindFirstChild("RewardTitle")
+		local rewardValue = reward and reward:FindFirstChild("RewardValue")
+		if rewardIcon then
+			rewardIcon.Position = UDim2.new(0.5, -39, 0, 10)
+			rewardIcon.Size = UDim2.fromOffset(78, 78)
+		end
+		if rewardTitle then
+			rewardTitle.Position = UDim2.fromScale(0.08, 0.54)
+			rewardTitle.Size = UDim2.fromScale(0.84, 0.18)
+		end
+		if rewardValue then
+			rewardValue.Position = UDim2.fromScale(0.04, 0.71)
+			rewardValue.Size = UDim2.fromScale(0.92, 0.25)
+		end
+		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
+		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
+	end
 	local shopOpen = mainPanel.Visible and activeTab == "Fists"
 	local inventoryOpen = mainPanel.Visible and activeTab == "Inventory"
 	if compact then
+		-- Device Simulator can rasterize logical UI units below one screen pixel.
+		-- Use a compact offset grid large enough to preserve a real 44 px touch
+		-- target while keeping all four menu actions optically identical.
+		local compactMenuWidth = 58
+		local compactMenuHeight = 72
+		local compactMenuGap = 8
+		local compactMenuRight = 10
+		local compactMenuTop = math.max(54, math.floor(coreGuiTopLeft.Y + 46))
+		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
+			button.AnchorPoint = Vector2.new(1, 0)
+			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
+			button:SetAttribute("MinimumTouchTarget", 44)
+		end
+		referenceShop.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop)
+		referenceInventory.Position = UDim2.new(1, -(compactMenuRight + compactMenuWidth + compactMenuGap), 0, compactMenuTop)
+		referencePets.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -(compactMenuRight + compactMenuWidth + compactMenuGap), 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		referenceQuests.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + (compactMenuHeight + compactMenuGap) * 2)
+		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "CompactTouchGrid58x72WithRebirth")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -6960,7 +11490,10 @@ applyResponsiveLayout = function()
 		useButton.Size = UDim2.fromOffset(72, 36)
 		contextLabel.Position = UDim2.new(1, -322, 1, -155)
 		contextLabel.Size = UDim2.fromOffset(180, 30)
-		menuButton.Position = UDim2.new(0.5, 0, 0, 8)
+		shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.56, 0.78)
+		shared.PunchWallContextActionButton.Size = UDim2.fromScale(0.24, 0.1)
+		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "CompactCenterSafe")
+		menuButton.Position = UDim2.new(0.5, 0, 0, math.max(8, math.floor(coreGuiTopLeft.Y + 8)))
 		menuButton.Size = UDim2.fromOffset(78, 44)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 		if inventoryOpen then
@@ -6973,45 +11506,58 @@ applyResponsiveLayout = function()
 			mainPanel:SetAttribute("InventoryModalSizing", "CompactSafeFill")
 		elseif shopOpen then
 			local aspect = 1.58
-			local modalHeight = math.max(280, math.min(viewport.Y - 12, (viewport.X - 20) / aspect))
+			local modalHeight = math.max(270, math.min(viewport.Y - 24, (viewport.X - 24) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
+			mainPanel:SetAttribute("ShopModalSizing", "CompactSafeMarginV2")
 		else
 			local panelHeight = math.max(210, math.min(viewport.Y - 16, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
 			mainPanel.Size = UDim2.fromOffset(panelWidth, panelHeight)
 			closeButton.Position = UDim2.new(1, -8, 0, 8)
-			closeButton.Size = UDim2.fromOffset(38, 38)
+			closeButton.Size = UDim2.fromOffset(44, 44)
 			-- Roblox's mandatory mobile system cluster occupies the top-left even
 			-- when CoreGui is disabled. Reserve that area so the first tab remains
 			-- fully readable and tappable in landscape device simulation.
-			tabBar.Position = UDim2.fromOffset(90, 8)
-			tabBar.Size = UDim2.new(1, -138, 0, 42)
-			content.Position = UDim2.fromOffset(10, 58)
-			content.Size = UDim2.new(1, -20, 1, -68)
-			local tabWidth = math.max(54, math.floor((panelWidth - 90 - 48 - 28) / 5))
+			local leftReserve = math.max(90, math.floor(coreGuiTopLeft.X + 8))
+			tabBar.Position = UDim2.fromOffset(leftReserve, 8)
+			tabBar.Size = UDim2.new(1, -(leftReserve + 60), 0, 46)
+			tabBar.CanvasPosition = Vector2.zero
+			tabLayout.Padding = UDim.new(0, 4)
+			content.Position = UDim2.fromOffset(10, 62)
+			content.Size = UDim2.new(1, -20, 1, -72)
+			local availableTabWidth = panelWidth - leftReserve - 60
+			local tabWidth = math.max(44, math.floor((availableTabWidth - 16) / 5))
 			local compactLabels = { Fists = "FIST", Pets = "PETS", Honor = "HONOR", Tasks = "TASKS", Settings = "SET" }
 			for tabName, tab in pairs(tabButtons) do
-				tab.Size = UDim2.fromOffset(tabWidth, 38)
+				local showTabIcon = tabWidth >= 76
+				tab.Size = UDim2.fromOffset(tabWidth, 44)
 				tab.Text = compactLabels[tabName] or string.upper(tabName)
-				tab.TextSize = 9
+				tab.TextSize = tabWidth <= 48 and 8 or 9
+				tab.TextXAlignment = showTabIcon and Enum.TextXAlignment.Right or Enum.TextXAlignment.Center
+				tab.TextTruncate = Enum.TextTruncate.None
+				tab:SetAttribute("MinimumTouchTarget", 44)
 				local padding = tab:FindFirstChildOfClass("UIPadding")
 				if padding then
-					padding.PaddingLeft = UDim.new(0, 29)
-					padding.PaddingRight = UDim.new(0, 4)
+					padding.PaddingLeft = UDim.new(0, showTabIcon and 34 or 2)
+					padding.PaddingRight = UDim.new(0, showTabIcon and 4 or 2)
 				end
 				local icon = tab:FindFirstChild("TabIcon")
 				if icon then
-					icon.Position = UDim2.fromOffset(-26, 7)
+					icon.Visible = showTabIcon
+					icon.Position = UDim2.fromOffset(5, 10)
 					icon.Size = UDim2.fromOffset(24, 24)
 				end
 			end
+			mainPanel:SetAttribute("GenericPhoneMenuLayout", "InsetAwareScrollableTabsV1")
+			mainPanel:SetAttribute("GenericPhoneLeftReserve", leftReserve)
+			mainPanel:SetAttribute("GenericPhoneMinimumTouchTarget", 44)
 		end
 		mainPanel.Position = UDim2.fromScale(0.5, 0.5)
 		if rankWidgets.Root then
 			rankWidgets.Root.Position = UDim2.fromOffset(74, 92)
 			rankWidgets.Root.Size = UDim2.fromOffset(100, 228)
 		end
-		toastHolder.Position = UDim2.new(0.23, 0, 0, 60)
+		toastHolder.Position = UDim2.new(0.23, 0, 0, math.max(60, math.floor(coreGuiTopLeft.Y + 8)))
 		toastHolder.Size = UDim2.fromOffset(260, 110)
 		rewardHolder.Position = UDim2.fromScale(0.5, 0.66)
 		rewardHolder.Size = UDim2.fromOffset(320, 150)
@@ -7030,6 +11576,15 @@ applyResponsiveLayout = function()
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = 0.68 * userScale
 	else
+		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
+			button.AnchorPoint = Vector2.zero
+		end
+		referenceInventory.Position, referenceInventory.Size = designRect(inventoryMenuX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight)
+		referenceShop.Position, referenceShop.Size = designRect(rightMenuColumnX, rightMenuTop, rightMenuIconWidth, rightMenuIconHeight)
+		referencePets.Position, referencePets.Size = designRect(rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight)
+		referenceQuests.Position, referenceQuests.Size = designRect(rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight)
+		shared.PunchWallReferenceRebirth.Position, shared.PunchWallReferenceRebirth.Size = designRect(16, 429, 82, 111)
+		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
 		statusDeck.Position = UDim2.new(0.5, 0, 0, 14)
@@ -7057,6 +11612,9 @@ applyResponsiveLayout = function()
 		useButton.Size = UDim2.fromOffset(88, 42)
 		contextLabel.Position = UDim2.new(0.5, 0, 1, -32)
 		contextLabel.Size = UDim2.fromOffset(220, 30)
+		shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.56, 0.79)
+		shared.PunchWallContextActionButton.Size = UDim2.fromScale(0.22, 0.078)
+		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "DesktopCenterSafe")
 		menuButton.Position = UDim2.new(1, -18, 0, 18)
 		menuButton.Size = UDim2.fromOffset(92, 42)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -7071,10 +11629,11 @@ applyResponsiveLayout = function()
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
 			mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
 		elseif shopOpen then
-			local aspect = 1.5
-			local modalHeight = math.max(460, math.min(viewport.Y - 36, 860, (viewport.X - 48) / aspect))
+			local aspect = 1.52
+			local modalHeight = math.max(440, math.min(viewport.Y - 64, 820, (viewport.X - 64) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+			mainPanel:SetAttribute("ShopModalSizing", "DesktopSafeMarginV2")
 		else
 			mainPanel.Size = UDim2.fromOffset(677, 408)
 			mainPanel.Position = UDim2.fromScale(0.5, 0.52)
@@ -7082,12 +11641,16 @@ applyResponsiveLayout = function()
 			closeButton.Size = UDim2.fromOffset(44, 44)
 			tabBar.Position = UDim2.fromOffset(12, 12)
 			tabBar.Size = UDim2.new(1, -72, 0, 48)
+			tabBar.CanvasPosition = Vector2.zero
+			tabLayout.Padding = UDim.new(0, 7)
 			content.Position = UDim2.fromOffset(12, 68)
 			content.Size = UDim2.new(1, -24, 1, -80)
 			for tabName, tab in pairs(tabButtons) do
 				tab.Size = UDim2.fromOffset(108, 44)
 				tab.Text = string.upper(tabName)
 				tab.TextSize = 11
+				tab.TextXAlignment = Enum.TextXAlignment.Right
+				tab.TextTruncate = Enum.TextTruncate.AtEnd
 				local padding = tab:FindFirstChildOfClass("UIPadding")
 				if padding then
 					padding.PaddingLeft = UDim.new(0, 36)
@@ -7095,7 +11658,8 @@ applyResponsiveLayout = function()
 				end
 				local icon = tab:FindFirstChild("TabIcon")
 				if icon then
-					icon.Position = UDim2.fromOffset(-31, 8)
+					icon.Visible = true
+					icon.Position = UDim2.fromOffset(6, 8)
 					icon.Size = UDim2.fromOffset(28, 28)
 				end
 			end

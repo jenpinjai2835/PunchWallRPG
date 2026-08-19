@@ -15,6 +15,41 @@ local Debris = game:GetService("Debris")
 local MarketplaceService = game:GetService("MarketplaceService")
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
+local visualSafety = {
+	sanitizer = require(ReplicatedStorage:WaitForChild("FistVisualBuilder")),
+	maxBaseParts = 96,
+	maxDescendants = 256,
+	maxRawDescendants = 512,
+	maxTemplateBaseParts = 1024,
+	maxTemplateDescendants = 3072,
+	maxRuntimeBaseParts = 1024,
+	maxRuntimeDescendants = 4096,
+	templateLoadDeadlineSeconds = 12,
+}
+
+visualSafety.hasConfiguredGamePass = function(item)
+	local gamePassId = item and tonumber(item.gamePassId)
+	return gamePassId ~= nil and gamePassId > 0
+end
+
+visualSafety.hasConfiguredDeveloperProduct = function(product)
+	local productId = product and tonumber(product.productId)
+	return productId ~= nil and productId > 0
+end
+
+visualSafety.markWorldOfferAvailability = function(instance, configured, offerKind)
+	instance:SetAttribute("PurchaseConfigured", configured)
+	instance:SetAttribute("PurchaseUnavailable", not configured)
+	instance:SetAttribute("OfferKind", offerKind)
+	if not configured then
+		instance:SetAttribute(
+			"UnavailableReason",
+			offerKind == "GamePass" and "GamePassIdNotConfigured"
+				or "ProductIdNotConfigured"
+		)
+	end
+end
+local ProfilePersistence = require(script.Parent:WaitForChild("ProfilePersistence"))
 
 local ROOT_NAME = "PunchWallRPG"
 local WALL_RESPAWN_SECONDS = GameConfig.RegularWallRespawnSeconds
@@ -22,10 +57,39 @@ local TRAINING_COOLDOWN = 0.45
 local WALL_HIT_COOLDOWN = 1
 WORLD_RESET_INTERVAL = 300
 local EGG_COST = 350
-local AUTOSAVE_SECONDS = 75
 local MOBILE_ACTION_DISTANCE = 38
+local TRAINING_INTERACTION_DISTANCE = 18
 local MOBILE_ACTION_COOLDOWN = 0.12
 local tryDropPetEgg
+
+local persistenceRuntime = {
+	autosaveSeconds = 75,
+	dataStoreAttempts = 3,
+	dataStoreRetryBaseSeconds = 0.35,
+	sessionLeaseSeconds = 120,
+	playerRemovingSaveTimeout = 10,
+	shutdownDrainTimeout = 25,
+	receiptWaitTimeout = 20,
+	maxQueueOperations = 32,
+	maxSaveTicketsPerOperation = 8,
+	maxPendingGamePassGrants = 16,
+	gamePassOwnershipAttempts = 2,
+	gamePassReconciliationAttempts = 3,
+	gamePassReconciliationRetryBaseSeconds = 2,
+	isUnpublishedStudio = RunService:IsStudio() and (game.GameId == 0 or game.PlaceId == 0),
+	profileSessions = {},
+	queues = {},
+	finalSaveTickets = setmetatable({}, { __mode = "k" }),
+	pendingGamePassGrants = {},
+	serverClosing = false,
+}
+do
+	local ok, contract = pcall(ProfilePersistence.RunContractSelfTest, GameConfig.DataVersion)
+	if not ok then
+		error(("[PunchWallRPG] Persistence contract self-test failed: %s"):format(tostring(contract)))
+	end
+	persistenceRuntime.contract = contract
+end
 
 StarterPlayer.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Zoom
 pcall(function() PhysicsService:RegisterCollisionGroup("PlayerCharacters") end)
@@ -82,6 +146,10 @@ local NUMBER_STAT_DEFAULTS = {
 	PlaytimeSeconds = 0,
 	PlaytimeClaimed = 0,
 	HonorPowerBonus = 0,
+	HonorMilestoneMask = 0,
+	HonorRebirthMilestoneMask = 0,
+	HonorClearsToday = 0,
+	LastHonorClearAt = 0,
 	LastSpinAt = 0,
 	SpinCredits = 0,
 	TrainingActive = 0,
@@ -93,11 +161,14 @@ local NUMBER_STAT_DEFAULTS = {
 local TEXT_STAT_DEFAULTS = {
 	EquippedFist = "Starter Glove",
 	Pet = "None",
+	TrainingStationId = "rookie_bag",
 	OwnedFistsJSON = "[\"Starter Glove\"]",
 	OwnedPremiumFistsJSON = "[]",
 	OwnedPremiumPetsJSON = "[]",
 	OwnedHonorItemsJSON = "[]",
 	EquippedHonorItem = "None",
+	HonorClearDate = "",
+	LastHonorClearId = "",
 	PetInventoryJSON = "[]",
 	EquippedPetsJSON = "[]",
 	DiscoveredPetsJSON = "[]",
@@ -131,6 +202,10 @@ local RPG_NUMBER_STAT_NAMES = {
 	"PlaytimeSeconds",
 	"PlaytimeClaimed",
 	"HonorPowerBonus",
+	"HonorMilestoneMask",
+	"HonorRebirthMilestoneMask",
+	"HonorClearsToday",
+	"LastHonorClearAt",
 	"LastSpinAt",
 	"SpinCredits",
 	"TrainingActive",
@@ -142,11 +217,14 @@ local RPG_NUMBER_STAT_NAMES = {
 local RPG_TEXT_STAT_NAMES = {
 	"EquippedFist",
 	"Pet",
+	"TrainingStationId",
 	"OwnedFistsJSON",
 	"OwnedPremiumFistsJSON",
 	"OwnedPremiumPetsJSON",
 	"OwnedHonorItemsJSON",
 	"EquippedHonorItem",
+	"HonorClearDate",
+	"LastHonorClearId",
 	"PetInventoryJSON",
 	"EquippedPetsJSON",
 	"DiscoveredPetsJSON",
@@ -156,18 +234,136 @@ local RPG_TEXT_STAT_NAMES = {
 	"SettingsJSON",
 }
 
-local playerStore
-local legacyPlayerStore
-local dataStoreOk, dataStoreResult = pcall(function()
-	return DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v2")
-end)
-if dataStoreOk then
-	playerStore = dataStoreResult
-	legacyPlayerStore = DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v1")
-else
-	warn(("[PunchWallRPG] DataStore disabled for this session: %s"):format(tostring(dataStoreResult)))
+local function profileSessionReady(session, hasRPGStats, hasLeaderstats, requireWritable)
+	if not session then
+		return false, "profile_not_loaded"
+	end
+	if session.initializing == true or session.ready ~= true then
+		return false, "profile_initializing"
+	end
+	if not hasRPGStats or not hasLeaderstats then
+		return false, "profile_stats_not_ready"
+	end
+	if requireWritable and session.writable ~= true then
+		return false, "profile_not_writable"
+	end
+	return true
 end
-local savingPlayers = {}
+
+local function hasCompleteProfileStats(player)
+	local stats = player and player:FindFirstChild("RPGStats")
+	local leaderstats = player and player:FindFirstChild("leaderstats")
+	if not stats or not leaderstats then
+		return false, false
+	end
+	for _, name in ipairs(LEADERSTAT_NAMES) do
+		local value = leaderstats:FindFirstChild(name)
+		if not value or not value:IsA("NumberValue") then
+			return true, false
+		end
+	end
+	for _, name in ipairs(RPG_NUMBER_STAT_NAMES) do
+		local value = stats:FindFirstChild(name)
+		if not value or not value:IsA("NumberValue") then
+			return false, true
+		end
+	end
+	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
+		local value = stats:FindFirstChild(name)
+		if not value or not value:IsA("StringValue") then
+			return false, true
+		end
+	end
+	return true, true
+end
+
+local function profileReady(player, requireWritable)
+	local hasRPGStats, hasLeaderstats = hasCompleteProfileStats(player)
+	return profileSessionReady(
+		persistenceRuntime.profileSessions[player],
+		hasRPGStats,
+		hasLeaderstats,
+		requireWritable == true
+	)
+end
+
+local function runProfileReadinessContract()
+	local initializing = { initializing = true, ready = false, writable = false }
+	local durableReady = { initializing = false, ready = true, writable = true }
+	local ephemeralReady = { initializing = false, ready = true, writable = false }
+	local counters = {
+		remoteMutations = 0,
+		clickMutations = 0,
+		updateAsyncCalls = 0,
+		grants = 0,
+	}
+	for counterName in pairs(counters) do
+		local allowed = profileSessionReady(initializing, true, true, counterName == "updateAsyncCalls")
+		if allowed then
+			counters[counterName] += 1
+		end
+	end
+	assert(counters.remoteMutations == 0, "Initializing profiles must reject remote mutations")
+	assert(counters.clickMutations == 0, "Initializing profiles must reject click mutations")
+	assert(counters.updateAsyncCalls == 0, "Initializing profiles must not call UpdateAsync")
+	assert(counters.grants == 0, "Initializing profiles must not grant purchases")
+	assert(initializing.writable == false, "Initializing profiles must never become writable early")
+	assert(profileSessionReady(durableReady, true, true, true), "Complete durable profiles must pass the gate")
+	assert(not profileSessionReady(durableReady, false, true, false), "Missing RPGStats must fail closed")
+	assert(not profileSessionReady(durableReady, true, false, false), "Missing leaderstats must fail closed")
+	assert(profileSessionReady(ephemeralReady, true, true, false), "Ready ephemeral profiles must allow gameplay")
+	assert(not profileSessionReady(ephemeralReady, true, true, true), "Ephemeral profiles must remain nonwritable")
+
+	local pending = {}
+	local pendingOrder = {}
+	local function queueOnce(key)
+		if pending[key] then
+			return false
+		end
+		pending[key] = true
+		table.insert(pendingOrder, key)
+		return true
+	end
+	assert(queueOnce("Fist:101"), "First pending GamePass grant must queue")
+	assert(not queueOnce("Fist:101"), "Duplicate GamePass ownership must be idempotent")
+	local flushed = 0
+	for _, key in ipairs(pendingOrder) do
+		if pending[key] then
+			flushed += 1
+			pending[key] = nil
+		end
+	end
+	assert(flushed == 1 and next(pending) == nil, "Pending GamePass grants must flush exactly once")
+
+	return {
+		preReadyMutationCount = counters.remoteMutations + counters.clickMutations,
+		preReadyUpdateAsyncCalls = counters.updateAsyncCalls,
+		preReadyGrantCount = counters.grants,
+		noEarlyWritable = initializing.writable == false,
+		readyPathAllowed = profileSessionReady(durableReady, true, true, true) == true,
+		pendingGamePassFlushCount = flushed,
+		duplicateGamePassIgnored = true,
+	}
+end
+
+persistenceRuntime.profileSessionReady = profileSessionReady
+persistenceRuntime.profileReady = profileReady
+persistenceRuntime.readinessContract = runProfileReadinessContract()
+
+if persistenceRuntime.isUnpublishedStudio then
+	warn("[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.")
+else
+	local dataStoreOk, currentStore, legacyStore = pcall(function()
+		return DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v2"),
+			DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v1")
+	end)
+	if dataStoreOk then
+		persistenceRuntime.playerStore = currentStore
+		persistenceRuntime.legacyPlayerStore = legacyStore
+	else
+		warn(("[PunchWallRPG] DataStore initialization failed: %s"):format(tostring(currentStore)))
+	end
+end
 
 local root = workspace:FindFirstChild(ROOT_NAME)
 if root then
@@ -178,6 +374,28 @@ root = Instance.new("Folder")
 root.Name = ROOT_NAME
 root:SetAttribute("Theme", PolishConfig.StyleName)
 root:SetAttribute("VisualDirection", "Anime Hero Action")
+root:SetAttribute("PersistenceContractPassed", true)
+root:SetAttribute("PersistenceContractVersion", persistenceRuntime.contract.version)
+root:SetAttribute("PersistenceDataVersion", persistenceRuntime.contract.dataVersion)
+root:SetAttribute("PersistenceMaxSeenReceiptIds", persistenceRuntime.contract.maxSeenReceiptIds)
+root:SetAttribute("ProfileReadinessContractPassed", true)
+root:SetAttribute("ProfileReadinessPreReadyMutationCount", persistenceRuntime.readinessContract.preReadyMutationCount)
+root:SetAttribute("ProfileReadinessPreReadyUpdateAsyncCalls", persistenceRuntime.readinessContract.preReadyUpdateAsyncCalls)
+root:SetAttribute("ProfileReadinessPreReadyGrantCount", persistenceRuntime.readinessContract.preReadyGrantCount)
+root:SetAttribute("ProfileReadinessNoEarlyWritable", persistenceRuntime.readinessContract.noEarlyWritable)
+root:SetAttribute("ProfileReadinessReadyPathAllowed", persistenceRuntime.readinessContract.readyPathAllowed)
+root:SetAttribute("GamePassPendingFlushContractCount", persistenceRuntime.readinessContract.pendingGamePassFlushCount)
+root:SetAttribute("GamePassDuplicateOwnershipIdempotent", persistenceRuntime.readinessContract.duplicateGamePassIgnored)
+root:SetAttribute("PersistenceMaxSaveTicketsPerOperation", persistenceRuntime.maxSaveTicketsPerOperation)
+root:SetAttribute("PersistenceSessionLeaseSeconds", persistenceRuntime.sessionLeaseSeconds)
+root:SetAttribute("PersistenceSessionFencingEnabled", true)
+root:SetAttribute("PersistenceRevisionMode", "MonotonicLeaseGeneration")
+root:SetAttribute(
+	"PersistenceMode",
+	persistenceRuntime.isUnpublishedStudio and "EphemeralStudio"
+		or persistenceRuntime.playerStore and "Durable"
+		or "Unavailable"
+)
 root.Parent = workspace
 
 do
@@ -228,6 +446,13 @@ wallsFolder.Parent = root
 local interactFolder = Instance.new("Folder")
 interactFolder.Name = "Interactables"
 interactFolder.Parent = root
+
+local petDropRuntime = { active = {} }
+petDropRuntime.folder = Instance.new("Folder")
+petDropRuntime.folder.Name = "Pet Egg Drops"
+petDropRuntime.folder:SetAttribute("ServerAuthoritative", true)
+petDropRuntime.folder:SetAttribute("OwnerRestricted", true)
+petDropRuntime.folder.Parent = interactFolder
 
 local polishFolder = Instance.new("Folder")
 polishFolder.Name = "Polish"
@@ -284,6 +509,8 @@ local function makeVisualPart(name, parent, size, cframe, color, material)
 	local part = makePart(name, parent, size, cframe.Position, color, material)
 	part.CFrame = cframe
 	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
 	part.CastShadow = true
 	return part
 end
@@ -464,58 +691,97 @@ local function makeSkylineBlock(name, position, size, color, windowColor)
 	return building
 end
 
-local allowedVisualClasses = {
-	Model = true,
-	Folder = true,
-	Part = true,
-	WedgePart = true,
-	CornerWedgePart = true,
-	MeshPart = true,
-	UnionOperation = true,
-	TrussPart = true,
-	Attachment = true,
-	Decal = true,
-	Texture = true,
-	SurfaceAppearance = true,
-	ParticleEmitter = true,
-	Beam = true,
-	Trail = true,
-	SpecialMesh = true,
-	BlockMesh = true,
-	CylinderMesh = true,
-	PointLight = true,
-	SpotLight = true,
-	SurfaceLight = true,
-	Shirt = true,
-	Pants = true,
-	ShirtGraphic = true,
-	BodyColors = true,
-	CharacterMesh = true,
-}
-
-local function sanitizeVisualAsset(instance)
-	for _, child in ipairs(instance:GetChildren()) do
-		if not allowedVisualClasses[child.ClassName] then
-			if child:IsA("Tool") or child:IsA("Accoutrement") then
-				for _, visualChild in ipairs(child:GetChildren()) do
-					if allowedVisualClasses[visualChild.ClassName] then
-						visualChild.Parent = instance
-						sanitizeVisualAsset(visualChild)
-					end
-				end
-			end
-			child:Destroy()
-		else
-			sanitizeVisualAsset(child)
+function visualSafety.geometry(instance)
+	if not instance then
+		return 0, 0
+	end
+	local descendants = instance:GetDescendants()
+	local basePartCount = instance:IsA("BasePart") and 1 or 0
+	for _, descendant in ipairs(descendants) do
+		if descendant:IsA("BasePart") then
+			basePartCount += 1
 		end
 	end
-	if instance:IsA("BasePart") then
-		instance.Anchored = true
-		instance.CanCollide = false
-		instance.CanTouch = false
-		instance.CanQuery = false
-	end
+	return basePartCount, #descendants
 end
+
+function visualSafety.withinBudget(instance, allowRawDescendants)
+	local basePartCount, descendantCount = visualSafety.geometry(instance)
+	local descendantLimit = allowRawDescendants
+		and visualSafety.maxRawDescendants
+		or visualSafety.maxDescendants
+	return basePartCount > 0
+			and basePartCount <= visualSafety.maxBaseParts
+			and descendantCount <= descendantLimit,
+		basePartCount,
+		descendantCount
+end
+
+function visualSafety.sanitize(instance)
+	local withinBudget, originalPartCount, originalDescendantCount =
+		visualSafety.withinBudget(instance, true)
+	if not withinBudget then
+		return false, "external_visual_geometry_budget_exceeded",
+			originalPartCount, originalDescendantCount
+	end
+	local previouslyRemoved = tonumber(
+		instance:GetAttribute("ImportedUnsafeDescendantsRemovedTotal")
+	) or 0
+	local ok, sanitizedRoot, removedOrError = pcall(visualSafety.sanitizer.SanitizeVisual, instance)
+	if not ok
+		or sanitizedRoot ~= instance
+		or not visualSafety.sanitizer.IsSanitizedVisual(instance)
+	then
+		return false, "external_visual_sanitizer_rejected: " .. tostring(removedOrError),
+			originalPartCount, originalDescendantCount
+	end
+	local sanitizedWithinBudget, basePartCount, descendantCount =
+		visualSafety.withinBudget(instance)
+	if not sanitizedWithinBudget then
+		return false, "external_visual_post_sanitize_budget_exceeded",
+			basePartCount, descendantCount
+	end
+	instance:SetAttribute("AssetSanitized", true)
+	instance:SetAttribute("VisualOnly", true)
+	instance:SetAttribute("StrictVisualAllowlistVerified", true)
+	instance:SetAttribute("SanitizedBasePartCount", basePartCount)
+	instance:SetAttribute("SanitizedDescendantCount", descendantCount)
+	instance:SetAttribute("SanitizedBasePartLimit", visualSafety.maxBaseParts)
+	instance:SetAttribute("SanitizedDescendantLimit", visualSafety.maxDescendants)
+	instance:SetAttribute(
+		"ImportedUnsafeDescendantsRemovedTotal",
+		previouslyRemoved + (tonumber(removedOrError) or 0)
+	)
+	return true, nil, basePartCount, descendantCount
+end
+
+function visualSafety.reserveRuntimeBudget(basePartCount, descendantCount)
+	local currentBaseParts = root:GetAttribute("ExternalRuntimeVisualBasePartCount") or 0
+	local currentDescendants = root:GetAttribute("ExternalRuntimeVisualDescendantCount") or 0
+	if currentBaseParts + basePartCount > visualSafety.maxRuntimeBaseParts
+		or currentDescendants + descendantCount > visualSafety.maxRuntimeDescendants
+	then
+		root:SetAttribute(
+			"ExternalRuntimeVisualBudgetRejectCount",
+			(root:GetAttribute("ExternalRuntimeVisualBudgetRejectCount") or 0) + 1
+		)
+		return false
+	end
+	root:SetAttribute("ExternalRuntimeVisualBasePartCount", currentBaseParts + basePartCount)
+	root:SetAttribute("ExternalRuntimeVisualDescendantCount", currentDescendants + descendantCount)
+	return true
+end
+
+root:SetAttribute("ExternalVisualBasePartLimit", visualSafety.maxBaseParts)
+root:SetAttribute("ExternalVisualDescendantLimit", visualSafety.maxDescendants)
+root:SetAttribute("ExternalVisualRawDescendantLimit", visualSafety.maxRawDescendants)
+root:SetAttribute("ExternalTemplateBasePartBudget", visualSafety.maxTemplateBaseParts)
+root:SetAttribute("ExternalTemplateDescendantBudget", visualSafety.maxTemplateDescendants)
+root:SetAttribute("ExternalRuntimeVisualBasePartBudget", visualSafety.maxRuntimeBaseParts)
+root:SetAttribute("ExternalRuntimeVisualDescendantBudget", visualSafety.maxRuntimeDescendants)
+root:SetAttribute("ExternalRuntimeVisualBasePartCount", 0)
+root:SetAttribute("ExternalRuntimeVisualDescendantCount", 0)
+root:SetAttribute("ExternalRuntimeVisualBudgetRejectCount", 0)
 
 local function tryInsertVisualAsset(candidate, position, scale, yaw)
 	local ok, asset = pcall(function()
@@ -525,18 +791,33 @@ local function tryInsertVisualAsset(candidate, position, scale, yaw)
 		return nil
 	end
 	asset.Name = "Creator Store " .. candidate.name
-	sanitizeVisualAsset(asset)
+	local sanitized, sanitizeError, basePartCount, descendantCount =
+		visualSafety.sanitize(asset)
+	if not sanitized
+		or not visualSafety.reserveRuntimeBudget(basePartCount, descendantCount)
+	then
+		warn(("[PunchWall] Visual asset %s rejected: %s"):format(
+			tostring(candidate.name),
+			tostring(sanitizeError or "external_runtime_visual_budget_exceeded")
+		))
+		asset:Destroy()
+		return nil
+	end
 	asset.Parent = decorFolder
 	asset:SetAttribute("AssetId", candidate.assetId)
 	asset:SetAttribute("Creator", candidate.creator)
 	asset:SetAttribute("Use", candidate.use)
-	asset:SetAttribute("SanitizedVisualOnly", true)
+	asset:SetAttribute("RuntimeVisualClone", true)
 	if asset:IsA("Model") then
 		pcall(function()
 			asset:ScaleTo(scale or 0.08)
 		end)
 		asset:PivotTo(CFrame.new(position) * CFrame.Angles(0, math.rad(yaw or 0), 0))
 	end
+	assert(
+		visualSafety.sanitizer.IsSanitizedVisual(asset),
+		"Creator Store city visual lost strict sanitizer attestation"
+	)
 	return asset
 end
 
@@ -547,37 +828,171 @@ local function loadExternalVisualTemplates()
 		folder.Name = "PunchWallExternalAssets"
 		folder.Parent = ReplicatedStorage
 	end
+	for _, existing in ipairs(folder:GetChildren()) do
+		local sanitized, sanitizeError = visualSafety.sanitize(existing)
+		if not sanitized then
+			warn(("[PunchWall] Preloaded visual template %s rejected: %s"):format(
+				existing.Name,
+				tostring(sanitizeError)
+			))
+			existing:Destroy()
+		else
+			existing:SetAttribute("TemplateVisualAttested", true)
+		end
+	end
 
 	local pending = 0
 	local completed = 0
+	local workerFailureCount = 0
+	local lateWorkerCount = 0
+	local preloadedOnlyCount = 0
+	local missingPreloadedOnlyCount = 0
+	local acceptingLoadedTemplates = true
+	local completionSignal = Instance.new("BindableEvent")
+	local loadStartedAt = os.clock()
+	local loadDeadlineAt = loadStartedAt + visualSafety.templateLoadDeadlineSeconds
+	root:SetAttribute("ExternalTemplateLoadLateWorkerCount", 0)
+	root:SetAttribute("ExternalTemplateLoadWorkerFailureCount", 0)
 	for _, candidate in ipairs(PolishConfig.ExternalVisualTemplates or {}) do
-		if not folder:FindFirstChild(candidate.templateName) then
+		local existingTemplate = folder:FindFirstChild(candidate.templateName)
+		if candidate.preloadedOnly == true then
+			preloadedOnlyCount += 1
+			if not existingTemplate then
+				-- A child extracted from a large Creator Store pack cannot be loaded
+				-- safely by requesting the pack ID: that would replicate the whole
+				-- pack and attach the wrong model to this pet. Missing preloaded
+				-- children therefore fail closed to the procedural pet fallback.
+				missingPreloadedOnlyCount += 1
+			end
+		elseif not existingTemplate then
 			pending += 1
 			local requested = candidate
 			task.spawn(function()
-				local ok, asset = pcall(function()
-					return InsertService:LoadAsset(tonumber(requested.assetId))
+				local workerOk, workerError = pcall(function()
+					local ok, asset = pcall(function()
+						return InsertService:LoadAsset(tonumber(requested.assetId))
+					end)
+					if not ok or not asset then
+						ok, asset = pcall(
+							AssetService.LoadAssetAsync,
+							AssetService,
+							requested.assetId
+						)
+					end
+					if ok and asset then
+						if not acceptingLoadedTemplates or os.clock() >= loadDeadlineAt then
+							lateWorkerCount += 1
+							asset:Destroy()
+							pcall(
+								root.SetAttribute,
+								root,
+								"ExternalTemplateLoadLateWorkerCount",
+								lateWorkerCount
+							)
+							return
+						end
+						asset.Name = requested.templateName
+						local sanitized, sanitizeError = visualSafety.sanitize(asset)
+						if sanitized then
+							asset:SetAttribute("AssetId", requested.assetId)
+							asset:SetAttribute("Creator", requested.creator)
+							asset:SetAttribute("Use", requested.use)
+							asset:SetAttribute("TemplateVisualAttested", true)
+							asset.Parent = folder
+						else
+							warn(("[PunchWall] Visual template %s rejected: %s"):format(
+								requested.templateName,
+								tostring(sanitizeError)
+							))
+							asset:Destroy()
+						end
+					else
+						warn(("[PunchWall] Visual asset %s unavailable; using source fallback"):format(
+							requested.templateName
+						))
+					end
 				end)
-				if not ok or not asset then
-					ok, asset = pcall(AssetService.LoadAssetAsync, AssetService, requested.assetId)
-				end
-				if ok and asset then
-					asset.Name = requested.templateName
-					sanitizeVisualAsset(asset)
-					asset:SetAttribute("AssetId", requested.assetId)
-					asset:SetAttribute("Creator", requested.creator)
-					asset:SetAttribute("Use", requested.use)
-					asset:SetAttribute("AssetSanitized", true)
-					asset:SetAttribute("VisualOnly", true)
-					asset.Parent = folder
-				else
-					warn(("[PunchWall] Visual asset %s unavailable; using source fallback"):format(requested.templateName))
+				if not workerOk then
+					workerFailureCount += 1
+					pcall(
+						root.SetAttribute,
+						root,
+						"ExternalTemplateLoadWorkerFailureCount",
+						workerFailureCount
+					)
+					warn(("[PunchWall] Visual template worker %s failed; using source fallback: %s"):format(
+						requested.templateName,
+						tostring(workerError)
+					))
 				end
 				completed += 1
+				pcall(function() completionSignal:Fire() end)
 			end)
 		end
 	end
-	while completed < pending do task.wait() end
+	task.delay(visualSafety.templateLoadDeadlineSeconds, function()
+		pcall(function() completionSignal:Fire() end)
+	end)
+	while completed < pending and os.clock() < loadDeadlineAt do
+		completionSignal.Event:Wait()
+	end
+	acceptingLoadedTemplates = false
+	local timedOutWorkerCount = math.max(0, pending - completed)
+	completionSignal:Destroy()
+	root:SetAttribute("ExternalTemplateLoadPendingCount", pending)
+	root:SetAttribute("ExternalTemplateLoadCompletedByDeadline", completed)
+	root:SetAttribute("ExternalTemplateLoadTimedOutCount", timedOutWorkerCount)
+	root:SetAttribute("ExternalTemplateLoadWorkerFailureCount", workerFailureCount)
+	root:SetAttribute("ExternalTemplateLoadLateWorkerCount", lateWorkerCount)
+	root:SetAttribute("ExternalTemplatePreloadedOnlyCount", preloadedOnlyCount)
+	root:SetAttribute("ExternalTemplateMissingPreloadedOnlyCount", missingPreloadedOnlyCount)
+	root:SetAttribute("ExternalTemplatePreloadedOnlyFailClosed", true)
+	root:SetAttribute("ExternalTemplateLoadDeadlineSeconds", visualSafety.templateLoadDeadlineSeconds)
+	root:SetAttribute("ExternalTemplateLoadDeadlineBounded", true)
+	root:SetAttribute("ExternalTemplateFallbackMode", "SourceOrProcedural")
+	root:SetAttribute("ExternalTemplateWorkerFinalizationGuarded", true)
+	root:SetAttribute("ExternalTemplateLoadElapsedSeconds", os.clock() - loadStartedAt)
+	root:SetAttribute(
+		"ExternalTemplateLoadFinalization",
+		timedOutWorkerCount > 0 and "DeadlineFallback" or "WorkersComplete"
+	)
+	root:SetAttribute("ExternalTemplateLoadFinalized", true)
+
+	local templateBasePartCount = 0
+	local templateDescendantCount = 0
+	local rejectedTemplateCount = 0
+	local templates = folder:GetChildren()
+	table.sort(templates, function(left, right)
+		return left.Name < right.Name
+	end)
+	for _, template in ipairs(templates) do
+		local sanitized, sanitizeError, basePartCount, descendantCount =
+			visualSafety.sanitize(template)
+		local withinTotalBudget = sanitized
+			and templateBasePartCount + basePartCount <= visualSafety.maxTemplateBaseParts
+			and templateDescendantCount + descendantCount <= visualSafety.maxTemplateDescendants
+		if withinTotalBudget then
+			templateBasePartCount += basePartCount
+			templateDescendantCount += descendantCount
+			template:SetAttribute("TemplateVisualAttested", true)
+		else
+			rejectedTemplateCount += 1
+			warn(("[PunchWall] Visual template %s failed final attestation: %s"):format(
+				template.Name,
+				tostring(sanitizeError or "external_template_total_budget_exceeded")
+			))
+			template:Destroy()
+		end
+	end
+	assert(
+		templateBasePartCount <= visualSafety.maxTemplateBaseParts
+			and templateDescendantCount <= visualSafety.maxTemplateDescendants,
+		"External visual templates exceeded their aggregate geometry budget"
+	)
+	root:SetAttribute("ExternalTemplateBasePartCount", templateBasePartCount)
+	root:SetAttribute("ExternalTemplateDescendantCount", templateDescendantCount)
+	root:SetAttribute("ExternalTemplateRejectedCount", rejectedTemplateCount)
+	root:SetAttribute("ExternalTemplateSanitizerValidated", true)
 end
 
 loadExternalVisualTemplates()
@@ -788,23 +1203,23 @@ local function cloneExternalVisual(templateName, parent, instanceName, groundCFr
 	if not template or not template:IsA("Model") then return nil end
 	local clone = template:Clone()
 	clone.Name = instanceName or templateName
+	local sanitized, sanitizeError, basePartCount, descendantCount =
+		visualSafety.sanitize(clone)
+	if not sanitized
+		or not visualSafety.reserveRuntimeBudget(basePartCount, descendantCount)
+	then
+		warn(("[PunchWall] Runtime visual clone %s rejected: %s"):format(
+			tostring(templateName),
+			tostring(sanitizeError or "external_runtime_visual_budget_exceeded")
+		))
+		clone:Destroy()
+		return nil
+	end
 	clone:SetAttribute("RuntimeVisualClone", true)
-	clone:SetAttribute("AssetSanitized", true)
+	clone:SetAttribute("SourceTemplateName", templateName)
 	clone.Parent = parent
 	for _, descendant in ipairs(clone:GetDescendants()) do
-		if descendant:IsA("LuaSourceContainer")
-			or descendant:IsA("RemoteEvent") or descendant:IsA("RemoteFunction")
-			or descendant:IsA("Tool") or descendant:IsA("ClickDetector")
-			or descendant:IsA("ProximityPrompt") then
-			descendant:Destroy()
-		elseif descendant:IsA("BasePart") then
-			descendant.Anchored = true
-			descendant.CanCollide = false
-			descendant.CanTouch = false
-			descendant.CanQuery = false
-			descendant.AssemblyLinearVelocity = Vector3.zero
-			descendant.AssemblyAngularVelocity = Vector3.zero
-		elseif descendant:IsA("ParticleEmitter") then
+		if descendant:IsA("ParticleEmitter") then
 			descendant.Enabled = enableParticles == true
 		end
 	end
@@ -850,6 +1265,10 @@ local function cloneExternalVisual(templateName, parent, instanceName, groundCFr
 			clone:PivotTo(clone:GetPivot() + Vector3.new(0, groundCFrame.Position.Y - minY, 0))
 		end
 	end
+	assert(
+		visualSafety.sanitizer.IsSanitizedVisual(clone),
+		"Runtime Creator Store visual lost strict sanitizer attestation"
+	)
 	return clone
 end
 
@@ -1097,7 +1516,16 @@ local function syncStats(player)
 		end
 	end
 	payload.WallXPNeeded = GameConfig.XPForLevel(payload.WallLevel or 1)
-	payload.RebirthBonus = 1 + (payload.Rebirths or 0) * 0.25
+	payload.RebirthBonus = GameConfig.RebirthBonus(payload.Rebirths)
+	local rebirthRequirement = GameConfig.RebirthRequirement(payload.Rebirths)
+	payload.RebirthRequiredLevel = rebirthRequirement.requiredLevel
+	payload.RebirthRequiredCoins = rebirthRequirement.requiredCoins
+	payload.RebirthNextCount = rebirthRequirement.nextRebirths
+	payload.RebirthNextBonus = rebirthRequirement.permanentMultiplier
+	payload.RebirthMaxed = rebirthRequirement.maxed
+	payload.RebirthReady = not rebirthRequirement.maxed
+		and (payload.WallLevel or 1) >= rebirthRequirement.requiredLevel
+		and (payload.Coins or 0) >= rebirthRequirement.requiredCoins
 	payload.BasePower = payload.Power or 0
 	payload.EffectivePower = GameConfig.EffectivePower(
 		payload.Power,
@@ -1149,36 +1577,326 @@ local function syncStats(player)
 		CoinEndsAt = player:GetAttribute("CoinBoostExpiresAt") or 0,
 		DamageEndsAt = player:GetAttribute("DamageBoostExpiresAt") or 0,
 		SpeedEndsAt = player:GetAttribute("SpeedBoostExpiresAt") or 0,
+		TrainingEndsAt = player:GetAttribute("TrainingBoostExpiresAt") or 0,
 	}
 	statRemote:FireClient(player, payload)
 end
 
-local function loadPlayerData(player)
-	if not playerStore then
-		return {}
-	end
-
-	local ok, data = pcall(function()
-		return playerStore:GetAsync(tostring(player.UserId))
-	end)
-	if ok and data == nil and legacyPlayerStore then
-		local legacyOk, legacyData = pcall(function()
-			return legacyPlayerStore:GetAsync(tostring(player.UserId))
-		end)
-		if legacyOk and type(legacyData) == "table" then
-			data = legacyData
-			data.DataVersion = 1
+do
+local function retryDataStoreCall(callback)
+	local lastError
+	for attempt = 1, persistenceRuntime.dataStoreAttempts do
+		local ok, result = pcall(callback)
+		if ok then
+			return true, result
+		end
+		lastError = result
+		if attempt < persistenceRuntime.dataStoreAttempts then
+			task.wait(attempt * persistenceRuntime.dataStoreRetryBaseSeconds)
 		end
 	end
+	return false, lastError
+end
 
-	if ok and type(data) == "table" then
-		return data
+local function loadPlayerData(player)
+	if persistenceRuntime.isUnpublishedStudio then
+		local profile = ProfilePersistence.NewProfile(
+			GameConfig.DataVersion,
+			ProfilePersistence.MaxReceiptLedgerEntries
+		)
+		local result = {
+			ok = profile ~= nil,
+			data = profile,
+			state = "EphemeralStudio",
+			writable = false,
+			fence = nil,
+		}
+		if not profile then
+			result.reason = "ephemeral_profile_migration_failed"
+		end
+		return result
 	end
 
-	if not ok then
-		warn(("[PunchWallRPG] DataStore load failed for %s: %s"):format(player.Name, tostring(data)))
+	if not persistenceRuntime.playerStore then
+		return {
+			ok = false,
+			state = "Failed",
+			writable = false,
+			reason = "current_store_unavailable",
+		}
 	end
-	return {}
+
+	local key = tostring(player.UserId)
+	local sessionToken = HttpService:GenerateGUID(false)
+
+	local function acquireCurrentProfile(seedProfile)
+		local callbackState = {}
+		local ok, data = retryDataStoreCall(function()
+			return persistenceRuntime.playerStore:UpdateAsync(key, function(previous)
+				callbackState = {}
+				local source = previous
+				if source == nil then
+					if seedProfile == nil then
+						callbackState.missing = true
+						return nil
+					end
+					source = seedProfile
+					callbackState.seeded = true
+				end
+				local profile, fence, acquired, stateOrError = ProfilePersistence.AcquireSessionLease(
+					source,
+					sessionToken,
+					os.time(),
+					persistenceRuntime.sessionLeaseSeconds,
+					GameConfig.DataVersion,
+					ProfilePersistence.MaxReceiptLedgerEntries
+				)
+				if not profile or not acquired or not fence then
+					callbackState.error = stateOrError or "session_lease_acquire_rejected"
+					return nil
+				end
+				callbackState.fence = fence
+				callbackState.leaseState = stateOrError
+				return profile
+			end)
+		end)
+		if not ok then
+			return nil, nil, "current_lease_update_failed: " .. tostring(data)
+		end
+		if callbackState.error then
+			return nil, nil, callbackState.error
+		end
+		if callbackState.missing and seedProfile == nil then
+			return nil, nil, "current_profile_missing"
+		end
+		if type(data) ~= "table" or not callbackState.fence then
+			return nil, nil, "current_lease_update_rejected"
+		end
+		return data, callbackState.fence, nil
+	end
+
+	local currentData, currentFence, currentError = acquireCurrentProfile(nil)
+	if currentData then
+		return {
+			ok = true,
+			data = currentData,
+			state = "Loaded",
+			writable = true,
+			fence = currentFence,
+		}
+	end
+	if currentError ~= "current_profile_missing" then
+		return {
+			ok = false,
+			state = "Failed",
+			writable = false,
+			reason = "current_profile_lease_failed: " .. tostring(currentError),
+		}
+	end
+
+	if not persistenceRuntime.legacyPlayerStore then
+		return {
+			ok = false,
+			state = "Failed",
+			writable = false,
+			reason = "legacy_store_unavailable",
+		}
+	end
+
+	local legacyOk, legacyData = retryDataStoreCall(function()
+		return persistenceRuntime.legacyPlayerStore:GetAsync(key)
+	end)
+	if not legacyOk then
+		return {
+			ok = false,
+			state = "Failed",
+			writable = false,
+			reason = "legacy_load_failed: " .. tostring(legacyData),
+		}
+	end
+	local seedProfile
+	local seededState
+	if legacyData ~= nil then
+		local migrationState
+		seedProfile, migrationState = ProfilePersistence.Migrate(
+			legacyData,
+			GameConfig.DataVersion,
+			ProfilePersistence.MaxReceiptLedgerEntries
+		)
+		if not seedProfile then
+			return {
+				ok = false,
+				state = "Failed",
+				writable = false,
+				reason = "legacy_profile_rejected: " .. tostring(migrationState),
+			}
+		end
+		seededState = "MigratedLegacy"
+	else
+		local newProfileError
+		seedProfile, newProfileError = ProfilePersistence.NewProfile(
+			GameConfig.DataVersion,
+			ProfilePersistence.MaxReceiptLedgerEntries
+		)
+		if not seedProfile then
+			return {
+				ok = false,
+				state = "Failed",
+				writable = false,
+				reason = "new_profile_failed: " .. tostring(newProfileError),
+			}
+		end
+		seededState = "New"
+	end
+
+	local seededData, seededFence, seedError = acquireCurrentProfile(seedProfile)
+	if not seededData then
+		return {
+			ok = false,
+			state = "Failed",
+			writable = false,
+			reason = "seed_profile_lease_failed: " .. tostring(seedError),
+		}
+	end
+	return {
+		ok = true,
+		data = seededData,
+		state = seededState,
+		writable = true,
+		fence = seededFence,
+	}
+end
+
+local function applySpeedBoostState(player, character)
+	if player:GetAttribute("TrainingMovementLocked") then
+		return
+	end
+	character = character or player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return
+	end
+	local active = (player:GetAttribute("SpeedBoostExpiresAt") or 0) > workspace:GetServerTimeNow()
+	local wasApplied = player:GetAttribute("SpeedBoostApplied") == true
+	if active then
+		if humanoid.WalkSpeed ~= 24 then
+			humanoid.WalkSpeed = 24
+		end
+	elseif wasApplied then
+		humanoid.WalkSpeed = 16
+	end
+	if active ~= wasApplied then
+		player:SetAttribute("SpeedBoostApplied", active)
+	end
+end
+
+local function getPendingGamePassState(player)
+	local state = persistenceRuntime.pendingGamePassGrants[player]
+	if not state then
+		state = {
+			byKey = {},
+			order = {},
+			flushing = false,
+		}
+		persistenceRuntime.pendingGamePassGrants[player] = state
+	end
+	return state
+end
+
+local function queuePendingGamePassGrant(player, kind, item, source)
+	local gamePassId = item and tonumber(item.gamePassId)
+	if not player or not item or not gamePassId or gamePassId <= 0 then
+		return false, "invalid_game_pass_grant"
+	end
+	local state = getPendingGamePassState(player)
+	local key = ("%s:%d"):format(kind, gamePassId)
+	if state.byKey[key] then
+		return true, "already_queued"
+	end
+	if #state.order >= persistenceRuntime.maxPendingGamePassGrants then
+		return false, "pending_game_pass_queue_full"
+	end
+	state.byKey[key] = {
+		key = key,
+		kind = kind,
+		item = item,
+		source = source or "GamePass",
+		gamePassId = gamePassId,
+	}
+	table.insert(state.order, key)
+	player:SetAttribute("PendingGamePassGrantCount", #state.order)
+	return true, "queued"
+end
+
+local function initializePlayerProfileSession(player, loadResult)
+	local savedData = loadResult.data
+	local canBecomeWritable = loadResult.writable == true
+		and not persistenceRuntime.isUnpublishedStudio
+		and type(loadResult.fence) == "table"
+	persistenceRuntime.profileSessions[player] = {
+		initializing = true,
+		ready = false,
+		writable = false,
+		canBecomeWritable = canBecomeWritable,
+		state = "Initializing",
+		loadedState = loadResult.state,
+		fence = loadResult.fence,
+		leaseExpiresAt = savedData.SessionLease and savedData.SessionLease.ExpiresAt or 0,
+		knownReceiptIds = ProfilePersistence.ReceiptIdSet(
+			savedData,
+			ProfilePersistence.MaxReceiptLedgerEntries
+		),
+		appliedReceiptIds = {},
+		receiptUncertain = {},
+	}
+	player:SetAttribute("ProfileReady", false)
+	player:SetAttribute("ProfileWritable", false)
+	player:SetAttribute("ProfileCanSave", false)
+	player:SetAttribute("ProfilePersistenceState", "Initializing")
+	player:SetAttribute("ProfileRevision", loadResult.fence and loadResult.fence.Revision or 0)
+	player:SetAttribute("ProfileLeaseExpiresAt", savedData.SessionLease and savedData.SessionLease.ExpiresAt or 0)
+	for _, field in ipairs(ProfilePersistence.BoostExpiryFields) do
+		player:SetAttribute(field, tonumber(savedData[field]) or 0)
+	end
+	return savedData
+end
+
+local function markPlayerProfileReady(player)
+	local session = persistenceRuntime.profileSessions[player]
+	local hasRPGStats, hasLeaderstats = hasCompleteProfileStats(player)
+	if not session or session.initializing ~= true or not hasRPGStats or not hasLeaderstats then
+		return false, "profile_stats_not_ready"
+	end
+	session.initializing = false
+	session.ready = true
+	session.writable = session.canBecomeWritable == true
+	session.state = session.loadedState
+	player:SetAttribute("ProfileReady", true)
+	player:SetAttribute("ProfileWritable", session.writable)
+	player:SetAttribute("ProfileCanSave", session.writable)
+	player:SetAttribute("ProfilePersistenceState", session.loadedState)
+	player:SetAttribute("ProfileRevision", session.fence and session.fence.Revision or 0)
+	player:SetAttribute("ProfileLeaseExpiresAt", session.leaseExpiresAt or 0)
+	player:SetAttribute("ProfileLoadStarted", false)
+	task.spawn(function()
+		if player.Parent ~= Players or persistenceRuntime.profileSessions[player] ~= session then
+			return
+		end
+		if persistenceRuntime.flushPendingGamePassGrants then
+			persistenceRuntime.flushPendingGamePassGrants(player, "ProfileReady")
+		end
+		if persistenceRuntime.reconcileOwnedGamePasses then
+			persistenceRuntime.reconcileOwnedGamePasses(player)
+		end
+	end)
+	return true
+end
+	persistenceRuntime.retryDataStoreCall = retryDataStoreCall
+	persistenceRuntime.loadPlayerData = loadPlayerData
+	persistenceRuntime.applySpeedBoostState = applySpeedBoostState
+	persistenceRuntime.queuePendingGamePassGrant = queuePendingGamePassGrant
+	persistenceRuntime.initializePlayerProfileSession = initializePlayerProfileSession
+	persistenceRuntime.markPlayerProfileReady = markPlayerProfileReady
 end
 
 local function savedNumber(savedData, name)
@@ -1197,47 +1915,310 @@ local function savedText(savedData, name)
 	return TEXT_STAT_DEFAULTS[name]
 end
 
-local function applyKaijuGrowth(player)
-	local character = player.Character
-	local levelValue = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("WallLevel")
-	if not character or not levelValue then return end
-	local scale = 1 + math.min(math.max(levelValue.Value - 1, 0), 54) * 0.006
-	pcall(function() character:ScaleTo(scale) end)
-	local rootPart = character:FindFirstChild("HumanoidRootPart")
-	if rootPart then
-		local aura = rootPart:FindFirstChild("Kaiju Growth Aura") or Instance.new("ParticleEmitter")
-		aura.Name = "Kaiju Growth Aura"
-		aura.Enabled = levelValue.Value >= 8
-		aura.Rate = math.clamp(levelValue.Value / 3, 3, 18)
-		aura.Lifetime = NumberRange.new(0.5, 0.9)
-		aura.Speed = NumberRange.new(0.4, 1.2)
-		aura.SpreadAngle = Vector2.new(180, 30)
-		aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0) })
-		aura.Color = ColorSequence.new(levelValue.Value >= 30 and Color3.fromRGB(232, 75, 52) or Color3.fromRGB(82, 178, 213))
-		aura.Parent = rootPart
+shared.PunchWallPowerGrowth = {
+	pending = setmetatable({}, { __mode = "k" }),
+}
+
+function shared.PunchWallPowerGrowth.CoreBodyBounds(character)
+	local minimumY = math.huge
+	local maximumY = -math.huge
+	local partCount = 0
+	for _, child in ipairs(character:GetChildren()) do
+		if child:IsA("BasePart") then
+			local cframe = child.CFrame
+			local size = child.Size
+			local halfHeight = (
+				math.abs(cframe.RightVector.Y) * size.X
+				+ math.abs(cframe.UpVector.Y) * size.Y
+				+ math.abs(cframe.LookVector.Y) * size.Z
+			) * 0.5
+			minimumY = math.min(minimumY, child.Position.Y - halfHeight)
+			maximumY = math.max(maximumY, child.Position.Y + halfHeight)
+			partCount += 1
+		end
 	end
+	if partCount == 0 then return nil end
+	return minimumY, maximumY, maximumY - minimumY, partCount
+end
+
+function shared.PunchWallPowerGrowth.Apply(player)
+	local character = player.Character
+	local powerValue = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Power")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if not character or not powerValue or not humanoid or not rootPart then return false end
+	local appearanceOk, appearanceLoaded = pcall(function() return player:HasAppearanceLoaded() end)
+	if appearanceOk and not appearanceLoaded then
+		character:SetAttribute("PowerGrowthWaitingForAppearance", true)
+		return false
+	end
+	if character:GetAttribute("DepthActiveCollisionGroup") == "PunchingCharacters" then
+		character:SetAttribute("PowerGrowthDeferredForPunch", true)
+		task.delay(math.max(0.12, tonumber(player:GetAttribute("LastPunchOwnershipHoldSeconds")) or 0.24), function()
+			if player.Parent and player.Character == character then shared.PunchWallPowerGrowth.Schedule(player) end
+		end)
+		return false
+	end
+	character:SetAttribute("PowerGrowthWaitingForAppearance", false)
+	character:SetAttribute("PowerGrowthDeferredForPunch", false)
+
+	local growthConfig = GameConfig.PlayerGrowth
+	local currentScale = character:GetScale()
+	local currentBodyBottom, _, currentBodyHeight, bodyPartCount = shared.PunchWallPowerGrowth.CoreBodyBounds(character)
+	if not currentBodyBottom or not currentBodyHeight then return false end
+	local baseModelScale = tonumber(character:GetAttribute("PowerGrowthBaseModelScale"))
+	local baseBodyHeight = tonumber(character:GetAttribute("PowerGrowthBaseBodyHeight"))
+	if not baseModelScale or baseModelScale <= 0 or not baseBodyHeight or baseBodyHeight <= 0 then
+		baseModelScale = math.max(0.01, currentScale)
+		baseBodyHeight = math.max(0.01, currentBodyHeight)
+		character:SetAttribute("PowerGrowthBaseModelScale", baseModelScale)
+		character:SetAttribute("PowerGrowthBaseBodyHeight", baseBodyHeight)
+	end
+
+	local targetModelScale, requestedMultiplier, maximumHeight, wallCapped = GameConfig.PlayerGrowthModelScale(
+		powerValue.Value,
+		baseModelScale,
+		baseBodyHeight
+	)
+	local ownershipToken = player:GetAttribute("PunchOwnershipToken") or 0
+	local ownershipHeld = pcall(function() rootPart:SetNetworkOwner(nil) end)
+	character:SetAttribute("PowerGrowthServerOwnershipHeld", ownershipHeld)
+
+	local beforeBottom = rootPart.Position.Y - humanoid.HipHeight - rootPart.Size.Y * 0.5
+	if math.abs(currentScale - targetModelScale) > 0.004 then
+		local scaled = pcall(function()
+			character:ScaleTo(targetModelScale)
+		end)
+		if not scaled or character ~= player.Character then
+			if ownershipHeld and rootPart.Parent then pcall(function() rootPart:SetNetworkOwnershipAuto() end) end
+			return false
+		end
+	end
+
+	local _, _, afterBodyHeight = shared.PunchWallPowerGrowth.CoreBodyBounds(character)
+	local afterBottom = rootPart.Position.Y - humanoid.HipHeight - rootPart.Size.Y * 0.5
+	if afterBodyHeight > maximumHeight + 0.025 and targetModelScale > baseModelScale + 0.004 then
+		targetModelScale = math.max(baseModelScale, targetModelScale * maximumHeight / afterBodyHeight * 0.998)
+		local corrected = pcall(function()
+			character:ScaleTo(targetModelScale)
+		end)
+		if not corrected or character ~= player.Character then
+			if ownershipHeld and rootPart.Parent then pcall(function() rootPart:SetNetworkOwnershipAuto() end) end
+			return false
+		end
+		local correctedBodyBottom
+		correctedBodyBottom, _, afterBodyHeight = shared.PunchWallPowerGrowth.CoreBodyBounds(character)
+		afterBottom = rootPart.Position.Y - humanoid.HipHeight - rootPart.Size.Y * 0.5
+	end
+	local footCorrection = math.clamp(beforeBottom - afterBottom, -3, 3)
+	if math.abs(footCorrection) > 0.005 and character == player.Character then
+		character:PivotTo(character:GetPivot() + Vector3.new(0, footCorrection, 0))
+		local correctedBodyBottom
+		correctedBodyBottom, _, afterBodyHeight = shared.PunchWallPowerGrowth.CoreBodyBounds(character)
+		afterBottom = rootPart.Position.Y - humanoid.HipHeight - rootPart.Size.Y * 0.5
+	end
+	if ownershipHeld and rootPart.Parent and character == player.Character
+		and (player:GetAttribute("PunchOwnershipToken") or 0) == ownershipToken
+		and character:GetAttribute("DepthActiveCollisionGroup") ~= "PunchingCharacters" then
+		pcall(function() rootPart:SetNetworkOwnershipAuto() end)
+		character:SetAttribute("PowerGrowthServerOwnershipHeld", false)
+	end
+
+	local appliedMultiplier = character:GetScale() / baseModelScale
+	local wallHeight = math.max(1, tonumber(growthConfig.ShortestWallHeightStuds) or 11)
+	character:SetAttribute("PowerGrowthVersion", growthConfig.Version)
+	character:SetAttribute("PowerGrowthPower", powerValue.Value)
+	character:SetAttribute("PowerGrowthRequestedMultiplier", requestedMultiplier)
+	character:SetAttribute("PowerGrowthAppliedMultiplier", appliedMultiplier)
+	character:SetAttribute("PowerGrowthBodyHeight", afterBodyHeight)
+	character:SetAttribute(
+		"PowerGrowthCoreBottom",
+		rootPart.Position.Y - humanoid.HipHeight - rootPart.Size.Y * 0.5
+	)
+	character:SetAttribute("PowerGrowthBodyPartCount", bodyPartCount)
+	character:SetAttribute("PowerGrowthWallHeight", wallHeight)
+	character:SetAttribute("PowerGrowthMaximumHeight", maximumHeight)
+	character:SetAttribute("PowerGrowthCappedByWall", wallCapped or afterBodyHeight > maximumHeight + 0.05)
+	character:SetAttribute("PowerGrowthPetScalePolicy", "IndependentFixedTarget")
+
+	local aura = rootPart:FindFirstChild("Kaiju Growth Aura") or Instance.new("ParticleEmitter")
+	aura.Name = "Kaiju Growth Aura"
+	local auraStart = tonumber(growthConfig.AuraStartMultiplier) or 1.25
+	local auraProgress = math.clamp(
+		(appliedMultiplier - auraStart) / math.max(0.01, (growthConfig.MaxScaleMultiplier or 1.25) - auraStart),
+		0,
+		1
+	)
+	aura.Enabled = appliedMultiplier >= auraStart
+	aura.Rate = math.floor(4 + auraProgress * 12 + 0.5)
+	aura.Lifetime = NumberRange.new(0.5, 0.9)
+	aura.Speed = NumberRange.new(0.4, 1.2)
+	aura.SpreadAngle = Vector2.new(180, 30)
+	aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0) })
+	aura.Color = ColorSequence.new(auraProgress >= 0.65 and Color3.fromRGB(232, 75, 52) or Color3.fromRGB(82, 178, 213))
+	aura.Parent = rootPart
+	return true
+end
+
+function shared.PunchWallPowerGrowth.Schedule(player)
+	if shared.PunchWallPowerGrowth.pending[player] then return end
+	shared.PunchWallPowerGrowth.pending[player] = true
+	local scheduledCharacter = player.Character
+	local scheduledGeneration = player:GetAttribute("PowerGrowthGeneration") or 0
+	task.delay(GameConfig.PlayerGrowth.UpdateDelaySeconds or 0.08, function()
+		shared.PunchWallPowerGrowth.pending[player] = nil
+		if player.Parent and player.Character == scheduledCharacter
+			and (player:GetAttribute("PowerGrowthGeneration") or 0) == scheduledGeneration then
+			shared.PunchWallPowerGrowth.Apply(player)
+		end
+	end)
+end
+
+function shared.PunchWallPowerGrowth.RunRigContract()
+	local rows = {}
+	local valid = true
+	for _, spec in ipairs({
+		{ name = "R6Default", rigType = Enum.HumanoidRigType.R6 },
+		{ name = "R15Default", rigType = Enum.HumanoidRigType.R15 },
+		{ name = "R15Tall", rigType = Enum.HumanoidRigType.R15, tall = true },
+	}) do
+		local description = Instance.new("HumanoidDescription")
+		if spec.tall then
+			description.HeightScale = 1.05
+			description.WidthScale = 1.00
+			description.DepthScale = 1.00
+			description.HeadScale = 1.00
+		end
+		local created, model = pcall(function()
+			return Players:CreateHumanoidModelFromDescriptionAsync(description, spec.rigType)
+		end)
+		description:Destroy()
+		if not created or not model then
+			valid = false
+			table.insert(rows, { name = spec.name, created = false })
+			continue
+		end
+		model.Name = "Power Growth Rig Contract " .. spec.name
+		model.Parent = workspace
+		model:PivotTo(CFrame.new(0, 50, 500 + #rows * 20))
+		local baseScale = model:GetScale()
+		local _, _, baseHeight, partCount = shared.PunchWallPowerGrowth.CoreBodyBounds(model)
+		local accessory = Instance.new("Accessory")
+		accessory.Name = "Oversized Accessory Contract"
+		local handle = Instance.new("Part")
+		handle.Name = "Handle"
+		handle.Size = Vector3.new(30, 30, 30)
+		handle.Parent = accessory
+		accessory.Parent = model
+		local _, _, bodyHeightWithAccessory = shared.PunchWallPowerGrowth.CoreBodyBounds(model)
+		local targetScale, requestedMultiplier, maximumHeight = GameConfig.PlayerGrowthModelScale(
+			GameConfig.PlayerGrowth.FullGrowthPower,
+			baseScale,
+			baseHeight
+		)
+		model:ScaleTo(targetScale)
+		local _, _, finalHeight = shared.PunchWallPowerGrowth.CoreBodyBounds(model)
+		local accessoryIgnored = math.abs(bodyHeightWithAccessory - baseHeight) <= 0.005
+		local rowValid = partCount >= (spec.rigType == Enum.HumanoidRigType.R6 and 6 or 15)
+			and targetScale / baseScale >= 1
+			and targetScale / baseScale <= GameConfig.PlayerGrowth.MaxScaleMultiplier + 0.005
+			and finalHeight <= maximumHeight + 0.05
+			and accessoryIgnored
+		valid = valid and rowValid
+		table.insert(rows, {
+			name = spec.name,
+			created = true,
+			valid = rowValid,
+			parts = partCount,
+			baseHeight = baseHeight,
+			finalHeight = finalHeight,
+			requestedMultiplier = requestedMultiplier,
+			appliedMultiplier = targetScale / baseScale,
+			maximumHeight = maximumHeight,
+			accessoryIgnored = accessoryIgnored,
+		})
+		model:Destroy()
+	end
+	return { ok = valid, rows = rows }
 end
 
 local function ensureStats(player)
 	player.DevCameraOcclusionMode = Enum.DevCameraOcclusionMode.Invisicam
 	player:SetAttribute("PreserveTunnelCameraZoom", true)
+	if profileReady(player, false) then
+		syncStats(player)
+		return
+	end
+	if player:GetAttribute("ProfileLoadStarted") then
+		return
+	end
+	player:SetAttribute("ProfileLoadStarted", true)
+	player:SetAttribute("ProfileReady", false)
+	player:SetAttribute("ProfileWritable", false)
+	player:SetAttribute("ProfileCanSave", false)
+	player:SetAttribute("ProfilePersistenceState", "Loading")
+
+	local loadResult = persistenceRuntime.loadPlayerData(player)
+	if not player.Parent then
+		if loadResult and loadResult.fence and persistenceRuntime.releaseProfileFence then
+			local released, releaseError = persistenceRuntime.releaseProfileFence(player, loadResult.fence)
+			if not released then
+				warn(("[PunchWallRPG] Could not release abandoned profile lease for %s: %s"):format(
+					player.Name,
+					tostring(releaseError)
+				))
+			end
+		end
+		player:SetAttribute("ProfileLoadStarted", false)
+		return
+	end
+	if not loadResult.ok or type(loadResult.data) ~= "table" then
+		player:SetAttribute("ProfileLoadStarted", false)
+		player:SetAttribute("ProfilePersistenceState", "Failed")
+		warn(("[PunchWallRPG] Profile load failed closed for %s: %s"):format(
+			player.Name,
+			tostring(loadResult.reason)
+		))
+		player:Kick("Your saved data could not be loaded safely. Please rejoin and try again.")
+		return
+	end
+
+	local savedData = persistenceRuntime.initializePlayerProfileSession(player, loadResult)
 	if not player:GetAttribute("DepthCollisionGroupHooked") then
 		player:SetAttribute("DepthCollisionGroupHooked", true)
 		player.CharacterAdded:Connect(function(character)
 			applyCharacterCollisionGroup(character)
-			if (player:GetAttribute("SpeedBoostExpiresAt") or 0) > workspace:GetServerTimeNow() then
-				local humanoid = character:WaitForChild("Humanoid", 5)
-				if humanoid then humanoid.WalkSpeed = 24 end
-			end
+			character:WaitForChild("Humanoid", 5)
+			persistenceRuntime.applySpeedBoostState(player, character)
 		end)
 	end
-	if player.Character then applyCharacterCollisionGroup(player.Character) end
-	if player:FindFirstChild("RPGStats") and player:FindFirstChild("leaderstats") then
-		syncStats(player)
+	local currentCharacter = player.Character
+	if currentCharacter then
+		applyCharacterCollisionGroup(currentCharacter)
+		currentCharacter:WaitForChild("Humanoid", 5)
+		persistenceRuntime.applySpeedBoostState(player, currentCharacter)
+	end
+	if not player.Parent then
+		local session = persistenceRuntime.profileSessions[player]
+		local finalSaveTicket = persistenceRuntime.finalSaveTickets[player]
+		if persistenceRuntime.releaseProfileFence and session and session.fence and not finalSaveTicket then
+			local released, releaseError = persistenceRuntime.releaseProfileFence(
+				player,
+				session.fence
+			)
+			if not released then
+				warn(("[PunchWallRPG] Could not release initializing profile lease for %s: %s"):format(
+					player.Name,
+					tostring(releaseError)
+				))
+			end
+		end
+		if not finalSaveTicket then
+			persistenceRuntime.profileSessions[player] = nil
+			persistenceRuntime.pendingGamePassGrants[player] = nil
+		end
 		return
 	end
-
-	local savedData = loadPlayerData(player)
 
 	local stats = Instance.new("Folder")
 	stats.Name = "RPGStats"
@@ -1253,8 +2234,9 @@ local function ensureStats(player)
 		instance.Value = value
 		instance.Parent = parent or stats
 		instance.Changed:Connect(function()
+			if not profileReady(player, false) then return end
 			syncStats(player)
-			if name == "WallLevel" then applyKaijuGrowth(player) end
+			if name == "Power" then shared.PunchWallPowerGrowth.Schedule(player) end
 			if name == "Depth" or name == "Score" then
 				task.defer(function()
 					for _, otherPlayer in ipairs(Players:GetPlayers()) do
@@ -1272,6 +2254,7 @@ local function ensureStats(player)
 		instance.Value = savedText(savedData, name)
 		instance.Parent = stats
 		instance.Changed:Connect(function()
+			if not profileReady(player, false) then return end
 			syncStats(player)
 		end)
 		return instance
@@ -1319,24 +2302,58 @@ local function ensureStats(player)
 	local equippedDefinition = GameConfig.FistDefinition(stats.EquippedFist.Value)
 	stats.FistMultiplier.Value = equippedDefinition.mult
 	stats.BreakSpeed.Value = 1
+	-- Migrate legacy display-name ownership to stable ids, discard unknown and
+	-- duplicate entries, and never trust an equipped relic that is not owned.
+	local normalizedHonorOwned = {}
+	local normalizedHonorSet = {}
+	local honorOwnedOk, honorOwnedSource = pcall(function()
+		return HttpService:JSONDecode(stats.OwnedHonorItemsJSON.Value)
+	end)
+	if honorOwnedOk and type(honorOwnedSource) == "table" then
+		for _, selector in ipairs(honorOwnedSource) do
+			local definition = GameConfig.HonorItemDefinition(selector)
+			if definition and not normalizedHonorSet[definition.id] then
+				normalizedHonorSet[definition.id] = true
+				table.insert(normalizedHonorOwned, definition.id)
+			end
+		end
+	end
+	stats.OwnedHonorItemsJSON.Value = HttpService:JSONEncode(normalizedHonorOwned)
 	local honorDefinition = GameConfig.HonorItemDefinition(stats.EquippedHonorItem.Value)
-	stats.HonorPowerBonus.Value = honorDefinition and honorDefinition.powerBonus or 0
+	if not honorDefinition or not normalizedHonorSet[honorDefinition.id] then
+		honorDefinition = nil
+		stats.EquippedHonorItem.Value = "None"
+	else
+		stats.EquippedHonorItem.Value = honorDefinition.id
+	end
+	stats.HonorPowerBonus.Value = honorDefinition
+		and math.min(GameConfig.Honor.MaxEquippedPowerBonus, honorDefinition.powerBonus)
+		or 0
 
 	local offlineTrainingGain = 0
 	local nowEpoch = os.time()
+	local trainingStation = GameConfig.TrainingStation(stats.TrainingStationId.Value)
+	if not trainingStation or leaderstats.Power.Value < trainingStation.minPower then
+		trainingStation = GameConfig.TrainingStationForPower(leaderstats.Power.Value)
+		stats.TrainingStationId.Value = trainingStation.id
+	end
 	if stats.TrainingActive.Value >= 1 and stats.TrainingUpdatedAt.Value > 0 then
 		local elapsed = math.clamp(nowEpoch - stats.TrainingUpdatedAt.Value, 0, GameConfig.Training.MaxOfflineSeconds)
-		offlineTrainingGain = math.floor(
-			elapsed / GameConfig.Training.TickSeconds
-			* GameConfig.Training.PowerPerTick
-			* GameConfig.Training.OfflineEfficiency
-		)
+		local requestedOfflineGain = GameConfig.TrainingOfflineGain(trainingStation.id, elapsed)
+		offlineTrainingGain = math.max(0, math.min(
+			requestedOfflineGain,
+			ProfilePersistence.MaxAuthoritativeNumber - leaderstats.Power.Value
+		))
 		if offlineTrainingGain > 0 then
 			leaderstats.Power.Value += offlineTrainingGain
 		end
 	end
 	stats.TrainingUpdatedAt.Value = nowEpoch
 	player:SetAttribute("AutoTrainingActive", stats.TrainingActive.Value >= 1)
+	player:SetAttribute("ActiveTrainingStationId", trainingStation.id)
+	player:SetAttribute("ActiveTrainingStationName", trainingStation.name)
+	player:SetAttribute("ActiveTrainingPowerPerSecond", trainingStation.gain)
+	player:SetAttribute("ActiveTrainingRequiredPower", trainingStation.minPower)
 	player:SetAttribute(
 		"TrainingTickAnchor",
 		stats.TrainingActive.Value >= 1 and workspace:GetServerTimeNow() or nil
@@ -1348,14 +2365,43 @@ local function ensureStats(player)
 		stats.DailyQuestClaimed.Value = 0
 		dailyQuestDate.Value = os.date("!%Y-%m-%d")
 	end
-	if not player:GetAttribute("KaijuGrowthConnected") then
-		player:SetAttribute("KaijuGrowthConnected", true)
-		player.CharacterAdded:Connect(function()
-			task.wait(0.5)
-			applyKaijuGrowth(player)
+	if not player:GetAttribute("PowerGrowthConnected") then
+		player:SetAttribute("PowerGrowthConnected", true)
+		player.CharacterAdded:Connect(function(character)
+			local generation = (player:GetAttribute("PowerGrowthGeneration") or 0) + 1
+			player:SetAttribute("PowerGrowthGeneration", generation)
+			task.delay(0.65, function()
+				if player.Character == character and (player:GetAttribute("PowerGrowthGeneration") or 0) == generation then
+					shared.PunchWallPowerGrowth.Apply(player)
+				end
+			end)
+		end)
+		player.CharacterAppearanceLoaded:Connect(function(character)
+			if player.Character == character then shared.PunchWallPowerGrowth.Schedule(player) end
 		end)
 	end
-	task.defer(function() applyKaijuGrowth(player) end)
+	task.delay(0.65, function()
+		if player.Parent then shared.PunchWallPowerGrowth.Apply(player) end
+	end)
+
+	local profileMarkedReady, readyError = persistenceRuntime.markPlayerProfileReady(player)
+	if not profileMarkedReady then
+		local session = persistenceRuntime.profileSessions[player]
+		if persistenceRuntime.releaseProfileFence and session and session.fence then
+			persistenceRuntime.releaseProfileFence(player, session.fence)
+		end
+		player:SetAttribute("ProfileLoadStarted", false)
+		player:SetAttribute("ProfileReady", false)
+		player:SetAttribute("ProfileWritable", false)
+		player:SetAttribute("ProfileCanSave", false)
+		player:SetAttribute("ProfilePersistenceState", "InitializationFailed")
+		warn(("[PunchWallRPG] Profile readiness failed closed for %s: %s"):format(
+			player.Name,
+			tostring(readyError)
+		))
+		player:Kick("Your profile could not finish initializing safely. Please rejoin and try again.")
+		return
+	end
 
 	task.defer(function()
 		syncStats(player)
@@ -1365,7 +2411,8 @@ local function ensureStats(player)
 				type = "OfflineTraining",
 				target = "Power Training",
 				power = offlineTrainingGain,
-				seconds = math.floor(offlineTrainingGain / math.max(1, GameConfig.Training.PowerPerTick * GameConfig.Training.OfflineEfficiency)),
+				seconds = math.floor(offlineTrainingGain / math.max(1, trainingStation.gain * GameConfig.Training.OfflineEfficiency)),
+				station = trainingStation.displayName,
 				color = PolishConfig.Palette.Reward,
 			})
 		end
@@ -1415,6 +2462,132 @@ end
 
 local function addStat(player, name, amount)
 	setStat(player, name, statValue(player, name) + amount)
+end
+
+shared.PunchWallHonor = {}
+
+function shared.PunchWallHonor.Grant(player, amount, source, target)
+	local before = math.clamp(
+		math.floor(tonumber(statValue(player, "Honor", 0)) or 0),
+		0,
+		ProfilePersistence.MaxAuthoritativeNumber
+	)
+	local requested = math.max(0, math.floor(tonumber(amount) or 0))
+	local after = math.min(ProfilePersistence.MaxAuthoritativeNumber, before + requested)
+	local granted = after - before
+	setStat(player, "Honor", after)
+	if granted > 0 then
+		sendFeedback(player, {
+			type = "Honor",
+			target = target or source or "HONOR",
+			source = source,
+			honor = granted,
+			color = Color3.fromRGB(255, 205, 61),
+		})
+	end
+	return granted
+end
+
+function shared.PunchWallHonor.MilestoneClaimed(mask, index)
+	local bit = 2 ^ (index - 1)
+	return math.floor(math.max(0, tonumber(mask) or 0) / bit) % 2 >= 1, bit
+end
+
+function shared.PunchWallHonor.PendingMilestones(player, milestoneList, maskStat, progress, progressKey)
+	local mask = math.max(0, math.floor(tonumber(statValue(player, maskStat, 0)) or 0))
+	local total = 0
+	local claimed = {}
+	local nextMask = mask
+	for index, milestone in ipairs(milestoneList) do
+		local wasClaimed, bit = shared.PunchWallHonor.MilestoneClaimed(mask, index)
+		if not wasClaimed and progress >= (milestone[progressKey] or math.huge) then
+			nextMask += bit
+			total += milestone.honor or 0
+			table.insert(claimed, milestone[progressKey])
+		end
+	end
+	return total, claimed, nextMask
+end
+
+function shared.PunchWallHonor.ClaimMilestones(player, milestoneList, maskStat, progress, progressKey, source)
+	local total, claimed, nextMask = shared.PunchWallHonor.PendingMilestones(
+		player,
+		milestoneList,
+		maskStat,
+		progress,
+		progressKey
+	)
+	if #claimed == 0 then return 0, claimed end
+	local honor = math.max(0, math.floor(tonumber(statValue(player, "Honor", 0)) or 0))
+	if honor + total > ProfilePersistence.MaxAuthoritativeNumber then
+		return 0, claimed, "honor_headroom"
+	end
+	-- Claim state is committed before the currency mutation and no yield occurs
+	-- between them, so same-frame/re-entrant attempts cannot double award.
+	setStat(player, maskStat, nextMask)
+	return shared.PunchWallHonor.Grant(player, total, source, source), claimed
+end
+
+function shared.PunchWallHonor.ClaimDepthMilestones(player, depth)
+	return shared.PunchWallHonor.ClaimMilestones(
+		player,
+		GameConfig.Honor.DepthMilestones,
+		"HonorMilestoneMask",
+		math.max(0, math.floor(tonumber(depth) or 0)),
+		"depth",
+		"DEPTH MILESTONE"
+	)
+end
+
+function shared.PunchWallHonor.ClaimRebirthMilestones(player, rebirths)
+	return shared.PunchWallHonor.ClaimMilestones(
+		player,
+		GameConfig.Honor.RebirthMilestones,
+		"HonorRebirthMilestoneMask",
+		math.max(0, math.floor(tonumber(rebirths) or 0)),
+		"rebirths",
+		"REBIRTH MILESTONE"
+	)
+end
+
+function shared.PunchWallHonor.ClaimQualifiedWorldClear(player, contributionShare)
+	local honorConfig = GameConfig.Honor
+	if statValue(player, "Depth", 0) < GameConfig.WorldProgressTarget then
+		return 0, "depth_gate"
+	end
+	local finalDepthClaimed = shared.PunchWallHonor.MilestoneClaimed(
+		statValue(player, "HonorMilestoneMask", 0),
+		#honorConfig.DepthMilestones
+	)
+	if not finalDepthClaimed then
+		return 0, "depth_milestone_gate"
+	end
+	if contributionShare < honorConfig.MinimumBossContribution then
+		return 0, "contribution_gate"
+	end
+	local clearId = tostring(game.JobId) .. ":" .. tostring(root:GetAttribute("WorldResetCount") or 0)
+	if statValue(player, "LastHonorClearId", "") == clearId then
+		return 0, "duplicate_clear"
+	end
+	local now = os.time()
+	local lastClearAt = math.max(0, tonumber(statValue(player, "LastHonorClearAt", 0)) or 0)
+	if lastClearAt > 0 and now - lastClearAt < honorConfig.MinimumClearIntervalSeconds then
+		return 0, "clear_cooldown"
+	end
+	local today = os.date("!%Y-%m-%d", now)
+	local clearsToday = statValue(player, "HonorClearDate", "") == today
+		and math.max(0, math.floor(tonumber(statValue(player, "HonorClearsToday", 0)) or 0))
+		or 0
+	if clearsToday >= honorConfig.MaxWorldClearsPerDay then
+		return 0, "daily_cap"
+	end
+	local reward = honorConfig.WorldClearBase
+	if clearsToday == 0 then reward += honorConfig.FirstDailyClearBonus end
+	setStat(player, "HonorClearDate", today)
+	setStat(player, "HonorClearsToday", clearsToday + 1)
+	setStat(player, "LastHonorClearId", clearId)
+	setStat(player, "LastHonorClearAt", now)
+	return shared.PunchWallHonor.Grant(player, reward, "WORLD CLEAR", "TITAN HQ CLEARED"), "awarded"
 end
 
 local function effectivePower(player)
@@ -1535,42 +2708,470 @@ local function collectPlayerData(player)
 	for _, name in ipairs(RPG_TEXT_STAT_NAMES) do
 		data[name] = tostring(statValue(player, name, TEXT_STAT_DEFAULTS[name]))
 	end
+	for _, field in ipairs(ProfilePersistence.BoostExpiryFields) do
+		data[field] = tonumber(player:GetAttribute(field)) or 0
+	end
 	return data
 end
 
-local function savePlayerData(player)
-	if not playerStore or savingPlayers[player] or player:GetAttribute("StudioHighPowerTestMode") or not player:FindFirstChild("RPGStats") then
+do
+local function newPersistenceTicket(reason)
+	return {
+		completed = false,
+		success = false,
+		reason = reason,
+	}
+end
+
+local function completedPersistenceTicket(reason, success, persistenceError, skipped)
+	local ticket = newPersistenceTicket(reason)
+	ticket.completed = true
+	ticket.success = success == true
+	ticket.error = persistenceError
+	ticket.skipped = skipped == true
+	return ticket
+end
+
+local function rememberFinalSaveTicket(player, finalSave, ticket)
+	if finalSave then
+		persistenceRuntime.finalSaveTickets[player] = ticket
+	end
+	return ticket
+end
+
+local function finishPersistenceTickets(operation, success, persistenceError)
+	for _, ticket in ipairs(operation.tickets or {}) do
+		ticket.completed = true
+		ticket.success = success == true
+		ticket.error = persistenceError
+	end
+end
+
+local function copyKnownReceiptIds(session)
+	local receiptIds = {}
+	for purchaseId in pairs(session and session.knownReceiptIds or {}) do
+		receiptIds[purchaseId] = true
+	end
+	return receiptIds
+end
+
+local function getPersistenceQueue(player)
+	local state = persistenceRuntime.queues[player]
+	if not state then
+		state = {
+			operations = {},
+			queuedReceipts = {},
+			queuedReceiptCount = 0,
+			running = false,
+			blocked = false,
+			departed = false,
+		}
+		persistenceRuntime.queues[player] = state
+	end
+	return state
+end
+
+local function hasUncertainReceipt(session)
+	return session and next(session.receiptUncertain) ~= nil
+end
+
+local function releaseProfileFence(player, fence)
+	if not fence or not persistenceRuntime.playerStore then
+		return false, "missing_session_fence"
+	end
+	local callbackState = {}
+	local ok, releasedOrError = persistenceRuntime.retryDataStoreCall(function()
+		return persistenceRuntime.playerStore:UpdateAsync(tostring(player.UserId), function(previous)
+			callbackState = {}
+			local releasedProfile, released, releaseError = ProfilePersistence.ReleaseSessionLease(
+				previous,
+				fence,
+				os.time(),
+				GameConfig.DataVersion,
+				ProfilePersistence.MaxReceiptLedgerEntries
+			)
+			if not releasedProfile or not released then
+				callbackState.error = releaseError or "session_lease_release_rejected"
+				return nil
+			end
+			callbackState.released = true
+			return releasedProfile
+		end)
+	end)
+	if not ok then
+		return false, releasedOrError
+	end
+	if callbackState.error then
+		return false, callbackState.error
+	end
+	if not callbackState.released or type(releasedOrError) ~= "table" then
+		return false, "session_lease_release_rejected"
+	end
+	return true
+end
+
+local function persistSnapshot(player, snapshot, releaseLease)
+	local session = persistenceRuntime.profileSessions[player]
+	local ready, readinessError = profileReady(player, true)
+	if not ready then
+		return false, readinessError
+	end
+	if not persistenceRuntime.playerStore then
+		return false, "current_store_unavailable"
+	end
+	local callbackState = {}
+	local ok, canonicalOrError = persistenceRuntime.retryDataStoreCall(function()
+		return persistenceRuntime.playerStore:UpdateAsync(tostring(player.UserId), function(previous)
+			callbackState = {}
+			local callbackNow = os.time()
+			local canonical, mergeStateOrError = ProfilePersistence.MergeSnapshotFenced(
+				previous,
+				snapshot,
+				session.fence,
+				callbackNow,
+				GameConfig.DataVersion,
+				ProfilePersistence.MaxReceiptLedgerEntries
+			)
+			if not canonical then
+				callbackState.error = mergeStateOrError or "profile_fence_rejected"
+				return nil
+			end
+			if releaseLease then
+				local releasedProfile, released, releaseError = ProfilePersistence.ReleaseSessionLease(
+					canonical,
+					session.fence,
+					callbackNow,
+					GameConfig.DataVersion,
+					ProfilePersistence.MaxReceiptLedgerEntries
+				)
+				if not releasedProfile or not released then
+					callbackState.error = releaseError or "session_lease_release_rejected"
+					return nil
+				end
+				callbackState.released = true
+				return releasedProfile
+			end
+			local renewedProfile, renewedFence, renewed, renewStateOrError =
+				ProfilePersistence.RenewSessionLease(
+					canonical,
+					session.fence,
+					callbackNow,
+					persistenceRuntime.sessionLeaseSeconds,
+					GameConfig.DataVersion,
+					ProfilePersistence.MaxReceiptLedgerEntries
+				)
+			if not renewedProfile or not renewed or not renewedFence then
+				callbackState.error = renewStateOrError or "session_lease_renew_rejected"
+				return nil
+			end
+			callbackState.fence = renewedFence
+			callbackState.leaseExpiresAt = renewedProfile.SessionLease
+				and renewedProfile.SessionLease.ExpiresAt or 0
+			return renewedProfile
+		end)
+	end)
+	if not ok then
+		return false, canonicalOrError
+	end
+	if callbackState.error then
+		if string.find(tostring(callbackState.error), "session_", 1, true)
+			or string.find(tostring(callbackState.error), "fence", 1, true)
+		then
+			session.ready = false
+			session.writable = false
+			player:SetAttribute("ProfileReady", false)
+			player:SetAttribute("ProfileWritable", false)
+			player:SetAttribute("ProfileCanSave", false)
+			player:SetAttribute("ProfilePersistenceState", "SessionFenceRejected")
+		end
+		return false, callbackState.error
+	end
+	if type(canonicalOrError) ~= "table" then
+		return false, "profile_snapshot_merge_rejected"
+	end
+	if callbackState.released then
+		session.leaseReleased = true
+		session.ready = false
+		session.writable = false
+		session.leaseExpiresAt = 0
+		player:SetAttribute("ProfileReady", false)
+		player:SetAttribute("ProfileWritable", false)
+		player:SetAttribute("ProfileCanSave", false)
+		player:SetAttribute("ProfileLeaseExpiresAt", 0)
+	else
+		session.fence = callbackState.fence
+		session.leaseExpiresAt = callbackState.leaseExpiresAt
+		player:SetAttribute("ProfileRevision", callbackState.fence.Revision)
+		player:SetAttribute("ProfileLeaseExpiresAt", callbackState.leaseExpiresAt)
+	end
+	return true
+end
+
+local function runPersistenceOperation(player, operation)
+	if operation.kind == "save" then
+		local session = persistenceRuntime.profileSessions[player]
+		if hasUncertainReceipt(session) then
+			return false, "receipt_commit_state_uncertain", true
+		end
+		local ok, persistenceError = persistSnapshot(player, operation.snapshot, operation.finalSave)
+		return ok, persistenceError, false
+	end
+	if operation.kind == "receipt" then
+		local ok, success, persistenceError = pcall(operation.execute)
+		if not ok then
+			return false, success, false
+		end
+		return success == true, persistenceError, false
+	end
+	if operation.kind == "release" then
+		local session = persistenceRuntime.profileSessions[player]
+		local released, releaseError = releaseProfileFence(player, session and session.fence)
+		if released and session then
+			session.leaseReleased = true
+			session.ready = false
+			session.writable = false
+			session.leaseExpiresAt = 0
+			player:SetAttribute("ProfileReady", false)
+			player:SetAttribute("ProfileWritable", false)
+			player:SetAttribute("ProfileCanSave", false)
+			player:SetAttribute("ProfileLeaseExpiresAt", 0)
+		end
+		return released, releaseError, false
+	end
+	return false, "unknown_persistence_operation", false
+end
+
+local startPersistenceWorker
+startPersistenceWorker = function(player)
+	local state = getPersistenceQueue(player)
+	if state.running then
 		return
+	end
+	state.running = true
+	state.blocked = false
+	task.spawn(function()
+		local blocked = false
+		while persistenceRuntime.queues[player] == state do
+			local operation = table.remove(state.operations, 1)
+			if not operation then
+				break
+			end
+			local success, persistenceError, shouldBlock = runPersistenceOperation(player, operation)
+			if shouldBlock then
+				table.insert(state.operations, 1, operation)
+				blocked = true
+				break
+			end
+			if operation.kind == "receipt" then
+				state.queuedReceipts[operation.purchaseId] = nil
+				state.queuedReceiptCount = math.max(0, state.queuedReceiptCount - 1)
+			end
+			finishPersistenceTickets(operation, success, persistenceError)
+			if not success then
+				warn(("[PunchWallRPG] Persistence %s failed for %s: %s"):format(
+					operation.kind,
+					player.Name,
+					tostring(persistenceError)
+				))
+			end
+		end
+		state.running = false
+		state.blocked = blocked
+		if state.departed and #state.operations == 0 then
+			persistenceRuntime.queues[player] = nil
+			persistenceRuntime.profileSessions[player] = nil
+			persistenceRuntime.pendingGamePassGrants[player] = nil
+		elseif not blocked and #state.operations > 0 then
+			startPersistenceWorker(player)
+		end
+	end)
+end
+
+local function requestPlayerSave(player, reason, finalSave)
+	reason = reason or "Save"
+	local existingFinalTicket = finalSave and persistenceRuntime.finalSaveTickets[player]
+	if existingFinalTicket then
+		return existingFinalTicket
+	end
+	local session = persistenceRuntime.profileSessions[player]
+	if player:GetAttribute("StudioHighPowerTestMode") then
+		return rememberFinalSaveTicket(
+			player,
+			finalSave,
+			completedPersistenceTicket(reason, true, nil, true)
+		)
+	end
+	local ready, readinessError = profileReady(player, false)
+	if not ready then
+		if finalSave
+			and session
+			and session.fence
+			and session.canBecomeWritable
+			and persistenceRuntime.playerStore
+		then
+			local ticket = newPersistenceTicket(reason)
+			local state = getPersistenceQueue(player)
+			rememberFinalSaveTicket(player, finalSave, ticket)
+			table.insert(state.operations, {
+				kind = "release",
+				reason = reason,
+				finalSave = true,
+				tickets = { ticket },
+			})
+			startPersistenceWorker(player)
+			return ticket
+		end
+		return completedPersistenceTicket(reason, false, readinessError)
+	end
+	if not session.writable then
+		if session.loadedState == "EphemeralStudio" or session.state == "EphemeralStudio" then
+			return rememberFinalSaveTicket(
+				player,
+				finalSave,
+				completedPersistenceTicket(reason, true, nil, true)
+			)
+		end
+		return rememberFinalSaveTicket(
+			player,
+			finalSave,
+			completedPersistenceTicket(reason, false, "profile_not_writable")
+		)
+	end
+	if not persistenceRuntime.playerStore then
+		return rememberFinalSaveTicket(
+			player,
+			finalSave,
+			completedPersistenceTicket(reason, false, "current_store_unavailable")
+		)
 	end
 	if statValue(player, "TrainingActive", 0) >= 1 then
 		setStat(player, "TrainingUpdatedAt", os.time())
 	end
 
-	savingPlayers[player] = true
-	local data = collectPlayerData(player)
-	local ok = false
-	local err
-	for attempt = 1, 3 do
-		ok, err = pcall(function()
-			playerStore:UpdateAsync(tostring(player.UserId), function(previous)
-				local merged = type(previous) == "table" and previous or {}
-				for key, value in pairs(data) do
-					merged[key] = value
-				end
-				merged.DataVersion = GameConfig.DataVersion
-				return merged
-			end)
-		end)
-		if ok then
-			break
+	local ticket = newPersistenceTicket(reason)
+	local snapshot = collectPlayerData(player)
+	local state = getPersistenceQueue(player)
+	if not finalSave then
+		local previousOperation = state.operations[#state.operations]
+		if previousOperation and previousOperation.kind == "save" and not previousOperation.finalSave then
+			previousOperation.snapshot = snapshot
+			previousOperation.receiptIds = copyKnownReceiptIds(session)
+			if #previousOperation.tickets >= persistenceRuntime.maxSaveTicketsPerOperation then
+				root:SetAttribute(
+					"PersistenceCoalescedTicketReuseCount",
+					(root:GetAttribute("PersistenceCoalescedTicketReuseCount") or 0) + 1
+				)
+				startPersistenceWorker(player)
+				return previousOperation.tickets[#previousOperation.tickets]
+			end
+			table.insert(previousOperation.tickets, ticket)
+			startPersistenceWorker(player)
+			return ticket
 		end
-		task.wait(attempt * 0.35)
 	end
-	savingPlayers[player] = nil
+	rememberFinalSaveTicket(player, finalSave, ticket)
+	table.insert(state.operations, {
+		kind = "save",
+		reason = reason,
+		finalSave = finalSave == true,
+		snapshot = snapshot,
+		receiptIds = copyKnownReceiptIds(session),
+		tickets = { ticket },
+	})
+	startPersistenceWorker(player)
+	return ticket
+end
 
-	if not ok then
-		warn(("[PunchWallRPG] DataStore save failed for %s: %s"):format(player.Name, tostring(err)))
+local function enqueueReceiptOperation(player, purchaseId, execute)
+	local session = persistenceRuntime.profileSessions[player]
+	local ready, readinessError = profileReady(player, true)
+	if not ready then
+		return completedPersistenceTicket("Receipt", false, readinessError)
 	end
+	if not persistenceRuntime.playerStore then
+		return completedPersistenceTicket("Receipt", false, "current_store_unavailable")
+	end
+	local state = getPersistenceQueue(player)
+	local existingTicket = state.queuedReceipts[purchaseId]
+	if existingTicket then
+		return existingTicket
+	end
+	if state.queuedReceiptCount >= persistenceRuntime.maxQueueOperations then
+		return completedPersistenceTicket("Receipt", false, "receipt_queue_full")
+	end
+	local ticket = newPersistenceTicket("Receipt")
+	local operation = {
+		kind = "receipt",
+		purchaseId = purchaseId,
+		execute = execute,
+		tickets = { ticket },
+	}
+	state.queuedReceipts[purchaseId] = ticket
+	state.queuedReceiptCount += 1
+	if session.receiptUncertain[purchaseId] then
+		table.insert(state.operations, 1, operation)
+	else
+		table.insert(state.operations, operation)
+	end
+	startPersistenceWorker(player)
+	return ticket
+end
+
+local function patchQueuedSaveSnapshots(player, purchaseId, receiptEntry)
+	local state = persistenceRuntime.queues[player]
+	if not state then
+		return
+	end
+	for _, operation in ipairs(state.operations) do
+		if operation.kind == "save" and not operation.receiptIds[purchaseId] then
+			ProfilePersistence.ApplyReceiptEntryToSnapshot(operation.snapshot, receiptEntry)
+			operation.receiptIds[purchaseId] = true
+		end
+	end
+end
+
+local function waitForPersistenceTicket(ticket, timeoutSeconds)
+	if not ticket then
+		return false, "missing_ticket"
+	end
+	local deadline = os.clock() + math.max(0, tonumber(timeoutSeconds) or 0)
+	while not ticket.completed and os.clock() < deadline do
+		task.wait(0.05)
+	end
+	if not ticket.completed then
+		return false, "persistence_timeout"
+	end
+	return ticket.success == true, ticket.error
+end
+
+local function markPersistencePlayerDeparted(player, abandonPending)
+	local state = persistenceRuntime.queues[player]
+	if not state then
+		persistenceRuntime.profileSessions[player] = nil
+		persistenceRuntime.pendingGamePassGrants[player] = nil
+		return
+	end
+	state.departed = true
+	if abandonPending and #state.operations > 0 then
+		for _, operation in ipairs(state.operations) do
+			finishPersistenceTickets(operation, false, "player_departed_before_persistence")
+		end
+		table.clear(state.operations)
+		table.clear(state.queuedReceipts)
+		state.queuedReceiptCount = 0
+	end
+	if not state.running and #state.operations == 0 then
+		persistenceRuntime.queues[player] = nil
+		persistenceRuntime.profileSessions[player] = nil
+		persistenceRuntime.pendingGamePassGrants[player] = nil
+	end
+end
+	persistenceRuntime.requestPlayerSave = requestPlayerSave
+	persistenceRuntime.releaseProfileFence = releaseProfileFence
+	persistenceRuntime.enqueueReceiptOperation = enqueueReceiptOperation
+	persistenceRuntime.patchQueuedSaveSnapshots = patchQueuedSaveSnapshots
+	persistenceRuntime.waitForTicket = waitForPersistenceTicket
+	persistenceRuntime.markPlayerDeparted = markPersistencePlayerDeparted
 end
 
 local base = makePart("World 1 Forest Ground", root, Vector3.new(190, 3, 150), Vector3.new(-15, -1.5, 0), Color3.fromRGB(66, 116, 61), Enum.Material.Grass)
@@ -1591,9 +3192,13 @@ for _, boundary in ipairs({
 	{ "Forest Hub North East Ridge", Vector3.new(50, 15, 5), Vector3.new(54, 6.5, -73) },
 }) do
 	local ridge = makePart(boundary[1], root, boundary[2], boundary[3], Color3.fromRGB(64, 77, 67), Enum.Material.Rock)
+	ridge.CanTouch = false
 	ridge:SetAttribute("VisualRole", "VisibleHubBoundary")
 	ridge:SetAttribute("MapBoundary", true)
+	ridge:SetAttribute("CollisionSource", "VisibleGeometry")
 end
+root:SetAttribute("ForestBoundaryCollisionMode", "VisibleRidgesOnly")
+root:SetAttribute("ForestBoundaryColliderCount", 5)
 
 shared.PunchWallUpdateWorldRankBoard = (function()
 local rankBoard = makePart("World 1 Hero Rank Board", root, Vector3.new(31, 17, 1.2), Vector3.new(62, 9.2, -38), Color3.fromRGB(9, 17, 24), Enum.Material.Metal)
@@ -1718,18 +3323,6 @@ spawn.CanCollide = false
 spawn.Neutral = true
 spawn.Parent = root
 
-for _, boundary in ipairs({
-	{ name = "North West Safety Barrier", size = Vector3.new(82, 12, 2), position = Vector3.new(-68, 5, -74) },
-	{ name = "North East Safety Barrier", size = Vector3.new(56, 12, 2), position = Vector3.new(52, 5, -74) },
-	{ name = "South Safety Barrier", size = Vector3.new(190, 12, 2), position = Vector3.new(-15, 5, 74) },
-	{ name = "West Safety Barrier", size = Vector3.new(2, 12, 148), position = Vector3.new(-110, 5, 0) },
-	{ name = "East Safety Barrier", size = Vector3.new(2, 12, 148), position = Vector3.new(80, 5, 0) },
-}) do
-	local barrier = makePart(boundary.name, decorFolder, boundary.size, boundary.position, Color3.fromRGB(67, 70, 72), Enum.Material.Concrete)
-	barrier.Transparency = 1
-	barrier:SetAttribute("VisualRole", "InvisibleWorldBoundary")
-end
-
 local fallRecovery = makePart("Fall Recovery Zone", root, Vector3.new(150, 1, 470), Vector3.new(-2, -35, -150), Color3.new(0, 0, 0), Enum.Material.SmoothPlastic)
 fallRecovery.Transparency = 1
 fallRecovery.CanCollide = false
@@ -1745,6 +3338,7 @@ local spawnRing = makeCylinder("Forest Spawn Stone", decorFolder, Vector3.new(0.
 spawnRing.Transparency = 0.04
 
 local arch = makePart("Forest Training Camp Sign", root, Vector3.new(30, 3.6, 1.0), Vector3.new(-42, 11.15, 42), Color3.fromRGB(80, 55, 35), Enum.Material.WoodPlanks)
+arch:SetAttribute("SignagePriority", "Zone")
 makeText(arch, "FOREST POWER CAMP", "AUTO POWER TRAINING | OFFLINE GAINS", Enum.NormalId.Front)
 makeText(arch, "SMASH WALL", "TRAIN HERE, THEN BREAK DEEPER", Enum.NormalId.Back)
 shared.PunchWallTrainingLandmark = function()
@@ -2407,6 +4001,7 @@ local function buildWall(config)
 	clickDetector.Parent = wall
 
 	clickDetector.MouseClick:Connect(function(player)
+		if not profileReady(player, false) then return end
 		hitWall(player, wall)
 	end)
 end
@@ -2483,6 +4078,15 @@ for layer = 1, DEPTH_LAYERS do
 			block:SetAttribute("VisualRole", "SharedExcavationBlock")
 		end
 	end
+end
+
+do
+	local expectedDepthBlockCount = DEPTH_COLUMNS * DEPTH_ROWS * DEPTH_LAYERS
+	local builtDepthBlockCount = #depthBlocksFolder:GetChildren()
+	assert(expectedDepthBlockCount == 5400, "Depth wall configuration must preserve exactly 5,400 gameplay blocks")
+	assert(builtDepthBlockCount == expectedDepthBlockCount, "Depth wall build did not satisfy its gameplay block-count contract")
+	root:SetAttribute("DepthBlockContractCount", expectedDepthBlockCount)
+	root:SetAttribute("DepthBlockContractValidated", true)
 end
 
 for tier, config in ipairs(wallConfigs) do
@@ -3296,20 +4900,8 @@ local function hitDepthBlock(player, block, options)
 			local previousDepth = statValue(contributor, "Depth", 0)
 			if layer > previousDepth then
 				setStat(contributor, "Depth", layer)
+				shared.PunchWallHonor.ClaimDepthMilestones(contributor, layer)
 				shared.PunchWallQueueDepthMilestone(contributor, previousDepth)
-			end
-			if layer >= GameConfig.WorldProgressTarget then
-				local honorCycle = math.floor(os.time() / WORLD_RESET_INTERVAL)
-				if statValue(contributor, "LastHonorCycle", -1) ~= honorCycle then
-					setStat(contributor, "LastHonorCycle", honorCycle)
-					addStat(contributor, "Honor", GameConfig.HonorPerWorldClear)
-					sendFeedback(contributor, {
-						type = "Honor",
-						target = "WORLD 1 CLEARED",
-						honor = GameConfig.HonorPerWorldClear,
-						color = Color3.fromRGB(255, 205, 61),
-					})
-				end
 			end
 			if previousBreaks < GameConfig.Rewards.QuestBreakTarget
 				and previousBreaks + 1 >= GameConfig.Rewards.QuestBreakTarget then
@@ -3317,7 +4909,7 @@ local function hitDepthBlock(player, block, options)
 			end
 			awardWallXP(contributor, block:GetAttribute("XPReward") or 1)
 			advanceTutorial(contributor, 2)
-			if tryDropPetEgg then tryDropPetEgg(contributor, layer) end
+			if tryDropPetEgg then tryDropPetEgg(contributor, layer, block.Position) end
 			sendFeedback(contributor, { type = "Reward", target = block.Name, wallBreak = true, coins = coins, score = score, depth = layer, color = PolishConfig.Palette.Reward })
 		end
 	end
@@ -3674,11 +5266,20 @@ local function hitBoss(player, weakPointMultiplier)
 				local share = contribution / math.max(1, totalContribution)
 				local coins = math.max(1, math.floor(boss:GetAttribute("CoinReward") * (0.6 + share * 0.4)))
 				if (plr:GetAttribute("CoinBoostExpiresAt") or 0) > workspace:GetServerTimeNow() then coins *= 2 end
+				local depthBeforeBossReward = statValue(plr, "Depth", 0)
 				addStat(plr, "Coins", coins)
 				addStat(plr, "Score", math.max(1, math.floor(boss:GetAttribute("ScoreReward") * share + 0.5)))
-				if statValue(plr, "Depth", 0) < 76 then setStat(plr, "Depth", 76) end
+				if depthBeforeBossReward >= GameConfig.WorldProgressTarget and depthBeforeBossReward < 76 then
+					setStat(plr, "Depth", 76)
+				end
+				local honorGranted, honorReason = 0, "depth_gate"
+				if depthBeforeBossReward >= GameConfig.WorldProgressTarget then
+					honorGranted, honorReason = shared.PunchWallHonor.ClaimQualifiedWorldClear(plr, share)
+				end
+				plr:SetAttribute("LastWorldClearHonorGranted", honorGranted)
+				plr:SetAttribute("LastWorldClearHonorReason", honorReason)
 				awardWallXP(plr, boss:GetAttribute("XPReward"))
-				sendFeedback(plr, { type = "Boss", target = boss.Name, coins = coins, color = bossStyle.accent })
+				sendFeedback(plr, { type = "Boss", target = boss.Name, coins = coins, honor = honorGranted, color = bossStyle.accent })
 			end
 		end
 		boss.Transparency = 0.85
@@ -3714,6 +5315,7 @@ local function hitBoss(player, weakPointMultiplier)
 end
 
 bossClick.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	hitBoss(player)
 end)
 for _, weakPoint in ipairs(bossWeakPoints) do
@@ -3721,6 +5323,7 @@ for _, weakPoint in ipairs(bossWeakPoints) do
 	detector.MaxActivationDistance = 50
 	detector.Parent = weakPoint
 	detector.MouseClick:Connect(function(player)
+		if not profileReady(player, false) then return end
 		hitBoss(player, weakPoint:GetAttribute("WeakPointMultiplier") or 1.5)
 	end)
 end
@@ -3761,18 +5364,33 @@ task.spawn(function()
 	end
 end)
 
-local trainingConfigs = {
-	{
-		name = "Power Bag",
-		stat = "Power",
-		gain = GameConfig.Training.PowerPerTick,
-		pos = Vector3.new(-42, 4, 24),
-		color = Color3.fromRGB(218, 66, 48),
+local trainingConfigs = {}
+local trainingRuntime = {
+	positions = {
+		rookie_bag = Vector3.new(-16, 4, 24),
+		iron_dummy = Vector3.new(-34, 4, 24),
+		titan_reactor = Vector3.new(-52, 4, 24),
+		celestial_core = Vector3.new(-70, 4, 24),
 	},
+	byName = {},
+	byId = {},
+	partsByName = {},
 }
+for _, definition in ipairs(GameConfig.Training.Stations) do
+	local config = table.clone(definition)
+	config.stat = "Power"
+	config.pos = assert(trainingRuntime.positions[config.id], "Missing training position for " .. config.id)
+	table.insert(trainingConfigs, config)
+end
 
-local trainingByName = {}
-local trainingPartsByName = {}
+local function setActiveTrainingStation(player, config)
+	if not config then return end
+	setStat(player, "TrainingStationId", config.id)
+	player:SetAttribute("ActiveTrainingStationId", config.id)
+	player:SetAttribute("ActiveTrainingStationName", config.name)
+	player:SetAttribute("ActiveTrainingPowerPerSecond", config.gain)
+	player:SetAttribute("ActiveTrainingRequiredPower", config.minPower)
+end
 
 local function setTrainingMovementLocked(player, active, config)
 	local character = player.Character
@@ -3834,21 +5452,39 @@ local function playTrainingImpact(config)
 	end
 end
 
+local stopTraining
+
 local function grantTrainingTick(player, config, showFeedback, tickCount)
+	if not config or statValue(player, "Power", 0) < config.minPower then
+		if stopTraining then stopTraining(player, "power_required") end
+		return 0
+	end
 	tickCount = math.max(1, math.floor(tonumber(tickCount) or 1))
 	local gain = config.gain * tickCount
 	if (player:GetAttribute("TrainingBoostExpiresAt") or 0) > workspace:GetServerTimeNow() then gain *= 2 end
+	gain = math.max(0, math.min(
+		gain,
+		ProfilePersistence.MaxAuthoritativeNumber - statValue(player, "Power", 0)
+	))
+	if gain <= 0 then return 0 end
 	addStat(player, "Power", gain)
 	setStat(player, "TrainingUpdatedAt", os.time())
 	player:SetAttribute("LastTrainingTickAt", workspace:GetServerTimeNow())
+	player:SetAttribute("LastTrainingStationId", config.id)
+	player:SetAttribute("LastTrainingGrant", gain)
+	player:SetAttribute("LastTrainingTickBatch", tickCount)
+	player:SetAttribute("TrainingSessionTickCount", (player:GetAttribute("TrainingSessionTickCount") or 0) + tickCount)
+	player:SetAttribute("TrainingPayoutSerial", (player:GetAttribute("TrainingPayoutSerial") or 0) + 1)
 	setTrainingMovementLocked(player, true, config)
 	playTrainingImpact(config)
 	if showFeedback then
 		sendFeedback(player, {
 			type = "Train",
-			target = "AUTO POWER TRAINING",
+			target = config.displayName,
 			stat = "Power",
 			gain = gain,
+			powerPerSecond = config.gain,
+			stationId = config.id,
 			active = true,
 			color = config.color,
 		})
@@ -3857,6 +5493,7 @@ local function grantTrainingTick(player, config, showFeedback, tickCount)
 end
 
 local function trainPlayer(player, config)
+	if not config then return { ok = false, reason = "unknown_station" } end
 	local now = os.clock()
 	local key = "LastTrainToggle"
 	local lastTrain = player:GetAttribute(key) or 0
@@ -3864,66 +5501,114 @@ local function trainPlayer(player, config)
 		return { ok = false, reason = "cooldown" }
 	end
 	player:SetAttribute(key, now)
+	local power = statValue(player, "Power", 0)
+	if power < config.minPower then
+		sendFeedback(player, {
+			type = "Fail",
+			target = config.displayName,
+			message = ("Need %s Power"):format(formatNumber(config.minPower)),
+			color = PolishConfig.Palette.Fail,
+		})
+		return {
+			ok = false,
+			reason = "power_required",
+			stationId = config.id,
+			requiredPower = config.minPower,
+			power = power,
+		}
+	end
 	local wasActive = statValue(player, "TrainingActive", 0) >= 1
 	if wasActive then
+		local previousId = tostring(statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId))
+		setActiveTrainingStation(player, config)
 		setTrainingMovementLocked(player, true, config)
-		return { ok = true, active = true, alreadyActive = true, stat = "Power", value = statValue(player, "Power") }
+		if previousId == config.id then
+			return { ok = true, active = true, alreadyActive = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power }
+		end
+		player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
+		player:SetAttribute("TrainingSessionGeneration", (player:GetAttribute("TrainingSessionGeneration") or 0) + 1)
+		player:SetAttribute("TrainingSessionTickCount", 0)
+		sendFeedback(player, { type = "TrainingState", target = config.displayName, active = true, switched = true, gain = config.gain, color = config.color })
+		return { ok = true, active = true, switched = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power }
 	end
+	setActiveTrainingStation(player, config)
 	setStat(player, "TrainingActive", 1)
 	setStat(player, "TrainingUpdatedAt", os.time())
 	player:SetAttribute("AutoTrainingActive", true)
 	player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
+	player:SetAttribute("TrainingSessionGeneration", (player:GetAttribute("TrainingSessionGeneration") or 0) + 1)
+	player:SetAttribute("TrainingSessionTickCount", 0)
 	setTrainingMovementLocked(player, true, config)
 
-	local gain = grantTrainingTick(player, config, true)
 	advanceTutorial(player, 1)
-	sendFeedback(player, { type = "TrainingState", target = "TRAINING", active = true, color = config.color })
-	return { ok = true, active = true, stat = "Power", gain = gain, value = statValue(player, "Power") }
+	sendFeedback(player, { type = "TrainingState", target = config.displayName, active = true, gain = config.gain, stationId = config.id, color = config.color })
+	return { ok = true, active = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", gain = 0, value = statValue(player, "Power") }
 end
 
-local function stopTraining(player)
+stopTraining = function(player, reason)
 	setStat(player, "TrainingActive", 0)
 	setStat(player, "TrainingUpdatedAt", os.time())
 	player:SetAttribute("AutoTrainingActive", false)
 	player:SetAttribute("TrainingTickAnchor", nil)
-	setTrainingMovementLocked(player, false, trainingConfigs[1])
+	local selected = trainingRuntime.byId[tostring(statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId))]
+		or trainingConfigs[1]
+	setTrainingMovementLocked(player, false, selected)
 	sendFeedback(player, {
 		type = "TrainingState",
-		target = "TRAINING COMPLETE",
+		target = reason == "power_required" and "TRAINING LOCKED" or "TRAINING COMPLETE",
 		active = false,
+		reason = reason,
 		color = PolishConfig.Palette.Reward,
 	})
-	return { ok = true, active = false, stat = "Power", value = statValue(player, "Power") }
+	return { ok = true, active = false, reason = reason, stationId = selected.id, stat = "Power", value = statValue(player, "Power") }
 end
 
 for _, config in ipairs(trainingConfigs) do
-	trainingByName[config.name] = config
+	trainingRuntime.byName[config.name] = config
+	trainingRuntime.byId[config.id] = config
 	local station = makePart(config.name, interactFolder, Vector3.new(9, 8, 9), config.pos, config.color, Enum.Material.Metal)
 	config.part = station
 	station:SetAttribute("BaseSize", station.Size)
 	station:SetAttribute("Theme", PolishConfig.StyleName)
 	station:SetAttribute("VisualRole", "CityTrainingStation")
 	station:SetAttribute("TrainingMode", "ContinuousOfflinePower")
+	station:SetAttribute("TrainingStationId", config.id)
+	station:SetAttribute("TrainingTier", config.tier)
+	station:SetAttribute("RequiredPower", config.minPower)
+	station:SetAttribute("PowerPerSecond", config.gain)
 	station.Transparency = 1
 	station.CanCollide = false
 	addEmitter(station, "Train Pop", config.color)
 	addSound(station, "Training Impact", GameConfig.Audio.TrainingImpact, 0.72, 0.92)
-	trainingPartsByName[config.name] = station
-	local trainingSign = makePart(config.name .. " Training Sign", decorFolder, Vector3.new(12.5, 3.4, 0.35), config.pos + Vector3.new(0, 7.0, -4.2), Color3.fromRGB(27, 34, 39), Enum.Material.Metal)
+	trainingRuntime.partsByName[config.name] = station
+	local trainingSign = makePart(config.name .. " Training Sign", decorFolder, Vector3.new(11.2, 3.0, 0.35), config.pos + Vector3.new(0, 5.0, -4.2), Color3.fromRGB(27, 34, 39), Enum.Material.Metal)
 	trainingSign.CanCollide = false
-	makeText(trainingSign, "POWER TRAINING", ("AUTO +%s POWER / SEC | OFFLINE UP TO 8H"):format(config.gain), Enum.NormalId.Front)
-	makeText(trainingSign, "POWER TRAINING", ("AUTO +%s POWER / SEC | OFFLINE UP TO 8H"):format(config.gain), Enum.NormalId.Back)
-	local campMat = makePart(config.name .. " Training Deck", decorFolder, Vector3.new(18, 0.25, 18), config.pos + Vector3.new(0, -3.9, 0), Color3.fromRGB(112, 84, 56), Enum.Material.WoodPlanks)
+	trainingSign.CanTouch = false
+	trainingSign.CanQuery = false
+	trainingSign:SetAttribute("SignagePriority", "InteractionDetail")
+	trainingSign:SetAttribute("TrainingStationId", config.id)
+	trainingSign:SetAttribute("VisualRole", "TrainingStationSign")
+	local requirement = config.minPower <= 0 and "OPEN TO ALL" or ("REQUIRES %s POWER"):format(formatNumber(config.minPower))
+	local stationCopy = ("TIER %d | +%s POWER / SEC | %s"):format(config.tier, formatNumber(config.gain), requirement)
+	makeText(trainingSign, string.upper(config.displayName), stationCopy, Enum.NormalId.Front)
+	makeText(trainingSign, string.upper(config.displayName), stationCopy, Enum.NormalId.Back)
+	local campMat = makePart(config.name .. " Training Deck", decorFolder, Vector3.new(14, 0.25, 14), config.pos + Vector3.new(0, -3.9, 0), Color3.fromRGB(112, 84, 56), Enum.Material.WoodPlanks)
+	campMat.CanCollide = false
+	campMat.CanTouch = false
+	campMat.CanQuery = false
 	campMat:SetAttribute("VisualRole", "ForestTrainingDeck")
-	local importedBag = cloneExternalVisual(
-		"Sanitized_HeroPowerBag",
-		decorFolder,
-		"Creator Store Hero Power Bag",
-		CFrame.new(config.pos.X, 0.35, config.pos.Z) * CFrame.Angles(0, math.rad(180), 0),
-		7.2,
-		false,
-		CFrame.Angles(0, 0, math.rad(90))
-	)
+	local importedBag
+	if config.id == GameConfig.Training.DefaultStationId then
+		importedBag = cloneExternalVisual(
+			"Sanitized_HeroPowerBag",
+			decorFolder,
+			"Creator Store Hero Power Bag",
+			CFrame.new(config.pos.X, 0.35, config.pos.Z) * CFrame.Angles(0, math.rad(180), 0),
+			7.2,
+			false,
+			CFrame.Angles(0, 0, math.rad(90))
+		)
+	end
 	if importedBag then
 		for _, descendant in ipairs(importedBag:GetDescendants()) do
 			if descendant:IsA("BillboardGui") or descendant:IsA("SurfaceGui") then descendant:Destroy() end
@@ -3932,7 +5617,7 @@ for _, config in ipairs(trainingConfigs) do
 		importedBag:SetAttribute("SourceFallback", false)
 		config.motionModel = importedBag
 		config.motionBasePivot = importedBag:GetPivot()
-	else
+	elseif config.id == GameConfig.Training.DefaultStationId then
 		for _, side in ipairs({ -1, 1 }) do
 			local post = makePart("Power Bag Frame Post " .. side, decorFolder, Vector3.new(0.7, 9.4, 0.7), config.pos + Vector3.new(side * 4.8, 0.7, 0), Color3.fromRGB(52, 58, 61), Enum.Material.Metal)
 			post.CanCollide = false
@@ -3949,13 +5634,59 @@ for _, config in ipairs(trainingConfigs) do
 		end
 		local badge = makeVisualPart("Power Bag Hero Badge", decorFolder, Vector3.new(2.3, 1.15, 0.18), CFrame.new(bagCenter + Vector3.new(0, 0.1, -1.83)), Color3.fromRGB(20, 25, 28), Enum.Material.Metal)
 		makeText(badge, "POWER", "+POWER / SEC", Enum.NormalId.Front)
+	else
+		local trainerModel = Instance.new("Model")
+		trainerModel.Name = config.name .. " Training Model"
+		trainerModel:SetAttribute("VisualRole", "PowerTrainingModel")
+		trainerModel:SetAttribute("TrainingStationId", config.id)
+		trainerModel:SetAttribute("ProceduralFallback", true)
+		trainerModel.Parent = decorFolder
+		local basePosition = Vector3.new(config.pos.X, 0.85, config.pos.Z)
+		local base = makeVisualPart(config.name .. " Pedestal", trainerModel, Vector3.new(6.2, 1.1, 5.4), CFrame.new(basePosition), Color3.fromRGB(28, 35, 43), Enum.Material.Metal)
+		local bodyHeight = 4.2 + config.tier * 0.45
+		local body = makeVisualPart(config.name .. " Trainer Body", trainerModel, Vector3.new(3.4 + config.tier * 0.25, bodyHeight, 3.1), CFrame.new(basePosition + Vector3.new(0, 0.55 + bodyHeight * 0.5, 0)), config.color:Lerp(Color3.fromRGB(25, 29, 35), 0.35), Enum.Material.Metal)
+		local core = makeBall(config.name .. " Power Core", trainerModel, Vector3.new(1.25 + config.tier * 0.18, 1.25 + config.tier * 0.18, 0.8), body.Position + Vector3.new(0, 0.35, -1.58), config.color, Enum.Material.Neon)
+		for side = -1, 1, 2 do
+			makeVisualPart(config.name .. " Energy Rail " .. side, trainerModel, Vector3.new(0.36, bodyHeight * 0.72, 0.5), CFrame.new(body.Position + Vector3.new(side * (body.Size.X * 0.62), 0, -1.15)) * CFrame.Angles(0, 0, math.rad(side * 7)), config.color, Enum.Material.Neon)
+		end
+		for fin = 1, config.tier do
+			local angle = (fin - 1) / config.tier * math.pi * 2
+			makeVisualPart(config.name .. " Tier Fin " .. fin, trainerModel, Vector3.new(0.42, 1.4, 1.5), CFrame.new(body.Position + Vector3.new(math.cos(angle) * 2.2, bodyHeight * 0.25, math.sin(angle) * 2.2)) * CFrame.Angles(0, -angle, math.rad(18)), config.color:Lerp(Color3.new(1, 1, 1), 0.18), Enum.Material.Metal)
+		end
+		trainerModel.PrimaryPart = body
+		config.motionModel = trainerModel
+		config.motionBasePivot = trainerModel:GetPivot()
+		base:SetAttribute("TrainingVisualTier", config.tier)
+		core:SetAttribute("TrainingPowerCore", true)
 	end
 	local detector = Instance.new("ClickDetector")
-	detector.MaxActivationDistance = 32
+	detector.MaxActivationDistance = TRAINING_INTERACTION_DISTANCE
 	detector.Parent = station
 	detector.MouseClick:Connect(function(player)
+		if not profileReady(player, false) then return end
 		trainPlayer(player, config)
 	end)
+end
+
+do
+	local presentationReport = require(ReplicatedStorage:WaitForChild("ForestVisualBuilder")).BuildPresentation(polishFolder, {
+		settings = PolishConfig.WorldPresentation,
+		courseEntrance = courseEntrance,
+		powerBag = trainingConfigs[1].part,
+		boss = boss,
+		weakPoints = bossWeakPoints,
+		tierConfigs = wallConfigs,
+		depthBlockSize = DEPTH_BLOCK_SIZE,
+		layersPerTier = DEPTH_LAYERS_PER_TIER,
+	})
+	for _, detail in ipairs(presentationReport.breakLinked) do
+		table.insert(wallVisualDetails[boss], detail)
+	end
+	root:SetAttribute("WorldPresentationPartCount", presentationReport.partCount)
+	root:SetAttribute("WorldPresentationPartBudget", presentationReport.budget)
+	root:SetAttribute("WorldPresentationContractValidated", true)
+	root:SetAttribute("WorldSignageMode", "ZoneHeaderThenInteractionDetail")
+	root:SetAttribute("WorldSignageSurfaceReduction", 1)
 end
 
 shared.PunchWallGrantTrainingTick = grantTrainingTick
@@ -3969,13 +5700,20 @@ end
 
 shared.PunchWallPremiumFists = { byPass = {} }
 for _, item in ipairs(GameConfig.PremiumFists) do
-	if item.gamePassId and item.gamePassId > 0 then shared.PunchWallPremiumFists.byPass[item.gamePassId] = item end
+	if visualSafety.hasConfiguredGamePass(item) then
+		shared.PunchWallPremiumFists.byPass[item.gamePassId] = item
+	end
 end
 
 shared.PunchWallPremiumFists.grant = function(player, item, source)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
 	if not item or not item.robux then return { ok = false, reason = "not_premium" } end
 	local owned = decodeList(player, "OwnedPremiumFistsJSON")
-	if not listContains(owned, item.name) then
+	local alreadyOwned = listContains(owned, item.name)
+	if alreadyOwned and source ~= "Owned" then
+		return { ok = true, item = item.name, premium = true, alreadyOwned = true }
+	end
+	if not alreadyOwned then
 		table.insert(owned, item.name)
 		encodeList(player, "OwnedPremiumFistsJSON", owned)
 	end
@@ -3993,22 +5731,20 @@ shared.PunchWallPremiumFists.grant = function(player, item, source)
 end
 
 shared.PunchWallPremiumFists.prompt = function(player, item)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
 	if not item or not item.robux then return { ok = false, reason = "not_premium" } end
-	if listContains(decodeList(player, "OwnedPremiumFistsJSON"), item.name) then
-		return shared.PunchWallPremiumFists.grant(player, item, "Owned")
-	end
-	if RunService:IsStudio() and GameConfig.StudioTestGrantPremium then
-		return shared.PunchWallPremiumFists.grant(player, item, "StudioTest")
-	end
-	if not item.gamePassId or item.gamePassId <= 0 then
+	if not visualSafety.hasConfiguredGamePass(item) then
 		sendFeedback(player, {
 			type = "PremiumSetup",
 			target = item.displayName,
-			message = RunService:IsStudio() and "STUDIO TEST: PASS ID NOT CONFIGURED" or "PREMIUM PASS COMING SOON",
+			message = "PURCHASE UNAVAILABLE | PASS ID NOT CONFIGURED",
 			robux = item.robux,
 			color = item.accent,
 		})
 		return { ok = false, reason = "game_pass_not_configured", robux = item.robux }
+	end
+	if listContains(decodeList(player, "OwnedPremiumFistsJSON"), item.name) then
+		return shared.PunchWallPremiumFists.grant(player, item, "Owned")
 	end
 	MarketplaceService:PromptGamePassPurchase(player, item.gamePassId)
 	return { ok = true, pending = true, gamePassId = item.gamePassId, robux = item.robux }
@@ -4017,56 +5753,458 @@ end
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, wasPurchased)
 	if not wasPurchased then return end
 	local item = shared.PunchWallPremiumFists.byPass[gamePassId]
-	if item then shared.PunchWallPremiumFists.grant(player, item, "GamePass") end
+	if not item then return end
+	local queued, queueError = persistenceRuntime.queuePendingGamePassGrant(player, "Fist", item, "GamePass")
+	if not queued then
+		warn(("[PunchWallRPG] Could not queue fist GamePass %s for %s: %s"):format(
+			tostring(gamePassId),
+			player.Name,
+			tostring(queueError)
+		))
+		return
+	end
+	if profileReady(player, false) and persistenceRuntime.flushPendingGamePassGrants then
+		task.spawn(persistenceRuntime.flushPendingGamePassGrants, player, "PurchaseFinished")
+	end
 end)
 
-shared.PunchWallPremiumProducts = { byId = {}, byName = {} }
+shared.PunchWallPremiumProducts = {
+	byId = {},
+	byName = {},
+	invalidProductIds = {},
+	promptState = setmetatable({}, { __mode = "k" }),
+	metadataCache = {},
+}
 for _, product in ipairs(GameConfig.PremiumProducts) do
 	shared.PunchWallPremiumProducts.byName[product.id] = product
-	if product.productId and product.productId > 0 then shared.PunchWallPremiumProducts.byId[product.productId] = product end
+	if visualSafety.hasConfiguredDeveloperProduct(product) then
+		local existing = shared.PunchWallPremiumProducts.byId[product.productId]
+		if existing then
+			shared.PunchWallPremiumProducts.byId[product.productId] = nil
+			shared.PunchWallPremiumProducts.invalidProductIds[product.productId] = true
+			warn(("[PunchWallRPG] Duplicate Developer Product ID %d is disabled (%s / %s)"):format(
+				product.productId,
+				existing.id,
+				product.id
+			))
+		elseif not shared.PunchWallPremiumProducts.invalidProductIds[product.productId] then
+			shared.PunchWallPremiumProducts.byId[product.productId] = product
+		end
+	end
 end
 
-shared.PunchWallPremiumProducts.grant = function(player, product)
+shared.PunchWallPremiumProducts.validatePromptMetadata = function(product)
+	if not product then return false, "unknown_product" end
+	local productId = tonumber(product.productId)
+	local cached = productId and shared.PunchWallPremiumProducts.metadataCache[productId]
+	local now = workspace:GetServerTimeNow()
+	if cached and now - cached.checkedAt <= 60 then
+		return cached.ok, cached.reason, cached.price
+	end
+	local lookupOk, info = pcall(
+		MarketplaceService.GetProductInfoAsync,
+		MarketplaceService,
+		productId,
+		Enum.InfoType.Product
+	)
+	local price = lookupOk and type(info) == "table" and tonumber(info.PriceInRobux) or nil
+	local ok = lookupOk
+		and type(info) == "table"
+		and tostring(info.Name or "") == tostring(product.displayName or "")
+		and info.IsForSale == true
+		and price ~= nil
+		and price > 0
+	local reason = ok and nil
+		or not lookupOk and "product_metadata_lookup_failed"
+		or type(info) ~= "table" and "product_metadata_invalid"
+		or tostring(info.Name or "") ~= tostring(product.displayName or "") and "product_identity_mismatch"
+		or info.IsForSale ~= true and "product_off_sale"
+		or "product_price_unavailable"
+	shared.PunchWallPremiumProducts.metadataCache[productId] = {
+		ok = ok,
+		reason = reason,
+		price = ok and math.floor(price) or nil,
+		checkedAt = now,
+	}
+	return ok, reason, ok and math.floor(price) or nil
+end
+
+shared.PunchWallPremiumProducts.grant = function(player, product, durableEntry)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
 	if not product then return { ok = false, reason = "unknown_product" } end
-	if product.coins then addStat(player, "Coins", product.coins) end
-	if product.spins then addStat(player, "SpinCredits", product.spins) end
-	if product.boost then
-		player:SetAttribute(product.boost, math.max(player:GetAttribute(product.boost) or 0, workspace:GetServerTimeNow()) + product.seconds)
+	local grantedCoins
+	local grantedSpins
+	local grantedHonor
+	local grantedBoost
+	local boostExpiresAt
+	if durableEntry then
+		grantedCoins = durableEntry.Coins
+		grantedSpins = durableEntry.Spins
+		grantedHonor = durableEntry.Honor
+		grantedBoost = durableEntry.Boost
+		boostExpiresAt = durableEntry.BoostExpiresAt
+	else
+		grantedCoins = product.coins
+		grantedSpins = product.spins
+		grantedHonor = product.honor
+		grantedBoost = product.boost
+		if grantedBoost then
+			boostExpiresAt = math.max(
+				player:GetAttribute(grantedBoost) or 0,
+				workspace:GetServerTimeNow()
+			) + product.seconds
+		end
+	end
+	if grantedCoins ~= nil then addStat(player, "Coins", grantedCoins) end
+	if grantedSpins ~= nil then addStat(player, "SpinCredits", grantedSpins) end
+	if grantedHonor ~= nil then
+		local currentHonor = statValue(player, "Honor", 0)
+		if type(grantedHonor) ~= "number"
+			or grantedHonor ~= grantedHonor
+			or grantedHonor <= 0
+			or grantedHonor % 1 ~= 0
+			or currentHonor < 0
+			or currentHonor > ProfilePersistence.MaxAuthoritativeNumber - grantedHonor
+		then
+			return { ok = false, reason = "honor_balance_headroom_required" }
+		end
+		setStat(player, "Honor", currentHonor + grantedHonor)
+	end
+	if grantedBoost and boostExpiresAt then
+		player:SetAttribute(
+			grantedBoost,
+			math.max(player:GetAttribute(grantedBoost) or 0, boostExpiresAt)
+		)
+		if grantedBoost == "SpeedBoostExpiresAt" then
+			persistenceRuntime.applySpeedBoostState(player)
+		end
 	end
 	sendFeedback(player, {
 		type = "PremiumPurchase",
 		target = product.displayName,
-		message = "PURCHASE GRANTED",
+		product = product.id,
+		productId = product.productId,
+		honor = grantedHonor,
+		newHonorBalance = grantedHonor and statValue(player, "Honor", 0) or nil,
+		message = grantedHonor and ("+%d HONOR ADDED"):format(grantedHonor) or "PURCHASE GRANTED",
 		color = PolishConfig.Palette.Reward,
 	})
-	return { ok = true, product = product.id, coins = product.coins, spins = product.spins, boost = product.boost }
+	return {
+		ok = true,
+		product = product.id,
+		coins = grantedCoins,
+		spins = grantedSpins,
+		honor = grantedHonor,
+		boost = grantedBoost,
+		boostExpiresAt = boostExpiresAt,
+	}
 end
 
 shared.PunchWallPremiumProducts.prompt = function(player, product)
-	if not product then return { ok = false, reason = "unknown_product" } end
-	if RunService:IsStudio() and GameConfig.StudioTestGrantPremium then
-		return shared.PunchWallPremiumProducts.grant(player, product)
+	if not profileReady(player, true) then
+		sendFeedback(player, {
+			type = "PremiumSetup",
+			target = product and product.displayName or "Purchase",
+			product = product and product.id,
+			message = "PURCHASE UNAVAILABLE | PROFILE IS NOT WRITABLE",
+			color = PolishConfig.Palette.Blocked,
+		})
+		return { ok = false, reason = "profile_not_writable" }
 	end
-	if not product.productId or product.productId <= 0 then
+	if not product then return { ok = false, reason = "unknown_product" } end
+	if not visualSafety.hasConfiguredDeveloperProduct(product) then
 		sendFeedback(player, {
 			type = "PremiumSetup",
 			target = product.displayName,
-			message = RunService:IsStudio() and "STUDIO TEST: PRODUCT ID NOT CONFIGURED" or "OFFER COMING SOON",
+			product = product.id,
+			productId = product.productId,
+			message = "PURCHASE UNAVAILABLE | PRODUCT ID NOT CONFIGURED",
 			robux = product.robux,
 			color = PolishConfig.Palette.Reward,
 		})
 		return { ok = false, reason = "product_not_configured", robux = product.robux }
 	end
+	if shared.PunchWallPremiumProducts.invalidProductIds[product.productId]
+		or shared.PunchWallPremiumProducts.byId[product.productId] ~= product
+	then
+		sendFeedback(player, {
+			type = "PremiumSetup",
+			target = product.displayName,
+			product = product.id,
+			message = "PURCHASE UNAVAILABLE | PRODUCT MAPPING INVALID",
+			color = PolishConfig.Palette.Blocked,
+		})
+		return { ok = false, reason = "product_mapping_invalid" }
+	end
+	if product.honor ~= nil then
+		local honorGrant = math.floor(tonumber(product.honor) or 0)
+		local currentHonor = statValue(player, "Honor", 0)
+		if honorGrant <= 0
+			or currentHonor < 0
+			or currentHonor > ProfilePersistence.MaxAuthoritativeNumber - honorGrant
+		then
+			sendFeedback(player, {
+				type = "PremiumSetup",
+				target = product.displayName,
+				product = product.id,
+				productId = product.productId,
+				message = "HONOR BALANCE TOO HIGH | SPEND HONOR BEFORE BUYING",
+				color = PolishConfig.Palette.Blocked,
+			})
+			return { ok = false, reason = "honor_balance_headroom_required" }
+		end
+	end
+	local promptState = shared.PunchWallPremiumProducts.promptState[player]
+	if not promptState then
+		promptState = {}
+		shared.PunchWallPremiumProducts.promptState[player] = promptState
+	end
+	local now = workspace:GetServerTimeNow()
+	local globalNextAllowedAt = tonumber(promptState.__global) or 0
+	local nextAllowedAt = tonumber(promptState[product.id]) or 0
+	if now < globalNextAllowedAt or now < nextAllowedAt then
+		sendFeedback(player, {
+			type = "PremiumSetup",
+			target = product.displayName,
+			product = product.id,
+			message = "PURCHASE WINDOW ALREADY OPENING",
+			color = PolishConfig.Palette.Train,
+		})
+		return { ok = false, reason = "purchase_prompt_throttled" }
+	end
+	promptState.__global = now + 1.5
+	promptState[product.id] = now + 1.5
+	local metadataOk, metadataReason, livePrice = shared.PunchWallPremiumProducts.validatePromptMetadata(product)
+	if not metadataOk then
+		sendFeedback(player, {
+			type = "PremiumSetup",
+			target = product.displayName,
+			product = product.id,
+			productId = product.productId,
+			message = metadataReason == "product_off_sale"
+				and "PURCHASE UNAVAILABLE | PRODUCT IS OFF SALE"
+				or "PURCHASE UNAVAILABLE | PRODUCT DETAILS COULD NOT BE VERIFIED",
+			color = PolishConfig.Palette.Blocked,
+		})
+		return { ok = false, reason = metadataReason }
+	end
+	sendFeedback(player, {
+		type = "PremiumPrompt",
+		target = product.displayName,
+		product = product.id,
+		productId = product.productId,
+		robux = livePrice,
+		state = "CheckoutOpen",
+		message = "CHECKOUT OPEN",
+		color = PolishConfig.Palette.Reward,
+	})
 	MarketplaceService:PromptProductPurchase(player, product.productId)
 	return { ok = true, pending = true, productId = product.productId }
 end
 
+do
+local function requireSafeProfileReload(player, state, message)
+	local session = persistenceRuntime.profileSessions[player]
+	if not session then
+		return
+	end
+	session.initializing = false
+	session.ready = false
+	session.writable = false
+	player:SetAttribute("ProfileReady", false)
+	player:SetAttribute("ProfileWritable", false)
+	player:SetAttribute("ProfileCanSave", false)
+	player:SetAttribute("ProfilePersistenceState", state)
+	warn(("[PunchWallRPG] %s for %s"):format(message, player.Name))
+	if player.Parent == Players then
+		player:Kick("Your saved data is secure. Please rejoin once to safely refresh this session.")
+	end
+end
+
+local function applyDurableReceiptToSession(player, purchaseId, product, receiptEntry)
+	local session = persistenceRuntime.profileSessions[player]
+	if not session or session.appliedReceiptIds[purchaseId] then
+		return true
+	end
+	session.appliedReceiptIds[purchaseId] = true
+	local liveApplySafe = true
+	if player.Parent == Players then
+		if not player:FindFirstChild("RPGStats") then
+			liveApplySafe = false
+		else
+			local ok, grantResult = pcall(
+				shared.PunchWallPremiumProducts.grant,
+				player,
+				product,
+				receiptEntry
+			)
+			liveApplySafe = ok and type(grantResult) == "table" and grantResult.ok == true
+			if not liveApplySafe then
+				warn(("[PunchWallRPG] Durable receipt live apply failed for %s: %s"):format(
+					player.Name,
+					tostring(grantResult)
+				))
+			end
+		end
+	end
+	persistenceRuntime.patchQueuedSaveSnapshots(player, purchaseId, receiptEntry)
+	session.knownReceiptIds[purchaseId] = true
+	if not liveApplySafe then
+		requireSafeProfileReload(
+			player,
+			"ReceiptLiveApplyFailed",
+			("Receipt %s requires a safe profile reload"):format(purchaseId)
+		)
+	end
+	return liveApplySafe
+end
+
+local function processReceiptDurably(player, productId, purchaseId, product)
+	local session = persistenceRuntime.profileSessions[player]
+	local ready, readinessError = profileReady(player, true)
+	if not ready then
+		return false, readinessError
+	end
+	if not persistenceRuntime.playerStore then
+		return false, "current_store_unavailable"
+	end
+	session.receiptUncertain[purchaseId] = true
+	local snapshot = collectPlayerData(player)
+	local snapshotIncludesReceipt = session.knownReceiptIds[purchaseId] == true
+	local grantToken = ("%d:%s"):format(player.UserId, HttpService:GenerateGUID(false))
+	local processedAt = workspace:GetServerTimeNow()
+	local callbackState = {}
+	local ok, canonicalOrError = persistenceRuntime.retryDataStoreCall(function()
+		return persistenceRuntime.playerStore:UpdateAsync(tostring(player.UserId), function(previous)
+			callbackState = {}
+			local callbackNow = os.time()
+			local updated, _, _, commitError = ProfilePersistence.CommitReceiptFenced(
+				previous,
+				snapshot,
+				snapshotIncludesReceipt,
+				purchaseId,
+				productId,
+				product,
+				grantToken,
+				processedAt,
+				session.fence,
+				callbackNow,
+				GameConfig.DataVersion,
+				ProfilePersistence.MaxReceiptLedgerEntries
+			)
+			if not updated then
+				callbackState.error = commitError or "receipt_fence_rejected"
+				return nil
+			end
+			local renewedProfile, renewedFence, renewed, renewStateOrError =
+				ProfilePersistence.RenewSessionLease(
+					updated,
+					session.fence,
+					callbackNow,
+					persistenceRuntime.sessionLeaseSeconds,
+					GameConfig.DataVersion,
+					ProfilePersistence.MaxReceiptLedgerEntries
+				)
+			if not renewedProfile or not renewed or not renewedFence then
+				callbackState.error = renewStateOrError or "session_lease_renew_rejected"
+				return nil
+			end
+			callbackState.fence = renewedFence
+			callbackState.leaseExpiresAt = renewedProfile.SessionLease
+				and renewedProfile.SessionLease.ExpiresAt or 0
+			return renewedProfile
+		end)
+	end)
+	if not ok then
+		return false, "receipt_update_failed: " .. tostring(canonicalOrError)
+	end
+	if callbackState.error then
+		if string.find(tostring(callbackState.error), "session_", 1, true)
+			or string.find(tostring(callbackState.error), "fence", 1, true)
+		then
+			session.ready = false
+			session.writable = false
+			player:SetAttribute("ProfileReady", false)
+			player:SetAttribute("ProfileWritable", false)
+			player:SetAttribute("ProfileCanSave", false)
+			player:SetAttribute("ProfilePersistenceState", "SessionFenceRejected")
+		end
+		return false, callbackState.error
+	end
+	if type(canonicalOrError) ~= "table" then
+		session.receiptUncertain[purchaseId] = nil
+		return false, "receipt_update_rejected"
+	end
+	session.fence = callbackState.fence
+	session.leaseExpiresAt = callbackState.leaseExpiresAt
+	player:SetAttribute("ProfileRevision", callbackState.fence.Revision)
+	player:SetAttribute("ProfileLeaseExpiresAt", callbackState.leaseExpiresAt)
+	local receiptEntry = ProfilePersistence.GetReceiptEntry(
+		canonicalOrError,
+		purchaseId,
+		ProfilePersistence.MaxReceiptLedgerEntries
+	)
+	local seenProductId = ProfilePersistence.GetSeenReceiptProductId(
+		canonicalOrError,
+		purchaseId,
+		ProfilePersistence.MaxReceiptLedgerEntries
+	)
+	if seenProductId == nil or (seenProductId > 0 and seenProductId ~= productId) then
+		session.receiptUncertain[purchaseId] = nil
+		return false, "receipt_canonical_entry_missing"
+	end
+	if not ProfilePersistence.ReceiptEntryHasGrantMetadata(receiptEntry) then
+		if snapshotIncludesReceipt then
+			session.knownReceiptIds[purchaseId] = true
+			session.receiptUncertain[purchaseId] = nil
+			return true
+		end
+		session.knownReceiptIds[purchaseId] = true
+		session.receiptUncertain[purchaseId] = nil
+		requireSafeProfileReload(
+			player,
+			"ReceiptReconcileRequired",
+			("Receipt %s requires a safe profile reload"):format(purchaseId)
+		)
+		return true
+	end
+	if not session.knownReceiptIds[purchaseId] then
+		applyDurableReceiptToSession(player, purchaseId, product, receiptEntry)
+	end
+	session.knownReceiptIds[purchaseId] = true
+	session.receiptUncertain[purchaseId] = nil
+	return true
+end
+
 MarketplaceService.ProcessReceipt = function(receiptInfo)
-	local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
-	local product = shared.PunchWallPremiumProducts.byId[receiptInfo.ProductId]
-	if not player or not product then return Enum.ProductPurchaseDecision.NotProcessedYet end
-	shared.PunchWallPremiumProducts.grant(player, product)
-	return Enum.ProductPurchaseDecision.PurchaseGranted
+	if type(receiptInfo) ~= "table" then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	local playerId = tonumber(receiptInfo.PlayerId)
+	local productId = tonumber(receiptInfo.ProductId)
+	local purchaseId = ProfilePersistence.NormalizePurchaseId(receiptInfo.PurchaseId)
+	if not playerId or not productId or not purchaseId then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	playerId = math.floor(playerId)
+	productId = math.floor(productId)
+	if playerId <= 0 or productId <= 0 then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	local player = Players:GetPlayerByUserId(playerId)
+	local product = shared.PunchWallPremiumProducts.byId[productId]
+	if not player or not product or not profileReady(player, true) then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	local ticket = persistenceRuntime.enqueueReceiptOperation(player, purchaseId, function()
+		return processReceiptDurably(player, productId, purchaseId, product)
+	end)
+	local granted = persistenceRuntime.waitForTicket(ticket, persistenceRuntime.receiptWaitTimeout)
+	if granted then
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	end
+	return Enum.ProductPurchaseDecision.NotProcessedYet
+end
 end
 
 shared.PunchWallBuildPremiumOffers = function()
@@ -4076,25 +6214,54 @@ local premiumOfferPositions = {
 	Vector3.new(73, 5.2, 2),
 	Vector3.new(-14, 5.2, 51),
 }
-for index, product in ipairs(GameConfig.PremiumProducts) do
-	local position = premiumOfferPositions[index]
+	local placementIndex = 0
+	for _, product in ipairs(GameConfig.PremiumProducts) do
+		if product.worldOffer == false then
+			continue
+		end
+		placementIndex += 1
+		local position = premiumOfferPositions[placementIndex]
+		if not position then
+			error(("Missing Premium Offer position for %s"):format(tostring(product.id)))
+		end
+	local purchaseConfigured = visualSafety.hasConfiguredDeveloperProduct(product)
 	local board = makePart(product.displayName .. " Premium Offer", interactFolder, Vector3.new(9.8, 4.5, 0.5), position, Color3.fromRGB(8, 17, 24), Enum.Material.Metal)
 	board.CFrame = CFrame.lookAt(position, Vector3.new(-2, position.Y, -18))
 	board.CanCollide = false
 	board:SetAttribute("VisualRole", "RobuxShortcutAdvertisement")
 	board:SetAttribute("RobuxPrice", product.robux)
 	board:SetAttribute("ProductKey", product.id)
-	makeText(board, product.billboard, ("%s  |  R$ %d"):format(product.displayName, product.robux), Enum.NormalId.Front)
-	makeText(board, "HERO SHORTCUT", "OPTIONAL | PLAYABLE WITHOUT PURCHASE", Enum.NormalId.Back)
+	visualSafety.markWorldOfferAvailability(
+		board,
+		purchaseConfigured,
+		"DeveloperProduct"
+	)
+	makeText(
+		board,
+		purchaseConfigured and product.billboard or "OFFER UNAVAILABLE",
+		purchaseConfigured and ("%s  |  R$ %d"):format(product.displayName, product.robux)
+			or "PRODUCT ID NOT CONFIGURED",
+		Enum.NormalId.Front
+	)
+	makeText(
+		board,
+		purchaseConfigured and "HERO SHORTCUT" or "NOT FOR SALE",
+		purchaseConfigured and "OPTIONAL | PLAYABLE WITHOUT PURCHASE"
+			or "THIS OFFER CANNOT BE PURCHASED",
+		Enum.NormalId.Back
+	)
 	local iconName = product.spins and "Success" or product.boost == "TrainingBoostExpiresAt" and "Train" or "Coin"
 	makeAtlasIconSurface(board, iconName, Enum.NormalId.Front)
-	local detector = Instance.new("ClickDetector")
-	detector.MaxActivationDistance = 28
-	detector.Parent = board
-	detector.MouseClick:Connect(function(player)
-		shared.PunchWallPremiumProducts.prompt(player, product)
-	end)
-end
+	if purchaseConfigured then
+		local detector = Instance.new("ClickDetector")
+		detector.MaxActivationDistance = 28
+		detector.Parent = board
+		detector.MouseClick:Connect(function(player)
+			if not profileReady(player, false) then return end
+			shared.PunchWallPremiumProducts.prompt(player, product)
+		end)
+	end
+	end
 end
 shared.PunchWallBuildPremiumOffers()
 shared.PunchWallBuildPremiumOffers = nil
@@ -4110,6 +6277,25 @@ local function buyFist(player, item)
 		setStat(player, "EquippedFist", item.name)
 		sendFeedback(player, { type = "Shop", target = item.name, color = PolishConfig.Palette.Use })
 		return { ok = true, outcome = "equipped", item = item.name, multiplier = item.mult, coins = statValue(player, "Coins", 0) }
+	end
+	local requiredDepth = math.max(0, math.floor(tonumber(item.unlockDepth) or 0))
+	-- Fist progression is tied to cleared tunnel depth only. WallLevel is an
+	-- independent XP gate and must never unlock deep-catalog purchases.
+	local progressionDepth = math.max(0, math.floor(statValue(player, "Depth", 0)))
+	if progressionDepth < requiredDepth then
+		sendFeedback(player, {
+			type = "Fail",
+			target = item.name,
+			message = ("Reach Depth %d"):format(requiredDepth),
+			color = PolishConfig.Palette.Fail,
+		})
+		return {
+			ok = false,
+			reason = "depth_locked",
+			requiredDepth = requiredDepth,
+			depth = progressionDepth,
+			cost = item.cost,
+		}
 	end
 	if statValue(player, "Coins", 0) < item.cost then
 		sendFeedback(player, {
@@ -4155,14 +6341,7 @@ shared.PunchWallShopBoostPurchase = function(player, boostName)
 	local expiresAt = math.max(player:GetAttribute(boost.attribute) or 0, workspace:GetServerTimeNow()) + 900
 	player:SetAttribute(boost.attribute, expiresAt)
 	if boostName == "SpeedBoost" then
-		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-		if humanoid then humanoid.WalkSpeed = 24 end
-		task.delay(900, function()
-			if player.Parent and (player:GetAttribute(boost.attribute) or 0) <= workspace:GetServerTimeNow() then
-				local currentHumanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-				if currentHumanoid then currentHumanoid.WalkSpeed = 16 end
-			end
-		end)
+		persistenceRuntime.applySpeedBoostState(player)
 	end
 	sendFeedback(player, { type = "Shop", target = boostName, message = boost.feedback, color = PolishConfig.Palette.Reward })
 	syncStats(player)
@@ -4170,6 +6349,268 @@ shared.PunchWallShopBoostPurchase = function(player, boostName)
 end
 
 shared.PunchWallBuildCommerceWorld = function()
+local boostShowcaseSpecs = {
+	{
+		id = "CoinBoost",
+		displayName = "2X COINS",
+		detail = "15 MINUTES  |  5K COINS",
+		position = Vector3.new(27.5, 0.7, -21.5),
+		color = Color3.fromRGB(244, 168, 29),
+		accent = Color3.fromRGB(255, 226, 78),
+		shape = "Coin",
+	},
+	{
+		id = "SpeedBoost",
+		displayName = "SPEED BOOST",
+		detail = "15 MINUTES  |  8K COINS",
+		position = Vector3.new(34.0, 0.7, -21.5),
+		color = Color3.fromRGB(37, 161, 224),
+		accent = Color3.fromRGB(73, 227, 255),
+		shape = "Bolt",
+	},
+	{
+		id = "DamageBoost",
+		displayName = "2X DAMAGE",
+		detail = "15 MINUTES  |  12K COINS",
+		position = Vector3.new(40.5, 0.7, -21.5),
+		color = Color3.fromRGB(219, 60, 41),
+		accent = Color3.fromRGB(255, 131, 45),
+		shape = "Burst",
+	},
+}
+
+local function buildBoostShowcaseIcon(model, spec, center)
+	if spec.shape == "Coin" then
+		for index, offset in ipairs({
+			Vector3.new(-0.8, -0.25, 0),
+			Vector3.new(0.75, -0.15, 0.08),
+			Vector3.new(0, 0.65, -0.05),
+		}) do
+			local coin = makeCylinder(
+				("%s 3D Coin %d"):format(spec.id, index),
+				model,
+				Vector3.new(0.38, 2.3, 2.3),
+				center + offset,
+				index == 3 and spec.accent or spec.color,
+				Enum.Material.Metal,
+				Vector3.new(0, 90, 0)
+			)
+			coin.CanCollide = false
+			coin.CanTouch = false
+			coin.CanQuery = false
+		end
+		local core = makeCylinder(
+			spec.id .. " Coin Neon Core",
+			model,
+			Vector3.new(0.42, 1.25, 1.25),
+			center + Vector3.new(0, 0.65, -0.28),
+			spec.accent,
+			Enum.Material.Neon,
+			Vector3.new(0, 90, 0)
+		)
+		core.CanCollide = false
+		core.CanTouch = false
+		core.CanQuery = false
+	elseif spec.shape == "Bolt" then
+		for index, segment in ipairs({
+			{ Vector3.new(1.0, 2.25, 0.44), Vector3.new(-0.35, 0.9, 0), -24 },
+			{ Vector3.new(1.72, 0.78, 0.46), Vector3.new(0.08, -0.1, 0), 4 },
+			{ Vector3.new(0.94, 2.35, 0.44), Vector3.new(0.36, -1.08, 0), -29 },
+		}) do
+			local bolt = makeVisualPart(
+				("%s 3D Bolt Segment %d"):format(spec.id, index),
+				model,
+				segment[1],
+				CFrame.new(center + segment[2]) * CFrame.Angles(0, 0, math.rad(segment[3])),
+				index == 2 and spec.color or spec.accent,
+				Enum.Material.Neon
+			)
+			bolt.CastShadow = false
+		end
+	else
+		local core = makeBall(spec.id .. " 3D Burst Core", model, Vector3.new(2.2, 2.2, 0.75), center, spec.accent, Enum.Material.Neon)
+		core.CanCollide = false
+		core.CanTouch = false
+		core.CanQuery = false
+		for index = 1, 8 do
+			local angle = (index - 1) * math.pi / 4
+			local offset = Vector3.new(math.cos(angle) * 1.65, math.sin(angle) * 1.65, 0)
+			local ray = makeVisualPart(
+				("%s 3D Burst Ray %d"):format(spec.id, index),
+				model,
+				Vector3.new(0.38, 1.35, 0.34),
+				CFrame.new(center + offset) * CFrame.Angles(0, 0, angle),
+				index % 2 == 0 and spec.accent or spec.color,
+				Enum.Material.Neon
+			)
+			ray.CastShadow = false
+		end
+	end
+end
+
+local boostShowcaseFolder = Instance.new("Folder")
+boostShowcaseFolder.Name = "Depth Entrance Boost Showcases"
+boostShowcaseFolder.Parent = interactFolder
+boostShowcaseFolder:SetAttribute("VisualRole", "HighTrafficBoostShowcaseLane")
+boostShowcaseFolder:SetAttribute("PlacementPolicy", "OutsideDepthLaneRightEdge")
+boostShowcaseFolder:SetAttribute("InteractionPolicy", "PromptClickOpenBoostsPage")
+boostShowcaseFolder:SetAttribute("ContainsRuntimeLoops", false)
+boostShowcaseFolder:SetAttribute("ShowcaseCount", #boostShowcaseSpecs)
+
+local boostShowcaseLastOpenByPlayer = setmetatable({}, { __mode = "k" })
+shared.PunchWallOpenWorldBoostKiosk = function(player, boostId)
+	if not profileReady(player, false) then
+		return { ok = false, reason = "profile_not_ready" }
+	end
+	local selected
+	for _, spec in ipairs(boostShowcaseSpecs) do
+		if spec.id == boostId then
+			selected = spec
+			break
+		end
+	end
+	if not selected then
+		return { ok = false, reason = "unknown_showcase" }
+	end
+	local now = os.clock()
+	local lastOpenedAt = boostShowcaseLastOpenByPlayer[player] or -math.huge
+	if now - lastOpenedAt < 0.65 then
+		return { ok = false, reason = "cooldown" }
+	end
+	boostShowcaseLastOpenByPlayer[player] = now
+	sendFeedback(player, {
+		type = "OpenMenu",
+		target = selected.id,
+		tab = "Boosts",
+		message = selected.displayName,
+		color = selected.accent,
+	})
+	return { ok = true, page = "Boosts", boostId = selected.id }
+end
+
+local boostShowcasePartCount = 0
+for index, spec in ipairs(boostShowcaseSpecs) do
+	local model = Instance.new("Model")
+	model.Name = spec.id .. " World Showcase"
+	model:SetAttribute("VisualRole", "WorldBoostProductModel")
+	model:SetAttribute("BoostId", spec.id)
+	model:SetAttribute("ShopPage", "Boosts")
+	model:SetAttribute("HighTrafficRoute", "SpawnToDepthEntrance")
+	model:SetAttribute("NoGameplayCollision", true)
+	model:SetAttribute("StaticPresentation", true)
+	model:SetAttribute("PresentationVersion", "FramedBoostKioskV3")
+	model.Parent = boostShowcaseFolder
+
+	local plinth = makePart(
+		spec.id .. " Showcase Interaction Plinth",
+		model,
+		Vector3.new(5.2, 0.7, 4.0),
+		spec.position,
+		Color3.fromRGB(22, 30, 36),
+		Enum.Material.Metal
+	)
+	plinth.CanCollide = false
+	plinth.CanTouch = false
+	plinth:SetAttribute("InteractionMenu", "Boosts")
+	plinth:SetAttribute("BoostId", spec.id)
+	model.PrimaryPart = plinth
+	local inset = makePart(
+		spec.id .. " Showcase Color Deck",
+		model,
+		Vector3.new(4.55, 0.28, 3.3),
+		spec.position + Vector3.new(0, 0.48, 0),
+		spec.color:Lerp(Color3.fromRGB(7, 14, 18), 0.38),
+		Enum.Material.Metal
+	)
+	inset.CanCollide = false
+	inset.CanTouch = false
+	inset.CanQuery = false
+	inset.Transparency = 0.02
+	for railIndex, rail in ipairs({
+		{ Vector3.new(4.85, 0.14, 0.14), Vector3.new(0, 0.84, 1.73) },
+		{ Vector3.new(4.85, 0.14, 0.14), Vector3.new(0, 0.84, -1.73) },
+		{ Vector3.new(0.14, 0.14, 3.34), Vector3.new(2.36, 0.84, 0) },
+		{ Vector3.new(0.14, 0.14, 3.34), Vector3.new(-2.36, 0.84, 0) },
+	}) do
+		local trim = makeVisualPart(
+			("%s Showcase Deck Rail %d"):format(spec.id, railIndex),
+			model,
+			rail[1],
+			CFrame.new(spec.position + rail[2]),
+			spec.accent,
+			Enum.Material.Neon
+		)
+		trim.CastShadow = false
+	end
+	for postIndex, x in ipairs({ -2.38, 2.38 }) do
+		local post = makeVisualPart(
+			("%s Showcase Frame Post %d"):format(spec.id, postIndex),
+			model,
+			Vector3.new(0.2, 4.45, 0.2),
+			CFrame.new(spec.position + Vector3.new(x, 3.0, 0.62)),
+			postIndex == 1 and spec.color or spec.accent,
+			Enum.Material.Neon
+		)
+		post.CastShadow = false
+	end
+
+	local signPosition = spec.position + Vector3.new(0, 5.55, 0)
+	local sign = makeVisualPart(
+		spec.id .. " Showcase Sign",
+		model,
+		Vector3.new(5.45, 1.8, 0.32),
+		CFrame.new(signPosition),
+		Color3.fromRGB(6, 15, 21),
+		Enum.Material.Metal
+	)
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+		local surface = makeText(sign, spec.displayName, spec.detail, face)
+		surface.Title.TextColor3 = spec.accent
+		surface.Subtitle.TextColor3 = Color3.fromRGB(235, 242, 245)
+	end
+	buildBoostShowcaseIcon(model, spec, spec.position + Vector3.new(0, 3.35, 0))
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = spec.id .. " Open Boost Shop"
+	prompt.ActionText = "VIEW BOOSTS"
+	prompt.ObjectText = spec.displayName
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 16
+	prompt.RequiresLineOfSight = false
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+	prompt.ClickablePrompt = true
+	prompt.Parent = plinth
+	prompt.Triggered:Connect(function(player)
+		shared.PunchWallOpenWorldBoostKiosk(player, spec.id)
+	end)
+
+	local detector = Instance.new("ClickDetector")
+	detector.Name = spec.id .. " Open Boost Shop Click"
+	detector.MaxActivationDistance = 16
+	detector.Parent = plinth
+	detector.MouseClick:Connect(function(player)
+		shared.PunchWallOpenWorldBoostKiosk(player, spec.id)
+	end)
+
+	local modelParts = 0
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			modelParts += 1
+		end
+	end
+	model:SetAttribute("StaticVisualPartCount", modelParts)
+	model:SetAttribute("WithinVisualPartBudget", modelParts <= 18)
+	boostShowcasePartCount += modelParts
+	model:SetAttribute("ShowcaseOrder", index)
+end
+boostShowcaseFolder:SetAttribute("StaticVisualPartCount", boostShowcasePartCount)
+boostShowcaseFolder:SetAttribute("StaticVisualPartBudget", 48)
+boostShowcaseFolder:SetAttribute("WithinVisualPartBudget", boostShowcasePartCount <= 48)
+root:SetAttribute("WorldBoostShowcaseCount", #boostShowcaseSpecs)
+root:SetAttribute("WorldBoostShowcasePartCount", boostShowcasePartCount)
+root:SetAttribute("WorldBoostShowcaseValidated", boostShowcasePartCount <= 48)
+
 local shopBack = makePart("Fist Shop Sign", root, Vector3.new(36, 10, 0.8), Vector3.new(-43, 21.5, -18.8), Color3.fromRGB(61, 48, 40), Enum.Material.WoodPlanks)
 makeGraphicSurface(shopBack, GameConfig.GeneratedGraphics.HeroCityHUDAtlas, "HERO FIST HQ", "CHOOSE | EQUIP | POWER UP", Enum.NormalId.Front)
 makeGraphicSurface(shopBack, GameConfig.HeroCityPixelUI.SmashBillboard, "SMASH!", "HERO CITY", Enum.NormalId.Back)
@@ -4180,19 +6621,25 @@ makePart("Forest Armory Back Wall", decorFolder, Vector3.new(44, 7.5, 0.8), Vect
 makeCoinStack(decorFolder, Vector3.new(-69, 1.1, -1))
 
 for index, item in ipairs(GameConfig.PremiumFists) do
+	local purchaseConfigured = visualSafety.hasConfiguredGamePass(item)
 	local stand = makePart(item.name .. " Stand", interactFolder, Vector3.new(12, 5, 10), Vector3.new(-82 + index * 20, 3, -10), Color3.fromRGB(230, 230, 230), Enum.Material.Metal)
 	stand.Color = index % 2 == 0 and PolishConfig.Palette.HeroCyan or PolishConfig.Palette.HeroRed
 	stand:SetAttribute("Theme", PolishConfig.StyleName)
 	stand:SetAttribute("PremiumOnly", true)
 	stand:SetAttribute("RobuxPrice", item.robux)
+	visualSafety.markWorldOfferAvailability(stand, purchaseConfigured, "GamePass")
 	stand.Transparency = 0.9
 	stand.CanCollide = false
 	fistPartsByName[item.name] = stand
 	makePart(item.name .. " Display Plinth", decorFolder, Vector3.new(11, 1.0, 8.5), stand.Position + Vector3.new(0, -2.0, 0), Color3.fromRGB(44, 50, 55), Enum.Material.Metal)
 	local nameplate = makeVisualPart(item.name .. " Armory Nameplate", decorFolder, Vector3.new(11.2, 2.1, 0.35), CFrame.new(stand.Position + Vector3.new(0, -0.3, 5.25)), PolishConfig.Palette.Ink, Enum.Material.Metal)
 	nameplate:SetAttribute("PolishRole", "ArmoryFixedNameplate")
-	local frontText = makeText(nameplate, item.displayName, ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult), Enum.NormalId.Front)
-	local backText = makeText(nameplate, item.displayName, ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult), Enum.NormalId.Back)
+	local offerDescription = purchaseConfigured
+		and ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult)
+		or "UNAVAILABLE | PASS ID NOT CONFIGURED"
+	local frontText = makeText(nameplate, item.displayName, offerDescription, Enum.NormalId.Front)
+	local backText = makeText(nameplate, item.displayName, offerDescription, Enum.NormalId.Back)
+	visualSafety.markWorldOfferAvailability(nameplate, purchaseConfigured, "GamePass")
 	for _, surface in ipairs({ frontText, backText }) do
 		surface.Title.Position = UDim2.fromScale(0.29, 0.08)
 		surface.Title.Size = UDim2.fromScale(0.68, 0.38)
@@ -4269,12 +6716,15 @@ for index, item in ipairs(GameConfig.PremiumFists) do
 	end
 	local glow = makeCylinder(item.name .. " Pedestal Glow", decorFolder, Vector3.new(0.08, 4.8, 4.8), stand.Position + Vector3.new(0, -1.42, -0.5), item.accent, Enum.Material.Neon, Vector3.new(0, 0, 90))
 	glow.Transparency = 0.58
-	local detector = Instance.new("ClickDetector")
-	detector.MaxActivationDistance = 30
-	detector.Parent = stand
-	detector.MouseClick:Connect(function(player)
-		shared.PunchWallPremiumFists.prompt(player, item)
-	end)
+	if purchaseConfigured then
+		local detector = Instance.new("ClickDetector")
+		detector.MaxActivationDistance = 30
+		detector.Parent = stand
+		detector.MouseClick:Connect(function(player)
+			if not profileReady(player, false) then return end
+			shared.PunchWallPremiumFists.prompt(player, item)
+		end)
+	end
 end
 
 local armoryNPC = cloneExternalVisual(
@@ -4326,6 +6776,7 @@ local premiumRobotDetector = Instance.new("ClickDetector")
 premiumRobotDetector.MaxActivationDistance = 28
 premiumRobotDetector.Parent = premiumRobotTrigger
 premiumRobotDetector.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	sendFeedback(player, { type = "OpenMenu", target = "Fists", tab = "Fists", color = PolishConfig.Palette.HeroYellow })
 end)
 local armoryNPCTrigger = makePart("Hero Armory Merchant Interaction", interactFolder, Vector3.new(8, 8, 8), Vector3.new(-69, 4, -14), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
@@ -4337,10 +6788,15 @@ local armoryNPCDetector = Instance.new("ClickDetector")
 armoryNPCDetector.MaxActivationDistance = 28
 armoryNPCDetector.Parent = armoryNPCTrigger
 armoryNPCDetector.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	sendFeedback(player, { type = "OpenMenu", target = "Fists", tab = "Fists", color = PolishConfig.Palette.HeroRed })
 end)
 
-local eggPart = makePart("Pet Egg Machine", interactFolder, Vector3.new(11, 9, 11), Vector3.new(-72, 5.5, 24), Color3.fromRGB(35, 112, 145), Enum.Material.Glass)
+local petAnnexDeck = makePart("Pet Lab Annex Deck", decorFolder, Vector3.new(20, 0.28, 30), Vector3.new(-94, 0.3, 18), Color3.fromRGB(81, 91, 94), Enum.Material.Metal)
+petAnnexDeck:SetAttribute("VisualRole", "PetLabAnnexDeck")
+local petAnnexBridge = makePart("Pet Lab Annex Bridge", decorFolder, Vector3.new(4, 0.26, 8), Vector3.new(-83, 0.31, 24), Color3.fromRGB(96, 103, 101), Enum.Material.Metal)
+petAnnexBridge:SetAttribute("VisualRole", "PetLabAnnexBridge")
+local eggPart = makePart("Pet Egg Machine", interactFolder, Vector3.new(11, 9, 11), Vector3.new(-94, 5.5, 24), Color3.fromRGB(35, 112, 145), Enum.Material.Glass)
 shared.PunchWallEggPart = eggPart
 eggPart:SetAttribute("Theme", PolishConfig.StyleName)
 eggPart.Transparency = 0.94
@@ -4371,7 +6827,7 @@ local petLabNPC = cloneExternalVisual(
 	"Sanitized_PetLabScientistNPC",
 	decorFolder,
 	"Hero Sidekick Scientist NPC",
-	CFrame.new(-61, 0.35, 28) * CFrame.Angles(0, math.rad(180), 0),
+	CFrame.new(-102, 0.35, 12) * CFrame.Angles(0, math.rad(180), 0),
 	6.2,
 	false
 )
@@ -4381,13 +6837,13 @@ else
 	petLabNPC = makeProceduralHeroNPC(
 		"Hero Sidekick Scientist NPC Fallback",
 		decorFolder,
-		CFrame.new(-61, 0.35, 28) * CFrame.Angles(0, math.rad(180), 0),
+		CFrame.new(-102, 0.35, 12) * CFrame.Angles(0, math.rad(180), 0),
 		Color3.fromRGB(224, 232, 239),
 		PolishConfig.Palette.HeroCyan,
 		"PetShop"
 	)
 end
-local petLabNPCTrigger = makePart("Hero Sidekick Scientist Interaction", interactFolder, Vector3.new(8, 8, 8), Vector3.new(-61, 4, 28), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
+local petLabNPCTrigger = makePart("Hero Sidekick Scientist Interaction", interactFolder, Vector3.new(8, 8, 8), Vector3.new(-102, 4, 12), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
 shared.PunchWallPetLabNPCTrigger = petLabNPCTrigger
 petLabNPCTrigger.Transparency = 1
 petLabNPCTrigger.CanCollide = false
@@ -4396,6 +6852,7 @@ local petLabNPCDetector = Instance.new("ClickDetector")
 petLabNPCDetector.MaxActivationDistance = 28
 petLabNPCDetector.Parent = petLabNPCTrigger
 petLabNPCDetector.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	sendFeedback(player, { type = "OpenMenu", target = "Pets", tab = "Pets", color = PolishConfig.Palette.HeroCyan })
 end)
 end
@@ -4495,10 +6952,10 @@ local function rollPet(luck, depth)
 		local pet = eligible[index]
 		cumulative += GameConfig.PetWeight(pet, luck) * (1 + math.max(0, depth - (pet.minDepth or 1)) * 0.025)
 		if roll <= cumulative then
-			return pet
+			return pet, eligible[poolStart].name, eligible[#eligible].name
 		end
 	end
-	return eligible[#eligible]
+	return eligible[#eligible], eligible[poolStart].name, eligible[#eligible].name
 end
 
 local function petRarityColor(pet)
@@ -4520,7 +6977,8 @@ local function grantPet(player, chosen, stars, source)
 	table.insert(inventory, token)
 	encodeList(player, "PetInventoryJSON", inventory)
 	local discovered = decodeList(player, "DiscoveredPetsJSON")
-	if not listContains(discovered, chosen.name) then
+	local firstDiscovery = not listContains(discovered, chosen.name)
+	if firstDiscovery then
 		table.insert(discovered, chosen.name)
 		encodeList(player, "DiscoveredPetsJSON", discovered)
 	end
@@ -4530,7 +6988,11 @@ local function grantPet(player, chosen, stars, source)
 		encodeList(player, "EquippedPetsJSON", equipped)
 	end
 	local _, equippedMultiplier = refreshEquippedPets(player)
-	addStat(player, "Luck", chosen.luckGain)
+	-- Luck is a discovery reward, not a per-copy reward. Duplicates are fusion
+	-- material and reclaiming a permanent entitlement must never farm Luck.
+	if firstDiscovery then
+		addStat(player, "Luck", chosen.luckGain)
+	end
 	advanceTutorial(player, 5)
 	emitNamed(shared.PunchWallEggPart, "Egg Reveal", 32)
 	sendFeedback(player, {
@@ -4543,6 +7005,326 @@ local function grantPet(player, chosen, stars, source)
 		color = petRarityColor(chosen),
 	})
 	return { ok = true, pet = token, petName = chosen.name, rarity = chosen.rarity, stars = stars or 1, multiplier = GameConfig.PetMultiplierForToken(token), equippedMultiplier = equippedMultiplier, luck = statValue(player, "Luck", 1), source = source or "WallEgg" }
+end
+
+function petDropRuntime.Clear(player, reason)
+	local record = player and petDropRuntime.active[player.UserId]
+	if not record then return false end
+	if petDropRuntime.active[player.UserId] == record then
+		petDropRuntime.active[player.UserId] = nil
+	end
+	player:SetAttribute("ActivePetEggDropId", nil)
+	player:SetAttribute("ActivePetEggExpiresAt", nil)
+	player:SetAttribute("ActivePetEggDepth", nil)
+	if record.billboard and record.billboard.Parent then
+		record.billboard:Destroy()
+	end
+	if record.model and record.model.Parent then
+		record.model:SetAttribute("RemovalReason", tostring(reason or "cleared"))
+		record.model:Destroy()
+	end
+	return true
+end
+
+function petDropRuntime.GroundPosition(player, sourcePosition)
+	local character = player and player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local source = typeof(sourcePosition) == "Vector3"
+		and sourcePosition
+		or rootPart and (rootPart.Position + rootPart.CFrame.LookVector * 4)
+		or Vector3.new(-2, 3, -24)
+	if rootPart and typeof(sourcePosition) == "Vector3" then
+		local fromPlayer = Vector3.new(source.X - rootPart.Position.X, 0, source.Z - rootPart.Position.Z)
+		local distance = fromPlayer.Magnitude
+		local direction = distance > 0.01 and fromPlayer.Unit
+			or Vector3.new(rootPart.CFrame.LookVector.X, 0, rootPart.CFrame.LookVector.Z).Unit
+		if distance < 3.5 then
+			source = Vector3.new(
+				rootPart.Position.X + direction.X * 3.5,
+				source.Y,
+				rootPart.Position.Z + direction.Z * 3.5
+			)
+		elseif distance > 6 then
+			source = Vector3.new(
+				rootPart.Position.X + direction.X * 5,
+				source.Y,
+				rootPart.Position.Z + direction.Z * 5
+			)
+		end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { wallsFolder, petDropRuntime.folder, character }
+	params.IgnoreWater = true
+	local result = workspace:Raycast(source + Vector3.new(0, 30, 0), Vector3.new(0, -90, 0), params)
+	local groundY = result and result.Position.Y or math.max(0, source.Y - 3)
+	return Vector3.new(source.X, groundY + 1.45, source.Z)
+end
+
+function petDropRuntime.Spawn(player, chosen, depth, sourcePosition, pityTriggered)
+	local dropConfig = GameConfig.PetDrops
+	local existing = petDropRuntime.active[player.UserId]
+	if existing and existing.model and existing.model.Parent then
+		return {
+			ok = false,
+			reason = "active_drop",
+			pendingPickup = true,
+			dropId = existing.id,
+			expiresAt = existing.expiresAt,
+		}
+	end
+	if existing then petDropRuntime.Clear(player, "stale_record") end
+
+	local now = workspace:GetServerTimeNow()
+	local dropId = HttpService:GenerateGUID(false)
+	local expiresAt = now + dropConfig.LifetimeSeconds
+	local claimReadyAt = now + dropConfig.PickupArmSeconds
+	local position = petDropRuntime.GroundPosition(player, sourcePosition)
+	local rarityColor = petRarityColor(chosen)
+	local model = Instance.new("Model")
+	model.Name = "Mystery Pet Egg " .. player.UserId
+	model:SetAttribute("VisualRole", "PetDropEgg")
+	model:SetAttribute("DropId", dropId)
+	model:SetAttribute("OwnerUserId", player.UserId)
+	model:SetAttribute("Depth", depth)
+	model:SetAttribute("Rarity", chosen.rarity)
+	model:SetAttribute("SpawnedAt", now)
+	model:SetAttribute("ClaimReadyAt", claimReadyAt)
+	model:SetAttribute("ExpiresAt", expiresAt)
+	model:SetAttribute("Claimed", false)
+	model:SetAttribute("ServerAuthoritative", true)
+	model:SetAttribute("RewardHiddenUntilClaim", true)
+	model.Parent = petDropRuntime.folder
+
+	local glow = makeCylinder(
+		"Egg Ground Glow",
+		model,
+		Vector3.new(0.12, 2.85, 2.85),
+		position - Vector3.new(0, 1.34, 0),
+		rarityColor,
+		Enum.Material.Neon,
+		Vector3.new(0, 0, 90)
+	)
+	glow.CanCollide = false
+	glow.CanTouch = false
+	glow.CanQuery = false
+	glow.Transparency = 0.58
+
+	local egg = makeBall(
+		"Mystery Pet Egg",
+		model,
+		Vector3.new(2.05, 2.8, 2.05),
+		position,
+		Color3.fromRGB(238, 235, 214),
+		Enum.Material.SmoothPlastic
+	)
+	egg.CanCollide = false
+	egg.CanTouch = false
+	egg.CanQuery = true
+	model.PrimaryPart = egg
+
+	for index, offset in ipairs({
+		Vector3.new(-0.55, 0.55, 0.86),
+		Vector3.new(0.48, 0.82, 0.86),
+		Vector3.new(0.08, -0.58, 0.94),
+		Vector3.new(-0.62, -0.24, 0.78),
+		Vector3.new(0.62, 0.12, 0.78),
+	}) do
+		local spot = makeBall(
+			"Egg Spot " .. index,
+			model,
+			Vector3.new(0.46, 0.58, 0.18),
+			position + offset,
+			rarityColor,
+			chosen.rarity == "Common" and Enum.Material.SmoothPlastic or Enum.Material.Neon
+		)
+		spot.CanCollide = false
+		spot.CanTouch = false
+		spot.CanQuery = false
+	end
+
+	local light = Instance.new("PointLight")
+	light.Name = "Egg Rarity Glow"
+	light.Color = rarityColor
+	light.Brightness = chosen.rarity == "Common" and 0.35 or 0.75
+	light.Range = chosen.rarity == "Common" and 5 or 8
+	light.Shadows = false
+	light.Parent = egg
+	local outline = Instance.new("Highlight")
+	outline.Name = "Egg Rarity Outline"
+	outline.Adornee = model
+	outline.DepthMode = Enum.HighlightDepthMode.Occluded
+	outline.FillColor = rarityColor
+	outline.FillTransparency = 0.94
+	outline.OutlineColor = rarityColor
+	outline.OutlineTransparency = 0.18
+	outline.Parent = model
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "Pickup Label"
+	billboard.Adornee = egg
+	billboard.AlwaysOnTop = true
+	billboard.MaxDistance = 80
+	billboard.Size = UDim2.fromOffset(210, 58)
+	billboard.StudsOffsetWorldSpace = Vector3.new(0, 2.45, 0)
+	billboard.Parent = player:FindFirstChildOfClass("PlayerGui") or egg
+	local label = Instance.new("TextLabel")
+	label.Name = "Countdown"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundColor3 = Color3.fromRGB(8, 17, 25)
+	label.BackgroundTransparency = 0.15
+	label.BorderSizePixel = 0
+	label.Font = Enum.Font.GothamBlack
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	label.TextStrokeTransparency = 0.35
+	label.TextScaled = true
+	label.TextWrapped = true
+	label.Parent = billboard
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = label
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = rarityColor
+	stroke.Thickness = 2
+	stroke.Parent = label
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "Pick Up Pet Egg"
+	prompt.ActionText = "PICK UP"
+	prompt.ObjectText = "MYSTERY PET EGG"
+	prompt.HoldDuration = 0.12
+	prompt.MaxActivationDistance = dropConfig.PickupDistance
+	prompt.RequiresLineOfSight = false
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+	prompt.ClickablePrompt = true
+	prompt.Enabled = false
+	prompt.Parent = egg
+
+	local click = Instance.new("ClickDetector")
+	click.Name = "Pet Egg Click Pickup"
+	click.MaxActivationDistance = dropConfig.PickupDistance
+	click.Parent = egg
+
+	local record = {
+		id = dropId,
+		owner = player,
+		chosen = chosen,
+		depth = depth,
+		model = model,
+		primaryPart = egg,
+		prompt = prompt,
+		billboard = billboard,
+		label = label,
+		spawnedAt = now,
+		claimReadyAt = claimReadyAt,
+		expiresAt = expiresAt,
+		claiming = false,
+		claimed = false,
+	}
+	petDropRuntime.active[player.UserId] = record
+	player:SetAttribute("ActivePetEggDropId", dropId)
+	player:SetAttribute("ActivePetEggExpiresAt", expiresAt)
+	player:SetAttribute("ActivePetEggDepth", depth)
+	player:SetAttribute("PetDropCooldownUntil", now + dropConfig.SpawnCooldownSeconds)
+
+	prompt.Triggered:Connect(function(triggeringPlayer)
+		petDropRuntime.Claim(triggeringPlayer, record)
+	end)
+	click.MouseClick:Connect(function(clickingPlayer)
+		petDropRuntime.Claim(clickingPlayer, record)
+	end)
+
+	task.spawn(function()
+		while model.Parent and not record.claimed do
+			local current = workspace:GetServerTimeNow()
+			local remaining = math.max(0, math.ceil(expiresAt - current))
+			label.Text = (current < claimReadyAt and "EGG LANDED" or "PICK UP PET EGG")
+				.. ("  •  %ds"):format(remaining)
+			prompt.Enabled = current >= claimReadyAt and current < expiresAt
+			if current >= expiresAt then break end
+			task.wait(math.min(0.25, math.max(0.05, expiresAt - current)))
+		end
+		if model.Parent and not record.claimed and petDropRuntime.active[player.UserId] == record then
+			petDropRuntime.Clear(player, "expired")
+			sendFeedback(player, {
+				type = "Fail",
+				target = "PET EGG",
+				message = "PET EGG EXPIRED",
+				color = PolishConfig.Palette.Fail,
+			})
+		end
+	end)
+
+	sendFeedback(player, {
+		type = "PetEggDrop",
+		target = "MYSTERY PET EGG",
+		message = "PET EGG DROPPED — PICK IT UP!",
+		rarity = chosen.rarity,
+		depth = depth,
+		expiresAt = expiresAt,
+		color = rarityColor,
+	})
+	return {
+		ok = true,
+		dropped = true,
+		pendingPickup = true,
+		dropId = dropId,
+		depth = depth,
+		rarity = chosen.rarity,
+		expiresAt = expiresAt,
+		pickupReadyAt = claimReadyAt,
+		pityTriggered = pityTriggered == true,
+	}
+end
+
+function petDropRuntime.Claim(player, record)
+	if not player or not record or not record.model or not record.model.Parent then
+		return { ok = false, reason = "drop_missing" }
+	end
+	if record.owner ~= player or record.model:GetAttribute("OwnerUserId") ~= player.UserId then
+		return { ok = false, reason = "not_owner" }
+	end
+	if petDropRuntime.active[player.UserId] ~= record then
+		return { ok = false, reason = "stale_drop" }
+	end
+	if record.claimed or record.claiming then
+		return { ok = false, reason = "already_claiming" }
+	end
+	local ready, readinessReason = profileReady(player, false)
+	if not ready then return { ok = false, reason = readinessReason } end
+	local now = workspace:GetServerTimeNow()
+	if now < record.claimReadyAt then
+		return { ok = false, reason = "pickup_arming", readyAt = record.claimReadyAt }
+	end
+	if now >= record.expiresAt then
+		petDropRuntime.Clear(player, "expired_claim")
+		return { ok = false, reason = "drop_expired" }
+	end
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if not rootPart or not record.primaryPart or not record.primaryPart.Parent then
+		return { ok = false, reason = "character" }
+	end
+	local distance = (rootPart.Position - record.primaryPart.Position).Magnitude
+	if distance > GameConfig.PetDrops.PickupDistance + 1.5 then
+		return { ok = false, reason = "too_far", distance = distance }
+	end
+	record.claiming = true
+	local result = grantPet(player, record.chosen, 1, "DepthEggPickup")
+	if not result.ok then
+		record.claiming = false
+		return result
+	end
+	record.claimed = true
+	record.model:SetAttribute("Claimed", true)
+	result.pickup = true
+	result.dropId = record.id
+	result.depth = record.depth
+	result.pickupDistance = distance
+	petDropRuntime.Clear(player, "claimed")
+	return result
 end
 
 local function hatchPet(player, freeHatch, depth)
@@ -4559,7 +7341,23 @@ local function hatchPet(player, freeHatch, depth)
 	return grantPet(player, chosen, 1, "GrantedEgg")
 end
 
-tryDropPetEgg = function(player, depth)
+tryDropPetEgg = function(player, depth, sourcePosition)
+	depth = math.clamp(math.floor(tonumber(depth) or 1), 1, GameConfig.WorldProgressTarget)
+	local existing = petDropRuntime.active[player.UserId]
+	if existing and existing.model and existing.model.Parent then
+		return {
+			ok = false,
+			reason = "active_drop",
+			pendingPickup = true,
+			dropId = existing.id,
+			expiresAt = existing.expiresAt,
+		}
+	end
+	local now = workspace:GetServerTimeNow()
+	local cooldownUntil = tonumber(player:GetAttribute("PetDropCooldownUntil")) or 0
+	if now < cooldownUntil then
+		return { ok = false, reason = "drop_cooldown", cooldownRemaining = cooldownUntil - now }
+	end
 	local pity = statValue(player, "PetDropPity", 0) + 1
 	local dropConfig = GameConfig.PetDrops
 	local chance = math.min(dropConfig.MaxChance, dropConfig.BaseChance + math.max(0, depth - 1) * dropConfig.ChancePerDepth)
@@ -4569,11 +7367,15 @@ tryDropPetEgg = function(player, depth)
 		player:SetAttribute("PetDropChance", chance)
 		return { ok = false, reason = "no_drop", pity = pity, chance = chance }
 	end
-	setStat(player, "PetDropPity", 0)
-	local chosen = rollPet(math.max(1, statValue(player, "Luck", 1)), depth)
-	local result = grantPet(player, chosen, 1, "DepthBlock")
-	result.depth = depth
-	result.pityTriggered = pity >= dropConfig.PityBreaks
+	local chosen, poolMinPet, poolMaxPet = rollPet(math.max(1, statValue(player, "Luck", 1)), depth)
+	local result = petDropRuntime.Spawn(player, chosen, depth, sourcePosition, pity >= dropConfig.PityBreaks)
+	result.poolMinPet = poolMinPet
+	result.poolMaxPet = poolMaxPet
+	if result.ok then
+		setStat(player, "PetDropPity", 0)
+	else
+		setStat(player, "PetDropPity", math.min(pity, dropConfig.PityBreaks))
+	end
 	return result
 end
 
@@ -4807,15 +7609,21 @@ end
 shared.PunchWallPremiumPets = { byPass = {}, byName = {} }
 for _, item in ipairs(GameConfig.PremiumPets) do
 	shared.PunchWallPremiumPets.byName[item.name] = item
-	if item.gamePassId and item.gamePassId > 0 then shared.PunchWallPremiumPets.byPass[item.gamePassId] = item end
+	if visualSafety.hasConfiguredGamePass(item) then
+		shared.PunchWallPremiumPets.byPass[item.gamePassId] = item
+	end
 end
 
 shared.PunchWallPremiumPets.grant = function(player, item, source)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
 	if not item then return { ok = false, reason = "unknown_premium_pet" } end
 	local owned = decodeList(player, "OwnedPremiumPetsJSON")
 	if listContains(owned, item.name) then
 		local inventory = decodeList(player, "PetInventoryJSON")
-		if listContains(inventory, item.name) then return equipPet(player, item.name) end
+		if listContains(inventory, item.name) then
+			if source == "Owned" then return equipPet(player, item.name) end
+			return { ok = true, pet = item.name, premium = true, alreadyOwned = true }
+		end
 	end
 	local result = grantPet(player, item, 1, source or "Premium")
 	if not result.ok then return result end
@@ -4828,16 +7636,14 @@ shared.PunchWallPremiumPets.grant = function(player, item, source)
 end
 
 shared.PunchWallPremiumPets.prompt = function(player, item)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
 	if not item then return { ok = false, reason = "unknown_premium_pet" } end
+	if not visualSafety.hasConfiguredGamePass(item) then
+		sendFeedback(player, { type = "PremiumSetup", target = item.name, message = "PURCHASE UNAVAILABLE | PASS ID NOT CONFIGURED", robux = item.robux, color = item.accent })
+		return { ok = false, reason = "game_pass_not_configured", robux = item.robux }
+	end
 	if listContains(decodeList(player, "OwnedPremiumPetsJSON"), item.name) then
 		return shared.PunchWallPremiumPets.grant(player, item, "Owned")
-	end
-	if RunService:IsStudio() and GameConfig.StudioTestGrantPremium then
-		return shared.PunchWallPremiumPets.grant(player, item, "StudioTest")
-	end
-	if not item.gamePassId or item.gamePassId <= 0 then
-		sendFeedback(player, { type = "PremiumSetup", target = item.name, message = "PREMIUM PET PASS COMING SOON", robux = item.robux, color = item.accent })
-		return { ok = false, reason = "game_pass_not_configured", robux = item.robux }
 	end
 	MarketplaceService:PromptGamePassPurchase(player, item.gamePassId)
 	return { ok = true, pending = true, gamePassId = item.gamePassId }
@@ -4846,8 +7652,227 @@ end
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, wasPurchased)
 	if not wasPurchased then return end
 	local item = shared.PunchWallPremiumPets.byPass[gamePassId]
-	if item then shared.PunchWallPremiumPets.grant(player, item, "GamePass") end
+	if not item then return end
+	local queued, queueError = persistenceRuntime.queuePendingGamePassGrant(player, "Pet", item, "GamePass")
+	if not queued then
+		warn(("[PunchWallRPG] Could not queue pet GamePass %s for %s: %s"):format(
+			tostring(gamePassId),
+			player.Name,
+			tostring(queueError)
+		))
+		return
+	end
+	if profileReady(player, false) and persistenceRuntime.flushPendingGamePassGrants then
+		task.spawn(persistenceRuntime.flushPendingGamePassGrants, player, "PurchaseFinished")
+	end
 end)
+
+local function ownsQueuedGamePassItem(player, operation)
+	if operation.kind == "Fist" then
+		return listContains(decodeList(player, "OwnedPremiumFistsJSON"), operation.item.name)
+	end
+	if operation.kind == "Pet" then
+		return listContains(decodeList(player, "OwnedPremiumPetsJSON"), operation.item.name)
+	end
+	return false
+end
+
+local function flushPendingGamePassGrants(player, reason)
+	local ready = profileReady(player, false)
+	local state = persistenceRuntime.pendingGamePassGrants[player]
+	if not ready or not state or state.flushing then
+		return false, ready and "no_pending_grants" or "profile_not_ready"
+	end
+	state.flushing = true
+	local session = persistenceRuntime.profileSessions[player]
+	local remaining = {}
+	local handled = 0
+	local granted = 0
+	for _, key in ipairs(state.order) do
+		local operation = state.byKey[key]
+		if operation then
+			if player.Parent ~= Players
+				or persistenceRuntime.profileSessions[player] ~= session
+				or not profileReady(player, false)
+			then
+				table.insert(remaining, key)
+			else
+				local alreadyOwned = ownsQueuedGamePassItem(player, operation)
+				local result
+				if alreadyOwned then
+					result = { ok = true, alreadyOwned = true }
+				elseif operation.kind == "Fist" then
+					result = shared.PunchWallPremiumFists.grant(player, operation.item, operation.source)
+				elseif operation.kind == "Pet" then
+					result = shared.PunchWallPremiumPets.grant(player, operation.item, operation.source)
+				else
+					result = { ok = false, reason = "unknown_game_pass_kind" }
+				end
+				if result and result.ok then
+					state.byKey[key] = nil
+					handled += 1
+					if not alreadyOwned then
+						granted += 1
+					end
+				else
+					table.insert(remaining, key)
+				end
+			end
+		end
+	end
+	state.order = remaining
+	state.flushing = false
+	player:SetAttribute("PendingGamePassGrantCount", #remaining)
+	if handled > 0 and persistenceRuntime.requestPlayerSave then
+		persistenceRuntime.requestPlayerSave(player, reason or "GamePassGrant", false)
+	end
+	root:SetAttribute("LastGamePassPendingFlushHandled", handled)
+	root:SetAttribute("LastGamePassPendingFlushGranted", granted)
+	if handled > 0 then
+		return true
+	end
+	return false, "no_grant_flushed"
+end
+
+local function ownsGamePassWithRetry(player, gamePassId)
+	local lastError
+	for attempt = 1, persistenceRuntime.gamePassOwnershipAttempts do
+		local ok, ownsPass = pcall(
+			MarketplaceService.UserOwnsGamePassAsync,
+			MarketplaceService,
+			player.UserId,
+			gamePassId
+		)
+		if ok then
+			return ownsPass == true
+		end
+		lastError = ownsPass
+		if attempt < persistenceRuntime.gamePassOwnershipAttempts then
+			task.wait(0.25 * attempt)
+		end
+	end
+	return false, lastError
+end
+
+local function reconcileOwnedGamePasses(player)
+	local session = persistenceRuntime.profileSessions[player]
+	if not profileReady(player, false)
+		or not session
+		or session.gamePassReconciliationStarted
+		or session.gamePassReconciliationComplete
+	then
+		return false, "profile_not_ready_or_reconciliation_started"
+	end
+	session.gamePassReconciliationStarted = true
+	local configured = {}
+	for gamePassId, item in pairs(shared.PunchWallPremiumFists.byPass) do
+		table.insert(configured, { kind = "Fist", gamePassId = gamePassId, item = item })
+	end
+	for gamePassId, item in pairs(shared.PunchWallPremiumPets.byPass) do
+		table.insert(configured, { kind = "Pet", gamePassId = gamePassId, item = item })
+	end
+	table.sort(configured, function(left, right)
+		if left.gamePassId == right.gamePassId then
+			return left.kind < right.kind
+		end
+		return left.gamePassId < right.gamePassId
+	end)
+	local ownedCount = 0
+	local queuedCount = 0
+	local failedCount = 0
+	local lastOwnershipError
+	for _, entry in ipairs(configured) do
+		if player.Parent ~= Players
+			or persistenceRuntime.profileSessions[player] ~= session
+			or not profileReady(player, false)
+		then
+			break
+		end
+		local ownsPass, ownershipError = ownsGamePassWithRetry(player, entry.gamePassId)
+		if ownershipError ~= nil then
+			failedCount += 1
+			lastOwnershipError = tostring(ownershipError)
+		elseif ownsPass then
+			ownedCount += 1
+			local operation = {
+				kind = entry.kind,
+				item = entry.item,
+			}
+			if not ownsQueuedGamePassItem(player, operation) then
+				local queued = persistenceRuntime.queuePendingGamePassGrant(
+					player,
+					entry.kind,
+					entry.item,
+					"OwnershipReconcile"
+				)
+				if queued then
+					queuedCount += 1
+				end
+			end
+		end
+	end
+	local stillReady = profileReady(player, false)
+	local sessionStillCurrent = player.Parent == Players
+		and persistenceRuntime.profileSessions[player] == session
+		and stillReady
+	if sessionStillCurrent then
+		local flushed = flushPendingGamePassGrants(player, "GamePassOwnershipReconcile")
+		if ownedCount > 0 and not flushed and persistenceRuntime.requestPlayerSave then
+			persistenceRuntime.requestPlayerSave(player, "GamePassOwnershipVerified", false)
+		end
+		session.gamePassReconciliationStarted = false
+		if failedCount == 0 then
+			session.gamePassReconciliationComplete = true
+			session.gamePassReconciliationRetryCount = 0
+			player:SetAttribute("GamePassOwnershipReconciled", true)
+			player:SetAttribute("GamePassOwnershipReconciliationFailed", false)
+			player:SetAttribute("GamePassOwnershipReconciliationRetryCount", 0)
+		else
+			session.gamePassReconciliationComplete = false
+			session.gamePassReconciliationRetryCount =
+				(session.gamePassReconciliationRetryCount or 0) + 1
+			local retryCount = session.gamePassReconciliationRetryCount
+			local exhausted = retryCount >= persistenceRuntime.gamePassReconciliationAttempts
+			player:SetAttribute("GamePassOwnershipReconciled", false)
+			player:SetAttribute("GamePassOwnershipReconciliationFailed", exhausted)
+			player:SetAttribute("GamePassOwnershipReconciliationRetryCount", retryCount)
+			if not exhausted then
+				local retryDelay = persistenceRuntime.gamePassReconciliationRetryBaseSeconds
+					* (2 ^ (retryCount - 1))
+				task.delay(retryDelay, function()
+					if player.Parent == Players
+						and persistenceRuntime.profileSessions[player] == session
+						and profileReady(player, false)
+						and not session.gamePassReconciliationComplete
+					then
+						reconcileOwnedGamePasses(player)
+					end
+				end)
+			else
+				warn(("[PunchWallRPG] GamePass ownership reconciliation failed for %s after %d attempts: %s"):format(
+					player.Name,
+					retryCount,
+					tostring(lastOwnershipError)
+				))
+			end
+		end
+	elseif persistenceRuntime.profileSessions[player] == session then
+		session.gamePassReconciliationStarted = false
+	end
+	root:SetAttribute("ConfiguredGamePassReconciliationCount", #configured)
+	root:SetAttribute("LastOwnedGamePassReconciliationCount", ownedCount)
+	root:SetAttribute("LastQueuedGamePassReconciliationCount", queuedCount)
+	root:SetAttribute("LastFailedGamePassReconciliationCount", failedCount)
+	return sessionStillCurrent and failedCount == 0, {
+		configured = #configured,
+		owned = ownedCount,
+		queued = queuedCount,
+		failed = failedCount,
+	}
+end
+
+persistenceRuntime.flushPendingGamePassGrants = flushPendingGamePassGrants
+persistenceRuntime.reconcileOwnedGamePasses = reconcileOwnedGamePasses
 
 shared.PunchWallServerFinalize = function()
 local premiumPetPositions = {
@@ -4856,11 +7881,13 @@ local premiumPetPositions = {
 	Vector3.new(-62, 3.2, 38),
 }
 shared.PunchWallBuildPremiumPetStand = function(index, item, position)
+	local purchaseConfigured = visualSafety.hasConfiguredGamePass(item)
 	local stand = makePart(item.name .. " Premium Pet Stand", interactFolder, Vector3.new(10.5, 5.5, 9), position, Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
 	stand.Transparency = 0.94
 	stand.CanCollide = false
 	stand:SetAttribute("VisualRole", "PremiumPetRobuxStand")
 	stand:SetAttribute("RobuxPrice", item.robux)
+	visualSafety.markWorldOfferAvailability(stand, purchaseConfigured, "GamePass")
 	local plinth = makeCylinder(item.name .. " Premium Pet Plinth", decorFolder, Vector3.new(0.85, 7.2, 7.2), position + Vector3.new(0, -2.2, 0), item.accent, Enum.Material.Metal, Vector3.new(0, 0, 90))
 	plinth:SetAttribute("AmbientMotion", "Pulse")
 	local display = cloneExternalVisual(
@@ -4925,17 +7952,26 @@ shared.PunchWallBuildPremiumPetStand = function(index, item, position)
 	light.Range = 10 + index
 	light.Parent = auraAnchor
 	local nameplate = makeVisualPart(item.name .. " Premium Pet Price", decorFolder, Vector3.new(10.8, 2.2, 0.35), CFrame.new(position + Vector3.new(0, -0.4, 5.0)), Color3.fromRGB(7, 15, 22), Enum.Material.Metal)
-	local frontPrice = makeText(nameplate, item.name, ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult), Enum.NormalId.Front)
-	local backPrice = makeText(nameplate, item.name, ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult), Enum.NormalId.Back)
+	local offerDescription = purchaseConfigured
+		and ("R$ %d | PERMANENT | x%.1f"):format(item.robux, item.mult)
+		or "UNAVAILABLE | PASS ID NOT CONFIGURED"
+	local frontPrice = makeText(nameplate, item.name, offerDescription, Enum.NormalId.Front)
+	local backPrice = makeText(nameplate, item.name, offerDescription, Enum.NormalId.Back)
+	visualSafety.markWorldOfferAvailability(nameplate, purchaseConfigured, "GamePass")
 	for _, priceSurface in ipairs({ frontPrice, backPrice }) do
 		priceSurface.AlwaysOnTop = true
 		priceSurface.LightInfluence = 0
 		priceSurface.MaxDistance = 250
 	end
-	local detector = Instance.new("ClickDetector")
-	detector.MaxActivationDistance = 28
-	detector.Parent = stand
-	detector.MouseClick:Connect(function(player) shared.PunchWallPremiumPets.prompt(player, item) end)
+	if purchaseConfigured then
+		local detector = Instance.new("ClickDetector")
+		detector.MaxActivationDistance = 28
+		detector.Parent = stand
+		detector.MouseClick:Connect(function(player)
+			if not profileReady(player, false) then return end
+			shared.PunchWallPremiumPets.prompt(player, item)
+		end)
+	end
 end
 for index, item in ipairs(GameConfig.PremiumPets) do
 	shared.PunchWallBuildPremiumPetStand(index, item, premiumPetPositions[index])
@@ -4945,32 +7981,68 @@ local eggDetector = Instance.new("ClickDetector")
 eggDetector.MaxActivationDistance = 32
 eggDetector.Parent = shared.PunchWallEggPart
 eggDetector.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	sendFeedback(player, { type = "OpenMenu", target = "Pets", tab = "Pets", color = PolishConfig.Palette.HeroCyan })
 end)
 
 shared.PunchWallHonorItemsByName = {}
-for _, item in ipairs(GameConfig.HonorItems) do shared.PunchWallHonorItemsByName[item.name] = item end
+for _, item in ipairs(GameConfig.HonorItems) do
+	shared.PunchWallHonorItemsByName[item.name] = item
+	shared.PunchWallHonorItemsByName[item.id] = item
+end
 
 shared.PunchWallBuyHonorItem = function(player, item)
 	if not item then return { ok = false, reason = "unknown_honor_item" } end
-	local owned = decodeList(player, "OwnedHonorItemsJSON")
-	local alreadyOwned = listContains(owned, item.name)
+	if not profileReady(player, false) then return { ok = false, reason = "profile_not_ready" } end
+	local owned = {}
+	local ownedSet = {}
+	for _, selector in ipairs(decodeList(player, "OwnedHonorItemsJSON")) do
+		local definition = GameConfig.HonorItemDefinition(selector)
+		if definition and not ownedSet[definition.id] then
+			ownedSet[definition.id] = true
+			table.insert(owned, definition.id)
+		end
+	end
+	local alreadyOwned = ownedSet[item.id] == true
 	if not alreadyOwned then
-		if statValue(player, "Honor", 0) < item.cost then
+		if not GameConfig.HonorItemUnlocked(
+			item,
+			statValue(player, "Depth", 0),
+			statValue(player, "Rebirths", 0)
+		) then
 			sendFeedback(player, {
 				type = "Fail",
 				target = item.displayName,
-				message = ("NEED %d HONOR"):format(item.cost),
+				message = ("LOCKED • NEED DEPTH %d%s"):format(
+					item.requiredDepth or 0,
+					(item.requiredRebirths or 0) > 0 and (" + REBIRTH " .. item.requiredRebirths) or ""
+				),
+				color = PolishConfig.Palette.Fail,
+			})
+			return {
+				ok = false,
+				reason = "honor_item_locked",
+				requiredDepth = item.requiredDepth,
+				requiredRebirths = item.requiredRebirths,
+			}
+		end
+		local currentHonor = statValue(player, "Honor", 0)
+		if currentHonor < item.cost then
+			sendFeedback(player, {
+				type = "Fail",
+				target = item.displayName,
+				message = ("NEED %d MORE HONOR"):format(item.cost - currentHonor),
 				color = PolishConfig.Palette.Fail,
 			})
 			return { ok = false, reason = "not_enough_honor", cost = item.cost }
 		end
-		addStat(player, "Honor", -item.cost)
-		table.insert(owned, item.name)
+		setStat(player, "Honor", math.max(0, statValue(player, "Honor", 0) - item.cost))
+		table.insert(owned, item.id)
+		ownedSet[item.id] = true
 		encodeList(player, "OwnedHonorItemsJSON", owned)
 	end
-	setStat(player, "EquippedHonorItem", item.name)
-	setStat(player, "HonorPowerBonus", item.powerBonus)
+	setStat(player, "EquippedHonorItem", item.id)
+	setStat(player, "HonorPowerBonus", math.min(GameConfig.Honor.MaxEquippedPowerBonus, item.powerBonus))
 	sendFeedback(player, {
 		type = "HonorShop",
 		target = item.displayName,
@@ -4980,7 +8052,7 @@ shared.PunchWallBuyHonorItem = function(player, item)
 	})
 	return {
 		ok = true,
-		item = item.name,
+		item = item.id,
 		owned = true,
 		equipped = true,
 		honor = statValue(player, "Honor", 0),
@@ -4989,11 +8061,11 @@ shared.PunchWallBuyHonorItem = function(player, item)
 end
 
 shared.PunchWallBuildHonorPlaza = function()
-local honorPlaza = makePart("Honor Exchange Plaza", decorFolder, Vector3.new(52, 0.35, 27), Vector3.new(22, 0.2, 28), Color3.fromRGB(56, 63, 68), Enum.Material.Slate)
+local honorPlaza = makePart("Honor Exchange Plaza", decorFolder, Vector3.new(52, 0.35, 38), Vector3.new(22, 0.2, 25), Color3.fromRGB(56, 63, 68), Enum.Material.Slate)
 honorPlaza:SetAttribute("VisualRole", "HonorShopPlaza")
-local honorSign = makePart("Honor Exchange Sign", decorFolder, Vector3.new(22, 5.2, 0.6), Vector3.new(22, 9.2, 42), Color3.fromRGB(12, 20, 29), Enum.Material.Metal)
-makeText(honorSign, "HALL OF HONOR", "WORLD CLEAR RELICS | NEXT WORLD EXCHANGE COMING SOON", Enum.NormalId.Front)
-makeText(honorSign, "HALL OF HONOR", "WORLD CLEAR RELICS | NEXT WORLD EXCHANGE COMING SOON", Enum.NormalId.Back)
+local honorSign = makePart("Honor Exchange Sign", decorFolder, Vector3.new(22, 4.8, 0.6), Vector3.new(22, 14.2, 44), Color3.fromRGB(12, 20, 29), Enum.Material.Metal)
+makeText(honorSign, "HALL OF HONOR", "DEPTH + REBIRTH MILESTONES | TITAN CLEARS | ONE RELIC ACTIVE", Enum.NormalId.Front)
+makeText(honorSign, "HALL OF HONOR", "DEPTH + REBIRTH MILESTONES | TITAN CLEARS | ONE RELIC ACTIVE", Enum.NormalId.Back)
 
 local honorNPC = Instance.new("Model")
 honorNPC.Name = "Honor Keeper NPC"
@@ -5029,34 +8101,55 @@ keeperLight.Range = 10
 keeperLight.Parent = keeperCore
 honorNPC.PrimaryPart = honorNPCBody
 
-local honorNPCTrigger = makePart("Honor Keeper Interaction", interactFolder, Vector3.new(9, 9, 9), Vector3.new(22, 4.5, 37), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
+-- Give the guide a dedicated pocket beside the compact display row. The
+-- offset keeps its silhouette and label out of both relic VFX and fixed phone
+-- HUD rails while remaining on the natural approach to the Hall.
+honorNPC:PivotTo(honorNPC:GetPivot() + Vector3.new(25, 0, -13))
+local honorNPCTrigger = makePart("Honor Keeper Interaction", interactFolder, Vector3.new(7, 9, 7), Vector3.new(47, 4.5, 24), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic)
 shared.PunchWallHonorNPCTrigger = honorNPCTrigger
 honorNPCTrigger.Transparency = 1
 honorNPCTrigger.CanCollide = false
 honorNPCTrigger:SetAttribute("InteractionMenu", "Honor")
+local keeperPedestal = makeVisualPart("Honor Keeper Pedestal", decorFolder, Vector3.new(8.5, 0.9, 7.0), CFrame.new(47, 0.45, 24), Color3.fromRGB(33, 40, 55), Enum.Material.Metal)
+keeperPedestal.CanCollide = false
+local keeperAccent = makeVisualPart("Honor Keeper Pedestal Accent", decorFolder, Vector3.new(8.7, 0.18, 7.2), CFrame.new(47, 0.94, 24), Color3.fromRGB(255, 205, 56), Enum.Material.Neon)
+keeperAccent.CanCollide = false
+local keeperPlate = makeVisualPart("Honor Keeper Nameplate", decorFolder, Vector3.new(10.5, 2.5, 0.3), CFrame.new(47, 10.6, 19.6), Color3.fromRGB(8, 14, 20), Enum.Material.Metal)
+makeText(keeperPlate, "HONOR KEEPER", "VIEW RELICS", Enum.NormalId.Front)
+makeText(keeperPlate, "HONOR KEEPER", "VIEW RELICS", Enum.NormalId.Back)
 local honorNPCDetector = Instance.new("ClickDetector")
 honorNPCDetector.MaxActivationDistance = 30
 honorNPCDetector.Parent = honorNPCTrigger
 honorNPCDetector.MouseClick:Connect(function(player)
+	if not profileReady(player, false) then return end
 	sendFeedback(player, { type = "OpenMenu", target = "Honor", tab = "Honor", color = Color3.fromRGB(255, 205, 56) })
 end)
 
 local honorPartsByName = {}
 for index, item in ipairs(GameConfig.HonorItems) do
-	local x = -9 + index * 13
-	local stand = makePart(item.name .. " Honor Stand", interactFolder, Vector3.new(11.5, 5.5, 10), Vector3.new(x, 3, 23), Color3.fromRGB(22, 29, 38), Enum.Material.Metal)
+	local column = (index - 1) % 4
+	local row = math.floor((index - 1) / 4)
+	local x = 8 + column * 9.5
+	local z = 18 + row * 12.5
+	local standY = row == 1 and 4.15 or 3
+	local stand = makePart(item.name .. " Honor Stand", interactFolder, Vector3.new(8.8, 5.5, 9.5), Vector3.new(x, standY, z), Color3.fromRGB(22, 29, 38), Enum.Material.Metal)
 	stand.Transparency = 0.86
 	stand.CanCollide = false
 	stand:SetAttribute("HonorCost", item.cost)
 	stand:SetAttribute("PowerBonus", item.powerBonus)
 	honorPartsByName[item.name] = stand
-	local plinth = makePart(item.name .. " Honor Plinth", decorFolder, Vector3.new(10.5, 1.0, 8.5), stand.Position + Vector3.new(0, -2, 0), Color3.fromRGB(37, 43, 50), Enum.Material.Metal)
+	local plinth = makePart(item.name .. " Honor Plinth", decorFolder, Vector3.new(8.3, 1.0, 8.5), stand.Position + Vector3.new(0, -2, 0), Color3.fromRGB(37, 43, 50), Enum.Material.Metal)
 	local glow = makeCylinder(item.name .. " Honor Glow", decorFolder, Vector3.new(0.06, 3.2, 3.2), plinth.Position + Vector3.new(0, 0.53, 0), item.color, Enum.Material.Neon, Vector3.new(0, 0, 90))
 	glow.Transparency = 0.78
 	glow.CanCollide = false
-	local plate = makeVisualPart(item.name .. " Honor Nameplate", decorFolder, Vector3.new(10.6, 2.0, 0.35), CFrame.new(stand.Position + Vector3.new(0, -0.3, 5.25)), Color3.fromRGB(8, 14, 20), Enum.Material.Metal)
-	makeText(plate, item.displayName, ("%d HONOR | +%d%% POWER"):format(item.cost, math.floor(item.powerBonus * 100 + 0.5)), Enum.NormalId.Front)
-	makeText(plate, item.displayName, ("%d HONOR | +%d%% POWER"):format(item.cost, math.floor(item.powerBonus * 100 + 0.5)), Enum.NormalId.Back)
+	-- Put labels on the player-approach side (-Z). Rear displays are raised so
+	-- their silhouettes and copy remain visible above the front row.
+	local plate = makeVisualPart(item.name .. " Honor Nameplate", decorFolder, Vector3.new(8.9, 2.0, 0.35), CFrame.new(stand.Position + Vector3.new(0, -0.3, -5.25)), Color3.fromRGB(8, 14, 20), Enum.Material.Metal)
+	local unlockCopy = ("D%d"):format(item.requiredDepth or 0)
+	if (item.requiredRebirths or 0) > 0 then unlockCopy ..= (" R%d"):format(item.requiredRebirths) end
+	local offerCopy = ("%d HONOR | +%d%% | %s"):format(item.cost, math.floor(item.powerBonus * 100 + 0.5), unlockCopy)
+	makeText(plate, item.displayName, offerCopy, Enum.NormalId.Front)
+	makeText(plate, item.displayName, offerCopy, Enum.NormalId.Back)
 	local displayCenter = stand.Position + Vector3.new(0, 3.75, 0)
 	if item.visual == "Storm" then
 		local aura = cloneExternalVisual("Sanitized_VoidFistAura", decorFolder, item.name .. " Display Aura", CFrame.new(displayCenter), 3.0, true)
@@ -5110,15 +8203,23 @@ for index, item in ipairs(GameConfig.HonorItems) do
 	local detector = Instance.new("ClickDetector")
 	detector.MaxActivationDistance = 28
 	detector.Parent = stand
-	detector.MouseClick:Connect(function(player) shared.PunchWallBuyHonorItem(player, item) end)
+	detector.MouseClick:Connect(function(player)
+		if not profileReady(player, false) then return end
+		sendFeedback(player, { type = "OpenMenu", target = "Honor", tab = "Honor", selected = item.id, color = item.color })
+	end)
 end
 end
 shared.PunchWallBuildHonorPlaza()
 shared.PunchWallBuildHonorPlaza = nil
 
 shared.PunchWallBuildRebirth = function()
+local firstRebirthRequirement = GameConfig.RebirthRequirement(0)
 local rebirthPart = makePart("Rebirth Shrine", interactFolder, Vector3.new(5, 13, 13), Vector3.new(67, 7, 24), Color3.fromRGB(60, 72, 82), Enum.Material.ForceField)
 rebirthPart:SetAttribute("Theme", PolishConfig.StyleName)
+rebirthPart:SetAttribute("ActivationPolicy", "GlobalMenuConfirmed")
+rebirthPart:SetAttribute("RequirementVersion", GameConfig.Rebirth.Version)
+rebirthPart:SetAttribute("FirstRequiredLevel", firstRebirthRequirement.requiredLevel)
+rebirthPart:SetAttribute("FirstRequiredCoins", firstRebirthRequirement.requiredCoins)
 rebirthPart.Transparency = 0.82
 rebirthPart.CanCollide = false
 addEmitter(rebirthPart, "Rebirth Pulse", Color3.fromRGB(255, 255, 255))
@@ -5135,45 +8236,165 @@ for _, side in ipairs({ -1, 1 }) do
 	pylon:SetAttribute("VisualRole", "RebirthGateFrame")
 end
 local rebirthSign = makePart("Evac Portal Compact Sign", decorFolder, Vector3.new(13, 3.8, 0.45), rebirthPart.Position + Vector3.new(0, 9.5, -7.2), Color3.fromRGB(22, 28, 32), Enum.Material.Metal)
-makeText(rebirthSign, "HERO REBIRTH GATE", "LV 55 | 1M COINS", Enum.NormalId.Front)
-makeText(rebirthSign, "HERO REBIRTH GATE", "LV 55 | 1M COINS", Enum.NormalId.Back)
+local firstRequirementText = ("LV %d | %s COINS"):format(firstRebirthRequirement.requiredLevel, formatNumber(firstRebirthRequirement.requiredCoins))
+makeText(rebirthSign, "HERO REBIRTH GATE", firstRequirementText, Enum.NormalId.Front)
+makeText(rebirthSign, "HERO REBIRTH GATE", firstRequirementText, Enum.NormalId.Back)
 local rebirthDetector = Instance.new("ClickDetector")
 rebirthDetector.MaxActivationDistance = 35
 rebirthDetector.Parent = rebirthPart
 
-shared.PunchWallTryRebirth = function(player)
-	if statValue(player, "WallLevel", 1) < 55 or statValue(player, "Coins", 0) < 1000000 then
-		sendFeedback(player, {
-			type = "Fail",
-			target = "Rebirth",
-			message = "Locked",
-			color = PolishConfig.Palette.Fail,
-		})
-		return { ok = false, reason = "requirements" }
+local rebirthRuntime = {
+	busy = setmetatable({}, { __mode = "k" }),
+	lastSuccessAt = setmetatable({}, { __mode = "k" }),
+	cooldownSeconds = 2,
+}
+
+local function rebirthState(player, extra)
+	local result = {
+		ok = false,
+		Rebirths = statValue(player, "Rebirths", 0),
+		Power = statValue(player, "Power", 0),
+		Coins = statValue(player, "Coins", 0),
+		WallLevel = statValue(player, "WallLevel", 1),
+		WallXP = statValue(player, "WallXP", 0),
+		EquippedFist = statValue(player, "EquippedFist", "Starter Glove"),
+		TrainingActive = statValue(player, "TrainingActive", 0),
+		TrainingStationId = statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId),
+	}
+	for key, value in pairs(extra or {}) do result[key] = value end
+	return result
+end
+
+local function rejectRebirth(player, reason, requirement, message)
+	sendFeedback(player, {
+		type = "Fail",
+		target = "Rebirth",
+		message = message,
+		reason = reason,
+		requiredLevel = requirement and requirement.requiredLevel,
+		requiredCoins = requirement and requirement.requiredCoins,
+		color = PolishConfig.Palette.Fail,
+	})
+	return rebirthState(player, {
+		reason = reason,
+		requiredLevel = requirement and requirement.requiredLevel,
+		requiredCoins = requirement and requirement.requiredCoins,
+	})
+end
+
+local function openRebirthMenu(player, source)
+	sendFeedback(player, {
+		type = "OpenMenu",
+		target = "Rebirth",
+		surface = "Rebirth",
+		tab = "Rebirth",
+		selected = "Rebirth",
+		source = source,
+		color = Color3.fromRGB(171, 133, 219),
+	})
+end
+
+shared.PunchWallTryRebirth = function(player, options)
+	options = typeof(options) == "table" and options or {}
+	local currentRebirths = math.max(0, math.floor(tonumber(statValue(player, "Rebirths", 0)) or 0))
+	local requirement = GameConfig.RebirthRequirement(currentRebirths)
+	if requirement.maxed then
+		return rejectRebirth(player, "max_rebirths", requirement, "MAX REBIRTHS REACHED")
 	end
-	addStat(player, "Rebirths", 1)
-	setStat(player, "Power", 25)
+	local currentLevel = math.max(1, math.floor(tonumber(statValue(player, "WallLevel", 1)) or 1))
+	local currentCoins = math.max(0, math.floor(tonumber(statValue(player, "Coins", 0)) or 0))
+	if currentLevel < requirement.requiredLevel or currentCoins < requirement.requiredCoins then
+		local missing = {}
+		if currentLevel < requirement.requiredLevel then
+			table.insert(missing, ("%d WALL LV"):format(requirement.requiredLevel - currentLevel))
+		end
+		if currentCoins < requirement.requiredCoins then
+			table.insert(missing, ("%s COINS"):format(formatNumber(requirement.requiredCoins - currentCoins)))
+		end
+		return rejectRebirth(player, "requirements", requirement, "NEED " .. table.concat(missing, " + "))
+	end
+	local ready, readinessError = profileReady(player, not RunService:IsStudio())
+	if not ready then
+		return rejectRebirth(player, "profile_not_writable", requirement, "PROFILE IS NOT READY • TRY AGAIN")
+	end
+	if options.requireConfirmation == true then
+		local confirmed = options.confirmed == true
+		local expected = math.floor(tonumber(options.expectedRebirths) or -1)
+		if not confirmed or expected ~= currentRebirths then
+			openRebirthMenu(player, "confirmation_required")
+			return rebirthState(player, { reason = "confirmation_required", requiredLevel = requirement.requiredLevel, requiredCoins = requirement.requiredCoins })
+		end
+	end
+	if rebirthRuntime.busy[player] then
+		return rejectRebirth(player, "in_progress", requirement, "REBIRTH ALREADY IN PROGRESS")
+	end
+	local now = os.clock()
+	if options.studioAutomation ~= true and now - (rebirthRuntime.lastSuccessAt[player] or -math.huge) < rebirthRuntime.cooldownSeconds then
+		return rejectRebirth(player, "cooldown", requirement, "REBIRTH IS SETTLING • TRY AGAIN")
+	end
+	local nextRebirths = currentRebirths + 1
+	local pendingHonor = shared.PunchWallHonor.PendingMilestones(
+		player,
+		GameConfig.Honor.RebirthMilestones,
+		"HonorRebirthMilestoneMask",
+		nextRebirths,
+		"rebirths"
+	)
+	local currentHonor = math.max(0, math.floor(tonumber(statValue(player, "Honor", 0)) or 0))
+	if currentHonor + pendingHonor > ProfilePersistence.MaxAuthoritativeNumber then
+		return rejectRebirth(player, "honor_headroom", requirement, "SPEND HONOR BEFORE REBIRTH")
+	end
+
+	rebirthRuntime.busy[player] = true
+	if statValue(player, "TrainingActive", 0) >= 1 then stopTraining(player, "rebirth") end
+	setStat(player, "TrainingStationId", GameConfig.Training.DefaultStationId)
+	setStat(player, "Rebirths", nextRebirths)
+	local rebirthHonor = shared.PunchWallHonor.ClaimRebirthMilestones(player, nextRebirths)
+	setStat(player, "Power", GameConfig.Rebirth.StartingPower)
 	setStat(player, "Coins", 0)
 	setStat(player, "WallLevel", 1)
 	setStat(player, "WallXP", 0)
 	setStat(player, "FistMultiplier", 1)
 	setStat(player, "BreakSpeed", 1)
 	local fist = playerStat(player, "EquippedFist")
-	if fist then
-		fist.Value = "Starter Glove"
-	end
+	if fist then fist.Value = "Starter Glove" end
 	advanceTutorial(player, 7)
+	rebirthRuntime.lastSuccessAt[player] = now
+	rebirthRuntime.busy[player] = nil
+	player:SetAttribute("LastRebirthSuccessAt", now)
+	player:SetAttribute("LastRebirthResultCount", nextRebirths)
 	emitNamed(rebirthPart, "Rebirth Pulse", 44)
+	local successMessage = ("REBIRTH %d COMPLETE • PERMANENT POWER x%.2f"):format(
+		nextRebirths,
+		GameConfig.RebirthBonus(nextRebirths)
+	)
+	if rebirthHonor > 0 then successMessage ..= (" • +%d HONOR"):format(rebirthHonor) end
 	sendFeedback(player, {
 		type = "Rebirth",
 		target = "Rebirth",
+		message = successMessage,
+		rebirths = nextRebirths,
+		bonus = GameConfig.RebirthBonus(nextRebirths),
+		honor = rebirthHonor,
 		color = Color3.fromRGB(207, 188, 255),
 	})
-	return { ok = true, rebirths = statValue(player, "Rebirths", 0), power = statValue(player, "Power", 0), coins = statValue(player, "Coins", 0), wallLevel = statValue(player, "WallLevel", 0) }
+	syncStats(player)
+	local saveTicket = persistenceRuntime.requestPlayerSave and persistenceRuntime.requestPlayerSave(player, "Rebirth", false)
+	return rebirthState(player, {
+		ok = true,
+		reason = "rebirthed",
+		rebirths = nextRebirths,
+		honor = rebirthHonor,
+		bonus = GameConfig.RebirthBonus(nextRebirths),
+		requiredLevel = requirement.requiredLevel,
+		requiredCoins = requirement.requiredCoins,
+		saveQueued = saveTicket ~= nil,
+	})
 end
 
 rebirthDetector.MouseClick:Connect(function(player)
-	shared.PunchWallTryRebirth(player)
+	if not profileReady(player, false) then return end
+	openRebirthMenu(player, "world_click")
 end)
 return rebirthPart
 end
@@ -5314,7 +8535,7 @@ local function characterRoot(player)
 	return character and character:FindFirstChild("HumanoidRootPart")
 end
 
-local function nearestNamedPart(player, partsByName)
+local function nearestNamedPart(player, partsByName, maximumDistance)
 	local rootPart = characterRoot(player)
 	if not rootPart then
 		return nil
@@ -5322,7 +8543,7 @@ local function nearestNamedPart(player, partsByName)
 
 	local nearestName = nil
 	local nearestPart = nil
-	local nearestDistance = MOBILE_ACTION_DISTANCE
+	local nearestDistance = tonumber(maximumDistance) or MOBILE_ACTION_DISTANCE
 	for name, part in pairs(partsByName) do
 		if part and part.Parent then
 			local distance = (rootPart.Position - part.Position).Magnitude
@@ -5378,7 +8599,13 @@ local function nearestUseTarget(player)
 	local nearestDistance = MOBILE_ACTION_DISTANCE
 
 	for name, part in pairs(fistPartsByName) do
-		if part and part.Parent then
+		local available = part
+			and part.Parent
+			and (
+				part:GetAttribute("PremiumOnly") ~= true
+				or part:GetAttribute("PurchaseConfigured") == true
+			)
+		if available then
 			local distance = (rootPart.Position - part.Position).Magnitude
 			if distance <= nearestDistance then
 				nearestKind = "Fist"
@@ -5408,6 +8635,46 @@ local function nearestUseTarget(player)
 	return nearestKind, nearestName, nearestDistance
 end
 
+local function normalizedUiScale(value)
+	local numeric = tonumber(value)
+	if not numeric or numeric ~= numeric or numeric == math.huge or numeric == -math.huge then
+		return 1
+	end
+	return math.clamp(numeric, 0.8, 1.2)
+end
+
+local function normalizedSettingBoolean(value)
+	if typeof(value) == "boolean" then
+		return value
+	end
+	return true
+end
+
+local studioPetActionNames = {
+	EquipPet = true,
+	UnequipPet = true,
+	DeletePet = true,
+	LockPet = true,
+}
+
+local function recordStudioPetActionResult(player, action, target, inventoryIndex, result)
+	if not RunService:IsStudio() or studioPetActionNames[action] ~= true then
+		return
+	end
+	player:SetAttribute(
+		"LegacyPetServerResultSequence",
+		(player:GetAttribute("LegacyPetServerResultSequence") or 0) + 1
+	)
+	player:SetAttribute("LegacyPetServerResultAction", action)
+	player:SetAttribute("LegacyPetServerResultToken", tostring(target or ""))
+	player:SetAttribute("LegacyPetServerResultIndex", tonumber(inventoryIndex) or 0)
+	player:SetAttribute("LegacyPetServerResultOK", result and result.ok == true)
+	player:SetAttribute(
+		"LegacyPetServerResultReason",
+		tostring(result and result.reason or result and result.ok and "ok" or "unknown")
+	)
+end
+
 local function handleMobileAction(player, request)
 	local action = request
 	local target
@@ -5422,17 +8689,27 @@ local function handleMobileAction(player, request)
 	if typeof(action) ~= "string" then
 		return
 	end
+	if action == "RequestSync" then
+		if profileReady(player, false) then
+			syncStats(player)
+		end
+		return
+	end
+	if not profileReady(player, false) then
+		return
+	end
 	local now = os.clock()
 	local lastAction = player:GetAttribute("LastMobileAction") or 0
 	if now - lastAction < MOBILE_ACTION_COOLDOWN then
+		recordStudioPetActionResult(player, action, target, inventoryIndex, {
+			ok = false,
+			reason = "mobile_action_cooldown",
+		})
 		return
 	end
 	player:SetAttribute("LastMobileAction", now)
 
-	if action == "RequestSync" then
-		syncStats(player)
-		return
-	elseif action == "ToggleStudioHighPowerTest" then
+	if action == "ToggleStudioHighPowerTest" then
 		shared.PunchWallStudioTest.set(player, value == true)
 		return
 	elseif action == "BuyFist" then
@@ -5465,16 +8742,20 @@ local function handleMobileAction(player, request)
 		fusePet(player, target)
 		return
 	elseif action == "EquipPet" then
-		equipPet(player, target, inventoryIndex)
+		local result = equipPet(player, target, inventoryIndex)
+		recordStudioPetActionResult(player, action, target, inventoryIndex, result)
 		return
 	elseif action == "UnequipPet" then
-		unequipPet(player, target, inventoryIndex)
+		local result = unequipPet(player, target, inventoryIndex)
+		recordStudioPetActionResult(player, action, target, inventoryIndex, result)
 		return
 	elseif action == "DeletePet" then
-		deletePet(player, target, inventoryIndex)
+		local result = deletePet(player, target, inventoryIndex)
+		recordStudioPetActionResult(player, action, target, inventoryIndex, result)
 		return
 	elseif action == "LockPet" then
-		setPetLocked(player, target, value == true, inventoryIndex)
+		local result = setPetLocked(player, target, value == true, inventoryIndex)
+		recordStudioPetActionResult(player, action, target, inventoryIndex, result)
 		return
 	elseif action == "ClaimDaily" then
 		claimDaily(player)
@@ -5490,18 +8771,25 @@ local function handleMobileAction(player, request)
 		return
 	elseif action == "UpdateSettings" and typeof(value) == "table" then
 		local settings = {
-			motion = value.motion ~= false,
-			sound = value.sound ~= false,
-			uiScale = math.clamp(tonumber(value.uiScale) or 1, 0.8, 1.2),
+			motion = normalizedSettingBoolean(value.motion),
+			sound = normalizedSettingBoolean(value.sound),
+			uiScale = normalizedUiScale(value.uiScale),
 		}
 		setStat(player, "SettingsJSON", HttpService:JSONEncode(settings))
 		return
 	elseif action == "Rebirth" then
-		shared.PunchWallTryRebirth(player)
+		local confirmation = typeof(value) == "table" and value or {}
+		shared.PunchWallTryRebirth(player, {
+			requireConfirmation = true,
+			confirmed = confirmation.confirmed == true,
+			expectedRebirths = confirmation.expectedRebirths,
+		})
 		return
 	elseif action == "Train" then
-		local stationName = nearestNamedPart(player, trainingPartsByName)
-		local config = stationName and trainingByName[stationName]
+		local stationName = nearestNamedPart(player, trainingRuntime.partsByName, TRAINING_INTERACTION_DISTANCE)
+		local requested = target and (trainingRuntime.byName[tostring(target)] or trainingRuntime.byId[tostring(target)])
+		local config = stationName and trainingRuntime.byName[stationName]
+		if requested and requested ~= config then config = nil end
 		if not config then
 			sendFeedback(player, { type = "Fail", target = "Train", message = "Move closer", color = PolishConfig.Palette.Fail })
 			return
@@ -5529,7 +8817,7 @@ local function handleMobileAction(player, request)
 		elseif targetKind == "Egg" then
 			sendFeedback(player, { type = "OpenMenu", target = "Pets", tab = "Pets", color = PolishConfig.Palette.HeroCyan })
 		elseif targetKind == "Rebirth" then
-			shared.PunchWallTryRebirth(player)
+			openRebirthMenu(player, "contextual_use")
 		elseif targetKind == "Menu" then
 			sendFeedback(player, { type = "OpenMenu", target = targetName, tab = targetName, color = PolishConfig.Palette.HeroCyan })
 		else
@@ -5564,6 +8852,10 @@ local function resetWallState(wall)
 end
 
 function resetWorldState()
+	for _, activePlayer in ipairs(Players:GetPlayers()) do
+		petDropRuntime.Clear(activePlayer, "world_reset")
+		activePlayer:SetAttribute("PetDropCooldownUntil", 0)
+	end
 	for _, wall in ipairs(wallsFolder:GetChildren()) do
 		if wall:IsA("BasePart") then
 			resetWallState(wall)
@@ -5636,14 +8928,26 @@ function resetWorldState()
 	boss:SetAttribute("NextAttackAt", 0)
 	local count = 0
 	for _, player in ipairs(Players:GetPlayers()) do
-		if statValue(player, "TrainingActive", 0) >= 1 then stopTraining(player) end
+		local trainingActive = statValue(player, "TrainingActive", 0) >= 1
+		local activeStation = trainingActive and trainingRuntime.byId[tostring(statValue(
+			player,
+			"TrainingStationId",
+			GameConfig.Training.DefaultStationId
+		))] or nil
 		local character = player.Character
 		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if character and rootPart then
 			rootPart.AssemblyLinearVelocity = Vector3.zero
 			rootPart.AssemblyAngularVelocity = Vector3.zero
-			character:PivotTo(spawn.CFrame + Vector3.new(0, 5, 0))
+			if activeStation and statValue(player, "Power", 0) >= activeStation.minPower then
+				setActiveTrainingStation(player, activeStation)
+				setTrainingMovementLocked(player, true, activeStation)
+				player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
+			else
+				if trainingActive then stopTraining(player, "world_reset_ineligible") end
+				character:PivotTo(spawn.CFrame + Vector3.new(0, 5, 0))
+			end
 			if humanoid then
 				humanoid.PlatformStand = false
 				humanoid.Sit = false
@@ -5658,10 +8962,11 @@ function resetWorldState()
 	root:SetAttribute("WorldResetCount", (root:GetAttribute("WorldResetCount") or 0) + 1)
 	root:SetAttribute("LastWorldResetDepthBlocks", resetDepthBlocks)
 	for _, player in ipairs(Players:GetPlayers()) do
+		local trainingActive = statValue(player, "TrainingActive", 0) >= 1
 		sendFeedback(player, {
 			type = "WorldReset",
-			target = "Spawn",
-			message = "WORLD RESET | RETURN TO SPAWN",
+			target = trainingActive and tostring(statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId)) or "Spawn",
+			message = trainingActive and "WORLD RESET | TRAINING RESUMED" or "WORLD RESET | RETURN TO SPAWN",
 			color = PolishConfig.Palette.HeroCyan,
 		})
 	end
@@ -5708,6 +9013,7 @@ local function automationSnapshot(player, extra)
 end
 
 local function resetAutomationState(player)
+	petDropRuntime.Clear(player, "automation_reset")
 	if statValue(player, "TrainingActive", 0) >= 1 or player:GetAttribute("TrainingMovementLocked") then
 		stopTraining(player)
 	end
@@ -5724,6 +9030,10 @@ local function resetAutomationState(player)
 	player:SetAttribute("LastBossHit", 0)
 	player:SetAttribute("LastMobileAction", 0)
 	player:SetAttribute("LastTrainToggle", 0)
+	player:SetAttribute("TrainingPayoutSerial", 0)
+	player:SetAttribute("TrainingSessionGeneration", 0)
+	player:SetAttribute("TrainingSessionTickCount", 0)
+	player:SetAttribute("PetDropCooldownUntil", 0)
 	player:SetAttribute("AutoTrainingActive", false)
 	player:SetAttribute("StudioHighPowerTestMode", false)
 	shared.PunchWallStudioTest.snapshots[player] = nil
@@ -5877,17 +9187,18 @@ if RunService:IsStudio() then
 	local automationLocations = {
 		Spawn = { position = Vector3.new(-2, 3, -18), lookAt = Vector3.new(-2, 3, -80) },
 		DepthStart = { position = Vector3.new(-2, 3, -27), lookAt = Vector3.new(-2, 3, -180) },
-		Training = { position = Vector3.new(-42, 3, 31), lookAt = Vector3.new(-42, 4, 24) },
+		Training = { position = Vector3.new(-16, 3, 31), lookAt = Vector3.new(-16, 4, 24) },
 		Armory = { position = Vector3.new(-30, 3, 31), lookAt = Vector3.new(-30, 3, 24) },
-		PetLab = { position = Vector3.new(-72, 3, 34), lookAt = Vector3.new(-72, 5, 24) },
+		PetLab = { position = Vector3.new(-94, 3, 34), lookAt = Vector3.new(-94, 5, 24) },
 		Honor = { position = Vector3.new(22, 3, 34), lookAt = Vector3.new(22, 4, 28) },
 		Rebirth = { position = Vector3.new(67, 3, 34), lookAt = Vector3.new(67, 7, 24) },
 	}
 	local serverCommandNames = {
 		"Describe", "Sequence", "Snapshot", "Reset", "ResetWorld", "SetStats", "ApplyPreset",
 		"Teleport", "Respawn", "SetCharacterState", "ClearCooldowns", "SetSpinReady",
-		"SetWorldResetEnabled", "ForcePetEggDrop", "Catalog", "SetPlayerAttribute",
-		"EmitFeedback", "GrantAllFists", "GrantAllPets", "GrantAllPremium",
+		"PowerGrowthRigContract", "PowerGrowthSnapshot", "TrainingSnapshot",
+		"SetWorldResetEnabled", "ClaimWorldHonor", "ForcePetEggDrop", "ClaimPetEggDrop", "PetEggDropSnapshot", "Catalog", "SetPlayerAttribute",
+		"EmitFeedback", "OpenWorldBoostKiosk", "GrantAllFists", "GrantAllPets", "GrantAllPremium",
 		"BreakDepthRegion", "SetLighting", "Train", "StopTraining",
 		"HitWall", "HitDepthBlock", "BreakDepthBlock", "PunchRadius", "PunchWithCooldown",
 		"StressPunchCase", "BreakWall", "BreakWallCycles", "BuyFist", "EquipFist",
@@ -6030,13 +9341,63 @@ if RunService:IsStudio() then
 				walkSpeed = humanoid.WalkSpeed,
 				anchored = rootPart.Anchored,
 			})
+		elseif action == "PowerGrowthRigContract" then
+			return shared.PunchWallPowerGrowth.RunRigContract()
+		elseif action == "PowerGrowthSnapshot" then
+			local applied = shared.PunchWallPowerGrowth.Apply(player)
+			local character = player.Character
+			return {
+				ok = applied == true,
+				coreBottom = character and character:GetAttribute("PowerGrowthCoreBottom") or nil,
+				bodyHeight = character and character:GetAttribute("PowerGrowthBodyHeight") or nil,
+				appliedMultiplier = character and character:GetAttribute("PowerGrowthAppliedMultiplier") or nil,
+				power = character and character:GetAttribute("PowerGrowthPower") or nil,
+			}
+		elseif action == "TrainingSnapshot" then
+			local stationId = tostring(statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId))
+			local station = trainingRuntime.byId[stationId] or trainingConfigs[1]
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			local boundsSize
+			if character then
+				local _, currentBounds = character:GetBoundingBox()
+				boundsSize = currentBounds
+			end
+			return automationSnapshot(player, {
+				action = action,
+				ok = true,
+				stationId = station.id,
+				stationName = station.name,
+				requiredPower = station.minPower,
+				gainPerSecond = station.gain,
+				active = statValue(player, "TrainingActive", 0) >= 1,
+				tickAnchor = player:GetAttribute("TrainingTickAnchor"),
+				payoutSerial = player:GetAttribute("TrainingPayoutSerial") or 0,
+				sessionGeneration = player:GetAttribute("TrainingSessionGeneration") or 0,
+				sessionTickCount = player:GetAttribute("TrainingSessionTickCount") or 0,
+				lastGrant = player:GetAttribute("LastTrainingGrant") or 0,
+				lastTickBatch = player:GetAttribute("LastTrainingTickBatch") or 0,
+				movementLocked = player:GetAttribute("TrainingMovementLocked") == true,
+				walkSpeed = humanoid and humanoid.WalkSpeed or -1,
+				directScale = character and character:GetScale() or 0,
+				bodyHeight = boundsSize and boundsSize.Y or 0,
+				growthBodyHeight = character and character:GetAttribute("PowerGrowthBodyHeight") or 0,
+				growthMultiplier = character and character:GetAttribute("PowerGrowthAppliedMultiplier") or 0,
+			})
 		elseif action == "ClearCooldowns" then
 			player:SetAttribute("LastWallHit", 0)
 			player:SetAttribute("LastBossHit", 0)
 			player:SetAttribute("LastMobileAction", 0)
 			player:SetAttribute("LastPunchActionAt", 0)
+			player:SetAttribute("PetDropCooldownUntil", 0)
 			for _, config in ipairs(trainingConfigs) do player:SetAttribute("LastTrain" .. config.stat, 0) end
 			return automationSnapshot(player, { action = action, ok = true })
+		elseif action == "ClaimWorldHonor" then
+			local granted, reason = shared.PunchWallHonor.ClaimQualifiedWorldClear(
+				player,
+				math.clamp(tonumber(amount or target) or 1, 0, 1)
+			)
+			return automationSnapshot(player, { action = action, ok = granted > 0, honorGranted = granted, reason = reason })
 		elseif action == "SetSpinReady" then
 			setStat(player, "LastSpinAt", 0)
 			setStat(player, "SpinCredits", math.max(0, math.floor(tonumber(amount or target) or 0)))
@@ -6052,14 +9413,40 @@ if RunService:IsStudio() then
 			})
 		elseif action == "ForcePetEggDrop" then
 			local depth = math.max(1, math.floor(tonumber(target) or statValue(player, "Depth", 1)))
+			petDropRuntime.Clear(player, "automation_force_replace")
+			player:SetAttribute("PetDropCooldownUntil", 0)
 			setStat(player, "PetDropPity", GameConfig.PetDrops.PityBreaks)
-			local dropResult = tryDropPetEgg and tryDropPetEgg(player, depth) or { ok = false, reason = "drop_system_unavailable" }
+			local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			local sourcePosition = rootPart and (rootPart.Position + rootPart.CFrame.LookVector * 4) or nil
+			local dropResult = tryDropPetEgg and tryDropPetEgg(player, depth, sourcePosition) or { ok = false, reason = "drop_system_unavailable" }
 			return automationSnapshot(player, {
 				action = action,
 				ok = dropResult.ok == true,
 				depth = depth,
 				dropped = dropResult.ok == true,
 				drop = dropResult,
+			})
+		elseif action == "ClaimPetEggDrop" then
+			local record = petDropRuntime.active[player.UserId]
+			local claimResult = petDropRuntime.Claim and petDropRuntime.Claim(player, record)
+				or { ok = false, reason = "drop_system_unavailable" }
+			return automationSnapshot(player, {
+				action = action,
+				ok = claimResult.ok == true,
+				claim = claimResult,
+			})
+		elseif action == "PetEggDropSnapshot" then
+			local record = petDropRuntime.active[player.UserId]
+			local now = workspace:GetServerTimeNow()
+			return automationSnapshot(player, {
+				action = action,
+				ok = true,
+				active = record ~= nil and record.model ~= nil and record.model.Parent ~= nil,
+				dropId = record and record.id or "",
+				depth = record and record.depth or 0,
+				rarity = record and record.chosen and record.chosen.rarity or "",
+				armed = record ~= nil and now >= record.claimReadyAt,
+				remaining = record and math.max(0, record.expiresAt - now) or 0,
 			})
 		elseif action == "Catalog" then
 			return { ok = true, action = action, catalog = automationCatalog() }
@@ -6081,6 +9468,8 @@ if RunService:IsStudio() then
 			}
 			sendFeedback(player, payload)
 			return automationSnapshot(player, { action = action, ok = true, feedbackType = payload.type, feedbackTarget = payload.target })
+		elseif action == "OpenWorldBoostKiosk" then
+			return shared.PunchWallOpenWorldBoostKiosk(player, tostring(target or "CoinBoost"))
 		elseif action == "GrantAllFists" then
 			local owned = {}
 			for _, item in ipairs(GameConfig.Fists) do table.insert(owned, item.name) end
@@ -6174,9 +9563,9 @@ if RunService:IsStudio() then
 				globalShadows = Lighting.GlobalShadows,
 			})
 		elseif action == "Train" then
-			local config = trainingByName[target]
+			local config = trainingRuntime.byName[target]
 			assert(config, "Unknown training station: " .. tostring(target))
-			player:SetAttribute("LastTrain" .. config.stat, 0)
+			player:SetAttribute("LastTrainToggle", 0)
 			return automationSnapshot(player, trainPlayer(player, config))
 		elseif action == "StopTraining" then
 			return automationSnapshot(player, stopTraining(player))
@@ -6273,6 +9662,51 @@ if RunService:IsStudio() then
 			local product = shared.PunchWallPremiumProducts.byName[target]
 			assert(product, "Unknown premium product: " .. tostring(target))
 			return automationSnapshot(player, shared.PunchWallPremiumProducts.grant(player, product))
+		elseif action == "HonorProductReceiptContract" then
+			local product = shared.PunchWallPremiumProducts.byName[target or "HonorPouch25"]
+			assert(product and product.honor, "Unknown Honor product: " .. tostring(target))
+			local testProductId = 2100000001
+			local profile = ProfilePersistence.NewProfile(GameConfig.DataVersion)
+			profile.Honor = 10
+			local first, entry, granted, firstError = ProfilePersistence.ApplyReceipt(
+				profile, "studio-honor-receipt", testProductId, product,
+				"studio-honor-token", 1000, 8
+			)
+			local replay, _, replayGranted, replayError = ProfilePersistence.ApplyReceipt(
+				first, "studio-honor-receipt", testProductId, product,
+				"studio-honor-replay", 1001, 8
+			)
+			local _, _, mismatchGranted, mismatchError = ProfilePersistence.ApplyReceipt(
+				replay, "studio-honor-receipt", testProductId + 1, product,
+				"studio-honor-mismatch", 1002, 8
+			)
+			local capped = ProfilePersistence.NewProfile(GameConfig.DataVersion)
+			capped.Honor = ProfilePersistence.MaxAuthoritativeNumber - product.honor + 1
+			local overflow, _, overflowGranted, overflowError = ProfilePersistence.ApplyReceipt(
+				capped, "studio-honor-overflow", testProductId, product,
+				"studio-honor-overflow-token", 1003, 8
+			)
+			local reconciled = { Honor = 5 }
+			local reconciledOk = entry and ProfilePersistence.ApplyReceiptEntryToSnapshot(reconciled, entry)
+			return {
+				ok = first ~= nil and granted == true and firstError == nil
+					and entry and entry.Honor == product.honor
+					and first.Honor == 10 + product.honor
+					and replay ~= nil and replayGranted == false and replayError == nil
+					and replay.Honor == 10 + product.honor
+					and mismatchGranted == false and mismatchError == "receipt_product_mismatch"
+					and overflow == nil and overflowGranted == false and overflowError == "invalid_honor_balance"
+					and capped.Honor == ProfilePersistence.MaxAuthoritativeNumber - product.honor + 1
+					and ProfilePersistence.GetSeenReceiptProductId(capped, "studio-honor-overflow", 8) == nil
+					and reconciledOk == true and reconciled.Honor == 5 + product.honor,
+				product = product.id,
+				honor = product.honor,
+				firstBalance = first and first.Honor,
+				replayBalance = replay and replay.Honor,
+				mismatchError = mismatchError,
+				overflowError = overflowError,
+				reconciledHonor = reconciled.Honor,
+			}
 		elseif action == "GrantPet" then
 			local petName = typeof(target) == "table" and target.name or target
 			local stars = typeof(target) == "table" and target.stars or amount
@@ -6287,7 +9721,6 @@ if RunService:IsStudio() then
 			return automationSnapshot(player, shared.PunchWallPremiumPets.grant(player, item, "StudioAutomation"))
 		elseif action == "BuyHonorItem" then
 			local item = shared.PunchWallHonorItemsByName[target]
-			assert(item, "Unknown Honor item: " .. tostring(target))
 			return automationSnapshot(player, shared.PunchWallBuyHonorItem(player, item))
 		elseif action == "HatchPet" then
 			return automationSnapshot(player, hatchPet(player, true, tonumber(amount) or statValue(player, "Depth", 1)))
@@ -6323,7 +9756,7 @@ if RunService:IsStudio() then
 		elseif action == "ClaimPlaytime" then
 			return automationSnapshot(player, claimPlaytime(player))
 		elseif action == "Rebirth" then
-			return automationSnapshot(player, shared.PunchWallTryRebirth(player))
+			return automationSnapshot(player, shared.PunchWallTryRebirth(player, { studioAutomation = true }))
 		elseif action == "HitBoss" then
 			player:SetAttribute("LastBossHit", 0)
 			return automationSnapshot(player, hitBoss(player))
@@ -6411,7 +9844,46 @@ end
 
 Players.PlayerAdded:Connect(ensureStats)
 Players.PlayerRemoving:Connect(function(player)
-	savePlayerData(player)
+	petDropRuntime.Clear(player, "player_removing")
+	local session = persistenceRuntime.profileSessions[player]
+	local canFinalizeCurrentSession = session and (
+		session.ready == true
+		or (
+			session.fence
+			and session.canBecomeWritable
+			and persistenceRuntime.playerStore
+		)
+	)
+	if not canFinalizeCurrentSession then
+		persistenceRuntime.markPlayerDeparted(player, true)
+		shared.PunchWallStudioTest.snapshots[player] = nil
+		return
+	end
+	local ticket = persistenceRuntime.requestPlayerSave(player, "PlayerRemoving", true)
+	local saved, persistenceError = persistenceRuntime.waitForTicket(
+		ticket,
+		persistenceRuntime.playerRemovingSaveTimeout
+	)
+	if not saved then
+		warn(("[PunchWallRPG] PlayerRemoving save did not complete for %s: %s"):format(
+			player.Name,
+			tostring(persistenceError)
+		))
+		local session = persistenceRuntime.profileSessions[player]
+		if ticket.completed and session and session.fence and persistenceRuntime.releaseProfileFence then
+			local released, releaseError = persistenceRuntime.releaseProfileFence(player, session.fence)
+			if not released then
+				warn(("[PunchWallRPG] PlayerRemoving lease release did not complete for %s: %s"):format(
+					player.Name,
+					tostring(releaseError)
+				))
+			end
+		elseif not ticket.completed then
+			warn(("[PunchWallRPG] PlayerRemoving persistence remains in flight for %s; "
+				.. "the session lease will not be released concurrently"):format(player.Name))
+		end
+	end
+	persistenceRuntime.markPlayerDeparted(player, not saved)
 	shared.PunchWallStudioTest.snapshots[player] = nil
 end)
 for _, player in ipairs(Players:GetPlayers()) do
@@ -6419,8 +9891,38 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 game:BindToClose(function()
+	persistenceRuntime.serverClosing = true
+	local pendingTickets = {}
 	for _, player in ipairs(Players:GetPlayers()) do
-		savePlayerData(player)
+		local session = persistenceRuntime.profileSessions[player]
+		if session and session.ready == true then
+			table.insert(pendingTickets, {
+				player = player,
+				ticket = persistenceRuntime.requestPlayerSave(player, "BindToClose", true),
+			})
+		end
+	end
+	local deadline = os.clock() + persistenceRuntime.shutdownDrainTimeout
+	while os.clock() < deadline do
+		local allCompleted = true
+		for _, pending in ipairs(pendingTickets) do
+			if not pending.ticket.completed then
+				allCompleted = false
+				break
+			end
+		end
+		if allCompleted then
+			break
+		end
+		task.wait(0.05)
+	end
+	for _, pending in ipairs(pendingTickets) do
+		if not pending.ticket.completed or not pending.ticket.success then
+			warn(("[PunchWallRPG] Shutdown drain incomplete for %s: %s"):format(
+				pending.player.Name,
+				tostring(pending.ticket.error or "persistence_timeout")
+			))
+		end
 	end
 end)
 
@@ -6437,7 +9939,8 @@ task.spawn(function()
 		task.wait(1)
 		local today = os.date("!%Y-%m-%d")
 		for _, player in ipairs(Players:GetPlayers()) do
-			if player:FindFirstChild("RPGStats") then
+			if profileReady(player, false) then
+				persistenceRuntime.applySpeedBoostState(player)
 				addStat(player, "PlaytimeSeconds", 1)
 				if statValue(player, "TrainingActive", 0) >= 1 then
 					local now = workspace:GetServerTimeNow()
@@ -6445,8 +9948,16 @@ task.spawn(function()
 					local tickSeconds = math.max(0.1, tonumber(GameConfig.Training.TickSeconds) or 1)
 					local due = math.clamp(math.floor((now - anchor) / tickSeconds), 0, 60)
 					if due > 0 then
-						grantTrainingTick(player, trainingConfigs[1], false, due)
-						player:SetAttribute("TrainingTickAnchor", anchor + due * tickSeconds)
+						local stationId = tostring(statValue(player, "TrainingStationId", GameConfig.Training.DefaultStationId))
+						local config = trainingRuntime.byId[stationId]
+						if not config then
+							config = trainingConfigs[1]
+							setActiveTrainingStation(player, config)
+						end
+						local granted = grantTrainingTick(player, config, false, due)
+						if granted > 0 and statValue(player, "TrainingActive", 0) >= 1 then
+							player:SetAttribute("TrainingTickAnchor", anchor + due * tickSeconds)
+						end
 					end
 				end
 				if statValue(player, "DailyQuestDate", "") ~= today then
@@ -6463,10 +9974,13 @@ end
 shared.PunchWallServerFinalize()
 
 task.spawn(function()
-	while true do
-		task.wait(AUTOSAVE_SECONDS)
+	while not persistenceRuntime.serverClosing do
+		task.wait(persistenceRuntime.autosaveSeconds)
+		if persistenceRuntime.serverClosing then
+			break
+		end
 		for _, player in ipairs(Players:GetPlayers()) do
-			savePlayerData(player)
+			persistenceRuntime.requestPlayerSave(player, "Autosave", false)
 		end
 	end
 end)

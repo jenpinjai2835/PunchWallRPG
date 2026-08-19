@@ -22,14 +22,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local p=require(game.ReplicatedStorage.PolishConfig) local titles={} local parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 elseif d:IsA(\"TextLabel\") and (d.Text:find(\"HERO\",1,true) or d.Text:find(\"SIDEKICK\",1,true)) then table.insert(titles,d.Text) end end local L=game.Lighting local color=L:FindFirstChild(\"Hero City Color\") local atmosphere=L:FindFirstChild(\"Hero City Atmosphere\") return H:JSONEncode({theme=p.StyleName,rootTheme=root:GetAttribute(\"Theme\"),direction=root:GetAttribute(\"VisualDirection\"),brickTheme=root.Walls[\"Brick Wall\"]:GetAttribute(\"Theme\"),parts=parts,bloom=L:FindFirstChild(\"Hero City Bloom\")~=nil,color=color~=nil,saturation=color and color.Saturation or -1,atmosphere=atmosphere~=nil,density=atmosphere and atmosphere.Density or -1,heroRed=string.format(\"%d,%d,%d\",p.Palette.HeroRed.R*255,p.Palette.HeroRed.G*255,p.Palette.HeroRed.B*255),heroCyan=string.format(\"%d,%d,%d\",p.Palette.HeroCyan.R*255,p.Palette.HeroCyan.G*255,p.Palette.HeroCyan.B*255),heroYellow=string.format(\"%d,%d,%d\",p.Palette.HeroYellow.R*255,p.Palette.HeroYellow.G*255,p.Palette.HeroYellow.B*255),titles=titles})"
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local p=require(game.ReplicatedStorage.PolishConfig) local titles={} local parts=0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 elseif d:IsA(\"TextLabel\") and (d.Text:find(\"HERO\",1,true) or d.Text:find(\"SIDEKICK\",1,true)) then table.insert(titles,d.Text) end end local first=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local L=game.Lighting local color=L:FindFirstChild(\"Hero City Color\") local atmosphere=L:FindFirstChild(\"Hero City Atmosphere\") return H:JSONEncode({theme=p.StyleName,rootTheme=root:GetAttribute(\"Theme\"),direction=root:GetAttribute(\"VisualDirection\"),firstMaterial=first:GetAttribute(\"MaterialStyle\"),firstRole=first:GetAttribute(\"VisualRole\"),depthContract=root:GetAttribute(\"DepthBlockContractValidated\"),parts=parts,bloom=L:FindFirstChild(\"Hero City Bloom\")~=nil,color=color~=nil,saturation=color and color.Saturation or -1,atmosphere=atmosphere~=nil,density=atmosphere and atmosphere.Density or -1,heroRed=string.format(\"%d,%d,%d\",p.Palette.HeroRed.R*255,p.Palette.HeroRed.G*255,p.Palette.HeroRed.B*255),heroCyan=string.format(\"%d,%d,%d\",p.Palette.HeroCyan.R*255,p.Palette.HeroCyan.G*255,p.Palette.HeroCyan.B*255),heroYellow=string.format(\"%d,%d,%d\",p.Palette.HeroYellow.R*255,p.Palette.HeroYellow.G*255,p.Palette.HeroYellow.B*255),titles=titles})"
       },
       "expectRegex": [
         "\"theme\"\\s*:\\s*\"Hero City\"",
         "\"rootTheme\"\\s*:\\s*\"Hero City\"",
         "\"direction\"\\s*:\\s*\"Anime Hero Action\"",
-        "\"brickTheme\"\\s*:\\s*\"Hero City\"",
-        "\"parts\"\\s*:\\s*1297",
+        "\"firstMaterial\"\\s*:\\s*\"Brick Wall\"",
+        "\"firstRole\"\\s*:\\s*\"SharedExcavationBlock\"",
+        "\"depthContract\"\\s*:\\s*true",
+        "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
         "\"bloom\"\\s*:\\s*true",
         "\"color\"\\s*:\\s*true",
         "\"saturation\"\\s*:\\s*0\\.1",

@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "normal-pet-visual-models",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for sanitized visual templates",
+        "equip normal Forest Pup",
+        "wait for Forest Pup visual",
+        "Forest Pup uses sanitized Dowodle pack child",
+        "equip normal Miner Cat",
+        "wait for Miner Cat visual",
+        "Miner Cat uses sanitized item-matched external visual",
+        "equip normal Crystal Fox",
+        "wait for Crystal Fox visual",
+        "Crystal Fox uses sanitized Ocelot pack child",
+        "equip normal Lava Dragon",
+        "wait for Lava Dragon visual",
+        "Lava Dragon uses sanitized recolored external visual",
+        "capture normal pet player view",
+        "equip normal Secret Titan Golem",
+        "wait for Titan Golem visual",
+        "Secret Titan Golem uses sanitized Dark Guardian pack child",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

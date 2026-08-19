@@ -1,0 +1,43 @@
+{
+  "status": "internal-pass-release-evidence-blocked",
+  "capturedAt": "2026-08-19T13:28:55.8350027+07:00",
+  "studio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSourceFingerprints": {
+    "GameConfig": { "length": 39008, "adler32": 1426347784 },
+    "ProfilePersistence": { "length": 69670, "adler32": 2695979586 },
+    "PunchWallBootstrap": { "length": 417864, "adler32": 3619367568 },
+    "PunchWallClient": { "length": 512176, "adler32": 1212888966 }
+  },
+  "sha256": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "3045f30fdd3851b493668af4a26dbe9be73cb9e5fa13ade73ed589e45f854c0b",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "daf08cfaf0bb3bfb3a913203896fda4924bb72fe2c28342df8614471ef323aab",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "a415baba707464e9d27d2a1b67ac5602bb9860d3905e0a3ced5d7f755691c01e",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "78c7bff76b09e0c6bfbb6b78c5d5c1f774c2aa98f9f25d32e64a57d40c64e17f",
+    "work/automation/flows/standalone-player-windows.json": "586e76eea0d1dc7e4f09c969a8ecc7dc4b5d6dc1de2084c8de26db9ba7f066c7",
+    "work/automation/flows/rebirth-progression.json": "6e77df013fff13e530cc83e62ce1e39cb96e0e242b3743fd9b7bf46ef64681cb",
+    "work/automation/scripts/standalone-player-windows-contract.mjs": "984dcf328271acb493f816d26db6f7744690b3a59cabea6d0c3ce7d73670d771",
+    "work/automation/scripts/rebirth-progression-contract.mjs": "eeb6ed105aa5c0d3b87f5d64fb5289ffc7fa3c7edb298bec7b3782afc03a32ea",
+    "work/automation/scripts/capture-rebirth-progression.mjs": "42a1cb1454baaa0220a512d940fcbbdbbe407b778505966e08c7f29b0c749bf0",
+    "work/docs/evidence/standalone-windows-20260819/capture-blocker.json": "2d3a27cd247124f47a694c91364fec0849bf5ce9b2ee72e924be93a1a054ba98",
+    "work/docs/evidence/standalone-windows-20260819/standalone-player-windows-result.json": "71e52700d66d481f84dfc7d69023ef0c24256f1d01b65eb71e88c2e98956c302",
+    "work/docs/evidence/standalone-windows-20260819/rebirth-progression-result.json": "68983c6b0582a18890f2884747f9a41a683ceb7fcf4e6887e1af23b1291fe351",
+    "work/assets/generated/rebirth-ui-v1/README.md": "975cb6f1bd4084f63226bab51094ff260a7c1c2c3f951412bc293d0ca13e95b6"
+  },
+  "checks": {
+    "standalonePlayerWindows": "26/26 PASS",
+    "rebirthProgression": "42/42 PASS",
+    "standaloneContract": "18/18 PASS",
+    "rebirthContract": "19/19 PASS",
+    "fullStaticAggregate": "PASS: Node 43, PowerShell 18, Luau 27, flow JSON 113"
+  },
+  "blocked": {
+    "physicalMouseTouch": "Studio MCP user_mouse_input timed out; route/callback automation is not physical-input proof.",
+    "currentScreenshots": "Studio MCP screen_capture timed out; no current desktop/phone screenshot acceptance is claimed.",
+    "publishedPersistence": "The tested place is unpublished placeId 0 and cannot prove live leave/rejoin DataStore durability."
+  }
+}

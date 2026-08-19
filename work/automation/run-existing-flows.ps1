@@ -1,13 +1,18 @@
+param(
+    [string]$StudioInstanceId = "",
+    [string]$ExpectedPlaceName = ""
+)
+
 $ErrorActionPreference = "Stop"
 
-$script = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
-$flowsDir = "F:\Roblox\PuchWall\work\automation\flows"
+$script = Join-Path $PSScriptRoot "scripts\flow_runner.mjs"
+$flowsDir = Join-Path $PSScriptRoot "flows"
 $invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 
 $results = @()
 foreach ($flowFile in Get-ChildItem -LiteralPath $flowsDir -Filter "*.json" | Sort-Object Name) {
     $started = Get-Date
-    $run = & $invokeFlow -FlowPath $flowFile.FullName -Runner $script -MaxAttempts 2
+    $run = & $invokeFlow -FlowPath $flowFile.FullName -Runner $script -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
     $results += [pscustomobject]@{
         flow = $flowFile.BaseName
         ok = $run.ok

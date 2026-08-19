@@ -4,12 +4,14 @@ param(
 
   [string]$Description = "",
   [string]$StudioName = "PunchWallRPGPrototype",
+  [string]$StudioInstanceId = "",
+  [string]$PlaceName = "",
   [string]$Root = "Workspace.PunchWallRPG"
 )
 
 $ErrorActionPreference = "Stop"
-$script = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\record_flow.mjs"
-$flowsDir = "F:\Roblox\PuchWall\work\automation\flows"
+$script = Join-Path $PSScriptRoot "scripts\record_flow.mjs"
+$flowsDir = Join-Path $PSScriptRoot "flows"
 
 $args = @(
   $script,
@@ -19,6 +21,12 @@ $args = @(
   "--root", $Root
 )
 
+if ($StudioInstanceId -ne "") {
+  $args += @("--studio-instance-id", $StudioInstanceId)
+}
+if ($PlaceName -ne "") {
+  $args += @("--place-name", $PlaceName)
+}
 if ($Description -ne "") {
   $args += @("--description", $Description)
 }

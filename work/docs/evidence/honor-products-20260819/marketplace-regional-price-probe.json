@@ -1,0 +1,54 @@
+{
+  "capturedAt": "2026-08-19T04:24:38Z",
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "placeId": 0,
+    "datamodelType": "Edit"
+  },
+  "method": "MarketplaceService.GetProductInfo(productId, Enum.InfoType.Product)",
+  "rows": [
+    {
+      "key": "HonorPouch25",
+      "productId": 3708804891,
+      "expectedName": "Honor Pouch",
+      "liveName": "Honor Pouch",
+      "dashboardBasePrice": 29,
+      "livePrice": 25,
+      "isForSale": true,
+      "lookupOk": true
+    },
+    {
+      "key": "HonorCache90",
+      "productId": 3708804911,
+      "expectedName": "Honor Cache",
+      "liveName": "Honor Cache",
+      "dashboardBasePrice": 79,
+      "livePrice": 59,
+      "isForSale": true,
+      "lookupOk": true
+    },
+    {
+      "key": "HonorVault300",
+      "productId": 3708804933,
+      "expectedName": "Honor Vault",
+      "liveName": "Honor Vault",
+      "dashboardBasePrice": 199,
+      "livePrice": 145,
+      "isForSale": true,
+      "lookupOk": true
+    },
+    {
+      "key": "HonorTreasury850",
+      "productId": 3708804944,
+      "expectedName": "Honor Treasury",
+      "liveName": "Honor Treasury",
+      "dashboardBasePrice": 499,
+      "livePrice": 359,
+      "isForSale": true,
+      "lookupOk": true
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "functional-hero-shop",
   "description": "Validate the assembled Hero Fist Shop UI, server-authoritative glove purchases, equipping, and timed boosts.",
-  "studioName": "PunchWallRPGPlayable_v1_final",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -28,7 +28,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') c:Invoke('Reset') c:Invoke('SetStats',{Coins=200000,Power=10,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local fist=c:Invoke('BuyFist','Iron Knuckle') local boost=c:Invoke('BuyShopBoost','DamageBoost') local hit=c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) local p=game.Players:GetPlayers()[1] return H:JSONEncode({fist=fist.ok,boost=boost.ok,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value,coins=p.leaderstats.Coins.Value,damageEnds=p:GetAttribute('DamageBoostExpiresAt'),damage=hit.damage,broken=hit.BrokenDepthBlocks})"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') c:Invoke('Reset') c:Invoke('SetStats',{Coins=200000,Power=10,Depth=9,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local fist=c:Invoke('BuyFist','Iron Knuckle') local boost=c:Invoke('BuyShopBoost','DamageBoost') local hit=c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) local p=game.Players:GetPlayers()[1] return H:JSONEncode({fist=fist.ok,boost=boost.ok,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value,coins=p.leaderstats.Coins.Value,damageEnds=p:GetAttribute('DamageBoostExpiresAt'),damage=hit.damage,broken=hit.BrokenDepthBlocks})"
       },
       "expectRegex": [
         "\\\"fist\\\"\\s*:\\s*true",

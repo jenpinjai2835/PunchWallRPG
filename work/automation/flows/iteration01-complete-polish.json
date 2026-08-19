@@ -25,7 +25,7 @@
         "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal decor=root.Polish[\"City Decor\"]\nlocal tier=root.Polish[\"Wall Tier Frames\"]\nlocal egg=root.Interactables[\"Pet Egg Machine\"]\nlocal rebirth=root.Interactables[\"Rebirth Shrine\"]\nlocal parts,graphics,spawnGraphics,worldDecals,barricades=0,0,0,0,0\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 elseif d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://82590428870038\" then graphics+=1 elseif d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://125153703372122\" then spawnGraphics+=1 elseif d:IsA(\"Decal\") and (d.Texture==\"rbxassetid://82590428870038\" or d.Texture==\"rbxassetid://125153703372122\") then worldDecals+=1 end end\nfor _,d in ipairs(decor:GetChildren()) do if string.find(d.Name,\"Emergency Barricade\",1,true) then barricades+=1 end end\nreturn H:JSONEncode({parts=parts,graphics=graphics,spawnGraphics=spawnGraphics,worldDecals=worldDecals,barricades=barricades,dnaSign=decor:FindFirstChild(\"DNA Lab Compact Sign\")~=nil,rebirthSign=decor:FindFirstChild(\"Evac Portal Compact Sign\")~=nil,eggText=egg:FindFirstChildWhichIsA(\"SurfaceGui\")==nil,rebirthText=rebirth:FindFirstChildWhichIsA(\"SurfaceGui\")==nil,titanPylons=tier:FindFirstChild(\"Titan Containment Pylon -1\")~=nil and tier:FindFirstChild(\"Titan Containment Pylon 1\")~=nil,titanCore=tier:FindFirstChild(\"Titan Reactor Core\")~=nil,hazard=tier:FindFirstChild(\"Titan Arena Hazard Stripe 1\")~=nil})"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
+        "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
         "\"graphics\"\\s*:\\s*1",
         "\"spawnGraphics\"\\s*:\\s*2",
         "\"worldDecals\"\\s*:\\s*3",

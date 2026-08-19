@@ -1,7 +1,7 @@
 {
   "name": "camera-long-tunnel-regression",
   "description": "Verify repeated high-power Titan punches keep the avatar visible, preserve zoom/rotation, and never place the camera inside tunnel geometry.",
-  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -13,7 +13,7 @@
       "timeoutMs": 45000,
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=1000000000,Power=6000,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('BuyFist','Titan Gauntlet') local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-400)) p:SetAttribute('LastWallHit',0) return true"
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=1000000000,Power=6000,Depth=75,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('BuyFist','Titan Gauntlet') local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-400)) p:SetAttribute('LastWallHit',0) return true"
       },
       "label": "prepare long high-power tunnel run"
     },
@@ -23,26 +23,27 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') g.PunchWallClientAutomation:Invoke('__HideLoading') shared.LongTunnelCameraResult=g.PunchWallClientAutomation:Invoke('__RunCamera',18) return H:JSONEncode(shared.LongTunnelCameraResult)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local automation=g:WaitForChild('PunchWallClientAutomation') local oldMinZoom,oldMaxZoom=p.CameraMinZoomDistance,p.CameraMaxZoomDistance local diagnostics local ok,runError=xpcall(function() local result=automation:Invoke('__RunCamera',18) local character=p.Character or p.CharacterAdded:Wait() local root=character:WaitForChild('HumanoidRootPart') local head=character:FindFirstChild('Head') or root local cam=workspace.CurrentCamera local headPoint,onScreen=cam:WorldToViewportPoint(head.Position) local feetPoint=cam:WorldToViewportPoint(root.Position-Vector3.new(0,2.5,0)) local readable=onScreen and math.abs(headPoint.Y-feetPoint.Y)>=18 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character} local freshInside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then freshInside+=1 end end local freshFaded=0 for _,part in ipairs(character:GetDescendants()) do if part:IsA('BasePart') and part.LocalTransparencyModifier>.01 then freshFaded+=1 end end local zoomRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 local freshValid=onScreen and readable and freshInside==0 and freshFaded==0 and cam.CameraType==Enum.CameraType.Custom and g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true and zoomRestored local contractValid=type(result)=='table' and result.valid==true and result.visualValid==true and result.actions==18 and result.inside==0 and result.type=='Custom' and result.mode=='CustomPreserved' and freshValid diagnostics={valid=contractValid,visualValid=result and result.visualValid==true,actions=result and result.actions or -1,inside=result and result.inside or -1,type=result and result.type or 'Missing',mode=result and result.mode or 'Missing',initialOrbitSettled=result and result.initialOrbitSettled==true,settleTimedOut=result and result.settleTimedOut==true,freshValid=freshValid,freshOnScreen=onScreen,freshReadable=readable,freshInside=freshInside,freshFaded=freshFaded,zoomRestored=zoomRestored} assert(contractValid,'self-contained long-tunnel camera contract failed: '..H:JSONEncode(diagnostics)) end,debug.traceback) p.CameraMaxZoomDistance=oldMaxZoom p.CameraMinZoomDistance=oldMinZoom local cleanupRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 diagnostics=diagnostics or {valid=false,freshValid=false} diagnostics.cleanupRestored=cleanupRestored if not ok then error(runError) end assert(cleanupRestored,'long-tunnel camera cleanup failed: '..H:JSONEncode(diagnostics)) return H:JSONEncode(diagnostics)"
       },
       "saveAs": "cameraDiagnostics",
-      "label": "sample eighteen high-power punches"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "return game:GetService('HttpService'):JSONEncode(shared.LongTunnelCameraResult)"
-      },
       "expectRegex": [
         "\"valid\"[ ]*:[ ]*true",
         "\"visualValid\"[ ]*:[ ]*true",
         "\"actions\"[ ]*:[ ]*18",
         "\"inside\"[ ]*:[ ]*0",
-        "\"type\"[ ]*:[ ]*\"Custom\""
+        "\"type\"[ ]*:[ ]*\"Custom\"",
+        "\"mode\"[ ]*:[ ]*\"CustomPreserved\"",
+        "\"initialOrbitSettled\"[ ]*:[ ]*true",
+        "\"settleTimedOut\"[ ]*:[ ]*false",
+        "\"freshValid\"[ ]*:[ ]*true",
+        "\"freshOnScreen\"[ ]*:[ ]*true",
+        "\"freshReadable\"[ ]*:[ ]*true",
+        "\"freshInside\"[ ]*:[ ]*0",
+        "\"freshFaded\"[ ]*:[ ]*0",
+        "\"zoomRestored\"[ ]*:[ ]*true",
+        "\"cleanupRestored\"[ ]*:[ ]*true"
       ],
-      "label": "avatar remains visible through eighteen punches"
+      "label": "sample and freshly verify eighteen high-power tunnel punches"
     },
     { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
     { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },

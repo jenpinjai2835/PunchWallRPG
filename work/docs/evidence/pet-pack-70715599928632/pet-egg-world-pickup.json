@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "pet-egg-world-pickup",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime and sanitized templates",
+        "spawn owner-only ground egg and reject instant claim",
+        "wait for pickup arm window",
+        "capture landed pickup egg",
+        "claim armed egg and grant pet exactly once",
+        "drop cooldown prevents burst eggs without consuming pity",
+        "deep wall uses stronger non-premium pool and curated visual mappings",
+        "arm deep egg for inventory boundary",
+        "full inventory preserves egg until the player frees a slot",
+        "spawn unattended egg for expiry cleanup",
+        "wait past unattended egg lifetime",
+        "expired egg disappears without granting a pet",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

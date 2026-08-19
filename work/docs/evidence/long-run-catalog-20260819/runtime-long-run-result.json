@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "long-run-catalog-progression",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime catalog",
+        "catalog is unique ordered and spans endgame",
+        "server enforces depth-only final fist and cost boundaries",
+        "depth-75 pet grants once and duplicate cannot farm Luck",
+        "wait for Omega Guardian visual",
+        "endgame pet uses bounded sanitized model",
+        "grant complete normal pet catalog",
+        "wait for complete pet inventory previews",
+        "all sixteen pet cards render exact bounded sanitized previews",
+        "seed high-level zero-depth shop lock state",
+        "client keeps fifteen fists locked despite high WallLevel",
+        "advance shop to penultimate depth",
+        "client leaves only final fist locked at depth seventy-four",
+        "unlock shop with depth despite low WallLevel",
+        "all fist offers are readable and scroll-accessible",
+        "capture expanded fist catalog top",
+        "scroll to endgame fist offers",
+        "capture expanded fist catalog endgame",
+        "capture console",
+        "console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

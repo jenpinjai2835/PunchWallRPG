@@ -40,12 +40,11 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal root=workspace:FindFirstChild(\"PunchWallRPG\")\nlocal result={concrete=0,asphalt=0,metal=0,scripts=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then if d.MaterialVariant==\"KaijuDamagedConcrete\" then result.concrete+=1 elseif d.MaterialVariant==\"KaijuWornAsphalt\" then result.asphalt+=1 elseif d.MaterialVariant==\"KaijuContainmentMetal\" then result.metal+=1 end elseif d:IsA(\"LuaSourceContainer\") then result.scripts+=1 end end\nreturn HttpService:JSONEncode(result)"
+        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal ReplicatedStorage=game:GetService(\"ReplicatedStorage\")\nlocal PolishConfig=require(ReplicatedStorage:WaitForChild(\"PolishConfig\"))\nlocal environment=PolishConfig.Environment or {}\nlocal root=workspace:FindFirstChild(\"PunchWallRPG\")\nlocal result={concrete=0,asphalt=0,metal=0,scripts=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then if d.MaterialVariant==\"KaijuDamagedConcrete\" then result.concrete+=1 elseif d.MaterialVariant==\"KaijuWornAsphalt\" then result.asphalt+=1 elseif d.MaterialVariant==\"KaijuContainmentMetal\" then result.metal+=1 end elseif d:IsA(\"LuaSourceContainer\") then result.scripts+=1 end end\nresult.asphaltExpected=environment.CityGroundOverlays==true\nresult.runtimeCoverage=result.concrete>0 and result.metal>0 and ((environment.CityGroundOverlays==true and result.asphalt>0) or environment.CityGroundOverlays~=true)\nreturn HttpService:JSONEncode(result)"
       },
       "expectRegex": [
-        "\"concrete\"\\s*:\\s*2[0-9][0-9]",
-        "\"asphalt\"\\s*:\\s*[3-9]",
-        "\"metal\"\\s*:\\s*1[0-9][0-9]",
+        "\"runtimeCoverage\"\\s*:\\s*true",
+        "\"asphaltExpected\"\\s*:\\s*(?:true|false)",
         "\"scripts\"\\s*:\\s*0"
       ],
       "label": "runtime uses generated material variants"

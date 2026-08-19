@@ -1,0 +1,16 @@
+[01_desktop_1366_locked runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[01_desktop_1366_locked post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_desktop_1366_confirm runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_desktop_1366_confirm post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_844_confirm runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_844_confirm post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[04_phone_740_confirm runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[04_phone_740_confirm post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.

@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "pets do not grow when hero Power grows",
+        "hero shrinks back at low Power and grows again independently of WallLevel",
+        "maximum-size hero remains fully framed by the live camera",
+        "maximum-size hero and pets remain separated inside the camera safe frame",
+        "Power growth reapplies after respawn",
+        "camera and exact companion identities rebuild on the new character",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

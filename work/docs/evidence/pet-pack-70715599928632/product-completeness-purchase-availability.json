@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "product-completeness-purchase-availability",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "allow bounded external template deadline and client bootstrap",
+        "world offers, Honor sign, and bounded external bootstrap are truthful",
+        "reset and verify zero-ID rejection plus configured premium-pet precondition",
+        "allow reset state to reach client",
+        "manual client dispatch reaches production ActionRequest rejection handlers",
+        "server Snapshot proves rejected production requests caused no mutation",
+        "client purchase controls match each configured or unavailable catalog entry",
+        "nonzero IDs retain enabled authoritative purchase affordances",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

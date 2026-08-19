@@ -1,0 +1,120 @@
+{
+  "name": "feedback-holder-presentation",
+  "description": "Verify rejected actions and premium grants reach a visible Toast or RewardPop holder instead of telemetry-only feedback.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 60000,
+      "label": "start play and wait for runtime DataModels"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for feedback UI bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{WallLevel=1,Coins=0,Rebirths=0,OwnedPremiumPetsJSON='[]',PetInventoryJSON='[]',EquippedPetsJSON='[]'}) return true"
+      },
+      "label": "prepare rejected rebirth and fresh premium state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute('FeedbackContractBefore',g:GetAttribute('FeedbackCount') or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Rebirth'}) return true"
+      },
+      "label": "request a gated rebirth through the player remote"
+    },
+    {
+      "type": "wait",
+      "ms": 220,
+      "label": "wait for rejection feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local function visibleChildren(holder) local n=0 for _,d in ipairs(holder:GetChildren()) do if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then n+=1 end end return n end local toast=visibleChildren(g.Toasts) local reward=visibleChildren(g.RewardPops) local presented=(g.Toasts.Visible and toast>0) or (g.RewardPops.Visible and reward>0) return H:JSONEncode({delta=(g:GetAttribute('FeedbackCount') or 0)-(g:GetAttribute('FeedbackContractBefore') or 0),type=g:GetAttribute('LastFeedbackType'),target=g:GetAttribute('LastFeedbackTarget'),toastHolder=g.Toasts.Visible,toasts=toast,rewardHolder=g.RewardPops.Visible,rewards=reward,presented=presented})"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"type\"\\s*:\\s*\"Fail\"",
+        "\"target\"\\s*:\\s*\"Rebirth\"",
+        "\"presented\"\\s*:\\s*true"
+      ],
+      "label": "gated action renders visible rejection feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "let rejection presentation clear"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute('FeedbackContractBefore',g:GetAttribute('FeedbackCount') or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='BuyPremiumPet',target='Crimson Phoenix'}) return true"
+      },
+      "label": "request the deterministic Studio premium pet grant"
+    },
+    {
+      "type": "wait",
+      "ms": 250,
+      "label": "wait for premium grant feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local function visibleChildren(holder) local n=0 for _,d in ipairs(holder:GetChildren()) do if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then n+=1 end end return n end local toast=visibleChildren(g.Toasts) local reward=visibleChildren(g.RewardPops) local presented=(g.Toasts.Visible and toast>0) or (g.RewardPops.Visible and reward>0) return H:JSONEncode({delta=(g:GetAttribute('FeedbackCount') or 0)-(g:GetAttribute('FeedbackContractBefore') or 0),type=g:GetAttribute('LastFeedbackType'),target=g:GetAttribute('LastFeedbackTarget'),toastHolder=g.Toasts.Visible,toasts=toast,rewardHolder=g.RewardPops.Visible,rewards=reward,presented=presented})"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"target\"\\s*:\\s*\"Crimson Phoenix\"",
+        "\"presented\"\\s*:\\s*true"
+      ],
+      "label": "premium grant renders one visible feedback channel"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture feedback presentation console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "feedback presentation console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "label": "stop play and wait for Edit"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup feedback regression"
+    }
+  ]
+}

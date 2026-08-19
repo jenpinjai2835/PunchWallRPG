@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_power_15_baseline",
+      "power": 15,
+      "pets": false,
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\power-avatar-growth-20260819\\01_power_15_baseline.jpg",
+      "sha256": "ab48deb7ba033b098c24e009bb1c920d8c3ce4671d4a2ee5c9d77f8ec956c280"
+    },
+    {
+      "id": "02_power_1500000000_three_pets",
+      "power": 1500000000,
+      "pets": true,
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\power-avatar-growth-20260819\\02_power_1500000000_three_pets.jpg",
+      "sha256": "f25b3bba5ef895e646388ee83214ff432af19e244d83fe8f330b73bc54286e5d"
+    }
+  ],
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "console": {
+    "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+    "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+    "clean": true
+  },
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "31bf63541beb1295ef68835eb03a79be277acb00c713252954f98dfe62ab9c01",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "662585bdb46a94320bb736eb8efcfbfd84aa1ac8012e82d442ef6b9c6a9d0d0b",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "b5d0ab39122edae3a9af9ab934e8185900133dc6e5222434be6c22a4bf79f4ac",
+    "work/automation/flows/power-avatar-growth.json": "c6e7ae71b32d4e3d83e93a1f5764e0ce9fb3061b2d9d7b9974d969cae90e22fc"
+  }
+}

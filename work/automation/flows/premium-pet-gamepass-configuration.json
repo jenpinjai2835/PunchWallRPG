@@ -1,0 +1,76 @@
+{
+  "name": "premium-pet-gamepass-configuration",
+  "description": "Verify the three production premium-pet Game Pass IDs, live Roblox metadata, authoritative mappings, purchase affordances, and clean runtime without opening a purchase prompt.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 60000,
+      "label": "start play"
+    },
+    { "type": "wait", "ms": 7500, "label": "wait for premium catalog and UI" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local cfg=require(game.ReplicatedStorage.GameConfig) local expected={['Crimson Phoenix']={1948233870,79},['Storm Wyvern']={1948851823,169},['Celestial Guardian']={1947471788,349}} local rows={} local ids={} local ok=true for _,pet in ipairs(cfg.PremiumPets) do local e=expected[pet.name] local success,info=pcall(function() return M:GetProductInfoAsync(pet.gamePassId,Enum.InfoType.GamePass) end) local row={name=pet.name,id=pet.gamePassId,configuredPrice=pet.robux,lookup=success} if success then row.liveName=info.Name row.livePrice=info.PriceInRobux row.userBasePrice=info.UserBasePriceInRobux row.forSale=info.IsForSale row.match=info.Name==pet.name and (tonumber(info.PriceInRobux) or 0)>0 and info.IsForSale==true else row.error=tostring(info) row.match=false end row.config=e and pet.gamePassId==e[1] and pet.robux==e[2] or false ok=ok and row.config and row.match and not ids[pet.gamePassId] ids[pet.gamePassId]=true table.insert(rows,row) end local result={ok=ok and #rows==3,count=#rows,rows=rows} assert(result.ok,'premium pet pass metadata mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "1948233870",
+        "1948851823",
+        "1947471788",
+        "\"livePrice\"\\s*:\\s*[1-9][0-9]*",
+        "\"forSale\"\\s*:\\s*true"
+      ],
+      "label": "live Roblox Game Pass identities and regional prices are available"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local root=workspace:WaitForChild('PunchWallRPG') local rows={} local ok=true for _,pet in ipairs(cfg.PremiumPets) do local stand=root:FindFirstChild(pet.name..' Premium Pet Stand',true) local price=root:FindFirstChild(pet.name..' Premium Pet Price',true) local detector=stand and stand:FindFirstChildWhichIsA('ClickDetector',true) local row={name=pet.name,id=pet.gamePassId,stand=stand~=nil,price=price~=nil,detector=detector~=nil,configured=stand and stand:GetAttribute('PurchaseConfigured')==true and stand:GetAttribute('PurchaseUnavailable')==false and price and price:GetAttribute('PurchaseConfigured')==true and price:GetAttribute('PurchaseUnavailable')==false} ok=ok and row.stand and row.price and row.detector and row.configured table.insert(rows,row) end local result={ok=ok and #rows==3,count=#rows,rows=rows} assert(result.ok,'premium pet world purchase mapping mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "\"configured\"\\s*:\\s*true",
+        "\"detector\"\\s*:\\s*true"
+      ],
+      "label": "all premium pet world stands expose configured authoritative purchase paths"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local cfg=require(game.ReplicatedStorage.GameConfig) assert(a:Invoke('OpenTab','Pets')==true,'Pets tab did not open') local function buttonFor(pet) return g.GameMenu.Content:FindFirstChild(pet.name..'PremiumPet',true) end local deadline=os.clock()+8 local allResolved=false repeat task.wait(.1) allResolved=true for _,pet in ipairs(cfg.PremiumPets) do local button=buttonFor(pet) allResolved=allResolved and button~=nil and button:GetAttribute('RegionalPriceResolved')==true end until allResolved or os.clock()>=deadline local root=workspace:WaitForChild('PunchWallRPG') local rows={} local ok=allResolved for _,pet in ipairs(cfg.PremiumPets) do local button=buttonFor(pet) local lookup,info=pcall(function() return M:GetProductInfoAsync(pet.gamePassId,Enum.InfoType.GamePass) end) local livePrice=lookup and tonumber(info.PriceInRobux) or 0 local displayed=button and tonumber(button:GetAttribute('DisplayedRobuxPrice')) or 0 local stand=root:FindFirstChild(pet.name..' Premium Pet Stand',true) local price=root:FindFirstChild(pet.name..' Premium Pet Price',true) local worldText='' if price then for _,d in ipairs(price:GetDescendants()) do if d:IsA('TextLabel') and d.Name=='Subtitle' then worldText..=' '..string.upper(d.Text or '') end end end local row={name=pet.name,id=pet.gamePassId,livePrice=livePrice,displayed=displayed,actionText=button and button.Text or '',found=button~=nil,active=button and button.Active==true,selectable=button and button.Selectable==true,configured=button and button:GetAttribute('PurchaseConfigured')==true and button:GetAttribute('PurchaseUnavailable')==false,resolved=button and button:GetAttribute('RegionalPriceResolved')==true,price=displayed==livePrice,world=stand and price and stand:GetAttribute('RegionalPriceResolved')==true and price:GetAttribute('RegionalPriceResolved')==true and tonumber(price:GetAttribute('DisplayedRobuxPrice'))==livePrice and worldText:find('R$ '..livePrice,1,true)~=nil} ok=ok and lookup and row.found and row.active and row.selectable and row.configured and row.resolved and row.price and row.world table.insert(rows,row) end local result={ok=ok and #rows==3,count=#rows,rows=rows} assert(result.ok,'premium pet regional UI configuration mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"resolved\"\\s*:\\s*true",
+        "\"price\"\\s*:\\s*true",
+        "\"world\"\\s*:\\s*true"
+      ],
+      "label": "Pets menu and world boards display each player's live regional price"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleBeforeStop", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleBeforeStop", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

@@ -136,7 +136,16 @@ local function normalizeRarity(value)
 	return RARITY_NAMES[key]
 end
 
-local function inferRarity(definition, kind, premium)
+-- Canonical owned-fist label contract. This mirrors the live Shop tier
+-- presentation without changing price, multiplier, ownership, or unlock data.
+local FIST_TIER_RARITY = {
+	[1] = "Common",
+	[2] = "Rare",
+	[3] = "Rare",
+	[4] = "Epic",
+}
+
+local function canonicalFistRarity(definition, premium)
 	local explicit = normalizeRarity(definition and definition.rarity)
 	if explicit then
 		return explicit
@@ -144,12 +153,20 @@ local function inferRarity(definition, kind, premium)
 	if premium or (definition and definition.robux) then
 		return "Premium"
 	end
+	local tier = math.max(1, math.floor(tonumber(definition and definition.tier) or 1))
+	return FIST_TIER_RARITY[tier] or "Legendary"
+end
+
+local function inferRarity(definition, kind, premium)
 	if kind == "Fist" then
-		local tier = math.max(1, math.floor(tonumber(definition and definition.tier) or 1))
-		if tier >= 5 then return "Legendary" end
-		if tier >= 4 then return "Epic" end
-		if tier >= 3 then return "Rare" end
-		return "Common"
+		return canonicalFistRarity(definition, premium)
+	end
+	local explicit = normalizeRarity(definition and definition.rarity)
+	if explicit then
+		return explicit
+	end
+	if premium or (definition and definition.robux) then
+		return "Premium"
 	end
 	if kind == "Honor" then
 		local bonus = math.max(0, tonumber(definition and definition.powerBonus) or 0)
@@ -217,6 +234,15 @@ end
 local function petArt(GameConfig, definition)
 	if definition and type(definition.art) == "string" and definition.art ~= "" then
 		return definition.art
+	end
+	local artPack = type(GameConfig.PetInventoryArt) == "table" and GameConfig.PetInventoryArt or {}
+	local entries = type(artPack.entries) == "table" and artPack.entries or {}
+	local artEntry = definition and entries[definition.artKey]
+	if type(artEntry) == "table"
+		and type(artEntry.assetId) == "string"
+		and string.match(artEntry.assetId, "^rbxassetid://%d+$")
+	then
+		return artEntry.assetId
 	end
 	local graphics = type(GameConfig.GeneratedGraphics) == "table" and GameConfig.GeneratedGraphics or {}
 	return graphics.Iteration02PetIcon or ""
@@ -318,6 +344,14 @@ local function addPets(items, GameConfig, stats)
 	local locked = listSet(stats.LockedPetsJSON)
 	local definitions = makeDefinitionMap(GameConfig.Pets, GameConfig.PremiumPets)
 	local equippedCount = 0
+	local unlockedCounts = {}
+	for _, entry in ipairs(inventory) do
+		local token = tostring(entry.value or "")
+		local slotToken = "slot:" .. tostring(entry.index)
+		if locked[token] ~= true and locked[slotToken] ~= true then
+			unlockedCounts[token] = (unlockedCounts[token] or 0) + 1
+		end
+	end
 
 	for _, entry in ipairs(inventory) do
 		local petName, stars, token = parsePetToken(GameConfig, entry.value)
@@ -359,12 +393,30 @@ local function addPets(items, GameConfig, stats)
 			accent,
 			{ confirm = true, destructive = true }
 		)
+		local maxStars = math.max(1, math.floor(tonumber(GameConfig.MaxPetStars) or 5))
+		local fusionRequired = stars < maxStars
+			and math.max(2, math.floor(tonumber(GameConfig.PetFusionRequirement(stars)) or (stars + 1)))
+			or 0
+		local fusionOwned = unlockedCounts[token] or 0
+		local fusionEnabled = definition ~= nil
+			and stars < maxStars
+			and fusionOwned >= fusionRequired
+		local fusionAction = actionDescriptor(
+			"FusePet",
+			stars >= maxStars and "MAX STAR" or "FUSE",
+			{ action = "FusePet", target = token },
+			fusionEnabled,
+			accent
+		)
 		local multiplier = 0
 		if definition then
 			multiplier = (tonumber(definition.mult) or 0) * (1 + (stars - 1) * 0.75)
 		end
+		local fusionDetail = stars >= maxStars
+			and "MAX STAR"
+			or ("FUSE %d/%d UNLOCKED"):format(fusionOwned, fusionRequired)
 		local detail = definition
-			and ("%d Star | +%s%% Power"):format(stars, formatDecimal(multiplier * 100))
+			and ("%d Star | +%s%% Power | %s"):format(stars, formatDecimal(multiplier * 100), fusionDetail)
 			or ("%d Star | Unknown saved pet"):format(stars)
 		local item = finalizeItem({
 			key = "pet:slot:" .. tostring(entry.index),
@@ -375,6 +427,8 @@ local function addPets(items, GameConfig, stats)
 			rarity = definition and inferRarity(definition, "Pet", catalogEntry.premium) or "Unknown",
 			accent = accent,
 			art = petArt(GameConfig, definition),
+			artKey = definition and definition.artKey or "",
+			previewPet = definition and definition.name or "",
 			icon = definition and definition.icon or "Pet",
 			quantity = 1,
 			equipped = isEquipped,
@@ -382,7 +436,11 @@ local function addPets(items, GameConfig, stats)
 			slot = entry.index,
 			token = token,
 			detail = detail,
-			actions = { primary, lockAction, deleteAction },
+			fusionOwned = fusionOwned,
+			fusionRequired = fusionRequired,
+			fusionNextStars = stars < maxStars and (stars + 1) or stars,
+			fusionEnabled = fusionEnabled,
+			actions = { primary, fusionAction, lockAction, deleteAction },
 			primaryAction = primary,
 		})
 		table.insert(items, item)
@@ -395,19 +453,19 @@ local function addHonor(items, GameConfig, stats)
 	local owned = listSet(stats.OwnedHonorItemsJSON)
 	local equippedName = tostring(stats.EquippedHonorItem or "")
 	for _, definition in ipairs(catalogEntries(GameConfig.HonorItems)) do
-		if owned[definition.name] then
-			local equipped = equippedName == definition.name
+		if owned[definition.id] or owned[definition.name] then
+			local equipped = equippedName == definition.id or equippedName == definition.name
 			local accent = definition.accent or definition.color or UNKNOWN_ACCENT
 			local primary = actionDescriptor(
 				"BuyHonorItem",
 				equipped and "EQUIPPED" or "EQUIP",
-				{ action = "BuyHonorItem", target = definition.name },
+				{ action = "BuyHonorItem", target = definition.id },
 				not equipped,
 				accent,
 				{ primary = true }
 			)
 			local item = finalizeItem({
-				key = "honor:" .. definition.name,
+				key = "honor:" .. definition.id,
 				category = "Honor",
 				kind = "Honor",
 				name = definition.name,
@@ -826,6 +884,10 @@ function InventoryViewModel.InvalidateSignatureCache(GameConfig)
 		return
 	end
 	table.clear(CONFIG_SIGNATURE_CACHE)
+end
+
+function InventoryViewModel.GetCanonicalFistRarity(definition, premium)
+	return canonicalFistRarity(definition, premium == true)
 end
 
 return InventoryViewModel

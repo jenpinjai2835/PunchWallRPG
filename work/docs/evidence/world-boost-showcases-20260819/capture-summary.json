@@ -1,0 +1,106 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_desktop_player_route",
+      "view": "actual-player",
+      "device": {
+        "name": "PunchWall Gate3 Desktop 1366x768",
+        "width": 1366,
+        "height": 768,
+        "form": "Desktop"
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\world-boost-showcases-20260819\\01_desktop_player_route.jpg",
+      "sha256": "e9c24dcc93f8cc4a1cd498565b4955003f3ad7dec4699640ec05aaa3a83c07dd"
+    },
+    {
+      "id": "02_desktop_overview",
+      "view": "overview",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\world-boost-showcases-20260819\\02_desktop_overview.jpg",
+      "sha256": "503fbcb2ee97531f408fafbd6c41d10436a1a49987bac2a94840da05604510a6"
+    },
+    {
+      "id": "03_phone_844_player_route",
+      "view": "actual-player",
+      "device": {
+        "name": "PunchWall Gate3 Phone 844x390",
+        "width": 844,
+        "height": 390,
+        "form": "Phone"
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\world-boost-showcases-20260819\\03_phone_844_player_route.jpg",
+      "sha256": "0da5d29260aaa9eafd97265e517745e7aa08a6fd95f3d8f5528c78fe9e214f8b"
+    },
+    {
+      "id": "04_phone_740_player_route",
+      "view": "actual-player",
+      "device": {
+        "name": "PunchWall Gate3 Phone 740x360",
+        "width": 740,
+        "height": 360,
+        "form": "Phone"
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\world-boost-showcases-20260819\\04_phone_740_player_route.jpg",
+      "sha256": "97cbb138b7d6de766dab71dbc1f619a1b4e24262fd57481f24efa4ef28eb7455"
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "37a85b359b26171bb14bc2a4872703f2b6a08b7aef294685b3ba2c76990f732f",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "8ba08de021516f6b7242d9fc5994bc6e1a38706b552f2027c9f324ad1e8ad4d1",
+    "work/automation/flows/world-boost-showcases.json": "ddce010cc16e122182a5e962c9ea1ce03b8d4ed89906e03dcebd1f1943fe8288"
+  },
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "GameConfig": {
+      "adler32": 639562524,
+      "length": 29332,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "matchesLocal": true
+    },
+    "PunchWallClient": {
+      "adler32": 4097392057,
+      "length": 441664,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "matchesLocal": true
+    },
+    "PunchWallBootstrap": {
+      "adler32": 60719395,
+      "length": 373630,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "matchesLocal": true
+    }
+  },
+  "runs": [
+    {
+      "id": "01_desktop_player_route",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "03_phone_844_player_route",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "04_phone_740_player_route",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    }
+  ],
+  "console": {
+    "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\world-boost-showcases-20260819\\console.txt",
+    "clean": true
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 3
+  }
+}

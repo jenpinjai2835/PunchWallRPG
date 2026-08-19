@@ -1,0 +1,89 @@
+{
+  "name": "right-hud-menu-uniform-grid",
+  "description": "Verify Inventory, Shop, Pets, and Quests use one equal-size right-HUD icon grid with aligned rows, columns, and gaps.",
+  "studioName": "^PunchWallRPG(?:Playable_v1_final(?:_validation)?|_ManualPlaytest_[0-9]{8}(?:_[A-Za-z0-9]+)?)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for right HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD') local inventory=h:WaitForChild('InventoryButton') local shop=h:WaitForChild('ShopButton') local pets=h:WaitForChild('PetsButton') local quests=h:WaitForChild('QuestsButton') local function near(a,b,t) return math.abs(a-b)<=t end local sameSize=inventory.Size==shop.Size and shop.Size==pets.Size and pets.Size==quests.Size local sameRenderedSize=near(inventory.AbsoluteSize.X,shop.AbsoluteSize.X,1) and near(inventory.AbsoluteSize.Y,shop.AbsoluteSize.Y,1) and near(shop.AbsoluteSize.X,pets.AbsoluteSize.X,1) and near(shop.AbsoluteSize.Y,pets.AbsoluteSize.Y,1) and near(pets.AbsoluteSize.X,quests.AbsoluteSize.X,1) and near(pets.AbsoluteSize.Y,quests.AbsoluteSize.Y,1) local sameTop=near(inventory.AbsolutePosition.Y,shop.AbsolutePosition.Y,1) local sameColumn=near(shop.AbsolutePosition.X,pets.AbsolutePosition.X,1) and near(pets.AbsolutePosition.X,quests.AbsolutePosition.X,1) local horizontalGap=shop.AbsolutePosition.X-(inventory.AbsolutePosition.X+inventory.AbsoluteSize.X) local shopPetsGap=pets.AbsolutePosition.Y-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y) local petsQuestsGap=quests.AbsolutePosition.Y-(pets.AbsolutePosition.Y+pets.AbsoluteSize.Y) local evenGaps=horizontalGap>=0 and shopPetsGap>=0 and petsQuestsGap>=0 and near(shopPetsGap,petsQuestsGap,1) local minTarget=math.min(inventory.AbsoluteSize.X,inventory.AbsoluteSize.Y,shop.AbsoluteSize.X,shop.AbsoluteSize.Y,pets.AbsoluteSize.X,pets.AbsoluteSize.Y,quests.AbsoluteSize.X,quests.AbsoluteSize.Y) local ok=h:GetAttribute('RightMenuLayoutMode')=='UniformIconGridV1' and h:GetAttribute('RightMenuIconSize')=='87x111' and h:GetAttribute('RightMenuIconGap')==3 and sameSize and sameRenderedSize and sameTop and sameColumn and evenGaps and minTarget>=44 return H:JSONEncode({ok=ok,layout=h:GetAttribute('RightMenuLayoutMode'),declaredSize=h:GetAttribute('RightMenuIconSize'),declaredGap=h:GetAttribute('RightMenuIconGap'),sameSize=sameSize,sameRenderedSize=sameRenderedSize,sameTop=sameTop,sameColumn=sameColumn,evenGaps=evenGaps,horizontalGap=horizontalGap,shopPetsGap=shopPetsGap,petsQuestsGap=petsQuestsGap,minTarget=minTarget})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"layout\"\\s*:\\s*\"UniformIconGridV1\"",
+        "\"declaredSize\"\\s*:\\s*\"87x111\"",
+        "\"declaredGap\"\\s*:\\s*3",
+        "\"sameSize\"\\s*:\\s*true",
+        "\"sameRenderedSize\"\\s*:\\s*true",
+        "\"sameTop\"\\s*:\\s*true",
+        "\"sameColumn\"\\s*:\\s*true",
+        "\"evenGaps\"\\s*:\\s*true",
+        "\"minTarget\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"
+      ],
+      "label": "right HUD actions share one uniform icon grid"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local h=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD local expected={InventoryButton={51,28,395,439,'72x80'},ShopButton={6,3,75,80,'75x80'},PetsButton={6,2,76,76,'76x76'},QuestsButton={8,2,72,71,'76x75'}} local allAspectSafe,allCropped,allHidden,allSources,allFrames=true,true,true,true,true local firstFrameSize,firstFramePosition,firstStroke for name,crop in pairs(expected) do local button=h:FindFirstChild(name) local frame=button and button:FindFirstChild('RightMenuOpticalFrame') local art=frame and frame:FindFirstChild('RightMenuArt') local stroke=frame and frame:FindFirstChild('UniformBorder') allAspectSafe=allAspectSafe and art~=nil and art:IsA('ImageLabel') and art.ScaleType==Enum.ScaleType.Stretch and art:GetAttribute('PreserveAspectRatio')==true and art:GetAttribute('AspectSafeCrop')==true allCropped=allCropped and art~=nil and art.ImageRectOffset==Vector2.new(crop[1],crop[2]) and art.ImageRectSize==Vector2.new(crop[3],crop[4]) and button:GetAttribute('ArtDisplaySize')==crop[5] allHidden=allHidden and button~=nil and button.ImageTransparency==1 and button:GetAttribute('ArtPresentation')=='AspectSafeCropWithUniformFrameV2' allSources=allSources and art~=nil and button~=nil and art.Image==button.Image and art.Image~='' allFrames=allFrames and frame~=nil and frame:GetAttribute('OpticalBox')=='81x86@3,0' and stroke~=nil if frame then firstFrameSize=firstFrameSize or frame.Size firstFramePosition=firstFramePosition or frame.Position firstStroke=firstStroke or stroke.Thickness allFrames=allFrames and frame.Size==firstFrameSize and frame.Position==firstFramePosition and stroke.Thickness==firstStroke end end local ok=h:GetAttribute('RightMenuArtMode')=='AspectSafeCropWithUniformFrameV2' and h:GetAttribute('RightMenuOpticalBox')=='81x86@3,0' and allAspectSafe and allCropped and allHidden and allSources and allFrames return H:JSONEncode({ok=ok,artMode=h:GetAttribute('RightMenuArtMode'),opticalBox=h:GetAttribute('RightMenuOpticalBox'),allAspectSafe=allAspectSafe,allCropped=allCropped,allHidden=allHidden,allSources=allSources,allFrames=allFrames})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"artMode\"\\s*:\\s*\"AspectSafeCropWithUniformFrameV2\"",
+        "\"opticalBox\"\\s*:\\s*\"81x86@3,0\"",
+        "\"allAspectSafe\"\\s*:\\s*true",
+        "\"allCropped\"\\s*:\\s*true",
+        "\"allHidden\"\\s*:\\s*true",
+        "\"allSources\"\\s*:\\s*true",
+        "\"allFrames\"\\s*:\\s*true"
+      ],
+      "label": "right HUD art uses equal optical bounds without stretching"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

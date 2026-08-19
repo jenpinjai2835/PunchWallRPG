@@ -1,31 +1,105 @@
 param(
-    [string]$PlacePath = "F:\Roblox\PuchWall\outputs\PunchWallRPGPlayable_v1_final.rbxlx",
-    [string]$SourceRoot = "F:\Roblox\PuchWall\work\punch-wall-rpg\src"
+    [string]$PlacePath = "",
+    [string]$SourceRoot = "",
+    [switch]$AllowCanonicalFinalWrite
 )
 
 $ErrorActionPreference = "Stop"
 
+$repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
+if ([string]::IsNullOrWhiteSpace($PlacePath)) {
+    $PlacePath = Join-Path $repositoryRoot "outputs\PunchWallRPGPlayable_v1_final.rbxlx"
+}
+if ([string]::IsNullOrWhiteSpace($SourceRoot)) {
+    $SourceRoot = Join-Path $repositoryRoot "work\punch-wall-rpg\src"
+}
 $resolvedPlace = [System.IO.Path]::GetFullPath($PlacePath)
-$allowedRoot = [System.IO.Path]::GetFullPath("F:\Roblox\PuchWall")
-if (-not $resolvedPlace.StartsWith($allowedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-    throw "Place path must remain under $allowedRoot"
+$resolvedSourceRoot = [System.IO.Path]::GetFullPath($SourceRoot)
+$allowedPrefix = $repositoryRoot.TrimEnd("\") + "\"
+$canonicalFinal = [System.IO.Path]::GetFullPath(
+    (Join-Path $repositoryRoot "outputs\PunchWallRPGPlayable_v1_final.rbxlx")
+)
+if (-not $resolvedPlace.StartsWith($allowedPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Place path must remain under current worktree $repositoryRoot"
+}
+if ([System.IO.Path]::GetExtension($resolvedPlace) -ine ".rbxlx") {
+    throw "Place path must use the .rbxlx extension: $resolvedPlace"
+}
+if (
+    $resolvedPlace.Equals($canonicalFinal, [System.StringComparison]::OrdinalIgnoreCase) -and
+    -not $AllowCanonicalFinalWrite
+) {
+    throw "Refusing to overwrite the canonical final RBXLX without -AllowCanonicalFinalWrite"
+}
+$expectedSourceRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "work\punch-wall-rpg\src"))
+if (-not $resolvedSourceRoot.Equals($expectedSourceRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "SourceRoot must be the current worktree Rojo source: $expectedSourceRoot"
 }
 if (-not (Test-Path -LiteralPath $resolvedPlace -PathType Leaf)) {
     throw "Place file not found: $resolvedPlace"
 }
 
 $sources = [ordered]@{
-    GameConfig = [pscustomobject]@{ Path = Join-Path $SourceRoot "shared\GameConfig.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage" }
-    PolishConfig = [pscustomobject]@{ Path = Join-Path $SourceRoot "shared\PolishConfig.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage" }
-    ForestVisualBuilder = [pscustomobject]@{ Path = Join-Path $SourceRoot "shared\ForestVisualBuilder.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage" }
-    FistVisualBuilder = [pscustomobject]@{ Path = Join-Path $SourceRoot "shared\FistVisualBuilder.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage" }
-    PunchWallBootstrap = [pscustomobject]@{ Path = Join-Path $SourceRoot "server\PunchWallBootstrap.server.lua"; Class = "Script"; Parent = "ServerScriptService" }
-    PunchWallClient = [pscustomobject]@{ Path = Join-Path $SourceRoot "client\PunchWallClient.client.lua"; Class = "LocalScript"; Parent = "StarterPlayerScripts" }
+    GameConfig = [pscustomobject]@{ RelativePath = "shared\GameConfig.lua"; Path = Join-Path $resolvedSourceRoot "shared\GameConfig.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage"; ParentClass = "ReplicatedStorage"; Service = "ReplicatedStorage"; ServiceClass = "ReplicatedStorage" }
+    PolishConfig = [pscustomobject]@{ RelativePath = "shared\PolishConfig.lua"; Path = Join-Path $resolvedSourceRoot "shared\PolishConfig.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage"; ParentClass = "ReplicatedStorage"; Service = "ReplicatedStorage"; ServiceClass = "ReplicatedStorage" }
+    ForestVisualBuilder = [pscustomobject]@{ RelativePath = "shared\ForestVisualBuilder.lua"; Path = Join-Path $resolvedSourceRoot "shared\ForestVisualBuilder.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage"; ParentClass = "ReplicatedStorage"; Service = "ReplicatedStorage"; ServiceClass = "ReplicatedStorage" }
+    FistVisualBuilder = [pscustomobject]@{ RelativePath = "shared\FistVisualBuilder.lua"; Path = Join-Path $resolvedSourceRoot "shared\FistVisualBuilder.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage"; ParentClass = "ReplicatedStorage"; Service = "ReplicatedStorage"; ServiceClass = "ReplicatedStorage" }
+    InventoryViewModel = [pscustomobject]@{ RelativePath = "shared\InventoryViewModel.lua"; Path = Join-Path $resolvedSourceRoot "shared\InventoryViewModel.lua"; Class = "ModuleScript"; Parent = "ReplicatedStorage"; ParentClass = "ReplicatedStorage"; Service = "ReplicatedStorage"; ServiceClass = "ReplicatedStorage" }
+    ProfilePersistence = [pscustomobject]@{ RelativePath = "server\ProfilePersistence.lua"; Path = Join-Path $resolvedSourceRoot "server\ProfilePersistence.lua"; Class = "ModuleScript"; Parent = "ServerScriptService"; ParentClass = "ServerScriptService"; Service = "ServerScriptService"; ServiceClass = "ServerScriptService" }
+    PunchWallBootstrap = [pscustomobject]@{ RelativePath = "server\PunchWallBootstrap.server.lua"; Path = Join-Path $resolvedSourceRoot "server\PunchWallBootstrap.server.lua"; Class = "Script"; Parent = "ServerScriptService"; ParentClass = "ServerScriptService"; Service = "ServerScriptService"; ServiceClass = "ServerScriptService" }
+    InventoryUI = [pscustomobject]@{ RelativePath = "client\InventoryUI.lua"; Path = Join-Path $resolvedSourceRoot "client\InventoryUI.lua"; Class = "ModuleScript"; Parent = "StarterPlayerScripts"; ParentClass = "StarterPlayerScripts"; Service = "StarterPlayer"; ServiceClass = "StarterPlayer" }
+    PunchWallClient = [pscustomobject]@{ RelativePath = "client\PunchWallClient.client.lua"; Path = Join-Path $resolvedSourceRoot "client\PunchWallClient.client.lua"; Class = "LocalScript"; Parent = "StarterPlayerScripts"; ParentClass = "StarterPlayerScripts"; Service = "StarterPlayer"; ServiceClass = "StarterPlayer" }
 }
 
-$script:document = [System.Xml.XmlDocument]::new()
-$script:document.PreserveWhitespace = $true
-$script:document.Load($resolvedPlace)
+function Read-SafeXmlDocument([string]$Path) {
+    $readerSettings = [System.Xml.XmlReaderSettings]::new()
+    $readerSettings.DtdProcessing = [System.Xml.DtdProcessing]::Prohibit
+    $readerSettings.XmlResolver = $null
+    $reader = [System.Xml.XmlReader]::Create($Path, $readerSettings)
+    try {
+        $document = [System.Xml.XmlDocument]::new()
+        $document.PreserveWhitespace = $true
+        $document.XmlResolver = $null
+        $document.Load($reader)
+        return $document
+    }
+    finally {
+        $reader.Dispose()
+    }
+}
+
+function Assert-ExactSourceMap {
+    $expectedPaths = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::OrdinalIgnoreCase
+    )
+    foreach ($definition in $sources.Values) {
+        $fullPath = [System.IO.Path]::GetFullPath($definition.Path)
+        if (-not $fullPath.StartsWith($resolvedSourceRoot.TrimEnd("\") + "\", [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Source mapping escaped current worktree source root: $fullPath"
+        }
+        if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+            throw "Source file not found: $fullPath"
+        }
+        if (-not $expectedPaths.Add($fullPath)) {
+            throw "Duplicate source mapping: $fullPath"
+        }
+    }
+    $actualPaths = @(
+        Get-ChildItem -LiteralPath $resolvedSourceRoot -Recurse -File -Filter "*.lua" |
+            ForEach-Object { [System.IO.Path]::GetFullPath($_.FullName) }
+    )
+    if ($actualPaths.Count -ne $expectedPaths.Count) {
+        throw "Source map must cover exactly $($expectedPaths.Count) Lua files; found $($actualPaths.Count)"
+    }
+    foreach ($actualPath in $actualPaths) {
+        if (-not $expectedPaths.Contains($actualPath)) {
+            throw "Unmapped production source file: $actualPath"
+        }
+    }
+}
+
+Assert-ExactSourceMap
+$script:document = Read-SafeXmlDocument $resolvedPlace
 
 function Get-ItemName([System.Xml.XmlElement]$Item) {
     $node = $Item.SelectSingleNode("Properties/string[@name='Name']")
@@ -39,6 +113,29 @@ function Find-Item([string]$Name, [string]$ClassName = "") {
         if ((Get-ItemName $item) -eq $Name) { return $item }
     }
     return $null
+}
+
+function Resolve-ExpectedParent(
+    [System.Xml.XmlDocument]$Document,
+    [pscustomobject]$Definition
+) {
+    $serviceMatches = @($Document.DocumentElement.SelectNodes(
+        "Item[@class='$($Definition.ServiceClass)'][Properties/string[@name='Name' and text()='$($Definition.Service)']]"
+    ))
+    if ($serviceMatches.Count -ne 1) {
+        throw "Expected exactly one root service $($Definition.ServiceClass) '$($Definition.Service)', found $($serviceMatches.Count)"
+    }
+    $service = $serviceMatches[0]
+    if ($Definition.Parent -eq $Definition.Service -and $Definition.ParentClass -eq $Definition.ServiceClass) {
+        return $service
+    }
+    $parentMatches = @($service.SelectNodes(
+        "Item[@class='$($Definition.ParentClass)'][Properties/string[@name='Name' and text()='$($Definition.Parent)']]"
+    ))
+    if ($parentMatches.Count -ne 1) {
+        throw "Expected exactly one $($Definition.ParentClass) '$($Definition.Parent)' directly under $($Definition.Service), found $($parentMatches.Count)"
+    }
+    return $parentMatches[0]
 }
 
 function New-RobloxId {
@@ -64,6 +161,21 @@ function Set-PropertyText([System.Xml.XmlElement]$Item, [string]$Name, [string]$
     }
     else {
         $node.InnerText = $Value
+    }
+}
+
+function Normalize-SourceText([string]$Value) {
+    return [regex]::Replace($Value, "\r\n?", "`n")
+}
+
+function Get-SourceTextHash([string]$Value) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes((Normalize-SourceText $Value))
+        return ([System.BitConverter]::ToString($sha.ComputeHash($bytes))).Replace("-", "")
+    }
+    finally {
+        $sha.Dispose()
     }
 }
 
@@ -120,15 +232,25 @@ function Clone-EmptyItem([System.Xml.XmlElement]$Template, [string]$Name) {
 }
 
 function Ensure-ScriptItem([string]$Name, [pscustomobject]$Definition) {
-    $item = Find-Item $Name $Definition.Class
+    $matches = @($script:document.SelectNodes(
+        "//Item[Properties/string[@name='Name' and text()='$Name']]"
+    ))
+    if ($matches.Count -gt 1) {
+        throw "Expected at most one Item named $Name before embedding, found $($matches.Count)"
+    }
+    if ($matches.Count -eq 1 -and $matches[0].GetAttribute("class") -ne $Definition.Class) {
+        throw "Existing Item named $Name has class '$($matches[0].GetAttribute("class"))', expected '$($Definition.Class)'"
+    }
+    $item = if ($matches.Count -eq 1) { $matches[0] } else { $null }
+    $parent = Resolve-ExpectedParent $script:document $Definition
     if ($null -eq $item) {
         $template = $script:document.SelectSingleNode("//Item[@class='$($Definition.Class)']")
         if ($null -eq $template) { throw "No $($Definition.Class) template in place" }
-        $parent = Find-Item $Definition.Parent
-        if ($null -eq $parent) { throw "Parent item not found: $($Definition.Parent)" }
         $item = Clone-EmptyItem $template $Name
         $scriptGuid = $item.SelectSingleNode("Properties/*[@name='ScriptGuid']")
         if ($null -ne $scriptGuid) { $scriptGuid.InnerText = "{$(([Guid]::NewGuid()).ToString().ToUpperInvariant())}" }
+    }
+    if (-not [object]::ReferenceEquals($item.ParentNode, $parent)) {
         [void]$parent.AppendChild($item)
     }
     return $item
@@ -173,8 +295,7 @@ function Add-SurfaceAppearance([System.Xml.XmlElement]$Part, [System.Xml.XmlElem
 }
 
 function Embed-VisualAssets {
-    $replicatedStorage = Find-Item "ReplicatedStorage" "ReplicatedStorage"
-    if ($null -eq $replicatedStorage) { throw "ReplicatedStorage item missing" }
+    $replicatedStorage = Resolve-ExpectedParent $script:document $sources["GameConfig"]
     $folderTemplate = $script:document.SelectSingleNode("//Item[@class='Folder']")
     $modelTemplate = $script:document.SelectSingleNode("//Item[@class='Model']")
     $meshPartTemplate = $script:document.SelectSingleNode("//Item[@class='MeshPart']")
@@ -280,8 +401,12 @@ if ($null -eq $assetService) { throw "AssetService item missing" }
 Set-PropertyText $assetService "AllowInsertFreeAssets" "true"
 
 $updated = @()
+$sourceFileHashes = [ordered]@{}
 foreach ($entry in $sources.GetEnumerator()) {
     $sourcePath = [System.IO.Path]::GetFullPath($entry.Value.Path)
+    if (-not $sourcePath.StartsWith($resolvedSourceRoot.TrimEnd("\") + "\", [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Source mapping escaped current worktree source root: $sourcePath"
+    }
     if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
         throw "Source file not found: $sourcePath"
     }
@@ -295,10 +420,11 @@ foreach ($entry in $sources.GetEnumerator()) {
     $sourceNode.SetAttribute("name", "Source")
     [void]$sourceNode.AppendChild($script:document.CreateCDataSection($sourceText))
     $updated += $entry.Key
+    $sourceFileHashes[$entry.Key] = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash
 }
 
 $visuals = Embed-VisualAssets
-$temporaryPath = "$resolvedPlace.codex-tmp"
+$temporaryPath = "$resolvedPlace.codex-$([Guid]::NewGuid().ToString('N')).tmp.rbxlx"
 $settings = [System.Xml.XmlWriterSettings]::new()
 $settings.Encoding = [System.Text.UTF8Encoding]::new($false)
 $settings.Indent = $false
@@ -311,14 +437,60 @@ finally {
     $writer.Dispose()
 }
 
-$validation = [System.Xml.XmlDocument]::new()
-$validation.Load($temporaryPath)
-Move-Item -LiteralPath $temporaryPath -Destination $resolvedPlace -Force
+$exactSources = [ordered]@{}
+try {
+    $validation = Read-SafeXmlDocument $temporaryPath
+    foreach ($entry in $sources.GetEnumerator()) {
+        $name = $entry.Key
+        $className = $entry.Value.Class
+        $matches = @($validation.SelectNodes("//Item[Properties/string[@name='Name' and text()='$name']]"))
+        if ($matches.Count -ne 1) {
+            throw "Expected exactly one embedded Item named $name, found $($matches.Count)"
+        }
+        if ($matches[0].GetAttribute("class") -ne $className) {
+            throw "Embedded class validation failed for $name"
+        }
+        $expectedParent = Resolve-ExpectedParent $validation $entry.Value
+        if (-not [object]::ReferenceEquals($matches[0].ParentNode, $expectedParent)) {
+            $parentNameNode = $matches[0].ParentNode.SelectSingleNode("Properties/string[@name='Name']")
+            $parentName = if ($null -eq $parentNameNode) { "" } else { $parentNameNode.InnerText }
+            throw "Embedded parent validation failed for $name`: expected exact $($entry.Value.Service)/$($entry.Value.Parent) service path, found '$parentName' ($($matches[0].ParentNode.GetAttribute('class')))"
+        }
+        $sourceNode = $matches[0].SelectSingleNode("Properties/ProtectedString[@name='Source']")
+        if ($null -eq $sourceNode) {
+            throw "Embedded Source property missing for $name"
+        }
+        if (
+            $sourceNode.ChildNodes.Count -ne 1 -or
+            $sourceNode.FirstChild.NodeType -ne [System.Xml.XmlNodeType]::CDATA
+        ) {
+            throw "Embedded Source must remain one CDATA node for $name"
+        }
+        $expectedSource = Normalize-SourceText ([System.IO.File]::ReadAllText([System.IO.Path]::GetFullPath($entry.Value.Path)))
+        $embeddedSource = Normalize-SourceText $sourceNode.InnerText
+        if (-not $embeddedSource.Equals($expectedSource, [System.StringComparison]::Ordinal)) {
+            throw "Exact source validation failed for $name"
+        }
+        $exactSources[$name] = Get-SourceTextHash $expectedSource
+    }
+    Move-Item -LiteralPath $temporaryPath -Destination $resolvedPlace -Force
+}
+finally {
+    if (Test-Path -LiteralPath $temporaryPath -PathType Leaf) {
+        Remove-Item -LiteralPath $temporaryPath -Force
+    }
+}
 
 [pscustomobject]@{
     ok = $true
+    repositoryRoot = $repositoryRoot
     place = $resolvedPlace
     updated = $updated
+    sourceMapVersion = 1
+    sourceMapCount = $sources.Count
+    exactSources = $exactSources
+    sourceFileSha256 = $sourceFileHashes
+    cdataPreserved = $true
     visualAssets = $visuals
     bytes = (Get-Item -LiteralPath $resolvedPlace).Length
 } | ConvertTo-Json -Depth 4

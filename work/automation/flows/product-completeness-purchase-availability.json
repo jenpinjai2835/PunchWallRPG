@@ -1,0 +1,62 @@
+{
+  "name": "product-completeness-purchase-availability",
+  "description": "Verifies truthful zero-ID premium-fist rejection while configured premium-companion and all eight Developer Product controls remain live-price aware, wired, unique, and server authoritative.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 14000, "label": "allow bounded bootstrap and regional-price lookup" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "serverAvailability",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local root=workspace:WaitForChild('PunchWallRPG') local command=game.ServerStorage:WaitForChild('PunchWallAutomation') command:Invoke('Reset') assert(cfg.StudioTestGrantPremium==false,'Studio purchase bypass must stay disabled') local unique={} local configuredPets,configuredProducts,honorProducts,zeroFists,worldStands=0,0,0,0,0 for _,item in ipairs(cfg.PremiumFists) do if (tonumber(item.gamePassId) or 0)==0 then zeroFists+=1 end end for _,item in ipairs(cfg.PremiumPets) do local id=tonumber(item.gamePassId) or 0 assert(id>0 and not unique[id],'premium pet ID missing or duplicated') unique[id]=true configuredPets+=1 local stand=root:FindFirstChild(item.name..' Premium Pet Stand',true) assert(stand and stand:GetAttribute('PurchaseConfigured')==true and stand:GetAttribute('PurchaseUnavailable')==false,'premium pet world stand unavailable') worldStands+=1 end local expectedHonor={HonorPouch25=3708804891,HonorCache90=3708804911,HonorVault300=3708804933,HonorTreasury850=3708804944} for _,item in ipairs(cfg.PremiumProducts) do local id=tonumber(item.productId) or 0 assert(id>0 and id%1==0 and not unique[id],'Developer Product ID missing or duplicated') unique[id]=true configuredProducts+=1 if item.shopPage=='Honor' then assert(id==expectedHonor[item.id] and item.worldOffer==false and (tonumber(item.honor) or 0)>0,'Honor product mapping is not exact') honorProducts+=1 else assert(item.worldOffer==true,'configured world product must retain its physical offer') end end local clean=command:Invoke('Snapshot') local cleanState=clean.OwnedPremiumFistsJSON=='[]' and clean.OwnedPremiumPetsJSON=='[]' and clean.PetInventoryJSON=='[]' and clean.Coins==0 and clean.SpinCredits==0 and clean.Honor==0 assert(cleanState,'purchase baseline is not clean') return H:JSONEncode({ok=zeroFists==3 and configuredPets==3 and configuredProducts==8 and honorProducts==4 and worldStands==3 and cleanState,zeroFists=zeroFists,configuredPets=configuredPets,configuredProducts=configuredProducts,honorProducts=honorProducts,worldStands=worldStands,cleanState=cleanState})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"zeroFists\"\\s*:\\s*3", "\"configuredPets\"\\s*:\\s*3", "\"configuredProducts\"\\s*:\\s*8", "\"honorProducts\"\\s*:\\s*4", "\"worldStands\"\\s*:\\s*3"],
+      "label": "catalog IDs and world purchase availability are truthful"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "clientAvailability",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local a=gui:WaitForChild('PunchWallClientAutomation') a:Invoke('OpenTab','Fists') a:Invoke('OpenShopPage','Premium') local deadline=os.clock()+7 local ready=false repeat task.wait(.1) local shop=gui.GameMenu.FunctionalHeroShop ready=true for _,pet in ipairs(cfg.PremiumPets) do local card=shop:FindFirstChild(pet.name..'ShopCard') local action=card and card:FindFirstChild(pet.name..'Action',true) if not (card and action and card:GetAttribute('PremiumPetPreviewReady')==true and action:GetAttribute('RegionalPriceResolved')==true) then ready=false end end until ready or os.clock()>=deadline local shop=gui.GameMenu.FunctionalHeroShop local premiumOk,callbackOk,priceOk=true,true,true for _,pet in ipairs(cfg.PremiumPets) do local card=shop:FindFirstChild(pet.name..'ShopCard') local action=card and card:FindFirstChild(pet.name..'Action',true) premiumOk=premiumOk and card~=nil and action~=nil and action.Active and action.Selectable and action.AutoButtonColor and action:GetAttribute('PurchaseConfigured')==true and action:GetAttribute('PurchaseUnavailable')==false and action:GetAttribute('GamePassId')==pet.gamePassId and card:GetAttribute('PremiumPetPreviewReady')==true callbackOk=callbackOk and action:GetAttribute('ShopActionBound')==true priceOk=priceOk and action:GetAttribute('RegionalPriceResolved')==true and (tonumber(action:GetAttribute('DisplayedRobuxPrice')) or 0)>0 end local function validatePage(pageName) assert(a:Invoke('OpenShopPage',pageName)==true) local products={} for _,product in ipairs(cfg.PremiumProducts) do if (product.shopPage or 'Robux')==pageName then products[#products+1]=product end end local pageDeadline=os.clock()+8 local allResolved=false repeat task.wait(.1) allResolved=true for _,product in ipairs(products) do local card=shop:FindFirstChild(product.id..'ShopCard',true) allResolved=allResolved and card~=nil and card:GetAttribute('RegionalPriceResolved')==true end until allResolved or os.clock()>=pageDeadline local ok=allResolved for _,product in ipairs(products) do local card=shop:FindFirstChild(product.id..'ShopCard',true) local action=card and card:FindFirstChild(product.id..'Action',true) local lookup,info=pcall(function() return M:GetProductInfoAsync(product.productId,Enum.InfoType.Product) end) local live=lookup and tonumber(info.PriceInRobux) or 0 ok=ok and lookup and info.Name==product.displayName and info.IsForSale==true and card and action and card:GetAttribute('ProductId')==product.productId and card:GetAttribute('PurchaseConfigured')==true and card:GetAttribute('PurchaseUnavailable')==false and card:GetAttribute('DisplayedRobuxPrice')==live and action:GetAttribute('DisplayedRobuxPrice')==live and action.Active and action.Selectable and action:GetAttribute('ShopActionBound')==true and action.Text=='BUY' end return ok,#products end local productOk,productCount=validatePage('Robux') local honorOk,honorCount=validatePage('Honor') a:Invoke('OpenTab','Pets') task.wait(.3) local petMenuOk=true for _,pet in ipairs(cfg.PremiumPets) do local action=gui.GameMenu.Content:FindFirstChild(pet.name..'PremiumPet',true) petMenuOk=petMenuOk and action~=nil and action.Active and action.Selectable and action:GetAttribute('PurchaseConfigured')==true end return H:JSONEncode({ok=premiumOk and callbackOk and priceOk and productOk and productCount==4 and honorOk and honorCount==4 and petMenuOk,premiumOk=premiumOk,callbackOk=callbackOk,priceOk=priceOk,productOk=productOk,productCount=productCount,honorOk=honorOk,honorCount=honorCount,petMenuOk=petMenuOk})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"premiumOk\"\\s*:\\s*true", "\"callbackOk\"\\s*:\\s*true", "\"priceOk\"\\s*:\\s*true", "\"productOk\"\\s*:\\s*true", "\"productCount\"\\s*:\\s*4", "\"honorOk\"\\s*:\\s*true", "\"honorCount\"\\s*:\\s*4", "\"petMenuOk\"\\s*:\\s*true"],
+      "label": "premium and Robux controls are configured, priced, and wired"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "realProductPathRejections",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local player=game.Players.LocalPlayer local gui=player.PlayerGui.PunchWallHUD local feedback=game.ReplicatedStorage.PunchWallEvents.Feedback local fist=cfg.PremiumFists[1] local observed={} local connection=feedback.OnClientEvent:Connect(function(payload) if typeof(payload)=='table' then table.insert(observed,payload) end end) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='BuyPremiumFist',target=fist.name}) local deadline=os.clock()+2 repeat task.wait(.03) until #observed>0 or os.clock()>=deadline connection:Disconnect() local event=observed[1] local ok=#observed==1 and event.type=='PremiumSetup' and event.target==fist.displayName and event.message=='PURCHASE UNAVAILABLE | PASS ID NOT CONFIGURED' return H:JSONEncode({ok=ok,eventCount=#observed,type=event and event.type or '',fistId=fist.gamePassId})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"eventCount\"\\s*:\\s*1", "\"type\"\\s*:\\s*\"PremiumSetup\"", "\"fistId\"\\s*:\\s*0"],
+      "label": "zero-ID fist request fails closed with one clear message"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "postRejectionSnapshot",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local snapshot=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local clean=snapshot.OwnedPremiumFistsJSON=='[]' and snapshot.OwnedPremiumPetsJSON=='[]' and snapshot.PetInventoryJSON=='[]' and snapshot.Coins==0 and snapshot.SpinCredits==0 assert(clean,'rejected purchase mutated state') return H:JSONEncode({ok=clean,coins=snapshot.Coins,spins=snapshot.SpinCredits})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"coins\"\\s*:\\s*0", "\"spins\"\\s*:\\s*0"],
+      "label": "rejected request causes no authoritative mutation"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

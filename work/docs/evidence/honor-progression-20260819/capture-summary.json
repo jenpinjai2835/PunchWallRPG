@@ -1,0 +1,185 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_desktop_honor_locked",
+      "device": {
+        "name": "PunchWallHonorDesktop1366",
+        "width": 1366,
+        "height": 768,
+        "form": "Desktop"
+      },
+      "state": "{\"tab\":\"Honor\",\"text\":\"LOCKED\",\"viewport\":null,\"state\":\"Locked\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\01_desktop_honor_locked.jpg",
+      "sha256": "6d9fe2fe96ed658d039189deed7068ee91f260c05c6e3403e4ac24f29ad2ab52"
+    },
+    {
+      "id": "02_phone_844_honor_catalog",
+      "device": {
+        "name": "PunchWallHonorPhone844",
+        "width": 844,
+        "height": 390,
+        "form": "Phone"
+      },
+      "state": "{\"tab\":\"Honor\",\"text\":\"UNLOCK 20\",\"viewport\":null,\"state\":\"Affordable\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\02_phone_844_honor_catalog.jpg",
+      "sha256": "3bd9c5ba69120d784732d11fd7ed902c1b32b32fe0de737269d93f0e7140834f"
+    },
+    {
+      "id": "03_phone_740_honor_equipped",
+      "device": {
+        "name": "PunchWallHonorPhone740",
+        "width": 740,
+        "height": 360,
+        "form": "Phone"
+      },
+      "state": "{\"tab\":\"Honor\",\"text\":\"EQUIPPED\",\"viewport\":null,\"state\":\"Equipped\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\03_phone_740_honor_equipped.jpg",
+      "sha256": "1517f78d800e825481188e8e1b5af3190be23f887db18b98eb0bfff77662a9b1"
+    },
+    {
+      "id": "04_desktop_honor_world",
+      "device": {
+        "name": "PunchWallHonorWorld1366",
+        "width": 1366,
+        "height": 768,
+        "form": "Desktop"
+      },
+      "state": "{\"orbit\":\"reachable-third-person\",\"camera\":\"Enum.CameraType.Custom\",\"menu\":false,\"viewport\":null,\"zoom\":18,\"subject\":true,\"world\":\"HonorPlaza\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\04_desktop_honor_world.jpg",
+      "sha256": "e4f88923212845019eb9e7f8fd14812ecb299a20aa62d4fea7ffa0c9ed86b84e"
+    },
+    {
+      "id": "05_phone_740_honor_bottom_selected",
+      "device": {
+        "name": "PunchWallHonorPhone740Bottom",
+        "width": 740,
+        "height": 360,
+        "form": "Phone"
+      },
+      "state": "{\"tab\":\"Honor\",\"item\":\"eternal_crown_of_honor\",\"viewport\":null,\"min\":44,\"canvas\":554,\"state\":\"Affordable\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\05_phone_740_honor_bottom_selected.jpg",
+      "sha256": "9b68736c7e99eb81f5305617b224fb1e1b21dbd8aa0386df126082debed68e74"
+    },
+    {
+      "id": "06_phone_844_honor_world",
+      "device": {
+        "name": "PunchWallHonorWorld844",
+        "width": 844,
+        "height": 390,
+        "form": "Phone"
+      },
+      "state": "{\"orbit\":\"reachable-third-person\",\"camera\":\"Enum.CameraType.Custom\",\"menu\":false,\"viewport\":null,\"zoom\":18,\"subject\":true,\"world\":\"HonorPlaza\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\06_phone_844_honor_world.jpg",
+      "sha256": "d039ef7962e684c9c73d623e72fc9b22271e9ad241e765359bbf3688f884c35d"
+    },
+    {
+      "id": "07_phone_740_honor_world",
+      "device": {
+        "name": "PunchWallHonorWorld740",
+        "width": 740,
+        "height": 360,
+        "form": "Phone"
+      },
+      "state": "{\"orbit\":\"reachable-third-person\",\"camera\":\"Enum.CameraType.Custom\",\"menu\":false,\"viewport\":null,\"zoom\":18,\"subject\":true,\"world\":\"HonorPlaza\"}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\07_phone_740_honor_world.jpg",
+      "sha256": "31a71d03cbc934ea762f183d64ba79a0ae80aaa69669ed6eb5d69d6984afb788"
+    }
+  ],
+  "runs": [
+    {
+      "id": "01_desktop_honor_locked",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "02_phone_844_honor_catalog",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "03_phone_740_honor_equipped",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "04_desktop_honor_world",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "05_phone_740_honor_bottom_selected",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "06_phone_844_honor_world",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "07_phone_740_honor_world",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "9a0201ca2bd0d90d795c17ee331d03f634aed6dc05d6e41c8f0afc9420cd860d",
+    "work/punch-wall-rpg/src/shared/InventoryViewModel.lua": "3da15fef17b62951cff9805d807ee810376803e40a22ef0a843a8e1c6fb50d18",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "faf38b9417befb2836e3226b0227f3ae2f6b00bf94fd34b592501abf5acb3508",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "a0e18e3766373d0689a686b38f8ec0d90ec118780dfa1be028392acaf36f0d10",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "63494112dda502297cbe9afddf6f95a63807f16131f1decf57d73398e1ee0b45",
+    "work/automation/flows/honor-progression.json": "68ceb817745c6cb4f376a6199963662bc0d3df143793ada7d04efdbde296926f",
+    "work/automation/scripts/honor-progression-contract.mjs": "e3773001d9f66e060235eeb60a16b5724b61b8ae93b8277f9fe04845f339a87b",
+    "work/automation/scripts/capture-honor-progression.mjs": "79a5c14cd8cf2dd964087b8cdc15b32902e5f13e75fa29638466b7b235faf8dc"
+  },
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "PunchWallClient": {
+      "adler32": 1795406728,
+      "length": 451902,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "matchesLocal": true
+    },
+    "GameConfig": {
+      "adler32": 2868148995,
+      "length": 36001,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "matchesLocal": true
+    },
+    "ProfilePersistence": {
+      "adler32": 1069135778,
+      "length": 66881,
+      "file": "work/punch-wall-rpg/src/server/ProfilePersistence.lua",
+      "matchesLocal": true
+    },
+    "PunchWallBootstrap": {
+      "adler32": 1550414046,
+      "length": 403035,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "matchesLocal": true
+    },
+    "InventoryViewModel": {
+      "adler32": 2308025984,
+      "length": 27722,
+      "file": "work/punch-wall-rpg/src/shared/InventoryViewModel.lua",
+      "matchesLocal": true
+    }
+  },
+  "console": {
+    "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-progression-20260819\\console.txt",
+    "clean": true
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 7
+  }
+}
