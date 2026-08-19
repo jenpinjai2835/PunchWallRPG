@@ -1,5 +1,5 @@
 {
-  "status": "published-v11-cancel-pass-paid-purchase-blocked-insufficient-robux",
+  "status": "published-v11-public-paid-purchase-uat-waived",
   "releaseVersion": "1.0.0",
   "sourceBranch": "develop",
   "sourceCommit": "65886940245772b7f336846f6da2a007f2d1d40f",
@@ -25,9 +25,18 @@
     "profileLoadKick": false
   },
   "access": {
-    "mode": "Limited",
-    "testers": true,
-    "friends": true
+    "mode": "Public",
+    "publicSavedAtUtc": "2026-08-19T16:14:54.5250772Z",
+    "creatorDashboardSaveVerified": true,
+    "anonymousGamesApiStatus": 200,
+    "anonymousApiIsContentRestricted": false,
+    "canonicalUrl": "https://www.roblox.com/games/125255969070601/Smash-Wall",
+    "publishingAccess": "All Ages",
+    "contentMaturity": "Minimal",
+    "highlyEngagedPlayers": 0,
+    "highlyEngagedPlayersRequired": 250,
+    "recommendationEligibility": "Not Eligible",
+    "nextPublicationAccessWarningObserved": true
   },
   "liveJoin": {
     "status": "pass",
@@ -36,7 +45,7 @@
     "kickCount": 0
   },
   "commerceUat": {
-    "status": "cancel-pass-paid-purchase-blocked-insufficient-robux",
+    "status": "cancel-pass-paid-purchase-uat-waived",
     "product": "Honor Pouch",
     "honorAmount": 25,
     "livePriceRobux": 25,
@@ -48,6 +57,7 @@
       "priceThb": 200
     },
     "paidPurchasePerformed": false,
+    "paidPurchaseWaivedByUser": true,
     "cancelNoChargeVerified": true,
     "honorBefore": 0,
     "honorAfterCancel": 0,

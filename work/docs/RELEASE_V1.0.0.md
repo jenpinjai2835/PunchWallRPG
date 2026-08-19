@@ -60,6 +60,13 @@ are byte-identical.
   product and regional price of 25 Robux. Cancel PASS: Honor remained 0, the
   account balance remained 18 Robux, and all four BUY actions returned to the
   ready state without a receipt grant.
+- Public release PASS: Creator Dashboard saved audience `Public`. An anonymous
+  Roblox Games API request returned HTTP 200 for universe `10490793155`, root
+  place `125255969070601`, canonical path `/games/125255969070601/Smash-Wall`,
+  and `isContentRestricted=false`.
+- Audience Reach reports publishing access `All Ages` and content maturity
+  `Minimal`. Recommendation eligibility is not yet available because highly
+  engaged players are 0/250; no optional expedited-review fee was paid.
 
 ## Build command
 
@@ -70,9 +77,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File work/automation/package-vers
 
 ## Remaining release gates
 
-- Published private/UAT paid receipt delivery remains blocked because the test
-  account has 18 Robux while the lowest pack costs 25 Robux. Roblox offered a
-  500 Robux top-up for THB 200; do not confirm that charge without explicit
-  action-time user approval. After sufficient balance exists, verify the exact
-  +25 Honor grant, receipt replay safety, and leave/rejoin persistence.
+- Paid receipt/rejoin UAT was explicitly waived by the user. No real charge was
+  made. The verified cancel path remains the accepted commerce gate for this
+  release; exact +25 Honor paid delivery and receipt rejoin persistence remain
+  untested residual risks.
+- Roblox reports the publishing level is at risk for a future publication and
+  the experience is not yet recommendation-eligible (0/250 highly engaged
+  players). Recheck Audience Reach before the next publish.
 - Live Game Pass ownership and physical controller coverage remain manual gates.

@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "verifiedAtUtc": "2026-08-19T16:14:54.5250772Z",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "audience": "Public",
+  "creatorDashboard": {
+    "publicSelected": true,
+    "limitedSelected": false,
+    "saveCompleted": true,
+    "saveFeedback": "บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว"
+  },
+  "anonymousGamesApi": {
+    "url": "https://games.roblox.com/v1/games?universeIds=10490793155",
+    "status": 200,
+    "name": "Smash Wall",
+    "rootPlaceId": 125255969070601,
+    "canonicalUrlPath": "/games/125255969070601/Smash-Wall",
+    "isContentRestricted": false,
+    "maxPlayers": 50,
+    "playingAtVerification": 1,
+    "visitsAtVerification": 2
+  },
+  "audienceReach": {
+    "publishingAccess": "All Ages",
+    "contentMaturity": "Minimal",
+    "highlyEngagedPlayers": 0,
+    "highlyEngagedPlayersRequired": 250,
+    "recommendationEligibility": "Not Eligible",
+    "nextPublicationAccessWarningObserved": true,
+    "expeditedReviewFeeNotPaid": true
+  },
+  "paidCommerceUat": {
+    "waivedByUser": true,
+    "paidPurchasePerformed": false,
+    "cancelNoChargeVerified": true
+  }
+}
