@@ -11,6 +11,7 @@ const profile = read("punch-wall-rpg/src/server/ProfilePersistence.lua");
 const server = read("punch-wall-rpg/src/server/PunchWallBootstrap.server.lua");
 const client = read("punch-wall-rpg/src/client/PunchWallClient.client.lua");
 const inventory = read("punch-wall-rpg/src/shared/InventoryViewModel.lua");
+const inventoryUi = read("punch-wall-rpg/src/client/InventoryUI.lua");
 const flowText = read("automation/flows/honor-progression.json");
 const flow = JSON.parse(flowText);
 
@@ -160,31 +161,35 @@ check(
     && client.includes('openGameTab("Honor")')
     && server.includes('selected = item.id')
     && server.includes('type = "OpenMenu", target = "Honor"')
-    && client.includes("shared.PunchWallSelectedHonorItemId = tostring(payload.selected)")
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionContractVersion", "HonorInventoryWorldSelectionV1")')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectedId"')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorCatalogCount"')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorVisibleCount"')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorCanvasY"')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionInView"')
-    && inventory.includes('self.Root:SetAttribute("InventoryHonorSelectionFocused"')
-    && inventory.includes('card:SetAttribute("InventoryWorldSelection"')
+    && client.includes("local definition = GameConfig.HonorItemDefinition(tostring(payload.selected))")
+    && client.includes('local selectedId = definition and tostring(definition.id) or ""')
+    && client.includes('shared.PunchWallSelectedHonorItemId = selectedId')
+    && client.includes('gui:SetAttribute("RequestedHonorItemId", selectedId)')
+    && client.includes('shared.PunchWallOpenInventoryHonorItem(selectedId, "world_relic")')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorSelectionContractVersion", "HonorInventoryWorldSelectionV1")')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorSelectedId"')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorCatalogCount"')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorVisibleCount"')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorCanvasY"')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorSelectionInView"')
+    && inventoryUi.includes('self.Root:SetAttribute("InventoryHonorSelectionFocused"')
+    && inventoryUi.includes('card:SetAttribute("InventoryWorldSelection"')
     && !block(server, "detector.MouseClick:Connect(function(player)", "shared.PunchWallBuildHonorPlaza = nil").includes("shared.PunchWallBuyHonorItem(player, item)"),
   "Honor HUD and world stands must preview the exact relic through canonical UI; only explicit UI unlock may spend.",
 );
 check(
   "inventory_uses_stable_honor_ids",
-  inventory.includes("owned[definition.id] or owned[definition.name]")
+  inventory.includes("owned[definition.id] == true or owned[definition.name] == true")
     && inventory.includes('key = "honor:" .. definition.id')
     && inventory.includes('target = definition.id')
-    && inventory.includes('card:SetAttribute("HonorItemId"')
-    && inventory.includes('card:SetAttribute("HonorState"')
-    && inventory.includes('card:SetAttribute("HonorOwned"')
-    && inventory.includes('card:SetAttribute("HonorUnlocked"')
-    && inventory.includes('card:SetAttribute("HonorAffordable"')
-    && inventory.includes('card:SetAttribute("HonorEquipped"')
-    && inventory.includes('card:SetAttribute("HonorCost"')
-    && inventory.includes('card:SetAttribute("HonorMissing"'),
+    && inventoryUi.includes('card:SetAttribute("HonorItemId"')
+    && inventoryUi.includes('card:SetAttribute("HonorState"')
+    && inventoryUi.includes('card:SetAttribute("HonorOwned"')
+    && inventoryUi.includes('card:SetAttribute("HonorUnlocked"')
+    && inventoryUi.includes('card:SetAttribute("HonorAffordable"')
+    && inventoryUi.includes('card:SetAttribute("HonorEquipped"')
+    && inventoryUi.includes('card:SetAttribute("HonorCost"')
+    && inventoryUi.includes('card:SetAttribute("HonorMissing"'),
   "Inventory ownership, action, and identity need stable ids with legacy migration compatibility.",
 );
 check(

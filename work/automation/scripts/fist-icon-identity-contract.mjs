@@ -58,13 +58,13 @@ check(
     && client.includes("icon.ImageColor3 = Color3.new(1, 1, 1)")
     && client.includes('icon:SetAttribute("HeroGauntletTintMatched", false)')
     && client.includes('icon:SetAttribute("LoadedArtUnobscured", icon.Image ~= "")')
-    && client.includes('motif.Name = "StaticCatalogMotif"'),
+    && client.includes('catalogMotif.Name = "StaticCatalogMotif"'),
   "Shop cards must keep loaded pixels unobscured and move unique motif, tier, and armor-family identity to perimeter chrome.",
 );
 check(
   "icon_identity_is_static_and_bounded",
   client.includes('card:SetAttribute("StaticPreviewRenderLoop", false)')
-    && client.includes("local tierPipCount = math.clamp(math.ceil(presentation.tier / 3), 1, 6)")
+    && client.includes("local tierPipCount = math.clamp(math.ceil(presentation.tier / 4), 1, 4)")
     && client.includes("for plateIndex = 1, presentation.plateCount do")
     && client.includes("for finIndex = 1, presentation.finCount do"),
   "The richer icon treatment must remain bounded and use no render loop.",
