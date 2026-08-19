@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "creator-store-pet-pack-visuals",
+      "selectedStudio": {
+        "id": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
+        "name": "SmashWall_v1.0.1.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "SmashWall_v1.0.1.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "eight extracted pack templates are exact safe and bounded",
+        "start play",
+        "wait for runtime templates and Inventory",
+        "runtime keeps all preloaded children and never loads the complete pack",
+        "all eight Inventory cards render the exact equipped-model source",
+        "capture eight model-matched Inventory previews",
+        "equip all three premium pack pets",
+        "wait for premium formation",
+        "premium companions keep exact pack identities and non-overlapping formation",
+        "capture premium pack companions",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}
