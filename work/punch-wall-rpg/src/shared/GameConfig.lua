@@ -1,6 +1,6 @@
 local GameConfig = {}
 
-GameConfig.DataVersion = 7
+GameConfig.DataVersion = 8
 GameConfig.MaxCritChance = 65
 GameConfig.MaxPetInventory = 150
 GameConfig.MaxEquippedPets = 3
@@ -534,15 +534,16 @@ function GameConfig.ContributionReward(baseReward, share)
 	return math.max(baseReward > 0 and 1 or 0, math.floor(baseReward * (0.5 + share * 0.5)))
 end
 
+-- New-player onboarding is deliberately short and action-led. Completion is
+-- persisted separately from the current step so future copy/layout revisions
+-- can never reopen the tutorial for a player who already finished it.
+GameConfig.TutorialVersion = 2
+GameConfig.TutorialCompleteStep = 4
 GameConfig.Tutorial = {
-	[1] = { title = "Train Power", detail = "Train at the Power Bag once", target = "Power Bag" },
-	[2] = { title = "Enter The Depth Run", detail = "Break a front block and walk through the hole", target = "Depth Course Entrance" },
-	[3] = { title = "Push Deeper", detail = "Break blocks to reach stronger material tiers", target = "Depth Course Entrance" },
-	[4] = { title = "Upgrade Your Fist", detail = "Buy the Street Boxing Fist at Hero HQ", target = "Boxing Glove Stand" },
-	[5] = { title = "Find A Sidekick", detail = "Break deeper blocks to discover a hidden pet egg", target = "Depth Course Entrance" },
-	[6] = { title = "Reach Titan HQ", detail = "Clear Depth 30 and damage the Titan", target = "Titan Server Wall" },
-	[7] = { title = "Rebirth", detail = "Reach Level 55 and activate the Evac Portal", target = "Rebirth Shrine" },
-	[8] = { title = "City Hero", detail = "Tutorial complete. Keep building your hero power.", target = "" },
+	[1] = { id = "PunchWall", title = "Punch The Wall", detail = "Follow the arrow and punch a front wall block", target = "Depth Course Entrance", icon = "Punch" },
+	[2] = { id = "OpenShop", title = "Open The Shop", detail = "Tap SHOP and find the Street Boxing Fist", target = "Boxing Glove Stand", icon = "Shop" },
+	[3] = { id = "BuyStarterFist", title = "Buy Your First Fist", detail = "Buy the Street Boxing Fist for 180 Coins", target = "Boxing Glove Stand", icon = "BoxingFist" },
+	[4] = { id = "Complete", title = "Ready To Smash", detail = "Tutorial complete", target = "", icon = "Success" },
 }
 
 GameConfig.Rewards = {

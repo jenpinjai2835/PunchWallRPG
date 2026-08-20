@@ -2633,8 +2633,11 @@ statRemote.OnClientEvent:Connect(function(payload)
 	if type(tutorial) == "table" then
 		tutorialObjectiveText = ("OBJECTIVE  |  %s\n%s"):format(tostring(tutorial.title or "Keep smashing"), tostring(tutorial.detail or ""))
 		help.Text = tutorialObjectiveText
+		local objectiveIcon = help:FindFirstChild("ObjectiveIcon")
+		if objectiveIcon then applyThemeIcon(objectiveIcon, tostring(tutorial.icon or "Quest")) end
 	end
-	objectiveProgressFill.Size = UDim2.fromScale(math.clamp((tonumber(payload.TutorialStep) or 1) / 5, 0.2, 1), 1)
+	objectiveProgressFill.Size = UDim2.fromScale(math.clamp(tonumber(payload.TutorialProgress) or 0, 0.05, 1), 1)
+	if shared.PunchWallRefreshActionBadges then shared.PunchWallRefreshActionBadges() end
 	refreshCharacterVisuals()
 	if shared.PunchWallSetTrainingAnimation then shared.PunchWallSetTrainingAnimation((payload.TrainingActive or 0) >= 1) end
 	renderOpenPanel()
@@ -4435,6 +4438,15 @@ openGameTab = function(tabName)
 		activeTab = tabName
 	end
 	setMenuVisible(true)
+	if tabName == "Fists"
+		and latestStats.TutorialCompleted ~= true
+		and tonumber(latestStats.TutorialCompleted or 0) < 1
+		and tonumber(latestStats.TutorialStep) == 2
+		and gui:GetAttribute("TutorialShopSignalStep") ~= 2
+	then
+		gui:SetAttribute("TutorialShopSignalStep", 2)
+		actionRemote:FireServer({ action = "TutorialShopOpened" })
+	end
 	if tabName == "Pets" and shared.PunchWallInventoryController then
 		shared.PunchWallInventoryController:SetCategory("Pets")
 	elseif tabName == "Honor" and shared.PunchWallInventoryController then
@@ -8811,13 +8823,13 @@ RunService.Heartbeat:Connect(function(delta)
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	local modalVisible = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
-	if not boss or not rootPart then bossHUD.Visible = false help.Visible = not modalVisible return end
+	if not boss or not rootPart then bossHUD.Visible = false help.Visible = latestStats.Tutorial ~= nil and not modalVisible return end
 	local hp = boss:GetAttribute("HP") or 0
 	local maxHP = math.max(1, boss:GetAttribute("MaxHP") or 1)
 	local broken = boss:GetAttribute("Broken") == true
 	local nearby = (boss.Position - rootPart.Position).Magnitude <= 55
 	bossHUD.Visible = (broken or nearby or hp < maxHP) and not targetHUD.Visible and not modalVisible
-	help.Visible = not modalVisible
+	help.Visible = latestStats.Tutorial ~= nil and not modalVisible
 	if not bossHUD.Visible then return end
 	local phase = boss:GetAttribute("BossPhase") or 1
 	bossTitle.Text = UserInputService.TouchEnabled and ("TITAN P%d  |  WEAK x1.5"):format(phase)
@@ -9264,6 +9276,136 @@ applyRightMenuOpticalArt(referenceShop, Vector2.new(6, 3), Vector2.new(75, 80), 
 applyRightMenuOpticalArt(referencePets, Vector2.new(6, 2), Vector2.new(76, 76), Vector2.new(76, 76))
 applyRightMenuOpticalArt(referenceQuests, Vector2.new(8, 2), Vector2.new(72, 71), Vector2.new(76, 75))
 
+do
+local actionBadges = {}
+local function attachActionBadge(button, badgeName)
+	local badge = Instance.new("Frame")
+	badge.Name = badgeName .. "NotificationDot"
+	badge.AnchorPoint = Vector2.new(0.5, 0.5)
+	badge.Position = UDim2.new(1, -5, 0, 5)
+	badge.Size = UDim2.fromOffset(18, 18)
+	badge.BackgroundColor3 = Color3.fromRGB(239, 42, 48)
+	badge.BorderSizePixel = 0
+	badge.Visible = false
+	badge.Active = false
+	badge.Selectable = false
+	badge.ZIndex = button.ZIndex + 30
+	badge.Parent = button
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = badge
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Thickness = 2
+	stroke.Parent = badge
+	local glint = Instance.new("Frame")
+	glint.Name = "Glint"
+	glint.Position = UDim2.fromScale(0.22, 0.18)
+	glint.Size = UDim2.fromScale(0.28, 0.28)
+	glint.BackgroundColor3 = Color3.fromRGB(255, 185, 185)
+	glint.BorderSizePixel = 0
+	glint.ZIndex = badge.ZIndex + 1
+	glint.Parent = badge
+	local glintCorner = Instance.new("UICorner")
+	glintCorner.CornerRadius = UDim.new(1, 0)
+	glintCorner.Parent = glint
+	button:SetAttribute("NotificationBadgeVersion", "ActionableDotV1")
+	button:SetAttribute("NotificationActionCount", 0)
+	button:SetAttribute("NotificationBadgeVisible", false)
+	actionBadges[badgeName] = { button = button, dot = badge }
+	return badge
+end
+
+attachActionBadge(referencePets, "Pets")
+attachActionBadge(referenceShop, "Shop")
+attachActionBadge(referenceSpin, "Spin")
+attachActionBadge(referenceDaily, "Daily")
+attachActionBadge(referenceQuests, "Quests")
+
+local function setActionBadge(name, count, reason)
+	local entry = actionBadges[name]
+	if not entry then return end
+	count = math.max(0, math.floor(tonumber(count) or 0))
+	entry.dot.Visible = count > 0
+	entry.button:SetAttribute("NotificationActionCount", count)
+	entry.button:SetAttribute("NotificationBadgeVisible", count > 0)
+	entry.button:SetAttribute("NotificationReason", count > 0 and tostring(reason or "ActionAvailable") or "None")
+end
+
+shared.PunchWallRefreshActionBadges = function()
+	if type(latestStats) ~= "table" or latestStats.Power == nil then
+		for name in pairs(actionBadges) do setActionBadge(name, 0, "StatsLoading") end
+		return
+	end
+
+	local petFuseTokens = {}
+	local lockedPets = {}
+	for _, lockToken in ipairs(decodeJSON(latestStats.LockedPetsJSON, {})) do
+		lockedPets[tostring(lockToken)] = true
+	end
+	local unlockedPetCounts = {}
+	for slotIndex, savedToken in ipairs(decodeJSON(latestStats.PetInventoryJSON, {})) do
+		local token = tostring(savedToken)
+		if not lockedPets[token] and not lockedPets["slot:" .. tostring(slotIndex)] then
+			unlockedPetCounts[token] = (unlockedPetCounts[token] or 0) + 1
+		end
+	end
+	for token, count in pairs(unlockedPetCounts) do
+		local petName, stars = GameConfig.ParsePetToken(token)
+		local required = stars < GameConfig.MaxPetStars and GameConfig.PetFusionRequirement(stars) or 0
+		if GameConfig.PetDefinition(petName) and required > 0 and count >= required then
+			petFuseTokens[token] = true
+		end
+	end
+	local petFuseCount = 0
+	for _ in pairs(petFuseTokens) do petFuseCount += 1 end
+	setActionBadge("Pets", petFuseCount, "PetFusionReady")
+
+	local ownedFists = {}
+	for _, fistName in ipairs(decodeJSON(latestStats.OwnedFistsJSON, {})) do
+		ownedFists[tostring(fistName)] = true
+	end
+	local coins = math.max(0, tonumber(latestStats.Coins) or 0)
+	local depth = math.max(0, tonumber(latestStats.Depth) or 0)
+	local affordableFists = 0
+	for _, fist in ipairs(GameConfig.Fists or {}) do
+		local cost = math.max(0, tonumber(fist.cost) or 0)
+		local requiredDepth = math.max(0, tonumber(fist.unlockDepth) or 0)
+		if cost > 0 and not ownedFists[fist.name] and coins >= cost and depth >= requiredDepth then
+			affordableFists += 1
+		end
+	end
+	setActionBadge("Shop", affordableFists, "AffordableFist")
+
+	local spinReady = (tonumber(latestStats.SpinCredits) or 0) > 0
+		or os.time() >= (tonumber(latestStats.SpinReadyAt) or math.huge)
+	setActionBadge("Spin", spinReady and 1 or 0, "SpinReady")
+
+	local today = os.date("!%Y-%m-%d")
+	local dailyReady = tostring(latestStats.LastDailyDate or "") ~= today
+	local questReady = (tonumber(latestStats.DailyQuestClaimed) or 0) < 1
+		and (tonumber(latestStats.DailyBreaks) or 0) >= GameConfig.Rewards.QuestBreakTarget
+	local playtimeReady = (tonumber(latestStats.PlaytimeClaimed) or 0) < 1
+		and (tonumber(latestStats.PlaytimeSeconds) or 0) >= GameConfig.Rewards.PlaytimeSeconds
+	local dailyActionCount = (dailyReady and 1 or 0) + (questReady and 1 or 0) + (playtimeReady and 1 or 0)
+	setActionBadge("Daily", dailyActionCount, "RewardClaimable")
+	setActionBadge("Quests", (questReady and 1 or 0) + (playtimeReady and 1 or 0), "QuestClaimable")
+
+	referenceHUD:SetAttribute("ActionBadgePolicy", "ServerStatsActionableV1")
+	referenceHUD:SetAttribute("PetFuseReadyCount", petFuseCount)
+	referenceHUD:SetAttribute("AffordableFistCount", affordableFists)
+	referenceHUD:SetAttribute("SpinActionReady", spinReady)
+	referenceHUD:SetAttribute("DailyActionCount", dailyActionCount)
+end
+
+task.spawn(function()
+	while gui.Parent do
+		task.wait(10)
+		shared.PunchWallRefreshActionBadges()
+	end
+end)
+end
+
 local referencePunch = referenceButton("ActionPunch", pixel.Punch, 1211, 669, 250, 250)
 referencePunch.MouseButton1Down:Connect(function() setPunchHeld(true) end)
 referencePunch.MouseButton1Up:Connect(function() setPunchHeld(false) end)
@@ -9698,7 +9840,8 @@ shared.PunchWallBuildDynamicReferenceHUD = function()
 	objectiveStroke.Color = Color3.fromRGB(37, 191, 239)
 	objectiveStroke.Thickness = 2
 	objectiveStroke.Parent = widgets.ObjectiveCard
-	createThemeIcon(widgets.ObjectiveCard, "Train", UDim2.fromScale(5 / 340, 4 / 48), UDim2.fromScale(40 / 340, 40 / 48), "ObjectiveIcon").ZIndex = 35
+	widgets.ObjectiveIcon = createThemeIcon(widgets.ObjectiveCard, "Train", UDim2.fromScale(5 / 340, 4 / 48), UDim2.fromScale(40 / 340, 40 / 48), "ObjectiveIcon")
+	widgets.ObjectiveIcon.ZIndex = 35
 	widgets.ObjectiveText = Instance.new("TextLabel")
 	widgets.ObjectiveText.Name = "ObjectiveText"
 	widgets.ObjectiveText.BackgroundTransparency = 1
@@ -11730,13 +11873,19 @@ statRemote.OnClientEvent:Connect(function(payload)
 	local tutorial = payload.Tutorial
 	if type(tutorial) == "table" then
 		widgets.ObjectiveText.Text = ("OBJECTIVE  |  %s\n%s"):format(string.upper(tostring(tutorial.title or "KEEP SMASHING")), tostring(tutorial.detail or ""))
-		widgets.ObjectiveCard.Visible = (tonumber(payload.TutorialStep) or 1) < 8
+		if widgets.ObjectiveIcon then applyThemeIcon(widgets.ObjectiveIcon, tostring(tutorial.icon or "Quest")) end
+		widgets.ObjectiveCard.Visible = payload.TutorialCompleted ~= true
+			and (tonumber(payload.TutorialCompleted) or 0) < 1
 		gui:SetAttribute("OnboardingObjectiveReady", widgets.ObjectiveCard.Visible and widgets.ObjectiveText.Text ~= "")
 		gui:SetAttribute("OnboardingObjectiveStep", tonumber(payload.TutorialStep) or 1)
+		gui:SetAttribute("OnboardingTutorialVersion", tonumber(payload.TutorialVersion) or 0)
+		gui:SetAttribute("OnboardingTutorialCompleted", false)
 	else
 		widgets.ObjectiveCard.Visible = false
 		gui:SetAttribute("OnboardingObjectiveReady", false)
+		gui:SetAttribute("OnboardingTutorialCompleted", payload.TutorialCompleted == true or (tonumber(payload.TutorialCompleted) or 0) >= 1)
 	end
+	if shared.PunchWallRefreshActionBadges then shared.PunchWallRefreshActionBadges() end
 	referenceHUD:SetAttribute("AuthoritativeDepth", depth)
 	referenceHUD:SetAttribute("AuthoritativeQuestBreaks", questBreaks)
 	referenceHUD:SetAttribute("AuthoritativeWorldProgress", worldRatio)

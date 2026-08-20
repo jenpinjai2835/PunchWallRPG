@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "tutorial-action-notification-badges",
+      "selectedStudio": {
+        "id": "bd53308d-6955-4500-8241-acee71f75085",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start tutorial badge playtest",
+        "wait for tutorial badge bootstrap",
+        "capture tutorial badge boot console",
+        "tutorial badge boot console clean",
+        "fresh profile starts punch-first tutorial",
+        "wait for punch tutorial HUD",
+        "punch objective and initial action dots are exact",
+        "production punch action advances onboarding",
+        "wait for open-shop tutorial step",
+        "server accepts one successful punch outcome",
+        "shop-open route advances onboarding",
+        "wait for buy-fist tutorial step",
+        "authoritative tutorial waits for exact starter fist purchase",
+        "wait for affordable shop dot",
+        "affordable fist shows shop dot and production purchase completes tutorial",
+        "wait for tutorial completion persistence state",
+        "tutorial completion persists and legacy completion migrates once",
+        "seed one fuse action with other notifications inactive",
+        "wait for pet fuse notification dot",
+        "pet icon dot appears only when an unlocked fusion is possible",
+        "wait for fused pet notification clear",
+        "pet dot clears after the fusion action is exhausted",
+        "seed spin credit and claimable quest actions",
+        "wait for spin and daily notification dots",
+        "spin and claimable quest dots appear on their exact icons",
+        "exhaust every spin and daily claim action",
+        "wait for exhausted notification dots to clear",
+        "all dots and tutorial disappear when no action remains",
+        "capture tutorial badge runtime console",
+        "tutorial badge runtime console clean",
+        "stop tutorial badge playtest",
+        "capture tutorial badge post-stop console",
+        "tutorial badge post-stop console clean"
+      ]
+    }
+  ]
+}

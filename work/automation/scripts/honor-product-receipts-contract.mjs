@@ -45,7 +45,7 @@ check(
 check(
   "receipt_schema_persists_exact_honor_metadata",
   includesAll(profile, [
-    'ProfilePersistence.ContractVersion = "2.2.1"',
+    'ProfilePersistence.ContractVersion = "2.3.0"',
     "entry.Honor = strictNonNegativeInteger(source.Honor)",
     'return nil, "receipt_entry_invalid_honor"',
     "profile.Honor += honorGrant",

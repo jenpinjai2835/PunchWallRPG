@@ -111,8 +111,8 @@ check(
   "legacy_v6_honor_bonus_migrates_before_v7_validation",
   profile.includes("currentVersion >= 7 and sourceVersion < 7")
     && profile.includes("profile.HonorPowerBonus = 0")
-    && profile.includes("HonorPowerBonus = 0.25")
-    && profile.includes('assert(migrated.HonorPowerBonus == 0'),
+    && profile.includes("and 0.12 or 0.25")
+    && profile.includes('assert(migrated.HonorPowerBonus == 0, "legacy Honor bonus was not cleared before v7 validation")'),
   "Previously valid .15/.25 derived bonuses must not make v6 profiles fail v7 migration.",
 );
 const buyBlock = block(server, "shared.PunchWallBuyHonorItem = function", "shared.PunchWallBuildHonorPlaza = function");

@@ -1,6 +1,6 @@
 local ProfilePersistence = {}
 
-ProfilePersistence.ContractVersion = "2.2.1"
+ProfilePersistence.ContractVersion = "2.3.0"
 ProfilePersistence.MaxReceiptLedgerEntries = 200
 ProfilePersistence.MaxSeenReceiptIds = 2048
 ProfilePersistence.MaxAuthoritativeNumber = 9007199254740991
@@ -42,6 +42,8 @@ ProfilePersistence.NumberFieldSchema = {
 	FistMultiplier = { default = 1, min = 0 },
 	PetMultiplier = { default = 0, min = 0 },
 	TutorialStep = { default = 1, min = 1, integer = true },
+	TutorialVersion = { default = 2, min = 0, integer = true },
+	TutorialCompleted = { default = 0, min = 0, max = 1, integer = true },
 	DailyBreaks = { default = 0, min = 0, integer = true },
 	DailyQuestClaimed = { default = 0, min = 0, max = 1, integer = true },
 	PlaytimeSeconds = { default = 0, min = 0, integer = true },
@@ -1034,6 +1036,16 @@ function ProfilePersistence.Migrate(rawProfile, currentVersion, maxEntries)
 	if currentVersion >= 7 and sourceVersion < 7 then
 		profile.HonorPowerBonus = 0
 	end
+	-- v8 replaces the long legacy onboarding with a short punch -> shop -> fist
+	-- journey. Only the old terminal step counts as completed; unfinished legacy
+	-- players restart the new tutorial, while veterans never see it again.
+	if currentVersion >= 8 and sourceVersion < 8 then
+		local legacyStep = tonumber(profile.TutorialStep) or 1
+		local legacyCompleted = legacyStep >= 8
+		profile.TutorialVersion = 2
+		profile.TutorialCompleted = legacyCompleted and 1 or 0
+		profile.TutorialStep = legacyCompleted and 4 or 1
+	end
 	-- DataVersion 3 stored fractional FistMastery progress (for example 6.25),
 	-- while the current authoritative stat is an integer counter. Preserve every
 	-- completed mastery level without inventing progress. Invalid types, nonfinite
@@ -1700,15 +1712,41 @@ function ProfilePersistence.RunContractSelfTest(currentVersion)
 		DataVersion = currentVersion - 1,
 		Coins = 10,
 		CoinBoostExpiresAt = 1234.5,
-		HonorPowerBonus = 0.25,
+		HonorPowerBonus = currentVersion >= 8 and 0.12 or 0.25,
 		LegacyOnlyPayload = {
 			hidden = string.rep("x", 1024),
 		},
 	}, currentVersion)
 	assert(migrated and migrateState == "Migrated", "migration contract failed")
 	assert(migrated.CoinBoostExpiresAt == 1234.5, "boost migration contract failed")
-	if currentVersion >= 7 then
+	if currentVersion == 7 then
 		assert(migrated.HonorPowerBonus == 0, "legacy Honor bonus was not cleared before v7 validation")
+	elseif currentVersion >= 8 then
+		assert(migrated.HonorPowerBonus == 0.12, "valid v7 Honor bonus was not retained during v8 migration")
+		local legacyTutorialComplete, legacyTutorialCompleteState = ProfilePersistence.Migrate({
+			DataVersion = 7,
+			TutorialStep = 8,
+		}, currentVersion)
+		assert(
+			legacyTutorialComplete
+				and legacyTutorialCompleteState == "Migrated"
+				and legacyTutorialComplete.TutorialVersion == 2
+				and legacyTutorialComplete.TutorialStep == 4
+				and legacyTutorialComplete.TutorialCompleted == 1,
+			"completed legacy tutorial was not preserved during v8 migration"
+		)
+		local legacyTutorialIncomplete, legacyTutorialIncompleteState = ProfilePersistence.Migrate({
+			DataVersion = 7,
+			TutorialStep = 3,
+		}, currentVersion)
+		assert(
+			legacyTutorialIncomplete
+				and legacyTutorialIncompleteState == "Migrated"
+				and legacyTutorialIncomplete.TutorialVersion == 2
+				and legacyTutorialIncomplete.TutorialStep == 1
+				and legacyTutorialIncomplete.TutorialCompleted == 0,
+			"unfinished legacy tutorial was not restarted safely during v8 migration"
+		)
 	end
 	assert(
 		migrated.LegacyOnlyPayload == nil,

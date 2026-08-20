@@ -1,7 +1,8 @@
 {
   "name": "onboarding-waypoint",
-  "description": "Validate fresh-player orientation, objective text, and world waypoint guidance.",
-  "studioName": "PunchWallRPG",
+  "description": "Validate fresh-player punch-first objective and world waypoint guidance.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -28,7 +29,7 @@
         "\"spawnYaw\"\\s*:\\s*180",
         "\"tutorial\"\\s*:\\s*1"
       ],
-      "label": "fresh spawn faces training district"
+      "label": "fresh spawn starts punch-first onboarding"
     },
     {
       "type": "wait",
@@ -44,12 +45,12 @@
       },
       "expectRegex": [
         "\"enabled\"\\s*:\\s*true",
-        "\"target\"\\s*:\\s*\"Power Bag\"",
-        "Train Power",
+        "\"target\"\\s*:\\s*\"Depth Course Entrance\"",
+        "Punch The Wall",
         "studs",
         "\"contextVisible\"\\s*:\\s*false"
       ],
-      "label": "tutorial waypoint and distance visible"
+      "label": "punch tutorial waypoint and distance visible"
     },
     {
       "type": "call",
@@ -68,6 +69,17 @@
       "args": { "is_start": false },
       "timeoutMs": 35000,
       "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture onboarding post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "onboarding post-stop console clean"
     }
   ],
   "cleanup": [

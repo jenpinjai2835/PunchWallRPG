@@ -609,7 +609,7 @@ const countSchemaEntries = (source) => (
 );
 check(
   "authoritative_profile_schema_is_complete_and_fail_closed",
-  countSchemaEntries(numberSchemaBlock) === 34
+  countSchemaEntries(numberSchemaBlock) === 36
     && countSchemaEntries(textSchemaBlock) === 17
     && /TrainingStationId\s*=\s*\{\s*default\s*=\s*"rookie_bag",\s*maxBytes\s*=\s*64\s*\}/.test(textSchemaBlock)
     && profileSource.includes("current wrong-type number must fail closed")
@@ -623,7 +623,7 @@ check(
 );
 check(
   "counter_flag_and_epoch_fields_require_integers",
-  (numberSchemaBlock.match(/integer\s*=\s*true/g) ?? []).length === 24
+  (numberSchemaBlock.match(/integer\s*=\s*true/g) ?? []).length === 26
     && /CritChance\s*=\s*\{[^}]*\}/.test(numberSchemaBlock)
     && !/CritChance\s*=\s*\{[^}]*integer\s*=\s*true/.test(numberSchemaBlock)
     && !/FistMultiplier\s*=\s*\{[^}]*integer\s*=\s*true/.test(numberSchemaBlock)

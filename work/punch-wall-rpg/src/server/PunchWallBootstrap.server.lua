@@ -152,6 +152,8 @@ local NUMBER_STAT_DEFAULTS = {
 	FistMultiplier = 1,
 	PetMultiplier = 0,
 	TutorialStep = 1,
+	TutorialVersion = 2,
+	TutorialCompleted = 0,
 	DailyBreaks = 0,
 	DailyQuestClaimed = 0,
 	PlaytimeSeconds = 0,
@@ -208,6 +210,8 @@ local RPG_NUMBER_STAT_NAMES = {
 	"FistMultiplier",
 	"PetMultiplier",
 	"TutorialStep",
+	"TutorialVersion",
+	"TutorialCompleted",
 	"DailyBreaks",
 	"DailyQuestClaimed",
 	"PlaytimeSeconds",
@@ -1583,17 +1587,21 @@ local function syncStats(player)
 	if shared.PunchWallUpdateWorldRankBoard then
 		task.defer(shared.PunchWallUpdateWorldRankBoard, fullLeaderboard)
 	end
-	local tutorial = GameConfig.Tutorial[payload.TutorialStep or 1]
+	local tutorialCompleted = (payload.TutorialCompleted or 0) >= 1
+	local tutorialStep = math.clamp(
+		math.floor(tonumber(payload.TutorialStep) or 1),
+		1,
+		GameConfig.TutorialCompleteStep
+	)
+	local tutorial = not tutorialCompleted and GameConfig.Tutorial[tutorialStep] or nil
 	if tutorial then
 		tutorial = table.clone(tutorial)
-		if (payload.TutorialStep or 1) == 3 then
-			local remainingXP = math.max(0, payload.WallXPNeeded - (payload.WallXP or 0))
-			local brickXP = math.max(1, GameConfig.WallXP["Brick Wall"] or 1)
-			local estimatedBreaks = math.max(1, math.ceil(remainingXP / brickXP))
-			tutorial.detail = ("Earn %s more Wall XP | about %d Brick break%s"):format(formatNumber(remainingXP), estimatedBreaks, estimatedBreaks == 1 and "" or "s")
-		end
 	end
 	payload.Tutorial = tutorial
+	payload.TutorialCompleted = tutorialCompleted
+	payload.TutorialVersion = GameConfig.TutorialVersion
+	payload.TutorialProgress = tutorialCompleted and 1
+		or math.clamp(tutorialStep / math.max(1, GameConfig.TutorialCompleteStep - 1), 0, 1)
 	payload.FistCatalog = GameConfig.Fists
 	payload.PremiumFistCatalog = GameConfig.PremiumFists
 	payload.HonorCatalog = GameConfig.HonorItems
@@ -2308,14 +2316,27 @@ local function ensureStats(player)
 	local crit = stats:FindFirstChild("CritChance")
 	if crit then crit.Value = math.clamp(crit.Value, 0, GameConfig.MaxCritChance) end
 	local ownedFists = stats:FindFirstChild("OwnedFistsJSON")
+	local decodedOwnedFists = nil
 	if ownedFists then
 		local ok, decoded = pcall(function() return HttpService:JSONDecode(ownedFists.Value) end)
 		if not ok or type(decoded) ~= "table" then
 			ownedFists.Value = TEXT_STAT_DEFAULTS.OwnedFistsJSON
+			decodedOwnedFists = { "Starter Glove" }
 		elseif not table.find(decoded, "Starter Glove") then
 			table.insert(decoded, 1, "Starter Glove")
 			ownedFists.Value = HttpService:JSONEncode(decoded)
+			decodedOwnedFists = decoded
+		else
+			decodedOwnedFists = decoded
 		end
+	end
+	stats.TutorialVersion.Value = GameConfig.TutorialVersion
+	if stats.TutorialCompleted.Value >= 1 or (decodedOwnedFists and table.find(decodedOwnedFists, "Boxing Glove")) then
+		stats.TutorialCompleted.Value = 1
+		stats.TutorialStep.Value = GameConfig.TutorialCompleteStep
+	else
+		stats.TutorialCompleted.Value = 0
+		stats.TutorialStep.Value = math.clamp(stats.TutorialStep.Value, 1, GameConfig.TutorialCompleteStep - 1)
 	end
 	for _, name in ipairs({
 		"OwnedPremiumFistsJSON",
@@ -2695,11 +2716,39 @@ local function removeFirst(list, value)
 	return false
 end
 
-local function advanceTutorial(player, completedStep)
-	local current = math.floor(statValue(player, "TutorialStep", 1))
-	if current == completedStep then
-		setStat(player, "TutorialStep", math.min(#GameConfig.Tutorial, current + 1))
+local function completeTutorialAction(player, actionId)
+	if statValue(player, "TutorialCompleted", 0) >= 1 then return false end
+	local current = math.clamp(
+		math.floor(statValue(player, "TutorialStep", 1)),
+		1,
+		GameConfig.TutorialCompleteStep
+	)
+	local advanced = false
+	if actionId == "PunchWall" and current == 1 then
+		setStat(player, "TutorialStep", 2)
+		advanced = true
+	elseif actionId == "OpenShop" and current == 2 then
+		setStat(player, "TutorialStep", 3)
+		advanced = true
+	elseif actionId == "BuyStarterFist" and current >= 2 then
+		setStat(player, "TutorialStep", GameConfig.TutorialCompleteStep)
+		setStat(player, "TutorialCompleted", 1)
+		advanced = true
+		sendFeedback(player, {
+			type = "TutorialComplete",
+			target = "Tutorial",
+			message = "TUTORIAL COMPLETE • KEEP SMASHING!",
+			color = PolishConfig.Palette.Reward,
+		})
+		if persistenceRuntime.requestPlayerSave then
+			persistenceRuntime.requestPlayerSave(player, "TutorialComplete", false)
+		end
 	end
+	if advanced then
+		player:SetAttribute("LastTutorialAction", actionId)
+		player:SetAttribute("TutorialActionSerial", (player:GetAttribute("TutorialActionSerial") or 0) + 1)
+	end
+	return advanced
 end
 
 local function awardWallXP(player, amount)
@@ -2717,9 +2766,6 @@ local function awardWallXP(player, amount)
 	end
 	setStat(player, "WallXP", xp)
 	setStat(player, "WallLevel", level)
-	if level >= 3 then
-		advanceTutorial(player, 3)
-	end
 	if gained > 0 then
 		sendFeedback(player, {
 			type = "LevelUp",
@@ -3828,6 +3874,7 @@ local function hitWall(player, wall)
 		material = wall.Material.Name,
 		color = accent,
 	})
+	completeTutorialAction(player, "PunchWall")
 
 	local pulse = TweenService:Create(wall, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = wall.Size + Vector3.new(0.4, 0.4, 0.08) })
 	pulse:Play()
@@ -3862,9 +3909,6 @@ local function hitWall(player, wall)
 					setStat(contributor, "Depth", depthReward)
 				end
 				awardWallXP(contributor, xpReward)
-				if wall.Name == "Brick Wall" then
-					advanceTutorial(contributor, 2)
-				end
 					sendFeedback(contributor, {
 						type = "Reward",
 						target = wall.Name,
@@ -4891,6 +4935,7 @@ local function hitDepthBlock(player, block, options)
 	block:SetAttribute("DamageStage", stage)
 	block.Color = (block:GetAttribute("OriginalColor") or block.Color):Lerp(Color3.fromRGB(38, 38, 38), stage * 0.12)
 	sendFeedback(player, { type = "Punch", target = block.Name, damage = math.floor(damage + 0.5), critical = critical, broken = remainingHP <= 0, material = block.Material.Name, color = block.Color })
+	completeTutorialAction(player, "PunchWall")
 
 	if remainingHP > 0 then
 		if wasDetached then
@@ -4941,7 +4986,6 @@ local function hitDepthBlock(player, block, options)
 				sendFeedback(contributor, { type = "QuestComplete", target = "Daily Breaker", coins = GameConfig.Rewards.QuestCoins, color = PolishConfig.Palette.Reward })
 			end
 			awardWallXP(contributor, block:GetAttribute("XPReward") or 1)
-			advanceTutorial(contributor, 2)
 			if tryDropPetEgg then tryDropPetEgg(contributor, layer, block.Position) end
 			sendFeedback(contributor, { type = "Reward", target = block.Name, wallBreak = true, coins = coins, score = score, depth = layer, color = PolishConfig.Palette.Reward })
 		end
@@ -5260,7 +5304,6 @@ local function hitBoss(player, weakPointMultiplier)
 	local actualDamage = math.min(previousHP, damage)
 	boss:SetAttribute("HP", math.max(0, previousHP - damage))
 	bossContributions[player.UserId] = (bossContributions[player.UserId] or 0) + actualDamage
-	advanceTutorial(player, 6)
 	local ratio = boss:GetAttribute("HP") / math.max(1, boss:GetAttribute("MaxHP"))
 	local phase = ratio <= 0.25 and 4 or ratio <= 0.5 and 3 or ratio <= 0.75 and 2 or 1
 	if phase ~= boss:GetAttribute("BossPhase") then
@@ -5573,7 +5616,6 @@ local function trainPlayer(player, config)
 	player:SetAttribute("TrainingSessionTickCount", 0)
 	setTrainingMovementLocked(player, true, config)
 
-	advanceTutorial(player, 1)
 	sendFeedback(player, { type = "TrainingState", target = config.displayName, active = true, gain = config.gain, stationId = config.id, color = config.color })
 	return { ok = true, active = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", gain = 0, value = statValue(player, "Power") }
 end
@@ -6308,6 +6350,9 @@ local function buyFist(player, item)
 		setStat(player, "FistMultiplier", item.mult)
 		setStat(player, "BreakSpeed", 1)
 		setStat(player, "EquippedFist", item.name)
+		if item.name == "Boxing Glove" then
+			completeTutorialAction(player, "BuyStarterFist")
+		end
 		sendFeedback(player, { type = "Shop", target = item.name, color = PolishConfig.Palette.Use })
 		return { ok = true, outcome = "equipped", item = item.name, multiplier = item.mult, coins = statValue(player, "Coins", 0) }
 	end
@@ -6348,7 +6393,9 @@ local function buyFist(player, item)
 	if equipped then
 		equipped.Value = item.name
 	end
-	advanceTutorial(player, 4)
+	if item.name == "Boxing Glove" then
+		completeTutorialAction(player, "BuyStarterFist")
+	end
 	sendFeedback(player, {
 		type = "Shop",
 		target = item.name,
@@ -7025,7 +7072,6 @@ local function grantPet(player, chosen, stars, source)
 	if firstDiscovery then
 		addStat(player, "Luck", chosen.luckGain)
 	end
-	advanceTutorial(player, 5)
 	emitNamed(shared.PunchWallEggPart, "Egg Reveal", 32)
 	sendFeedback(player, {
 		type = "Pet",
@@ -8391,7 +8437,6 @@ shared.PunchWallTryRebirth = function(player, options)
 	setStat(player, "BreakSpeed", 1)
 	local fist = playerStat(player, "EquippedFist")
 	if fist then fist.Value = "Starter Glove" end
-	advanceTutorial(player, 7)
 	rebirthRuntime.lastSuccessAt[player] = now
 	rebirthRuntime.busy[player] = nil
 	player:SetAttribute("LastRebirthSuccessAt", now)
@@ -8725,6 +8770,12 @@ local function handleMobileAction(player, request)
 	if action == "RequestSync" then
 		if profileReady(player, false) then
 			syncStats(player)
+		end
+		return
+	end
+	if action == "TutorialShopOpened" then
+		if profileReady(player, false) then
+			completeTutorialAction(player, "OpenShop")
 		end
 		return
 	end
