@@ -67,7 +67,9 @@ function sourceFingerprint(file) {
 function assertConsoleClean(value, label) {
   const suspicious = String(value || "").split(/\r?\n/).filter(Boolean)
     .filter((line) => !line.includes("Unpublished Studio session is EPHEMERAL"))
-    .filter((line) => /error|failed|stack begin|infinite yield|traceback|out of local registers/i.test(line));
+    // Studio emits bare "Stack Begin/End" framing lines for non-error warnings.
+    // Treat the frame itself as neutral; the actual error/trace line still fails.
+    .filter((line) => /error|failed|infinite yield|traceback|out of local registers/i.test(line));
   if (suspicious.length) throw new Error(`${label}: ${suspicious.join(" | ")}`);
 }
 

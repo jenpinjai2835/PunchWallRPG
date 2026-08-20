@@ -36,10 +36,10 @@
             "text": "1.0K",
             "textSize": 8,
             "rect": {
-              "y": -36,
-              "x": 282,
-              "w": 32,
-              "h": 18
+              "y": -37,
+              "x": 263,
+              "w": 30,
+              "h": 17
             }
           },
           {
@@ -50,9 +50,9 @@
             "text": "50.0K",
             "textSize": 8,
             "rect": {
-              "y": -36,
-              "x": 412,
-              "w": 41,
+              "y": -37,
+              "x": 371,
+              "w": 39,
               "h": 17
             }
           },
@@ -65,8 +65,8 @@
             "textSize": 8,
             "rect": {
               "y": -47,
-              "x": 574,
-              "w": 34,
+              "x": 509,
+              "w": 33,
               "h": 9
             }
           },
@@ -79,9 +79,9 @@
             "textSize": 8,
             "rect": {
               "y": -37,
-              "x": 581,
-              "w": 27,
-              "h": 19
+              "x": 515,
+              "w": 26,
+              "h": 18
             }
           },
           {
@@ -106,10 +106,10 @@
             "text": "HONOR",
             "textSize": 8,
             "rect": {
-              "y": -4,
-              "x": 624,
-              "w": 54,
-              "h": 12
+              "y": -50,
+              "x": 594,
+              "w": 52,
+              "h": 13
             }
           },
           {
@@ -120,10 +120,10 @@
             "text": "500",
             "textSize": 8,
             "rect": {
-              "y": 7,
-              "x": 624,
-              "w": 54,
-              "h": 19
+              "y": -38,
+              "x": 594,
+              "w": 52,
+              "h": 20
             }
           },
           {
@@ -134,10 +134,10 @@
             "text": "OBJECTIVE  |  TRAIN POWER\nTrain at the Power Bag once",
             "textSize": 8,
             "rect": {
-              "y": -5,
-              "x": 337,
-              "w": 235,
-              "h": 33
+              "y": -6,
+              "x": 359,
+              "w": 184,
+              "h": 26
             }
           }
         ],
@@ -150,8 +150,8 @@
             "text": "",
             "safe": false,
             "rect": {
-              "y": -12,
-              "x": 614,
+              "y": -57,
+              "x": 584,
               "w": 48,
               "h": 48
             }
@@ -164,7 +164,7 @@
             "safe": false,
             "rect": {
               "y": 4,
-              "x": 725,
+              "x": 721,
               "w": 45,
               "h": 48
             }
@@ -177,7 +177,7 @@
             "safe": false,
             "rect": {
               "y": 4,
-              "x": 773,
+              "x": 771,
               "w": 45,
               "h": 48
             }
@@ -215,7 +215,7 @@
             "selectable": true,
             "safe": false,
             "rect": {
-              "y": 126,
+              "y": 124,
               "x": 8,
               "w": 44,
               "h": 60
@@ -228,7 +228,7 @@
             "selectable": true,
             "safe": false,
             "rect": {
-              "y": 126,
+              "y": 124,
               "x": 822,
               "w": 44,
               "h": 60
@@ -242,7 +242,7 @@
             "safe": true,
             "rect": {
               "y": 60,
-              "x": 764,
+              "x": 767,
               "w": 47,
               "h": 60
             }
@@ -267,8 +267,8 @@
             "selectable": true,
             "safe": true,
             "rect": {
-              "y": 126,
-              "x": 764,
+              "y": 124,
+              "x": 767,
               "w": 47,
               "h": 60
             }
@@ -280,10 +280,10 @@
             "selectable": true,
             "safe": false,
             "rect": {
-              "y": 228,
-              "x": 779,
-              "w": 87,
-              "h": 87
+              "y": 235,
+              "x": 786,
+              "w": 80,
+              "h": 80
             }
           },
           {
@@ -293,10 +293,10 @@
             "selectable": true,
             "safe": true,
             "rect": {
-              "y": 254,
-              "x": 712,
-              "w": 59,
-              "h": 59
+              "y": 260,
+              "x": 725,
+              "w": 53,
+              "h": 53
             }
           },
           {
@@ -308,7 +308,7 @@
             "safe": true,
             "rect": {
               "y": 267,
-              "x": 616,
+              "x": 629,
               "w": 44,
               "h": 44
             }
@@ -322,7 +322,7 @@
             "safe": true,
             "rect": {
               "y": 267,
-              "x": 664,
+              "x": 677,
               "w": 44,
               "h": 44
             }
@@ -356,10 +356,10 @@
             "text": "1.0K",
             "textSize": 8,
             "rect": {
-              "y": -36,
-              "x": 282,
-              "w": 32,
-              "h": 18
+              "y": -37,
+              "x": 263,
+              "w": 30,
+              "h": 17
             }
           },
           {
@@ -370,9 +370,9 @@
             "text": "50.0K",
             "textSize": 8,
             "rect": {
-              "y": -36,
-              "x": 412,
-              "w": 41,
+              "y": -37,
+              "x": 371,
+              "w": 39,
               "h": 17
             }
           },
@@ -385,8 +385,8 @@
             "textSize": 8,
             "rect": {
               "y": -47,
-              "x": 574,
-              "w": 34,
+              "x": 509,
+              "w": 33,
               "h": 9
             }
           },
@@ -399,9 +399,9 @@
             "textSize": 8,
             "rect": {
               "y": -37,
-              "x": 581,
-              "w": 27,
-              "h": 19
+              "x": 515,
+              "w": 26,
+              "h": 18
             }
           },
           {
@@ -412,10 +412,24 @@
             "text": "HONOR",
             "textSize": 8,
             "rect": {
-              "y": -4,
-              "x": 624,
-              "w": 54,
-              "h": 12
+              "y": -50,
+              "x": 594,
+              "w": 52,
+              "h": 13
+            }
+          },
+          {
+            "path": "PunchWallHUD/PixelPerfectHeroCityHUD/HonorCurrencyHUD/HonorValue",
+            "name": "HonorValue",
+            "safe": false,
+            "fits": true,
+            "text": "500",
+            "textSize": 8,
+            "rect": {
+              "y": -38,
+              "x": 594,
+              "w": 52,
+              "h": 20
             }
           },
           {
@@ -426,8 +440,8 @@
             "text": "",
             "safe": false,
             "rect": {
-              "y": -12,
-              "x": 614,
+              "y": -57,
+              "x": 584,
               "w": 48,
               "h": 48
             }
@@ -440,10 +454,10 @@
             "text": "OBJECTIVE  |  TRAIN POWER\nTrain at the Power Bag once",
             "textSize": 8,
             "rect": {
-              "y": -5,
-              "x": 337,
-              "w": 235,
-              "h": 33
+              "y": -6,
+              "x": 359,
+              "w": 184,
+              "h": 26
             }
           }
         ],
@@ -471,7 +485,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\01_iphone17_hud.jpg",
-      "sha256": "9ef14729f145572962f2bc612c1613bbce8932a3961a13e13cfa5a4f3e34fa5a"
+      "sha256": "ce8b33ce5ce488bb5320c7b207b31332b96f6b24530d3f978980a7bbfbaf67f0"
     },
     {
       "id": "02_iphone17_inventory_all",
@@ -2433,7 +2447,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\02_iphone17_inventory_all.jpg",
-      "sha256": "00811bad31b45a63c87cf7517dc469f306a782fdbc5199bc5c78660b63150a5f"
+      "sha256": "613a61c75f2ef5782e3385641e9f21188abd8180cde681cc3f281abdd88b2645"
     },
     {
       "id": "03_iphone17_inventory_pets_detail",
@@ -2859,7 +2873,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\03_iphone17_inventory_pets_detail.jpg",
-      "sha256": "304bc527db6cd66d47adc5b3f14347da7ccee9780f74ba0e83ddc84884f8c7b6"
+      "sha256": "9e5d44becfa87aca71b5db203f96ce6461805c3a8a293a31144986000cfd6214"
     },
     {
       "id": "04_iphone17_inventory_honor",
@@ -3953,7 +3967,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\04_iphone17_inventory_honor.jpg",
-      "sha256": "44aba1e6656ab28ccb15670412a69a7b6afd16f9c6f279481ec0b682ff6ad50a"
+      "sha256": "5a98693f73dd9278fbe0374b7b0e170678cdb700eb08a15d55fc9a1fda2db63b"
     },
     {
       "id": "05_iphone17_shop_fists",
@@ -6885,7 +6899,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\05_iphone17_shop_fists.jpg",
-      "sha256": "72cccdc92872ab0c9ca4ce662f7a81633c7a423654dfb84c7fcc74a75647d865"
+      "sha256": "ef967a4adffafa69def41461e19bdad2fa6dacb88d6bde84b0db584cc73beb80"
     },
     {
       "id": "06_iphone17_shop_premium",
@@ -7395,7 +7409,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\06_iphone17_shop_premium.jpg",
-      "sha256": "fc23b4d4ef03640faf931fa09532dfa337cb6490db732b0275f08b3f8964e0d4"
+      "sha256": "7bbb2256de9d8b00d5dad9b5232f057de6e2911a6f230f0f1eaafa243a57cd9e"
     },
     {
       "id": "07_iphone17_shop_boosts",
@@ -7863,7 +7877,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\07_iphone17_shop_boosts.jpg",
-      "sha256": "2c6b975eb28bb88b8f608e859d882b4af5a3d007ddafc19451cff08ebaae57bd"
+      "sha256": "f7c48f2d8f067b11229126b8bff653302295dfce09676dd08c224c356af806ce"
     },
     {
       "id": "08_iphone17_shop_honor",
@@ -8443,7 +8457,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\08_iphone17_shop_honor.jpg",
-      "sha256": "6e79799789cfbf0276f6070bf6718d80913a4aee1b796ed8f40c08f32bbc63de"
+      "sha256": "f586da9750802c7fc61d2a079bdd0e1a4a9c114421f1aed41fd8f2088c10d867"
     },
     {
       "id": "09_iphone17_shop_robux",
@@ -9023,7 +9037,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\09_iphone17_shop_robux.jpg",
-      "sha256": "9a60874c1546a12d9dd0e6ee64ac8182d48b8b3fbc1698ffdad8c10936034258"
+      "sha256": "44ae2ebba518405ed9e67f043baf7e1ebfc06cdb2c52c849fe0799a9a39d9c1b"
     },
     {
       "id": "10_iphone17_missions",
@@ -9523,7 +9537,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\10_iphone17_missions.jpg",
-      "sha256": "4f3732d6698a24ee934e6d4da432ad18d64a865888f607ead71ef2c0efb49738"
+      "sha256": "e1d4210da881f39ad2bc97af18fcc63eade47db8ee0892b2aa21862967cc838a"
     },
     {
       "id": "11_iphone17_rebirth_locked",
@@ -9908,7 +9922,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\11_iphone17_rebirth_locked.jpg",
-      "sha256": "5ee45f584988ffbfa7174bdef84beabd85fadc9b0beeb852b46819b748bfbe23"
+      "sha256": "f29305ac7f44fdba1fed185aa3d33ea643ecd62fa6cf172bac9c7218bb634e6e"
     },
     {
       "id": "12_iphone17_rebirth_confirm",
@@ -10326,7 +10340,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\12_iphone17_rebirth_confirm.jpg",
-      "sha256": "9c97610abf90f222564993dd12545fd23ed87cb04675e896359f3ef554ae7653"
+      "sha256": "4e5f8b006f57ff817611651a430a175a64704c7916d6f0f8a9267c350c4cf105"
     },
     {
       "id": "13_iphone17_settings",
@@ -10760,7 +10774,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\13_iphone17_settings.jpg",
-      "sha256": "feaf37257f01edfe326ee9a34f777686a29a913bed467a28bf738f14f3302f53"
+      "sha256": "94dafaedfc5b04a025be9112a930217a640903feb88482c3088d72b25e9be37b"
     },
     {
       "id": "14_iphone17_spin",
@@ -10920,7 +10934,7 @@
         }
       },
       "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\mobile-iphone17-layout-20260820\\after\\14_iphone17_spin.jpg",
-      "sha256": "74bfb7a30f590faecc0531456253d6e549099081b58514735c4e0b2404aede42"
+      "sha256": "b5fd613123460c0cd68062c71afa3b03532c624bbff3b6459e82dde60ac54314"
     }
   ],
   "routes": [
@@ -10962,8 +10976,8 @@
     "work/punch-wall-rpg/src/shared/InventoryViewModel.lua": "554c6080874942e0b5d388ef330d70b41423b55087b1819424045385e6122436",
     "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "586fe83e3c39046e61fc4564adee5aa142fcdbbe9677df44bd58dbf599206de2",
     "work/punch-wall-rpg/src/client/InventoryUI.lua": "b59619e355c06bd605f2c399bd6a90bb7347bc2023b94b3478ebd52d55f7357c",
-    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "7632b90c50889b2ce173b97d775999b96f6499c3bf678f989f4a093e9f321c65",
-    "work/automation/scripts/capture-mobile-ui-iphone17.mjs": "ebcd8762b5ee890906e25e6a2682e513df37924544f0849402731dca45bfc620"
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "f12d9f16ad126b7d51cdcc2cf9eac6bd13addf99dbfa3afa14fe56d3e81669cc",
+    "work/automation/scripts/capture-mobile-ui-iphone17.mjs": "81d79070f1e4c0dc0e6fddf05ec8e054f7fb7f3983dd38b854d49857008a3fd2"
   },
   "selectedStudio": {
     "id": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
@@ -10976,8 +10990,8 @@
   },
   "runtimeSources": {
     "PunchWallClient": {
-      "adler32": 2495128686,
-      "length": 537485,
+      "adler32": 4210629175,
+      "length": 540033,
       "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
       "matchesLocal": true
     },

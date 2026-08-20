@@ -8853,6 +8853,40 @@ local function enforceReferenceTouchTarget(button)
 	return button
 end
 
+local function setPhoneOpticalScale(button, compact)
+	local rightMenuFrame = button:FindFirstChild("RightMenuOpticalFrame")
+	if rightMenuFrame then
+		local scale = rightMenuFrame:FindFirstChild("PhoneOpticalScale")
+		if not scale then
+			scale = Instance.new("UIScale")
+			scale.Name = "PhoneOpticalScale"
+			scale.Parent = rightMenuFrame
+		end
+		scale.Scale = compact and 0.9 or 1
+		return
+	end
+	local art = button:FindFirstChild("PhoneOpticalArt")
+	if not art then
+		art = Instance.new("ImageLabel")
+		art.Name = "PhoneOpticalArt"
+		art.AnchorPoint = Vector2.new(0.5, 0.5)
+		art.Position = UDim2.fromScale(0.5, 0.5)
+		art.Size = UDim2.fromScale(0.9, 0.9)
+		art.BackgroundTransparency = 1
+		art.Image = button.Image
+		art.ImageRectOffset = button.ImageRectOffset
+		art.ImageRectSize = button.ImageRectSize
+		art.ScaleType = button.ScaleType
+		art.ZIndex = button.ZIndex + 1
+		art.Active = false
+		art.Selectable = false
+		art.Parent = button
+	end
+	art.Visible = compact
+	button.ImageTransparency = compact and 1 or 0
+	button:SetAttribute("PhoneOpticalScale", compact and 0.9 or 1)
+end
+
 local pixel = GameConfig.HeroCityPixelUI
 local referencePowerCard = referenceImage("PowerCard", pixel.Power, 415, 23, 279, 103)
 local referenceCoinsCard = referenceImage("CoinsCard", pixel.Coins, 702, 22, 330, 104)
@@ -9155,6 +9189,7 @@ local function scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 		}
 		local visibleControls = {}
 		local compactTargetsPass = true
+		local compactTargetFailures = {}
 		local compactBoundsPass = true
 		local coveredArea = 0
 		local hudPosition, hudSize = referenceHUD.AbsolutePosition, referenceHUD.AbsoluteSize
@@ -9162,7 +9197,11 @@ local function scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 			if button.Visible then
 				visibleControls[#visibleControls + 1] = button
 				local position, size = button.AbsolutePosition, button.AbsoluteSize
-				compactTargetsPass = compactTargetsPass and math.min(size.X, size.Y) >= 44
+				local targetPass = math.min(size.X, size.Y) >= 44
+				compactTargetsPass = compactTargetsPass and targetPass
+				if not targetPass then
+					compactTargetFailures[#compactTargetFailures + 1] = string.format("%s=%.1fx%.1f", button.Name, size.X, size.Y)
+				end
 				compactBoundsPass = compactBoundsPass
 					and position.X >= hudPosition.X - 0.5
 					and position.Y >= hudPosition.Y - 0.5
@@ -9188,16 +9227,17 @@ local function scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 			end
 		end
 		local coverage = coveredArea / math.max(1, hudSize.X * hudSize.Y)
-		referenceHUD:SetAttribute("PhoneLayoutContractVersion", "PhoneLandscapeV3")
+		referenceHUD:SetAttribute("PhoneLayoutContractVersion", "PhoneLandscapeV4")
 		referenceHUD:SetAttribute("PhonePrimaryControlCount", #visibleControls)
 		referenceHUD:SetAttribute("PhonePrimaryTargetsPass", not compact or compactTargetsPass)
+		referenceHUD:SetAttribute("PhonePrimaryTargetFailures", table.concat(compactTargetFailures, ","))
 		referenceHUD:SetAttribute("PhonePrimaryBoundsPass", not compact or compactBoundsPass)
 		referenceHUD:SetAttribute("PhonePrimaryPairwisePass", not compact or pairwisePass)
 		referenceHUD:SetAttribute("PhonePrimaryOverlapPair", overlapPair)
 		referenceHUD:SetAttribute("PhoneControlCoverage", coverage)
 		referenceHUD:SetAttribute("PhoneControlCoveragePass", not compact or coverage <= 0.2)
-		referenceHUD:SetAttribute("PhonePunchMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referencePunch.AbsoluteSize.X, referencePunch.AbsoluteSize.Y) <= 96)
-		referenceHUD:SetAttribute("PhoneJoystickMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referenceJoystick.AbsoluteSize.X, referenceJoystick.AbsoluteSize.Y) <= 112)
+		referenceHUD:SetAttribute("PhonePunchMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referencePunch.AbsoluteSize.X, referencePunch.AbsoluteSize.Y) <= 86)
+		referenceHUD:SetAttribute("PhoneJoystickMaximumPass", responsiveProfile ~= "PhoneLandscape" or math.max(referenceJoystick.AbsoluteSize.X, referenceJoystick.AbsoluteSize.Y) <= 102)
 		referenceHUD:SetAttribute("PhoneRedundantQuestHidden", not compact or not referenceQuests.Visible)
 
 		local settingsPanel = shared.PunchWallStandaloneWindows.SettingsPanel
@@ -11818,9 +11858,11 @@ applyResponsiveLayout = function()
 		-- PhoneLandscapeV3 keeps the gameplay center open. Four primary actions
 		-- use a small 2x2 cluster; Missions stays reachable from DAILY and MORE,
 		-- so the redundant compact QUESTS tile is removed.
-		local compactMenuWidth = math.max(48, math.floor(52 * phoneScale + 0.5))
-		local compactMenuHeight = math.max(60, math.floor(62 * phoneScale + 0.5))
-		local compactMenuGap = 6
+		-- V4 trims the visible mobile controls by roughly ten percent while the
+		-- UISizeConstraint keeps every interactive target at least 44 px.
+		local compactMenuWidth = math.max(48, math.floor(48 * phoneScale + 0.5))
+		local compactMenuHeight = 60
+		local compactMenuGap = 4
 		local compactMenuRight = 8
 		-- Keep an explicit 8 px gutter below the 48 px utility row.  The old
 		-- +50 offset let Sound overlap Inventory by a few pixels after the
@@ -11837,11 +11879,15 @@ applyResponsiveLayout = function()
 		referenceInventory.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop)
 		referencePets.Position = UDim2.new(1, -compactLeftColumnRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
 		shared.PunchWallReferenceRebirth.Position = UDim2.new(1, -compactMenuRight, 0, compactMenuTop + compactMenuHeight + compactMenuGap)
+		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, shared.PunchWallReferenceRebirth }) do
+			setPhoneOpticalScale(button, true)
+		end
 		referenceQuests.Visible = false
 		referenceQuests.Active = false
-		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "PhoneLandscape2x2SafeV3")
+		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "PhoneLandscape2x2TightV4")
 		referenceHUD:SetAttribute("CompactQuestsRoutedThroughMissions", true)
 		local compactUtilitySize = 48
+		local compactUtilityGap = 2
 		local compactUtilityTop = math.max(4, math.floor(coreGuiTopLeft.Y + 4))
 		for utilityIndex, button in ipairs({
 			shared.PunchWallMoreToolButton,
@@ -11849,7 +11895,7 @@ applyResponsiveLayout = function()
 			shared.PunchWallSoundToolButton,
 		}) do
 			button.AnchorPoint = Vector2.new(1, 0)
-			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * 48), 0, compactUtilityTop)
+			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * (compactUtilitySize + compactUtilityGap)), 0, compactUtilityTop)
 			button.Size = UDim2.fromOffset(compactUtilitySize, compactUtilitySize)
 		end
 		for utilityIndex, button in ipairs({ referenceDaily, referenceSpin }) do
@@ -11857,22 +11903,25 @@ applyResponsiveLayout = function()
 			button.Position = UDim2.fromOffset(8, compactMenuTop + (utilityIndex - 1) * (compactMenuHeight + compactMenuGap))
 			button.Size = UDim2.fromOffset(compactMenuWidth, compactMenuHeight)
 		end
-		local joystickSize = math.max(96, math.floor(110 * phoneScale + 0.5))
+		for _, button in ipairs({ referenceDaily, referenceSpin, shared.PunchWallSoundToolButton, shared.PunchWallSettingsToolButton, shared.PunchWallMoreToolButton }) do
+			setPhoneOpticalScale(button, true)
+		end
+		local joystickSize = math.max(90, math.floor(100 * phoneScale + 0.5))
 		referenceJoystick.AnchorPoint = Vector2.new(0, 1)
 		referenceJoystick.Position = UDim2.new(0, 8, 1, -8)
 		referenceJoystick.Size = UDim2.fromOffset(joystickSize, joystickSize)
-		referenceJoystick:SetAttribute("ResponsiveProfile", "PhoneLandscapeJoystickV3")
-		local punchSize = math.max(84, math.floor(92 * phoneScale + 0.5))
+		referenceJoystick:SetAttribute("ResponsiveProfile", "PhoneLandscapeJoystickTightV4")
+		local punchSize = math.max(78, math.floor(84 * phoneScale + 0.5))
 		referencePunch.AnchorPoint = Vector2.new(1, 1)
 		referencePunch.Position = UDim2.new(1, -8, 1, -8)
 		referencePunch.Size = UDim2.fromOffset(punchSize, punchSize)
-		referencePunch:SetAttribute("ResponsiveProfile", "PhoneLandscapePunchV3")
-		referencePunch:SetAttribute("MaximumCompactSize", 92)
-		local jumpSize = math.max(58, math.floor(62 * phoneScale + 0.5))
+		referencePunch:SetAttribute("ResponsiveProfile", "PhoneLandscapePunchTightV4")
+		referencePunch:SetAttribute("MaximumCompactSize", 84)
+		local jumpSize = math.max(52, math.floor(56 * phoneScale + 0.5))
 		referenceJump.AnchorPoint = Vector2.new(1, 1)
 		referenceJump.Position = UDim2.new(1, -(punchSize + 16), 1, -10)
 		referenceJump.Size = UDim2.fromOffset(jumpSize, jumpSize)
-		referenceJump:SetAttribute("ResponsiveProfile", "PhoneLandscapeJumpV3")
+		referenceJump:SetAttribute("ResponsiveProfile", "PhoneLandscapeJumpTightV4")
 		honorOpen.AnchorPoint = Vector2.new(0.5, 0.5)
 		honorOpen.Position = UDim2.fromScale(0.5, 0.5)
 		honorOpen.Size = UDim2.fromOffset(48, 48)
@@ -11883,31 +11932,33 @@ applyResponsiveLayout = function()
 		punchDownButton.AnchorPoint = Vector2.new(1, 1)
 		punchDownButton.Position = UDim2.new(1, -(punchSize + jumpSize + 20), 1, -12)
 		punchDownButton.Size = UDim2.fromOffset(44, 44)
-		punchUpButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V3")
-		punchDownButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V3")
+		punchUpButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V4")
+		punchDownButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V4")
 		-- Phone information hierarchy: keep only essential progress at a glance.
 		-- Detailed rank and quest data remain available through Missions.
 		if rankWidgets.Root then rankWidgets.Root.Visible = false end
 		shared.PunchWallHUDWidgets.QuestCard.Visible = false
-		local topCardHeight = math.max(40, math.floor(44 * phoneScale + 0.5))
+		local topCardHeight = 40
 		referencePowerCard.AnchorPoint = Vector2.new(0.5, 0)
-		referencePowerCard.Position = UDim2.new(0.34, 0, 0, 5)
-		referencePowerCard.Size = UDim2.fromOffset(math.floor(120 * phoneScale + 0.5), topCardHeight)
+		referencePowerCard.Position = UDim2.new(0.5, -160, 0, 5)
+		referencePowerCard.Size = UDim2.fromOffset(108, topCardHeight)
 		referenceCoinsCard.AnchorPoint = Vector2.new(0.5, 0)
-		referenceCoinsCard.Position = UDim2.new(0.5, 0, 0, 5)
-		referenceCoinsCard.Size = UDim2.fromOffset(math.floor(138 * phoneScale + 0.5), topCardHeight)
+		referenceCoinsCard.Position = UDim2.new(0.5, -42, 0, 5)
+		referenceCoinsCard.Size = UDim2.fromOffset(124, topCardHeight)
 		referenceWallCard.AnchorPoint = Vector2.new(0.5, 0)
-		referenceWallCard.Position = UDim2.new(0.66, 0, 0, 5)
-		referenceWallCard.Size = UDim2.fromOffset(math.floor(108 * phoneScale + 0.5), topCardHeight)
+		referenceWallCard.Position = UDim2.new(0.5, 74, 0, 5)
+		referenceWallCard.Size = UDim2.fromOffset(98, topCardHeight)
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.new(0.5, 0)
-		shared.PunchWallHUDWidgets.ObjectiveCard.Position = UDim2.new(0.5, 0, 0, topCardHeight + 9)
-		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(280, viewport.X * 0.34), 38)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Position = UDim2.new(0.5, 0, 0, topCardHeight + 10)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(220, viewport.X * 0.27), 30)
+		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
+		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 10 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.new(0.5, 0)
-			honorCard.Position = UDim2.new(0.73, 0, 0, topCardHeight + 9)
-			honorCard.Size = UDim2.fromOffset(88, 38)
-			honorCard:SetAttribute("ResponsiveProfile", "PhoneLandscapeHonorV3")
+			honorCard.Position = UDim2.new(0.5, 171, 0, 5)
+			honorCard.Size = UDim2.fromOffset(86, topCardHeight)
+			honorCard:SetAttribute("ResponsiveProfile", "PhoneLandscapeStatRowHonorV4")
 		end
 		shared.PunchWallHUDWidgets.NextWorldCard.AnchorPoint = Vector2.new(0.5, 1)
 		shared.PunchWallHUDWidgets.NextWorldCard.Position = UDim2.new(0.53, 0, 1, -8)
@@ -11916,7 +11967,7 @@ applyResponsiveLayout = function()
 		trainingOverlay.Position = UDim2.new(0.5, 0, 0, 94)
 		trainingOverlay.Size = UDim2.fromOffset(math.min(280, viewport.X * 0.36), 62)
 		trainingOverlay:SetAttribute("ResponsiveProfile", "PhoneTrainingTopLaneV3")
-		referenceHUD:SetAttribute("PhoneLandscapeInformationProfile", "EssentialProgressV3")
+		referenceHUD:SetAttribute("PhoneLandscapeInformationProfile", "FourStatsCompactObjectiveV4")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -12033,6 +12084,9 @@ applyResponsiveLayout = function()
 		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
 			button.AnchorPoint = Vector2.zero
 		end
+		for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth, referenceDaily, referenceSpin, shared.PunchWallSoundToolButton, shared.PunchWallSettingsToolButton, shared.PunchWallMoreToolButton }) do
+			setPhoneOpticalScale(button, false)
+		end
 		referenceQuests.Visible = true
 		referenceQuests.Active = true
 		referencePunch.AnchorPoint = Vector2.zero
@@ -12051,6 +12105,8 @@ applyResponsiveLayout = function()
 		referenceWallCard.Position, referenceWallCard.Size = designRect(1041, 23, 252, 103)
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.zero
 		shared.PunchWallHUDWidgets.ObjectiveCard.Position, shared.PunchWallHUDWidgets.ObjectiveCard.Size = designRect(682, 132, 340, 48)
+		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
+		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 13 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.zero

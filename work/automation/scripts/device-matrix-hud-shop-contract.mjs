@@ -108,7 +108,7 @@ check(
     && client.includes("enforceReferenceTouchTarget(punchDownButton)")
     && client.includes('constraint.Name = "MinimumTouchTarget"')
     && client.includes("constraint.MinSize = Vector2.new(44, 44)")
-    && client.includes('"PhoneLandscapeDirectionPair44V3"')
+    && client.includes('"PhoneLandscapeDirectionPair44V4"')
     && client.includes("punchUpButton.Size = UDim2.fromOffset(44, 44)")
     && client.includes("punchDownButton.Size = UDim2.fromOffset(44, 44)"),
   "The compact Honor overlay and both directional punch controls must keep explicit hit areas at or above the 44px accessibility floor.",

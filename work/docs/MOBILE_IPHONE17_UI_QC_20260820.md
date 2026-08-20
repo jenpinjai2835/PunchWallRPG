@@ -64,3 +64,16 @@ The raw capture diagnostic intentionally does not use its generic `safe` flag as
 - Current iPhone 17 screenshot-based design/layout sign-off: **PASS** (14/14 current, hash-bound images reviewed).
 - Studio player-input routing gate: **PASS** — all six top-level HUD routes opened on the first real click; the capture records `inputMode = REAL_MOUSE_INPUT`.
 - Physical iPhone 17 touch/manual feel and hardware gamepad: **NOT RUN**. This is the remaining real-device confirmation, not a known source/layout defect.
+
+## Follow-up density pass — compact HUD V4
+
+The public-phone follow-up requested another approximately ten-percent optical reduction, a smaller Objective, and Honor aligned with the primary currencies. `PhoneLandscapeV4` now applies that exact hierarchy:
+
+- Punch is reduced from the prior 92 px policy to 84 px (80 px measured at the iPhone 17 runtime scale), joystick from 110 to 100 (95 measured), and Jump from 62 to 56 (53 measured).
+- Daily, Spin, Inventory, Shop, Pets, Rebirth, Sound, Settings, and More retain their measured 44 px minimum hit targets while their artwork is inset to 90%; this reduces visual weight without making real touch harder.
+- Primary menu spacing is reduced from 6 px to 4 px; the utility row uses a 2 px optical gap while remaining non-overlapping.
+- Power, Coins, Depth, and Honor now form one ordered 40 px-high stat row. The focused runtime gate asserts equal Y/height, zero adjacent overlap, and no overlap with Objective.
+- Objective is reduced from up to 280 x 38 to at most 220 x 30, with phone text capped at 10 px. Desktop restores its original 340 x 48 / 13 px policy.
+- The current iPhone 17 runtime gate passes 18/18. The recaptured 14-state bundle is current and source-fingerprint bound; all six top-level routes again opened with one real mouse-input click, all effective targets are at least 44 px, runtime/post-stop consoles are clean, and simulator cleanup is complete.
+
+Manual visual review of `after/01_iphone17_hud.jpg` confirms the four-currency row reads as one system, the Objective no longer dominates the center, the left/right icon groups are visibly lighter and tighter, and the gameplay/avatar lane remains unobstructed. No new in-scope design/layout defect was found in the other 13 recaptured surfaces.
