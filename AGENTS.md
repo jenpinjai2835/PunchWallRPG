@@ -33,3 +33,9 @@ The complete lifecycle, conflict controls, quality gates, status contract, and r
 - Update or add an automation flow for changed player-visible behavior.
 - Run the applicable regression before merge and record any blocked check or known limitation.
 - Preserve unrelated in-progress working-tree changes.
+
+## Roblox Creator Dashboard Browser Rule
+
+- For Roblox Creator Dashboard and Roblox web publishing work, control Chrome only through its Chrome DevTools Protocol (CDP) debug port.
+- Do not use the Codex Chrome extension for Roblox Creator Dashboard work.
+- If no CDP endpoint is available, stop and report the exact blocker instead of switching to the extension or extracting browser cookies/session credentials.
