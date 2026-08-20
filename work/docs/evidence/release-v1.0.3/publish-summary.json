@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "releaseVersion": "1.0.3",
+  "releaseChannel": "public",
+  "publishedAtUtc": "2026-08-20T17:22:08.377607Z",
+  "verifiedAtUtc": "2026-08-20T17:25:00Z",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "publicUrl": "https://www.roblox.com/games/125255969070601/Smash-Wall",
+  "previousPublishedVersion": 14,
+  "publishedVersion": 16,
+  "sourceCommit": "a28605dacb9d3596fe2443543b1fee08856732e4",
+  "releasePackageCommit": "db6d8f6",
+  "artifact": {
+    "path": "outputs/releases/v1.0.3/SmashWall_v1.0.3.rbxlx",
+    "validationPath": "outputs/releases/v1.0.3/SmashWall_v1.0.3_validation.rbxlx",
+    "bytes": 6118711,
+    "sha256": "FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E",
+    "validationSha256": "FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E",
+    "canonicalCodeObjects": 9,
+    "extraCodeObjects": 0
+  },
+  "studio": {
+    "name": "ชนกำแพง",
+    "placeId": 125255969070601,
+    "dataModelName": "Place2",
+    "publishMethod": "Roblox Studio Update Existing Experience / Overwrite",
+    "sourceFingerprintEvidence": "public-edit-attestation.json"
+  },
+  "checks": {
+    "focusedTrainingUiPetRecovery": "PASS_26_OF_26",
+    "finalArtifactRuntimeBeforePublish": "PASS_11_OF_11",
+    "artifactExactSource": "PASS_9_OF_9",
+    "artifactGlobalCodeAllowlist": "PASS_9_CANONICAL_0_EXTRA",
+    "publishedEditSourceFingerprints": "PASS_9_OF_9",
+    "publishedPetTemplates": "PASS_8_FOUND_8_ATTESTED_0_UNSAFE",
+    "publishedCloudPlaySmoke": "BLOCKED_STUDIO_DATASTORE_API_DISABLED_PROFILE_KICK",
+    "publishedVersionVerified": true,
+    "publicExperienceVerified": true,
+    "activePublicServersAtVerification": 0,
+    "forcedServerRestartRequired": false
+  },
+  "waivers": {
+    "paidRobuxUat": "WAIVED_BY_USER",
+    "publishedCrossSessionDatastoreUat": "NOT_RUN"
+  }
+}

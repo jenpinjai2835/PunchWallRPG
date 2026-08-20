@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "verifiedAtUtc": "2026-08-20T17:25:00Z",
+  "studioInstanceId": "b33b91d3-2b51-45bb-904d-f108ef091d2d",
+  "studioName": "ชนกำแพง",
+  "placeName": "ชนกำแพง",
+  "placeId": 125255969070601,
+  "sourceCount": 9,
+  "sources": {
+    "GameConfig": { "length": 39088, "adler32": 3358682012 },
+    "PolishConfig": { "length": 11571, "adler32": 1228663865 },
+    "ForestVisualBuilder": { "length": 34025, "adler32": 4192181038 },
+    "FistVisualBuilder": { "length": 14040, "adler32": 662893888 },
+    "InventoryViewModel": { "length": 29362, "adler32": 1787416496 },
+    "ProfilePersistence": { "length": 70720, "adler32": 1951779809 },
+    "PunchWallBootstrap": { "length": 419553, "adler32": 1831626487 },
+    "InventoryUI": { "length": 156930, "adler32": 2685416557 },
+    "PunchWallClient": { "length": 548714, "adler32": 3567098968 }
+  },
+  "petTemplates": {
+    "found": 8,
+    "attested": 8,
+    "unsafeLuaSourceObjects": 0
+  }
+}
