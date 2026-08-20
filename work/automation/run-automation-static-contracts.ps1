@@ -344,7 +344,7 @@ $additionalStaticContracts = @(
     @{ file = "long-run-content-contract.mjs"; key = "longRunContentContract" },
     @{ file = "mobile-iphone17-layout-contract.mjs"; key = "mobileIphone17LayoutContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
-    @{ file = "titan-hq-visual-contract.mjs"; key = "titanHqVisualContract" }
+    @{ file = "titan-hq-visual-contract.mjs"; key = "titanHqVisualContract" },
     @{ file = "training-ui-pet-recovery-contract.mjs"; key = "trainingUiPetRecoveryContract" }
 )
 foreach ($contract in $additionalStaticContracts) {

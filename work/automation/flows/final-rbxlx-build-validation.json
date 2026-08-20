@@ -1,7 +1,7 @@
 {
   "name": "final-rbxlx-build-validation",
   "description": "Open a byte-for-byte validation copy of the rebuilt final RBXLX and verify the embedded scripts bootstrap the complete player-facing release.",
-  "studioName": "^(PunchWallRPGPlayable_v1_final_validation[.]rbxlx|SmashWall_v1[.]0[.]0_studio_serialized(?:_v11|_current)?[.]rbxl)$",
+  "studioName": "^PunchWallRPGPlayable_v1_final_validation[.]rbxlx$",
   "pollAttempts": 20,
   "pollMs": 2500,
   "steps": [
@@ -55,6 +55,16 @@
       },
       "expectRegex": ["\"ok\":true", "\"bagAsset\":140653091179998", "\"bagVertical\":true", "\"premiumAsset\":3162411898", "\"prices\":6", "\"stands\":3", "\"trained\":true"],
       "label": "rebuilt final loads approved NPC bag training and premium pet displays"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local folder=game.ReplicatedStorage:FindFirstChild('PunchWallExternalAssets') local names={'Sanitized_ForestPupPet','Sanitized_MinerCatPet','Sanitized_CrystalFoxPet','Sanitized_LavaDragonPet','Sanitized_SecretTitanGolemPet','Sanitized_CrimsonPhoenixPet','Sanitized_StormWyvernPet','Sanitized_CelestialGuardianPet'} local found,attested,unsafe=0,0,0 for _,name in ipairs(names) do local model=folder and folder:FindFirstChild(name) if model then found+=1 if model:GetAttribute('TemplateVisualAttested')==true and tostring(model:GetAttribute('SourcePackModelName') or '')~='' then attested+=1 end for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') then unsafe+=1 end end end end return H:JSONEncode({ok=found==8 and attested==8 and unsafe==0 and root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==8 and root:GetAttribute('PetVisualReleasePolicy')=='ExactEightPreloadedSanitizedV2',found=found,attested=attested,unsafe=unsafe,releaseReady=root:GetAttribute('PetVisualReleaseReady'),readyCount=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy')})"
+      },
+      "expectRegex": ["\"ok\":true", "\"found\":8", "\"attested\":8", "\"unsafe\":0", "\"releaseReady\":true", "\"readyCount\":8", "ExactEightPreloadedSanitizedV2"],
+      "label": "rebuilt final attests all eight sanitized pet templates"
     },
     {
       "type": "call",

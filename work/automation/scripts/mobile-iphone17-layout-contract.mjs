@@ -4,7 +4,7 @@ import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
-const client = read("punch-wall-rpg", "src", "client", "PunchWallClient.client.lua");
+const client = read("punch-wall-rpg", "src", "client", "PunchWallClient.client.lua").replace(/\r\n/g, "\n");
 const inventory = read("punch-wall-rpg", "src", "client", "InventoryUI.lua");
 const flowText = read("automation", "flows", "mobile-iphone17-layout.json");
 const flow = JSON.parse(flowText);
