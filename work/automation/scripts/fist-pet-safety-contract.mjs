@@ -911,7 +911,10 @@ check(
 check(
   "contextual_action_is_visible_safe_and_exact",
   client.includes('Name = "ContextAction"')
-    && client.includes("contextActionSize.MinSize = Vector2.new(160, 44)")
+    && client.includes("contextActionSize.MinSize = Vector2.new(196, 52)")
+    && client.includes('Name = "ActionTitle"')
+    && client.includes('Name = "ActionDetail"')
+    && client.includes('"PresentationVersion", "TwoLineCompactV2"')
     && client.includes('"SafeAreaLane", "CenterAboveTraining"')
     && client.includes("requestAction(actionName)")
     && client.includes('actionName ~= "Train" and actionName ~= "Use"')

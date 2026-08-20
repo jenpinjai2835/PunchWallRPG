@@ -6541,6 +6541,78 @@ local activePunchCamera
 local lastPunchMotionAt = 0
 local lastPunchActionAt = 0
 
+function companionRuntime.PerformTrainingFistStrike(target)
+	if not target or not target:IsA("BasePart") or not currentGauntlet or not currentGauntlet.Parent then
+		return false
+	end
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local hand = character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
+	if not rootPart then return false end
+
+	local ok, echo = pcall(function() return currentGauntlet:Clone() end)
+	if not ok or not echo then return false end
+	companionRuntime.trainingFistStrikeGeneration = (companionRuntime.trainingFistStrikeGeneration or 0) + 1
+	local generation = companionRuntime.trainingFistStrikeGeneration
+	echo.Name = "Training Equipped Fist Strike"
+	echo:SetAttribute("VisualRole", "TrainingFistStrikeFallback")
+	echo:SetAttribute("EquippedFist", tostring(latestStats.EquippedFist or "Starter Glove"))
+	for _, descendant in ipairs(echo:GetDescendants()) do
+		if descendant:IsA("WeldConstraint")
+			or descendant:IsA("Motor6D")
+			or descendant:IsA("AnimationConstraint")
+		then
+			descendant:Destroy()
+		elseif descendant:IsA("BasePart") then
+			descendant.Anchored = true
+			descendant.CanCollide = false
+			descendant.CanTouch = false
+			descendant.CanQuery = false
+		elseif descendant:IsA("ParticleEmitter") then
+			descendant.Enabled = clientSettings.motion == true
+			descendant.Rate = math.min(descendant.Rate, 8)
+		elseif descendant:IsA("Trail") or descendant:IsA("Beam") then
+			descendant.Enabled = clientSettings.motion == true
+		end
+	end
+	echo.Parent = workspace
+
+	local sourcePivot = currentGauntlet:GetPivot()
+	local rotation = sourcePivot.Rotation
+	local startPosition = hand and hand.Position or (rootPart.Position + rootPart.CFrame.RightVector * 1.2 + Vector3.new(0, 0.6, 0))
+	local towardPlayer = rootPart.Position - target.Position
+	local direction = towardPlayer.Magnitude > 0.01 and towardPlayer.Unit or -rootPart.CFrame.LookVector
+	local targetRadius = math.max(target.Size.X, target.Size.Z) * 0.38
+	local impactPosition = target.Position + direction * (targetRadius + 0.45)
+	impactPosition = Vector3.new(impactPosition.X, math.clamp(startPosition.Y, target.Position.Y - 1.2, target.Position.Y + 1.8), impactPosition.Z)
+	local startCFrame = CFrame.new(startPosition) * rotation
+	local impactCFrame = CFrame.new(impactPosition) * rotation
+	echo:PivotTo(startCFrame)
+	gui:SetAttribute("TrainingFistFallbackActive", true)
+	gui:SetAttribute("TrainingFistFallbackRig", "UnsupportedShoulder")
+	gui:SetAttribute("TrainingFistFallbackEquippedFist", tostring(latestStats.EquippedFist or "Starter Glove"))
+	gui:SetAttribute("TrainingFistFallbackCount", (gui:GetAttribute("TrainingFistFallbackCount") or 0) + 1)
+
+	task.spawn(function()
+		local duration = clientSettings.motion and 0.34 or 0.12
+		local startedAt = os.clock()
+		repeat
+			local alpha = math.clamp((os.clock() - startedAt) / duration, 0, 1)
+			local strikeAlpha = alpha < 0.58
+				and (1 - (1 - alpha / 0.58) ^ 3)
+				or (1 - ((alpha - 0.58) / 0.42) ^ 2)
+			echo:PivotTo(startCFrame:Lerp(impactCFrame, math.clamp(strikeAlpha, 0, 1)))
+			RunService.Heartbeat:Wait()
+		until alpha >= 1 or not echo.Parent or generation ~= companionRuntime.trainingFistStrikeGeneration
+		if echo.Parent then echo:Destroy() end
+		if generation == companionRuntime.trainingFistStrikeGeneration then
+			gui:SetAttribute("TrainingFistFallbackActive", false)
+			gui:SetAttribute("TrainingFistFallbackLastImpactAt", os.clock())
+		end
+	end)
+	return true
+end
+
 local function findRigMotor(character, motorNames, part1Names)
 	for _, descendant in ipairs(character:GetDescendants()) do
 		if descendant:IsA("Motor6D") or descendant:IsA("AnimationConstraint") then
@@ -6687,9 +6759,13 @@ shared.PunchWallSetTrainingAnimation = function(active)
 			local activeStation = GameConfig.TrainingStation(latestStats.TrainingStationId)
 			local target = activeStation and interactables and interactables:FindFirstChild(activeStation.name)
 			if rootPart and target and (rootPart.Position - target.Position).Magnitude <= 18 then
-				performPunchAnimation()
+				local characterAnimated = performPunchAnimation()
+				if not characterAnimated then
+					companionRuntime.PerformTrainingFistStrike(target)
+				end
 				gui:SetAttribute("LastTrainingAnimationAt", os.clock())
 				gui:SetAttribute("TrainingAnimationTarget", activeStation.id)
+				gui:SetAttribute("TrainingCharacterAnimationApplied", characterAnimated == true)
 			end
 			task.wait(1)
 		end
@@ -7661,7 +7737,7 @@ if RunService:IsStudio() then
 		}
 		local clientCommandNames = {
 			"Describe", "Sequence", "Snapshot", "Punch", "Jump", "SpinNow", "OpenSpin",
-			"OpenTab", "OpenRebirth", "OpenSettings", "OpenHonorItem", "OpenShopPage", "SetPurchaseUiState", "ConfigurePurchaseTestIds", "InvokeShopAction", "InvokeRebirthAction", "CloseMenus", "ToggleSound",
+			"OpenTab", "OpenRebirth", "OpenSettings", "OpenHonorItem", "OpenShopPage", "SetPurchaseUiState", "ConfigurePurchaseTestIds", "InvokeShopAction", "InvokeRebirthAction", "InvokeContextualAction", "CloseMenus", "ToggleSound",
 			"OpenInventory", "CloseInventory", "SelectInventoryCategory", "SetInventorySearch",
 			"SetInventoryRarity", "SetInventoryRarityMenuOpen", "SelectInventoryItem",
 			"InvokeInventoryAction", "InventorySnapshot",
@@ -7877,6 +7953,12 @@ if RunService:IsStudio() then
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
 			if action == "OpenMore" then
 				openGameTab("Tasks")
+				return true
+			end
+			if action == "InvokeContextualAction" then
+				local contextualAction = tostring(gui:GetAttribute("ContextualActionName") or "")
+				if contextualAction ~= "Train" and contextualAction ~= "Use" then return false end
+				requestAction(contextualAction)
 				return true
 			end
 			if action == "ShowToast" then
@@ -8516,15 +8598,15 @@ function clientRuntime.SetContextualAction(actionName, target)
 			and gui:GetAttribute("PixelReferenceHUDActive") == true
 			and not mainPanel.Visible
 			and gui:GetAttribute("StandaloneModalVisible") ~= true
-		button.Active = button.Visible and trainingEligible
+		button.Active = button.Visible and (actionName ~= "Train" or trainingEligible)
 		button.AutoButtonColor = button.Active
-		button.Text = available and (actionName == "Train"
-			and (trainingEligible
-				and ("TRAIN +%s/s  |  %s"):format(formatNumber(trainingGain), string.upper(targetName))
-				or ("LOCKED  |  NEED %s POWER"):format(formatNumber(trainingRequired)))
-			or ("%s  |  %s"):format(string.upper(actionName), string.upper(targetName)))
-			or "ACTION"
-		button.BackgroundColor3 = actionName == "Train" and palette.Train or palette.Use
+		button.Text = ""
+		local actionAccent = actionName == "Train" and palette.Train or palette.Use
+		-- Keep the prompt quiet over gameplay: the accent communicates the action,
+		-- while a dark card protects both lines from bright world geometry.
+		button.BackgroundColor3 = Color3.fromRGB(10, 23, 31)
+		local actionStroke = button:FindFirstChildOfClass("UIStroke")
+		if actionStroke then actionStroke.Color = actionAccent end
 		button:SetAttribute("Action", actionName or "")
 		button:SetAttribute("Target", targetName)
 		button:SetAttribute("ExactRequestPayload", actionName or "")
@@ -8533,6 +8615,21 @@ function clientRuntime.SetContextualAction(actionName, target)
 		button:SetAttribute("TrainingPowerPerSecond", trainingGain)
 		local icon = button:FindFirstChild("ActionIcon")
 		if icon then applyThemeIcon(icon, actionName == "Train" and "Train" or "Use") end
+		local actionTitle = button:FindFirstChild("ActionTitle")
+		local actionDetail = button:FindFirstChild("ActionDetail")
+		if actionTitle and actionTitle:IsA("TextLabel") then
+			actionTitle.Text = actionName == "Train"
+				and (trainingEligible and "TRAIN" or "LOCKED")
+				or string.upper(tostring(actionName or "ACTION"))
+			actionTitle.TextColor3 = actionAccent
+		end
+		if actionDetail and actionDetail:IsA("TextLabel") then
+			actionDetail.Text = actionName == "Train"
+				and (trainingEligible
+					and ("%s  •  +%s/s"):format(string.upper(targetName), formatNumber(trainingGain))
+					or ("NEED %s POWER"):format(formatNumber(trainingRequired)))
+				or string.upper(targetName)
+		end
 	end
 	gui:SetAttribute("ContextualActionAvailable", available)
 	gui:SetAttribute("ContextualActionName", actionName or "")
@@ -8568,8 +8665,12 @@ RunService.Heartbeat:Connect(function(delta)
 		gui:SetAttribute("TargetCacheMissCount", clientRuntime.TargetCacheMissCount)
 		clientRuntime.RefreshTargetFolderCache()
 	end
-	local nearest
-	local nearestDistance = 44
+	local nearestAction
+	local nearestActionDistance = 44
+	local nearestTraining
+	local nearestTrainingDistance = 44
+	local nearestUse
+	local nearestUseDistance = 44
 	local nearestWall
 	local nearestWallDistance = 50
 	for folderIndex = 1, 2 do
@@ -8578,7 +8679,13 @@ RunService.Heartbeat:Connect(function(delta)
 			for _, candidate in ipairs(folder:GetChildren()) do
 				if candidate:IsA("BasePart") then
 					local distance = (candidate.Position - rootPart.Position).Magnitude
-					if distance < nearestDistance then nearest, nearestDistance = candidate, distance end
+					if folderIndex == 2 then
+						if clientRuntime.IsTrainingTarget(candidate) and distance < nearestTrainingDistance then
+							nearestTraining, nearestTrainingDistance = candidate, distance
+						elseif clientRuntime.IsUseTarget(candidate) and distance < nearestUseDistance then
+							nearestUse, nearestUseDistance = candidate, distance
+						end
+					end
 					if folderIndex == 1 and distance < nearestWallDistance then nearestWall, nearestWallDistance = candidate, distance end
 				end
 			end
@@ -8594,11 +8701,19 @@ RunService.Heartbeat:Connect(function(delta)
 				if facing > -0.1 and distance < nearestWallDistance then
 					nearestWall, nearestWallDistance = block, distance
 				end
-				if facing > -0.1 and distance < nearestDistance then
-					nearest, nearestDistance = block, distance
-				end
 			end
 		end
+	end
+	-- The invisible station hit volume is behind its visible model. Give training
+	-- a small intent margin so a nearby shop stand cannot steal the affordance.
+	if nearestTraining and nearestTrainingDistance <= 18
+		and (not nearestUse or nearestTrainingDistance <= nearestUseDistance + 5)
+	then
+		nearestAction, nearestActionDistance = nearestTraining, nearestTrainingDistance
+	elseif nearestUse and nearestUseDistance <= 18 then
+		nearestAction, nearestActionDistance = nearestUse, nearestUseDistance
+	elseif nearestTraining and nearestTrainingDistance <= 18 then
+		nearestAction, nearestActionDistance = nearestTraining, nearestTrainingDistance
 	end
 	local focusedWall = nearestWall and nearestWallDistance <= 24 and nearestWall.Name ~= "Titan Server Wall"
 	gui:SetAttribute("CombatCameraActive", false)
@@ -8629,15 +8744,15 @@ RunService.Heartbeat:Connect(function(delta)
 		gui:SetAttribute("OnboardingWaypointVisible", false)
 	end
 	local nearbyAction = not focusedWall
-		and nearest
-		and nearestDistance <= 18
+		and nearestAction
+		and nearestActionDistance <= 18
 	local contextualAction
-	if nearbyAction and clientRuntime.IsTrainingTarget(nearest) then
+	if nearbyAction and clientRuntime.IsTrainingTarget(nearestAction) then
 		contextualAction = "Train"
-	elseif nearbyAction and clientRuntime.IsUseTarget(nearest) then
+	elseif nearbyAction and clientRuntime.IsUseTarget(nearestAction) then
 		contextualAction = "Use"
 	end
-	clientRuntime.SetContextualAction(contextualAction, contextualAction and nearest or nil)
+	clientRuntime.SetContextualAction(contextualAction, contextualAction and nearestAction or nil)
 	targetHUD.Visible = false
 end)
 end
@@ -9309,13 +9424,7 @@ shared.PunchWallContextActionButton.BackgroundColor3 = palette.Use
 shared.PunchWallContextActionButton.BackgroundTransparency = 0.04
 shared.PunchWallContextActionButton.BorderSizePixel = 0
 shared.PunchWallContextActionButton.AutoButtonColor = true
-shared.PunchWallContextActionButton.Font = Enum.Font.GothamBlack
-shared.PunchWallContextActionButton.Text = "ACTION"
-shared.PunchWallContextActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-shared.PunchWallContextActionButton.TextScaled = true
-shared.PunchWallContextActionButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-shared.PunchWallContextActionButton.TextStrokeTransparency = 0.22
-shared.PunchWallContextActionButton.TextXAlignment = Enum.TextXAlignment.Right
+shared.PunchWallContextActionButton.Text = ""
 shared.PunchWallContextActionButton.Visible = false
 shared.PunchWallContextActionButton.Active = false
 shared.PunchWallContextActionButton.Selectable = true
@@ -9327,28 +9436,51 @@ contextActionStroke.Color = Color3.fromRGB(255, 213, 67)
 contextActionStroke.Thickness = 3
 contextActionStroke.Transparency = 0.04
 contextActionStroke.Parent = shared.PunchWallContextActionButton
-local contextActionPadding = Instance.new("UIPadding")
-contextActionPadding.PaddingLeft = UDim.new(0, 54)
-contextActionPadding.PaddingRight = UDim.new(0, 12)
-contextActionPadding.Parent = shared.PunchWallContextActionButton
 local contextActionSize = Instance.new("UISizeConstraint")
-contextActionSize.MinSize = Vector2.new(160, 44)
-contextActionSize.MaxSize = Vector2.new(340, 74)
+contextActionSize.MinSize = Vector2.new(196, 52)
+contextActionSize.MaxSize = Vector2.new(300, 64)
 contextActionSize.Parent = shared.PunchWallContextActionButton
-local contextActionTextSize = Instance.new("UITextSizeConstraint")
-contextActionTextSize.MinTextSize = 10
-contextActionTextSize.MaxTextSize = 18
-contextActionTextSize.Parent = shared.PunchWallContextActionButton
 createThemeIcon(
 	shared.PunchWallContextActionButton,
 	"Use",
-	UDim2.fromOffset(8, 7),
-	UDim2.fromOffset(40, 40),
+	UDim2.fromOffset(9, 8),
+	UDim2.fromOffset(38, 38),
 	"ActionIcon"
 )
+do
+	local contextActionTitle = Instance.new("TextLabel")
+	contextActionTitle.Name = "ActionTitle"
+	contextActionTitle.BackgroundTransparency = 1
+	contextActionTitle.Position = UDim2.fromOffset(54, 6)
+	contextActionTitle.Size = UDim2.new(1, -64, 0, 22)
+	contextActionTitle.Font = Enum.Font.GothamBlack
+	contextActionTitle.Text = "ACTION"
+	contextActionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	contextActionTitle.TextSize = 14
+	contextActionTitle.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	contextActionTitle.TextStrokeTransparency = 0.3
+	contextActionTitle.TextXAlignment = Enum.TextXAlignment.Left
+	contextActionTitle.ZIndex = shared.PunchWallContextActionButton.ZIndex + 1
+	contextActionTitle.Parent = shared.PunchWallContextActionButton
+	local contextActionDetail = Instance.new("TextLabel")
+	contextActionDetail.Name = "ActionDetail"
+	contextActionDetail.BackgroundTransparency = 1
+	contextActionDetail.Position = UDim2.fromOffset(54, 28)
+	contextActionDetail.Size = UDim2.new(1, -64, 0, 18)
+	contextActionDetail.Font = Enum.Font.GothamBold
+	contextActionDetail.Text = ""
+	contextActionDetail.TextColor3 = Color3.fromRGB(225, 240, 246)
+	contextActionDetail.TextSize = 9
+	contextActionDetail.TextTruncate = Enum.TextTruncate.AtEnd
+	contextActionDetail.TextWrapped = false
+	contextActionDetail.TextXAlignment = Enum.TextXAlignment.Left
+	contextActionDetail.ZIndex = shared.PunchWallContextActionButton.ZIndex + 1
+	contextActionDetail.Parent = shared.PunchWallContextActionButton
+end
 shared.PunchWallContextActionButton:SetAttribute("MinimumTouchTarget", 44)
 shared.PunchWallContextActionButton:SetAttribute("SafeAreaLane", "CenterAboveTraining")
 shared.PunchWallContextActionButton:SetAttribute("ReusesTargetScan", true)
+shared.PunchWallContextActionButton:SetAttribute("PresentationVersion", "TwoLineCompactV2")
 shared.PunchWallContextActionButton:SetAttribute("Action", "")
 shared.PunchWallContextActionButton:SetAttribute("Target", "")
 shared.PunchWallContextActionButton.Activated:Connect(function()
@@ -11187,7 +11319,11 @@ shared.PunchWallBuildShopUI = function()
 				or item.robux and item.regionalPriceState == "CheckoutOnly" and "AT CHECKOUT"
 				or item.robux and "PRICE UNAVAILABLE"
 				or ((item.cost or 0) <= 0 and "FREE" or formatNumber(item.cost))
-			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
+			local priceColor = item.robux
+				and Color3.fromRGB(105, 242, 169)
+				or Color3.fromRGB(255, 207, 58)
+			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), priceColor, 14, Enum.Font.GothamBlack)
+			priceLabel:SetAttribute("CurrencyPalette", item.robux and "RobuxGreen" or "CoinGold")
 			priceLabel.TextScaled = true
 			local priceTextSize = Instance.new("UITextSizeConstraint")
 			priceTextSize.MinTextSize = compactCards and 6 or 7
@@ -12045,8 +12181,8 @@ applyResponsiveLayout = function()
 		contextLabel.Position = UDim2.new(1, -322, 1, -155)
 		contextLabel.Size = UDim2.fromOffset(180, 30)
 		shared.PunchWallContextActionButton.Position = UDim2.fromScale(0.5, 0.7)
-		shared.PunchWallContextActionButton.Size = UDim2.fromOffset(180, 48)
-		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "PhoneCenterLane48V3")
+		shared.PunchWallContextActionButton.Size = UDim2.fromOffset(224, 56)
+		shared.PunchWallContextActionButton:SetAttribute("ResponsiveProfile", "PhoneTwoLineCenterLane56V4")
 		menuButton.Position = UDim2.new(0.5, 0, 0, math.max(8, math.floor(coreGuiTopLeft.Y + 8)))
 		menuButton.Size = UDim2.fromOffset(78, 44)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)

@@ -2722,6 +2722,7 @@ function InventoryUI:_renderGrid()
 				innerStroke = innerStroke,
 				accentBar = accentBar,
 				accentGradient = accentGradient,
+				artFrame = artFrame,
 				artFrameStroke = artFrameStroke,
 				artFrameGradient = artFrameGradient,
 				artBloom = artBloom,
@@ -3623,8 +3624,8 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Title.Position = UDim2.fromOffset(titleLeft, 5)
 	self.Title.Size = UDim2.new(1, -(titleLeft + math.max(touchTarget, useCompact and 44 or 50) + 30), 1, -13)
 	if self.TitleTextLimit then
-		self.TitleTextLimit.MinTextSize = useCompact and 14 or 22
-		self.TitleTextLimit.MaxTextSize = useCompact and 21 or 40
+		self.TitleTextLimit.MinTextSize = useCompact and 12 or 22
+		self.TitleTextLimit.MaxTextSize = useCompact and 17 or 40
 	end
 	self.HeaderPattern.Visible = not useCompact and windowWidth >= 980
 	self.HeaderSlash.Visible = false
@@ -3650,7 +3651,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self._toolbarRarityWidth = rarityWidth
 	self.Toolbar.Size = UDim2.new(1, -16, 0, toolbarHeight)
 	self.Search.Size = UDim2.fromOffset(searchWidth, toolbarHeight)
-	self.Search.TextSize = useCompact and 9 or 13
+	self.Search.TextSize = useCompact and 8 or 13
 	self.SearchGlyph.Size = UDim2.fromOffset(20, toolbarHeight)
 	self.RarityFilter.AnchorPoint = Vector2.zero
 	self.RarityFilter.Position = UDim2.fromOffset(searchWidth + toolbarGap, 0)
@@ -3959,11 +3960,42 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	local cellHeight = useCompact and math.max(82, math.min(94, cellWidth * 0.62))
 		or math.max(132, math.min(154, cellWidth))
 	for _, cardRef in ipairs(self._cardPool) do
-		cardRef.rarity.TextSize = useCompact and 7 or 10
-		cardRef.quantity.TextSize = useCompact and 8 or 11
-		cardRef.equipped.TextSize = useCompact and 7 or 9
-		cardRef.locked.TextSize = useCompact and 7 or 9
+		cardRef.rarity.TextSize = useCompact and 6 or 10
+		cardRef.quantity.TextSize = useCompact and 7 or 11
+		cardRef.equipped.TextSize = useCompact and 6 or 9
+		cardRef.locked.TextSize = useCompact and 6 or 9
 		cardRef.lockedMessage.TextSize = useCompact and 7 or 9
+		if useCompact then
+			-- Reserve a slim status rail above the art instead of covering the pet or
+			-- fist silhouette with large rarity/equipped blocks.
+			cardRef.artFrame.Position = UDim2.fromOffset(4, 19)
+			cardRef.artFrame.Size = UDim2.new(1, -8, 1, -39)
+			cardRef.rarity.Position = UDim2.fromOffset(4, 4)
+			cardRef.rarity.Size = UDim2.new(0.5, -6, 0, 12)
+			cardRef.equipped.AnchorPoint = Vector2.new(1, 0)
+			cardRef.equipped.Position = UDim2.new(1, -4, 0, 4)
+			cardRef.equipped.Size = UDim2.new(0.48, -4, 0, 12)
+			cardRef.locked.Position = UDim2.new(1, -4, 0, 4)
+			cardRef.locked.Size = UDim2.new(0.48, -4, 0, 12)
+			cardRef.quantity.Position = UDim2.new(1, -4, 0, 19)
+			cardRef.quantity.Size = UDim2.fromOffset(28, 14)
+			cardRef.name.Position = UDim2.new(0, 4, 1, -18)
+			cardRef.name.Size = UDim2.new(1, -8, 0, 14)
+		else
+			cardRef.artFrame.Position = UDim2.fromOffset(6, 8)
+			cardRef.artFrame.Size = UDim2.new(1, -12, 1, -45)
+			cardRef.rarity.Position = UDim2.fromOffset(7, 10)
+			cardRef.rarity.Size = UDim2.new(0.62, -7, 0, 18)
+			cardRef.equipped.AnchorPoint = Vector2.zero
+			cardRef.equipped.Position = UDim2.fromOffset(8, 34)
+			cardRef.equipped.Size = UDim2.fromOffset(62, 20)
+			cardRef.locked.Position = UDim2.new(1, -8, 0, 34)
+			cardRef.locked.Size = UDim2.fromOffset(72, 20)
+			cardRef.quantity.Position = UDim2.new(1, -7, 0, 9)
+			cardRef.quantity.Size = UDim2.fromOffset(38, 22)
+			cardRef.name.Position = UDim2.new(0, 6, 1, -36)
+			cardRef.name.Size = UDim2.new(1, -12, 0, 30)
+		end
 	end
 	for _, label in ipairs(self.EmptySlotLabels) do
 		label.TextSize = useCompact and 8 or 9
@@ -3983,6 +4015,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Root:SetAttribute("InventoryMobileLayout", useCompact and "PhoneDenseBalancedV5" or "DesktopPaneV3")
 	self.Root:SetAttribute("InventoryCardHeight", cellHeight * scale)
 	self.Root:SetAttribute("InventoryCardMaximumCompactHeight", useCompact and 94 or 0)
+	self.Root:SetAttribute("InventoryCompactCardContentVersion", useCompact and "StatusRailV4" or "DesktopV3")
 	self.Root:SetAttribute("InventoryMinimumTouchTarget", touchTarget * scale)
 	self.Root:SetAttribute("InventoryDetailMode", self._layout.detailMode)
 	self.Root:SetAttribute("InventoryUIScale", scale)

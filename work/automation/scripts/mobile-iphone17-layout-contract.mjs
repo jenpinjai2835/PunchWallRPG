@@ -24,7 +24,7 @@ const checks = [
   ["inventory_uses_dense_mobile_cards_and_single_lock_state", inventory.includes('"PhoneDenseBalancedV5"') && inventory.includes('useCompact and 60 or 92') && inventory.includes('"InventoryCardMaximumCompactHeight", useCompact and 94 or 0') && inventory.includes('"InventoryLockedLabelCount"')],
   ["shop_uses_dense_half_scale_mobile_catalog", client.includes('"MobileCatalogDenseV3"') && client.includes('"ShopCompactCardHeight"') && client.includes('"ShopCompactTextScale"') && client.includes('compactCards and 0.5 or 1')],
   ["coin_boost_is_not_in_coin_shop", !client.includes('key = "CoinBoost",\n\t\t\tname = "COIN BOOST"') && flowText.includes("MobileCatalogDenseV3")],
-  ["phone_context_lane_is_clear", client.includes('"PhoneCenterLane48V3"') && client.includes("PunchWallContextActionButton.Size = UDim2.fromOffset(180, 48)")],
+  ["phone_context_lane_is_clear", client.includes('"PhoneTwoLineCenterLane56V4"') && client.includes("PunchWallContextActionButton.Size = UDim2.fromOffset(224, 56)") && client.includes('"PresentationVersion", "TwoLineCompactV2"')],
   ["compact_modals_share_safe_margin", client.includes('"PhoneSafeMargin12V3"') && client.includes('SetAttribute("CompactModalSafeMargin", 12)')],
   ["settings_options_render_above_row_chrome", client.includes("button.ZIndex = optionArea.ZIndex + 1")],
   ["spin_is_isolated_and_safe", client.includes("local edgeMargin = compact and 32 or 18") && client.includes("referenceHUD.Visible = false") && client.includes('close:SetAttribute("MinimumEffectiveTouchTarget", 44)')],

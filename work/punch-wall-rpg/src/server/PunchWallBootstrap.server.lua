@@ -1004,6 +1004,28 @@ local function loadExternalVisualTemplates()
 	root:SetAttribute("ExternalTemplateDescendantCount", templateDescendantCount)
 	root:SetAttribute("ExternalTemplateRejectedCount", rejectedTemplateCount)
 	root:SetAttribute("ExternalTemplateSanitizerValidated", true)
+	local readyPetTemplateCount = 0
+	for _, candidate in ipairs(PolishConfig.ExternalVisualTemplates or {}) do
+		if candidate.preloadedOnly == true then
+			local template = folder:FindFirstChild(candidate.templateName)
+			if template
+				and template:GetAttribute("TemplateVisualAttested") == true
+				and tostring(template:GetAttribute("SourcePackModelName") or "") == tostring(candidate.sourceModel or "")
+				and tostring(template:GetAttribute("CreatorStorePackAssetId") or "") == tostring(candidate.assetId)
+			then
+				readyPetTemplateCount += 1
+			end
+		end
+	end
+	root:SetAttribute("PetVisualReadyTemplateCount", readyPetTemplateCount)
+	root:SetAttribute("PetVisualReleasePolicy", "ExactEightPreloadedSanitizedV2")
+	root:SetAttribute(
+		"PetVisualReleaseReady",
+		preloadedOnlyCount == 8
+			and missingPreloadedOnlyCount == 0
+			and rejectedTemplateCount == 0
+			and readyPetTemplateCount == 8
+	)
 end
 
 loadExternalVisualTemplates()
@@ -8797,10 +8819,21 @@ local function handleMobileAction(player, request)
 		})
 		return
 	elseif action == "Train" then
-		local stationName = nearestNamedPart(player, trainingRuntime.partsByName, TRAINING_INTERACTION_DISTANCE)
 		local requested = target and (trainingRuntime.byName[tostring(target)] or trainingRuntime.byId[tostring(target)])
-		local config = stationName and trainingRuntime.byName[stationName]
-		if requested and requested ~= config then config = nil end
+		local rootPart = characterRoot(player)
+		local config
+		-- Resolve the exact trusted station selected by the contextual affordance
+		-- and validate that station's own range. A second nearest lookup made taps
+		-- around adjacent-station midpoints reject even though the player was close.
+		if requested and rootPart and requested.part and requested.part.Parent then
+			local requestedDistance = (rootPart.Position - requested.part.Position).Magnitude
+			if requestedDistance <= TRAINING_INTERACTION_DISTANCE then
+				config = requested
+			end
+		elseif not target then
+			local stationName = nearestNamedPart(player, trainingRuntime.partsByName, TRAINING_INTERACTION_DISTANCE)
+			config = stationName and trainingRuntime.byName[stationName]
+		end
 		if not config then
 			sendFeedback(player, { type = "Fail", target = "Train", message = "Move closer", color = PolishConfig.Palette.Fail })
 			return
