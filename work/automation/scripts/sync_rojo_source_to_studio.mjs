@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   assertPlaceIdentity,
   inspectSelectedPlace,
-  selectStudioStrict,
+  listStudios,
   waitForDataModels,
 } from "./studio_mcp_client.mjs";
 
@@ -156,6 +156,7 @@ class McpClient {
     this.nextId = 1;
     this.responses = new Map();
     this.buffer = "";
+    this.studioId = null;
     this.child = spawn(command, ["--stdio"], { stdio: ["pipe", "pipe", "pipe"] });
     this.child.stdout.on("data", (data) => this.onData(data.toString()));
     this.child.stderr.on("data", (data) => {
@@ -210,7 +211,16 @@ class McpClient {
   }
 
   async callTool(name, args = {}, timeoutMs = 30000) {
-    const response = await this.waitFor(this.send("tools/call", { name, arguments: args }), timeoutMs);
+    const studioScopedTools = new Set([
+      "execute_luau",
+      "get_studio_state",
+      "multi_edit",
+      "start_stop_play",
+    ]);
+    const toolArgs = this.studioId && studioScopedTools.has(name)
+      ? { ...args, studio_id: this.studioId }
+      : args;
+    const response = await this.waitFor(this.send("tools/call", { name, arguments: toolArgs }), timeoutMs);
     return {
       raw: response,
       text: textOf(response),
@@ -372,12 +382,18 @@ async function main() {
   const synced = [];
   try {
     await client.initialize();
-    const selectedStudio = await selectStudioStrict(client, {
-      studioInstanceId: args.studioInstanceId,
-      studioName: args.studioName ?? DEFAULT_STUDIO_NAME,
-      pollAttempts: 15,
-      pollMs: 3000,
-    });
+    const studios = await listStudios(client, { pollAttempts: 15, pollMs: 3000 });
+    const namePattern = new RegExp(args.studioName ?? DEFAULT_STUDIO_NAME, "i");
+    const matches = studios.filter((studio) => (
+      args.studioInstanceId
+        ? String(studio.id) === String(args.studioInstanceId)
+        : namePattern.test(String(studio.name ?? ""))
+    ));
+    if (matches.length !== 1) {
+      throw new Error(`Expected exactly one Studio target, found ${matches.length}: ${JSON.stringify(studios)}`);
+    }
+    const selectedStudio = matches[0];
+    client.studioId = selectedStudio.id;
     const selectedPlace = await inspectSelectedPlace(client);
     assertPlaceIdentity(selectedPlace, {
       placeName: args.placeName,

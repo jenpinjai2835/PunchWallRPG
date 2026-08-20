@@ -1,33 +1,23 @@
 {
     "ok":  true,
     "game":  "Smash Wall",
-    "branch":  "develop",
+    "releaseVersion":  "1.0.2",
+    "releaseChannel":  "Release",
     "sourceCommit":  "45b3a045f3cf2256f30c254d631f2ca4ba7cdbf6",
-    "sourcePlace":  "F:\\Roblox\\PuchWall\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
-    "outputPlace":  "F:\\Roblox\\PuchWall\\outputs\\SmashWall_Production.rbxlx",
-    "sourceRoot":  "F:\\Roblox\\PuchWall\\work\\punch-wall-rpg\\src",
+    "branch":  "develop",
+    "sourceArtifact":  "F:\\Roblox\\PuchWall\\outputs\\SmashWall_Production.rbxlx",
+    "sourceArtifactSha256":  "CC26C8387B171A67F656B5FE00EB1331397F5D3DB18EEFE262E9F80BCB2A644C",
+    "releaseArtifact":  "F:\\Roblox\\PuchWall\\outputs\\releases\\v1.0.2\\SmashWall_v1.0.2.rbxlx",
+    "validationArtifact":  "F:\\Roblox\\PuchWall\\outputs\\releases\\v1.0.2\\SmashWall_v1.0.2_validation.rbxlx",
     "bytes":  6108085,
     "sha256":  "CC26C8387B171A67F656B5FE00EB1331397F5D3DB18EEFE262E9F80BCB2A644C",
-    "templateSha256":  "27BFC89813298263B85B05D213BC2D0BE73DF1B0CD002830D92856172FCB2357",
+    "validationSha256":  "CC26C8387B171A67F656B5FE00EB1331397F5D3DB18EEFE262E9F80BCB2A644C",
     "sourceMapVersion":  1,
     "codeAllowlistVersion":  1,
     "embeddedModuleCount":  9,
     "codeObjectCount":  9,
-    "removedCodeObjectCount":  0,
-    "removedCodeObjects":  [
-
-                           ],
-    "embeddedScripts":  [
-                            "GameConfig",
-                            "PolishConfig",
-                            "ForestVisualBuilder",
-                            "FistVisualBuilder",
-                            "InventoryViewModel",
-                            "ProfilePersistence",
-                            "PunchWallBootstrap",
-                            "InventoryUI",
-                            "PunchWallClient"
-                        ],
+    "configuredGamePasses":  6,
+    "configuredDeveloperProducts":  8,
     "exactSourceSha256":  {
                               "GameConfig":  "4703B23FA46384AD8B4252E1CC68BCAB62640DF35AC9BA4020C4449EA53A211A",
                               "PolishConfig":  "5B32709854867B3820252AC6EBC23EE0CF4E8589C7D8ADBBDF4D10D250BD974D",
@@ -50,9 +40,5 @@
                              "InventoryUI":  "5110B2F04612A319580A961B449B4688DE37005913EC26A8296C1932D7D03569",
                              "PunchWallClient":  "425F1A62C5F3C26CDC4D32632DF94C9B2DB83722B7F06943E12E23AF374BBD90"
                          },
-    "cdataPreserved":  true,
-    "configuredGamePasses":  6,
-    "configuredDeveloperProducts":  8,
-    "studioHarnessGuarded":  true,
-    "generatedAtUtc":  "2026-08-20T01:54:11.0219332Z"
+    "generatedAtUtc":  "2026-08-20T01:54:19.0652745Z"
 }

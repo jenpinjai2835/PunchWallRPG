@@ -92,6 +92,7 @@ export class McpClient {
     this.nextId = 1;
     this.responses = new Map();
     this.buffer = "";
+    this.studioId = null;
     this.child = spawn(command, ["--stdio"], { stdio: ["pipe", "pipe", "pipe"] });
     this.child.stdout.on("data", (data) => this.onData(data.toString()));
     this.child.stderr.on("data", (data) => {
@@ -150,8 +151,24 @@ export class McpClient {
   }
 
   async callTool(name, args = {}, timeoutMs = 30000) {
+    const studioScopedTools = new Set([
+      "execute_luau",
+      "get_console_output",
+      "get_studio_state",
+      "inspect_instance",
+      "multi_edit",
+      "screen_capture",
+      "search_game_tree",
+      "start_stop_play",
+      "store_image",
+      "user_keyboard_input",
+      "user_mouse_input",
+    ]);
+    const toolArgs = this.studioId && studioScopedTools.has(name)
+      ? { ...args, studio_id: this.studioId }
+      : args;
     const response = await this.waitFor(
-      this.send("tools/call", { name, arguments: args }),
+      this.send("tools/call", { name, arguments: toolArgs }),
       timeoutMs,
     );
     return {
@@ -192,13 +209,13 @@ export async function listStudios(client, options = {}) {
 export async function selectStudioStrict(client, selection = {}) {
   const studios = await listStudios(client, selection);
   const selected = resolveStudioCandidate(studios, selection);
+  client.studioId = selected.id;
   const setResult = await client.callTool("set_active_studio", { studio_id: selected.id });
-  const singleStudioWithoutActivationTool =
+  const explicitRoutingWithoutActivationTool =
     setResult.isError
-    && studios.length === 1
     && /tool handler not found:\s*set_active_studio/i.test(setResult.text);
   assertCondition(
-    !setResult.isError || singleStudioWithoutActivationTool,
+    !setResult.isError || explicitRoutingWithoutActivationTool,
     `Could not activate Studio ${selected.id}: ${setResult.text}`,
   );
 

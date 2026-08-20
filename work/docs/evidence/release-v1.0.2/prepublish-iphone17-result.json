@@ -1,0 +1,26 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "mobile-iphone17-layout",
+      "selectedStudio": {
+        "id": "755197e7-2ac8-4676-8158-a1ccd9578fb9",
+        "name": "ชนกำแพง (placeId: 125255969070601)"
+      },
+      "selectedPlace": {
+        "name": "ชนกำแพง",
+        "placeId": "125255969070601",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 landscape",
+        "cleanup stop play",
+        "cleanup simulator"
+      ],
+      "error": "start_stop_play failed: Start play hasn't finished yet",
+      "context": {}
+    }
+  ]
+}
