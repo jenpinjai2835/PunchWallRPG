@@ -77,3 +77,30 @@ The public-phone follow-up requested another approximately ten-percent optical r
 - The current iPhone 17 runtime gate passes 18/18. The recaptured 14-state bundle is current and source-fingerprint bound; all six top-level routes again opened with one real mouse-input click, all effective targets are at least 44 px, runtime/post-stop consoles are clean, and simulator cleanup is complete.
 
 Manual visual review of `after/01_iphone17_hud.jpg` confirms the four-currency row reads as one system, the Objective no longer dominates the center, the left/right icon groups are visibly lighter and tighter, and the gameplay/avatar lane remains unobstructed. No new in-scope design/layout defect was found in the other 13 recaptured surfaces.
+
+## Final V5 balance pass — HUD, Inventory, Shop, and Boost authority
+
+The final player-phone review requested nine additional corrections. `PhoneLandscapeV5` and the current compact modal policies close all nine:
+
+1. The utility row is ordered `Settings / Sound / More`, with Settings at the far top-right safe edge.
+2. Honor now uses the same Y position and height as Power, Coins, and Depth; the runtime flow checks the full four-card row.
+3. Premium-pet equip feedback is reduced to a 232 x 34 compact notice with a 26 px icon and 10 px text. It remains readable without covering gameplay.
+4. The unused Next Downtown card is hidden and marked `DowntownNotReleased`.
+5. Punch and Jump have equal compact action footprints, ordered Punch first and Jump second, with no overlap and touch-safe targets.
+6. Mobile Inventory uses a dense five-column layout, 82–94 px cards, compact category/toolbar text, and a bounded detail drawer. Desktop behavior remains intact.
+7. Locked items render one state label only. Honor uses its state badge; other locked cards use the art veil without a duplicate LOCKED banner.
+8. Coin Boost x2 is no longer present in the coin-purchase boost catalog. Forged `BuyShopBoost/CoinBoost` requests fail closed; the existing Robux Developer Product is unchanged.
+9. Every mobile Shop tab uses the same dense 86 px scroll-card system. Compact text is constrained to 6–8 px and the five tabs retain balanced spacing and touch targets.
+
+### Final integrated QC
+
+- `mobile-iphone17-layout.json`: **PASS 19/19** on the exact `SmashWall_v1.0.1.rbxlx` Studio instance.
+- Current capture bundle: **PASS 15/15** — HUD, three Inventory states, all five Shop tabs, Missions, Rebirth locked/confirm, Settings, Spin, and the targeted premium-pet notice.
+- Real input: all six top-level HUD routes opened on the first mouse click; every current capture and source/runtime fingerprint is recorded in `after/capture-summary.json`.
+- Inventory regression: **PASS 51/51**, including desktop ownership/actions, full eight-item Honor catalog, compact five-column geometry, one bounded rarity menu, timed-boost refresh behavior, and clean desktop/phone consoles.
+- Economy regression: **PASS 18/18**; Shop regression: **PASS 8/8**. Both include the removed coin route for Coin Boost x2.
+- Device matrix: **PASS 45/45** across 1920 x 1080, 1366 x 768, 1024 x 768, 844 x 390, and 740 x 360.
+- Full non-Studio aggregate: **PASS** — Node syntax 47, PowerShell syntax 19, Luau 27/27, flow JSON 114, and all 25 non-Studio contracts.
+- Manual review of all 15 current images: **PASS**. No known in-scope design/layout defect remains.
+
+Physical touch feel on a real iPhone and hardware gamepad navigation remain **NOT RUN**. The current acceptance is based on the exact iPhone 17 simulator profile, real mouse routing through the production callbacks, current source-bound screenshots, and multi-device runtime geometry.

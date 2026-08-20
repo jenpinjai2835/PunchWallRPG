@@ -38,16 +38,17 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=4999})\nlocal low=c:Invoke('BuyShopBoost','CoinBoost')\nassert(low.ok==false and low.reason=='not_enough_coins' and low.Coins==4999,'boost cost-1 mutated state')\nc:Invoke('SetStats',{Coins=5000})\nlocal exact=c:Invoke('BuyShopBoost','CoinBoost')\nassert(exact.ok==true and exact.Coins==0 and tonumber(exact.expiresAt)>workspace:GetServerTimeNow(),'exact boost purchase failed')\nlocal invalid=c:Invoke('BuyShopBoost','UnknownBoost')\nassert(invalid.ok==false and invalid.reason=='unknown_boost' and invalid.Coins==0,'unknown boost mutated state')\nreturn H:JSONEncode({low=low.reason,exact=exact.ok,coins=exact.Coins,unknown=invalid.reason,active=tonumber(exact.expiresAt)>workspace:GetServerTimeNow()})"
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=7999})\nlocal removed=c:Invoke('BuyShopBoost','CoinBoost')\nassert(removed.ok==false and removed.reason=='unknown_boost' and removed.Coins==7999 and tonumber(removed.CoinBoostExpiresAt or 0)<=0,'removed coin purchase route mutated state')\nlocal low=c:Invoke('BuyShopBoost','SpeedBoost')\nassert(low.ok==false and low.reason=='not_enough_coins' and low.Coins==7999,'speed boost cost-1 mutated state')\nc:Invoke('SetStats',{Coins=8000})\nlocal exact=c:Invoke('BuyShopBoost','SpeedBoost')\nassert(exact.ok==true and exact.Coins==0 and tonumber(exact.expiresAt)>workspace:GetServerTimeNow(),'exact speed boost purchase failed')\nlocal invalid=c:Invoke('BuyShopBoost','UnknownBoost')\nassert(invalid.ok==false and invalid.reason=='unknown_boost' and invalid.Coins==0,'unknown boost mutated state')\nreturn H:JSONEncode({removed=removed.reason,low=low.reason,exact=exact.ok,coins=exact.Coins,unknown=invalid.reason,active=tonumber(exact.expiresAt)>workspace:GetServerTimeNow()})"
       },
       "expectRegex": [
+        "\"removed\"\\s*:\\s*\"unknown_boost\"",
         "\"low\"\\s*:\\s*\"not_enough_coins\"",
         "\"exact\"\\s*:\\s*true",
         "\"coins\"\\s*:\\s*0",
         "\"unknown\"\\s*:\\s*\"unknown_boost\"",
         "\"active\"\\s*:\\s*true"
       ],
-      "label": "verify shop boost cost and invalid-target boundaries"
+      "label": "verify Coin x2 coin route removed and remaining boost boundaries"
     },
     {
       "type": "call",

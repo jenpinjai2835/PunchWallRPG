@@ -271,6 +271,9 @@ async function main() {
 
     await automation("local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('CloseMenus') return true", "close all for baseline");
     await captureState("01_iphone17_hud", "HUD baseline");
+    await automation("local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('ShowToast',{message='CELESTIAL GUARDIAN EQUIPPED',icon='Pet'}) task.wait(.2) return g.Toasts.Visible", "show compact premium pet notice");
+    await captureState("15_iphone17_premium_pet_notice", "Premium pet equipped notice");
+    await automation("return game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation:Invoke('ClearToasts')", "clear compact premium pet notice");
 
     if (automationFallback) {
       await automation("local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation return tostring(a:Invoke('OpenInventory','All'))", "open Inventory fallback");

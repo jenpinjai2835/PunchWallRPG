@@ -45,14 +45,15 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=50000,Power=10,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local coin=c:Invoke('BuyShopBoost','CoinBoost') local p=game.Players:GetPlayers()[1] local before=p.leaderstats.Coins.Value c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) local reward=p.leaderstats.Coins.Value-before c:Invoke('BuyShopBoost','SpeedBoost') p:LoadCharacter() task.wait(1) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') return H:JSONEncode({coin=coin.ok,reward=reward,speed=h and h.WalkSpeed,coinEnds=p:GetAttribute('CoinBoostExpiresAt'),speedEnds=p:GetAttribute('SpeedBoostExpiresAt')})"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=50000,Power=10,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local removed=c:Invoke('BuyShopBoost','CoinBoost') local p=game.Players:GetPlayers()[1] assert(removed.ok==false and removed.reason=='unknown_boost' and removed.Coins==50000 and tonumber(p:GetAttribute('CoinBoostExpiresAt') or 0)<=0,'Coin x2 Coins route still active') local speedPurchase=c:Invoke('BuyShopBoost','SpeedBoost') p:LoadCharacter() task.wait(1) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') return H:JSONEncode({removed=removed.reason,speedPurchase=speedPurchase.ok,coins=p.leaderstats.Coins.Value,speed=h and h.WalkSpeed,coinEnds=p:GetAttribute('CoinBoostExpiresAt'),speedEnds=p:GetAttribute('SpeedBoostExpiresAt')})"
       },
       "expectRegex": [
-        "\\\"coin\\\"\\s*:\\s*true",
-        "\\\"reward\\\"\\s*:\\s*2[0-9]",
+        "\\\"removed\\\"\\s*:\\s*\\\"unknown_boost\\\"",
+        "\\\"speedPurchase\\\"\\s*:\\s*true",
+        "\\\"coins\\\"\\s*:\\s*42000",
         "\\\"speed\\\"\\s*:\\s*24"
       ],
-      "label": "coin boost doubles block reward and speed survives respawn"
+      "label": "Coin x2 coin purchase is denied and speed survives respawn"
     },
     { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
     { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },

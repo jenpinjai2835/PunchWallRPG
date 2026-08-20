@@ -853,9 +853,9 @@ check(
   "shop_feedback_uses_bounded_no_center_toast_without_sound_change",
   showFeedback.includes('or payload.type == "PremiumPrompt" or payload.type == "PremiumSetup" or payload.type == "Fail" or payload.type == "Shop" then')
     && showFeedback.includes('payload.type ~= "Fail" and payload.type ~= "PremiumSetup" and payload.type ~= "PremiumPrompt" and payload.type ~= "Shop"')
-    && showFeedback.includes(
-      "shared.PunchWallShowToast(feedbackText(payload), presentationColor, feedbackIcon(payload.type))",
-    )
+    && showFeedback.includes("shared.PunchWallShowToast(")
+    && showFeedback.includes("feedbackText(payload)")
+    && showFeedback.includes("feedbackIcon(payload.type)")
     && feedbackPresentation.includes("maxToasts = 3")
     && feedbackPresentation.includes("while #list >= limit do")
     && feedbackPresentation.includes("local oldest = table.remove(list, 1)")
@@ -863,9 +863,12 @@ check(
     && boundedToast.includes(
       "feedbackPresentation.Present(toastHolder, feedbackPresentation.toasts, toast, feedbackPresentation.maxToasts)",
     )
-    && boundedToast.includes(
-      'createThemeIcon(toast, iconName or "Warning", UDim2.fromOffset(-44, 5), UDim2.fromOffset(34, 34), "ToastIcon")',
-    ),
+    && boundedToast.includes('local compactToast = UserInputService.TouchEnabled')
+    && boundedToast.includes('compactToast and 232 or 440')
+    && boundedToast.includes('compactToast and 34 or 46')
+    && boundedToast.includes('compactToast and -31 or -44')
+    && boundedToast.includes('compactToast and 26 or 34')
+    && boundedToast.includes('"PhoneCompactNoticeV1"'),
   "With center feedback disabled, Shop must reuse the existing three-item bounded toast queue and preserve prior sound behavior.",
 );
 check(

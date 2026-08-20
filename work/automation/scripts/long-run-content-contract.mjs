@@ -56,10 +56,10 @@ check(pets.at(-1).mult >= 48, "deepest pet must provide an endgame multiplier");
 check(pets.every((item) => item.template?.startsWith("Sanitized_")), "every normal pet must use a sanitized visual template");
 check(config.includes("GameConfig.MaxPetInventory = 150"), "expanded pet capacity must be 150");
 
-check(client.includes('catalogScrollable = page == "Fists" and #products > 6'), "large fist catalog must activate scrolling");
-check(client.includes('catalogScroll.Name = "FistCatalogScroll"'), "fist catalog must expose a named scroll viewport");
+check(client.includes('catalogScrollable = compactCards or (page == "Fists" and #products > 6)'), "compact catalogs and the large fist catalog must activate scrolling");
+check(client.includes('catalogScroll.Name = "ShopCatalogScroll"'), "every scrollable catalog must expose a named scroll viewport");
 check(client.includes('"FixedReadableCardsV1"'), "shop must attest fixed readable cards");
-check(client.includes("scrollCardHeight = compactCards and 118 or 154"), "shop cards must retain bounded readable height");
+check(client.includes("scrollCardHeight = compactCards and 86 or 154"), "shop cards must retain dense mobile and readable desktop heights");
 check(server.includes("local poolStart = math.max(1, #eligible - 1)"), "pet rolls must remain in the current depth band");
 check(server.includes("depth >= (pet.minDepth or 1)"), "pet rolls must enforce depth unlocks on the server");
 check(server.includes('reason = "depth_locked"') && server.includes('message = ("Reach Depth %d")'), "server must reject fist progression skips");

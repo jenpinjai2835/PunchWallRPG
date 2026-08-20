@@ -6338,7 +6338,6 @@ end
 
 shared.PunchWallShopBoostPurchase = function(player, boostName)
 	local catalog = {
-		CoinBoost = { cost = 5000, attribute = "CoinBoostExpiresAt", feedback = "COIN BOOST x2 ACTIVE" },
 		SpeedBoost = { cost = 8000, attribute = "SpeedBoostExpiresAt", feedback = "SPEED BOOST ACTIVE" },
 		DamageBoost = { cost = 12000, attribute = "DamageBoostExpiresAt", feedback = "DAMAGE BOOST x2 ACTIVE" },
 	}

@@ -233,7 +233,7 @@ check(
     && capacityUpdate.includes('InventoryCapacityFullText", fullText')
     && capacityUpdate.includes('InventoryCapacityReadable", true')
     && responsive.includes(
-      "self.Capacity.TextSize = capacityWidth < 104 and 10 or useCompact and 11 or 12",
+      "self.Capacity.TextSize = useCompact and (capacityWidth < 104 and 8 or 9) or 12",
     ),
   "Compact capacity copy must keep explicit ITEM/PET semantics and readable type.",
 );
@@ -293,7 +293,9 @@ check(
     && gridRender.includes('InventoryEmptyTreatment", "FilterEmpty"')
     && gridRender.includes('InventoryEmptyTreatment", "InventoryEmpty"')
     && gridRender.includes('InventoryLockedTreatment"')
-    && gridRender.includes("cardRef.lockedVeil.Visible = item.locked == true"),
+    && gridRender.includes("cardRef.lockedVeil.Visible = item.locked == true and not honorItem")
+    && gridRender.includes('InventoryLockedLabelCount')
+    && gridRender.includes('honorItem and "HonorStateBadgeOnly" or "ArtVeilOnly"'),
   "Empty inventory, empty filter, and locked cards must communicate different recovery/state information.",
 );
 
@@ -323,7 +325,7 @@ check(
     && source.includes('InventoryWideActionLayout", "ThreeSingleOrFourTwoByTwo"')
     && source.includes('InventoryBackdropMode", "InputOnlyTransparent"')
     && source.includes("BackgroundTransparency = 1")
-    && responsive.includes("local headerHeight = useCompact and math.max(54, touchTarget + 10) or math.max(68, touchTarget + 16)")
+    && responsive.includes("local headerHeight = useCompact and math.max(48, touchTarget + 4) or math.max(68, touchTarget + 16)")
     && responsive.includes("local detailWidth = math.clamp(windowWidth * 0.285, 282, 320)")
     && responsive.includes("local artSize = math.clamp(detailHeight * 0.245, 124, 154)")
     && responsive.includes("local actionColumns = wideActionCount == 4 and 2 or math.min(3, wideActionCount)")
@@ -417,7 +419,7 @@ check(
       '"HonorMedal"',
     ].every((token) => source.includes(token))
     && !source.includes("local CATEGORY_ICONS =")
-    && responsive.includes("widgets.icon.Size = UDim2.fromOffset(24, 24)")
+    && responsive.includes("widgets.icon.Size = UDim2.fromOffset(20, 20)")
     && responsive.includes("widgets.icon.Size = UDim2.fromOffset(40, 40)"),
   "All five category entries need equal text-free icon tiles with semantic glyphs and explicit compact/wide sizes.",
 );

@@ -117,9 +117,12 @@ check(
 check(
   "long_catalog_names_and_prices_scale_inside_every_card",
   client.includes("productNameLabel.TextScaled = true")
-    && client.includes("productNameSize.MinTextSize = compactCards and 8 or 10")
+    && client.includes("productNameSize.MinTextSize = compactCards and 6 or 10")
+    && client.includes("productNameSize.MaxTextSize = compactCards and 8 or 17")
     && client.includes("priceLabel.TextScaled = true")
-    && client.includes("priceTextSize.MaxTextSize = compactCards and 10 or 14")
+    && client.includes("priceTextSize.MaxTextSize = compactCards and 8 or 14")
+    && client.includes('"MobileCatalogDenseV3"')
+    && client.includes('"ShopCompactTextScale"')
     && !client.includes("if #productName > 18 then"),
   "Every visible long-play product name and price must use bounded scaling; short strings can still clip in narrow half-width cards.",
 );

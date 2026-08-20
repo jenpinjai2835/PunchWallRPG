@@ -783,7 +783,7 @@ function InventoryUI:_build(parent)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 145,
 	})
-	addTextLimit(self.Title, 22, 40)
+	self.TitleTextLimit = addTextLimit(self.Title, 22, 40)
 
 	self.Subtitle = create("TextLabel", self.Header, {
 		Name = "InventorySubtitle",
@@ -2801,7 +2801,7 @@ function InventoryUI:_renderGrid()
 		card:SetAttribute("InventoryWorldSelection", selected and honorId or "")
 		card:SetAttribute(
 			"InventoryLockedTreatment",
-			item.locked == true and "VeilAndBadge" or "Unlocked"
+			item.locked == true and (honorItem and "HonorStateBadgeOnly" or "ArtVeilOnly") or "Unlocked"
 		)
 		cardRef.stroke.Color = selected and PALETTE.Gold or accent
 		cardRef.stroke.Thickness = selected and 3 or 1.5
@@ -2848,7 +2848,9 @@ function InventoryUI:_renderGrid()
 		local showHonorState = honorState == "Locked"
 			or honorState == "Insufficient"
 			or honorState == "Affordable"
-		cardRef.locked.Visible = item.locked == true or showHonorState
+		-- One state label per card. Standard locked items use the centered art
+		-- veil; Honor relics use their actionable LOCKED/NEED/READY badge.
+		cardRef.locked.Visible = honorItem and showHonorState
 		cardRef.locked.Text = honorState == "Insufficient" and ("NEED " .. formatNumber(item.missingHonor or 0))
 			or honorState == "Affordable" and "READY"
 			or "LOCKED"
@@ -2856,7 +2858,11 @@ function InventoryUI:_renderGrid()
 			or honorState == "Insufficient" and PALETTE.GoldDark
 			or PALETTE.RedDark
 		cardRef.locked.TextColor3 = honorState == "Affordable" and PALETTE.Ink or PALETTE.Text
-		cardRef.lockedVeil.Visible = item.locked == true
+		cardRef.lockedVeil.Visible = item.locked == true and not honorItem
+		card:SetAttribute(
+			"InventoryLockedLabelCount",
+			(cardRef.locked.Visible and 1 or 0) + (cardRef.lockedVeil.Visible and 1 or 0)
+		)
 
 		local keyedRefs = self._cardRefsByKey[key]
 		if not keyedRefs then
@@ -3581,15 +3587,15 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	local availableHeight = viewport.Y / scale
 	local useCompact = compact == true or viewport.X < 900 or viewport.Y < 520
 	local touchTarget = math.ceil(44 / scale)
-	local headerHeight = useCompact and math.max(54, touchTarget + 10) or math.max(68, touchTarget + 16)
-	local compactSafeInsetX = 20
-	local compactSafeInsetY = 24
+	local headerHeight = useCompact and math.max(48, touchTarget + 4) or math.max(68, touchTarget + 16)
+	local compactSafeInsetX = 40
+	local compactSafeInsetY = 48
 	local compactMinimumWidth = 320 / scale
 	local compactMinimumHeight = 280 / scale
 	local compactMaximumWidth = math.max(1, (viewport.X - compactSafeInsetX) / scale)
 	local compactMaximumHeight = math.max(1, (viewport.Y - compactSafeInsetY) / scale)
-	local compactDesiredWidth = math.max(compactMinimumWidth, availableWidth - 12)
-	local compactDesiredHeight = math.max(compactMinimumHeight, availableHeight - 12)
+	local compactDesiredWidth = math.max(compactMinimumWidth, availableWidth - 32)
+	local compactDesiredHeight = math.max(compactMinimumHeight, availableHeight - 32)
 	local windowWidth = useCompact
 			and math.min(compactDesiredWidth, compactMaximumWidth)
 		or math.max(320, math.min(1180, availableWidth - 32))
@@ -3616,6 +3622,10 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	local titleLeft = useCompact and 145 or 30
 	self.Title.Position = UDim2.fromOffset(titleLeft, 5)
 	self.Title.Size = UDim2.new(1, -(titleLeft + math.max(touchTarget, useCompact and 44 or 50) + 30), 1, -13)
+	if self.TitleTextLimit then
+		self.TitleTextLimit.MinTextSize = useCompact and 14 or 22
+		self.TitleTextLimit.MaxTextSize = useCompact and 21 or 40
+	end
 	self.HeaderPattern.Visible = not useCompact and windowWidth >= 980
 	self.HeaderSlash.Visible = false
 	self.Close.Size = UDim2.fromOffset(math.max(touchTarget, useCompact and 44 or 50), math.max(touchTarget, useCompact and 44 or 50))
@@ -3640,7 +3650,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self._toolbarRarityWidth = rarityWidth
 	self.Toolbar.Size = UDim2.new(1, -16, 0, toolbarHeight)
 	self.Search.Size = UDim2.fromOffset(searchWidth, toolbarHeight)
-	self.Search.TextSize = useCompact and 12 or 13
+	self.Search.TextSize = useCompact and 9 or 13
 	self.SearchGlyph.Size = UDim2.fromOffset(20, toolbarHeight)
 	self.RarityFilter.AnchorPoint = Vector2.zero
 	self.RarityFilter.Position = UDim2.fromOffset(searchWidth + toolbarGap, 0)
@@ -3651,8 +3661,8 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		0
 	)
 	self.Capacity.Size = UDim2.fromOffset(capacityWidth, toolbarHeight)
-	self.Capacity.TextSize = capacityWidth < 104 and 10 or useCompact and 11 or 12
-	self.RarityFilter.TextSize = rarityWidth < 104 and 10 or useCompact and 11 or 12
+	self.Capacity.TextSize = useCompact and (capacityWidth < 104 and 8 or 9) or 12
+	self.RarityFilter.TextSize = useCompact and (rarityWidth < 104 and 8 or 9) or 12
 	self:_updateCapacity()
 	self:_setRarityMenu(self._rarityMenuOpen)
 	self.Toolbar:SetAttribute("InventoryToolbarContentWidth", toolbarWidths.total * scale)
@@ -3721,7 +3731,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.CategoryLayout.FillDirection = Enum.FillDirection.Horizontal
 		self.CategoryLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		self.CategoryLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		self.CategoryLayout.Padding = UDim.new(0, 5)
+		self.CategoryLayout.Padding = UDim.new(0, 3)
 		local categoryWidth = math.max(
 			touchTarget,
 			math.floor((bodyWidth - 8 - 16 - 20) / #CATEGORIES)
@@ -3729,11 +3739,11 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		for _, category in ipairs(CATEGORIES) do
 			local widgets = self._categoryButtons[category]
 			widgets.button.Size = UDim2.fromOffset(categoryWidth, touchTarget)
-			widgets.button.TextSize = 9
-			widgets.padding.PaddingLeft = UDim.new(0, 28)
+			widgets.button.TextSize = 8
+			widgets.padding.PaddingLeft = UDim.new(0, 24)
 			widgets.padding.PaddingRight = UDim.new(0, 4)
-			widgets.icon.Position = UDim2.fromOffset(-25, 8)
-			widgets.icon.Size = UDim2.fromOffset(24, 24)
+			widgets.icon.Position = UDim2.fromOffset(-21, 10)
+			widgets.icon.Size = UDim2.fromOffset(20, 20)
 			widgets.indicator.Position = UDim2.fromOffset(-28, 4)
 			widgets.indicator.Size = UDim2.new(0, 3, 1, -8)
 			widgets.arrow.Visible = false
@@ -3923,10 +3933,8 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 
 	local gridContentWidth = math.max(1, gridPaneWidth - 24)
 	local preferredColumns
-	if useCompact and viewport.X < 800 then
-		preferredColumns = 3
-	elseif useCompact then
-		preferredColumns = 4
+	if useCompact then
+		preferredColumns = 5
 	elseif gridContentWidth >= 600 then
 		preferredColumns = 5
 	elseif gridContentWidth >= 440 then
@@ -3934,8 +3942,11 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	else
 		preferredColumns = 3
 	end
-	local padding = 8
-	local minimumCellWidth = math.max(touchTarget, 92)
+	local padding = useCompact and 5 or 8
+	-- The phone drawer is an overview first: five compact cards fit the iPhone
+	-- landscape safe width while the card itself remains non-interactive chrome
+	-- around a 44 px selection target.
+	local minimumCellWidth = math.max(touchTarget, useCompact and 60 or 92)
 	local fittingColumns = math.max(
 		1,
 		math.floor((gridContentWidth + padding) / (minimumCellWidth + padding))
@@ -3945,14 +3956,14 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		touchTarget,
 		math.floor((gridContentWidth - (columns - 1) * padding) / columns)
 	)
-	local cellHeight = useCompact and math.max(112, math.min(132, cellWidth * 0.9))
+	local cellHeight = useCompact and math.max(82, math.min(94, cellWidth * 0.62))
 		or math.max(132, math.min(154, cellWidth))
 	for _, cardRef in ipairs(self._cardPool) do
-		cardRef.rarity.TextSize = useCompact and 9 or 10
-		cardRef.quantity.TextSize = useCompact and 10 or 11
-		cardRef.equipped.TextSize = useCompact and 8 or 9
-		cardRef.locked.TextSize = useCompact and 8 or 9
-		cardRef.lockedMessage.TextSize = useCompact and 8 or 9
+		cardRef.rarity.TextSize = useCompact and 7 or 10
+		cardRef.quantity.TextSize = useCompact and 8 or 11
+		cardRef.equipped.TextSize = useCompact and 7 or 9
+		cardRef.locked.TextSize = useCompact and 7 or 9
+		cardRef.lockedMessage.TextSize = useCompact and 7 or 9
 	end
 	for _, label in ipairs(self.EmptySlotLabels) do
 		label.TextSize = useCompact and 8 or 9
@@ -3969,6 +3980,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	end
 	self.Root:SetAttribute("InventoryCompact", useCompact)
 	self.Root:SetAttribute("InventoryColumns", columns)
+	self.Root:SetAttribute("InventoryMobileLayout", useCompact and "PhoneDenseBalancedV5" or "DesktopPaneV3")
+	self.Root:SetAttribute("InventoryCardHeight", cellHeight * scale)
+	self.Root:SetAttribute("InventoryCardMaximumCompactHeight", useCompact and 94 or 0)
 	self.Root:SetAttribute("InventoryMinimumTouchTarget", touchTarget * scale)
 	self.Root:SetAttribute("InventoryDetailMode", self._layout.detailMode)
 	self.Root:SetAttribute("InventoryUIScale", scale)

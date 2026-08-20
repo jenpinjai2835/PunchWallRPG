@@ -2466,20 +2466,28 @@ local function showFeedback(payload)
 	pop.Font = Enum.Font.GothamBlack
 	pop.Text = feedbackText(payload)
 	pop.TextColor3 = color
-	pop.TextSize = UserInputService.TouchEnabled and 15 or payload.type == "Boss" and 22 or 18
+	local compactFeedback = UserInputService.TouchEnabled
+	pop.TextSize = compactFeedback and 10 or payload.type == "Boss" and 22 or 18
 	pop.TextWrapped = true
 	pop.TextXAlignment = Enum.TextXAlignment.Left
 	pop.LayoutOrder = count
 	pop.Position = UDim2.fromScale(0.5, 0.5)
-	pop.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 300 or 320, UserInputService.TouchEnabled and 44 or 50)
+	pop.Size = UDim2.fromOffset(compactFeedback and 232 or 320, compactFeedback and 34 or 50)
+	pop:SetAttribute("FeedbackResponsiveProfile", compactFeedback and "PhoneCompactNoticeV1" or "DesktopNoticeV1")
 	pop.Parent = rewardHolder
 	feedbackPresentation.Present(rewardHolder, feedbackPresentation.rewards, pop, feedbackPresentation.maxRewards)
 	addHeroAccent(pop, color)
 	local popPadding = Instance.new("UIPadding")
-	popPadding.PaddingLeft = UDim.new(0, 52)
-	popPadding.PaddingRight = UDim.new(0, 10)
+	popPadding.PaddingLeft = UDim.new(0, compactFeedback and 36 or 52)
+	popPadding.PaddingRight = UDim.new(0, compactFeedback and 7 or 10)
 	popPadding.Parent = pop
-	createThemeIcon(pop, feedbackIcon(payload.type), UDim2.fromOffset(-46, 5), UDim2.fromOffset(40, 40), "FeedbackIcon")
+	createThemeIcon(
+		pop,
+		feedbackIcon(payload.type),
+		UDim2.fromOffset(compactFeedback and -32 or -46, compactFeedback and 4 or 5),
+		UDim2.fromOffset(compactFeedback and 26 or 40, compactFeedback and 26 or 40),
+		"FeedbackIcon"
+	)
 
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
@@ -2512,6 +2520,7 @@ local function showFeedback(payload)
 end
 
 shared.PunchWallShowToast = function(message, color, iconName)
+	local compactToast = UserInputService.TouchEnabled
 	local toast = Instance.new("TextLabel")
 	toast.BackgroundColor3 = palette.Panel
 	toast.BackgroundTransparency = 0.05
@@ -2519,18 +2528,25 @@ shared.PunchWallShowToast = function(message, color, iconName)
 	toast.Font = Enum.Font.GothamBold
 	toast.Text = message
 	toast.TextColor3 = color or Color3.fromRGB(255, 235, 140)
-	toast.TextSize = 14
+	toast.TextSize = compactToast and 10 or 14
 	toast.TextWrapped = true
 	toast.TextXAlignment = Enum.TextXAlignment.Left
-	toast.Size = UDim2.fromOffset(UserInputService.TouchEnabled and 300 or 440, UserInputService.TouchEnabled and 44 or 46)
+	toast.Size = UDim2.fromOffset(compactToast and 232 or 440, compactToast and 34 or 46)
+	toast:SetAttribute("ToastResponsiveProfile", compactToast and "PhoneCompactNoticeV1" or "DesktopToastV1")
 	toast.Parent = toastHolder
 	feedbackPresentation.Present(toastHolder, feedbackPresentation.toasts, toast, feedbackPresentation.maxToasts)
 	addHeroAccent(toast, color or palette.Train)
 	local toastPadding = Instance.new("UIPadding")
-	toastPadding.PaddingLeft = UDim.new(0, 50)
-	toastPadding.PaddingRight = UDim.new(0, 10)
+	toastPadding.PaddingLeft = UDim.new(0, compactToast and 36 or 50)
+	toastPadding.PaddingRight = UDim.new(0, compactToast and 7 or 10)
 	toastPadding.Parent = toast
-	createThemeIcon(toast, iconName or "Warning", UDim2.fromOffset(-44, 5), UDim2.fromOffset(34, 34), "ToastIcon")
+	createThemeIcon(
+		toast,
+		iconName or "Warning",
+		UDim2.fromOffset(compactToast and -31 or -44, compactToast and 4 or 5),
+		UDim2.fromOffset(compactToast and 26 or 34, compactToast and 26 or 34),
+		"ToastIcon"
+	)
 
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
@@ -3849,7 +3865,7 @@ local settingsPanel, settingsBody, settingsClose, settingsSubtitle = createStand
 	"SettingsWindow",
 	"SETTINGS",
 	Color3.fromRGB(46, 205, 255),
-	"Settings"
+	"SettingsTool"
 )
 settingsPanel.Size = UDim2.fromOffset(640, 420)
 
@@ -7649,7 +7665,7 @@ if RunService:IsStudio() then
 			"OpenInventory", "CloseInventory", "SelectInventoryCategory", "SetInventorySearch",
 			"SetInventoryRarity", "SetInventoryRarityMenuOpen", "SelectInventoryItem",
 			"InvokeInventoryAction", "InventorySnapshot",
-			"OpenMore", "SetCamera", "ResetCamera", "SetSettings", "ClearMarkers",
+			"OpenMore", "ShowToast", "ClearToasts", "SetCamera", "ResetCamera", "SetSettings", "ClearMarkers",
 			"RequestAction", "SetGuiVisible", "SetGuiAttribute", "GetGuiSummary",
 			"__ReplayLoading", "__HideLoading", "__RunCamera",
 		}
@@ -7861,6 +7877,21 @@ if RunService:IsStudio() then
 			if action == "ToggleSound" then return shared.PunchWallApplySoundSetting(not clientSettings.sound, true) end
 			if action == "OpenMore" then
 				openGameTab("Tasks")
+				return true
+			end
+			if action == "ShowToast" then
+				local options = typeof(value) == "table" and value or {}
+				shared.PunchWallShowToast(
+					tostring(options.message or "TEST NOTICE"),
+					options.color or Color3.fromRGB(255, 220, 90),
+					tostring(options.icon or "Pet")
+				)
+				return true
+			end
+			if action == "ClearToasts" then
+				for _, child in ipairs(toastHolder:GetChildren()) do
+					if child:IsA("TextLabel") then child:Destroy() end
+				end
 				return true
 			end
 			if action == "OpenInventory" then
@@ -9227,7 +9258,7 @@ local function scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 			end
 		end
 		local coverage = coveredArea / math.max(1, hudSize.X * hudSize.Y)
-		referenceHUD:SetAttribute("PhoneLayoutContractVersion", "PhoneLandscapeV4")
+		referenceHUD:SetAttribute("PhoneLayoutContractVersion", "PhoneLandscapeV5")
 		referenceHUD:SetAttribute("PhonePrimaryControlCount", #visibleControls)
 		referenceHUD:SetAttribute("PhonePrimaryTargetsPass", not compact or compactTargetsPass)
 		referenceHUD:SetAttribute("PhonePrimaryTargetFailures", table.concat(compactTargetFailures, ","))
@@ -10612,7 +10643,7 @@ shared.PunchWallBuildShopUI = function()
 		cyanRail.Position = UDim2.fromScale(0.445, 0.84)
 		cyanRail.Size = UDim2.fromScale(0.42, 0.055)
 		cyanRail.Parent = header
-		label(header, "Eyebrow", "HERO CITY ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
+		local eyebrow = label(header, "Eyebrow", "HERO CITY ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
 		title.TextStrokeTransparency = 0.08
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
@@ -10652,6 +10683,19 @@ shared.PunchWallBuildShopUI = function()
 		closeSize.Parent = close
 		bindButtonMotion(close, close.BackgroundColor3)
 		close.Activated:Connect(function() setMenuVisible(false) end)
+		if compactHeader then
+			eyebrow.Visible = false
+			title.Position = UDim2.fromScale(0.19, 0.16)
+			title.Size = UDim2.fromScale(0.22, 0.66)
+			title.TextSize = 16
+			headerSubtitleLabel.Position = UDim2.fromScale(0.43, 0.2)
+			headerSubtitleLabel.Size = UDim2.fromScale(0.39, 0.58)
+			headerSubtitleSize.MinTextSize = 6
+			headerSubtitleSize.MaxTextSize = 8
+			close.Size = UDim2.fromOffset(44, 44)
+			close.TextSize = 18
+			header:SetAttribute("ResponsiveProfile", "PhoneCompactArmoryV3")
+		end
 
 		local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
 		local ownedPremium = decodeJSON(latestStats.OwnedPremiumPetsJSON, {})
@@ -10676,7 +10720,7 @@ shared.PunchWallBuildShopUI = function()
 			tab.Font = Enum.Font.GothamBlack
 			tab.Text = string.upper(pageName)
 			tab.TextColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(191, 205, 212)
-			tab.TextSize = 14
+			tab.TextSize = compactHeader and 8 or 14
 			tab.TextStrokeTransparency = selected and 0.45 or 0.8
 			tab.ZIndex = 104
 			tab.Parent = tabBand
@@ -10735,7 +10779,6 @@ shared.PunchWallBuildShopUI = function()
 			end
 		elseif page == "Boosts" then
 			products = {
-				{ name = "CoinBoost", displayName = "COIN BOOST x2", rarity = "EPIC", cost = 5000, art = GameConfig.ShopArt.CoinBoost, accent = Color3.fromRGB(202, 71, 230), detail = "Earn 2x more Coins for 15 minutes.", endsAt = boostInfo.CoinEndsAt or 0 },
 				{ name = "SpeedBoost", displayName = "SPEED BOOST", rarity = "RARE", cost = 8000, art = GameConfig.ShopArt.SpeedBoost, accent = Color3.fromRGB(58, 201, 248), detail = "Move faster through the Hero City course.", endsAt = boostInfo.SpeedEndsAt or 0 },
 				{ name = "DamageBoost", displayName = "DAMAGE BOOST", rarity = "EPIC", cost = 12000, art = GameConfig.ShopArt.DamageBoost, accent = Color3.fromRGB(239, 112, 51), detail = "Deal 2x wall damage for 15 minutes.", endsAt = boostInfo.DamageEndsAt or 0 },
 			}
@@ -10788,22 +10831,23 @@ shared.PunchWallBuildShopUI = function()
 		local camera = workspace.CurrentCamera
 		local _, compactCards = shared.PunchWallClassifyResponsiveViewport(camera and camera.ViewportSize or Vector2.zero)
 		if compactCards then
+			tabBand.Position = UDim2.fromScale(0.025, 0.15)
 			tabBand.Size = UDim2.new(0.95, 0, 0, 44)
 		end
 		local rowCount = math.max(1, math.ceil(#products / 2))
 		-- Compact tabs have a fixed 44 px touch target, so proportional card
 		-- placement must reserve enough room even on 270-336 px tall phones.
-		local cardsTop = compactCards and 0.34 or 0.265
-		local cardsBottom = compactCards and 0.88 or 0.89
-		local rowGap = compactCards and 0.01 or 0.014
+		local cardsTop = compactCards and 0.31 or 0.265
+		local cardsBottom = compactCards and 0.90 or 0.89
+		local rowGap = compactCards and 0.008 or 0.014
 		local cardHeight = (cardsBottom - cardsTop - rowGap * (rowCount - 1)) / rowCount
-		local catalogScrollable = page == "Fists" and #products > 6
-		local scrollCardHeight = compactCards and 118 or 154
-		local scrollRowGap = compactCards and 7 or 9
+		local catalogScrollable = compactCards or (page == "Fists" and #products > 6)
+		local scrollCardHeight = compactCards and 86 or 154
+		local scrollRowGap = compactCards and 5 or 9
 		local cardsHost = shopReference
 		if catalogScrollable then
 			local catalogScroll = Instance.new("ScrollingFrame")
-			catalogScroll.Name = "FistCatalogScroll"
+			catalogScroll.Name = "ShopCatalogScroll"
 			catalogScroll.BackgroundTransparency = 1
 			catalogScroll.BorderSizePixel = 0
 			catalogScroll.Position = UDim2.fromScale(0, cardsTop)
@@ -10824,7 +10868,7 @@ shared.PunchWallBuildShopUI = function()
 			shopReference:SetAttribute("ShopCatalogScrollable", true)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
 			shopReference:SetAttribute("ShopCatalogRowCount", rowCount)
-			shopReference:SetAttribute("ShopCatalogScrollMode", "FixedReadableCardsV1")
+			shopReference:SetAttribute("ShopCatalogScrollMode", compactCards and "MobileDenseCatalogV3" or "FixedReadableCardsV1")
 		else
 			shopReference:SetAttribute("ShopCatalogScrollable", false)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
@@ -10852,7 +10896,7 @@ shared.PunchWallBuildShopUI = function()
 		for index, item in ipairs(products) do
 			local column = (index - 1) % 2
 			local row = math.floor((index - 1) / 2)
-			local featuredCard = index == #products and #products % 2 == 1
+			local featuredCard = not compactCards and index == #products and #products % 2 == 1
 			local card = Instance.new("Frame")
 			card.Name = item.name .. "ShopCard"
 			card.BackgroundColor3 = Color3.fromRGB(10, 18, 23)
@@ -11036,21 +11080,21 @@ shared.PunchWallBuildShopUI = function()
 				or (item.tier == 1 and "COMMON" or item.tier >= 5 and "LEGENDARY" or item.tier >= 4 and "EPIC" or "RARE")
 			local productName = compactCards and compactProductNames[item.name] or nil
 			productName = productName or string.upper(item.displayName)
-			local productNameLabel = label(card, "Name", productName, UDim2.fromScale(textX, 0.08), UDim2.fromScale(featuredCard and 0.38 or 0.4, 0.2), Color3.fromRGB(250, 248, 239), compactCards and 12 or 17, Enum.Font.GothamBlack)
+			local productNameLabel = label(card, "Name", productName, UDim2.fromScale(textX, 0.08), UDim2.fromScale(featuredCard and 0.38 or 0.4, 0.2), Color3.fromRGB(250, 248, 239), compactCards and 8 or 17, Enum.Font.GothamBlack)
 			-- Every catalog title must remain complete as the long-play fist list
 			-- grows. TextScaled plus a bounded floor is more robust than relying
 			-- on a name-length heuristic that still clipped narrow glyph runs.
 			productNameLabel.TextScaled = true
 			local productNameSize = Instance.new("UITextSizeConstraint")
-			productNameSize.MinTextSize = compactCards and 8 or 10
-			productNameSize.MaxTextSize = compactCards and 12 or 17
+			productNameSize.MinTextSize = compactCards and 6 or 10
+			productNameSize.MaxTextSize = compactCards and 8 or 17
 			productNameSize.Parent = productNameLabel
-			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, 11, Enum.Font.GothamBlack)
+			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, compactCards and 7 or 11, Enum.Font.GothamBlack)
 			if compactCards and item.isHonorProduct then
 				rarityLabel.TextScaled = true
 				local raritySize = Instance.new("UITextSizeConstraint")
-				raritySize.MinTextSize = 8
-				raritySize.MaxTextSize = 11
+				raritySize.MinTextSize = 6
+				raritySize.MaxTextSize = 7
 				raritySize.Parent = rarityLabel
 			end
 			local requiredDepth = math.max(0, math.floor(tonumber(item.unlockDepth) or 0))
@@ -11146,8 +11190,8 @@ shared.PunchWallBuildShopUI = function()
 			local priceLabel = label(card, "Price", priceText, UDim2.fromScale(priceX + 0.065, 0.07), UDim2.fromScale(featuredCard and 0.13 or 0.18, 0.24), Color3.fromRGB(255, 207, 58), 14, Enum.Font.GothamBlack)
 			priceLabel.TextScaled = true
 			local priceTextSize = Instance.new("UITextSizeConstraint")
-			priceTextSize.MinTextSize = 7
-			priceTextSize.MaxTextSize = compactCards and 10 or 14
+			priceTextSize.MinTextSize = compactCards and 6 or 7
+			priceTextSize.MaxTextSize = compactCards and 8 or 14
 			priceTextSize.Parent = priceLabel
 			if purchaseUnavailable then
 				if priceIcon:IsA("ImageLabel") then
@@ -11163,7 +11207,7 @@ shared.PunchWallBuildShopUI = function()
 				priceIcon.Size = UDim2.fromScale(0.06, 0.26)
 				priceLabel.Position = UDim2.fromScale(textX + 0.065, 0.54)
 				priceLabel.Size = UDim2.fromScale(0.28, 0.3)
-				priceLabel.TextSize = 10
+				priceLabel.TextSize = 8
 			end
 
 			local actionColor = Color3.fromRGB(232, 157, 22)
@@ -11257,7 +11301,7 @@ shared.PunchWallBuildShopUI = function()
 			action.Font = Enum.Font.GothamBlack
 			action.Text = actionText
 			action.TextColor3 = Color3.fromRGB(255, 255, 255)
-			action.TextSize = compactCards and 10 or 14
+			action.TextSize = compactCards and 8 or 14
 			action.TextStrokeTransparency = 0.2
 			action.ZIndex = 106
 			action.Parent = card
@@ -11267,8 +11311,8 @@ shared.PunchWallBuildShopUI = function()
 				action.TextScaled = true
 				action.TextWrapped = false
 				local compactActionTextConstraint = Instance.new("UITextSizeConstraint")
-				compactActionTextConstraint.MinTextSize = 7
-				compactActionTextConstraint.MaxTextSize = 10
+				compactActionTextConstraint.MinTextSize = 6
+				compactActionTextConstraint.MaxTextSize = 8
 				compactActionTextConstraint.Parent = action
 			end
 			if purchaseUnavailable then
@@ -11278,7 +11322,7 @@ shared.PunchWallBuildShopUI = function()
 				action.TextScaled = false
 				action.TextWrapped = false
 				action.TextTruncate = Enum.TextTruncate.AtEnd
-				action.TextSize = compactCards and 8 or 12
+				action.TextSize = compactCards and 7 or 12
 			end
 			if item.isRobuxProduct then
 				action:SetAttribute("ProductKey", item.id)
@@ -11364,8 +11408,11 @@ shared.PunchWallBuildShopUI = function()
 			or page == "Robux" and "ROBUX OFFERS"
 			or page == "Boosts" and "BOOSTS"
 			or "HERO FISTS"
-		label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), 11, Enum.Font.GothamBold)
-		label(footerBand, "ServerLabel", "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 7 or 11, Enum.Font.GothamBold)
+		label(footerBand, "ServerLabel", "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 7 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		shopReference:SetAttribute("ShopCompactLayout", compactCards and "MobileCatalogDenseV3" or "DesktopCatalogV2")
+		shopReference:SetAttribute("ShopCompactCardHeight", compactCards and scrollCardHeight or 0)
+		shopReference:SetAttribute("ShopCompactTextScale", compactCards and 0.5 or 1)
 		shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
 		return true
 	end
@@ -11890,9 +11937,9 @@ applyResponsiveLayout = function()
 		local compactUtilityGap = 2
 		local compactUtilityTop = math.max(4, math.floor(coreGuiTopLeft.Y + 4))
 		for utilityIndex, button in ipairs({
-			shared.PunchWallMoreToolButton,
 			shared.PunchWallSettingsToolButton,
 			shared.PunchWallSoundToolButton,
+			shared.PunchWallMoreToolButton,
 		}) do
 			button.AnchorPoint = Vector2.new(1, 0)
 			button.Position = UDim2.new(1, -(8 + (utilityIndex - 1) * (compactUtilitySize + compactUtilityGap)), 0, compactUtilityTop)
@@ -11911,26 +11958,28 @@ applyResponsiveLayout = function()
 		referenceJoystick.Position = UDim2.new(0, 8, 1, -8)
 		referenceJoystick.Size = UDim2.fromOffset(joystickSize, joystickSize)
 		referenceJoystick:SetAttribute("ResponsiveProfile", "PhoneLandscapeJoystickTightV4")
-		local punchSize = math.max(78, math.floor(84 * phoneScale + 0.5))
+		local actionSize = math.max(78, math.floor(84 * phoneScale + 0.5))
 		referencePunch.AnchorPoint = Vector2.new(1, 1)
-		referencePunch.Position = UDim2.new(1, -8, 1, -8)
-		referencePunch.Size = UDim2.fromOffset(punchSize, punchSize)
-		referencePunch:SetAttribute("ResponsiveProfile", "PhoneLandscapePunchTightV4")
+		referencePunch.Position = UDim2.new(1, -(actionSize + 14), 1, -8)
+		referencePunch.Size = UDim2.fromOffset(actionSize, actionSize)
+		referencePunch:SetAttribute("ResponsiveProfile", "PhoneLandscapeEqualActionV5")
 		referencePunch:SetAttribute("MaximumCompactSize", 84)
-		local jumpSize = math.max(52, math.floor(56 * phoneScale + 0.5))
+		local jumpSize = actionSize
 		referenceJump.AnchorPoint = Vector2.new(1, 1)
-		referenceJump.Position = UDim2.new(1, -(punchSize + 16), 1, -10)
+		referenceJump.Position = UDim2.new(1, -8, 1, -8)
 		referenceJump.Size = UDim2.fromOffset(jumpSize, jumpSize)
-		referenceJump:SetAttribute("ResponsiveProfile", "PhoneLandscapeJumpTightV4")
+		referenceJump:SetAttribute("ResponsiveProfile", "PhoneLandscapeEqualActionV5")
+		referenceJump:SetAttribute("MaximumCompactSize", 84)
+		referenceHUD:SetAttribute("PhoneActionOrder", "PunchThenJump")
 		honorOpen.AnchorPoint = Vector2.new(0.5, 0.5)
 		honorOpen.Position = UDim2.fromScale(0.5, 0.5)
 		honorOpen.Size = UDim2.fromOffset(48, 48)
 		honorOpen:SetAttribute("ResponsiveProfile", "CompactTransparentHit48V1")
 		punchUpButton.AnchorPoint = Vector2.new(1, 1)
-		punchUpButton.Position = UDim2.new(1, -(punchSize + jumpSize + 68), 1, -12)
+		punchUpButton.Position = UDim2.new(1, -(actionSize + jumpSize + 68), 1, -12)
 		punchUpButton.Size = UDim2.fromOffset(44, 44)
 		punchDownButton.AnchorPoint = Vector2.new(1, 1)
-		punchDownButton.Position = UDim2.new(1, -(punchSize + jumpSize + 20), 1, -12)
+		punchDownButton.Position = UDim2.new(1, -(actionSize + jumpSize + 20), 1, -12)
 		punchDownButton.Size = UDim2.fromOffset(44, 44)
 		punchUpButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V4")
 		punchDownButton:SetAttribute("ResponsiveProfile", "PhoneLandscapeDirectionPair44V4")
@@ -11956,18 +12005,19 @@ applyResponsiveLayout = function()
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.new(0.5, 0)
-			honorCard.Position = UDim2.new(0.5, 171, 0, 5)
-			honorCard.Size = UDim2.fromOffset(86, topCardHeight)
-			honorCard:SetAttribute("ResponsiveProfile", "PhoneLandscapeStatRowHonorV4")
+			honorCard.Position = UDim2.new(0.5, 171, 0, 6)
+			honorCard.Size = UDim2.fromOffset(86, topCardHeight - 2)
+			local honorStroke = honorCard:FindFirstChildOfClass("UIStroke")
+			if honorStroke then honorStroke.Thickness = 1 end
+			honorCard:SetAttribute("ResponsiveProfile", "PhoneLandscapeStatRowHonorAlignedV5")
 		end
-		shared.PunchWallHUDWidgets.NextWorldCard.AnchorPoint = Vector2.new(0.5, 1)
-		shared.PunchWallHUDWidgets.NextWorldCard.Position = UDim2.new(0.53, 0, 1, -8)
-		shared.PunchWallHUDWidgets.NextWorldCard.Size = UDim2.fromOffset(math.floor(116 * phoneScale + 0.5), math.floor(86 * phoneScale + 0.5))
+		shared.PunchWallHUDWidgets.NextWorldCard.Visible = false
+		shared.PunchWallHUDWidgets.NextWorldCard:SetAttribute("DisabledReason", "DowntownNotReleased")
 		trainingOverlay.AnchorPoint = Vector2.new(0.5, 0)
 		trainingOverlay.Position = UDim2.new(0.5, 0, 0, 94)
 		trainingOverlay.Size = UDim2.fromOffset(math.min(280, viewport.X * 0.36), 62)
 		trainingOverlay:SetAttribute("ResponsiveProfile", "PhoneTrainingTopLaneV3")
-		referenceHUD:SetAttribute("PhoneLandscapeInformationProfile", "FourStatsCompactObjectiveV4")
+		referenceHUD:SetAttribute("PhoneLandscapeInformationProfile", "FourStatsAlignedNoDowntownV5")
 		statusDeckScale.Scale = 0.62 * userScale
 		statusDeck.AnchorPoint = Vector2.new(0, 0)
 		statusDeck.Position = UDim2.fromOffset(math.max(6, (viewport.X - 820 * statusDeckScale.Scale) / 2), 6)
@@ -12009,10 +12059,10 @@ applyResponsiveLayout = function()
 			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
 			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeMargin12V3")
 		elseif shopOpen then
-			local aspect = 1.58
-			local modalHeight = math.max(270, math.min(viewport.Y - 24, (viewport.X - 24) / aspect))
+			local aspect = 1.72
+			local modalHeight = math.max(270, math.min(viewport.Y - 40, (viewport.X - 40) / aspect))
 			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
-			mainPanel:SetAttribute("ShopModalSizing", "CompactSafeMarginV2")
+			mainPanel:SetAttribute("ShopModalSizing", "CompactBalanced1.72V3")
 		else
 			local panelHeight = math.max(210, math.min(viewport.Y - 24, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
@@ -12112,9 +12162,11 @@ applyResponsiveLayout = function()
 			honorCard.AnchorPoint = Vector2.zero
 			honorCard.Position, honorCard.Size = designRect(1218, 132, 137, 58)
 			honorCard:SetAttribute("ResponsiveProfile", "ReferenceDesktopHonor")
+			local honorStroke = honorCard:FindFirstChildOfClass("UIStroke")
+			if honorStroke then honorStroke.Thickness = 2 end
 		end
-		shared.PunchWallHUDWidgets.NextWorldCard.AnchorPoint = Vector2.zero
-		shared.PunchWallHUDWidgets.NextWorldCard.Position, shared.PunchWallHUDWidgets.NextWorldCard.Size = designRect(1020, 778, 194, 145)
+		shared.PunchWallHUDWidgets.NextWorldCard.Visible = false
+		shared.PunchWallHUDWidgets.NextWorldCard:SetAttribute("DisabledReason", "DowntownNotReleased")
 		trainingOverlay.AnchorPoint = Vector2.zero
 		trainingOverlay.Position, trainingOverlay.Size = designRect(570, 788, 440, 104)
 		trainingOverlay:SetAttribute("ResponsiveProfile", "ReferenceDesktopTraining")
@@ -12126,9 +12178,9 @@ applyResponsiveLayout = function()
 		shared.PunchWallSoundToolButton.AnchorPoint = Vector2.zero
 		shared.PunchWallSoundToolButton.Position, shared.PunchWallSoundToolButton.Size = designRect(1465, 22, 60, 64)
 		shared.PunchWallSettingsToolButton.AnchorPoint = Vector2.zero
-		shared.PunchWallSettingsToolButton.Position, shared.PunchWallSettingsToolButton.Size = designRect(1526, 22, 60, 64)
+		shared.PunchWallSettingsToolButton.Position, shared.PunchWallSettingsToolButton.Size = designRect(1587, 22, 64, 64)
 		shared.PunchWallMoreToolButton.AnchorPoint = Vector2.zero
-		shared.PunchWallMoreToolButton.Position, shared.PunchWallMoreToolButton.Size = designRect(1587, 22, 64, 64)
+		shared.PunchWallMoreToolButton.Position, shared.PunchWallMoreToolButton.Size = designRect(1526, 22, 60, 64)
 		referenceDaily.AnchorPoint = Vector2.zero
 		referenceDaily.Position, referenceDaily.Size = designRect(16, 201, 82, 111)
 		referenceSpin.AnchorPoint = Vector2.zero

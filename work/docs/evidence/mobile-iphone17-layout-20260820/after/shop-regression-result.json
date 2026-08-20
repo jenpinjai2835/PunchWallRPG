@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "functional-hero-shop",
+      "selectedStudio": {
+        "id": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
+        "name": "SmashWall_v1.0.1.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "SmashWall_v1.0.1.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "functional shop renders all glove actions",
+        "glove and damage boost are charged and applied by server",
+        "Coin x2 coin purchase is denied and speed survives respawn",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}
