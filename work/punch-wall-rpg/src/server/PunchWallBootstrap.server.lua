@@ -75,8 +75,8 @@ local tryDropPetEgg
 
 local persistenceRuntime = {
 	autosaveSeconds = 75,
-	dataStoreAttempts = 3,
-	dataStoreRetryBaseSeconds = 0.35,
+	dataStoreAttempts = 5,
+	dataStoreRetryBaseSeconds = 0.5,
 	sessionLeaseSeconds = 120,
 	playerRemovingSaveTimeout = 10,
 	shutdownDrainTimeout = 25,
@@ -87,7 +87,13 @@ local persistenceRuntime = {
 	gamePassOwnershipAttempts = 2,
 	gamePassReconciliationAttempts = 3,
 	gamePassReconciliationRetryBaseSeconds = 2,
-	isUnpublishedStudio = RunService:IsStudio() and (game.GameId == 0 or game.PlaceId == 0),
+	-- Studio must never touch live player profiles by accident, including after a
+	-- local place is linked to a published universe. A deliberate production-data
+	-- test requires an explicit ServerStorage attribute and remains non-default.
+	isEphemeralStudio = RunService:IsStudio()
+		and ServerStorage:GetAttribute("PunchWallAllowLiveDataStoreAccess") ~= true,
+	studioLiveDataOptIn = RunService:IsStudio()
+		and ServerStorage:GetAttribute("PunchWallAllowLiveDataStoreAccess") == true,
 	profileSessions = {},
 	queues = {},
 	finalSaveTickets = setmetatable({}, { __mode = "k" }),
@@ -365,8 +371,8 @@ persistenceRuntime.profileSessionReady = profileSessionReady
 persistenceRuntime.profileReady = profileReady
 persistenceRuntime.readinessContract = runProfileReadinessContract()
 
-if persistenceRuntime.isUnpublishedStudio then
-	warn("[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.")
+if persistenceRuntime.isEphemeralStudio then
+	warn("[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.")
 else
 	local dataStoreOk, currentStore, legacyStore = pcall(function()
 		return DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v2"),
@@ -405,9 +411,11 @@ root:SetAttribute("PersistenceMaxSaveTicketsPerOperation", persistenceRuntime.ma
 root:SetAttribute("PersistenceSessionLeaseSeconds", persistenceRuntime.sessionLeaseSeconds)
 root:SetAttribute("PersistenceSessionFencingEnabled", true)
 root:SetAttribute("PersistenceRevisionMode", "MonotonicLeaseGeneration")
+root:SetAttribute("PersistenceStudioDefaultEphemeral", true)
+root:SetAttribute("PersistenceStudioLiveDataOptIn", persistenceRuntime.studioLiveDataOptIn)
 root:SetAttribute(
 	"PersistenceMode",
-	persistenceRuntime.isUnpublishedStudio and "EphemeralStudio"
+	persistenceRuntime.isEphemeralStudio and "EphemeralStudio"
 		or persistenceRuntime.playerStore and "Durable"
 		or "Unavailable"
 )
@@ -1723,7 +1731,7 @@ local function retryDataStoreCall(callback)
 end
 
 local function loadPlayerData(player)
-	if persistenceRuntime.isUnpublishedStudio then
+	if persistenceRuntime.isEphemeralStudio then
 		local profile = ProfilePersistence.NewProfile(
 			GameConfig.DataVersion,
 			ProfilePersistence.MaxReceiptLedgerEntries
@@ -1955,7 +1963,7 @@ end
 local function initializePlayerProfileSession(player, loadResult)
 	local savedData = loadResult.data
 	local canBecomeWritable = loadResult.writable == true
-		and not persistenceRuntime.isUnpublishedStudio
+		and not persistenceRuntime.isEphemeralStudio
 		and type(loadResult.fence) == "table"
 	persistenceRuntime.profileSessions[player] = {
 		initializing = true,

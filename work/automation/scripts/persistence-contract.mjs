@@ -189,6 +189,24 @@ check(
   "DataStore failures must return a non-writable failure, never an empty/default profile.",
 );
 check(
+  "studio_defaults_to_ephemeral_even_when_place_is_published",
+  /isEphemeralStudio\s*=\s*RunService:IsStudio\(\)\s*and\s*ServerStorage:GetAttribute\("PunchWallAllowLiveDataStoreAccess"\)\s*~=\s*true/.test(bootstrapSource)
+    && /studioLiveDataOptIn\s*=\s*RunService:IsStudio\(\)\s*and\s*ServerStorage:GetAttribute\("PunchWallAllowLiveDataStoreAccess"\)\s*==\s*true/.test(bootstrapSource)
+    && bootstrapSource.includes('root:SetAttribute("PersistenceStudioDefaultEphemeral", true)')
+    && bootstrapSource.includes('root:SetAttribute("PersistenceStudioLiveDataOptIn", persistenceRuntime.studioLiveDataOptIn)')
+    && loadBlock.includes("if persistenceRuntime.isEphemeralStudio then")
+    && !bootstrapSource.includes("isUnpublishedStudio"),
+  "A linked published place opened in Studio must remain ephemeral unless the explicit live-data opt-in is present.",
+);
+check(
+  "durable_load_has_bounded_transient_retry_budget",
+  /dataStoreAttempts\s*=\s*5/.test(bootstrapSource)
+    && /dataStoreRetryBaseSeconds\s*=\s*0\.5/.test(bootstrapSource)
+    && /for attempt = 1, persistenceRuntime\.dataStoreAttempts do/.test(bootstrapSource)
+    && /task\.wait\(attempt \* persistenceRuntime\.dataStoreRetryBaseSeconds\)/.test(bootstrapSource),
+  "Live DataStore acquisition must retry transient failures with a bounded five-attempt budget before failing closed.",
+);
+check(
   "load_acquires_atomic_fenced_lease_before_writable",
   loadBlock.includes("persistenceRuntime.playerStore:UpdateAsync")
     && loadBlock.includes("ProfilePersistence.AcquireSessionLease")

@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-08-21T05:01:00Z",
+  "status": "focused-pass-publish-pending",
+  "incident": {
+    "message": "Your saved data could not be loaded safely. Please rejoin and try again.",
+    "rootCause": "linked published-place Studio attempted a production DataStore lease while Studio API access was disabled",
+    "liveProfileValid": true,
+    "liveProfileDataVersion": 8,
+    "liveProfileMigration": "Current",
+    "liveProfileMutatedDuringDiagnosis": false
+  },
+  "runtime": {
+    "studioInstanceId": "dfcfb094-1c97-4365-81d8-22f53bafd763",
+    "placeId": 125255969070601,
+    "flowPass": true,
+    "checksPassed": 7,
+    "persistenceMode": "EphemeralStudio",
+    "profileReady": true,
+    "profileWritable": false,
+    "studioLiveDataOptIn": false,
+    "runtimeConsoleClean": true,
+    "postStopConsoleClean": true
+  },
+  "focusedContract": {
+    "name": "persistence-contract",
+    "passed": 31,
+    "total": 31
+  },
+  "sha256": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "81553cf9462a046747e180ee7d4fc88464004d363400876ab3fb916a8c1e13fd",
+    "work/automation/flows/profile-load-hotfix-public-linked-studio.json": "e5921fa3d22874e4b11f374cb2e69c18974fb29e685f6c4565664ade55816e04",
+    "work/automation/scripts/persistence-contract.mjs": "90293d17ef87d4dc99844f31d549576c54b0b0b6f62924ff56f32fd8a7a51851",
+    "work/docs/evidence/profile-load-hotfix-20260821/flow-result.json": "d3681358038059d56c7638b16f3472dc72cc08b15d938a323f40994467c40f3a"
+  }
+}

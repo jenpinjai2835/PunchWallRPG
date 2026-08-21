@@ -1,0 +1,84 @@
+{
+  "name": "profile-load-hotfix-public-linked-studio",
+  "description": "Verify a Studio session linked to the published place defaults to an ephemeral profile and cannot fail closed on disabled Studio API access.",
+  "studioName": "^ชนกำแพง [(]placeId: 125255969070601[)]$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start linked published-place Studio lifecycle"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "ephemeralProfileReady",
+      "timeoutMs": 30000,
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal Players=game:GetService('Players')\nlocal deadline=os.clock()+20\nlocal player=Players:GetPlayers()[1]\nrepeat\n task.wait(.05)\n player=Players:GetPlayers()[1]\nuntil os.clock()>=deadline or (player and player:GetAttribute('ProfileReady')==true)\nlocal root=workspace:FindFirstChild('PunchWallRPG')\nlocal mode=root and root:GetAttribute('PersistenceMode') or ''\nlocal defaultEphemeral=root and root:GetAttribute('PersistenceStudioDefaultEphemeral')==true\nlocal liveOptIn=root and root:GetAttribute('PersistenceStudioLiveDataOptIn')==true\nlocal ready=player and player:GetAttribute('ProfileReady')==true\nlocal writable=player and player:GetAttribute('ProfileWritable')==true\nlocal state=player and player:GetAttribute('ProfilePersistenceState') or ''\nlocal ok=mode=='EphemeralStudio' and defaultEphemeral and not liveOptIn and ready and not writable and state=='EphemeralStudio'\nreturn H:JSONEncode({ok=ok,mode=mode,defaultEphemeral=defaultEphemeral,liveOptIn=liveOptIn,ready=ready,writable=writable,state=state})"
+      },
+      "expectRegex": [
+        "\\\"ok\\\":true",
+        "\\\"mode\\\":\\\"EphemeralStudio\\\"",
+        "\\\"defaultEphemeral\\\":true",
+        "\\\"liveOptIn\\\":false",
+        "\\\"ready\\\":true",
+        "\\\"writable\\\":false",
+        "\\\"state\\\":\\\"EphemeralStudio\\\""
+      ],
+      "label": "linked Studio receives a ready non-writable ephemeral profile"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "runtimeConsole",
+      "timeoutMs": 20000,
+      "expectRegex": [
+        "Studio session is EPHEMERAL by default"
+      ],
+      "rejectRegex": [
+        "StudioAccessToApisNotAllowed",
+        "Profile load failed closed",
+        "Your saved data could not be loaded safely",
+        "current_profile_lease_failed",
+        "current_lease_update_failed"
+      ],
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "runtimeConsole",
+      "label": "runtime console has no DataStore access or fail-closed kick"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop linked Studio lifecycle cleanly"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "timeoutMs": 20000,
+      "rejectRegex": [
+        "StudioAccessToApisNotAllowed",
+        "Profile load failed closed",
+        "Your saved data could not be loaded safely",
+        "current_profile_lease_failed",
+        "current_lease_update_failed"
+      ],
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console remains free of persistence failures"
+    }
+  ]
+}

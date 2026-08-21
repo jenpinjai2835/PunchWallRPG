@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "profile-load-hotfix-public-linked-studio",
+      "selectedStudio": {
+        "id": "dfcfb094-1c97-4365-81d8-22f53bafd763",
+        "name": "ชนกำแพง (placeId: 125255969070601)"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "125255969070601",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start linked published-place Studio lifecycle",
+        "linked Studio receives a ready non-writable ephemeral profile",
+        "capture runtime console",
+        "runtime console has no DataStore access or fail-closed kick",
+        "stop linked Studio lifecycle cleanly",
+        "capture post-stop console",
+        "post-stop console remains free of persistence failures"
+      ]
+    }
+  ]
+}

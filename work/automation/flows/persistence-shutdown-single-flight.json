@@ -1,6 +1,6 @@
 {
   "name": "persistence-shutdown-single-flight",
-  "description": "Verify one unpublished-Studio lifecycle cycle reaches a ready ephemeral profile, stops into Edit mode, and emits no false or real persistence shutdown failure warning.",
+  "description": "Verify every default Studio lifecycle, including a linked published place, reaches a ready ephemeral profile without touching live DataStore state, then stops cleanly.",
   "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -19,11 +19,13 @@
       "timeoutMs": 30000,
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService')\nlocal Players=game:GetService('Players')\nlocal deadline=os.clock()+20\nlocal player=Players:GetPlayers()[1]\nrepeat\n task.wait(.05)\n player=Players:GetPlayers()[1]\nuntil os.clock()>=deadline or (player and player:GetAttribute('ProfileReady')==true)\nlocal root=workspace:FindFirstChild('PunchWallRPG')\nlocal mode=root and root:GetAttribute('PersistenceMode') or ''\nlocal ready=player and player:GetAttribute('ProfileReady')==true\nlocal writable=player and player:GetAttribute('ProfileWritable')==true\nlocal state=player and player:GetAttribute('ProfilePersistenceState') or ''\nlocal ok=mode=='EphemeralStudio' and ready and not writable and state=='EphemeralStudio'\nreturn H:JSONEncode({ok=ok,mode=mode,ready=ready,writable=writable,state=state})"
+        "code": "local H=game:GetService('HttpService')\nlocal Players=game:GetService('Players')\nlocal deadline=os.clock()+20\nlocal player=Players:GetPlayers()[1]\nrepeat\n task.wait(.05)\n player=Players:GetPlayers()[1]\nuntil os.clock()>=deadline or (player and player:GetAttribute('ProfileReady')==true)\nlocal root=workspace:FindFirstChild('PunchWallRPG')\nlocal mode=root and root:GetAttribute('PersistenceMode') or ''\nlocal defaultEphemeral=root and root:GetAttribute('PersistenceStudioDefaultEphemeral')==true\nlocal liveOptIn=root and root:GetAttribute('PersistenceStudioLiveDataOptIn')==true\nlocal ready=player and player:GetAttribute('ProfileReady')==true\nlocal writable=player and player:GetAttribute('ProfileWritable')==true\nlocal state=player and player:GetAttribute('ProfilePersistenceState') or ''\nlocal ok=mode=='EphemeralStudio' and defaultEphemeral and not liveOptIn and ready and not writable and state=='EphemeralStudio'\nreturn H:JSONEncode({ok=ok,mode=mode,defaultEphemeral=defaultEphemeral,liveOptIn=liveOptIn,ready=ready,writable=writable,state=state})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"mode\"\\s*:\\s*\"EphemeralStudio\"",
+        "\"defaultEphemeral\"\\s*:\\s*true",
+        "\"liveOptIn\"\\s*:\\s*false",
         "\"ready\"\\s*:\\s*true",
         "\"writable\"\\s*:\\s*false",
         "\"state\"\\s*:\\s*\"EphemeralStudio\""
