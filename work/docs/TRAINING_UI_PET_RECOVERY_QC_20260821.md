@@ -2,71 +2,50 @@
 
 ## Result
 
-PASS on the integrated source and the dedicated iPhone 17 landscape Studio candidate. No known in-scope defect remains in the six requested behaviors.
+PASS on the integrated source and rebuilt final artifact at the iPhone 17 landscape envelope. No known in-scope defect remains in the requested training and Premium-pet behavior.
 
-This result does not mean the public place has been updated. The public fix must be published from a full rebuilt artifact so the eight sanitized pet models are included; source-only publishing is not acceptable for this change.
+## Training qualification fix
 
-## Fixed behavior
+- Training qualification now comes from the server-authored `TrainingQualificationPower`, derived from the canonical effective-Power policy used by the HUD.
+- Station start, periodic tick, profile load, and world-reset restoration all resolve the same selected station and qualification value.
+- Client contextual actions consume the replicated server qualification rather than reinterpreting raw `leaderstats.Power`.
+- Raw Power 1,400 remains correctly locked. The public repro case — raw Power 1,499 with a fist multiplier and displayed effective Power above 1.5K — starts Iron and pays exactly +40 Power/s.
 
-- Training now validates the exact trusted station selected by the contextual action against that station's own 18-stud range. An adjacent station can no longer make a qualified request fail after the client already selected the intended station.
-- Target scanning compares only real Train and Use targets. Training receives a small intent margin so a nearby fist/shop stand cannot steal the training action.
-- The Action affordance is a compact dark two-line card with a small icon, action title, exact target/rate detail, bounded text, and at least a 44-pixel touch target. Train remains disabled below its base-Power threshold; real non-training Use targets remain active.
-- Compact Inventory cards use a slim status rail. Rarity, Equipped, Locked, and quantity no longer cover the item/pet art; the title, search field, card names, and tags use bounded phone typography.
-- Robux price values use a green currency palette. Coin prices keep the gold Coin palette.
-- The release gate requires all eight preloaded, sanitized Creator Store pet templates. Missing or rejected templates make `PetVisualReleaseReady=false` rather than silently approving clay/procedural fallbacks.
-- Unsupported avatar shoulder rigs use a bounded visual-only clone of the equipped fist to strike the active training station. Normal compatible rigs keep the character punch animation.
+## Premium pet recovery
+
+The original detailed visual-only Creator Store models are restored:
+
+- Crimson Phoenix — asset `86478691482535`, creator `IAmASwedishMale`.
+- Storm Wyvern — asset `83562531232957`, creator `XzG0ldeneJGlitchQJCy`.
+- Celestial Guardian — asset `121956330907081`, creator `SirRioter`.
+
+All imported behavior was removed: Script, LocalScript, ModuleScript, Sound, Tool, Remote/Bindable objects, ClickDetector, ProximityPrompt, Humanoid, AnimationController, Animator, and Camera. Remaining visual parts are anchored and non-colliding. The Wyvern invisible root was collapsed and its mesh content was restored for the release builder.
+
+The former blocky Premium stand-ins remain only as distinct normal long-play pets under the names Thunder Roc, Frost Hydra, and Solar Kirin. They no longer substitute for the three paid Premium companions.
 
 ## Runtime acceptance
 
-Flow: `work/automation/flows/training-ui-pet-recovery.json`
-
-Result: `work/docs/evidence/training-ui-pet-recovery-20260820/flow-result.json`
-
-- PASS 26/26 on exact Studio instance `8e0ad201-e63b-44d9-b20c-38e9957106e0`.
-- Exact place: `SmashWall_TrainingUIPetRecovery_QC.rbxlx`, `placeId=0`, Edit mode.
+- Flow: `work/automation/flows/training-ui-pet-recovery.json`
+- Result: `work/docs/evidence/training-ui-pet-recovery-20260821/flow-result.json`
+- PASS 26/26 on exact Studio instance `dfcfb094-1c97-4365-81d8-22f53bafd763`.
+- Exact place: `PunchWallRPGPlayable_v1_final.rbxlx`, Edit mode.
 - iPhone 17 simulator envelope: 874x402 landscape.
-- Power 1,499 with extreme fist/pet multipliers: Iron remains locked and no delayed payout occurs.
-- Power 1,500: exact Iron station starts through the production request route and pays +40 Power/s.
-- A deliberately unsupported shoulder rig produces the equipped-fist strike fallback; temporary strike models are cleaned.
-- A real nearest non-training Use target remains active and follows the production request path.
-- Eight pet definitions render eight exact preloaded model previews with zero tag/art overlap.
-- Three Premium Shop cards use real pet previews and green Robux price text.
+- Inventory proves 8 requested pet previews; release attestation proves 11 sanitized templates including all 3 detailed Premium models.
+- Unsupported avatar shoulder rigs visibly strike with the equipped-fist fallback.
 - Runtime and post-stop consoles are clean except for the expected unpublished-session warning.
-- Device simulator cleanup restored `default=true` and removed the one custom device.
+- Device simulator cleanup restored `default=true` and removed the custom device.
 
 ## Visual evidence
 
-Manifest: `work/docs/evidence/training-ui-pet-recovery-20260820/capture-summary.json`
+Manifest: `work/docs/evidence/training-ui-pet-recovery-20260821/capture-summary.json`
 
-- `01_iphone17_training_action.jpg` — readable dark two-line training prompt over the live world.
-- `02_iphone17_inventory_pets.jpg` — five-column compact pet inventory with unobscured model art.
-- `03_iphone17_shop_premium.jpg` — Premium Shop with distinct Phoenix/Wyvern/Guardian previews and green Robux prices.
-- `04_iphone17_premium_companions.jpg` — three distinct Premium companion silhouettes in the live formation.
+- `01_iphone17_training_action.jpg` — eligible Iron training action using displayed effective Power.
+- `02_iphone17_inventory_pets.jpg` — compact pet Inventory with unobscured model previews.
+- `03_iphone17_shop_premium.jpg` — Premium Shop with original detailed Phoenix/Wyvern/Guardian previews and green Robux prices.
+- `04_iphone17_premium_companions.jpg` — the three distinct Premium models in live companion formation.
 
-The manifest records SHA-256 for five runtime sources, the focused flow, focused contract, capture script, flow result, and all four images. All five Studio source fingerprints match the local source. Runtime and post-stop consoles are clean, and simulator cleanup passed.
+The manifest binds all four images, five runtime source fingerprints, the focused flow, contract, capture runner, and exact final-artifact Studio instance. All runtime sources match local files and consoles are clean.
 
-## Static regression
+## Player profile reset
 
-Command:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File work/automation/run-automation-static-contracts.ps1 -LuauCompileCommand C:/Temp/codex-luau-0.730/luau-compile.exe
-```
-
-PASS:
-
-- Node syntax: 49 files
-- PowerShell syntax: 19 files
-- Luau compile: 27 cases across 9 files and three optimization levels
-- Flow JSON: 115 files
-- Non-Studio static contracts: 26/26 executed, including `trainingUiPetRecoveryContract` 20/20
-- `inventory-performance-contract.mjs` remains intentionally excluded from the non-Studio aggregate because it is a Studio-capable benchmark, not a static contract.
-
-## Release requirement
-
-Before updating the public place:
-
-1. Rebuild the full canonical `.rbxlx` from this accepted source while preserving the eight sanitized `PunchWallExternalAssets` pet templates.
-2. Verify exact source embedding and the global code-object allowlist.
-3. Run the final artifact smoke/regression against the rebuilt file.
-4. Publish the full artifact, then verify a fresh public server reports `PetVisualReleaseReady=true` and visually shows the Premium pets.
+The requested profile reset is recorded in `work/docs/evidence/profile-reset-20260821/reset-summary.json`. Gameplay progression was reset to a new-player state while the durable receipt ledger was preserved. Platform Game Pass ownership was intentionally not revoked and will reconcile normally on join.

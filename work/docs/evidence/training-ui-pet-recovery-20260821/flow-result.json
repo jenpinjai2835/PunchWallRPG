@@ -1,16 +1,16 @@
 {
   "ok": true,
-  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
   "results": [
     {
       "ok": true,
       "flow": "training-ui-pet-recovery",
       "selectedStudio": {
-        "id": "d5ee7c55-c07d-47c1-8a9b-2fc863faa8ee",
-        "name": "PunchWallRPGPlayable_v1_candidate_training_pets.rbxlx"
+        "id": "dfcfb094-1c97-4365-81d8-22f53bafd763",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
       },
       "selectedPlace": {
-        "name": "PunchWallRPGPlayable_v1_candidate_training_pets.rbxlx",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
         "placeId": "0",
         "datamodelType": "Edit"
       },

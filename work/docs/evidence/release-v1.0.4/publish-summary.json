@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "releaseVersion": "1.0.4",
+  "releaseChannel": "public",
+  "publishedAtUtc": "2026-08-21T02:58:49.986Z",
+  "verifiedAtUtc": "2026-08-21T03:06:39.5530798Z",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "publicUrl": "https://www.roblox.com/games/125255969070601/Smash-Wall",
+  "previousPublishedVersion": 16,
+  "savedStudioVersion": 17,
+  "publishedVersion": 18,
+  "sourceCommit": "67d46d02014b538d5da12e34ee0ceb828d1aab6b",
+  "artifact": {
+    "path": "outputs/releases/v1.0.4/SmashWall_v1.0.4.rbxlx",
+    "validationPath": "outputs/releases/v1.0.4/SmashWall_v1.0.4_validation.rbxlx",
+    "bytes": 6499801,
+    "sha256": "FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264",
+    "validationSha256": "FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264",
+    "canonicalCodeObjects": 9,
+    "extraCodeObjects": 0
+  },
+  "studioSerializedPayload": {
+    "savedVersion": 17,
+    "publishedVersion": 18,
+    "bytes": 734944,
+    "uploadedSha256": "F01FED983EF5A484BD97D9FB66DE38B32CD034B419BC6F4640A38A0422086D8E",
+    "publishedDownloadSha256": "F01FED983EF5A484BD97D9FB66DE38B32CD034B419BC6F4640A38A0422086D8E",
+    "byteIdentical": true
+  },
+  "publish": {
+    "method": "Studio SavePlace -> exact Studio binary -> official Place Publishing endpoint",
+    "versionHistoryVerified": true,
+    "temporaryKeyDeleted": true,
+    "temporaryKeyScope": "universe-places:write",
+    "temporaryKeyRestrictedUniverseId": 10490793155
+  },
+  "checks": {
+    "focusedRuntimeFlow": "PASS 26/26",
+    "trainingProgressionContract": "PASS 21/21",
+    "trainingPetRecoveryContract": "PASS 23/23",
+    "creatorStorePetsContract": "PASS 12/12",
+    "staticAggregate": "PASS Node54/PowerShell19/Luau27/flows116/contracts27",
+    "exactSource": "PASS 9/9",
+    "globalCodeAllowlist": "PASS 9 canonical, 0 extra",
+    "runtimeConsoleClean": true,
+    "postStopConsoleClean": true
+  }
+}

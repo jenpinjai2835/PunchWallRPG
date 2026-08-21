@@ -2,14 +2,14 @@
 
 ## Result
 
-PASS for the rebuilt Smash Wall v1.0.3 artifact from `develop@a28605dacb9d3596fe2443543b1fee08856732e4`.
+PASS for the rebuilt Smash Wall v1.0.4 artifact from source commit `67d46d02014b538d5da12e34ee0ceb828d1aab6b`.
 
 | File | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 6,118,711 | `FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E` |
-| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 6,118,711 | `FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E` |
-| `outputs/releases/v1.0.3/SmashWall_v1.0.3.rbxlx` | 6,118,711 | `FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E` |
-| `outputs/releases/v1.0.3/SmashWall_v1.0.3_validation.rbxlx` | 6,118,711 | `FB6497BE01C3DF9947F41A7B618E296E75ADA400C8083147406000ABC15B0B5E` |
+| `outputs/PunchWallRPGPlayable_v1_final.rbxlx` | 6,499,801 | `FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264` |
+| `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` | 6,499,801 | `FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264` |
+| `outputs/releases/v1.0.4/SmashWall_v1.0.4.rbxlx` | 6,499,801 | `FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264` |
+| `outputs/releases/v1.0.4/SmashWall_v1.0.4_validation.rbxlx` | 6,499,801 | `FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264` |
 
 All four files are byte-identical.
 
@@ -17,25 +17,28 @@ All four files are byte-identical.
 
 - Exact embedded source: PASS for all 9 canonical code objects.
 - Global code allowlist: PASS, exactly 9 canonical code objects and 0 extras.
-- Creator Store behavior sanitizer contract: PASS, including 13 injected unsafe code objects removed and all negative guards.
+- Imported asset sanitizer and release negative guards: PASS.
 - CDATA source preservation: PASS.
 - Configured commerce: 6 Game Passes and 8 Developer Products.
-- Full non-Studio aggregate: PASS — Node 49 files, PowerShell 19 files, Luau 27 compile cases, 115 flow files, and all 26 non-Studio contracts. The Studio-capable Inventory performance benchmark remains explicitly excluded from the static aggregate.
+- Full non-Studio aggregate: PASS — Node 54 files, PowerShell 19 files, Luau 27 compile cases, 116 flow files, and all 27 safe static contracts. The Studio-capable Inventory performance benchmark remains explicitly excluded.
+- Focused contracts: training progression 21/21, training/pet recovery 23/23, Creator Store pets 12/12.
 
 ## Final artifact runtime
 
-`run-final-artifact-regression.ps1` PASS against exact Studio instance `97d0f1b1-2440-48d6-83ef-273225e0181a` and exact local validation copy `PunchWallRPGPlayable_v1_final_validation.rbxlx`.
+Focused flow `training-ui-pet-recovery` PASS 26/26 against exact Studio instance `dfcfb094-1c97-4365-81d8-22f53bafd763` and exact final artifact `PunchWallRPGPlayable_v1_final.rbxlx`.
 
 Runtime checks passed:
 
-1. Exact nine-module source map.
-2. Complete world bootstrap.
-3. Client HUD, Inventory, Shop, Spin, controls, and music bootstrap.
-4. Approved NPC, Power Bag, training payout, and Premium pet displays.
-5. Exact eight sanitized preloaded pet templates, zero Lua source descendants, release gate ready.
-6. Supplied Spin layers, vertical race HUD, and directional controls.
-7. Clean runtime console and clean stop.
+1. Training eligibility uses the same effective Power displayed to the player.
+2. A truly under-qualified player remains locked with no delayed payout.
+3. The reported public repro — raw Power 1,499 plus fist multiplier — qualifies for Iron and earns exactly +40 Power/s.
+4. Unsupported avatar rigs use the equipped-fist visual strike fallback.
+5. Inventory shows all 8 requested pet definitions.
+6. Premium Shop and companion formation use the 3 original detailed Phoenix, Wyvern, and Guardian models.
+7. Release contains 11 sanitized pet templates, with clean runtime and post-stop consoles.
+
+`run-final-artifact-regression.ps1 -StaticOnly` also passed against the rebuilt validation copy.
 
 ## Recovery
 
-The previous canonical final, validation copy, and manifest were copied to `C:/Temp/punchwall-release-before-training-ui-pets` before replacement. Temporary QC and release-candidate builds remain recoverable under `C:/Temp/punchwall-qc-training-ui-pets` until the public publish is confirmed.
+The previous published place version remains available in Roblox version history. The superseded local training/pet candidate was moved recoverably to `C:/Temp/PunchWallRPGPlayable_v1_candidate_training_pets.superseded.rbxlx`.
