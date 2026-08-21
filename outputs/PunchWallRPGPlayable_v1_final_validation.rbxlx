@@ -91954,7 +91954,7 @@ return PolishConfig
 				</Item>
 			</Item>
 			
-		<Item class="Model" referent="RBX93B8957544CB46969966B8A8EEEA02A7">
+		<Item class="Model" referent="RBX83677B0097894071B9ABEB5B1176BFFF">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<bool name="DefinesCapabilities">false</bool>
@@ -91988,7 +91988,7 @@ return PolishConfig
 					<SharedString name="SlimHash">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 					<int64 name="SourceAssetId">1622087753</int64>
 					<SharedString name="Tags">CxS8ph+kcXQK5kd8W1YboA==</SharedString>
-					<UniqueId name="UniqueId">258d441783364c3a972da1d81b079394</UniqueId>
+					<UniqueId name="UniqueId">b1f2e09631fe4e9faa604a75e0e549dd</UniqueId>
 					<OptionalCoordinateFrame name="WorldPivotData">
 						<CFrame>
 							<X>8</X>
@@ -92007,7 +92007,7 @@ return PolishConfig
 					</OptionalCoordinateFrame>
 				</Properties>
 				
-			<Item class="Part" referent="RBX7D8A463EF52C485080D70FEC4ED15326">
+			<Item class="Part" referent="RBXF3D7249B3EEB453CB2A3C7AC746915CF">
 				<Properties>
 					<bool name="Anchored">true</bool>
 					<BinaryString name="AttributesSerialize"></BinaryString>
@@ -92092,7 +92092,7 @@ return PolishConfig
 					<token name="TopSurface">3</token>
 					<token name="TopSurfaceInput">0</token>
 					<float name="Transparency">0</float>
-					<UniqueId name="UniqueId">e61e857c1ff04c53914b2b8b94a441e8</UniqueId>
+					<UniqueId name="UniqueId">251cd75715d94ce8a60c73906f9e7073</UniqueId>
 					<Vector3 name="Velocity">
 						<X>0</X>
 						<Y>0</Y>
@@ -92106,7 +92106,7 @@ return PolishConfig
 						<Z>1.6699995994567871</Z>
 					</Vector3>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBXBC54FFCD85ED40E88BB5C3F0CF1EC3BB">
+			<Item class="SpecialMesh" referent="RBX70E6B48E4D784735B7A4821649C87816">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<bool name="DefinesCapabilities">false</bool>
@@ -92127,7 +92127,7 @@ return PolishConfig
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">1dth/SgWBrBCaPtJdPqauQ==</SharedString>
 								<Content name="TextureId"><url>rbxassetid://65322423</url></Content>
-								<UniqueId name="UniqueId">359b427e81cb40cbac33a3902b4682f5</UniqueId>
+								<UniqueId name="UniqueId">d5fbe27db2af47c3afd59b457ed35dd4</UniqueId>
 								<Vector3 name="VertexColor">
 									<X>10</X>
 									<Y>10</Y>
@@ -116344,7 +116344,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 					</Item>
 				</Item>
 			</Item>
-		<Item class="Model" referent="RBX046C95E52095409BB47794CF0D598342">
+		<Item class="Model" referent="RBXD5C3091A3DCC4B2D9DC660D8979277F9">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<bool name="DefinesCapabilities">false</bool>
@@ -116378,7 +116378,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 					<SharedString name="SlimHash">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 					<int64 name="SourceAssetId">65566767</int64>
 					<SharedString name="Tags">CxS8ph+kcXQK5kd8W1YboA==</SharedString>
-					<UniqueId name="UniqueId">7de1d4d2b671474ab74f696283f2ba2c</UniqueId>
+					<UniqueId name="UniqueId">db5b5c2b764042b797a8974f74e2bacb</UniqueId>
 					<OptionalCoordinateFrame name="WorldPivotData">
 						<CFrame>
 							<X>8</X>
@@ -116397,7 +116397,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 					</OptionalCoordinateFrame>
 				</Properties>
 				
-			<Item class="Part" referent="RBX323EB7126FF140A1A48622C79CF8780F">
+			<Item class="Part" referent="RBX85526D9D20F44C068A8C42766F4B955A">
 				<Properties>
 					<bool name="Anchored">true</bool>
 					<BinaryString name="AttributesSerialize"></BinaryString>
@@ -116482,7 +116482,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 					<token name="TopSurface">3</token>
 					<token name="TopSurfaceInput">0</token>
 					<float name="Transparency">0</float>
-					<UniqueId name="UniqueId">e535c4becd3946e997a117d68b90980f</UniqueId>
+					<UniqueId name="UniqueId">5c19ad5c541b4e2b8f77b8e2f579384a</UniqueId>
 					<Vector3 name="Velocity">
 						<X>0</X>
 						<Y>0</Y>
@@ -116496,7 +116496,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 						<Z>1.6699995994567871</Z>
 					</Vector3>
 				</Properties>
-			<Item class="SpecialMesh" referent="RBX4DBFE0298E1B408C91952B3C4CBEF980">
+			<Item class="SpecialMesh" referent="RBX916A63FAC5E048C3A80E10BC48ECE647">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<bool name="DefinesCapabilities">false</bool>
@@ -116517,7 +116517,7 @@ AAAAAA8AAABWaXN1YWxQYXJ0Q291bnQGAAAAAAAAJEA=</BinaryString>
 								<int64 name="SourceAssetId">-1</int64>
 								<SharedString name="Tags">1dth/SgWBrBCaPtJdPqauQ==</SharedString>
 								<Content name="TextureId"><url>rbxassetid://65322423</url></Content>
-								<UniqueId name="UniqueId">27b79762b0034af39ac9a3ca88f2f177</UniqueId>
+								<UniqueId name="UniqueId">3e7376dd9e514d5ea9a1a029311754fe</UniqueId>
 								<Vector3 name="VertexColor">
 									<X>10</X>
 									<Y>10</Y>
@@ -117473,7 +117473,7 @@ return InventoryViewModel
 			</Properties>
 		</Item>
 		
-	<Item class="Folder" referent="RBX559C8B70CA2B4A18B729CA790C45204F">
+	<Item class="Folder" referent="RBXB0D60A36B79E458B8D2D5A6CF0478B2C">
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<bool name="DefinesCapabilities">false</bool>
@@ -117481,13 +117481,13 @@ return InventoryViewModel
 				<string name="Name">PunchWallVisualAssets</string>
 				<int64 name="SourceAssetId">-1</int64>
 				<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
-				<UniqueId name="UniqueId">a864ebf28c054e089eb7bf8eafde93b6</UniqueId>
+				<UniqueId name="UniqueId">419bff2c25e54a679e405aa8a1a44802</UniqueId>
 			</Properties>
 			
 			
 			
 			
-		<Item class="Model" referent="RBX4AD3A6EE81894B8C84246416B2DFF6B9">
+		<Item class="Model" referent="RBX73239421460449E0894A18226C6183F5">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<bool name="DefinesCapabilities">false</bool>
@@ -117521,7 +117521,7 @@ return InventoryViewModel
 					<SharedString name="SlimHash">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 					<int64 name="SourceAssetId">95555308270103</int64>
 					<SharedString name="Tags">CxS8ph+kcXQK5kd8W1YboA==</SharedString>
-					<UniqueId name="UniqueId">d5dc85387fb84376aebf9470ee040ece</UniqueId>
+					<UniqueId name="UniqueId">283ee61b79c145959437ef0d24affccb</UniqueId>
 					<OptionalCoordinateFrame name="WorldPivotData">
 						<CFrame>
 							<X>8</X>
@@ -117540,7 +117540,7 @@ return InventoryViewModel
 					</OptionalCoordinateFrame>
 				</Properties>
 				
-			<Item class="MeshPart" referent="RBXBD362958270D47CA92DF40E63B7B5A0C">
+			<Item class="MeshPart" referent="RBXBD13DBC7718A4692B7E844CD42D165A3">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -117646,7 +117646,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0</float>
-							<UniqueId name="UniqueId">88953b9232264fcf801627deb2678f62</UniqueId>
+							<UniqueId name="UniqueId">fe5558b209cb4397bf4f183bb6b13bb2</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -117677,7 +117677,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					</Item><Item class="MeshPart" referent="RBX746F92EE76D046D6A64B206C7DA76C48">
+					</Item><Item class="MeshPart" referent="RBX87B4D889CB37471FA0D163F6D209F397">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -117783,7 +117783,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">53551d6cdff641839b4ce32acf2e1134</UniqueId>
+							<UniqueId name="UniqueId">97dec0222b654df3a30bae6cf66537a9</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -117814,7 +117814,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX18CB055C593446A6923C56B5592B8600">
+					<Item class="SurfaceAppearance" referent="RBX57AA3C532E3A43E187F21E5C9343909A">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -117841,10 +117841,10 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">4b7d580593c0498a8d9d5e61f9314271</UniqueId>
+									<UniqueId name="UniqueId">b2b6a15d22364e0bb6111cd7c2a4125d</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX12B4325B42914C26AF074133709833A0">
+							</Item></Item><Item class="MeshPart" referent="RBXD7D240244D204B3D89AFA07A684109A5">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -117950,7 +117950,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">b9eddd8c1ec44d94953ef92941888ea8</UniqueId>
+							<UniqueId name="UniqueId">d225ff5fcdf247aba7742ed9bc762bbf</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -117981,7 +117981,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX0C6C3855CCE840EDB23DA1FA1F3AD097">
+					<Item class="SurfaceAppearance" referent="RBXBD5BD50CED6743AFA1BD2C1F23AF5838">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -118008,10 +118008,10 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">56916b18e889445abded835070c7ddf7</UniqueId>
+									<UniqueId name="UniqueId">7519a41900a74c98a7343ca2fa69b367</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBX073D869394C64CD6869510DE12F9CB64">
+							</Item></Item><Item class="MeshPart" referent="RBXDF2DAA0E27F941B98861318715FDB82F">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -118117,7 +118117,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">0a971238209c43d5a30b5c54e308bad5</UniqueId>
+							<UniqueId name="UniqueId">7c3cb19c020944bc9c0e33cf03c19b31</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -118148,7 +118148,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX9279DBCA3B9B4C2F8743AA7845434CBB">
+					<Item class="SurfaceAppearance" referent="RBX61CA3601A19F421BBA482AFF708A053F">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -118175,10 +118175,10 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">a6bb9fd3d785422e8c0b5ca12a8bf915</UniqueId>
+									<UniqueId name="UniqueId">aa7841c4e1d64b8c89b4c8766e2d35da</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXC81554FBBAC248EBAC82FF3FBFA17A79">
+							</Item></Item><Item class="MeshPart" referent="RBX37F7B5862C6B4B3597486BADC6AA0A2E">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -118284,7 +118284,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">f49610c0e5d64c2c8cfe5dbfd1ed9604</UniqueId>
+							<UniqueId name="UniqueId">2d9f0945992f4316a1a186b2ad1d31a2</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -118315,7 +118315,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX9C74A40440AF410FB0B88A532F16F4EC">
+					<Item class="SurfaceAppearance" referent="RBXE4E59A5007514DAB9BEBF76CD6064D50">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -118342,10 +118342,10 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">5751d560c6be4ad190b5b50d0a0fbfb2</UniqueId>
+									<UniqueId name="UniqueId">545f308336e84ee5a45e0d4621ae9de1</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXABC437B3979245EEACED4A3F6F8AEEB3">
+							</Item></Item><Item class="MeshPart" referent="RBXE1463BA6F81B460CB27E23CB327CEA8C">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -118451,7 +118451,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">d592b7d637c941d7bd40b27c497b2497</UniqueId>
+							<UniqueId name="UniqueId">358ff93d0750408286707b52684e39f4</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -118482,7 +118482,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBXCA0E9012908342898952109C7C97D81F">
+					<Item class="SurfaceAppearance" referent="RBX4645B5803E9D42648C629968BFBF0E2D">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -118509,10 +118509,10 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">e839e4c5f34745a2807ad6845ae7d022</UniqueId>
+									<UniqueId name="UniqueId">f1c9e7eedc1e496fb2653a0702b8cc41</UniqueId>
 								</Properties>
 								
-							</Item></Item><Item class="MeshPart" referent="RBXA8C59ECA59E04789B88884C59F5D9429">
+							</Item></Item><Item class="MeshPart" referent="RBX8D9ADAC3A32C494B920B56EFA71F2DEA">
 						<Properties>
 							<SharedString name="AeroMeshData">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 							<bool name="Anchored">true</bool>
@@ -118618,7 +118618,7 @@ return InventoryViewModel
 							<token name="TopSurface">0</token>
 							<token name="TopSurfaceInput">0</token>
 							<float name="Transparency">0.2</float>
-							<UniqueId name="UniqueId">6046932149714b7cbbf07c97e9a88a56</UniqueId>
+							<UniqueId name="UniqueId">fce0551b5bf34bd9a6d75940b8f60aa5</UniqueId>
 							<Vector3 name="UnscaledCofm">
 								<X>1.86088181</X>
 								<Y>-5.94899654</Y>
@@ -118649,7 +118649,7 @@ return InventoryViewModel
 						</Properties>
 						
 						
-					<Item class="SurfaceAppearance" referent="RBX84405C1ED8574DE7A89635B8021A6C52">
+					<Item class="SurfaceAppearance" referent="RBX76A67029066C43D5A8C05E9CD86FEA57">
 								<Properties>
 									<token name="AlphaMode">1</token>
 									<BinaryString name="AttributesSerialize"></BinaryString>
@@ -118676,7 +118676,7 @@ return InventoryViewModel
 									<int64 name="SourceAssetId">-1</int64>
 									<SharedString name="Tags">DldRwCblQ7Loqy6wYJnaoQ==</SharedString>
 									<Content name="TexturePack"><url></url></Content>
-									<UniqueId name="UniqueId">92ddbb5474d744269175c7f2ecf3b810</UniqueId>
+									<UniqueId name="UniqueId">343aa909b31447f9a037eb07723a8a5b</UniqueId>
 								</Properties>
 								
 							</Item></Item></Item></Item></Item>
@@ -118778,8 +118778,8 @@ local tryDropPetEgg
 
 local persistenceRuntime = {
 	autosaveSeconds = 75,
-	dataStoreAttempts = 3,
-	dataStoreRetryBaseSeconds = 0.35,
+	dataStoreAttempts = 5,
+	dataStoreRetryBaseSeconds = 0.5,
 	sessionLeaseSeconds = 120,
 	playerRemovingSaveTimeout = 10,
 	shutdownDrainTimeout = 25,
@@ -118790,7 +118790,13 @@ local persistenceRuntime = {
 	gamePassOwnershipAttempts = 2,
 	gamePassReconciliationAttempts = 3,
 	gamePassReconciliationRetryBaseSeconds = 2,
-	isUnpublishedStudio = RunService:IsStudio() and (game.GameId == 0 or game.PlaceId == 0),
+	-- Studio must never touch live player profiles by accident, including after a
+	-- local place is linked to a published universe. A deliberate production-data
+	-- test requires an explicit ServerStorage attribute and remains non-default.
+	isEphemeralStudio = RunService:IsStudio()
+		and ServerStorage:GetAttribute("PunchWallAllowLiveDataStoreAccess") ~= true,
+	studioLiveDataOptIn = RunService:IsStudio()
+		and ServerStorage:GetAttribute("PunchWallAllowLiveDataStoreAccess") == true,
 	profileSessions = {},
 	queues = {},
 	finalSaveTickets = setmetatable({}, { __mode = "k" }),
@@ -119068,8 +119074,8 @@ persistenceRuntime.profileSessionReady = profileSessionReady
 persistenceRuntime.profileReady = profileReady
 persistenceRuntime.readinessContract = runProfileReadinessContract()
 
-if persistenceRuntime.isUnpublishedStudio then
-	warn("[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.")
+if persistenceRuntime.isEphemeralStudio then
+	warn("[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.")
 else
 	local dataStoreOk, currentStore, legacyStore = pcall(function()
 		return DataStoreService:GetDataStore("PunchWallRPG_PlayerStats_v2"),
@@ -119108,9 +119114,11 @@ root:SetAttribute("PersistenceMaxSaveTicketsPerOperation", persistenceRuntime.ma
 root:SetAttribute("PersistenceSessionLeaseSeconds", persistenceRuntime.sessionLeaseSeconds)
 root:SetAttribute("PersistenceSessionFencingEnabled", true)
 root:SetAttribute("PersistenceRevisionMode", "MonotonicLeaseGeneration")
+root:SetAttribute("PersistenceStudioDefaultEphemeral", true)
+root:SetAttribute("PersistenceStudioLiveDataOptIn", persistenceRuntime.studioLiveDataOptIn)
 root:SetAttribute(
 	"PersistenceMode",
-	persistenceRuntime.isUnpublishedStudio and "EphemeralStudio"
+	persistenceRuntime.isEphemeralStudio and "EphemeralStudio"
 		or persistenceRuntime.playerStore and "Durable"
 		or "Unavailable"
 )
@@ -120426,7 +120434,7 @@ local function retryDataStoreCall(callback)
 end
 
 local function loadPlayerData(player)
-	if persistenceRuntime.isUnpublishedStudio then
+	if persistenceRuntime.isEphemeralStudio then
 		local profile = ProfilePersistence.NewProfile(
 			GameConfig.DataVersion,
 			ProfilePersistence.MaxReceiptLedgerEntries
@@ -120658,7 +120666,7 @@ end
 local function initializePlayerProfileSession(player, loadResult)
 	local savedData = loadResult.data
 	local canBecomeWritable = loadResult.writable == true
-		and not persistenceRuntime.isUnpublishedStudio
+		and not persistenceRuntime.isEphemeralStudio
 		and type(loadResult.fence) == "table"
 	persistenceRuntime.profileSessions[player] = {
 		initializing = true,

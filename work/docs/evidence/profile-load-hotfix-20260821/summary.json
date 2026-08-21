@@ -1,6 +1,6 @@
 {
   "capturedAt": "2026-08-21T05:01:00Z",
-  "status": "focused-pass-publish-pending",
+  "status": "pass-published-v19",
   "incident": {
     "message": "Your saved data could not be loaded safely. Please rejoin and try again.",
     "rootCause": "linked published-place Studio attempted a production DataStore lease while Studio API access was disabled",
@@ -25,6 +25,13 @@
     "name": "persistence-contract",
     "passed": 31,
     "total": 31
+  },
+  "release": {
+    "version": "1.0.5",
+    "publishedPlaceVersion": 19,
+    "publicUrl": "https://www.roblox.com/games/125255969070601/Smash-Wall",
+    "publishedPayloadVerifiedByteIdentical": true,
+    "temporaryApiKeyDeleted": true
   },
   "sha256": {
     "work/punch-wall-rpg/src/shared/GameConfig.lua": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
