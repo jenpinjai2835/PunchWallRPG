@@ -10,6 +10,7 @@ Published Public on 2026-08-21.
 - Previous published version: `16`
 - Public URL: `https://www.roblox.com/games/125255969070601/Smash-Wall`
 - Source commit: `67d46d02014b538d5da12e34ee0ceb828d1aab6b`
+- Release package commit: `ced9e2de8b2b135118a9df95d23ff6dd07166298`
 - Release artifact: `outputs/releases/v1.0.4/SmashWall_v1.0.4.rbxlx`
 - Artifact SHA-256: `FC6AFC0616A739D074AF030D37FA0D2396568A75925D31841F09D47ACB613264`
 

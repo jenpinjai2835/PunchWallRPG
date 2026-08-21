@@ -11,6 +11,7 @@
   "savedStudioVersion": 17,
   "publishedVersion": 18,
   "sourceCommit": "67d46d02014b538d5da12e34ee0ceb828d1aab6b",
+  "releasePackageCommit": "ced9e2de8b2b135118a9df95d23ff6dd07166298",
   "artifact": {
     "path": "outputs/releases/v1.0.4/SmashWall_v1.0.4.rbxlx",
     "validationPath": "outputs/releases/v1.0.4/SmashWall_v1.0.4_validation.rbxlx",
