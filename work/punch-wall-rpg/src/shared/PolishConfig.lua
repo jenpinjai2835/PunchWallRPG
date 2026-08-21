@@ -203,14 +203,20 @@ PolishConfig.ExternalVisualTemplates = {
 	-- These eight templates are extracted from one user-approved free pack in
 	-- Studio, sanitized, and retained in PunchWallExternalAssets. Never load the
 	-- complete 3,000-part pack at runtime when a preloaded child is absent.
-	{ templateName = "Sanitized_ForestPupPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Forest Pup from Dowodle", sourceModel = "Dowodle", preloadedOnly = true },
-	{ templateName = "Sanitized_MinerCatPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Miner Cat from Catmouse", sourceModel = "Catmouse", preloadedOnly = true },
-	{ templateName = "Sanitized_CrystalFoxPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Crystal Fox from Ocelot", sourceModel = "Ocelot", preloadedOnly = true },
-	{ templateName = "Sanitized_LavaDragonPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Lava Dragon from Mythic Autumn Dragon", sourceModel = "Mythic Autumn Dragon", preloadedOnly = true },
-	{ templateName = "Sanitized_SecretTitanGolemPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Secret Titan Golem from Dark Guardian", sourceModel = "Dark Guardian", preloadedOnly = true },
-	{ templateName = "Sanitized_CrimsonPhoenixPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Crimson Phoenix from Enraged Phoenix", sourceModel = "Enraged Phoenix", preloadedOnly = true },
-	{ templateName = "Sanitized_StormWyvernPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Storm Wyvern from Electra Hydra", sourceModel = "Electra Hydra", preloadedOnly = true },
-	{ templateName = "Sanitized_CelestialGuardianPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Celestial Guardian from Mythic Radiant One", sourceModel = "Mythic Radiant One", preloadedOnly = true },
+	{ templateName = "Sanitized_ForestPupPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Forest Pup from Dowodle", sourceModel = "Dowodle", petDefinitionName = "Forest Pup", preloadedOnly = true },
+	{ templateName = "Sanitized_MinerCatPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Miner Cat from Catmouse", sourceModel = "Catmouse", petDefinitionName = "Miner Cat", preloadedOnly = true },
+	{ templateName = "Sanitized_CrystalFoxPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Crystal Fox from Ocelot", sourceModel = "Ocelot", petDefinitionName = "Crystal Fox", preloadedOnly = true },
+	{ templateName = "Sanitized_LavaDragonPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Lava Dragon from Mythic Autumn Dragon", sourceModel = "Mythic Autumn Dragon", petDefinitionName = "Lava Dragon", preloadedOnly = true },
+	{ templateName = "Sanitized_SecretTitanGolemPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Secret Titan Golem from Dark Guardian", sourceModel = "Dark Guardian", petDefinitionName = "Secret Titan Golem", preloadedOnly = true },
+	{ templateName = "Sanitized_EnragedPhoenixPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Thunder Roc from Enraged Phoenix", sourceModel = "Enraged Phoenix", petDefinitionName = "Thunder Roc", preloadedOnly = true },
+	{ templateName = "Sanitized_ElectraHydraPet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Frost Hydra from Electra Hydra", sourceModel = "Electra Hydra", petDefinitionName = "Frost Hydra", preloadedOnly = true },
+	{ templateName = "Sanitized_MythicRadiantOnePet", assetId = 70715599928632, name = "pet pack pets animals cute furry bundle", creator = "Creator Store listing owner", use = "Solar Kirin from Mythic Radiant One", sourceModel = "Mythic Radiant One", petDefinitionName = "Solar Kirin", preloadedOnly = true },
+	-- Premium companions intentionally use the original detailed standalone
+	-- Creator Store models. They must never be replaced by the blocky pack
+	-- children above merely because both represent a phoenix/dragon/guardian.
+	{ templateName = "Sanitized_CrimsonPhoenixPet", assetId = 86478691482535, name = "Mythical Phoenix pet", creator = "IAmASwedishMale", use = "Detailed Crimson Phoenix premium companion", petDefinitionName = "Crimson Phoenix", minVisualParts = 1 },
+	{ templateName = "Sanitized_StormWyvernPet", assetId = 83562531232957, name = "Adopt Me! Wyvern Dragon Pet Fantasy Roleplay", creator = "XzG0ldeneJGlitchQJCy", use = "Detailed Storm Wyvern premium companion", petDefinitionName = "Storm Wyvern", minVisualParts = 8 },
+	{ templateName = "Sanitized_CelestialGuardianPet", assetId = 121956330907081, name = "Innovation Robot Dog", creator = "SirRioter", use = "Detailed Celestial Guardian premium companion", petDefinitionName = "Celestial Guardian", minVisualParts = 8 },
 }
 
 return PolishConfig

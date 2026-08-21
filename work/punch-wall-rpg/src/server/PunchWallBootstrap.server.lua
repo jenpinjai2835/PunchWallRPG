@@ -843,7 +843,61 @@ local function loadExternalVisualTemplates()
 		folder.Name = "PunchWallExternalAssets"
 		folder.Parent = ReplicatedStorage
 	end
+	local templatePolicyByName = {}
+	local petTemplatePolicyCount = 0
+	for _, policy in ipairs(PolishConfig.ExternalVisualTemplates or {}) do
+		templatePolicyByName[policy.templateName] = policy
+		if policy.petDefinitionName then petTemplatePolicyCount += 1 end
+	end
+	local function templateMatchesPolicy(template, policy)
+		if not policy then return true end
+		local recordedAssetId = template:GetAttribute("CreatorStorePackAssetId")
+			or template:GetAttribute("CreatorStoreAssetId")
+			or template:GetAttribute("AssetId")
+		if tostring(recordedAssetId or "") ~= tostring(policy.assetId) then return false end
+		if policy.preloadedOnly == true then
+			return template:GetAttribute("PreloadedOnly") == true
+				and tostring(template:GetAttribute("SourcePackModelName") or "") == tostring(policy.sourceModel or "")
+		end
+		return template:GetAttribute("PreloadedOnly") ~= true
+	end
+	local function applyTemplatePolicy(template, policy, visualPartCount)
+		if not policy then return end
+		template:SetAttribute("AssetId", policy.assetId)
+		template:SetAttribute("CreatorStoreAssetId", policy.assetId)
+		template:SetAttribute("CreatorStorePackAssetId", tostring(policy.assetId))
+		template:SetAttribute("PetDefinitionName", policy.petDefinitionName)
+		template:SetAttribute("PreloadedOnly", policy.preloadedOnly == true)
+		template:SetAttribute("TemplateAssetMode", policy.preloadedOnly == true and "PreloadedPackChild" or "DetailedStandaloneAsset")
+		if policy.sourceModel then template:SetAttribute("SourcePackModelName", policy.sourceModel) end
+		template:SetAttribute("VisualPartCount", visualPartCount or 0)
+		template:SetAttribute("SourceFallback", false)
+	end
+	for legacyName, migratedName in pairs({
+		Sanitized_CrimsonPhoenixPet = "Sanitized_EnragedPhoenixPet",
+		Sanitized_StormWyvernPet = "Sanitized_ElectraHydraPet",
+		Sanitized_CelestialGuardianPet = "Sanitized_MythicRadiantOnePet",
+	}) do
+		local legacy = folder:FindFirstChild(legacyName)
+		local migrationPolicy = templatePolicyByName[migratedName]
+		if legacy
+			and migrationPolicy
+			and not folder:FindFirstChild(migratedName)
+			and tostring(legacy:GetAttribute("CreatorStorePackAssetId") or "") == tostring(migrationPolicy.assetId)
+			and tostring(legacy:GetAttribute("SourcePackModelName") or "") == tostring(migrationPolicy.sourceModel)
+		then
+			legacy.Name = migratedName
+		end
+	end
 	for _, existing in ipairs(folder:GetChildren()) do
+		local policy = templatePolicyByName[existing.Name]
+		if policy and not templateMatchesPolicy(existing, policy) then
+			-- A previous release reused the premium template names for low-detail
+			-- pack children. Never let that stale model shadow the original detailed
+			-- standalone premium asset.
+			existing:Destroy()
+			continue
+		end
 		local sanitized, sanitizeError = visualSafety.sanitize(existing)
 		if not sanitized then
 			warn(("[PunchWall] Preloaded visual template %s rejected: %s"):format(
@@ -852,6 +906,11 @@ local function loadExternalVisualTemplates()
 			))
 			existing:Destroy()
 		else
+			local visualPartCount = 0
+			for _, descendant in ipairs(existing:GetDescendants()) do
+				if descendant:IsA("BasePart") then visualPartCount += 1 end
+			end
+			applyTemplatePolicy(existing, policy, visualPartCount)
 			existing:SetAttribute("TemplateVisualAttested", true)
 		end
 	end
@@ -912,6 +971,11 @@ local function loadExternalVisualTemplates()
 							asset:SetAttribute("AssetId", requested.assetId)
 							asset:SetAttribute("Creator", requested.creator)
 							asset:SetAttribute("Use", requested.use)
+							local visualPartCount = 0
+							for _, descendant in ipairs(asset:GetDescendants()) do
+								if descendant:IsA("BasePart") then visualPartCount += 1 end
+							end
+							applyTemplatePolicy(asset, requested, visualPartCount)
 							asset:SetAttribute("TemplateVisualAttested", true)
 							asset.Parent = folder
 						else
@@ -989,6 +1053,7 @@ local function loadExternalVisualTemplates()
 		if withinTotalBudget then
 			templateBasePartCount += basePartCount
 			templateDescendantCount += descendantCount
+			applyTemplatePolicy(template, templatePolicyByName[template.Name], basePartCount)
 			template:SetAttribute("TemplateVisualAttested", true)
 		else
 			rejectedTemplateCount += 1
@@ -1010,25 +1075,29 @@ local function loadExternalVisualTemplates()
 	root:SetAttribute("ExternalTemplateSanitizerValidated", true)
 	local readyPetTemplateCount = 0
 	for _, candidate in ipairs(PolishConfig.ExternalVisualTemplates or {}) do
-		if candidate.preloadedOnly == true then
+		if candidate.petDefinitionName then
 			local template = folder:FindFirstChild(candidate.templateName)
 			if template
 				and template:GetAttribute("TemplateVisualAttested") == true
-				and tostring(template:GetAttribute("SourcePackModelName") or "") == tostring(candidate.sourceModel or "")
 				and tostring(template:GetAttribute("CreatorStorePackAssetId") or "") == tostring(candidate.assetId)
+				and template:GetAttribute("PetDefinitionName") == candidate.petDefinitionName
+				and (candidate.preloadedOnly ~= true
+					or tostring(template:GetAttribute("SourcePackModelName") or "") == tostring(candidate.sourceModel or ""))
 			then
 				readyPetTemplateCount += 1
 			end
 		end
 	end
 	root:SetAttribute("PetVisualReadyTemplateCount", readyPetTemplateCount)
-	root:SetAttribute("PetVisualReleasePolicy", "ExactEightPreloadedSanitizedV2")
+	root:SetAttribute("PetVisualRequiredTemplateCount", petTemplatePolicyCount)
+	root:SetAttribute("PetVisualReleasePolicy", "EightPackPlusThreeDetailedPremiumV3")
 	root:SetAttribute(
 		"PetVisualReleaseReady",
 		preloadedOnlyCount == 8
 			and missingPreloadedOnlyCount == 0
 			and rejectedTemplateCount == 0
-			and readyPetTemplateCount == 8
+			and petTemplatePolicyCount == 11
+			and readyPetTemplateCount == petTemplatePolicyCount
 	)
 end
 
@@ -1498,6 +1567,26 @@ local function playerStat(player, name)
 	return leaderstats and leaderstats:FindFirstChild(name)
 end
 
+-- Training unlocks must use the same number the player sees in the Power HUD.
+-- Previously the HUD showed effective Power while the station gate checked only
+-- raw Power, so a player could visibly have 18.9K and still be rejected by the
+-- 1.5K station. Keep this helper server authoritative and reuse it everywhere
+-- that selects, starts, restores, or pays an active training station.
+local function trainingQualificationPower(player)
+	local function read(name, fallback)
+		local value = playerStat(player, name)
+		return value and value.Value or fallback
+	end
+	return GameConfig.EffectivePower(
+		read("Power", 0),
+		read("FistMultiplier", 1),
+		read("PetMultiplier", 0),
+		read("Rebirths", 0),
+		read("FistMastery", 1),
+		read("HonorPowerBonus", 0)
+	)
+end
+
 local function notify(player, message, color)
 	notifyRemote:FireClient(player, message, color or Color3.fromRGB(255, 235, 140))
 end
@@ -1564,14 +1653,8 @@ local function syncStats(player)
 		and (payload.WallLevel or 1) >= rebirthRequirement.requiredLevel
 		and (payload.Coins or 0) >= rebirthRequirement.requiredCoins
 	payload.BasePower = payload.Power or 0
-	payload.EffectivePower = GameConfig.EffectivePower(
-		payload.Power,
-		payload.FistMultiplier,
-		payload.PetMultiplier,
-		payload.Rebirths,
-		payload.FistMastery,
-		payload.HonorPowerBonus
-	)
+	payload.EffectivePower = trainingQualificationPower(player)
+	payload.TrainingQualificationPower = payload.EffectivePower
 	payload.MaxCritChance = GameConfig.MaxCritChance
 	payload.MaxEquippedPets = GameConfig.MaxEquippedPets
 	payload.Rank = GameConfig.RankForDepth(payload.Depth or 0)
@@ -2386,9 +2469,10 @@ local function ensureStats(player)
 
 	local offlineTrainingGain = 0
 	local nowEpoch = os.time()
+	local qualificationPower = trainingQualificationPower(player)
 	local trainingStation = GameConfig.TrainingStation(stats.TrainingStationId.Value)
-	if not trainingStation or leaderstats.Power.Value < trainingStation.minPower then
-		trainingStation = GameConfig.TrainingStationForPower(leaderstats.Power.Value)
+	if not trainingStation or qualificationPower < trainingStation.minPower then
+		trainingStation = GameConfig.TrainingStationForPower(qualificationPower)
 		stats.TrainingStationId.Value = trainingStation.id
 	end
 	if stats.TrainingActive.Value >= 1 and stats.TrainingUpdatedAt.Value > 0 then
@@ -2408,6 +2492,7 @@ local function ensureStats(player)
 	player:SetAttribute("ActiveTrainingStationName", trainingStation.name)
 	player:SetAttribute("ActiveTrainingPowerPerSecond", trainingStation.gain)
 	player:SetAttribute("ActiveTrainingRequiredPower", trainingStation.minPower)
+	player:SetAttribute("TrainingQualificationPower", qualificationPower)
 	player:SetAttribute(
 		"TrainingTickAnchor",
 		stats.TrainingActive.Value >= 1 and workspace:GetServerTimeNow() or nil
@@ -5466,6 +5551,7 @@ local function setActiveTrainingStation(player, config)
 	player:SetAttribute("ActiveTrainingStationName", config.name)
 	player:SetAttribute("ActiveTrainingPowerPerSecond", config.gain)
 	player:SetAttribute("ActiveTrainingRequiredPower", config.minPower)
+	player:SetAttribute("TrainingQualificationPower", trainingQualificationPower(player))
 end
 
 local function setTrainingMovementLocked(player, active, config)
@@ -5531,7 +5617,8 @@ end
 local stopTraining
 
 local function grantTrainingTick(player, config, showFeedback, tickCount)
-	if not config or statValue(player, "Power", 0) < config.minPower then
+	local qualificationPower = trainingQualificationPower(player)
+	if not config or qualificationPower < config.minPower then
 		if stopTraining then stopTraining(player, "power_required") end
 		return 0
 	end
@@ -5578,7 +5665,8 @@ local function trainPlayer(player, config)
 	end
 	player:SetAttribute(key, now)
 	local power = statValue(player, "Power", 0)
-	if power < config.minPower then
+	local qualificationPower = trainingQualificationPower(player)
+	if qualificationPower < config.minPower then
 		sendFeedback(player, {
 			type = "Fail",
 			target = config.displayName,
@@ -5590,7 +5678,8 @@ local function trainPlayer(player, config)
 			reason = "power_required",
 			stationId = config.id,
 			requiredPower = config.minPower,
-			power = power,
+			power = qualificationPower,
+			basePower = power,
 		}
 	end
 	local wasActive = statValue(player, "TrainingActive", 0) >= 1
@@ -5599,13 +5688,13 @@ local function trainPlayer(player, config)
 		setActiveTrainingStation(player, config)
 		setTrainingMovementLocked(player, true, config)
 		if previousId == config.id then
-			return { ok = true, active = true, alreadyActive = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power }
+			return { ok = true, active = true, alreadyActive = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power, qualificationPower = qualificationPower }
 		end
 		player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
 		player:SetAttribute("TrainingSessionGeneration", (player:GetAttribute("TrainingSessionGeneration") or 0) + 1)
 		player:SetAttribute("TrainingSessionTickCount", 0)
 		sendFeedback(player, { type = "TrainingState", target = config.displayName, active = true, switched = true, gain = config.gain, color = config.color })
-		return { ok = true, active = true, switched = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power }
+		return { ok = true, active = true, switched = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", value = power, qualificationPower = qualificationPower }
 	end
 	setActiveTrainingStation(player, config)
 	setStat(player, "TrainingActive", 1)
@@ -5617,7 +5706,7 @@ local function trainPlayer(player, config)
 	setTrainingMovementLocked(player, true, config)
 
 	sendFeedback(player, { type = "TrainingState", target = config.displayName, active = true, gain = config.gain, stationId = config.id, color = config.color })
-	return { ok = true, active = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", gain = 0, value = statValue(player, "Power") }
+	return { ok = true, active = true, stationId = config.id, gainPerSecond = config.gain, stat = "Power", gain = 0, value = statValue(player, "Power"), qualificationPower = qualificationPower }
 end
 
 stopTraining = function(player, reason)
@@ -9035,7 +9124,7 @@ function resetWorldState()
 		if character and rootPart then
 			rootPart.AssemblyLinearVelocity = Vector3.zero
 			rootPart.AssemblyAngularVelocity = Vector3.zero
-			if activeStation and statValue(player, "Power", 0) >= activeStation.minPower then
+			if activeStation and trainingQualificationPower(player) >= activeStation.minPower then
 				setActiveTrainingStation(player, activeStation)
 				setTrainingMovementLocked(player, true, activeStation)
 				player:SetAttribute("TrainingTickAnchor", workspace:GetServerTimeNow())
@@ -9464,6 +9553,8 @@ if RunService:IsStudio() then
 				stationId = station.id,
 				stationName = station.name,
 				requiredPower = station.minPower,
+				qualificationPower = trainingQualificationPower(player),
+				basePower = statValue(player, "Power", 0),
 				gainPerSecond = station.gain,
 				active = statValue(player, "TrainingActive", 0) >= 1,
 				tickAnchor = player:GetAttribute("TrainingTickAnchor"),

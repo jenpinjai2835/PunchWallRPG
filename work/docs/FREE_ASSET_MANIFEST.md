@@ -213,10 +213,10 @@ place has free-asset loading enabled; any load or sanitation failure immediately
 uses the procedural fallback. Decorative parts are anchored and non-colliding.
 Equipped fist parts are massless, non-colliding, and welded by project code.
 
-## Unified Normal and Premium Pet Pack - 2026-08-18
+## Normal Pet Pack and Detailed Premium Companions - 2026-08-21
 
-All five wall-drop pets and all three Robux pets use selected children from the
-user-approved free Creator Store listing
+Eight normal-pet visual families use selected children from the user-approved
+free Creator Store listing
 [pet pack pets animals cute furry bundle](https://create.roblox.com/store/asset/70715599928632/pet-pack-pets-animals-cute-furry-bundle)
 (`70715599928632`). The listing owner could not be confirmed by the automated
 page fetch, so the project does not invent an attribution; the URL and exact
@@ -224,7 +224,7 @@ source-child names remain the provenance record.
 
 Edit-mode inspection found `3,003` BaseParts, `243` effects, five Scripts, and
 two Sounds in the raw pack. The raw pack is never shipped or loaded at runtime.
-Only the eight rows below are cloned into `PunchWallExternalAssets`; the strict
+Only the eight pack rows below are cloned into `PunchWallExternalAssets`; the strict
 visual allowlist removes all code, audio, prompts, remotes, tools, humanoids, and
 behavior containers. Parts are anchored/non-colliding and effect rates, beam
 segments, trail lifetimes, light range, and light shadows are bounded. A missing
@@ -238,13 +238,22 @@ the complete pack ID.
 | Crystal Fox | Epic drop | `Ocelot` | `Sanitized_CrystalFoxPet` |
 | Lava Dragon | Legendary drop | `Mythic Autumn Dragon` | `Sanitized_LavaDragonPet` |
 | Secret Titan Golem | Secret drop | `Dark Guardian` | `Sanitized_SecretTitanGolemPet` |
-| Crimson Phoenix | Premium / Robux | `Enraged Phoenix` | `Sanitized_CrimsonPhoenixPet` |
-| Storm Wyvern | Premium / Robux | `Electra Hydra` | `Sanitized_StormWyvernPet` |
-| Celestial Guardian | Premium / Robux | `Mythic Radiant One` | `Sanitized_CelestialGuardianPet` |
+| Thunder Roc | Legendary drop | `Enraged Phoenix` | `Sanitized_EnragedPhoenixPet` |
+| Frost Hydra | Legendary drop | `Electra Hydra` | `Sanitized_ElectraHydraPet` |
+| Solar Kirin | Secret drop | `Mythic Radiant One` | `Sanitized_MythicRadiantOnePet` |
 
-Inventory cards and the detail panel use a `ViewportFrame` cloned from the same
-attested template, so the item preview and equipped companion cannot drift to a
-different species. Pack-candidate screenshots and the rejected raw-pack safety
+The three Premium companions deliberately use their earlier detailed standalone
+Creator Store models instead of those blocky pack children:
+
+| Premium pet | Creator Store asset | Creator | Runtime template |
+| --- | ---: | --- | --- |
+| Crimson Phoenix | `86478691482535` (`Mythical Phoenix pet`) | `IAmASwedishMale` | `Sanitized_CrimsonPhoenixPet` |
+| Storm Wyvern | `83562531232957` (`Adopt Me! Wyvern Dragon Pet Fantasy Roleplay`) | `XzG0ldeneJGlitchQJCy` | `Sanitized_StormWyvernPet` |
+| Celestial Guardian | `121956330907081` (`Innovation Robot Dog`) | `SirRioter` | `Sanitized_CelestialGuardianPet` |
+
+Inventory cards, Premium Shop cards, and equipped companions use a `ViewportFrame`
+or world clone from the same attested template, so the product preview and live
+companion cannot drift to a different species. Pack-candidate screenshots and the rejected raw-pack safety
 evidence are under `work/docs/evidence/pet-pack-70715599928632/`.
 
 `narwhal warrior upgraded` (`15949563425`) was rejected after in-game screenshot

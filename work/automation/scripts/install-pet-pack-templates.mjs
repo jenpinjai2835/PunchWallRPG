@@ -41,9 +41,9 @@ local mappings={
   {definition="Crystal Fox",rarity="Epic",source="Ocelot",template="Sanitized_CrystalFoxPet"},
   {definition="Lava Dragon",rarity="Legendary",source="Mythic Autumn Dragon",template="Sanitized_LavaDragonPet"},
   {definition="Secret Titan Golem",rarity="Secret",source="Dark Guardian",template="Sanitized_SecretTitanGolemPet"},
-  {definition="Crimson Phoenix",rarity="Premium",source="Enraged Phoenix",template="Sanitized_CrimsonPhoenixPet"},
-  {definition="Storm Wyvern",rarity="Premium",source="Electra Hydra",template="Sanitized_StormWyvernPet"},
-  {definition="Celestial Guardian",rarity="Premium",source="Mythic Radiant One",template="Sanitized_CelestialGuardianPet"},
+  {definition="Thunder Roc",rarity="Legendary",source="Enraged Phoenix",template="Sanitized_EnragedPhoenixPet"},
+  {definition="Frost Hydra",rarity="Legendary",source="Electra Hydra",template="Sanitized_ElectraHydraPet"},
+  {definition="Solar Kirin",rarity="Secret",source="Mythic Radiant One",template="Sanitized_MythicRadiantOnePet"},
 }
 
 -- Assistant/InsertService wraps this Creator Store model in an extra Model

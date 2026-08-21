@@ -67,7 +67,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local deep=c:Invoke('ForcePetEggDrop',62) local model=workspace.PunchWallRPG.Interactables['Pet Egg Drops']:FindFirstChildWhichIsA('Model') local cfg=require(game.ReplicatedStorage.GameConfig) local templates={} for _,pet in ipairs(cfg.Pets) do templates[pet.name]=pet.templateName or 'ProceduralPetV2' end local valid=deep.ok and deep.drop.pendingPickup and deep.drop.poolMinPet=='Thunder Roc' and deep.drop.poolMaxPet=='Void Hound' and model and model:GetAttribute('Depth')==62 and model:GetAttribute('Rarity')~='Premium' and templates['Forest Pup']=='Sanitized_ForestPupPet' and templates['Miner Cat']=='Sanitized_MinerCatPet' and templates['Crystal Fox']=='Sanitized_CrystalFoxPet' and templates['Lava Dragon']=='Sanitized_LavaDragonPet' and templates['Thunder Roc']=='Sanitized_CrimsonPhoenixPet' and templates['Void Hound']=='Sanitized_ForestPupPet' and templates['Secret Titan Golem']=='Sanitized_SecretTitanGolemPet' return H:JSONEncode({valid=valid==true,pending=deep.drop and deep.drop.pendingPickup,poolMin=deep.drop and deep.drop.poolMinPet,poolMax=deep.drop and deep.drop.poolMaxPet,depth=model and model:GetAttribute('Depth'),rarity=model and model:GetAttribute('Rarity'),templates=templates})"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local deep=c:Invoke('ForcePetEggDrop',62) local model=workspace.PunchWallRPG.Interactables['Pet Egg Drops']:FindFirstChildWhichIsA('Model') local cfg=require(game.ReplicatedStorage.GameConfig) local templates={} for _,pet in ipairs(cfg.Pets) do templates[pet.name]=pet.templateName or 'ProceduralPetV2' end local valid=deep.ok and deep.drop.pendingPickup and deep.drop.poolMinPet=='Thunder Roc' and deep.drop.poolMaxPet=='Void Hound' and model and model:GetAttribute('Depth')==62 and model:GetAttribute('Rarity')~='Premium' and templates['Forest Pup']=='Sanitized_ForestPupPet' and templates['Miner Cat']=='Sanitized_MinerCatPet' and templates['Crystal Fox']=='Sanitized_CrystalFoxPet' and templates['Lava Dragon']=='Sanitized_LavaDragonPet' and templates['Thunder Roc']=='Sanitized_EnragedPhoenixPet' and templates['Frost Hydra']=='Sanitized_ElectraHydraPet' and templates['Solar Kirin']=='Sanitized_MythicRadiantOnePet' and templates['Void Hound']=='Sanitized_ForestPupPet' and templates['Secret Titan Golem']=='Sanitized_SecretTitanGolemPet' return H:JSONEncode({valid=valid==true,pending=deep.drop and deep.drop.pendingPickup,poolMin=deep.drop and deep.drop.poolMinPet,poolMax=deep.drop and deep.drop.poolMaxPet,depth=model and model:GetAttribute('Depth'),rarity=model and model:GetAttribute('Rarity'),templates=templates})"
       },
       "expectRegex": [
         "\"valid\"\\s*:\\s*true",
@@ -77,7 +77,9 @@
         "Sanitized_MinerCatPet",
         "Sanitized_CrystalFoxPet",
         "Sanitized_LavaDragonPet",
-        "Sanitized_CrimsonPhoenixPet",
+        "Sanitized_EnragedPhoenixPet",
+        "Sanitized_ElectraHydraPet",
+        "Sanitized_MythicRadiantOnePet",
         "Sanitized_SecretTitanGolemPet"
       ],
       "label": "deep wall uses stronger non-premium pool and curated visual mappings"

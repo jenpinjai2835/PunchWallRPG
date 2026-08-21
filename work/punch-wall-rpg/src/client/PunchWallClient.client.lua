@@ -4701,6 +4701,22 @@ function companionRuntime.CloneSanitizedCatalogVisual(visualAssetFolder, importe
 	return companionRuntime.CloneSanitizedVisual(importedSource)
 end
 
+function companionRuntime.NormalizeInvisibleRigBounds(model)
+	if not model then return model end
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart")
+			and descendant.Name == "HumanoidRootPart"
+			and descendant.Transparency >= 0.99
+		then
+			-- Imported NPC rigs can carry a long invisible root that makes the
+			-- visible pet shrink into a line. Release clones are moved as one
+			-- visual-only Model, so the helper must not own the visual bounds.
+			descendant.Size = Vector3.new(0.1, 0.1, 0.1)
+		end
+	end
+	return model
+end
+
 function companionRuntime.StyleNormalCatalogPet(model, definition)
 	if not model or definition.rarity == "Premium" then return model end
 	local primary = definition.color or Color3.fromRGB(120, 170, 210)
@@ -4801,14 +4817,22 @@ function companionRuntime.AttestedCatalogPetTemplate(candidate, definition)
 			break
 		end
 	end
-	if not policy or policy.preloadedOnly ~= true then return false end
+	if not policy then return false end
+	local assetMatches = tostring(
+		candidate:GetAttribute("CreatorStorePackAssetId")
+			or candidate:GetAttribute("CreatorStoreAssetId")
+			or candidate:GetAttribute("AssetId")
+			or ""
+	) == tostring(policy.assetId)
+	local sourceMatches = policy.preloadedOnly ~= true
+		or (candidate:GetAttribute("PreloadedOnly") == true
+			and candidate:GetAttribute("SourcePackModelName") == policy.sourceModel)
 	return candidate:GetAttribute("SourceFallback") ~= true
 		and candidate:GetAttribute("TemplateVisualAttested") == true
-		and candidate:GetAttribute("PreloadedOnly") == true
-		and tostring(candidate:GetAttribute("CreatorStorePackAssetId")) == tostring(policy.assetId)
-		and candidate:GetAttribute("SourcePackModelName") == policy.sourceModel
-		and candidate:GetAttribute("PetDefinitionName") == definition.name
-		and (tonumber(candidate:GetAttribute("VisualPartCount")) or 0) >= 3
+		and assetMatches
+		and sourceMatches
+		and candidate:GetAttribute("PetDefinitionName") == policy.petDefinitionName
+		and (tonumber(candidate:GetAttribute("VisualPartCount")) or 0) >= (tonumber(policy.minVisualParts) or 3)
 end
 
 local function catalogCompanionTemplate(definition)
@@ -5026,6 +5050,7 @@ local function registerCompanion(model, token, index, definition, stars, visualS
 	model:SetAttribute("MotionSystem", companionMotionVersion)
 	model:SetAttribute("MotionClock", "Heartbeat")
 	model.Parent = companionsFolder
+	companionRuntime.NormalizeInvisibleRigBounds(model)
 
 	local primaryPart = model.PrimaryPart
 	local partCount = 0
@@ -8587,7 +8612,11 @@ function clientRuntime.SetContextualAction(actionName, target)
 	local available = actionName ~= nil and target ~= nil and not trainingAlreadyActive
 	local trainingRequired = actionName == "Train" and tonumber(target:GetAttribute("RequiredPower")) or 0
 	local trainingGain = actionName == "Train" and tonumber(target:GetAttribute("PowerPerSecond")) or 0
-	local trainingEligible = actionName ~= "Train" or (tonumber(latestStats.BasePower or latestStats.Power) or 0) >= trainingRequired
+	local trainingEligible = actionName ~= "Train" or (tonumber(
+		latestStats.TrainingQualificationPower
+			or latestStats.EffectivePower
+			or latestStats.Power
+	) or 0) >= trainingRequired
 	trainButton.Visible = available and actionName == "Train"
 	trainButton.Active = trainButton.Visible and trainingEligible
 	trainButton.AutoButtonColor = trainButton.Active
@@ -10810,8 +10839,16 @@ shared.PunchWallBuildShopUI = function()
 
 			local model
 			local previewSource = "ProceduralPremiumFallbackV1"
+			local catalogTemplate, catalogSource = catalogCompanionTemplate(item)
+			if catalogTemplate then
+				model = companionRuntime.CloneSanitizedCatalogVisual(catalogTemplate.Parent, catalogTemplate)
+				if model then
+					companionRuntime.StyleNormalCatalogPet(model, item)
+					previewSource = catalogSource
+				end
+			end
 			local gameRoot = workspace:FindFirstChild("PunchWallRPG")
-			if gameRoot then
+			if not model and gameRoot then
 				for _, candidate in ipairs(gameRoot:GetDescendants()) do
 					if candidate:IsA("Model")
 						and candidate:GetAttribute("VisualRole") == "PremiumPetShowcase"
@@ -10852,12 +10889,19 @@ shared.PunchWallBuildShopUI = function()
 					descendant:Destroy()
 				end
 			end
+			companionRuntime.NormalizeInvisibleRigBounds(model)
 			model.Parent = world
 			local boundsCFrame, boundsSize = model:GetBoundingBox()
 			local radius = math.max(0.5, boundsSize.Magnitude * 0.5)
 			-- Fit the complete bounding sphere, not just the largest axis. Imported
 			-- companions have very different wing, tail, and height proportions.
-			local fitPadding = item.name == "Celestial Guardian" and 0.82 or 0.66
+			-- The original Wyvern has a very wide authored wingspan. A full-sphere
+			-- fit makes its detailed head and body only a few pixels tall on phone.
+			-- Crop only the outer wing tips in the catalog so the real creature,
+			-- rather than a thin wing line, communicates the product identity.
+			local fitPadding = item.name == "Celestial Guardian" and 0.82
+				or item.name == "Storm Wyvern" and 0.48
+				or 0.66
 			local distance = math.max(3.2, radius / math.sin(math.rad(camera.FieldOfView * 0.5)) * fitPadding)
 			local center = boundsCFrame.Position
 			camera.CFrame = CFrame.lookAt(

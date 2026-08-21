@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_iphone17_training_action",
+      "state": "Eligible Iron training contextual action",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\training-ui-pet-recovery-20260821\\01_iphone17_training_action.jpg",
+      "sha256": "f4f5ed74945597eb7af2a9d2f14077fa59d9ec3403f38b04fd11d1a8565508d1"
+    },
+    {
+      "id": "02_iphone17_inventory_pets",
+      "state": "Compact pet Inventory with exact model previews",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\training-ui-pet-recovery-20260821\\02_iphone17_inventory_pets.jpg",
+      "sha256": "ae9f7b1865b6b97d000582784876e10aaa62ea103618ba57377afae513fcf475"
+    },
+    {
+      "id": "03_iphone17_shop_premium",
+      "state": "Premium pets with green Robux pricing",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\training-ui-pet-recovery-20260821\\03_iphone17_shop_premium.jpg",
+      "sha256": "afa9ac94aa7f962a37925789986e3e8107c02402d785f62d96734eb17fdce7aa"
+    },
+    {
+      "id": "04_iphone17_premium_companions",
+      "state": "Three exact premium pet models in formation",
+      "file": "F:\\Roblox\\PuchWall\\work\\docs\\evidence\\training-ui-pet-recovery-20260821\\04_iphone17_premium_companions.jpg",
+      "sha256": "03383bd4e23d59ef784e7ba0bac06006ce76e3f98ab12a3c93d7473fc1fcec1c"
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "a925bd682012c91330d161e3beb9462dbf785a36f6770bb750fa3df760daf4c9",
+    "work/punch-wall-rpg/src/shared/PolishConfig.lua": "fe1f580a90c161a1d89545730508a88cdea54c2f61dc1da9aae9b054ec319ddd",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "e2f506e7eee955bd071164a0879e60ed0925bfaa5660e86fe742334c18c97a45",
+    "work/punch-wall-rpg/src/client/InventoryUI.lua": "610354954e986402338e2fcfa2440c9243252c6dd89831407811b5eb09996457",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "e876608d198dc58f494a9c9c1bd58626ce225aa1947c849f4b3db29eadcb6bab",
+    "work/automation/flows/training-ui-pet-recovery.json": "94b709b46aab92fc3c3a40532ae4168035dc42b33e13d47535e89a928a58c3c2",
+    "work/automation/scripts/training-ui-pet-recovery-contract.mjs": "e8c5c699f6b18bcda845ddb4fa4add8f3b4ab42d1304ce042f93e21775e9a1b1",
+    "work/automation/scripts/capture-training-ui-pet-recovery.mjs": "58ab4bde17ecabc3d28fc92af40ea080887e163f6e4af6136794a00751b658bf",
+    "work/docs/evidence/training-ui-pet-recovery-20260821/flow-result.json": "8017fb07a72fa657f0c7d46bb60e6e63c72cc9c35c0f104c8c5dc8d298fece80"
+  },
+  "device": {
+    "width": 874,
+    "height": 402,
+    "name": "QC Training UI Pet Capture 874x402",
+    "runtime": {
+      "height": 402,
+      "width": 874,
+      "active": true
+    }
+  },
+  "selectedStudio": {
+    "id": "d5ee7c55-c07d-47c1-8a9b-2fc863faa8ee",
+    "name": "PunchWallRPGPlayable_v1_candidate_training_pets.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPGPlayable_v1_candidate_training_pets.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "PunchWallClient": {
+      "adler32": 2119059094,
+      "length": 556753,
+      "matchesLocal": true,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua"
+    },
+    "InventoryUI": {
+      "adler32": 2685416557,
+      "length": 156930,
+      "matchesLocal": true,
+      "file": "work/punch-wall-rpg/src/client/InventoryUI.lua"
+    },
+    "GameConfig": {
+      "adler32": 1868186695,
+      "length": 38942,
+      "matchesLocal": true,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua"
+    },
+    "PolishConfig": {
+      "adler32": 1001298265,
+      "length": 12834,
+      "matchesLocal": true,
+      "file": "work/punch-wall-rpg/src/shared/PolishConfig.lua"
+    },
+    "PunchWallBootstrap": {
+      "adler32": 858934478,
+      "length": 426082,
+      "matchesLocal": true,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua"
+    }
+  },
+  "console": {
+    "clean": true,
+    "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+    "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 1
+  }
+}

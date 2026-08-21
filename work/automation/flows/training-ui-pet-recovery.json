@@ -1,9 +1,9 @@
 {
   "name": "training-ui-pet-recovery",
-  "description": "Verify exact-station training eligibility, compact contextual action presentation, unsupported-rig equipped-fist fallback, dense Inventory cards, distinct Robux pricing, and all eight preloaded pet visuals on iPhone 17 landscape.",
-  "studioInstanceId": "8e0ad201-e63b-44d9-b20c-38e9957106e0",
-  "studioName": "^SmashWall_TrainingUIPetRecovery_QC[.]rbxlx$",
-  "placeName": "^SmashWall_TrainingUIPetRecovery_QC[.]rbxlx$",
+  "description": "Verify displayed effective-Power training eligibility, compact contextual action presentation, unsupported-rig equipped-fist fallback, dense Inventory cards, distinct Robux pricing, and eight pack plus three detailed Premium pet visuals on iPhone 17 landscape.",
+  "studioInstanceId": "d5ee7c55-c07d-47c1-8a9b-2fc863faa8ee",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_candidate_training_pets|PunchWallRPGPlayable_v1_final)[.]rbxlx$",
+  "placeName": "^(?:PunchWallRPGPlayable_v1_candidate_training_pets|PunchWallRPGPlayable_v1_final)[.]rbxlx$",
   "pollAttempts": 18,
   "pollMs": 3000,
   "steps": [
@@ -12,10 +12,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Edit",
-        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='QC Training UI Pet Recovery 874x402' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) local RS=game:GetService('ReplicatedStorage') local folder=RS:FindFirstChild('PunchWallExternalAssets') local names={'Sanitized_ForestPupPet','Sanitized_MinerCatPet','Sanitized_CrystalFoxPet','Sanitized_LavaDragonPet','Sanitized_SecretTitanGolemPet','Sanitized_CrimsonPhoenixPet','Sanitized_StormWyvernPet','Sanitized_CelestialGuardianPet'} local found=0 for _,name in ipairs(names) do if folder and folder:FindFirstChild(name) then found+=1 end end local r=S:GetResolutionAsync() return H:JSONEncode({ok=found==8 and r.X==874 and r.Y==402,found=found,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='QC Training UI Pet Recovery 874x402' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) local RS=game:GetService('ReplicatedStorage') local folder=RS:FindFirstChild('PunchWallExternalAssets') local names={'Sanitized_ForestPupPet','Sanitized_MinerCatPet','Sanitized_CrystalFoxPet','Sanitized_LavaDragonPet','Sanitized_SecretTitanGolemPet','Sanitized_EnragedPhoenixPet','Sanitized_ElectraHydraPet','Sanitized_MythicRadiantOnePet','Sanitized_CrimsonPhoenixPet','Sanitized_StormWyvernPet','Sanitized_CelestialGuardianPet'} local found=0 for _,name in ipairs(names) do if folder and folder:FindFirstChild(name) then found+=1 end end local r=S:GetResolutionAsync() return H:JSONEncode({ok=found==11 and r.X==874 and r.Y==402,found=found,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"found\"\\s*:\\s*8", "\"width\"\\s*:\\s*874", "\"height\"\\s*:\\s*402", "\"active\"\\s*:\\s*true"],
-      "label": "configure iPhone 17 and require all eight embedded pet templates"
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"found\"\\s*:\\s*11", "\"width\"\\s*:\\s*874", "\"height\"\\s*:\\s*402", "\"active\"\\s*:\\s*true"],
+      "label": "configure iPhone 17 and require eight pack plus three detailed Premium templates"
     },
     { "type": "wait", "ms": 2500, "label": "wait for device simulator to settle" },
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 60000, "label": "start focused play" },
@@ -25,10 +25,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') a:Invoke('SetStats',{Power=1499,FistMultiplier=999,PetMultiplier=999}) a:Invoke('Teleport','Iron Impact Dummy') task.wait(.25) local root=workspace.PunchWallRPG local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.ok==true and root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==8,power=s.Power,active=s.active,petReady=root:GetAttribute('PetVisualReleaseReady'),petCount=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy')})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') a:Invoke('SetStats',{Power=1400,FistMultiplier=1,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) a:Invoke('Teleport','Iron Impact Dummy') task.wait(.25) local root=workspace.PunchWallRPG local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.ok==true and s.qualificationPower<1500 and root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11,power=s.Power,qualification=s.qualificationPower,active=s.active,petReady=root:GetAttribute('PetVisualReleaseReady'),petCount=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy')})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"power\"\\s*:\\s*1499", "\"active\"\\s*:\\s*false", "\"petReady\"\\s*:\\s*true", "\"petCount\"\\s*:\\s*8", "ExactEightPreloadedSanitizedV2"],
-      "label": "seed below-threshold base Power and prove pet release readiness"
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"power\"\\s*:\\s*1400", "\"active\"\\s*:\\s*false", "\"petReady\"\\s*:\\s*true", "\"petCount\"\\s*:\\s*11", "EightPackPlusThreeDetailedPremiumV3"],
+      "label": "seed truly below-threshold displayed Power and prove pet release readiness"
     },
     { "type": "wait", "ms": 800, "label": "wait for exact training target scan" },
     {
@@ -47,9 +47,9 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.Power==1499 and s.active==false and s.stationId=='rookie_bag',Power=s.Power,active=s.active,stationId=s.stationId})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.Power==1400 and s.active==false and s.stationId=='rookie_bag',Power=s.Power,active=s.active,stationId=s.stationId})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1499", "\"active\"\\s*:\\s*false", "\"stationId\"\\s*:\\s*\"rookie_bag\""],
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1400", "\"active\"\\s*:\\s*false", "\"stationId\"\\s*:\\s*\"rookie_bag\""],
       "label": "below-threshold request never starts or switches training"
     },
     {
@@ -57,10 +57,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('SetStats',{Power=1500}) return H:JSONEncode({ok=s.ok==true and s.Power==1500,Power=s.Power})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('SetStats',{Power=1499,FistMultiplier=13,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) local t=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.ok==true and s.Power==1499 and t.basePower==1499 and t.qualificationPower>=1500,Power=s.Power,basePower=t.basePower,qualification=t.qualificationPower})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1500"],
-      "label": "set exact authoritative Iron threshold"
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1499", "\"basePower\"\\s*:\\s*1499", "\"qualification\"\\s*:\\s*[1-9][0-9]{4,}"],
+      "label": "reproduce public case where displayed effective Power exceeds Iron threshold"
     },
     { "type": "wait", "ms": 650, "label": "wait for eligible contextual state" },
     {
@@ -121,7 +121,7 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') task.wait(1) local root=g.GameMenu.FunctionalInventory local grid=root.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local expected={['Forest Pup']='Dowodle',['Miner Cat']='Catmouse',['Crystal Fox']='Ocelot',['Lava Dragon']='Mythic Autumn Dragon',['Secret Titan Golem']='Dark Guardian',['Crimson Phoenix']='Enraged Phoenix',['Storm Wyvern']='Electra Hydra',['Celestial Guardian']='Mythic Radiant One'} local cards,matched,overlaps=0,0,0 local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return math.max(0,math.min(ap.X+as.X,bp.X+bs.X)-math.max(ap.X,bp.X))*math.max(0,math.min(ap.Y+as.Y,bp.Y+bs.Y)-math.max(ap.Y,bp.Y)) end for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local art=card:FindFirstChild('ArtFrame') local rarity=card:FindFirstChild('Rarity') local equipped=card:FindFirstChild('Equipped') local locked=card:FindFirstChild('Locked') if art and rarity then overlaps+=overlap(art,rarity) end if art and equipped and equipped.Visible then overlaps+=overlap(art,equipped) end if art and locked and locked.Visible then overlaps+=overlap(art,locked) end local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') if expected[name] and vp and vp:GetAttribute('PreviewReady')==true and model and model:GetAttribute('SourcePackModelName')==expected[name] then matched+=1 end end end local result={ok=root:GetAttribute('InventoryCompactCardContentVersion')=='StatusRailV4' and cards==8 and matched==8 and overlaps<1,version=root:GetAttribute('InventoryCompactCardContentVersion'),cards=cards,matched=matched,overlaps=overlaps,cardHeight=root:GetAttribute('InventoryCardHeight'),columns=root:GetAttribute('InventoryColumns')} assert(result.ok and result.cardHeight<=94 and result.columns>=5,'Inventory pet cards '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') task.wait(1) local root=g.GameMenu.FunctionalInventory local grid=root.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local expected={['Forest Pup']={source='Dowodle'},['Miner Cat']={source='Catmouse'},['Crystal Fox']={source='Ocelot'},['Lava Dragon']={source='Mythic Autumn Dragon'},['Secret Titan Golem']={source='Dark Guardian'},['Crimson Phoenix']={asset='86478691482535'},['Storm Wyvern']={asset='83562531232957'},['Celestial Guardian']={asset='121956330907081'}} local cards,matched,overlaps=0,0,0 local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return math.max(0,math.min(ap.X+as.X,bp.X+bs.X)-math.max(ap.X,bp.X))*math.max(0,math.min(ap.Y+as.Y,bp.Y+bs.Y)-math.max(ap.Y,bp.Y)) end for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local art=card:FindFirstChild('ArtFrame') local rarity=card:FindFirstChild('Rarity') local equipped=card:FindFirstChild('Equipped') local locked=card:FindFirstChild('Locked') if art and rarity then overlaps+=overlap(art,rarity) end if art and equipped and equipped.Visible then overlaps+=overlap(art,equipped) end if art and locked and locked.Visible then overlaps+=overlap(art,locked) end local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local e=expected[name] local sourceOk=e and ((e.source and model and model:GetAttribute('SourcePackModelName')==e.source) or (e.asset and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==e.asset)) if e and vp and vp:GetAttribute('PreviewReady')==true and sourceOk then matched+=1 end end end local result={ok=root:GetAttribute('InventoryCompactCardContentVersion')=='StatusRailV4' and cards==8 and matched==8 and overlaps<1,version=root:GetAttribute('InventoryCompactCardContentVersion'),cards=cards,matched=matched,overlaps=overlaps,cardHeight=root:GetAttribute('InventoryCardHeight'),columns=root:GetAttribute('InventoryColumns')} assert(result.ok and result.cardHeight<=94 and result.columns>=5,'Inventory pet cards '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
       "expectRegex": ["\"ok\"\\s*:\\s*true", "\"version\"\\s*:\\s*\"StatusRailV4\"", "\"cards\"\\s*:\\s*8", "\"matched\"\\s*:\\s*8", "\"overlaps\"\\s*:\\s*0"],
       "label": "compact Inventory shows all pet art without tag overlap"
@@ -132,10 +132,10 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Premium') a:Invoke('OpenShopPage','Premium') task.wait(1) local shop=g.GameMenu.FunctionalHeroShop local checked,preview=0,0 for _,card in ipairs(shop:GetDescendants()) do if card:IsA('Frame') and card.Name:sub(-8)=='ShopCard' and card:GetAttribute('OfferKind')=='GamePass' then local price=card:FindFirstChild('Price') local icon=card:FindFirstChild('PriceIcon') assert(price and icon and price:GetAttribute('CurrencyPalette')=='RobuxGreen' and price.TextColor3~=Color3.fromRGB(255,207,58),'Robux palette '..card.Name) checked+=1 if card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end end end local result={ok=checked==3 and preview==3,checked=checked,preview=preview,page=shop:GetAttribute('ShopPage')} assert(result.ok,'premium shop '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Premium') a:Invoke('OpenShopPage','Premium') task.wait(1) local shop=g.GameMenu.FunctionalHeroShop local expected={['Crimson Phoenix']='86478691482535',['Storm Wyvern']='83562531232957',['Celestial Guardian']='121956330907081'} local checked,preview,detailed=0,0,0 for _,card in ipairs(shop:GetDescendants()) do if card:IsA('Frame') and card.Name:sub(-8)=='ShopCard' and card:GetAttribute('OfferKind')=='GamePass' then local price=card:FindFirstChild('Price') local icon=card:FindFirstChild('PriceIcon') assert(price and icon and price:GetAttribute('CurrencyPalette')=='RobuxGreen' and price.TextColor3~=Color3.fromRGB(255,207,58),'Robux palette '..card.Name) checked+=1 local vp=card:FindFirstChild('PremiumPetPreview',true) local world=vp and vp:FindFirstChild('PremiumPetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local name=vp and vp:GetAttribute('PreviewPetName') if card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end if expected[name] and vp:GetAttribute('PreviewSource')=='ExternalTemplate' and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==expected[name] then detailed+=1 end end end local result={ok=checked==3 and preview==3 and detailed==3,checked=checked,preview=preview,detailed=detailed,page=shop:GetAttribute('ShopPage')} assert(result.ok,'premium shop '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"checked\"\\s*:\\s*3", "\"preview\"\\s*:\\s*3"],
-      "label": "premium Shop uses green Robux pricing and real pet previews"
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"checked\"\\s*:\\s*3", "\"preview\"\\s*:\\s*3", "\"detailed\"\\s*:\\s*3"],
+      "label": "premium Shop uses green Robux pricing and original detailed pet previews"
     },
     { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
     { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },

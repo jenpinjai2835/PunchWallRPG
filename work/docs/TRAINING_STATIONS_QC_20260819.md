@@ -6,7 +6,7 @@ Gate 5 is ready for independent review. The implementation and latest Studio evi
 
 ## Canonical balance
 
-| Tier | Station | Required base Power | Power / second |
+| Tier | Station | Required displayed Power | Power / second |
 |---:|---|---:|---:|
 | I | Rookie Power Bag | 0 | 4 |
 | II | Iron Impact Dummy | 1,500 | 40 |
@@ -17,7 +17,7 @@ Online ticks are one second. Offline efficiency is 35% and is capped at eight ho
 
 ## Implemented safeguards
 
-- The server checks base Power, not fist/pet/effective multipliers, both on entry and every recurring tick.
+- The server checks the same effective Power displayed in the HUD, including equipped fist, pets, Rebirth, mastery, and Honor bonus, both on entry and every recurring tick. This prevents a visible `18.9K` player from being rejected by the `1.5K` station.
 - Starting, repeating the same station, and switching stations never grant an immediate free tick.
 - A station switch resets the authoritative tick anchor and the next payout uses only the new station rate.
 - Rebirth stops training before resetting Power.

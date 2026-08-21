@@ -15,9 +15,9 @@ import {
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..", "..", "..");
-const outputDirectory = path.join(repositoryRoot, "work", "docs", "evidence", "training-ui-pet-recovery-20260820");
+const outputDirectory = path.join(repositoryRoot, "work", "docs", "evidence", "training-ui-pet-recovery-20260821");
 const studioInstanceId = process.argv[2];
-const studioName = "^SmashWall_TrainingUIPetRecovery_QC[.]rbxlx$";
+const studioName = "^(?:PunchWallRPGPlayable_v1_candidate_training_pets|PunchWallRPGPlayable_v1_final)[.]rbxlx$";
 const deviceName = "QC Training UI Pet Capture 874x402";
 
 function requireTool(result, label) {
@@ -113,7 +113,7 @@ async function main() {
 
     const serverSeed = requireTool(await client.callTool("execute_luau", {
       datamodel_type: "Server",
-      code: "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} a:Invoke('Reset') local s=a:Invoke('SetStats',{Power=1500,PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),EquippedPetsJSON='[]',LockedPetsJSON='[]'}) a:Invoke('Teleport','Iron Impact Dummy') local root=workspace.PunchWallRPG assert(root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==8,'pet release gate') return true",
+      code: "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} a:Invoke('Reset') local s=a:Invoke('SetStats',{Power=1499,FistMultiplier=13,PetMultiplier=0,PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),EquippedPetsJSON='[]',LockedPetsJSON='[]'}) a:Invoke('Teleport','Iron Impact Dummy') local root=workspace.PunchWallRPG assert(root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11 and root:GetAttribute('PetVisualReleasePolicy')=='EightPackPlusThreeDetailedPremiumV3','pet release gate') return true",
     }, 30000), "seed capture state");
     if (serverSeed.isError) throw new Error(serverSeed.text);
     await sleep(900);
@@ -148,7 +148,7 @@ async function main() {
     summary.sources["work/automation/scripts/capture-training-ui-pet-recovery.mjs"] = sha256(fileURLToPath(import.meta.url));
     const flowResult = path.join(outputDirectory, "flow-result.json");
     if (fs.existsSync(flowResult)) {
-      summary.sources["work/docs/evidence/training-ui-pet-recovery-20260820/flow-result.json"] = sha256(flowResult);
+      summary.sources["work/docs/evidence/training-ui-pet-recovery-20260821/flow-result.json"] = sha256(flowResult);
     }
     summary.ok = true;
   } finally {

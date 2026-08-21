@@ -14,20 +14,25 @@ const recoveryFlow = read("automation", "flows", "training-ui-pet-recovery.json"
 const captureScript = read("automation", "scripts", "capture-training-ui-pet-recovery.mjs");
 const finalArtifact = read("..", "outputs", "PunchWallRPGPlayable_v1_final.rbxlx");
 
-const templates = [
-  ["Sanitized_ForestPupPet", "Dowodle"],
-  ["Sanitized_MinerCatPet", "Catmouse"],
-  ["Sanitized_CrystalFoxPet", "Ocelot"],
-  ["Sanitized_LavaDragonPet", "Mythic Autumn Dragon"],
-  ["Sanitized_SecretTitanGolemPet", "Dark Guardian"],
-  ["Sanitized_CrimsonPhoenixPet", "Enraged Phoenix"],
-  ["Sanitized_StormWyvernPet", "Electra Hydra"],
-  ["Sanitized_CelestialGuardianPet", "Mythic Radiant One"],
+const packTemplates = [
+  ["Sanitized_ForestPupPet", "Dowodle", "Forest Pup"],
+  ["Sanitized_MinerCatPet", "Catmouse", "Miner Cat"],
+  ["Sanitized_CrystalFoxPet", "Ocelot", "Crystal Fox"],
+  ["Sanitized_LavaDragonPet", "Mythic Autumn Dragon", "Lava Dragon"],
+  ["Sanitized_SecretTitanGolemPet", "Dark Guardian", "Secret Titan Golem"],
+  ["Sanitized_EnragedPhoenixPet", "Enraged Phoenix", "Thunder Roc"],
+  ["Sanitized_ElectraHydraPet", "Electra Hydra", "Frost Hydra"],
+  ["Sanitized_MythicRadiantOnePet", "Mythic Radiant One", "Solar Kirin"],
+];
+const premiumTemplates = [
+  ["Sanitized_CrimsonPhoenixPet", "Crimson Phoenix", "86478691482535"],
+  ["Sanitized_StormWyvernPet", "Storm Wyvern", "83562531232957"],
+  ["Sanitized_CelestialGuardianPet", "Celestial Guardian", "121956330907081"],
 ];
 
 const checks = [
   ["selected_training_station_validates_its_own_range", server.includes("requested.part and requested.part.Parent") && server.includes("requestedDistance <= TRAINING_INTERACTION_DISTANCE") && server.includes("config = requested") && !server.includes("if requested and requested ~= config then config = nil end")],
-  ["training_unlock_uses_authoritative_base_power", server.includes('local power = statValue(player, "Power", 0)') && server.includes("if power < config.minPower then") && !server.slice(server.indexOf("local function trainPlayer"), server.indexOf("stopTraining = function")).includes("EffectivePower")],
+  ["training_unlock_uses_displayed_effective_power", server.includes("local function trainingQualificationPower(player)") && server.includes("return GameConfig.EffectivePower(") && server.includes("if qualificationPower < config.minPower then") && client.includes("latestStats.TrainingQualificationPower")],
   ["context_scan_only_compares_actionable_targets", client.includes("local nearestTraining") && client.includes("local nearestUse") && client.includes("clientRuntime.IsTrainingTarget(candidate)") && client.includes("clientRuntime.IsUseTarget(candidate)") && client.includes("nearestTrainingDistance <= nearestUseDistance + 5")],
   ["context_action_is_compact_two_line", client.includes('Name = "ActionTitle"') && client.includes('Name = "ActionDetail"') && client.includes('"PresentationVersion", "TwoLineCompactV2"') && client.includes("contextActionSize.MinSize = Vector2.new(196, 52)") && client.includes('"PhoneTwoLineCenterLane56V4"')],
   ["context_action_uses_dark_readable_panel", client.includes("button.BackgroundColor3 = Color3.fromRGB(10, 23, 31)") && client.includes("actionTitle.TextColor3 = actionAccent") && client.includes("contextActionDetail.TextColor3 = Color3.fromRGB(225, 240, 246)")],
@@ -39,12 +44,15 @@ const checks = [
   ["unsupported_rigs_use_equipped_fist_strike", client.includes("function companionRuntime.PerformTrainingFistStrike(target)") && client.includes('echo.Name = "Training Equipped Fist Strike"') && client.includes('"TrainingFistStrikeFallback"') && client.includes('tostring(latestStats.EquippedFist or "Starter Glove")')],
   ["fallback_is_visual_only_bounded_and_cleaned", client.includes("descendant.Anchored = true") && client.includes("descendant.CanCollide = false") && client.includes("math.min(descendant.Rate, 8)") && client.includes("if echo.Parent then echo:Destroy() end")],
   ["training_loop_uses_fallback_only_without_character_animation", client.includes("local characterAnimated = performPunchAnimation()") && client.includes("if not characterAnimated then") && client.includes("companionRuntime.PerformTrainingFistStrike(target)") && client.includes('"TrainingCharacterAnimationApplied"')],
-  ["pet_pack_policy_has_exact_eight_preloaded_templates", templates.every(([template, source]) => polish.includes(`templateName = "${template}"`) && polish.includes(`sourceModel = "${source}"`) && polish.includes("preloadedOnly = true")) && (polish.match(/preloadedOnly = true/g) ?? []).length === 8],
-  ["pet_release_gate_requires_all_eight_sanitized_templates", server.includes('"PetVisualReadyTemplateCount"') && server.includes('"PetVisualReleasePolicy", "ExactEightPreloadedSanitizedV2"') && server.includes('"PetVisualReleaseReady"') && server.includes("readyPetTemplateCount == 8") && server.includes("rejectedTemplateCount == 0")],
-  ["pet_runtime_flow_checks_real_templates_and_no_unsafe_descendants", templates.every(([template, source]) => petFlow.includes(template) && petFlow.includes(source)) && petFlow.includes("found==8") && petFlow.includes("unsafe==0") && petFlow.includes("PetPackTemplateCount")],
-  ["final_artifact_contains_all_eight_pet_models", templates.every(([template, source]) => finalArtifact.includes(template) && finalArtifact.includes(source))],
-  ["all_pet_definitions_reference_preloaded_template_families", templates.every(([template, source]) => config.includes(`templateName = "${template}"`) && config.includes(`packModel = "${source}"`))],
-  ["focused_flow_is_exact_and_covers_runtime_lifecycle", recoveryFlow.includes('"studioInstanceId": "8e0ad201-e63b-44d9-b20c-38e9957106e0"') && recoveryFlow.includes("below-threshold request never starts or switches training") && recoveryFlow.includes("unsupported avatar visibly strikes with the equipped fist") && recoveryFlow.includes("compact Inventory shows all pet art without tag overlap") && recoveryFlow.includes("premium Shop uses green Robux pricing and real pet previews") && recoveryFlow.includes("runtime console clean") && recoveryFlow.includes("post-stop console clean") && recoveryFlow.includes("restore simulator default")],
+  ["pet_pack_policy_has_exact_eight_preloaded_templates", packTemplates.every(([template, source, definition]) => polish.includes(`templateName = "${template}"`) && polish.includes(`sourceModel = "${source}"`) && polish.includes(`petDefinitionName = "${definition}"`)) && (polish.match(/preloadedOnly = true/g) ?? []).length === 8],
+  ["premium_policy_restores_three_original_detailed_assets", premiumTemplates.every(([template, definition, asset]) => polish.includes(`templateName = "${template}"`) && polish.includes(`assetId = ${asset}`) && polish.includes(`petDefinitionName = "${definition}"`))],
+  ["invisible_pet_rig_helpers_do_not_distort_visual_bounds", client.includes("function companionRuntime.NormalizeInvisibleRigBounds(model)") && client.includes('descendant.Name == "HumanoidRootPart"') && client.includes("companionRuntime.NormalizeInvisibleRigBounds(model)")],
+  ["wide_wyvern_preview_prioritizes_creature_identity", client.includes('item.name == "Storm Wyvern" and 0.48') && client.includes('PreviewFitPadding')],
+  ["pet_release_gate_requires_eight_pack_plus_three_premium_templates", server.includes('"PetVisualReadyTemplateCount"') && server.includes('"PetVisualRequiredTemplateCount"') && server.includes('"PetVisualReleasePolicy", "EightPackPlusThreeDetailedPremiumV3"') && server.includes("petTemplatePolicyCount == 11") && server.includes("readyPetTemplateCount == petTemplatePolicyCount") && server.includes("rejectedTemplateCount == 0")],
+  ["pet_runtime_flow_checks_real_templates_and_no_unsafe_descendants", [...packTemplates, ...premiumTemplates].every(([template]) => petFlow.includes(template)) && petFlow.includes("found==11") && petFlow.includes("unsafe==0") && petFlow.includes("PetPackTemplateCount")],
+  ["final_artifact_contains_all_eleven_pet_models", [...packTemplates, ...premiumTemplates].every(([template]) => finalArtifact.includes(template))],
+  ["all_pet_definitions_reference_correct_template_families", packTemplates.every(([template, source, definition]) => config.includes(`name = "${definition}"`) && config.includes(`templateName = "${template}"`) && config.includes(`packModel = "${source}"`)) && premiumTemplates.every(([template, definition]) => config.includes(`name = "${definition}"`) && config.includes(`templateName = "${template}"`))],
+  ["focused_flow_is_exact_and_covers_runtime_lifecycle", /"studioInstanceId": "[0-9a-f-]{36}"/.test(recoveryFlow) && recoveryFlow.includes("PunchWallRPGPlayable_v1_candidate_training_pets") && recoveryFlow.includes("PunchWallRPGPlayable_v1_final") && recoveryFlow.includes("below-threshold request never starts or switches training") && recoveryFlow.includes("reproduce public case where displayed effective Power exceeds Iron threshold") && recoveryFlow.includes("unsupported avatar visibly strikes with the equipped fist") && recoveryFlow.includes("compact Inventory shows all pet art without tag overlap") && recoveryFlow.includes("premium Shop uses green Robux pricing and original detailed pet previews") && recoveryFlow.includes("runtime console clean") && recoveryFlow.includes("post-stop console clean") && recoveryFlow.includes("restore simulator default")],
   ["capture_bundle_is_source_bound_and_has_four_distinct_views", captureScript.includes('"01_iphone17_training_action"') && captureScript.includes('"02_iphone17_inventory_pets"') && captureScript.includes('"03_iphone17_shop_premium"') && captureScript.includes('"04_iphone17_premium_companions"') && captureScript.includes('"work/automation/flows/training-ui-pet-recovery.json"') && captureScript.includes('"work/automation/scripts/training-ui-pet-recovery-contract.mjs"') && captureScript.includes("summary.runtimeSources") && captureScript.includes("summary.cleanup")],
 ];
 
@@ -54,6 +62,6 @@ console.log(JSON.stringify({
   ok: true,
   passed: checks.length,
   total: checks.length,
-  petTemplates: templates.length,
+  petTemplates: packTemplates.length + premiumTemplates.length,
   checks: Object.fromEntries(checks),
 }, null, 2));
