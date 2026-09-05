@@ -7774,6 +7774,42 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 	local pendingOrbitDelta = 0
 	local previousPinchScale
 	local guardPhase = "render"
+	local recordCameraDiagnostics = RunService:IsStudio()
+	local cyclePublishedTravel, cycleEscapeTravel, cyclePublishedWrites = 0, 0, 0
+	local function beginPublicationCycle()
+		cyclePublishedTravel, cycleEscapeTravel, cyclePublishedWrites = 0, 0, 0
+	end
+	local function recordPublishedPose(origin, rootPart, kind)
+		if not recordCameraDiagnostics then return end
+		local camera = workspace.CurrentCamera
+		local distance = (camera.CFrame.Position - origin).Magnitude
+		if distance <= 0.001 then return end
+		cyclePublishedTravel += distance
+		cyclePublishedWrites += 1
+		if kind == "escape" then cycleEscapeTravel += distance end
+		local sample = {
+			phase = guardPhase, kind = kind, at = os.clock(), distance = distance,
+			origin = tostring(origin), published = tostring(camera.CFrame.Position),
+			root = rootPart and tostring(rootPart.Position),
+			cycleTravel = cyclePublishedTravel, cycleEscapeTravel = cycleEscapeTravel,
+			cycleWrites = cyclePublishedWrites,
+		}
+		shared.PunchWallCameraLastPublication = sample
+		if not shared.PunchWallCameraMaxCyclePublication
+			or cyclePublishedTravel > shared.PunchWallCameraMaxCyclePublication.cycleTravel then
+			shared.PunchWallCameraMaxCyclePublication = sample
+		end
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", math.max(gui:GetAttribute("PunchCameraMaxPublishedTravelPerCycle") or 0, cyclePublishedTravel))
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", math.max(gui:GetAttribute("PunchCameraMaxEscapeTravelPerCycle") or 0, cycleEscapeTravel))
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", math.max(gui:GetAttribute("PunchCameraMaxPublishedWritesPerCycle") or 0, cyclePublishedWrites))
+	end
+	local function clampUserOrbit(distance)
+		-- Camera bounds can change while another camera owns Scriptable mode.
+		-- Preserve the selected radius only within the current player bounds.
+		local maximum = math.clamp(tonumber(player.CameraMaxZoomDistance) or 80, 2, 80)
+		local minimum = math.clamp(tonumber(player.CameraMinZoomDistance) or 2, 2, maximum)
+		return math.clamp(distance, minimum, maximum)
+	end
 	shared.PunchWallResetCameraGeometryGuard = function(character)
 		lastClearCameraCFrame = nil
 		lastClearCameraFocus = nil
@@ -7786,6 +7822,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		orbitCharacter = character
 		pendingOrbitDelta = 0
 		previousPinchScale = nil
+		beginPublicationCycle()
 		gui:SetAttribute("PunchCameraUserOrbitDistance", nil)
 		gui:SetAttribute("PunchCameraHandoffActive", false)
 		gui:SetAttribute("PunchCameraGeometryClamped", false)
@@ -7800,6 +7837,11 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraLastGuardAt", nil)
 		shared.PunchWallCameraFirstEscape = nil
 		shared.PunchWallCameraMaxEscape = nil
+		shared.PunchWallCameraLastPublication = nil
+		shared.PunchWallCameraMaxCyclePublication = nil
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
 	end
 	local function clearTranslationStep(origin, translation, character, allowOverlapExit)
 		-- A clear destination does not imply a clear route to it. Overlapping
@@ -7959,7 +8001,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			previousPinchScale = scale
 		elseif state == Enum.UserInputState.Change and userOrbitDistance and previousPinchScale then
 			local ratio = math.max(0.1, scale / math.max(0.1, previousPinchScale))
-			userOrbitDistance = math.clamp(userOrbitDistance / ratio, 2, 80)
+			userOrbitDistance = clampUserOrbit(userOrbitDistance / ratio)
 			previousPinchScale = scale
 			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 		elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
@@ -7984,13 +8026,21 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraLastGuardPhase", guardPhase)
 		gui:SetAttribute("PunchCameraLastGuardAt", os.clock())
 		local safetyEscape = false
+		local publishedOrigin = camera.CFrame.Position
 		local desiredCFrame = camera.CFrame
 		local desiredFocus = camera.Focus
 		local desiredPosition = desiredCFrame.Position
 		local activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true
 		local targetPosition = cameraCharacterTarget(character)
+		if userOrbitDistance then
+			local boundedOrbit = clampUserOrbit(userOrbitDistance)
+			if boundedOrbit ~= userOrbitDistance then
+				userOrbitDistance = boundedOrbit
+				gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
+			end
+		end
 		if userOrbitDistance and math.abs(pendingOrbitDelta) > 0.001 then
-			userOrbitDistance = math.clamp(userOrbitDistance + pendingOrbitDelta, 2, 80)
+			userOrbitDistance = clampUserOrbit(userOrbitDistance + pendingOrbitDelta)
 			pendingOrbitDelta = 0
 			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 		end
@@ -8004,8 +8054,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			and not cameraPoseBlocked(desiredCFrame, character) then
 			local requestedOrbit = (desiredPosition - targetPosition).Magnitude
 			if requestedOrbit >= 2 and requestedOrbit <= 80 then
-				userOrbitDistance = requestedOrbit
-				gui:SetAttribute("PunchCameraUserOrbitDistance", requestedOrbit)
+				userOrbitDistance = clampUserOrbit(requestedOrbit)
+				gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 			end
 		end
 		if targetPosition
@@ -8055,6 +8105,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 					gui:SetAttribute("PunchCameraLineOfSightAdjusted", clearance.Magnitude > 0.01)
 					gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
 					lastRootPosition = rootPart.Position
+					recordPublishedPose(publishedOrigin, rootPart, "teleport-rebase")
 					return
 				end
 				lastClearCameraCFrame = nil
@@ -8214,6 +8265,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			gui:SetAttribute("LastCameraInsideGeometry", physicallyBlocked)
 			gui:SetAttribute("PunchCameraGeometryClamped", true)
 			gui:SetAttribute("PunchCameraGeometryClampFrames", cameraGeometryClampFrames)
+			recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "clear-fallback")
 			return
 		end
 		camera.CFrame = desiredCFrame
@@ -8227,20 +8279,31 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
 		gui:SetAttribute("PunchCameraLineOfSightUnresolved", cameraPoseBlocked(desiredCFrame, character))
 		gui:SetAttribute("PunchCameraRebasedAfterTeleport", false)
+		recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "orbit-follow")
 	end
 	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
+		beginPublicationCycle()
 		lastPunchCameraRenderAt = os.clock()
 		updateCameraGeometryGuard(deltaTime, "render")
 	end)
-	RunService.Heartbeat:Connect(function(deltaTime)
+	RunService.PostSimulation:Connect(function(deltaTime)
+		if os.clock() - lastPunchCameraRenderAt > 0.35 then beginPublicationCycle() end
 		local camera = workspace.CurrentCamera
 		local character = player.Character
-		-- Physics can move a falling block over the last rendered camera. Check
-		-- that exceptional case after physics even when rendering is current.
-		local newlyOverlapped = camera and character and camera.CameraType == Enum.CameraType.Custom
-			and shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character)
-		if newlyOverlapped or os.clock() - lastPunchCameraRenderAt > 0.35 then
-			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30), newlyOverlapped and "postphysics-overlap" or "heartbeat-suspended")
+		-- Deferred task.wait continuations resume before Heartbeat callbacks.
+		-- Repair newly simulated overlap before those observers can see the old
+		-- rendered pose inside a falling block. Ordinary follow still advances
+		-- only on RenderStep (or its existing suspended-render fallback).
+		if camera and character and camera.CameraType == Enum.CameraType.Custom
+			and shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30), "postsimulation-overlap")
+		end
+	end)
+	RunService.Heartbeat:Connect(function(deltaTime)
+		-- PostSimulation owns fresh physical overlap. Keep Heartbeat solely for
+		-- the existing suspended-render follow/fallback handoff.
+		if os.clock() - lastPunchCameraRenderAt > 0.35 then
+			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30), "heartbeat-suspended")
 		end
 	end)
 end
@@ -8301,6 +8364,7 @@ if RunService:IsStudio() then
 		local maxBackFrom = lastRootPosition
 		local maxBackTo = lastRootPosition
 		local maxBackPunch = 0
+		local maxStepSample
 		local visibleFrames = 0
 		local clearCharacterFrames = 0
 		local readableCharacterFrames = 0
@@ -8309,6 +8373,7 @@ if RunService:IsStudio() then
 		local settledReadableFrames = 0
 		local insideFrames = 0
 		local unresolvedSafetyFrames = 0
+		local unresolvedSafetySamples = {}
 		local transientLineOfSightFrames = 0
 		local sampledFrames = 0
 		local actions = 0
@@ -8324,16 +8389,49 @@ if RunService:IsStudio() then
 		gui:SetAttribute("PunchCameraMaxEscapeStep", 0)
 		shared.PunchWallCameraFirstEscape = nil
 		shared.PunchWallCameraMaxEscape = nil
+		shared.PunchWallCameraMaxCyclePublication = nil
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
 		local function sampleCamera(settledSample)
 			-- Sample the current physical pose, rather than a previous guard flag
 			-- whose LOS rays may have been temporarily blocked before physics ran.
-			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then unresolvedSafetyFrames += 1 end
+			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+				unresolvedSafetyFrames += 1
+				if #unresolvedSafetySamples < 4 then
+					local _, parts = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character, true)
+					local sample = {
+						camera = tostring(camera.CFrame.Position), root = tostring(rootPart.Position),
+						punch = currentPunch, samplePhase = "task-resume", physicalBoxSize = 0.55,
+						guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+						guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock()),
+						renderAge = os.clock() - lastPunchCameraRenderAt,
+						guardUnresolved = gui:GetAttribute("PunchCameraSafetyUnresolved") == true,
+						parts = {}, overlapCount = #(parts or {}),
+					}
+					for index = 1, math.min(2, #(parts or {})) do
+						local part = parts[index]
+						table.insert(sample.parts, {
+							name = part:GetFullName(), size = tostring(part.Size), frame = tostring(part.CFrame),
+							velocity = tostring(part.AssemblyLinearVelocity), falling = part:GetAttribute("StructuralFalling") == true,
+						})
+					end
+					table.insert(unresolvedSafetySamples, sample)
+				end
+			end
 			local cameraPosition = camera.CFrame.Position
 			local cameraStep = (cameraPosition - lastCameraPosition).Magnitude
 			if cameraStep > maxCameraStep then
 				maxCameraStep = cameraStep
 				maxStepFrom = lastCameraPosition
 				maxStepTo = cameraPosition
+				maxStepSample = {
+					punch = currentPunch, cameraFrom = tostring(lastCameraPosition), cameraTo = tostring(cameraPosition),
+					rootFrom = tostring(lastRootPosition), rootTo = tostring(rootPart.Position),
+					guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+					guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock()),
+					lastPublication = shared.PunchWallCameraLastPublication,
+				}
 			end
 			lastCameraPosition = cameraPosition
 			local rootStep = (rootPart.Position - lastRootPosition):Dot(direction)
@@ -8472,6 +8570,7 @@ if RunService:IsStudio() then
 			overlapEscapes = gui:GetAttribute("PunchCameraOverlapEscapes") or 0,
 			unresolvedSafetyFrames = unresolvedSafetyFrames,
 			physicalUnresolvedFrames = unresolvedSafetyFrames,
+			unresolvedSafetySamples = unresolvedSafetySamples,
 			transientLineOfSightFrames = transientLineOfSightFrames,
 			firstEscape = shared.PunchWallCameraFirstEscape,
 			largestEscape = shared.PunchWallCameraMaxEscape,
@@ -8482,6 +8581,11 @@ if RunService:IsStudio() then
 			sampleMaxStep = maxCameraStep,
 			maxStepFrom = tostring(maxStepFrom),
 			maxStepTo = tostring(maxStepTo),
+			maxStepSample = maxStepSample,
+			maxGuardPublishedTravelPerCycle = gui:GetAttribute("PunchCameraMaxPublishedTravelPerCycle") or 0,
+			maxGuardEscapeTravelPerCycle = gui:GetAttribute("PunchCameraMaxEscapeTravelPerCycle") or 0,
+			maxGuardPublishedWritesPerCycle = gui:GetAttribute("PunchCameraMaxPublishedWritesPerCycle") or 0,
+			maxGuardCyclePublication = shared.PunchWallCameraMaxCyclePublication,
 			maxBack = maxBackwardStep,
 			maxBackFrom = tostring(maxBackFrom),
 			maxBackTo = tostring(maxBackTo),
