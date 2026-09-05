@@ -156,6 +156,18 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.PunchWallClientAutomation:Invoke('ClearToasts')\nlocal evidence={events={},views={}}\nlocal function capture(target)\n local view={target=target,rects={},channels=0,matching=0,nonoverlap=true}\n for _,holder in ipairs({g.Toasts,g.RewardPops}) do\n  local count=0\n  if g.Enabled and holder.Visible then\n   for _,d in ipairs(holder:GetChildren()) do\n    if d:IsA('TextLabel') and d.Visible and d.TextTransparency<1 and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n     count+=1 local p,z=d.AbsolutePosition,d.AbsoluteSize\n     table.insert(view.rects,{holder=holder.Name,text=d.Text,x=p.X,y=p.Y,w=z.X,h=z.Y})\n     if d.Text=='Recruited '..target..'!' then view.matching+=1 end\n    end\n   end\n  end\n  if count>0 then view.channels+=1 end\n end\n for i=1,#view.rects do for j=i+1,#view.rects do\n  local a,b=view.rects[i],view.rects[j]\n  if a.x<b.x+b.w and a.x+a.w>b.x and a.y<b.y+b.h and a.y+a.h>b.y then view.nonoverlap=false end\n end end\n return view\nend\nlocal connection\nconnection=game.ReplicatedStorage.PunchWallEvents.Feedback.OnClientEvent:Connect(function(v)\n if typeof(v)~='table' or v.type~='Pet' then return end\n local index=#evidence.events+1 table.insert(evidence.events,{type=v.type,target=tostring(v.target)})\n task.spawn(function()\n  local deadline=os.clock()+2 local view\n  repeat task.wait(.03) view=capture(tostring(v.target)) until view.matching>0 or os.clock()>=deadline\n  view.observedAt=os.clock() evidence.views[index]=view\n  g:SetAttribute('ArmoryPetFeedbackEvidence',H:JSONEncode(evidence))\n end)\nend)\ntask.delay(30,function()connection:Disconnect()end)\ng:SetAttribute('ArmoryPetFeedbackEvidence',H:JSONEncode(evidence))\nreturn H:JSONEncode({armed=true})"
+      },
+      "expectRegex": [
+        "\"armed\"\\s*:\\s*true"
+      ],
+      "label": "observe each real Pet event and visible presentation before pickups"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
         "datamodel_type": "Server",
         "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal H=game:GetService('HttpService') assert(p.leaderstats.Coins.Value==2000 and p.RPGStats.PetInventoryJSON.Value=='[]' and p.RPGStats.EquippedPetsJSON.Value=='[]','rejected hatch mutated economy')\nfor i=1,3 do local drop=c:Invoke('ForcePetEggDrop',1) assert(drop.ok and drop.dropped,'hidden egg fixture did not spawn') local deadline=os.clock()+4 local s repeat task.wait(.05) s=c:Invoke('PetEggDropSnapshot') until s.armed or os.clock()>deadline assert(s.active and s.armed,'hidden egg not armed') local claim=c:Invoke('ClaimPetEggDrop') assert(claim.ok,'armed owned egg pickup failed') local items=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value) assert(#items==i,'pickup did not grant exactly one pet') assert(not c:Invoke('PetEggDropSnapshot').active,'claimed egg remains active') end\nlocal inv=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value) local eq=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value)\nassert(#inv==3 and #eq==3 and p.leaderstats.Coins.Value==2000 and p.RPGStats.PetMultiplier.Value>0,'three pickups/economy incorrect')\nreturn H:JSONEncode({ok=true,pickups=#inv,equipped=#eq,coins=p.leaderstats.Coins.Value,paidHatchRejected=true}) "
       },
@@ -170,12 +182,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal pops={} for _,d in ipairs(g.RewardPops:GetChildren()) do if d:IsA('TextLabel') and d.Visible then table.insert(pops,d) end end assert(#pops>=1,'pickup feedback missing')\nfor i=1,#pops do for j=i+1,#pops do local x,y=pops[i],pops[j] assert(x.AbsolutePosition.Y+x.AbsoluteSize.Y<=y.AbsolutePosition.Y or y.AbsolutePosition.Y+y.AbsoluteSize.Y<=x.AbsolutePosition.Y,'pickup feedback overlaps') end end\nassert(g.RewardPops:FindFirstChildOfClass('UIListLayout'),'feedback stack layout absent') return H:JSONEncode({ok=true,visiblePops=#pops,nonoverlap=true}) "
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD\nlocal deadline=os.clock()+3 local e\nrepeat task.wait(.05) e=H:JSONDecode(g:GetAttribute('ArmoryPetFeedbackEvidence') or '{}') until e.views and #e.views==3 or os.clock()>=deadline\nlocal inventory=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value)\nassert(e.events and #e.events==3 and #inventory==3 and e.views and #e.views==3,'expected three event-time pickup presentations: '..H:JSONEncode(e))\nfor i=1,3 do local event,view=e.events[i],e.views[i]\n assert(event.type=='Pet' and event.target==inventory[i] and view.target==event.target,'pickup feedback identity differs from actual inventory')\n assert(view.matching>=1 and view.channels==1 and view.nonoverlap==true and #view.rects>=1,'actual pickup feedback missing, duplicated across channels or overlapping: '..H:JSONEncode(view))\nend\nreturn H:JSONEncode({ok=true,pickups=3,actualPetEvents=#e.events,eventTimePresentations=#e.views,nonoverlap=true,evidence=e})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true"
       ],
-      "label": "remaining pickup feedback is visible and does not overlap"
+      "label": "all three real pickup events have matching visible feedback in one non-overlapping channel"
     },
     {
       "type": "call",

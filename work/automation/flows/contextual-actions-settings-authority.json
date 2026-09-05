@@ -143,11 +143,13 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') return H:JSONEncode({menu=s.menuVisible,tab=s.activeTab})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local inv=a:Invoke('InventorySnapshot') local root=g.GameMenu:FindFirstChild('FunctionalInventory') return H:JSONEncode({menu=s.menuVisible,tab=s.activeTab,category=inv.category,inventoryVisible=inv.visible==true and root~=nil and root.Visible==true and g.GameMenu.Visible==true})"
       },
       "expectRegex": [
         "\"menu\"\\s*:\\s*true",
-        "\"tab\"\\s*:\\s*\"Pets\""
+        "\"tab\"\\s*:\\s*\"Inventory\"",
+        "\"category\"\\s*:\\s*\"Pets\"",
+        "\"inventoryVisible\"\\s*:\\s*true"
       ],
       "label": "in-range Use opens the correct player menu"
     },
