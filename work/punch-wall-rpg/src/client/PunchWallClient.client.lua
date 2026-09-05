@@ -9116,12 +9116,13 @@ local clientRuntime = {
 }
 clientRuntime.TargetDepthOverlap.FilterType = Enum.RaycastFilterType.Include
 clientRuntime.TargetDepthOverlap.FilterDescendantsInstances = {}
-clientRuntime.TargetDepthOverlap.MaxParts = 400
+clientRuntime.TargetDepthOverlap.MaxParts = 0
 
 gui:SetAttribute("AmbientPulseRegistryMode", "EventDrivenV1")
 gui:SetAttribute("AmbientPulseCount", 0)
 gui:SetAttribute("TargetHeartbeatCacheMode", "EventDrivenFoldersV1")
 gui:SetAttribute("TargetOverlapParamsCreateCount", 1)
+gui:SetAttribute("TargetDepthQueryMode", "ProgressiveCompleteV1")
 
 function clientRuntime.UpdateAmbientPulseAttributes()
 	gui:SetAttribute("AmbientPulseCount", #clientRuntime.AmbientPulseParts)
@@ -9184,6 +9185,46 @@ function clientRuntime.RefreshTargetFolderCache()
 	gui:SetAttribute("TargetInteractablesCached", interactables ~= nil)
 	gui:SetAttribute("TargetDepthBlocksCached", depthBlocks ~= nil)
 	return true
+end
+
+function clientRuntime.SelectNearestDepthTarget(rootPart, nearestWall, nearestWallDistance)
+	local depthBlocks = clientRuntime.DepthBlocksFolder
+	local queryCount, candidateCount, uniqueCount, searchedRadius = 0, 0, 0, 0
+	if rootPart and depthBlocks and depthBlocks.Parent == clientRuntime.GameRoot and depthBlocks.Name == "Depth Blocks" then
+		local seen = {}
+		for _, radius in ipairs({ 8, 16, 24, 38 }) do
+			searchedRadius = radius
+			queryCount += 1
+			local candidates = workspace:GetPartBoundsInRadius(rootPart.Position, radius, clientRuntime.TargetDepthOverlap)
+			candidateCount += #candidates
+			for _, block in ipairs(candidates) do
+				if not seen[block] then
+					seen[block] = true
+					uniqueCount += 1
+					if block:IsA("BasePart") and block:IsDescendantOf(depthBlocks)
+						and block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
+						local offset = block.Position - rootPart.Position
+						local distance = offset.Magnitude
+						local facing = distance > 0 and rootPart.CFrame.LookVector:Dot(offset.Unit) or 1
+						if facing > -0.1 and distance < nearestWallDistance then
+							nearestWall, nearestWallDistance = block, distance
+						end
+					end
+				end
+			end
+			-- Bounds can touch this sphere while their centers remain outside it.
+			-- Only stop when every potentially nearer center has been searched.
+			-- An uncapped result is essential: Roblox does not order spatial hits
+			-- by distance, so a part cap can omit the nearest block entirely.
+			if nearestWall and nearestWallDistance <= radius then break end
+		end
+	end
+	gui:SetAttribute("TargetDepthQueryCount", queryCount)
+	gui:SetAttribute("TargetDepthCandidateCount", candidateCount)
+	gui:SetAttribute("TargetDepthUniqueCandidates", uniqueCount)
+	gui:SetAttribute("TargetDepthSearchRadius", searchedRadius)
+	gui:SetAttribute("TargetDepthSelectedDistance", nearestWall and nearestWallDistance or -1)
+	return nearestWall, nearestWallDistance
 end
 
 function clientRuntime.BindGameRoot(root)
@@ -9630,19 +9671,7 @@ RunService.Heartbeat:Connect(function(delta)
 			end
 		end
 	end
-	local depthBlocks = clientRuntime.DepthBlocksFolder
-	if depthBlocks then
-		for _, block in ipairs(workspace:GetPartBoundsInRadius(rootPart.Position, 38, clientRuntime.TargetDepthOverlap)) do
-			if block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
-				local offset = block.Position - rootPart.Position
-				local distance = offset.Magnitude
-				local facing = distance > 0 and rootPart.CFrame.LookVector:Dot(offset.Unit) or 1
-				if facing > -0.1 and distance < nearestWallDistance then
-					nearestWall, nearestWallDistance = block, distance
-				end
-			end
-		end
-	end
+	nearestWall, nearestWallDistance = clientRuntime.SelectNearestDepthTarget(rootPart, nearestWall, nearestWallDistance)
 	-- The invisible station hit volume is behind its visible model. Give training
 	-- a small intent margin so a nearby shop stand cannot steal the affordance.
 	if nearestTraining and nearestTrainingDistance <= 18
