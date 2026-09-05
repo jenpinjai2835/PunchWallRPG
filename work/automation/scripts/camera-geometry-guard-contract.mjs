@@ -10,8 +10,9 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const clientPath = "work/punch-wall-rpg/src/client/PunchWallClient.client.lua";
 const losBaseline = process.argv.includes("--baseline-los");
-const baselineIndex = process.argv.indexOf(losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (losBaseline ? "ef9b5f8" : "b521dea");
+const runtimeBaseline = process.argv.includes("--baseline-runtime2");
+const baselineIndex = process.argv.indexOf(runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -27,6 +28,7 @@ const candidates = [process.env.LUAU_COMMAND, ...fs.readdirSync(tempRoot)
   .map((name) => path.join(tempRoot, name, process.platform === "win32" ? "luau.exe" : "luau")), "luau"];
 const luau = candidates.find((candidate) => candidate && spawnSync(candidate, ["--help"], { encoding: "utf8" }).status === 0);
 assert.ok(luau, "BLOCKED: set LUAU_COMMAND to a Luau CLI executable");
+const compiler = process.env.LUAU_COMPILE_COMMAND || path.join(path.dirname(luau), process.platform === 'win32' ? 'luau-compile.exe' : 'luau-compile');
 
 const common = `
 local count = 0
@@ -96,6 +98,11 @@ local function seed()
  attrs.PunchCameraFollowActive=true
 end
 `;
+const automationSetup = block('shared.PunchWallRunCameraAutomation = function(punchCount)', '\n\t\tlocal initialOrbitSettled = false');
+const flow = JSON.parse(fs.readFileSync(path.join(root, 'work/automation/flows/camera-long-tunnel-regression.json'), 'utf8'));
+const flowCode = flow.steps.find(step => step.args?.code?.includes("automation:Invoke('__RunCamera',18)")).args.code;
+const flowGate = flowCode.slice(flowCode.indexOf('local correctionBounded='), flowCode.indexOf(' diagnostics={'));
+assert.ok(flowGate.includes('local contractValid='), 'Missing actual long-tunnel flow gate');
 const fixtures = {
   limiter: `${guardSetup}
 seed()
@@ -137,7 +144,7 @@ check(math.abs(camera.CFrame.Position.X-4)<.001,'blocked_baseline_is_never_publi
 check(shared.PunchWallHeartbeatLastClearCFrame.Position.X~=3,'blocked_fallback_not_cached')
 blocked=function(p) return math.abs(p.X)<.01 end
 pose(4,0,0) update(1/60)
-check(math.abs(camera.CFrame.Position.X-3)<.001,'clear_baseline_remains_available')
+check(not blocked(camera.CFrame.Position) and camera.CFrame.Position.X>0,'clear_baseline_or_local_egress_remains_available')
 print('PASS '..count)
 `,
   final: `${guardSetup}
@@ -300,6 +307,128 @@ check(camera.CFrame.Position.X>5 and camera.CFrame.Position.X<5.401,'verified_pa
 check(shared.PunchWallHeartbeatLastClearCFrame.Position.X==camera.CFrame.Position.X,'verified_partial_recovery_is_cached')
 print('PASS '..count)
 `,
+  overlapRecovery: `${guardSetup}
+lastPunchActionAt=0
+pose(0,0,12) update(1/60)
+attrs.PunchCameraFollowActive=true
+blocked=function(p) return math.abs(p.X)<.6 and math.abs(p.Y)<.6 and math.abs(p.Z-12)<.6 end
+local originalPosition=camera.CFrame.Position
+local originalOffset=camera.CFrame.Position-camera.Focus.Position
+update(1/60)
+check(not blocked(camera.CFrame.Position),'falling_block_overlap_has_clear_published_egress')
+check((camera.CFrame.Position-originalPosition).Magnitude<=2.40001,'overlap_egress_stays_bounded')
+check(not occluded(camera.CFrame.Position),'overlap_egress_requires_line_of_sight')
+check(((camera.CFrame.Position-camera.Focus.Position)-originalOffset).Magnitude<.001 and camera.CFrame.Yaw==.7,'overlap_egress_preserves_live_rotation_and_focus')
+check(not blocked(shared.PunchWallHeartbeatLastClearCFrame.Position),'overlap_egress_refreshes_checked_cache')
+check(attrs.PunchCameraOverlapEscapes==1 and attrs.PunchCameraSafetyUnresolved==false,'overlap_egress_is_measured_and_resolved')
+blocked=function() return false end
+attrs.PunchCameraFollowActive=false
+for _=1,80 do pose(0,0,12) update(1/60) end
+check(attrs.PunchCameraHandoffActive==false and math.abs(camera.CFrame.Position.Magnitude-12)<.001,'removed_falling_block_restores_selected_radius_and_handoff')
+print('PASS '..count)
+`,
+  heartbeatOverlap: `${guardSetup}
+lastPunchActionAt=0
+pose(0,0,12) update(1/60)
+attrs.PunchCameraFollowActive=true
+blocked=function(p) return math.abs(p.X)<.6 and math.abs(p.Y)<.6 and math.abs(p.Z-12)<.6 end
+now+=.02
+RunService.Heartbeat:Fire(1/60)
+check(not blocked(camera.CFrame.Position),'physics_overlap_is_repaired_before_next_render')
+check(attrs.PunchCameraOverlapEscapes==1,'fresh_render_physics_egress_is_measured')
+camera.CameraType='Scriptable'
+pose(0,0,12) RunService.Heartbeat:Fire(1/60)
+check(blocked(camera.CFrame.Position),'physics_safety_does_not_steal_scriptable_camera')
+print('PASS '..count)
+`,
+  overlapWithoutHistory: `${guardSetup}
+blocked=function(p) return math.abs(p.X)<.6 and math.abs(p.Y)<.6 and math.abs(p.Z)<.6 end
+pose(0,0,0) update(1/60)
+check(not blocked(camera.CFrame.Position),'blocked_raw_camera_without_usable_cache_has_validated_egress')
+check(camera.CFrame.Position.Magnitude<=2.40001,'uncached_egress_stays_bounded')
+check(shared.PunchWallHeartbeatLastClearCFrame and not blocked(shared.PunchWallHeartbeatLastClearCFrame.Position),'uncached_egress_becomes_valid_history')
+check(attrs.PunchCameraSafetyUnresolved==false,'uncached_egress_reports_actual_final_safety')
+print('PASS '..count)
+`,
+  enclosingObject: `${guardSetup}
+blocked=function(p) return math.abs(p.X)<3 and math.abs(p.Y)<3 and math.abs(p.Z)<3 end
+pose(0,0,0) update(1/60)
+check(not blocked(camera.CFrame.Position),'larger_enclosing_object_does_not_freeze_inside_pose')
+check(attrs.PunchCameraMaxEscapeStep>2.65 and math.abs(attrs.PunchCameraMaxEscapeStep-camera.CFrame.Position.Magnitude)<.001,'exceptional_escape_exceeds_ordinary_gate_visibly_not_silently')
+check(attrs.PunchCameraSafetyUnresolved==false,'exceptional_escape_is_validated_before_publication')
+print('PASS '..count)
+`,
+  overlapControls: `${guardSetup}
+seed()
+blocked=function(p) return p.Magnitude<.1 or (p.X>.25 and p.X<.6 and math.abs(p.Y)<.3 and math.abs(p.Z)<.3) end
+occluded=function(p) return p.Y<-.1 end
+pose(4,0,0) update(1/60)
+check(not blocked(camera.CFrame.Position) and not occluded(camera.CFrame.Position),'egress_rejects_occluded_endpoints')
+check(camera.CFrame.Position.X<.25 or math.abs(camera.CFrame.Position.Y)>=.3 or math.abs(camera.CFrame.Position.Z)>=.3,'egress_cannot_leave_overlap_then_cross_separate_wall')
+check(attrs.PunchCameraMaxEscapeStep<=2.4,'egress_negative_controls_keep_small_step')
+local previousEscapes=attrs.PunchCameraOverlapEscapes
+blocked=function() return false end occluded=function() return false end
+pose(4,0,0) update(1/60)
+check(attrs.PunchCameraOverlapEscapes==previousEscapes,'ordinary_clear_motion_does_not_use_safety_escape')
+print('PASS '..count)
+`,
+  unavailableSafety: `${guardSetup}
+seed()
+blocked=function() return true end
+pose(0,0,0) update(1/60)
+check(attrs.PunchCameraSafetyUnresolved==true and attrs.LastCameraInsideGeometry==true,'impossible_geometry_is_explicit_failure_not_false_clear')
+check(attrs.PunchCameraOverlapEscapes==0,'unavailable_egress_is_never_counted_as_success')
+print('PASS '..count)
+`,
+  selectedOrbitSetup: `${common}
+function CFrame.lookAt(position) return frame(position) end
+rootPart.CFrame=frame(Vector3.zero)
+function character:FindFirstChildOfClass() return {} end
+function gui:FindFirstChild() return {} end
+local task={wait=function() end}
+${automationSetup}
+return (camera.CFrame.Position-camera.Focus.Position).Magnitude
+end
+player.CameraMinZoomDistance=2 player.CameraMaxZoomDistance=80
+for _,selected in ipairs({22.620990753173829,8,12,37.5}) do
+ attrs.PunchCameraUserOrbitDistance=selected
+ local actual=shared.PunchWallRunCameraAutomation(18)
+ check(math.abs(actual-selected)<.00001,'automation_initial_pose_preserves_actual_selected_orbit')
+ check(player.CameraMinZoomDistance==selected and player.CameraMaxZoomDistance==selected,'automation_engine_bounds_match_selected_orbit')
+ check(attrs.PunchCameraUserOrbitDistance==selected,'automation_never_rewrites_player_selected_orbit')
+end
+attrs.PunchCameraUserOrbitDistance=nil
+pose(0,1.5,17)
+local measured=shared.PunchWallRunCameraAutomation(18)
+check(math.abs(measured-17)<.00001 and player.CameraMinZoomDistance==17 and player.CameraMaxZoomDistance==17,'automation_uncached_selection_uses_actual_camera_distance')
+print('PASS '..count)
+`,
+  runtimeAcceptance: `${common}
+local function accepted(changes, freshChanges)
+ local result={valid=true,visualValid=true,actions=18,inside=0,type='Custom',mode='CustomPreserved',maxCorrectionStep=.4,maxEscapeStep=.7,unresolvedSafetyFrames=0,configuredOrbit=22.62,selectedDistance=22.62,userOrbitDistance=22.62,finishDistance=22.62}
+ for key,value in pairs(changes or {}) do result[key]=value end
+ local p={CameraMinZoomDistance=2,CameraMaxZoomDistance=80}
+ local oldMinZoom,oldMaxZoom=2,80
+ local onScreen,readable,freshLineOfSightClear,freshInside,freshFaded=true,true,true,0,0
+ if freshChanges then freshInside=freshChanges.inside or 0 freshFaded=freshChanges.faded or 0 freshLineOfSightClear=not freshChanges.obscured end
+ local cam={CameraType=Enum.CameraType.Custom}
+ local g={GetAttribute=function() return false end}
+ ${flowGate}
+ return contractValid
+end
+check(accepted(),'ordinary_egress_selected_orbit_and_fresh_scene_pass')
+check(not accepted({maxEscapeStep=2.66}),'excessive_emergency_egress_cannot_pass_smoothness_gate')
+check(not accepted({unresolvedSafetyFrames=1}),'reported_unresolved_pose_cannot_pass')
+check(not accepted({configuredOrbit=12}),'contradictory_test_radius_cannot_pass')
+check(not accepted({userOrbitDistance=12}),'rewritten_selected_radius_cannot_pass')
+check(not accepted({finishDistance=12}),'shortened_final_radius_cannot_pass')
+check(not accepted({inside=1}),'sampled_inside_frame_cannot_pass')
+check(not accepted({}, {inside=1}),'fresh_inside_pose_cannot_pass')
+check(not accepted({}, {faded=1}),'faded_avatar_cannot_pass')
+check(not accepted({}, {obscured=true}),'fresh_opaque_obstruction_cannot_pass')
+check(not accepted({visualValid=false}),'historical_readability_failure_cannot_pass')
+print('PASS '..count)
+`,
 };
 const expectedFailures = {
   limiter: "limited_pose_physically_clear", sweep: "clear_endpoint_does_not_cross_thin_wall",
@@ -315,16 +444,27 @@ const losFailures = {
   rootCarryLos: "carried_pose_keeps_current_character_line_of_sight",
   clearPartialRecovery: "verified_partial_recovery_does_not_stall_with_unavailable_far_endpoint",
 };
+const runtimeFailures = {
+  overlapRecovery: 'falling_block_overlap_has_clear_published_egress',
+  heartbeatOverlap: 'physics_overlap_is_repaired_before_next_render',
+  overlapWithoutHistory: 'blocked_raw_camera_without_usable_cache_has_validated_egress',
+  selectedOrbitSetup: 'automation_initial_pose_preserves_actual_selected_orbit',
+};
 const temp = fs.mkdtempSync(path.join(tempRoot, "smash-camera-guard-contract-"));
 const results = {};
+const generated = [];
+const compiled = [];
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
-    if (baseline && !losBaseline && !(name in expectedFailures)) continue;
+    if (runtimeBaseline && !(name in runtimeFailures)) continue;
+    if (baseline && !losBaseline && !runtimeBaseline && !(name in expectedFailures)) continue;
+    if (losBaseline && ['overlapRecovery','heartbeatOverlap','overlapWithoutHistory','enclosingObject','overlapControls','unavailableSafety','selectedOrbitSetup','runtimeAcceptance'].includes(name)) continue;
     const file = path.join(temp, `${name}.luau`);
     fs.writeFileSync(file, fixture);
+    generated.push(file);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    const expectedFailure = baseline && (losBaseline ? losFailures[name] : expectedFailures[name]);
+    const expectedFailure = baseline && (runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
     if (expectedFailure) {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
       results[name] = { reproduced: expectedFailure };
@@ -333,10 +473,20 @@ try {
       results[name] = { passed: Number(output.match(/PASS (\d+)/)?.[1] || 0) };
     }
   }
-  console.log(JSON.stringify({ ok: true, mode: baseline ? `baseline ${baseline}` : "current source", luau, results }, null, 2));
+  if (!baseline) {
+    const chunks = [['complete-client', source], ...flow.steps.flatMap((step, index) => step.tool === 'execute_luau' ? [[`long-tunnel-${index}`, step.args.code]] : [])];
+    for (const [name, code] of chunks) {
+      const file = path.join(temp, `${name}.luau`);
+      fs.writeFileSync(file, code);
+      generated.push(file);
+      const result = spawnSync(compiler, ['--null', file], { encoding: 'utf8', timeout: 15000 });
+      assert.equal(result.status, 0, `BLOCKED ${name} compile: ${result.error || result.stderr || result.stdout}`);
+      compiled.push(name);
+    }
+  }
+  console.log(JSON.stringify({ ok: true, mode: baseline ? `baseline ${baseline}` : "current source", luau, results, compiled }, null, 2));
 } finally {
-  for (const name of Object.keys(fixtures)) {
-    const file = path.join(temp, `${name}.luau`);
+  for (const file of generated) {
     if (fs.existsSync(file)) fs.unlinkSync(file);
   }
   fs.rmdirSync(temp);
