@@ -14,108 +14,226 @@ local GuiService = game:GetService("GuiService")
 
 local player = Players.LocalPlayer
 do
-	local repairGeneration = 0
-	local activeConnections = {}
+ local repairGeneration = 0
+ local activeRepair
+ local probeName = "__PunchWall_PlayEmote_Readiness_V1__"
 
-	local function disconnectAnimateRepair()
-		for _, connection in ipairs(activeConnections) do
-			connection:Disconnect()
-		end
-		table.clear(activeConnections)
-	end
+ local function scheduleDefaultAnimateRepair(character)
+  if activeRepair then activeRepair.stop("Superseded") end
+  repairGeneration += 1
+  local generation = repairGeneration
+  if not character or not character.Parent then return end
 
-	local function scheduleDefaultAnimateRepair(character)
-		repairGeneration += 1
-		local generation = repairGeneration
-		disconnectAnimateRepair()
-		if not character then return end
+  local connections = {}
+  local pendingProbes = {}
+  local delayedTasks = {}
+  local disposed = false
+  local animate, canonicalHook, fallback, holdingFolder
+  local discoveryConnection, reconcileThread
+  local reconciling = false
+  local canonicalReady = false
+  local heldCount = 0
+  local pendingSentinel = "PunchWallPending:" .. HttpService:GenerateGUID(false)
+  local function isCurrent()
+   return not disposed and generation == repairGeneration
+    and player.Character == character and character.Parent ~= nil
+  end
+  local function cancelThread(thread)
+   if thread and thread ~= coroutine.running() and coroutine.status(thread) ~= "dead" then
+    pcall(task.cancel, thread)
+   end
+  end
+  local function stop(reason)
+   if disposed then return end
+   disposed = true
+   for _, connection in ipairs(connections) do connection:Disconnect() end
+   table.clear(connections)
+   for thread in pairs(pendingProbes) do cancelThread(thread) end
+   table.clear(pendingProbes)
+   cancelThread(reconcileThread)
+   for _, thread in ipairs(delayedTasks) do cancelThread(thread) end
+   if character.Parent then
+    character:SetAttribute("PunchWallAnimateHookGuardActive", false)
+    character:SetAttribute("PunchWallAnimateRepairState", reason)
+   end
+   if activeRepair and activeRepair.stop == stop then activeRepair = nil end
+  end
+  activeRepair = { character = character, stop = stop }
+  local function finishDiscovery()
+   if discoveryConnection then discoveryConnection:Disconnect() discoveryConnection = nil end
+   character:SetAttribute("PunchWallAnimateDiscoveryComplete", true)
+  end
+  local function holding()
+   if not holdingFolder then
+    holdingFolder = Instance.new("Folder")
+    holdingFolder.Name = "PunchWallLatePlayEmoteHooks"
+    holdingFolder:SetAttribute("PunchWallOwnedHookHolding", true)
+    holdingFolder.Parent = animate
+   end
+   return holdingFolder
+  end
+  local function holdHook(hook)
+   if hook.Parent == animate then
+    hook.Parent = holding()
+    heldCount += 1
+    character:SetAttribute("PunchWallHeldLatePlayEmoteHookCount", heldCount)
+   end
+  end
+  -- The captured default Animate assigns OnInvoke once. Parent/arrival order
+  -- does not establish which sibling received it, especially with deferred
+  -- signals. Probe only an unknown emote; never read/copy an OnInvoke callback.
+  local function probeHook(hook)
+   if not isCurrent() or not hook or not hook.Parent then return false end
+   local result = { completed = false }
+   character:SetAttribute("PunchWallAnimateProbeAttempts", (character:GetAttribute("PunchWallAnimateProbeAttempts") or 0) + 1)
+   local thread = task.spawn(function()
+    local ok, value, marker = pcall(function() return hook:Invoke(probeName) end)
+    if isCurrent() then
+     result.ok, result.value, result.marker = ok, value, marker
+     result.completed = true
+    end
+   end)
+   if not result.completed then pendingProbes[thread] = true end
+   local deadline = os.clock() + 0.12
+   while isCurrent() and not result.completed and os.clock() < deadline do task.wait(0.02) end
+   pendingProbes[thread] = nil
+   if not result.completed then
+    cancelThread(thread)
+    if isCurrent() then
+     character:SetAttribute("PunchWallAnimateProbeTimeouts", (character:GetAttribute("PunchWallAnimateProbeTimeouts") or 0) + 1)
+    end
+    return false
+   end
+   return isCurrent() and result.ok and result.marker ~= pendingSentinel
+    and (result.value == false or result.value == nil)
+  end
+  local function reconcileHooks()
+   if not isCurrent() or reconciling or canonicalReady then return end
+   reconciling = true
+   reconcileThread = task.spawn(function()
+    local deadline = os.clock() + 2
+    repeat
+     if probeHook(canonicalHook) then
+      canonicalReady = true
+     elseif isCurrent() and holdingFolder then
+      for _, candidate in ipairs(holdingFolder:GetChildren()) do
+       if candidate:IsA("BindableFunction") and probeHook(candidate) then
+        if not isCurrent() then break end
+        local previous = canonicalHook
+        canonicalHook = candidate
+        -- Keep both instances and their callbacks. A pending owned shim must
+        -- not hide the native producer if it bound a transient late sibling.
+        if previous and previous.Parent == animate then holdHook(previous) end
+        candidate.Parent = animate
+        canonicalReady = true
+        character:SetAttribute("PunchWallPromotedReadyPlayEmoteHook", true)
+        break
+       end
+       if not isCurrent() or os.clock() >= deadline then break end
+      end
+     end
+     if not isCurrent() or canonicalReady then break end
+     task.wait(0.1)
+    until os.clock() >= deadline
+    if isCurrent() then
+     character:SetAttribute("PunchWallAnimateNativeHookReady", canonicalReady)
+     character:SetAttribute("PunchWallAnimateReconcileActive", false)
+    end
+    reconciling = false
+   end)
+   character:SetAttribute("PunchWallAnimateReconcileActive", reconciling)
+  end
+  local function acceptHook(hook)
+   if not isCurrent() or hook.Parent ~= animate or hook.Name ~= "PlayEmote" then return end
+   if not hook:IsA("BindableFunction") then
+    character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", hook.ClassName)
+    stop("ClassMismatch")
+    return
+   end
+   if canonicalHook == hook then return end
+   if not canonicalHook then
+    canonicalHook = hook
+    character:SetAttribute("PunchWallAnimateRepairState", "EngineHookReady")
+    finishDiscovery()
+   else
+    holdHook(hook)
+    character:SetAttribute("PunchWallPreservedPlayEmoteEndpoint", true)
+   end
+   reconcileHooks()
+  end
+  local function bindAnimate(candidate)
+   if not isCurrent() or animate then return end
+   if not candidate:IsA("LocalScript") then
+    character:SetAttribute("PunchWallAnimateClassMismatch", candidate.ClassName)
+    stop("AnimateClassMismatch")
+    return
+   end
+   animate = candidate
+   if discoveryConnection then discoveryConnection:Disconnect() discoveryConnection = nil end
+   table.insert(connections, animate.ChildAdded:Connect(function(child)
+    if child.Name == "PlayEmote" then acceptHook(child) end
+   end))
+   table.insert(connections, animate.AncestryChanged:Connect(function()
+    if isCurrent() and animate.Parent ~= character then stop("AnimateRemoved") end
+   end))
+   character:SetAttribute("PunchWallAnimateHookGuardActive", true)
+   local existing = animate:FindFirstChild("PlayEmote")
+   if existing then
+    acceptHook(existing)
+    for _, child in ipairs(animate:GetChildren()) do
+     if child ~= existing and child.Name == "PlayEmote" then acceptHook(child) end
+    end
+    return
+   end
+   table.insert(delayedTasks, task.delay(0.35, function()
+    if not isCurrent() or animate.Parent ~= character or canonicalHook then return end
+    local arrived = animate:FindFirstChild("PlayEmote")
+    if arrived then acceptHook(arrived) return end
+    fallback = Instance.new("BindableFunction")
+    fallback.Name = "PlayEmote"
+    fallback.OnInvoke = function(emote)
+     if emote == probeName then return false, pendingSentinel end
+     return false
+    end
+    fallback:SetAttribute("PunchWallOwnedFallback", true)
+    canonicalHook = fallback
+    fallback.Parent = animate
+    character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
+    character:SetAttribute("PunchWallAnimateRepairState", "FallbackInstalled")
+    finishDiscovery()
+    reconcileHooks()
+   end))
+  end
 
-		local animate
-		local fallback
-		local fallbackCallback = function()
-			return false
-		end
-		local finished = false
-		local function isCurrent()
-			return not finished
-				and generation == repairGeneration
-				and player.Character == character
-				and character.Parent ~= nil
-		end
-		local function finish(reason)
-			if finished then return end
-			finished = true
-			disconnectAnimateRepair()
-			if character.Parent then
-				character:SetAttribute("PunchWallAnimateRepairState", reason)
-			end
-		end
-		local function acceptPlayEmote(playEmote, reason)
-			if not isCurrent() or not playEmote then return end
-			if not playEmote:IsA("BindableFunction") then
-				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", playEmote.ClassName)
-				finish("ClassMismatch")
-				return
-			end
-			if fallback and playEmote ~= fallback and fallback.Parent == animate then
-				-- Prefer the late engine-owned hook and remove only the fallback
-				-- we own. BindableFunction.OnInvoke is write-only to game scripts,
-				-- so its callback must never be read or copied here.
-				fallback:Destroy()
-				character:SetAttribute("PunchWallAdoptedLatePlayEmoteHook", true)
-			end
-			finish(reason)
-		end
-		local function bindAnimate(candidate)
-			if not isCurrent() or animate then return end
-			if not candidate:IsA("LocalScript") then
-				character:SetAttribute("PunchWallAnimateClassMismatch", candidate.ClassName)
-				finish("AnimateClassMismatch")
-				return
-			end
-			animate = candidate
-			local existing = animate:FindFirstChild("PlayEmote")
-			if existing then
-				acceptPlayEmote(existing, "EngineHookReady")
-				return
-			end
-			table.insert(activeConnections, animate.ChildAdded:Connect(function(child)
-				if child.Name == "PlayEmote" and child:GetAttribute("PunchWallOwnedFallback") ~= true then
-					acceptPlayEmote(child, fallback and "LateEngineHookAdopted" or "EngineHookReady")
-				end
-			end))
-			-- One short, bounded grace window lets the default Animate hierarchy
-			-- finish parenting before we repair a partial character bootstrap.
-			task.delay(0.35, function()
-				if not isCurrent() or animate.Parent ~= character or animate:FindFirstChild("PlayEmote") then return end
-				fallback = Instance.new("BindableFunction")
-				fallback.Name = "PlayEmote"
-				fallback.OnInvoke = fallbackCallback
-				fallback:SetAttribute("PunchWallOwnedFallback", true)
-				fallback.Parent = animate
-				character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
-				character:SetAttribute("PunchWallAnimateRepairState", "FallbackInstalled")
-			end)
-		end
-
-		local existingAnimate = character:FindFirstChild("Animate")
-		if existingAnimate then
-			bindAnimate(existingAnimate)
-		else
-			table.insert(activeConnections, character.ChildAdded:Connect(function(child)
-				if child.Name == "Animate" then bindAnimate(child) end
-			end))
-		end
-		-- The listener is never allowed to survive the bootstrap window. A future
-		-- respawn increments the generation and disconnects it immediately.
-		task.delay(6, function()
-			if isCurrent() then
-				finish(animate and (fallback and "FallbackBoundedComplete" or "HookMissing") or "AnimateMissing")
-			end
-		end)
-	end
-	player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
-	scheduleDefaultAnimateRepair(player.Character)
+  table.insert(connections, character.AncestryChanged:Connect(function()
+   if not character.Parent then stop("CharacterRemoved") end
+  end))
+  local existingAnimate = character:FindFirstChild("Animate")
+  if existingAnimate then
+   bindAnimate(existingAnimate)
+  else
+   discoveryConnection = character.ChildAdded:Connect(function(child)
+    if child.Name == "Animate" then bindAnimate(child) end
+   end)
+   table.insert(connections, discoveryConnection)
+  end
+  -- Only discovery expires. One hook listener remains until character removal
+  -- so a late replicated child cannot silently replace the bound endpoint.
+  table.insert(delayedTasks, task.delay(6, function()
+   if not isCurrent() then return end
+   finishDiscovery()
+   if not animate then stop("AnimateMissing")
+   elseif not canonicalHook then stop("HookMissing")
+   elseif canonicalHook == fallback then
+    character:SetAttribute("PunchWallAnimateRepairState", "FallbackBoundedComplete")
+   end
+  end))
+ end
+ player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
+ player.CharacterRemoving:Connect(function(character)
+  if activeRepair and activeRepair.character == character then activeRepair.stop("CharacterRemoving") end
+ end)
+ scheduleDefaultAnimateRepair(player.Character)
 end
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
