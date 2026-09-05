@@ -1634,7 +1634,17 @@ local function buildServerLeaderboard()
 	return entries
 end
 
-local function syncStats(player)
+shared.PunchWallStatsSync = {
+	pending = {},
+	leaderboardDirty = false,
+	scheduled = false,
+	intervalSeconds = 0.05,
+}
+
+local function syncStats(player, sharedLeaderboard)
+	-- Initial load and explicit responses remain immediate. They also consume
+	-- an ordinary pending update for this player when no shared rank changed.
+	shared.PunchWallStatsSync.pending[player] = nil
 	local stats = player:FindFirstChild("RPGStats")
 	local leaderstats = player:FindFirstChild("leaderstats")
 	if not stats or not leaderstats then
@@ -1666,7 +1676,7 @@ local function syncStats(player)
 	payload.MaxCritChance = GameConfig.MaxCritChance
 	payload.MaxEquippedPets = GameConfig.MaxEquippedPets
 	payload.Rank = GameConfig.RankForDepth(payload.Depth or 0)
-	local fullLeaderboard = buildServerLeaderboard()
+	local fullLeaderboard = sharedLeaderboard or buildServerLeaderboard()
 	payload.RankPosition = math.max(1, #fullLeaderboard)
 	for position, entry in ipairs(fullLeaderboard) do
 		if entry.userId == player.UserId then payload.RankPosition = position break end
@@ -1675,7 +1685,7 @@ local function syncStats(player)
 	for position = 1, math.min(5, #fullLeaderboard) do
 		payload.Leaderboard[position] = fullLeaderboard[position]
 	end
-	if shared.PunchWallUpdateWorldRankBoard then
+	if not sharedLeaderboard and shared.PunchWallUpdateWorldRankBoard then
 		task.defer(shared.PunchWallUpdateWorldRankBoard, fullLeaderboard)
 	end
 	local tutorialCompleted = (payload.TutorialCompleted or 0) >= 1
@@ -1711,7 +1721,47 @@ local function syncStats(player)
 		SpeedEndsAt = player:GetAttribute("SpeedBoostExpiresAt") or 0,
 		TrainingEndsAt = player:GetAttribute("TrainingBoostExpiresAt") or 0,
 	}
+	player:SetAttribute("StatsSnapshotCount", (player:GetAttribute("StatsSnapshotCount") or 0) + 1)
 	statRemote:FireClient(player, payload)
+end
+
+-- Fixed-window coalescing: a burst cannot postpone its first deadline, and
+-- state changes during a flush are placed into a new window. Authoritative
+-- stats still change synchronously; only their complete UI snapshots wait.
+function shared.PunchWallStatsSync.flush()
+	local pending = shared.PunchWallStatsSync.pending
+	local leaderboardDirty = shared.PunchWallStatsSync.leaderboardDirty
+	shared.PunchWallStatsSync.pending = {}
+	shared.PunchWallStatsSync.leaderboardDirty = false
+	shared.PunchWallStatsSync.scheduled = false
+	if leaderboardDirty then
+		for _, player in ipairs(Players:GetPlayers()) do
+			pending[player] = true
+		end
+	end
+	if next(pending) == nil then return end
+	local leaderboard = buildServerLeaderboard()
+	if shared.PunchWallUpdateWorldRankBoard then
+		task.defer(shared.PunchWallUpdateWorldRankBoard, leaderboard)
+	end
+	for player in pairs(pending) do
+		if player.Parent == Players and profileReady(player, false) then
+			syncStats(player, leaderboard)
+		end
+	end
+end
+
+function shared.PunchWallStatsSync.queue(player, leaderboardDirty)
+	if player.Parent ~= Players or not profileReady(player, false) then return end
+	shared.PunchWallStatsSync.pending[player] = true
+	shared.PunchWallStatsSync.leaderboardDirty = shared.PunchWallStatsSync.leaderboardDirty or leaderboardDirty == true
+	if shared.PunchWallStatsSync.scheduled then return end
+	shared.PunchWallStatsSync.scheduled = true
+	task.delay(shared.PunchWallStatsSync.intervalSeconds, shared.PunchWallStatsSync.flush)
+end
+
+function shared.PunchWallStatsSync.remove(player)
+	shared.PunchWallStatsSync.pending[player] = nil
 end
 
 do
@@ -2367,15 +2417,8 @@ local function ensureStats(player)
 		instance.Parent = parent or stats
 		instance.Changed:Connect(function()
 			if not profileReady(player, false) then return end
-			syncStats(player)
+			shared.PunchWallStatsSync.queue(player, name == "Depth" or name == "Score")
 			if name == "Power" then shared.PunchWallPowerGrowth.Schedule(player) end
-			if name == "Depth" or name == "Score" then
-				task.defer(function()
-					for _, otherPlayer in ipairs(Players:GetPlayers()) do
-						if otherPlayer ~= player then syncStats(otherPlayer) end
-					end
-				end)
-			end
 		end)
 		return instance
 	end
@@ -2387,7 +2430,7 @@ local function ensureStats(player)
 		instance.Parent = stats
 		instance.Changed:Connect(function()
 			if not profileReady(player, false) then return end
-			syncStats(player)
+			shared.PunchWallStatsSync.queue(player)
 		end)
 		return instance
 	end
@@ -5365,14 +5408,15 @@ local function hitBoss(player, weakPointMultiplier)
 		})
 		return { ok = false, reason = "level_gate", requiredLevel = 99 }
 	end
-	if statValue(player, "Depth", 0) < 30 then
+	local requiredDepth = boss:GetAttribute("RequiredDepth") or GameConfig.WorldProgressTarget
+	if statValue(player, "Depth", 0) < requiredDepth then
 		sendFeedback(player, {
 			type = "Fail",
 			target = boss.Name,
-			message = "Clear Depth 30 first",
+			message = ("Clear Depth %d first"):format(requiredDepth),
 			color = PolishConfig.Palette.Fail,
 		})
-		return { ok = false, reason = "depth_gate", requiredDepth = 30 }
+		return { ok = false, reason = "depth_gate", requiredDepth = requiredDepth }
 	end
 	local now = os.clock()
 	local lastHit = player:GetAttribute("LastBossHit") or 0
@@ -10038,6 +10082,7 @@ end
 
 Players.PlayerAdded:Connect(ensureStats)
 Players.PlayerRemoving:Connect(function(player)
+	shared.PunchWallStatsSync.remove(player)
 	petDropRuntime.Clear(player, "player_removing")
 	local session = persistenceRuntime.profileSessions[player]
 	local canFinalizeCurrentSession = session and (
