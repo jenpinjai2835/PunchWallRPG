@@ -13,13 +13,38 @@
         "datamodel_type": "Edit",
         "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='Honor Products Flow Phone 740x360' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=740,Height=360,PixelDensity=96,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.3) local r=S:GetResolutionAsync() return H:JSONEncode({width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
       },
-      "expectRegex": ["\"width\"\\s*:\\s*740", "\"height\"\\s*:\\s*360", "\"active\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"width\"\\s*:\\s*740",
+        "\"height\"\\s*:\\s*360",
+        "\"active\"\\s*:\\s*true"
+      ],
       "label": "set deterministic 740 phone viewport"
     },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 6500, "label": "wait for profile and character" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture boot console" },
-    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "boot console clean" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for profile and character"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "bootConsole",
+      "label": "capture boot console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "bootConsole",
+      "label": "boot console clean"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -27,7 +52,13 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local G=require(game.ReplicatedStorage.GameConfig) local expected={{'HonorPouch25','Honor Pouch',25,29,3708804891},{'HonorCache90','Honor Cache',90,79,3708804911},{'HonorVault300','Honor Vault',300,199,3708804933},{'HonorTreasury850','Honor Treasury',850,499,3708804944}} local rows={} local worldOffers=0 local ids,honorSeen={},{} local valid=#G.PremiumProducts==8 for _,p in ipairs(G.PremiumProducts) do local id=tonumber(p.productId) or 0 valid=valid and id>0 and id%1==0 and not ids[id] ids[id]=true if p.worldOffer~=false then worldOffers+=1 end end for _,p in ipairs(G.PremiumPets) do local id=tonumber(p.gamePassId) or 0 valid=valid and id>0 and not ids[id] end for index,e in ipairs(expected) do local p=G.PremiumProducts[index+4] local lookup,info=pcall(function() return M:GetProductInfoAsync(e[5],Enum.InfoType.Product) end) local livePrice=lookup and tonumber(info.PriceInRobux) or 0 local exact=p and p.id==e[1] and p.displayName==e[2] and p.honor==e[3] and p.robux==e[4] and p.productId==e[5] and p.shopPage=='Honor' and p.worldOffer==false and not honorSeen[e[5]] and lookup and info.Name==e[2] and livePrice>0 and info.IsForSale==true honorSeen[e[5]]=true rows[#rows+1]={id=p and p.id,productId=p and p.productId,honor=p and p.honor,configuredBasePrice=p and p.robux,liveName=lookup and info.Name,livePrice=livePrice,forSale=lookup and info.IsForSale,exact=exact==true} valid=valid and exact end valid=valid and worldOffers==4 local root=workspace:WaitForChild('PunchWallRPG') local physical=0 local honorPhysical=0 for _,d in ipairs(root.Interactables:GetChildren()) do if d:IsA('BasePart') and d.Name:find(' Premium Offer',1,true) then physical+=1 if d:GetAttribute('ProductKey') and tostring(d:GetAttribute('ProductKey')):find('Honor',1,true) then honorPhysical+=1 end end end valid=valid and physical==4 and honorPhysical==0 local result={ok=valid,rows=rows,worldOffers=worldOffers,physical=physical,honorPhysical=honorPhysical} assert(valid,'Honor product config/metadata/world failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "HonorPouch25", "HonorTreasury850", "\"worldOffers\"\\s*:\\s*4", "\"honorPhysical\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "HonorPouch25",
+        "HonorTreasury850",
+        "\"worldOffers\"\\s*:\\s*4",
+        "\"honorPhysical\"\\s*:\\s*0"
+      ],
       "label": "four Honor products and four existing world offers are exact"
     },
     {
@@ -37,7 +68,12 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage:WaitForChild('PunchWallAutomation') local rows={} local ok=true for _,id in ipairs({'HonorPouch25','HonorCache90','HonorVault300','HonorTreasury850'}) do local r=c:Invoke('HonorProductReceiptContract',id) ok=ok and r.ok==true rows[#rows+1]=r end local result={ok=ok,rows=rows} assert(ok,'Honor receipt core failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "receipt_product_mismatch", "invalid_honor_balance", "HonorTreasury850"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "receipt_product_mismatch",
+        "invalid_honor_balance",
+        "HonorTreasury850"
+      ],
       "label": "Honor receipt first replay mismatch overflow and reconcile are exact"
     },
     {
@@ -45,9 +81,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') assert(a:Invoke('OpenTab','Fists')==true,'Shop host did not open') assert(a:Invoke('OpenShopPage','Honor')==true,'Honor Shop did not open') local s=g.GameMenu:FindFirstChild('FunctionalHeroShop') local tabs=s and s:FindFirstChild('ShopTabs') local expected={{'HonorPouch25',25,1,3708804891},{'HonorCache90',90,2,3708804911},{'HonorVault300',300,3,3708804933},{'HonorTreasury850',850,4,3708804944}} local deadline=os.clock()+8 local resolved=false repeat task.wait(.1) resolved=true for _,e in ipairs(expected) do local card=s and s:FindFirstChild(e[1]..'ShopCard',true) resolved=resolved and card and card:GetAttribute('RegionalPriceResolved')==true end until resolved or os.clock()>=deadline local rows={} local ok=resolved and s~=nil and s.Visible==true and tabs~=nil and tabs:FindFirstChild('HonorShopTab')~=nil and s:GetAttribute('ShopCatalogItemCount')==4 for _,e in ipairs(expected) do local card=s and s:FindFirstChild(e[1]..'ShopCard',true) local action=card and card:FindFirstChild(e[1]..'Action',true) local name=card and card:FindFirstChild('Name',true) local rarity=card and card:FindFirstChild('Rarity',true) local detail=card and card:FindFirstChild('Detail',true) local lookup,info=pcall(function() return M:GetProductInfoAsync(e[4],Enum.InfoType.Product) end) local live=lookup and tonumber(info.PriceInRobux) or 0 local amountVisible=name and rarity and (name.Text:find(e[2]..' HONOR',1,true)~=nil or rarity.Text:find('+'..e[2]..' HONOR',1,true)~=nil) local exact=card and action and name and rarity and detail and amountVisible and lookup and info.IsForSale==true and card:GetAttribute('ProductId')==e[4] and card:GetAttribute('PurchaseConfigured')==true and card:GetAttribute('PurchaseUnavailable')==false and card:GetAttribute('RegionalPriceResolved')==true and card:GetAttribute('DisplayedRobuxPrice')==live and action:GetAttribute('DisplayedRobuxPrice')==live and card:GetAttribute('HonorPackPipCount')==e[3] and detail.Text:find('+'..e[2]..' Honor',1,true)~=nil and action.Active==true and action.Selectable==true and action:GetAttribute('ShopActionBound')==true and action.Text=='BUY' and action.TextFits==true and action.AbsoluteSize.X>=44 and action.AbsoluteSize.Y>=44 rows[#rows+1]={id=e[1],productId=card and card:GetAttribute('ProductId'),price=card and card:GetAttribute('DisplayedRobuxPrice'),livePrice=live,exact=exact==true,text=action and action.Text,pips=card and card:GetAttribute('HonorPackPipCount'),size=action and tostring(action.AbsoluteSize)} ok=ok and exact end local result={ok=ok==true,rows=rows,tabs=tabs and #tabs:GetChildren(),items=s and s:GetAttribute('ShopCatalogItemCount')} assert(result.ok,'Honor Shop live configured state failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation')\nassert(a:Invoke('OpenTab','Fists')==true,'Shop host did not open') assert(a:Invoke('OpenShopPage','Honor')==true,'Honor Shop did not open')\nlocal s=g.GameMenu:FindFirstChild('FunctionalHeroShop') local tabs=s and s:FindFirstChild('ShopTabs') local expected={{'HonorPouch25',25,1,3708804891},{'HonorCache90',90,2,3708804911},{'HonorVault300',300,3,3708804933},{'HonorTreasury850',850,4,3708804944}}\nlocal function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end\nlocal function shown(label,card,scroll) if not label or not inside(label,card) or scroll and not inside(card,scroll) then return false end local parent=label while parent and parent~=g do if parent:IsA('GuiObject') and not parent.Visible then return false end parent=parent.Parent end return label.TextTransparency<1 and label.TextBounds.X>0 and label.TextBounds.Y>0 end\nlocal function fontFloor(label) if not label then return 0 end local limit=label:FindFirstChildOfClass('UITextSizeConstraint') local size=label.TextScaled and limit and limit.MinTextSize or label.TextSize local parent=label while parent and parent~=g.Parent do local scale=parent:FindFirstChildOfClass('UIScale') if scale then size*=scale.Scale end parent=parent.Parent end return size end\n-- Pure presentation predicate, also exercised offline with incorrect amount/price/identity controls.\nlocal function evaluateHonor(f,e)\n return {identity=f.cardProductId==e[4] and f.actionProductId==e[4] and f.productKey==e[1],sale=f.lookup==true and f.forSale==true,configured=f.configured==true and f.unavailable==false,regional=f.resolved==true and f.livePrice>0 and f.cardPrice==f.livePrice and f.actionPrice==f.livePrice,amount=f.amountVisible==true and f.amountFits==true and tonumber(string.match(string.upper(f.amountText or ''),'(%d+)%s+HONOR'))==e[2],renderedPrice=f.priceVisible==true and f.priceFits==true and tonumber(f.priceText)==f.livePrice,detail=f.detailVisible==true and string.find(string.lower(f.detailText or ''),'relic gates',1,true)~=nil,action=f.actionVisible==true and f.active==true and f.selectable==true and f.bound==true and f.actionText=='BUY' and f.actionFits==true,touch=f.width>=48 and f.height>=48,readable=f.amountFont>=14 and f.priceFont>=14 and f.actionFont>=14,pips=f.pips==e[3]}\nend\nlocal deadline=os.clock()+8 local resolved=false repeat task.wait(.1) resolved=true for _,e in ipairs(expected) do local card=s and s:FindFirstChild(e[1]..'ShopCard',true) resolved=resolved and card and card:GetAttribute('RegionalPriceResolved')==true end until resolved or os.clock()>=deadline\nlocal rows={} local ok=resolved and s~=nil and s.Visible==true and tabs~=nil and tabs:FindFirstChild('HonorShopTab')~=nil and s:GetAttribute('ShopCatalogItemCount')==4\nfor _,e in ipairs(expected) do\n local card=s and s:FindFirstChild(e[1]..'ShopCard',true) local scroll=s and s:FindFirstChild('ShopCatalogScroll') if card and scroll then local y=scroll.CanvasPosition.Y+card.AbsolutePosition.Y-scroll.AbsolutePosition.Y scroll.CanvasPosition=Vector2.new(0,math.clamp(y,0,math.max(0,scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteWindowSize.Y))) task.wait(.1) end\n local action=card and card:FindFirstChild(e[1]..'Action',true) local price=card and card:FindFirstChild('Price',true) local detail=card and card:FindFirstChild('Detail',true) local amountLabel\n for _,name in ipairs({'Name','Rarity','Detail'}) do local label=card and card:FindFirstChild(name,true) if label and shown(label,card,scroll) and tonumber(string.match(string.upper(label.Text),'(%d+)%s+HONOR'))==e[2] then amountLabel=label break end end\n local lookup,info=pcall(function() return M:GetProductInfoAsync(e[4],Enum.InfoType.Product) end) local live=lookup and tonumber(info.PriceInRobux) or 0\n local fields={cardProductId=card and card:GetAttribute('ProductId'),actionProductId=action and action:GetAttribute('ProductId'),productKey=action and action:GetAttribute('ProductKey'),lookup=lookup,forSale=lookup and info.IsForSale==true,configured=card and card:GetAttribute('PurchaseConfigured'),unavailable=card and card:GetAttribute('PurchaseUnavailable'),resolved=card and card:GetAttribute('RegionalPriceResolved'),cardPrice=card and card:GetAttribute('DisplayedRobuxPrice'),actionPrice=action and action:GetAttribute('DisplayedRobuxPrice'),livePrice=live,amountVisible=shown(amountLabel,card,scroll),amountText=amountLabel and amountLabel.Text or '',amountFits=amountLabel and amountLabel.TextFits,priceVisible=shown(price,card,scroll),priceFits=price and price.TextFits,priceText=price and price.Text or '',detailVisible=shown(detail,card,scroll),detailText=detail and detail.Text or '',actionVisible=shown(action,card,scroll),active=action and action.Active,selectable=action and action.Selectable,bound=action and action:GetAttribute('ShopActionBound'),actionText=action and action.Text or '',actionFits=action and action.TextFits,width=action and action.AbsoluteSize.X or 0,height=action and action.AbsoluteSize.Y or 0,amountFont=fontFloor(amountLabel),priceFont=fontFloor(price),actionFont=fontFloor(action),pips=card and card:GetAttribute('HonorPackPipCount')}\n local checks=evaluateHonor(fields,e) local failed={} for name,value in pairs(checks) do if value~=true then table.insert(failed,name) end end local exact=#failed==0 ok=ok and exact rows[#rows+1]={id=e[1],exact=exact,checks=checks,failed=failed,fields=fields}\nend\nlocal result={ok=ok==true,rows=rows,items=s and s:GetAttribute('ShopCatalogItemCount'),safeViewport=tostring(g.AbsoluteSize)} assert(result.ok,'Honor Shop live configured state failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "BUY", "HonorPouch25", "HonorTreasury850", "3708804891", "3708804944"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "BUY",
+        "HonorPouch25",
+        "HonorTreasury850",
+        "3708804891",
+        "3708804944"
+      ],
       "label": "four Honor cards resolve exact live prices and bind safe purchase actions"
     },
     {
@@ -55,16 +98,50 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD') local a=gui:WaitForChild('PunchWallClientAutomation') local shop=gui.GameMenu:WaitForChild('FunctionalHeroShop') local key='HonorPouch25' local function findAction() local card=shop:FindFirstChild(key..'ShopCard',true) return card and card:FindFirstChild(key..'Action',true) end local action=findAction() assert(action and action.Active and action.Selectable,'ready action missing') local expected={{'Opening','OPEN'},{'CheckoutOpen','ROBLOX'},{'Verifying','VERIFY'},{'Granted','ADDED'}} local rows={} local ok=true for _,entry in ipairs(expected) do assert(a:Invoke('SetPurchaseUiState',{productKey=key,state=entry[1],message=entry[1]})==true,'state injection rejected') local deadline=os.clock()+2 repeat task.wait(.05) action=findAction() until (action and action:GetAttribute('PurchaseUiState')==entry[1]) or os.clock()>=deadline local exact=action and action.Text==entry[2] and action.TextFits==true and action.TextWrapped==false and action.AbsoluteSize.X>=44 and action.AbsoluteSize.Y>=44 and action.Active==false and action.Selectable==false rows[#rows+1]={state=entry[1],text=action and action.Text,fits=action and action.TextFits,size=action and tostring(action.AbsoluteSize),exact=exact==true} ok=ok and exact end assert(a:Invoke('SetPurchaseUiState',{productKey=key,state='Canceled',message='PURCHASE CANCELED • NO CHARGE'})==true,'cancel injection rejected') local deadline=os.clock()+2 repeat task.wait(.05) action=findAction() until (action and action:GetAttribute('PurchaseUiState')=='Canceled' and action.Active==true) or os.clock()>=deadline local canceled=action and action.Text=='BUY' and action.TextFits==true and action.Active==true and action.Selectable==true ok=ok and canceled a:Invoke('SetPurchaseUiState',{productKey=key,state='Idle',message=''}) local result={ok=ok==true,rows=rows,canceledText=action and action.Text,canceled=canceled==true,viewport='740x339'} assert(result.ok,'compact purchase states failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD') local a=gui:WaitForChild('PunchWallClientAutomation') local shop=gui.GameMenu:WaitForChild('FunctionalHeroShop') local scroll=shop:FindFirstChild('ShopCatalogScroll') if scroll then scroll.CanvasPosition=Vector2.zero task.wait(.1) end local key='HonorPouch25' local function findAction() local card=shop:FindFirstChild(key..'ShopCard',true) return card and card:FindFirstChild(key..'Action',true) end local action=findAction() assert(action and action.Active and action.Selectable,'ready action missing') local expected={{'Opening','OPEN'},{'CheckoutOpen','ROBLOX'},{'Verifying','VERIFY'},{'Granted','ADDED'}} local rows={} local ok=true for _,entry in ipairs(expected) do assert(a:Invoke('SetPurchaseUiState',{productKey=key,state=entry[1],message=entry[1]})==true,'state injection rejected') local deadline=os.clock()+2 repeat task.wait(.05) action=findAction() until (action and action:GetAttribute('PurchaseUiState')==entry[1]) or os.clock()>=deadline local exact=action and action.Text==entry[2] and action.TextFits==true and action.TextSize>=14 and action.TextBounds.Y>0 and action.TextBounds.Y<=action.AbsoluteSize.Y-4 and action.AbsoluteSize.X>=48 and action.AbsoluteSize.Y>=48 and action.Active==false and action.Selectable==false rows[#rows+1]={state=entry[1],text=action and action.Text,fits=action and action.TextFits,size=action and tostring(action.AbsoluteSize),exact=exact==true} ok=ok and exact end assert(a:Invoke('SetPurchaseUiState',{productKey=key,state='Canceled',message='PURCHASE CANCELED • NO CHARGE'})==true,'cancel injection rejected') local deadline=os.clock()+2 repeat task.wait(.05) action=findAction() until (action and action:GetAttribute('PurchaseUiState')=='Canceled' and action.Active==true) or os.clock()>=deadline local canceled=action and action.Text=='BUY' and action.TextFits==true and action.Active==true and action.Selectable==true ok=ok and canceled a:Invoke('SetPurchaseUiState',{productKey=key,state='Idle',message=''}) local result={ok=ok==true,rows=rows,canceledText=action and action.Text,canceled=canceled==true,viewport=tostring(gui.AbsoluteSize)} assert(result.ok,'compact purchase states failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "OPEN", "ROBLOX", "VERIFY", "ADDED", "\"canceled\"\\s*:\\s*true", "740x339"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "OPEN",
+        "ROBLOX",
+        "VERIFY",
+        "ADDED",
+        "\"canceled\"\\s*:\\s*true",
+        "740x339"
+      ],
       "label": "compact transient purchase states and cancel recovery fit"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
-    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "runtimeConsole",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "runtimeConsole",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console clean"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -72,12 +149,33 @@
         "datamodel_type": "Edit",
         "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='Honor Products Flow Phone 740x360' and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return H:JSONEncode({default=S:GetDeviceAsync()=='default',removed=removed})"
       },
-      "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*1"],
+      "expectRegex": [
+        "\"default\"\\s*:\\s*true",
+        "\"removed\"\\s*:\\s*1"
+      ],
       "label": "restore default viewport and remove Honor flow device"
     }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='Honor Products Flow Phone 740x360' and info.IsCustom then pcall(function() S:RemoveDeviceAsync(id) end) end end return true" }, "allowError": true, "label": "cleanup Honor flow device" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='Honor Products Flow Phone 740x360' and info.IsCustom then pcall(function() S:RemoveDeviceAsync(id) end) end end return true"
+      },
+      "allowError": true,
+      "label": "cleanup Honor flow device"
+    }
   ]
 }

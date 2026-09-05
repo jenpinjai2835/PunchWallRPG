@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -91,16 +93,18 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"FunctionalHeroShop\",true) assert(shop,\"functional shop missing\") local cards,actions,art,tabs,minTouch=0,0,0,0,true for _,d in ipairs(shop:GetDescendants()) do if d:IsA(\"Frame\") and string.find(d.Name,\"ShopCard\",1,true) then cards+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"Action\",1,true) then actions+=1 elseif d:IsA(\"ImageLabel\") and d.Name==\"ProductArt\" and d.Image~=\"\" then art+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"ShopTab\",1,true) then tabs+=1 end if d:IsA(\"TextButton\") and (string.find(d.Name,\"Action\",1,true) or d.Name==\"CloseShop\" or string.find(d.Name,\"ShopTab\",1,true)) then minTouch=minTouch and d:FindFirstChildOfClass(\"UISizeConstraint\")~=nil end end return H:JSONEncode({visible=shop.Visible,cards=cards,actions=actions,art=art,tabs=tabs,close=shop:FindFirstChild(\"CloseShop\",true)~=nil,minTouch=minTouch})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke(\"OpenTab\",\"Fists\")==true,\"ordinary Shop route failed\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"FunctionalHeroShop\",true) assert(shop,\"functional shop missing\") local cards,actions,art,tabs,minTouch=0,0,0,0,true for _,d in ipairs(shop:GetDescendants()) do if d:IsA(\"Frame\") and string.find(d.Name,\"ShopCard\",1,true) then cards+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"Action\",1,true) then actions+=1 elseif d:IsA(\"ImageLabel\") and d.Name==\"ProductArt\" and d.Image~=\"\" then art+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"ShopTab\",1,true) then tabs+=1 end if d:IsA(\"TextButton\") and (string.find(d.Name,\"Action\",1,true) or d.Name==\"CloseShop\" or string.find(d.Name,\"ShopTab\",1,true)) then minTouch=minTouch and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)>=44 end end local cfg=require(game.ReplicatedStorage.GameConfig) local catalogExact=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) catalogExact=catalogExact and card~=nil and card:FindFirstChild(item.name..'Action')~=nil and card:FindFirstChild('ProductArt')~=nil end local tabsExact=true for _,name in ipairs({'Fists','Premium','Boosts','Honor','Robux'}) do tabsExact=tabsExact and shop.ShopTabs:FindFirstChild(name..'ShopTab')~=nil end return H:JSONEncode({catalogExact=catalogExact,tabsExact=tabsExact,visible=shop.Visible,cards=cards,actions=actions,art=art,tabs=tabs,close=shop:FindFirstChild(\"CloseShop\",true)~=nil,minTouch=minTouch})"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
-        "\"cards\"\\s*:\\s*5",
-        "\"actions\"\\s*:\\s*5",
-        "\"art\"\\s*:\\s*5",
-        "\"tabs\"\\s*:\\s*4",
+        "\"cards\"\\s*:\\s*16",
+        "\"actions\"\\s*:\\s*16",
+        "\"art\"\\s*:\\s*16",
+        "\"tabs\"\\s*:\\s*5",
         "\"close\"\\s*:\\s*true",
-        "\"minTouch\"\\s*:\\s*true"
+        "\"minTouch\"\\s*:\\s*true",
+        "\"catalogExact\"\\s*:\\s*true",
+        "\"tabsExact\"\\s*:\\s*true"
       ],
       "label": "fist shop is fully assembled and interactive"
     },
@@ -147,7 +151,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -156,7 +162,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

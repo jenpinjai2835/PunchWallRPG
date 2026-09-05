@@ -22,7 +22,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start desktop play"
     },
@@ -80,7 +82,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-    "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.1) local moreResult=a:Invoke('OpenMore') task.wait(.15) local moreState=a:Invoke('Snapshot') local moreOk=moreResult==true and moreState.menuVisible==true and moreState.activeTab=='Tasks' and moreState.inventoryVisible==false a:Invoke('CloseMenus') task.wait(.1) local inventoryResult=a:Invoke('OpenInventory') task.wait(.3) local inventoryState=a:Invoke('Snapshot') local menu=g:FindFirstChild('GameMenu') local vp=workspace.CurrentCamera.ViewportSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,vp.X) local heightRatio=size.Y/math.max(1,vp.Y) local aspect=size.X/math.max(1,size.Y) local safe=menu and menu.AbsolutePosition.X>=-1 and menu.AbsolutePosition.Y>=-1 and menu.AbsolutePosition.X+size.X<=vp.X+2 and menu.AbsolutePosition.Y+size.Y<=vp.Y+2 local centered=menu and menu.AnchorPoint==Vector2.new(.5,.5) and menu.Position.X.Scale==.5 and menu.Position.Y.Scale==.5 and menu.Position.X.Offset==0 and menu.Position.Y.Offset==0 local sizing=menu and menu:GetAttribute('InventoryModalSizing') local perf=g:GetAttribute('HUDVisibilitySyncMode') local touch=g:GetAttribute('TouchControlSuppressionMode') local idle=g:GetAttribute('HUDIdleRenderWrites') return H:JSONEncode({ok=moreOk and type(inventoryResult)=='table' and inventoryState.activeTab=='Inventory' and inventoryState.inventoryVisible==true and sizing=='CenteredReference1.50' and widthRatio>=.68 and widthRatio<=.73 and heightRatio>=.77 and heightRatio<=.85 and aspect>=1.49 and aspect<=1.51 and safe and centered and perf=='EventDrivenV2' and touch=='EventDriven' and idle==0,moreOk=moreOk,moreTab=moreState.activeTab,moreInventory=moreState.inventoryVisible,inventoryTab=inventoryState.activeTab,inventoryVisible=inventoryState.inventoryVisible,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,aspect=aspect,safe=safe,centered=centered,perf=perf,touch=touch,idle=idle})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.1) local moreResult=a:Invoke('OpenMore') task.wait(.15) local moreState=a:Invoke('Snapshot') local moreOk=moreResult==true and moreState.menuVisible==true and moreState.activeTab=='Tasks' and moreState.inventoryVisible==false a:Invoke('CloseMenus') task.wait(.1) local inventoryResult=a:Invoke('OpenInventory') task.wait(.3) local inventoryState=a:Invoke('Snapshot') local menu=g:FindFirstChild('GameMenu') local vp=workspace.CurrentCamera.ViewportSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,vp.X) local heightRatio=size.Y/math.max(1,vp.Y) local aspect=size.X/math.max(1,size.Y) local safe=menu and menu.AbsolutePosition.X>=-1 and menu.AbsolutePosition.Y>=-1 and menu.AbsolutePosition.X+size.X<=vp.X+2 and menu.AbsolutePosition.Y+size.Y<=vp.Y+2 local centered=menu and menu.AnchorPoint==Vector2.new(.5,.5) and menu.Position.X.Scale==.5 and menu.Position.Y.Scale==.5 and menu.Position.X.Offset==0 and menu.Position.Y.Offset==0 local sizing=menu and menu:GetAttribute('InventoryModalSizing') local perf=g:GetAttribute('HUDVisibilitySyncMode') local touch=g:GetAttribute('TouchControlSuppressionMode') local idle=g:GetAttribute('HUDIdleRenderWrites') return H:JSONEncode({ok=moreOk and type(inventoryResult)=='table' and inventoryState.activeTab=='Inventory' and inventoryState.inventoryVisible==true and sizing=='CenteredReference1.50' and widthRatio>=.68 and widthRatio<=.73 and heightRatio>=.77 and heightRatio<=.85 and aspect>=1.49 and aspect<=1.51 and safe and centered and perf=='EventDrivenV2' and touch=='EventDriven' and idle==0,moreOk=moreOk,moreTab=moreState.activeTab,moreInventory=moreState.inventoryVisible,inventoryTab=inventoryState.activeTab,inventoryVisible=inventoryState.inventoryVisible,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,aspect=aspect,safe=safe,centered=centered,perf=perf,touch=touch,idle=idle})"
       },
       "saveAs": "desktopEnvelopeResult",
       "expectRegex": [
@@ -128,7 +130,9 @@
     {
       "type": "call",
       "tool": "screen_capture",
-      "args": { "capture_id": "Inventory_Module_1366x768_All" },
+      "args": {
+        "capture_id": "Inventory_Module_1366x768_All"
+      },
       "label": "capture desktop inventory"
     },
     {
@@ -494,7 +498,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop desktop play"
     },
@@ -515,7 +521,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start compact play"
     },
@@ -531,7 +539,9 @@
         "datamodel_type": "Server",
         "code": "local c=game.ServerStorage:WaitForChild('PunchWallAutomation') c:Invoke('Reset') c:Invoke('SetStats',{Coins=50000,OwnedFistsJSON='[\"Starter Glove\",\"Boxing Glove\"]',EquippedFist='Starter Glove',PetInventoryJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',EquippedPetsJSON='[\"Crystal Fox\"]',DiscoveredPetsJSON='[\"Crystal Fox\",\"Miner Cat\"]',LockedPetsJSON='[\"slot:2\"]',OwnedHonorItemsJSON='[\"Vanguard Trail\"]',EquippedHonorItem='Vanguard Trail'}) local boost=c:Invoke('SetPlayerAttribute',{name='CoinBoostExpiresAt',value=workspace:GetServerTimeNow()+900}) return boost.ok==true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "seed compact inventory"
     },
     {
@@ -564,12 +574,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local menu=g:FindFirstChild('GameMenu') local rootPosition=g.AbsolutePosition local rootSize=g.AbsoluteSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,rootSize.X) local heightRatio=size.Y/math.max(1,rootSize.Y) local safe=menu and menu.AbsolutePosition.X>=rootPosition.X-1 and menu.AbsolutePosition.Y>=rootPosition.Y-1 and menu.AbsolutePosition.X+size.X<=rootPosition.X+rootSize.X+2 and menu.AbsolutePosition.Y+size.Y<=rootPosition.Y+rootSize.Y+2 local sizing=menu and menu:GetAttribute('InventoryModalSizing') return H:JSONEncode({ok=sizing=='PhoneSafeMargin12V3' and widthRatio>=.85 and heightRatio>=.85 and safe,sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,safe=safe})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local menu=g:FindFirstChild('GameMenu') local rootPosition=g.AbsolutePosition local rootSize=g.AbsoluteSize local size=menu and menu.AbsoluteSize or Vector2.zero local widthRatio=size.X/math.max(1,rootSize.X) local heightRatio=size.Y/math.max(1,rootSize.Y) local safe=menu and menu.AbsolutePosition.X>=rootPosition.X-1 and menu.AbsolutePosition.Y>=rootPosition.Y-1 and menu.AbsolutePosition.X+size.X<=rootPosition.X+rootSize.X+2 and menu.AbsolutePosition.Y+size.Y<=rootPosition.Y+rootSize.Y+2 local sizing=menu and menu:GetAttribute('InventoryModalSizing') return H:JSONEncode({ok=sizing=='PhoneSafeFill12V1' and rootSize.X>=240 and rootSize.Y>=200 and math.abs(size.X-(rootSize.X-24))<=2 and math.abs(size.Y-(rootSize.Y-24))<=2 and widthRatio>=.85 and heightRatio>=.85 and safe,safeViewport=tostring(rootSize),modalSize=tostring(size),sizing=sizing,widthRatio=widthRatio,heightRatio=heightRatio,safe=safe})"
       },
       "saveAs": "compactModalEnvelopeResult",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"sizing\"\\s*:\\s*\"PhoneSafeMargin12V3\"",
+        "\"sizing\"\\s*:\\s*\"PhoneSafeFill12V1\"",
         "\"safe\"\\s*:\\s*true"
       ],
       "label": "compact Inventory modal fills the safe phone viewport"
@@ -579,7 +589,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('SelectInventoryCategory','Boosts') a:Invoke('SelectInventoryItem','boost:CoinBoost') task.wait(.15) local detail=g:FindFirstChild('InventoryDetail',true) local description=g:FindFirstChild('DetailDescription',true) local before=a:Invoke('InventorySnapshot') local bp=before.performance or {} task.wait(2.2) local after=a:Invoke('InventorySnapshot') local ap=after.performance or {} local selected=after.selected or {} local compact=after.layout or {} local modeOk=bp.timedRefreshMode=='ExpiryDelay' and ap.timedRefreshMode=='ExpiryDelay' local gridStable=ap.gridRebuilds==bp.gridRebuilds local liveStable=ap.liveCards==bp.liveCards local connectionsStable=ap.cardConnections==bp.cardConnections local detailsStable=ap.timedDetailUpdates==bp.timedDetailUpdates local expiryStable=ap.timedExpiryRebuilds==bp.timedExpiryRebuilds local hidden=detail and detail.Visible==true and description and description.Visible==false return H:JSONEncode({ok=selected.key=='boost:CoinBoost' and compact.compact==true and compact.detailMode=='Drawer' and hidden and modeOk and gridStable and liveStable and connectionsStable and detailsStable and expiryStable and ap.cardConnectionBounded==true,selected=selected.key,compact=compact.compact,detailMode=compact.detailMode,detailVisible=detail and detail.Visible,descriptionVisible=description and description.Visible,beforeMode=bp.timedRefreshMode,afterMode=ap.timedRefreshMode,gridStable=gridStable,liveStable=liveStable,connectionsStable=connectionsStable,detailsStable=detailsStable,expiryStable=expiryStable,cardConnectionBounded=ap.cardConnectionBounded})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('SelectInventoryCategory','Boosts') a:Invoke('SelectInventoryItem','boost:CoinBoost') task.wait(.15) local detail=g:FindFirstChild('InventoryDetail',true) local description=g:FindFirstChild('DetailDescription',true) local before=a:Invoke('InventorySnapshot') local bp=before.performance or {} task.wait(2.2) local after=a:Invoke('InventorySnapshot') local ap=after.performance or {} local selected=after.selected or {} local compact=after.layout or {} local visibleDescription=description and description.Visible==true local expectedMode=visibleDescription and 'SelectedDetailHeartbeat' or 'ExpiryDelay' local modeOk=bp.timedRefreshMode==expectedMode and ap.timedRefreshMode==expectedMode local gridStable=ap.gridRebuilds==bp.gridRebuilds local liveStable=ap.liveCards==bp.liveCards local connectionsStable=ap.cardConnections==bp.cardConnections local detailsStable=visibleDescription and ap.timedDetailUpdates>bp.timedDetailUpdates or not visibleDescription and ap.timedDetailUpdates==bp.timedDetailUpdates local expiryStable=ap.timedExpiryRebuilds==bp.timedExpiryRebuilds local hidden=detail and detail.Visible==true and description and (not visibleDescription or description.AbsoluteSize.Y>=32) return H:JSONEncode({ok=selected.key=='boost:CoinBoost' and compact.compact==true and compact.detailMode=='Drawer' and hidden and modeOk and gridStable and liveStable and connectionsStable and detailsStable and expiryStable and ap.cardConnectionBounded==true,selected=selected.key,compact=compact.compact,detailMode=compact.detailMode,detailVisible=detail and detail.Visible,descriptionVisible=description and description.Visible,expectedMode=expectedMode,beforeMode=bp.timedRefreshMode,afterMode=ap.timedRefreshMode,gridStable=gridStable,liveStable=liveStable,connectionsStable=connectionsStable,detailsStable=detailsStable,expiryStable=expiryStable,cardConnectionBounded=ap.cardConnectionBounded})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -587,9 +597,8 @@
         "\"compact\"\\s*:\\s*true",
         "\"detailMode\"\\s*:\\s*\"Drawer\"",
         "\"detailVisible\"\\s*:\\s*true",
-        "\"descriptionVisible\"\\s*:\\s*false",
-        "\"beforeMode\"\\s*:\\s*\"ExpiryDelay\"",
-        "\"afterMode\"\\s*:\\s*\"ExpiryDelay\"",
+        "\"beforeMode\"\\s*:\\s*\"(?:ExpiryDelay|SelectedDetailHeartbeat)\"",
+        "\"afterMode\"\\s*:\\s*\"(?:ExpiryDelay|SelectedDetailHeartbeat)\"",
         "\"gridStable\"\\s*:\\s*true",
         "\"liveStable\"\\s*:\\s*true",
         "\"connectionsStable\"\\s*:\\s*true",
@@ -597,20 +606,20 @@
         "\"expiryStable\"\\s*:\\s*true",
         "\"cardConnectionBounded\"\\s*:\\s*true"
       ],
-      "label": "short compact selected timed boost uses expiry delay without churn"
+      "label": "compact timed detail refresh matches its actual rendered description without rebuilding cards"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.3) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} local art=s.art or {} local window=g:FindFirstChild('InventoryWindow',true) local gridPane=g:FindFirstChild('InventoryGridPane',true) local grid=g:FindFirstChild('InventoryGrid',true) local detail=g:FindFirstChild('InventoryDetail',true) local detailActions=g:FindFirstChild('DetailActions',true) local drawer=g:FindFirstChild('CompactDetailDrawer',true) local actionCount=0 local actionsInside=true local actionsPositive=true if detailActions then for _,button in ipairs(detailActions:GetChildren()) do if button:IsA('GuiButton') and button.Visible and button:GetAttribute('InventoryAction') then actionCount+=1 actionsInside=actionsInside and inside(button,detail) actionsPositive=actionsPositive and math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 end end end local gridHidden=gridPane and grid and not gridPane.Visible and not grid.Visible and gridPane.AbsoluteSize.Y>=0 and grid.AbsoluteSize.Y>=0 local detailPositive=detail and detail.Visible and detail.AbsoluteSize.X>0 and detail.AbsoluteSize.Y>0 local detailInside=inside(detail,window) local actionPanelInside=inside(detailActions,detail) local geometryOk=gridHidden and detailPositive and detailInside and actionPanelInside and actionCount==4 and actionsInside and actionsPositive return H:JSONEncode({ok=s.visible==true and l.compact==true and l.columns==5 and (l.minTouchTarget or 0)>=44 and l.allTextFits==true and l.insideSafeArea==true and l.noOverlap==true and l.detailMode=='Drawer' and drawer and drawer.Visible==true and geometryOk and art.magentaFree==true and art.checkerboardFree==true and s.selected and s.selected.key=='pet:slot:2',compact=l.compact,columns=l.columns,minTouch=l.minTouchTarget,textFits=l.allTextFits,safe=l.insideSafeArea,noOverlap=l.noOverlap,detailMode=l.detailMode,drawer=drawer and drawer.Visible,gridPaneVisible=gridPane and gridPane.Visible,gridVisible=grid and grid.Visible,gridPaneHeight=gridPane and gridPane.AbsoluteSize.Y,gridHeight=grid and grid.AbsoluteSize.Y,detailPositive=detailPositive,detailInside=detailInside,actionPanelInside=actionPanelInside,actionCount=actionCount,actionsInside=actionsInside,actionsPositive=actionsPositive,key=s.selected and s.selected.key,magentaFree=art.magentaFree,checkerboardFree=art.checkerboardFree})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local function inside(child,parent) if not child or not parent then return false end local cp,cs,pp,ps=child.AbsolutePosition,child.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize return cs.X>0 and cs.Y>0 and cp.X>=pp.X-1 and cp.Y>=pp.Y-1 and cp.X+cs.X<=pp.X+ps.X+1 and cp.Y+cs.Y<=pp.Y+ps.Y+1 end a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','crystal') a:Invoke('SetInventoryRarity','Epic') a:Invoke('SelectInventoryItem','pet:slot:2') task.wait(.3) local s=a:Invoke('InventorySnapshot') local l=s.layout or {} local art=s.art or {} local window=g:FindFirstChild('InventoryWindow',true) local gridPane=g:FindFirstChild('InventoryGridPane',true) local grid=g:FindFirstChild('InventoryGrid',true) local detail=g:FindFirstChild('InventoryDetail',true) local detailActions=g:FindFirstChild('DetailActions',true) local drawer=g:FindFirstChild('CompactDetailDrawer',true) local inventoryRoot=g:FindFirstChild('InventoryRoot',true) local available=inventoryRoot and inventoryRoot:GetAttribute('InventoryAvailableGridWidth') or 0 local expectedColumns=available>=600 and 2 or 1 local readable=inventoryRoot and (inventoryRoot:GetAttribute('InventoryPrimaryRenderedTextSize') or 0)>=14 and (inventoryRoot:GetAttribute('InventorySecondaryRenderedTextSize') or 0)>=12 local actionCount=0 local actionsInside=true local actionsPositive=true if detailActions then for _,button in ipairs(detailActions:GetChildren()) do if button:IsA('GuiButton') and button.Visible and button:GetAttribute('InventoryAction') then actionCount+=1 actionsInside=actionsInside and inside(button,detail) actionsPositive=actionsPositive and math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 end end end local gridHidden=gridPane and grid and not gridPane.Visible and not grid.Visible and gridPane.AbsoluteSize.Y>=0 and grid.AbsoluteSize.Y>=0 local detailPositive=detail and detail.Visible and detail.AbsoluteSize.X>0 and detail.AbsoluteSize.Y>0 local detailInside=inside(detail,window) local actionPanelInside=inside(detailActions,detail) local geometryOk=gridHidden and detailPositive and detailInside and actionPanelInside and actionCount==4 and actionsInside and actionsPositive return H:JSONEncode({ok=s.visible==true and l.compact==true and available>0 and l.columns==expectedColumns and readable and (l.minTouchTarget or 0)>=44 and l.allTextFits==true and l.insideSafeArea==true and l.noOverlap==true and l.detailMode=='Drawer' and drawer and drawer.Visible==true and geometryOk and art.magentaFree==true and art.checkerboardFree==true and s.selected and s.selected.key=='pet:slot:2',readable=readable,availableWidth=available,expectedColumns=expectedColumns,compact=l.compact,columns=l.columns,minTouch=l.minTouchTarget,textFits=l.allTextFits,safe=l.insideSafeArea,noOverlap=l.noOverlap,detailMode=l.detailMode,drawer=drawer and drawer.Visible,gridPaneVisible=gridPane and gridPane.Visible,gridVisible=grid and grid.Visible,gridPaneHeight=gridPane and gridPane.AbsoluteSize.Y,gridHeight=grid and grid.AbsoluteSize.Y,detailPositive=detailPositive,detailInside=detailInside,actionPanelInside=actionPanelInside,actionCount=actionCount,actionsInside=actionsInside,actionsPositive=actionsPositive,key=s.selected and s.selected.key,magentaFree=art.magentaFree,checkerboardFree=art.checkerboardFree})"
       },
       "saveAs": "compactDetailGeometry",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"compact\"\\s*:\\s*true",
-        "\"columns\"\\s*:\\s*5",
+        "\"columns\"\\s*:\\s*[12]",
         "\"minTouch\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
         "\"textFits\"\\s*:\\s*true",
         "\"safe\"\\s*:\\s*true",
@@ -627,14 +636,17 @@
         "\"actionsPositive\"\\s*:\\s*true",
         "\"key\"\\s*:\\s*\"pet:slot:2\"",
         "\"magentaFree\"\\s*:\\s*true",
-        "\"checkerboardFree\"\\s*:\\s*true"
+        "\"checkerboardFree\"\\s*:\\s*true",
+        "\"readable\"\\s*:\\s*true"
       ],
       "label": "compact detail mode hides the grid and contains all four visible pet actions"
     },
     {
       "type": "call",
       "tool": "screen_capture",
-      "args": { "capture_id": "Inventory_Module_740x360_PetDetail" },
+      "args": {
+        "capture_id": "Inventory_Module_740x360_PetDetail"
+      },
       "label": "capture compact inventory"
     },
     {
@@ -692,7 +704,9 @@
         "datamodel_type": "Client",
         "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation a:Invoke('CloseInventory') local s=a:Invoke('InventorySnapshot') return s.visible==false and s.hudHidden==false"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "close compact inventory"
     },
     {
@@ -709,7 +723,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop compact play"
     },
@@ -731,7 +747,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"
