@@ -643,6 +643,35 @@ for (const [name, mutate] of [
   fixtureNegativeControls.push({name, mutationApplied: applied, status: rejected ? 'REJECTED' : 'MISSED'});
 }
 
+function validTasksIdleObservation(candidate) {
+  const code=candidate.steps.find(step=>step.label==='assert Tasks opened and precheck Daily claim')?.args?.code??'';
+  const start=code.indexOf('local function observeIdleControl('),end=code.indexOf('local idle=observeIdleControl(',start);
+  const observation=start>=0&&end>start?code.slice(start,end):'';
+  return includesAll(observation,[
+    'local original=assert(currentButton()', 'local observed,destroyed=false,false',
+    'StatsChanged.OnClientEvent:Connect(function(payload)', '(tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime',
+    'original.Destroying:Connect(function()destroyed=true end)', 'b==original and b:IsDescendantOf(c) and not destroyed',
+    'hittable=live and contained and ancestorVisible', 'local deadline=os.clock()+3',
+    'stats:Disconnect()', 'lifetime:Disconnect()', 'pcall(verifyIdleControlState,result)',
+  ]) && !/FireServer|:Invoke\(|CreateVirtualInput|SendMouse|SetAttribute/.test(observation)
+    && includesAll(code,["observeIdleControl(function()return select(2,currentDailyButton())end,c,g,p,'Flow31ActionRequestSequence')",'row,b=currentDailyButton()',"local s=a:Invoke('Snapshot')",'b==select(2,currentDailyButton())',"g:SetAttribute('Flow31ExpectedControl','C13_ClaimDaily')"])
+    && code.lastIndexOf('row,b=currentDailyButton()')>code.indexOf('local idle=observeIdleControl(')
+    && code.indexOf('local idle=observeIdleControl(')<code.indexOf("g:SetAttribute('Flow31ExpectedControl','C13_ClaimDaily')");
+}
+check('tasks_claim_precheck_reacquires_after_idle_snapshot_and_scroll',validTasksIdleObservation(flow),'The actual native Daily button must survive a real clock snapshot, remain visible/hittable and leave request authority untouched; reacquire after every layout/idle wait before arming the single gesture.');
+const idleObservationNegativeControls=[];
+for(const [name,from,to]of[
+  ['drop_identity_equality','b==original and b:IsDescendantOf(c) and not destroyed','b:IsDescendantOf(c)'],
+  ['force_hittable','hittable=live and contained and ancestorVisible','hittable=true or live and contained and ancestorVisible'],
+  ['remove_stats_listener_cleanup','stats:Disconnect()','-- omitted cleanup'],
+]) {
+  const candidate=structuredClone(flow);const step=candidate.steps.find(item=>item.label==='assert Tasks opened and precheck Daily claim');
+  const original=step.args.code;step.args.code=original.replace(from,to);
+  const applied=step.args.code!==original,rejected=!validTasksIdleObservation(candidate);
+  check('tasks_idle_negative_'+name,applied&&rejected,'A weakened or leaked idle-input observer must be rejected.');
+  idleObservationNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -662,6 +691,7 @@ console.log(
       requestAttestations: 9,
       checks,
       fixtureNegativeControls,
+      idleObservationNegativeControls,
       studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
       files: [
         path.relative(repositoryRoot, flowPath),

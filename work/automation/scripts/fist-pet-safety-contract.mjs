@@ -987,6 +987,34 @@ for(const [name,pattern] of [
  feedbackWeakeningControls.push({name,mutationApplied:applied,status:!result.pass?'REJECTED':'MISSED'});
 }
 
+function validLegacyIdleObservation(candidate) {
+ const code=candidate.steps.find(step=>step.label==='open legacy Pets and expose duplicate slot two action')?.args?.code??'';
+ const observation=section(code,'local function observeIdleControl(','local state=expose(');
+ return includesAll(observation,[
+  'local original=assert(currentButton()', 'local observed,destroyed=false,false',
+  'StatsChanged.OnClientEvent:Connect(function(payload)', '(tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime',
+  'original.Destroying:Connect(function()destroyed=true end)', 'b==original and b:IsDescendantOf(c) and not destroyed',
+  'hittable=live and contained and ancestorVisible', 'local deadline=os.clock()+3',
+  'stats:Disconnect()', 'lifetime:Disconnect()', 'pcall(verifyIdleControlState,result)',
+  "g:GetAttribute('GenericPanelStructuralRenderCount')", 'requestAfter=p:GetAttribute(requestAttribute) or 0',
+ ]) && !/FireServer|:Invoke\(|CreateVirtualInput|SendMouse|SetAttribute/.test(observation)
+  && includesAll(code,["observeIdleControl(currentIdleButton,g.GameMenu.Content,g,p,'Flow30RawPetRequestSequence')",'state.idleIdentityStable=idle.identityStable','state.idleCanvasStable=idle.canvasStable'])
+  && code.indexOf('local idle=observeIdleControl(')<code.indexOf("g:SetAttribute('Flow30ExpectedCallbackSequence'");
+}
+check('legacy_real_input_waits_for_an_actual_idle_snapshot_without_replacing_target',validLegacyIdleObservation(legacySlotFlow),'Before one real Equip gesture, observe an increasing real Playtime payload, current Instance identity, canvas and request count; disconnect all temporary listeners without injecting input or changing the UI.');
+const idleObservationNegativeControls=[];
+for(const [name,from,to]of[
+ ['drop_identity_equality','b==original and b:IsDescendantOf(c) and not destroyed','b:IsDescendantOf(c)'],
+ ['force_hittable','hittable=live and contained and ancestorVisible','hittable=true or live and contained and ancestorVisible'],
+ ['remove_stats_listener_cleanup','stats:Disconnect()','-- omitted cleanup'],
+]) {
+ const candidate=structuredClone(legacySlotFlow);const step=candidate.steps.find(item=>item.label==='open legacy Pets and expose duplicate slot two action');
+ const original=step.args.code;step.args.code=original.replace(from,to);
+ const applied=step.args.code!==original,rejected=!validLegacyIdleObservation(candidate);
+ check('legacy_idle_negative_'+name,applied&&rejected,'A weakened idle-input evidence path must be rejected.');
+ idleObservationNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 const total = Object.keys(checks).length;
 const ok = passed === total;
@@ -1000,6 +1028,7 @@ console.log(
       negativeControls,
       legacyRouteNegativeControls,
       feedbackWeakeningControls,
+      idleObservationNegativeControls,
       feedbackHelperControls: {valid: 2, rejected: 14, passed: feedbackHelperResult.pass},
       sourceRoot: repositoryRoot,
       sourceHashes: Object.fromEntries(Object.entries({client,server,builder}).map(([name,text]) => [name,createHash("sha256").update(text).digest("hex")])),
