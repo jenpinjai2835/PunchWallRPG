@@ -66,16 +66,15 @@
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG.Walls.Cyber Gate"
+        "datamodel_type": "Server",
+        "code": "local G=require(game.ReplicatedStorage.GameConfig) local world=workspace.PunchWallRPG local tier,config for i,v in ipairs(G.Walls)do if v.name=='Cyber Gate'then tier=i config=v break end end assert(config and config.level==48,'canonical Cyber Gate configuration changed') local layer=(tier-1)*G.DepthWall.LayersPerTier+1 local block=world['Depth Blocks']:FindFirstChild(('DepthBlock_L%03d_C06_R02'):format(layer)) local landmark for _,v in ipairs(world['Depth Tier Landmarks']:GetChildren())do if v:GetAttribute('MaterialTier')==tier then landmark=v break end end local sign=landmark and landmark:FindFirstChildWhichIsA('SurfaceGui',true) local r=game.ServerStorage.PunchWallAutomation:Invoke('HitWall','Cyber Gate') return game.HttpService:JSONEncode({gateContractValid=block~=nil and block:GetAttribute('RequiredLevel')==48 and block:GetAttribute('HP')==config.hp and landmark~=nil and sign~=nil and r.ok==false and r.reason=='level_gate' and r.requiredLevel==48,requiredLevel=block and block:GetAttribute('RequiredLevel'),landmark=landmark and landmark.Name,sign=sign~=nil,result=r})"
       },
       "expectRegex": [
-        "\"RequiredLevel\"\\s*:\\s*48",
-        "ClickDetector",
-        "Sign"
+        "\"gateContractValid\"\\s*:\\s*true"
       ],
-      "label": "high-tier wall has gate metadata and affordance"
+      "label": "high-tier connected block preserves actual level gate and visible landmark"
     },
     {
       "type": "call",
