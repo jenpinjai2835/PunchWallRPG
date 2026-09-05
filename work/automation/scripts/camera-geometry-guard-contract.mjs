@@ -11,8 +11,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.
 const clientPath = "work/punch-wall-rpg/src/client/PunchWallClient.client.lua";
 const losBaseline = process.argv.includes("--baseline-los");
 const runtimeBaseline = process.argv.includes("--baseline-runtime2");
-const baselineIndex = process.argv.indexOf(runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
+const faceBaseline = process.argv.includes('--baseline-face');
+const baselineIndex = process.argv.indexOf(faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -46,6 +47,8 @@ vm.__mul=function(a,b) if type(a)=='number' then a,b=b,a end return Vector3.new(
 vm.__index=function(a,k)
  if k=='Magnitude' then return math.sqrt(a.X*a.X+a.Y*a.Y+a.Z*a.Z) end
  if k=='Unit' then return a*(1/a.Magnitude) end
+ if k=='Dot' then return function(a,b) return a.X*b.X+a.Y*b.Y+a.Z*b.Z end end
+ if k=='Cross' then return function(a,b) return Vector3.new(a.Y*b.Z-a.Z*b.Y,a.Z*b.X-a.X*b.Z,a.X*b.Y-a.Y*b.X) end end
 end
 Vector3.zero=Vector3.new(0,0,0)
 local CFrame, fm = {}, {}
@@ -103,6 +106,38 @@ const flow = JSON.parse(fs.readFileSync(path.join(root, 'work/automation/flows/c
 const flowCode = flow.steps.find(step => step.args?.code?.includes("automation:Invoke('__RunCamera',18)")).args.code;
 const flowGate = flowCode.slice(flowCode.indexOf('local correctionBounded='), flowCode.indexOf(' diagnostics={'));
 assert.ok(flowGate.includes('local contractValid='), 'Missing actual long-tunnel flow gate');
+// Independent 15-axis separating-axis oracle for a .55 world-axis camera box
+// against oriented block boxes. Production code supplies candidates and sweeps.
+const orientedWorld = `
+local worldAxes={Vector3.new(1,0,0),Vector3.new(0,1,0),Vector3.new(0,0,1)}
+local rotatedAxes={Vector3.new(2/3,2/3,-1/3),Vector3.new(-1/3,2/3,2/3),Vector3.new(2/3,-1/3,2/3)}
+local function testBlock(name,position,axes,size)
+ return {Name=name,Position=position,Size=size or Vector3.new(4,4,4),Axes=axes,
+ CFrame={RightVector=axes[1],UpVector=axes[2],LookVector=axes[3]},AssemblyLinearVelocity=Vector3.new(0,-7,0),GetAttribute=function() return true end}
+end
+local function intersects(part,position)
+ local axes=table.clone(worldAxes)
+ for _,axis in ipairs(part.Axes) do table.insert(axes,axis) end
+ for _,a in ipairs(worldAxes) do for _,b in ipairs(part.Axes) do table.insert(axes,a:Cross(b)) end end
+ local extents={part.Size.X*.5,part.Size.Y*.5,part.Size.Z*.5}
+ for _,axis in ipairs(axes) do
+  local radius=.275*(math.abs(axis.X)+math.abs(axis.Y)+math.abs(axis.Z))
+  for index,partAxis in ipairs(part.Axes) do radius+=extents[index]*math.abs(partAxis:Dot(axis)) end
+  if math.abs((position-part.Position):Dot(axis))>radius then return false end
+ end
+ return true
+end
+local blocks={}
+blocked=function(position)
+ for _,part in ipairs(blocks) do if intersects(part,position) then return true end end
+ return false
+end
+shared.PunchWallCameraPositionBlocked=function(position,_,collect)
+ local hits={}
+ for _,part in ipairs(blocks) do if intersects(part,position) then table.insert(hits,part) end end
+ return #hits>0,collect and hits or nil
+end
+`;
 const fixtures = {
   limiter: `${guardSetup}
 seed()
@@ -144,7 +179,7 @@ check(math.abs(camera.CFrame.Position.X-4)<.001,'blocked_baseline_is_never_publi
 check(shared.PunchWallHeartbeatLastClearCFrame.Position.X~=3,'blocked_fallback_not_cached')
 blocked=function(p) return math.abs(p.X)<.01 end
 pose(4,0,0) update(1/60)
-check(not blocked(camera.CFrame.Position) and camera.CFrame.Position.X>0,'clear_baseline_or_local_egress_remains_available')
+check(not blocked(camera.CFrame.Position) and math.abs(camera.CFrame.Position.X)>.01,'clear_baseline_or_local_egress_remains_available')
 print('PASS '..count)
 `,
   final: `${guardSetup}
@@ -336,6 +371,7 @@ now+=.02
 RunService.Heartbeat:Fire(1/60)
 check(not blocked(camera.CFrame.Position),'physics_overlap_is_repaired_before_next_render')
 check(attrs.PunchCameraOverlapEscapes==1,'fresh_render_physics_egress_is_measured')
+check(shared.PunchWallCameraFirstEscape.phase=='postphysics-overlap' and shared.PunchWallCameraFirstEscape.originKind=='cached','physics_egress_attributes_actual_phase_and_origin')
 camera.CameraType='Scriptable'
 pose(0,0,12) RunService.Heartbeat:Fire(1/60)
 check(blocked(camera.CFrame.Position),'physics_safety_does_not_steal_scriptable_camera')
@@ -405,7 +441,7 @@ print('PASS '..count)
 `,
   runtimeAcceptance: `${common}
 local function accepted(changes, freshChanges)
- local result={valid=true,visualValid=true,actions=18,inside=0,type='Custom',mode='CustomPreserved',maxCorrectionStep=.4,maxEscapeStep=.7,unresolvedSafetyFrames=0,configuredOrbit=22.62,selectedDistance=22.62,userOrbitDistance=22.62,finishDistance=22.62}
+ local result={valid=true,visualValid=true,actions=18,inside=0,type='Custom',mode='CustomPreserved',maxCorrectionStep=.4,maxEscapeStep=.7,unresolvedSafetyFrames=0,physicalUnresolvedFrames=0,transientLineOfSightFrames=0,clearRatio=1,settledClearRatio=1,readableRatio=1,settledReadableRatio=1,configuredOrbit=22.62,selectedDistance=22.62,userOrbitDistance=22.62,finishDistance=22.62}
  for key,value in pairs(changes or {}) do result[key]=value end
  local p={CameraMinZoomDistance=2,CameraMaxZoomDistance=80}
  local oldMinZoom,oldMaxZoom=2,80
@@ -419,6 +455,12 @@ end
 check(accepted(),'ordinary_egress_selected_orbit_and_fresh_scene_pass')
 check(not accepted({maxEscapeStep=2.66}),'excessive_emergency_egress_cannot_pass_smoothness_gate')
 check(not accepted({unresolvedSafetyFrames=1}),'reported_unresolved_pose_cannot_pass')
+check(not accepted({physicalUnresolvedFrames=1,unresolvedSafetyFrames=1}),'actual_physical_unresolved_pose_cannot_pass')
+check(accepted({transientLineOfSightFrames=25,clearRatio=.7988}),'measured_transient_los_with_clear_settled_scene_preserves_original_contract')
+check(not accepted({clearRatio=.54}),'original_sampled_los_floor_is_retained')
+check(not accepted({settledClearRatio=.89}),'original_settled_los_floor_is_retained')
+check(not accepted({readableRatio=.64}),'original_sampled_readability_floor_is_retained')
+check(not accepted({settledReadableRatio=.89}),'original_settled_readability_floor_is_retained')
 check(not accepted({configuredOrbit=12}),'contradictory_test_radius_cannot_pass')
 check(not accepted({userOrbitDistance=12}),'rewritten_selected_radius_cannot_pass')
 check(not accepted({finishDistance=12}),'shortened_final_radius_cannot_pass')
@@ -427,6 +469,90 @@ check(not accepted({}, {inside=1}),'fresh_inside_pose_cannot_pass')
 check(not accepted({}, {faded=1}),'faded_avatar_cannot_pass')
 check(not accepted({}, {obscured=true}),'fresh_opaque_obstruction_cannot_pass')
 check(not accepted({visualValid=false}),'historical_readability_failure_cannot_pass')
+print('PASS '..count)
+`,
+  orientedFaceExit: `${guardSetup}${orientedWorld}
+blocks={testBlock('Rotated4StudBlock',Vector3.zero,rotatedAxes)}
+pose(0,0,0) update(1/60)
+check(camera.CFrame.Position.Magnitude<2.49 and camera.CFrame.Position.Magnitude>2.46,'rotated_block_uses_near_face_exit_within_existing_budget')
+check(not intersects(blocks[1],camera.CFrame.Position),'rotated_face_exit_clears_camera_box_support')
+check(attrs.PunchCameraMaxEscapeStep<=2.65,'oriented_egress_keeps_existing_safety_bound')
+check(shared.PunchWallCameraFirstEscape.kind=='face' and shared.PunchWallCameraFirstEscape.originKind=='current','analytic_source_and_current_origin_are_diagnosed')
+check(shared.PunchWallCameraFirstEscape.phase=='render' and shared.PunchWallCameraFirstEscape.parts[1].name=='Rotated4StudBlock','escape_diagnostics_identify_phase_and_actual_part')
+check(shared.PunchWallCameraFirstEscape.overlapCount==1 and #shared.PunchWallCameraFirstEscape.parts==1,'bounded_escape_snapshot_matches_actual_overlaps')
+print('PASS '..count)
+`,
+  compoundFaceExit: `${guardSetup}${orientedWorld}
+blocks={testBlock('Primary',Vector3.zero,rotatedAxes),testBlock('Neighbor',rotatedAxes[1]*2.2,rotatedAxes)}
+occluded=function(p) return p:Dot(rotatedAxes[1])<2 end
+pose(0,0,0) update(1/60)
+check(not intersects(blocks[1],camera.CFrame.Position) and not intersects(blocks[2],camera.CFrame.Position),'compound_egress_checks_entire_overlap_set')
+check(camera.CFrame.Position.Magnitude<=2.65,'compound_egress_stays_within_existing_budget')
+check(shared.PunchWallCameraFirstEscape.overlapCount==2 and #shared.PunchWallCameraFirstEscape.parts==2,'compound_escape_reports_both_overlaps')
+check(attrs.PunchCameraSafetyUnresolved==false,'compound_physical_exit_is_resolved')
+check(attrs.PunchCameraLineOfSightUnresolved==true and shared.PunchWallCameraFirstEscape.losRejected>0,'transient_los_rejection_is_reported_separately')
+print('PASS '..count)
+`,
+  physicalVersusLos: `${guardSetup}
+seed()
+attrs.PunchCameraFollowActive=false
+occluded=function() return true end
+pose(4,0,0) update(1/60)
+check(attrs.PunchCameraSafetyUnresolved==false,'opaque_query_only_egg_is_not_reported_as_physical_penetration')
+check(attrs.PunchCameraLineOfSightUnresolved==true,'opaque_query_only_egg_retains_los_failure_diagnostic')
+check(camera.CFrame.Position.X==4 and (attrs.PunchCameraOverlapEscapes or 0)==0,'los_only_failure_never_triggers_large_overlap_escape')
+print('PASS '..count)
+`,
+  lateScriptableOwner: `${guardSetup}
+seed()
+activePunchCamera={}
+attrs.PunchCameraFollowActive=true
+camera.CameraType=Enum.CameraType.Scriptable
+pose(10,3,0)
+local originalPosition=camera.CFrame.Position
+local originalFocus=camera.Focus.Position
+update(1/60)
+check((camera.CFrame.Position-originalPosition).Magnitude<.00001,'new_scriptable_position_preserved')
+check((camera.Focus.Position-originalFocus).Magnitude<.00001,'new_scriptable_focus_preserved')
+check(attrs.PunchCameraScriptableBypass==true,'new_scriptable_owner_observed')
+print('PASS '..count)
+`,
+  coarseGap: `${guardSetup}
+blocked=function(p) return p.Magnitude<2.5 end
+pose(0,0,0) update(1/60)
+check(not blocked(camera.CFrame.Position) and camera.CFrame.Position.Magnitude<=2.65,'clear_exit_between_coarse_steps_keeps_existing_budget')
+check(attrs.PunchCameraMaxEscapeStep<=2.65,'gap_control_never_hides_emergency_distance')
+print('PASS '..count)
+`,
+  freshPhysicalSample: `${common}
+local unresolvedSafetyFrames=0
+${block('\t\tlocal function sampleCamera(settledSample)', '\n\t\t\tlocal cameraPosition')}
+return unresolvedSafetyFrames
+end
+attrs.PunchCameraSafetyUnresolved=true
+blocked=function() return false end
+check(sampleCamera()==0,'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag')
+attrs.PunchCameraSafetyUnresolved=false
+blocked=function() return true end
+check(sampleCamera()==1,'fresh_physical_penetration_is_counted_despite_previous_clear_flag')
+print('PASS '..count)
+`,
+  overlapCollection: `${common}
+local localDebrisFolder,companionsFolder={},{}
+local OverlapParams={new=function() return {} end}
+Enum.RaycastFilterType={Exclude='Exclude'}
+local function part(collides,transparency) return {CanCollide=collides,Transparency=transparency,IsA=function() return true end} end
+local solid,egg,invisible=part(true,0),part(false,0),part(true,1)
+local queried={egg,invisible}
+function workspace:GetPartBoundsInBox() return queried end
+${block('shared.PunchWallCameraPositionBlocked = function', '\nlocal function cameraCharacterTarget')}
+check(shared.PunchWallCameraPositionBlocked(Vector3.zero,character)==false,'query_only_egg_and_transparent_part_do_not_count_as_physical')
+check(select('#',shared.PunchWallCameraPositionBlocked(Vector3.zero,character))==1,'ordinary_clear_predicate_has_single_return_value')
+queried={egg,solid,invisible}
+check(shared.PunchWallCameraPositionBlocked(Vector3.zero,character)==true,'opaque_collidable_part_is_physical')
+local hit,parts=shared.PunchWallCameraPositionBlocked(Vector3.zero,character,true)
+check(hit and #parts==1 and parts[1]==solid,'analytic_collection_uses_same_physical_filter')
+check(select('#',shared.PunchWallCameraPositionBlocked(Vector3.zero,character))==1,'ordinary_blocked_predicate_has_single_return_value')
 print('PASS '..count)
 `,
 };
@@ -450,21 +576,30 @@ const runtimeFailures = {
   overlapWithoutHistory: 'blocked_raw_camera_without_usable_cache_has_validated_egress',
   selectedOrbitSetup: 'automation_initial_pose_preserves_actual_selected_orbit',
 };
+const faceFailures = {
+  orientedFaceExit: 'rotated_block_uses_near_face_exit_within_existing_budget',
+  physicalVersusLos: 'opaque_query_only_egg_is_not_reported_as_physical_penetration',
+  coarseGap: 'clear_exit_between_coarse_steps_keeps_existing_budget',
+  freshPhysicalSample: 'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag',
+};
 const temp = fs.mkdtempSync(path.join(tempRoot, "smash-camera-guard-contract-"));
 const results = {};
+const mutations = {};
 const generated = [];
 const compiled = [];
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
+    if (faceBaseline && !(name in faceFailures)) continue;
     if (runtimeBaseline && !(name in runtimeFailures)) continue;
-    if (baseline && !losBaseline && !runtimeBaseline && !(name in expectedFailures)) continue;
+    if (baseline && !losBaseline && !runtimeBaseline && !faceBaseline && !(name in expectedFailures)) continue;
     if (losBaseline && ['overlapRecovery','heartbeatOverlap','overlapWithoutHistory','enclosingObject','overlapControls','unavailableSafety','selectedOrbitSetup','runtimeAcceptance'].includes(name)) continue;
+    if (losBaseline && ['orientedFaceExit','compoundFaceExit','physicalVersusLos','lateScriptableOwner','coarseGap','freshPhysicalSample','overlapCollection'].includes(name)) continue;
     const file = path.join(temp, `${name}.luau`);
     fs.writeFileSync(file, fixture);
     generated.push(file);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    const expectedFailure = baseline && (runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
+    const expectedFailure = baseline && (faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
     if (expectedFailure) {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
       results[name] = { reproduced: expectedFailure };
@@ -474,6 +609,28 @@ try {
     }
   }
   if (!baseline) {
+    const mutationsToCheck = [
+      ['omit_face_candidates','orientedFaceExit',text=>text.replace('if distance > 0 then addCandidate(normal * distance, "face") end','if false then addCandidate(normal * distance, "face") end'),'rotated_block_uses_near_face_exit_within_existing_budget'],
+      ['undersized_camera_support','orientedFaceExit',text=>text.replace('local support = 0.275 *','local support = 0.05 *'),'rotated_block_uses_near_face_exit_within_existing_budget'],
+      ['skip_compound_endpoint_and_sweep','compoundFaceExit',text=>text.replace('if not shared.PunchWallCameraPositionBlocked(candidate.cframe.Position, character)\n\t\t\t\tand clearTranslationStep(origin, candidate.step, character, true) then','if true then'),'compound_egress_checks_entire_overlap_set'],
+      ['require_clear_los_before_physical_exit','compoundFaceExit',text=>text.replace('selected = selected or nearestPhysical','selected = selected').replace('if maximumDistance > 2.65 then\n\t\t\t\t\tselected = candidate\n\t\t\t\t\tbreak\n\t\t\t\tend','if false then selected = candidate break end'),'compound_egress_stays_within_existing_budget'],
+      ['conflate_los_with_physical_failure','physicalVersusLos',text=>text.replace('gui:SetAttribute("PunchCameraSafetyUnresolved", physicallyBlocked)','gui:SetAttribute("PunchCameraSafetyUnresolved", cameraPoseBlocked(camera.CFrame, character))'),'opaque_query_only_egg_is_not_reported_as_physical_penetration'],
+      ['steal_late_scriptable_owner','lateScriptableOwner',text=>text.replace('if camera.CameraType == Enum.CameraType.Scriptable then','if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then'),'new_scriptable_position_preserved'],
+      ['allow_exit_path_reentry','sweep',text=>text.replace('if leftOverlap then return false end','if false then return false end'),'clear_endpoint_does_not_cross_thin_wall'],
+      ['sample_stale_safety_flag','freshPhysicalSample',text=>text.replace('if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then unresolvedSafetyFrames += 1 end','if gui:GetAttribute("PunchCameraSafetyUnresolved") then unresolvedSafetyFrames += 1 end'),'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag'],
+      ['mask_emergency_escape_distance','enclosingObject',text=>text.replace('local distance = selected.step.Magnitude','local distance = math.min(selected.step.Magnitude, 2.4)'),'exceptional_escape_exceeds_ordinary_gate_visibly_not_silently'],
+    ];
+    for (const [name, fixtureName, mutate, expectedFailure] of mutationsToCheck) {
+      const fixture = mutate(fixtures[fixtureName]);
+      assert.notEqual(fixture, fixtures[fixtureName], `Mutation boundary missing: ${name}`);
+      const file = path.join(temp, `mutation-${name}.luau`);
+      fs.writeFileSync(file, fixture);
+      generated.push(file);
+      const result = spawnSync(luau, [file], { encoding: 'utf8', timeout: 15000 });
+      const output = `${result.stdout || ''}${result.stderr || ''}`;
+      assert.ok(result.status !== 0 && output.includes(expectedFailure), `Mutation survived or failed for wrong reason: ${name}: ${output}`);
+      mutations[name] = expectedFailure;
+    }
     const chunks = [['complete-client', source], ...flow.steps.flatMap((step, index) => step.tool === 'execute_luau' ? [[`long-tunnel-${index}`, step.args.code]] : [])];
     for (const [name, code] of chunks) {
       const file = path.join(temp, `${name}.luau`);
@@ -484,7 +641,7 @@ try {
       compiled.push(name);
     }
   }
-  console.log(JSON.stringify({ ok: true, mode: baseline ? `baseline ${baseline}` : "current source", luau, results, compiled }, null, 2));
+  console.log(JSON.stringify({ ok: true, mode: baseline ? `baseline ${baseline}` : "current source", luau, results, mutations, compiled }, null, 2));
 } finally {
   for (const file of generated) {
     if (fs.existsSync(file)) fs.unlinkSync(file);
