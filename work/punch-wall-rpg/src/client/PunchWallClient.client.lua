@@ -11990,7 +11990,9 @@ shared.PunchWallBuildShopUI = function()
 				if tierChrome then tierChrome.Visible = false end
 				local packPips = card:FindFirstChild("HonorPackTierPips")
 				if packPips then packPips.Visible = false end
-				productNameLabel.Text = string.upper(item.displayName)
+				productNameLabel.Text = item.isHonorProduct
+					and ("%s HONOR"):format(formatNumber(item.honor))
+					or string.upper(item.displayName)
 				productNameLabel.Position = UDim2.fromOffset(narrowRow and 88 or 100, 8)
 				productNameLabel.Size = UDim2.new(1, narrowRow and -100 or -254, 0, narrowRow and 32 or 40)
 				productNameLabel.TextWrapped = true
