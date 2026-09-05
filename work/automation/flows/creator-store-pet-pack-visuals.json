@@ -10,21 +10,52 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Edit",
-        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local cfg=require(RS.GameConfig) local polish=require(RS.PolishConfig) local builder=require(RS.FistVisualBuilder) local expected={['Forest Pup']={template='Sanitized_ForestPupPet',source='Dowodle',asset='70715599928632',preloaded=true},['Miner Cat']={template='Sanitized_MinerCatPet',source='Catmouse',asset='70715599928632',preloaded=true},['Crystal Fox']={template='Sanitized_CrystalFoxPet',source='Ocelot',asset='70715599928632',preloaded=true},['Lava Dragon']={template='Sanitized_LavaDragonPet',source='Mythic Autumn Dragon',asset='70715599928632',preloaded=true},['Secret Titan Golem']={template='Sanitized_SecretTitanGolemPet',source='Dark Guardian',asset='70715599928632',preloaded=true},['Thunder Roc']={template='Sanitized_EnragedPhoenixPet',source='Enraged Phoenix',asset='70715599928632',preloaded=true},['Frost Hydra']={template='Sanitized_ElectraHydraPet',source='Electra Hydra',asset='70715599928632',preloaded=true},['Solar Kirin']={template='Sanitized_MythicRadiantOnePet',source='Mythic Radiant One',asset='70715599928632',preloaded=true},['Crimson Phoenix']={template='Sanitized_CrimsonPhoenixPet',asset='86478691482535'},['Storm Wyvern']={template='Sanitized_StormWyvernPet',asset='83562531232957'},['Celestial Guardian']={template='Sanitized_CelestialGuardianPet',asset='121956330907081'}} local folder=RS:FindFirstChild('PunchWallExternalAssets') local found,preloaded,unsafe,parts,effects=0,0,0,0,0 local rows={} for pet,e in pairs(expected) do local m=folder and folder:FindFirstChild(e.template) local ready=false if m then for _,d in ipairs(m:GetDescendants()) do if d:IsA('BasePart') then parts+=1 elseif d:IsA('ParticleEmitter') or d:IsA('Trail') or d:IsA('Beam') or d:IsA('Light') then effects+=1 elseif d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('BindableEvent') or d:IsA('BindableFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('Humanoid') or d:IsA('AnimationController') or d:IsA('Animator') then unsafe+=1 end end local asset=tostring(m:GetAttribute('CreatorStorePackAssetId') or m:GetAttribute('CreatorStoreAssetId') or m:GetAttribute('AssetId') or '') ready=m:GetAttribute('PetDefinitionName')==pet and asset==e.asset and builder.IsSanitizedVisual(m) and (not e.preloaded or (m:GetAttribute('PreloadedOnly')==true and m:GetAttribute('SourcePackModelName')==e.source)) if ready then found+=1 if e.preloaded then preloaded+=1 end end end rows[pet]={template=e.template,source=e.source,asset=e.asset,ready=ready} end local configured=0 local configOk=true for _,pet in ipairs(cfg.AllPets()) do local e=expected[pet.name] if e then configured+=1 configOk=configOk and pet.templateName==e.template and (not e.source or pet.packModel==e.source) end end local policyCount=0 for _,entry in ipairs(polish.ExternalVisualTemplates) do if entry.petDefinitionName then policyCount+=1 end end local ok=folder and found==11 and configured==11 and preloaded==8 and policyCount==11 and unsafe==0 and parts<=260 and effects<=32 and folder:GetAttribute('PetPackTemplateCount')==8 and workspace:FindFirstChild('Pet pack')==nil and workspace:FindFirstChild('Pets')==nil and workspace:FindFirstChild('BGC Pets Pack')==nil and configOk return H:JSONEncode({ok=ok==true,found=found,configured=configured,preloaded=preloaded,policyCount=policyCount,unsafe=unsafe,parts=parts,effects=effects,rawPack=workspace:FindFirstChild('Pet pack')~=nil,rows=rows})"
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local function requireFresh(name)\n local source=assert(RS:FindFirstChild(name),'missing authored module '..name)\n assert(source:IsA('ModuleScript'),'unexpected authored module class '..name)\n local clone=source:Clone()\n local ok,result=pcall(require,clone)\n clone:Destroy()\n assert(ok,result)\n return result\nend\nlocal cfg=requireFresh('GameConfig') local polish=requireFresh('PolishConfig') local builder=requireFresh('FistVisualBuilder') local expected={['Forest Pup']={template='Sanitized_ForestPupPet',source='Dowodle',asset='70715599928632',preloaded=true},['Miner Cat']={template='Sanitized_MinerCatPet',source='Catmouse',asset='70715599928632',preloaded=true},['Crystal Fox']={template='Sanitized_CrystalFoxPet',source='Ocelot',asset='70715599928632',preloaded=true},['Lava Dragon']={template='Sanitized_LavaDragonPet',source='Mythic Autumn Dragon',asset='70715599928632',preloaded=true},['Secret Titan Golem']={template='Sanitized_SecretTitanGolemPet',source='Dark Guardian',asset='70715599928632',preloaded=true},['Thunder Roc']={template='Sanitized_EnragedPhoenixPet',source='Enraged Phoenix',asset='70715599928632',preloaded=true},['Frost Hydra']={template='Sanitized_ElectraHydraPet',source='Electra Hydra',asset='70715599928632',preloaded=true},['Solar Kirin']={template='Sanitized_MythicRadiantOnePet',source='Mythic Radiant One',asset='70715599928632',preloaded=true},['Crimson Phoenix']={template='Sanitized_CrimsonPhoenixPet',asset='86478691482535'},['Storm Wyvern']={template='Sanitized_StormWyvernPet',asset='83562531232957'},['Celestial Guardian']={template='Sanitized_CelestialGuardianPet',asset='121956330907081'}} local folder=RS:FindFirstChild('PunchWallExternalAssets') local found,preloaded,unsafe,parts,effects=0,0,0,0,0 local rows={} local unsafeClasses={} for pet,e in pairs(expected) do local m=folder and folder:FindFirstChild(e.template) local ready=false local sanitized=false local sanitizerError='template missing' if m then for _,d in ipairs(m:GetDescendants()) do if d:IsA('BasePart') then parts+=1 elseif d:IsA('ParticleEmitter') or d:IsA('Trail') or d:IsA('Beam') or d:IsA('Light') then effects+=1 elseif d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('BindableEvent') or d:IsA('BindableFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('JointInstance') or d:IsA('Constraint') or d:IsA('BodyMover') or d:IsA('Humanoid') or d:IsA('AnimationController') or d:IsA('Animator') then unsafe+=1 unsafeClasses[d.ClassName]=(unsafeClasses[d.ClassName] or 0)+1 end end local asset=tostring(m:GetAttribute('CreatorStorePackAssetId') or m:GetAttribute('CreatorStoreAssetId') or m:GetAttribute('AssetId') or '') sanitized,sanitizerError=pcall(builder.AssertSanitizedVisual,m) ready=m:GetAttribute('PetDefinitionName')==pet and asset==e.asset and sanitized and builder.IsSanitizedVisual(m) and (not e.preloaded or (m:GetAttribute('PreloadedOnly')==true and m:GetAttribute('SourcePackModelName')==e.source)) if ready then found+=1 if e.preloaded then preloaded+=1 end end end rows[pet]={template=e.template,source=e.source,asset=e.asset,ready=ready,present=m~=nil,sanitized=sanitized,sanitizerError=sanitized and '' or tostring(sanitizerError),actualAsset=m and tostring(m:GetAttribute('CreatorStorePackAssetId') or m:GetAttribute('CreatorStoreAssetId') or m:GetAttribute('AssetId') or ''),actualDefinition=m and m:GetAttribute('PetDefinitionName'),actualSource=m and m:GetAttribute('SourcePackModelName'),attested=m and m:GetAttribute('VisualSanitizerVerified')==true} end local configured=0 local configOk=true for _,pet in ipairs(cfg.AllPets()) do local e=expected[pet.name] if e then configured+=1 configOk=configOk and pet.templateName==e.template and (not e.source or pet.packModel==e.source) end end local policyCount=0 for _,entry in ipairs(polish.ExternalVisualTemplates) do if entry.petDefinitionName then policyCount+=1 end end local ok=folder and found==11 and configured==11 and preloaded==8 and policyCount==11 and unsafe==0 and parts<=260 and effects<=32 and folder:GetAttribute('PetPackTemplateCount')==8 and workspace:FindFirstChild('Pet pack')==nil and workspace:FindFirstChild('Pets')==nil and workspace:FindFirstChild('BGC Pets Pack')==nil and configOk return H:JSONEncode({ok=ok==true,found=found,configured=configured,preloaded=preloaded,policyCount=policyCount,unsafe=unsafe,unsafeClasses=unsafeClasses,parts=parts,effects=effects,freshModuleEvaluation=true,packTemplateCount=folder and folder:GetAttribute('PetPackTemplateCount'),rawPack=workspace:FindFirstChild('Pet pack')~=nil,rows=rows})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"found\"\\s*:\\s*11", "\"configured\"\\s*:\\s*11", "\"preloaded\"\\s*:\\s*8", "\"policyCount\"\\s*:\\s*11", "\"unsafe\"\\s*:\\s*0", "\"rawPack\"\\s*:\\s*false", "121956330907081", "83562531232957", "86478691482535"],
-      "label": "eight pack plus three detailed Premium templates are exact safe and bounded"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"found\"\\s*:\\s*11",
+        "\"configured\"\\s*:\\s*11",
+        "\"preloaded\"\\s*:\\s*8",
+        "\"policyCount\"\\s*:\\s*11",
+        "\"unsafe\"\\s*:\\s*0",
+        "\"rawPack\"\\s*:\\s*false",
+        "121956330907081",
+        "83562531232957",
+        "86478691482535"
+      ],
+      "label": "eight pack plus three detailed Premium templates are exact safe and bounded",
+      "saveAs": "editPetTemplateInspection"
     },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7500, "label": "wait for runtime templates and Inventory" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for runtime templates and Inventory"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} a:Invoke('Reset') local s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),EquippedPetsJSON='[]',LockedPetsJSON='[]',DiscoveredPetsJSON=H:JSONEncode(names)}) local root=workspace.PunchWallRPG local ok=s.ok==true and root:GetAttribute('ExternalTemplatePreloadedOnlyCount')==8 and root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount')==0 and root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11 and root:GetAttribute('PetVisualReleasePolicy')=='EightPackPlusThreeDetailedPremiumV3' and root:GetAttribute('PetVisualReleaseReady')==true return H:JSONEncode({ok=ok,inventory=s.PetInventoryJSON,preloaded=root:GetAttribute('ExternalTemplatePreloadedOnlyCount'),missing=root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount'),ready=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy'),failClosed=root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')})"
+        "code": "local player=assert(game.Players:GetPlayers()[1])\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'))\nassert(game:GetService('RunService'):IsStudio() and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'pet fixture requires ephemeral Studio without live opt-in')\nassert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'pet fixture profile is not ephemeral and ready')\nlocal H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} a:Invoke('Reset') local s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),EquippedPetsJSON='[]',LockedPetsJSON='[]',DiscoveredPetsJSON=H:JSONEncode(names)}) local root=workspace.PunchWallRPG local ok=s.ok==true and root:GetAttribute('ExternalTemplatePreloadedOnlyCount')==8 and root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount')==0 and root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11 and root:GetAttribute('PetVisualReleasePolicy')=='EightPackPlusThreeDetailedPremiumV3' and root:GetAttribute('PetVisualReleaseReady')==true return H:JSONEncode({ok=ok,inventory=s.PetInventoryJSON,preloaded=root:GetAttribute('ExternalTemplatePreloadedOnlyCount'),missing=root:GetAttribute('ExternalTemplateMissingPreloadedOnlyCount'),ready=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy'),failClosed=root:GetAttribute('ExternalTemplatePreloadedOnlyFailClosed')})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"preloaded\"\\s*:\\s*8", "\"missing\"\\s*:\\s*0", "\"ready\"\\s*:\\s*11", "EightPackPlusThreeDetailedPremiumV3", "\"failClosed\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"preloaded\"\\s*:\\s*8",
+        "\"missing\"\\s*:\\s*0",
+        "\"ready\"\\s*:\\s*11",
+        "EightPackPlusThreeDetailedPremiumV3",
+        "\"failClosed\"\\s*:\\s*true"
+      ],
       "label": "runtime keeps eight pack children and restores three detailed Premium assets"
     },
     {
@@ -33,41 +64,108 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local expected={['Forest Pup']={source='Dowodle'},['Miner Cat']={source='Catmouse'},['Crystal Fox']={source='Ocelot'},['Lava Dragon']={source='Mythic Autumn Dragon'},['Secret Titan Golem']={source='Dark Guardian'},['Crimson Phoenix']={asset='86478691482535'},['Storm Wyvern']={asset='83562531232957'},['Celestial Guardian']={asset='121956330907081'}} a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('RequestAction',{action='RequestSync'}) task.wait(1) local grid=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local cards,matched,unsafe=0,0,0 local seen={} for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') if model then for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end end local e=expected[name] local asset=model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId') or '') local identity=e and ((e.source and model:GetAttribute('SourcePackModelName')==e.source) or (e.asset and asset==e.asset)) local good=e and card:GetAttribute('ArtMode')=='ModelMatchedViewportV1' and vp and vp:GetAttribute('PreviewReady')==true and model and model:GetAttribute('PetDefinitionName')==name and identity if good and not seen[name] then matched+=1 seen[name]=true end end end return H:JSONEncode({ok=cards==8 and matched==8 and unsafe==0,cards=cards,matched=matched,unsafe=unsafe,seen=seen})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local expected={['Forest Pup']={source='Dowodle'},['Miner Cat']={source='Catmouse'},['Crystal Fox']={source='Ocelot'},['Lava Dragon']={source='Mythic Autumn Dragon'},['Secret Titan Golem']={source='Dark Guardian'},['Crimson Phoenix']={asset='86478691482535'},['Storm Wyvern']={asset='83562531232957'},['Celestial Guardian']={asset='121956330907081'}} a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') a:Invoke('RequestAction',{action='RequestSync'}) task.wait(1) local grid=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local cards,matched,unsafe=0,0,0 local seen={} for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') if model then for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('JointInstance') or d:IsA('Constraint') or d:IsA('BodyMover') then unsafe+=1 end end end local e=expected[name] local asset=model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId') or '') local identity=model and e and ((e.source and model:GetAttribute('SourcePackModelName')==e.source) or (e.asset and asset==e.asset)) local good=e and card:GetAttribute('ArtMode')=='ModelMatchedViewportV1' and vp and vp:GetAttribute('PreviewReady')==true and model and model:GetAttribute('PetDefinitionName')==name and identity if good and not seen[name] then matched+=1 seen[name]=true end end end return H:JSONEncode({ok=cards==8 and matched==8 and unsafe==0,cards=cards,matched=matched,unsafe=unsafe,seen=seen})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"cards\"\\s*:\\s*8", "\"matched\"\\s*:\\s*8", "\"unsafe\"\\s*:\\s*0", "Celestial Guardian", "Secret Titan Golem"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"cards\"\\s*:\\s*8",
+        "\"matched\"\\s*:\\s*8",
+        "\"unsafe\"\\s*:\\s*0",
+        "Celestial Guardian",
+        "Secret Titan Golem"
+      ],
       "label": "all eight Inventory cards render exact pack or detailed Premium sources"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Creator_Store_Pet_Pack_Inventory" }, "label": "capture exact Inventory pet previews" },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_Creator_Store_Pet_Pack_Inventory"
+      },
+      "label": "capture exact Inventory pet previews"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') local granted=0 for _,name in ipairs({'Crimson Phoenix','Storm Wyvern','Celestial Guardian'}) do if a:Invoke('GrantPremiumPet',name).ok then granted+=1 end end return H:JSONEncode({ok=granted==3,granted=granted})"
+        "code": "local player=assert(game.Players:GetPlayers()[1])\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'))\nassert(game:GetService('RunService'):IsStudio() and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'pet fixture requires ephemeral Studio without live opt-in')\nassert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'pet fixture profile is not ephemeral and ready')\nlocal H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') local granted=0 for _,name in ipairs({'Crimson Phoenix','Storm Wyvern','Celestial Guardian'}) do if a:Invoke('GrantPremiumPet',name).ok then granted+=1 end end return H:JSONEncode({ok=granted==3,granted=granted})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"granted\"\\s*:\\s*3"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"granted\"\\s*:\\s*3"
+      ],
       "label": "equip all three detailed Premium pets"
     },
-    { "type": "wait", "ms": 1600, "label": "wait for premium formation" },
+    {
+      "type": "wait",
+      "ms": 1600,
+      "label": "wait for premium formation"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:WaitForChild(p.Name..' Client Companions',5) local expected={['Crimson Phoenix']='86478691482535',['Storm Wyvern']='83562531232957',['Celestial Guardian']='121956330907081'} local matched,unsafe=0,0 local centers={} for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and expected[m:GetAttribute('PetDefinitionName')] then local name=m:GetAttribute('PetDefinitionName') for _,d in ipairs(m:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end local asset=tostring(m:GetAttribute('CreatorStoreAssetId') or m:GetAttribute('AssetId') or '') if asset==expected[name] and m:GetAttribute('VisualSource')=='ExternalTemplate' then matched+=1 end centers[name]=m:GetBoundingBox().Position end end local minDistance=999 for nameA,a in pairs(centers) do for nameB,b in pairs(centers) do if nameA~=nameB then minDistance=math.min(minDistance,(a-b).Magnitude) end end end return H:JSONEncode({ok=matched==3 and unsafe==0 and minDistance>=1.1,matched=matched,unsafe=unsafe,minDistance=minDistance,centers=centers})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:WaitForChild(p.Name..' Client Companions',5) local expected={['Crimson Phoenix']='86478691482535',['Storm Wyvern']='83562531232957',['Celestial Guardian']='121956330907081'} local matched,unsafe=0,0 local centers={} for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and expected[m:GetAttribute('PetDefinitionName')] then local name=m:GetAttribute('PetDefinitionName') for _,d in ipairs(m:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('JointInstance') or d:IsA('Constraint') or d:IsA('BodyMover') then unsafe+=1 end end local asset=tostring(m:GetAttribute('CreatorStoreAssetId') or m:GetAttribute('AssetId') or '') if asset==expected[name] and m:GetAttribute('VisualSource')=='ExternalTemplate' then matched+=1 end centers[name]=m:GetBoundingBox().Position end end local minDistance=999 for nameA,a in pairs(centers) do for nameB,b in pairs(centers) do if nameA~=nameB then minDistance=math.min(minDistance,(a-b).Magnitude) end end end return H:JSONEncode({ok=matched==3 and unsafe==0 and minDistance>=1.1,matched=matched,unsafe=unsafe,minDistance=minDistance,centers=centers})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"matched\"\\s*:\\s*3", "\"unsafe\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"matched\"\\s*:\\s*3",
+        "\"unsafe\"\\s*:\\s*0"
+      ],
       "label": "premium companions keep original detailed identities and non-overlapping formation"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Creator_Store_Pet_Pack_Premium" }, "label": "capture detailed Premium companions" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleBeforeStop", "label": "capture runtime console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleBeforeStop", "label": "runtime console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_Creator_Store_Pet_Pack_Premium"
+      },
+      "label": "capture detailed Premium companions"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleBeforeStop",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleBeforeStop",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleAfterStop",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleAfterStop",
+      "label": "post-stop console clean"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }
