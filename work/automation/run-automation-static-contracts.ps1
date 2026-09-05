@@ -333,6 +333,7 @@ $checks.persistenceContract = @{
 }
 
 $additionalStaticContracts = @(
+    @{ file = "character-spawn-lifecycle-contract.mjs"; key = "characterSpawnLifecycleContract" },
     @{ file = "fist-growth-lifecycle-contract.mjs"; key = "fistGrowthLifecycleContract" },
     @{ file = "animate-hook-lifecycle-contract.mjs"; key = "animateHookLifecycleContract" },
     @{ file = "combat-target-boss-hud-contract.mjs"; key = "combatTargetBossHudContract" },
