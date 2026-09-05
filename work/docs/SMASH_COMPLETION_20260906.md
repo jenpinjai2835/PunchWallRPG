@@ -262,3 +262,35 @@ Coordinator. Agents 1 and 2 are READY; Agent 3 only finalizes the one Settings
 review document. Parent remains BLOCKED 6/9 pending combined 124-flow results,
 rebuilt/reopened artifact validation and reviewed integration. Canonical output
 is still unchanged. No reset has been consumed; last quota was 7% remaining.
+
+## Combined-run findings 2026-09-06 06:12 ICT
+
+The frozen 124-flow run is still active, with 20 completed, 18 passed and two
+camera failures. Device-matrix HUD/Shop passes all five emulated sizes. Original
+run files remain unchanged at the 223-file freeze; Studio remains exclusive to
+the Coordinator. New repairs are isolated and will not be integrated mid-run.
+
+- `camera-long-tunnel-regression`: sampled center overlaps (0.3 cube) are zero,
+  but four fresh 0.55 safety-box overlaps fail the strict physical gate.
+  Maximum escape 2.638 remains within 2.65 and final/settled visibility passes.
+  The larger physical probe is not being weakened. Prior evidence only stores
+  successful escape geometry, so exact failing poses need bounded diagnostics.
+  Source/event-order controls reproduce a moving-block overlap observed by a
+  resumed waiter before the existing Heartbeat repair. A post-physics repair
+  is being evaluated; actual causal confirmation remains pending runtime.
+- `camera-teleport-scriptable-visibility`: Scriptable ownership passes with zero
+  error. Final bypass=false correctly describes returned Custom mode. The true
+  failure is a stale 30.164-stud orbit overriding newly requested 12-stud zoom
+  bounds; baseline and final distance are both 30.164. Independent exact-source
+  controls reproduce this. Agent 2 owns bounds-aware orbit correction.
+
+Agent 2 owns the main client and two camera contracts in isolated
+`F:/Roblox/PuchWall-camera-final-safety-20260906`, base6211b00. Agent 1 owns only
+a camera failure-oracle review document. Agent 3 owns a robust profiling tool
+and its document in separate `PuchWall-frame-profile-final-20260906`; its new
+script must also wait for the active frozen suite to finish before integration.
+Initial profiler audit is recorded: artifact binding, cleanup, fixture/navigation
+proof and accurate stress/last-scan labels need correction before measurements.
+Thai game guide b90fe9a and Settings peer review55d4f30 are integrated doc-only.
+No artifact was rebuilt or published. Parent remains BLOCKED6/9. Latest quota:
+5% remaining, three reset credits available, none consumed.
