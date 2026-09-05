@@ -333,17 +333,22 @@ $checks.persistenceContract = @{
 }
 
 $additionalStaticContracts = @(
+    @{ file = "camera-shop-stability-contract.mjs"; key = "cameraShopStabilityContract" },
     @{ file = "client-runtime-performance-contract.mjs"; key = "clientRuntimePerformanceContract" },
     @{ file = "device-matrix-hud-shop-contract.mjs"; key = "deviceMatrixHudShopContract" },
     @{ file = "fist-pet-safety-contract.mjs"; key = "fistPetSafetyContract" },
     @{ file = "full-game-real-ui-controls-contract.mjs"; key = "fullGameRealUiControlsContract" },
     @{ file = "inventory-card-render-contract.mjs"; key = "inventoryCardRenderContract" },
+    @{ file = "inventory-model-preview-contract.mjs"; key = "inventoryModelPreviewContract" },
     @{ file = "inventory-runtime-cache-contract.mjs"; key = "inventoryRuntimeCacheContract" },
     @{ file = "inventory-visual-fidelity-contract.mjs"; key = "inventoryVisualFidelityContract" },
     @{ file = "inventory-visual-responsive-contract.mjs"; key = "inventoryVisualResponsiveContract" },
     @{ file = "long-run-content-contract.mjs"; key = "longRunContentContract" },
     @{ file = "mobile-iphone17-layout-contract.mjs"; key = "mobileIphone17LayoutContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
+    @{ file = "server-snapshot-coalescing-contract.mjs"; key = "serverSnapshotCoalescingContract" },
+    @{ file = "studio-console-classification-contract.mjs"; key = "studioConsoleClassificationContract" },
+    @{ file = "studio-readiness-contract.mjs"; key = "studioReadinessContract" },
     @{ file = "titan-hq-visual-contract.mjs"; key = "titanHqVisualContract" },
     @{ file = "training-ui-pet-recovery-contract.mjs"; key = "trainingUiPetRecoveryContract" },
     @{ file = "tutorial-action-notification-badges-contract.mjs"; key = "tutorialActionNotificationBadgesContract" }

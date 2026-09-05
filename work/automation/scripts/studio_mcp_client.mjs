@@ -233,7 +233,11 @@ export async function selectStudioStrict(client, selection = {}) {
 }
 
 function isUnavailableDataModel(text) {
-  return /datamodel.*not available|not available.*datamodel|available datamodel|no .*datamodel/i.test(text);
+  return /datamodel.*not available|not available.*datamodel|available datamodel|no .*datamodel/i.test(text)
+    // New Studio builds expose the DataModel before its execution bridge has
+    // finished loading. Retry only this readiness error within the same bound;
+    // script errors and unrelated unreachable services must still fail closed.
+    || /^Target is not reachable \(createExecuteLuauBridge_loadCodeAsync, (?:Client|Server|Edit)\)/i.test(text);
 }
 
 export async function waitForDataModels(client, datamodelTypes, timeoutMs = 60000) {

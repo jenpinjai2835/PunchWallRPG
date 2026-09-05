@@ -17,6 +17,12 @@ const stepOf=(flow,name)=>flow.steps.find(step=>step.saveAs===name);
 const codeAt=(flow,name)=>stepOf(flow,name)?.args?.code||'';
 const has=(source,tokens)=>tokens.every(token=>source.includes(token));
 const section=(source,start,end)=>{const from=source.indexOf(start);if(from<0)return '';const to=source.indexOf(end,from+start.length);return source.slice(from,to<0?undefined:to);};
+function stopsAfterConsole(flow){
+ const playIndex=flow.steps.findLastIndex(step=>step.tool==='start_stop_play');
+ const consoleIndex=flow.steps.findLastIndex(step=>step.type==='assertNoConsoleErrors');
+ return playIndex>consoleIndex && flow.steps[playIndex]?.args?.is_start===false
+  && flow.steps.slice(playIndex+1).every(step=>step.args?.datamodel_type==='Edit');
+}
 function evaluate(input){
  const [presentation,catalog,alignment]=input;
  const all=input.map(codeOf).join('\n');
@@ -27,7 +33,7 @@ function evaluate(input){
  const verifierCodes=clients.map(step=>step.args.code).filter(code=>code.includes('local function verifyGeometry'));
  const checks={},failures={};
  const check=(name,value,note)=>{checks[name]=Boolean(value);if(!value)failures[name]=note;};
- check('unique_studio_selection_and_clean_stop_gates',input.every((flow,index)=>flow.name===flowNames[index]&&typeof flow.studioName==='string'&&flow.studioName.trim()!==''&&flow.steps.some(step=>step.type==='assertNoConsoleErrors'&&step.source==='console')&&flow.steps.some(step=>step.tool==='get_console_output'&&step.saveAs==='console')&&flow.steps.at(-1)?.tool==='start_stop_play'&&flow.steps.at(-1)?.args?.is_start===false&&flow.cleanup?.some(step=>step.tool==='start_stop_play'&&step.args?.is_start===false&&step.allowError===true))&&mcpClient.includes('Expected exactly one Studio matching'),'Current flows must select exactly one Studio, require clean console, and stop on success and failure.');
+ check('unique_studio_selection_and_clean_stop_gates',input.every((flow,index)=>flow.name===flowNames[index]&&typeof flow.studioName==='string'&&flow.studioName.trim()!==''&&flow.steps.some(step=>step.type==='assertNoConsoleErrors'&&step.source==='console')&&flow.steps.some(step=>step.tool==='get_console_output'&&step.saveAs==='console')&&stopsAfterConsole(flow)&&flow.cleanup?.some(step=>step.tool==='start_stop_play'&&step.args?.is_start===false&&step.allowError===true))&&mcpClient.includes('Expected exactly one Studio matching'),'Current flows must select exactly one Studio, require clean console, and stop on success and failure.');
  check('no_cross_vm_executable_or_instance_state',!all.includes('shared.')&&!/Instance\.new\(['"](?:BindableFunction|BindableEvent|ModuleScript|Script|LocalScript|RemoteEvent|RemoteFunction)['"]\)|loadstring\(|getfenv\(|setfenv\(/.test(all),'Observation calls must be self-contained; cross-call evidence uses serializable attributes, never shared functions or Instance references.');
  check('complete_catalog_seed_is_authoritative',seeds.every(code=>has(code,["c:Invoke('Reset')","c:Invoke('SetStats'",'G.Fists','G.PremiumFists',"c:Invoke('BuyFist',def.name)","c:Invoke('GrantPremiumFist',def.name)",'assert(r.ok==true','OwnedFistsJSON','table.find(owned,def.name)','#all==#G.Fists+#G.PremiumFists'])),'All configured items must be authoritatively granted/bought and ownership asserted before client equips.');
  check('five_native_and_complete_catalog_counts_are_asserted',firstFive.every(name=>parity.includes("'"+name+"'")&&wrist.includes("'"+name+"'"))&&has(parity,['for _,name in ipairs(firstNames)','#rows==5'])&&has(wrist,['for _,name in ipairs(firstNames)','#rows==5'])&&has(matrix,['local definitions=G.AllFists()','#results==#definitions','nativeCount==5','importedCount==#definitions-5'])&&!/#(?:rows|results)==8|HeroGauntletV2/.test(all),'Exactly five canonical native items and the complete configured normal/premium catalog must be inspected.');
@@ -45,6 +51,7 @@ const result=evaluate(flows);
 const negativeControls=[];
 function mutate(name,target,change){const candidate=structuredClone(flows);change(candidate);const observed=evaluate(candidate);const rejected=result.checks[target]===true&&observed.checks[target]===false;negativeControls.push({name,target,status:rejected?'REJECTED':'BLOCKED',positiveBaseline:result.checks[target]===true});return rejected;}
 const mutationResults=[
+ mutate('restart_after_console_gate','unique_studio_selection_and_clean_stop_gates',items=>items[0].steps.push({type:'call',tool:'start_stop_play',args:{is_start:true}})),
  mutate('remove_cleanup_stop','unique_studio_selection_and_clean_stop_gates',items=>items[0].cleanup=[]),
  mutate('truncate_catalog_to_eight','five_native_and_complete_catalog_counts_are_asserted',items=>{const s=stepOf(items[1],'itemMatchedFistMatrix');s.args.code=s.args.code.replace('#results==#definitions','#results==8');}),
  mutate('remove_actual_corner_audit','actual_final_bounds_weld_endpoints_and_current_rig',items=>{const s=stepOf(items[2],'alignmentMatrix');s.args.code=s.args.code.replace('for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do','for x=1,1 do for y=1,1 do for z=1,1 do');}),

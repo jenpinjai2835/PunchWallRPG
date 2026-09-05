@@ -256,6 +256,15 @@
       "type": "assertNoConsoleErrors",
       "source": "postStopConsole",
       "label": "post stop console clean"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() for _,d in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(d).Name=='Smash Stability Phone 740x320' then S:RemoveDeviceAsync(d) end end return true"
+      },
+      "label": "restore device and remove only stability fixture"
     }
   ],
   "cleanup": [
