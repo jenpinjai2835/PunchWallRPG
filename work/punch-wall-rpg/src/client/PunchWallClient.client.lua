@@ -7839,7 +7839,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			shared.PunchWallResetCameraGeometryGuard(character)
 		end
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
-		if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then
+		if camera.CameraType == Enum.CameraType.Scriptable then
 			lastRootPosition = rootPart and rootPart.Position or lastRootPosition
 			gui:SetAttribute("PunchCameraScriptableBypass", true)
 			return
