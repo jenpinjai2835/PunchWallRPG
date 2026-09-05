@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 import { createHash } from "node:crypto";
@@ -897,6 +898,95 @@ check(
   "The reference HUD needs a >=44px safe action button with exact requests.",
 );
 
+const feedbackHolderFlowPath = path.join(repositoryRoot, 'work/automation/flows/feedback-holder-presentation.json');
+const feedbackHolderFlow = JSON.parse(fs.readFileSync(feedbackHolderFlowPath, 'utf8'));
+function validLegacySurface(candidate) {
+ const open = candidate.steps.find(step => step.label === 'open legacy Pets and expose duplicate slot two action')?.args?.code ?? '';
+ return includesAll(open, ["IsStudio()", "a:Invoke('CloseMenus')", "g:SetAttribute('AutomationTab','Pets')", "g:GetAttribute('RenderedGenericTab')=='Pets'", 'and modern and not modern.Visible', 'local routeDeadline=os.clock()+3'])
+  && !open.includes("a:Invoke('OpenTab','Pets')")
+  && includesAll(client, ['gui:GetAttributeChangedSignal("AutomationTab"):Connect(function()', 'activeTab = requestedTab', 'renderOpenPanel()']);
+}
+check('legacy_flow_opens_existing_studio_hook_and_proves_legacy_surface', validLegacySurface(legacySlotFlow), 'Public Pets intentionally routes to modern Inventory; retained legacy callbacks require the existing Studio hook and actual surface checks.');
+const legacyRouteNegativeControls=[];
+for(const [name,from,to] of [
+ ['public_modern_route',"g:SetAttribute('AutomationTab','Pets')","a:Invoke('OpenTab','Pets')"],
+ ['remove_legacy_surface_assertion','and modern and not modern.Visible','and modern'],
+]) {
+ const candidate=structuredClone(legacySlotFlow);
+ const step=candidate.steps.find(item=>item.label==='open legacy Pets and expose duplicate slot two action');
+ const original=step.args.code;step.args.code=original.replace(from,to);
+ const applied=step.args.code!==original,rejected=!validLegacySurface(candidate);
+ check('legacy_route_negative_'+name,applied&&rejected,'The invalid legacy route must be detected.');
+ legacyRouteNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
+}
+const seedCode=duplicateSeedStep.args.code;
+check('legacy_duplicate_seed_refuses_live_persistence',includesAll(seedCode,["PersistenceMode')=='EphemeralStudio'","ProfileWritable')==false","PunchWallAllowLiveDataStoreAccess')~=true"])&&seedCode.indexOf('verifyEphemeralSeed(game.Players:GetPlayers()[1]')<seedCode.indexOf("c:Invoke('Reset')"),'Duplicate fixture must fail closed before Reset.');
+const rejectionStep=feedbackHolderFlow.steps.find(step=>step.label==='request a gated rebirth through the player remote');
+const premiumArmStep=feedbackHolderFlow.steps.find(step=>step.label==='arm exact premium Feedback observation before server grant');
+const premiumGrantStep=feedbackHolderFlow.steps.find(step=>step.label==='request the deterministic Studio premium pet grant');
+const premiumVerifyStep=feedbackHolderFlow.steps.find(step=>step.label==='premium grant renders one visible feedback channel');
+const rejectionCode=rejectionStep?.args?.code??'';
+const premiumArmCode=premiumArmStep?.args?.code??'';
+const premiumGrantCode=premiumGrantStep?.args?.code??'';
+const premiumVerifyCode=premiumVerifyStep?.args?.code??'';
+check('feedback_rebirth_captures_numeric_baseline_and_real_event_in_one_call',includesAll(rejectionCode,["local before=tonumber(g:GetAttribute('FeedbackCount')) or 0",'events.Feedback.OnClientEvent:Connect(function(payload)',"events.ActionRequest:FireServer({action='Rebirth'})",'evidence.eventCount+=1','connection:Disconnect()',"pcall(verifyFeedbackEvidence,evidence,'Fail','Rebirth')",'return encoded'])&&rejectionCode.indexOf('local before=')<rejectionCode.indexOf('events.Feedback.OnClientEvent:Connect')&&rejectionCode.indexOf('events.Feedback.OnClientEvent:Connect')<rejectionCode.indexOf('events.ActionRequest:FireServer'), 'The before value, actual event, displayed identity, count increment and visible channel must belong to the same action call.');
+check('feedback_premium_grant_is_guarded_and_observed_without_commerce',premiumGrantStep?.args?.datamodel_type==='Server'&&includesAll(premiumGrantCode,["PersistenceMode')=='EphemeralStudio'","ProfileWritable')==false","Invoke('GrantPremiumPet','Crimson Phoenix')",'OwnedPremiumPetsJSON.Value','PetInventoryJSON.Value'])&&!JSON.stringify(feedbackHolderFlow).includes('BuyPremiumPet')&&includesAll(premiumArmCode,['local before=','events.Feedback.OnClientEvent:Connect(function(payload)','evidence.eventCount+=1','task.delay(30,function()connection:Disconnect()end)'])&&includesAll(premiumVerifyCode,["pcall(verifyFeedbackEvidence,evidence,'Pet','Crimson Phoenix')",'evidence.token==token'])&&feedbackHolderFlow.steps.indexOf(premiumArmStep)<feedbackHolderFlow.steps.indexOf(premiumGrantStep)&&feedbackHolderFlow.steps.indexOf(premiumGrantStep)<feedbackHolderFlow.steps.indexOf(premiumVerifyStep),'A server grant is an ephemeral test fixture; real commerce prompts cannot substitute for granting or feedback.');
+const exactFeedbackHelper = section(rejectionCode, 'local function verifyFeedbackEvidence(', "g.PunchWallClientAutomation:Invoke('ClearToasts')").trim();
+const premiumFeedbackHelper = section(premiumVerifyCode, 'local function verifyFeedbackEvidence(', 'local token=assert(').trim();
+check('feedback_evidence_uses_one_exact_shared_verifier', exactFeedbackHelper.length>500&&exactFeedbackHelper===premiumFeedbackHelper, 'Both paths must use the same strict count, event, identity and actual channel verifier.');
+const feedbackHelperFixture = String.raw`
+local function valid(reward)
+ return {presentationCaptured=true,before=10,after=11,delta=1,baselineVisualCount=0,eventCount=1,events={{type='Pet',target='Crimson Phoenix'}},type='Pet',target='Crimson Phoenix',channels=1,toasts=reward and 0 or 1,rewards=reward and 1 or 0,presented=true}
+end
+local safe,rejected=0,0
+local function test(name,mutation,reward)
+ local e=valid(reward) if mutation then mutation(e) end
+ local ok=pcall(verifyFeedbackEvidence,e,'Pet','Crimson Phoenix')
+ assert(ok==(mutation==nil),name..' verifier outcome incorrect')
+ if ok then safe+=1 else rejected+=1 end
+end
+test('one toast') test('one reward',nil,true)
+test('missing actual presentation capture',function(e)e.presentationCaptured=false end)
+test('counter missing',function(e)e.after=10 e.delta=0 end)
+test('counter doubled',function(e)e.after=12 e.delta=2 end)
+test('missing actual event',function(e)e.eventCount=0 e.events={} end)
+test('duplicate actual event',function(e)e.eventCount=2 table.insert(e.events,{type='Pet',target='Crimson Phoenix'})end)
+test('wrong event type',function(e)e.events[1].type='Fail'end)
+test('wrong event target',function(e)e.events[1].target='Rebirth'end)
+test('wrong displayed type',function(e)e.type='Fail'end)
+test('wrong displayed target',function(e)e.target='Rebirth'end)
+test('two channels',function(e)e.rewards=1 e.channels=2 end)
+test('two instances in one channel',function(e)e.toasts=2 end)
+test('no visible presentation',function(e)e.toasts=0 e.channels=0 e.presented=false end)
+test('stale visible item',function(e)e.baselineVisualCount=1 end)
+test('non numeric baseline',function(e)e.before='10'end)
+assert(safe==2 and rejected==14)
+print('EXACT_FEEDBACK_HELPER_PASS safe='..safe..' rejected='..rejected)
+`;
+function executeFeedbackHelper(helper) {
+ const code=helper+'\n'+feedbackHelperFixture;
+ let input='LegacyInputContract=""\n';
+ for(let i=0;i<code.length;i+=200)input+='LegacyInputContract=LegacyInputContract..'+JSON.stringify(code.slice(i,i+200))+'\n';
+ input+='assert(loadstring(LegacyInputContract))()\n';
+ const result=spawnSync(process.env.LUAU_COMMAND||'C:/Users/Jennarong Pinjai/AppData/Local/Temp/codex-luau-smash-0.737/luau.exe',[],{input,encoding:'utf8',maxBuffer:4*1024*1024});
+ const output=(result.stdout??'')+(result.stderr??'');
+ return {pass:result.status===0&&output.includes('EXACT_FEEDBACK_HELPER_PASS safe=2 rejected=14')&&!/stdin:|stack backtrace|SyntaxError/.test(output),output,error:result.error?.message};
+}
+const feedbackHelperResult=executeFeedbackHelper(exactFeedbackHelper);
+check('feedback_exact_helper_accepts_two_valid_and_rejects_fourteen_faults',feedbackHelperResult.pass,feedbackHelperResult.error||feedbackHelperResult.output);
+const feedbackWeakeningControls=[];
+for(const [name,pattern] of [
+ ['omit_count_check',/^ assert\(type\(e.before\)[^\n]+$/m],
+ ['omit_actual_event_count',/^ assert\(e.eventCount[^\n]+$/m],
+ ['omit_visible_channel_check',/^ assert\(e.channels[^\n]+$/m],
+]) {
+ const weakened=exactFeedbackHelper.replace(pattern,'');
+ const applied=weakened!==exactFeedbackHelper;
+ const result=executeFeedbackHelper(weakened);
+ check('feedback_negative_'+name,feedbackHelperResult.pass&&applied&&!result.pass,'Weakening an exact evidence guard must make the helper fixture fail.');
+ feedbackWeakeningControls.push({name,mutationApplied:applied,status:!result.pass?'REJECTED':'MISSED'});
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 const total = Object.keys(checks).length;
 const ok = passed === total;
@@ -908,6 +998,9 @@ console.log(
       total,
       checks,
       negativeControls,
+      legacyRouteNegativeControls,
+      feedbackWeakeningControls,
+      feedbackHelperControls: {valid: 2, rejected: 14, passed: feedbackHelperResult.pass},
       sourceRoot: repositoryRoot,
       sourceHashes: Object.fromEntries(Object.entries({client,server,builder}).map(([name,text]) => [name,createHash("sha256").update(text).digest("hex")])),
       studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
@@ -918,6 +1011,7 @@ console.log(
         path.relative(repositoryRoot, builderPath),
         path.relative(repositoryRoot, fistItemsFlowPath),
         path.relative(repositoryRoot, legacySlotFlowPath),
+        path.relative(repositoryRoot, feedbackHolderFlowPath),
         path.relative(repositoryRoot, studioMcpClientPath),
       ],
     },

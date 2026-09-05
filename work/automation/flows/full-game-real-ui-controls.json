@@ -1,7 +1,7 @@
 {
   "name": "full-game-real-ui-controls",
   "inputContractVersion": "RealInputAttestationV3BalancedGesture",
-  "description": "Drive 25 current player-facing HUD/menu controls through coupled real mouse gestures. Every intended gesture uses the same exact segmented instance path on both moves and the balanced left-button down/60ms/up pair so the runner resolves one fresh cached coordinate; each control is >=44 px, Active, Selectable, viewport-visible, topmost, callback-attested, and followed by bounded client/request/authoritative evidence without hidden retries.",
+  "description": "Drive 25 current player-facing HUD/menu controls through coupled real mouse gestures. Every intended gesture uses the same exact segmented instance path on both moves and the balanced left-button down/60ms/up pair so the runner resolves one fresh cached coordinate; each control is >=44 px, Active, Selectable, viewport-visible, topmost, callback-attested, and followed by bounded client/request/authoritative evidence without hidden retries. Rare filtering uses owned Iron Knuckle and must exclude the two owned Common fists. Settings gestures use the current standalone window and exact semantic options.",
   "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -25,7 +25,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage:WaitForChild('PunchWallAutomation')\nlocal p=game.Players:GetPlayers()[1]\nc:Invoke('Reset')\nlocal today=os.date('!%Y-%m-%d')\nlocal seeded=c:Invoke('SetStats',{Coins=0,OwnedFistsJSON='[\"Starter Glove\",\"Boxing Glove\"]',EquippedFist='Starter Glove',LastDailyDate='',DailyQuestDate=today,DailyBreaks=10,DailyQuestClaimed=0,PlaytimeSeconds=300,PlaytimeClaimed=0,SpinCredits=1,SettingsJSON=H:JSONEncode({motion=true,sound=true,uiScale=1})})\nlocal tracked={EquipFist=true,ClaimDaily=true,ClaimQuest=true,ClaimPlaytime=true,UpdateSettings=true}\np:SetAttribute('Flow31ActionRequestSequence',0)\np:SetAttribute('Flow31LastActionRequest','')\np:SetAttribute('Flow31LastActionTarget','')\np:SetAttribute('Flow31LastActionPayloadJSON','{}')\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest.OnServerEvent:Connect(function(source,payload)\n if source~=p or type(payload)~='table' then return end\n local action=tostring(payload.action or '')\n if tracked[action]~=true then return end\n local sequence=(p:GetAttribute('Flow31ActionRequestSequence') or 0)+1\n local encodedOk,encoded=pcall(function() return H:JSONEncode(payload) end)\n p:SetAttribute('Flow31ActionRequestSequence',sequence)\n p:SetAttribute('Flow31LastActionRequest',action)\n p:SetAttribute('Flow31LastActionTarget',tostring(payload.target or ''))\n p:SetAttribute('Flow31LastActionPayloadJSON',encodedOk and encoded or '{}')\nend)\nlocal result={ok=seeded.ok==true and p:GetAttribute('Flow31ActionRequestSequence')==0,coins=seeded.Coins,equipped=seeded.EquippedFist,breaks=seeded.DailyBreaks,played=seeded.PlaytimeSeconds,requestSequence=p:GetAttribute('Flow31ActionRequestSequence')}\nassert(result.ok,'flow31 authority seed failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal H=game:GetService('HttpService')\nlocal c=game.ServerStorage:WaitForChild('PunchWallAutomation')\nlocal p=game.Players:GetPlayers()[1]\nc:Invoke('Reset')\nlocal today=os.date('!%Y-%m-%d')\nlocal seeded=c:Invoke('SetStats',{Coins=0,OwnedFistsJSON='[\"Starter Glove\",\"Boxing Glove\",\"Iron Knuckle\"]',EquippedFist='Starter Glove',LastDailyDate='',DailyQuestDate=today,DailyBreaks=10,DailyQuestClaimed=0,PlaytimeSeconds=300,PlaytimeClaimed=0,SpinCredits=1,SettingsJSON=H:JSONEncode({motion=true,sound=true,uiScale=1})})\nlocal tracked={EquipFist=true,ClaimDaily=true,ClaimQuest=true,ClaimPlaytime=true,UpdateSettings=true}\np:SetAttribute('Flow31ActionRequestSequence',0)\np:SetAttribute('Flow31LastActionRequest','')\np:SetAttribute('Flow31LastActionTarget','')\np:SetAttribute('Flow31LastActionPayloadJSON','{}')\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest.OnServerEvent:Connect(function(source,payload)\n if source~=p or type(payload)~='table' then return end\n local action=tostring(payload.action or '')\n if tracked[action]~=true then return end\n local sequence=(p:GetAttribute('Flow31ActionRequestSequence') or 0)+1\n local encodedOk,encoded=pcall(function() return H:JSONEncode(payload) end)\n p:SetAttribute('Flow31ActionRequestSequence',sequence)\n p:SetAttribute('Flow31LastActionRequest',action)\n p:SetAttribute('Flow31LastActionTarget',tostring(payload.target or ''))\n p:SetAttribute('Flow31LastActionPayloadJSON',encodedOk and encoded or '{}')\nend)\nlocal result={ok=seeded.ok==true and p:GetAttribute('Flow31ActionRequestSequence')==0,coins=seeded.Coins,equipped=seeded.EquippedFist,breaks=seeded.DailyBreaks,played=seeded.PlaytimeSeconds,requestSequence=p:GetAttribute('Flow31ActionRequestSequence')}\nassert(result.ok,'flow31 authority seed failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -764,7 +764,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('InventorySnapshot') local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid.ItemCard_fist_Boxing_Glove local present=table.find(s.visibleKeys or {},'fist:Boxing Glove')~=nil local ok=s.rarity=='Rare' and present and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C08_RarityRare'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C09_ItemCard_fist_Boxing_Glove')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C09_ItemCard_fist_Boxing_Glove' then\n   g:SetAttribute('Flow31ActivatedControl','C09_ItemCard_fist_Boxing_Glove')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,rarity=s.rarity,present=present,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal grid=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid\nlocal s,b\nlocal deadline=os.clock()+3\nrepeat\n s=a:Invoke('InventorySnapshot')\n b=grid:FindFirstChild('ItemCard_fist_Iron_Knuckle')\n if s.rarity=='Rare' and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal present=table.find(s.visibleKeys or {},'fist:Iron Knuckle')~=nil\nlocal commonExcluded=table.find(s.visibleKeys or {},'fist:Boxing Glove')==nil and table.find(s.visibleKeys or {},'fist:Starter Glove')==nil\nassert(b,'Rare filter has no current Iron card: '..H:JSONEncode({rarity=s.rarity,visibleKeys=s.visibleKeys,gridChildren=#grid:GetChildren()}))\nlocal ok=s.rarity=='Rare' and present and commonExcluded and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C08_RarityRare'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C09_ItemCard_fist_Iron_Knuckle')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C09_ItemCard_fist_Iron_Knuckle' then\n   g:SetAttribute('Flow31ActivatedControl','C09_ItemCard_fist_Iron_Knuckle')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,rarity=s.rarity,present=present,commonExcluded=commonExcluded,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -774,9 +774,10 @@
         "\"hittable\"\\s*:\\s*true",
         "\"selectable\"\\s*:\\s*true",
         "\"visibleArea\"\\s*:\\s*true",
-        "\"topmost\"\\s*:\\s*true"
+        "\"topmost\"\\s*:\\s*true",
+        "\"commonExcluded\"\\s*:\\s*true"
       ],
-      "label": "assert canonical Rare rarity and precheck Boxing card"
+      "label": "assert canonical Rare rarity and precheck Iron card"
     },
     {
       "type": "call",
@@ -796,7 +797,7 @@
               "InventoryBody",
               "InventoryGridPane",
               "InventoryGrid",
-              "ItemCard_fist_Boxing_Glove"
+              "ItemCard_fist_Iron_Knuckle"
             ]
           },
           {
@@ -815,7 +816,7 @@
               "InventoryBody",
               "InventoryGridPane",
               "InventoryGrid",
-              "ItemCard_fist_Boxing_Glove"
+              "ItemCard_fist_Iron_Knuckle"
             ]
           },
           {
@@ -831,7 +832,7 @@
               "InventoryBody",
               "InventoryGridPane",
               "InventoryGrid",
-              "ItemCard_fist_Boxing_Glove"
+              "ItemCard_fist_Iron_Knuckle"
             ]
           },
           {
@@ -851,23 +852,23 @@
               "InventoryBody",
               "InventoryGridPane",
               "InventoryGrid",
-              "ItemCard_fist_Boxing_Glove"
+              "ItemCard_fist_Iron_Knuckle"
             ]
           }
         ]
       },
-      "label": "real click Inventory Boxing card"
+      "label": "real click Inventory Iron card"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') task.wait(.3) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('InventorySnapshot') local d=s.selected or {} local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryDetail.DetailActions.Actionequip local ok=d.key=='fist:Boxing Glove' and d.equipped==false and table.find(d.actions or {},'Equip')~=nil and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C09_ItemCard_fist_Boxing_Glove'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C10_Actionequip')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C10_Actionequip' then\n   g:SetAttribute('Flow31ActivatedControl','C10_Actionequip')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,key=d.key,equipped=d.equipped,actions=d.actions,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+        "code": "local H=game:GetService('HttpService') task.wait(.3) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('InventorySnapshot') local d=s.selected or {} local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryDetail.DetailActions.Actionequip local ok=d.key=='fist:Iron Knuckle' and d.equipped==false and table.find(d.actions or {},'Equip')~=nil and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C09_ItemCard_fist_Iron_Knuckle'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C10_Actionequip')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C10_Actionequip' then\n   g:SetAttribute('Flow31ActivatedControl','C10_Actionequip')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,key=d.key,equipped=d.equipped,actions=d.actions,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"key\"\\s*:\\s*\"fist:Boxing Glove\"",
+        "\"key\"\\s*:\\s*\"fist:Iron Knuckle\"",
         "\"equipped\"\\s*:\\s*false",
         "\"Equip\"",
         "\"activated\"\\s*:\\s*true",
@@ -876,7 +877,7 @@
         "\"visibleArea\"\\s*:\\s*true",
         "\"topmost\"\\s*:\\s*true"
       ],
-      "label": "assert Boxing card selected and precheck safe Equip action"
+      "label": "assert Iron card selected and precheck safe Equip action"
     },
     {
       "type": "call",
@@ -963,14 +964,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal deadline=os.clock()+4\nlocal payload={}\nrepeat\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n if p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Boxing Glove' and p.RPGStats.EquippedFist.Value=='Boxing Glove' then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value)\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Boxing Glove' and payload.action=='EquipFist' and payload.target=='Boxing Glove' and p.RPGStats.EquippedFist.Value=='Boxing Glove' and table.find(owned,'Boxing Glove')~=nil,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),target=p:GetAttribute('Flow31LastActionTarget'),equipped=p.RPGStats.EquippedFist.Value,owned=p.RPGStats.OwnedFistsJSON.Value}\nassert(result.ok,'real Inventory Equip authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal deadline=os.clock()+4\nlocal payload={}\nrepeat\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n if p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Iron Knuckle' and p.RPGStats.EquippedFist.Value=='Iron Knuckle' then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value)\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Iron Knuckle' and payload.action=='EquipFist' and payload.target=='Iron Knuckle' and p.RPGStats.EquippedFist.Value=='Iron Knuckle' and table.find(owned,'Iron Knuckle')~=nil,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),target=p:GetAttribute('Flow31LastActionTarget'),equipped=p.RPGStats.EquippedFist.Value,owned=p.RPGStats.OwnedFistsJSON.Value}\nassert(result.ok,'real Inventory Equip authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"requestSequence\"\\s*:\\s*1",
         "\"request\"\\s*:\\s*\"EquipFist\"",
-        "\"target\"\\s*:\\s*\"Boxing Glove\"",
-        "\"equipped\"\\s*:\\s*\"Boxing Glove\""
+        "\"target\"\\s*:\\s*\"Iron Knuckle\"",
+        "\"equipped\"\\s*:\\s*\"Iron Knuckle\""
       ],
       "label": "assert authoritative safe Inventory equip"
     },
@@ -979,11 +980,11 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal d,b\nlocal deadline=os.clock()+4\nrepeat\n local s=a:Invoke('InventorySnapshot')\n d=s.selected or {}\n b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryHeader.InventoryClose\n if d.key=='fist:Boxing Glove' and d.equipped==true and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=d.key=='fist:Boxing Glove' and d.equipped==true and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C10_Actionequip'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C11_InventoryClose')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C11_InventoryClose' then\n   g:SetAttribute('Flow31ActivatedControl','C11_InventoryClose')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,key=d.key,equipped=d.equipped,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal d,b\nlocal deadline=os.clock()+4\nrepeat\n local s=a:Invoke('InventorySnapshot')\n d=s.selected or {}\n b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryHeader.InventoryClose\n if d.key=='fist:Iron Knuckle' and d.equipped==true and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=d.key=='fist:Iron Knuckle' and d.equipped==true and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C10_Actionequip'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C11_InventoryClose')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C11_InventoryClose' then\n   g:SetAttribute('Flow31ActivatedControl','C11_InventoryClose')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,key=d.key,equipped=d.equipped,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"key\"\\s*:\\s*\"fist:Boxing Glove\"",
+        "\"key\"\\s*:\\s*\"fist:Iron Knuckle\"",
         "\"equipped\"\\s*:\\s*true",
         "\"activated\"\\s*:\\s*true",
         "\"hittable\"\\s*:\\s*true",
@@ -1666,7 +1667,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') task.wait(.25) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local c=g.GameMenu.Content local row=c:FindFirstChild('Motion Feedback') local b=row and row.Actions:FindFirstChild('motion') if row and b then c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y))) task.wait(.15) end local ok=s.menuVisible==true and s.activeTab=='Settings' and s.motion==true and b and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C17_SettingsTool'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C18_motion')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C18_motion' then\n   g:SetAttribute('Flow31ActivatedControl','C18_motion')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeTab,motion=s.motion,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('MOTIONSetting')\n b=row and row.Options:FindFirstChild('MotionCalm')\n if s.settingsVisible==true and s.activeWindow=='Settings' and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=s.menuVisible==true and s.settingsVisible==true and s.activeWindow=='Settings' and window.Visible and not g.GameMenu.Visible and s.motion==true and b and b.Visible and b.Active and b.Text=='CALM' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C17_SettingsTool'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C18_motion')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C18_motion' then\n   g:SetAttribute('Flow31ActivatedControl','C18_motion')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeWindow,settingsVisible=s.settingsVisible,motion=s.motion,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -1677,7 +1678,8 @@
         "\"hittable\"\\s*:\\s*true",
         "\"selectable\"\\s*:\\s*true",
         "\"visibleArea\"\\s*:\\s*true",
-        "\"topmost\"\\s*:\\s*true"
+        "\"topmost\"\\s*:\\s*true",
+        "\"settingsVisible\"\\s*:\\s*true"
       ],
       "label": "assert Settings opened and precheck Motion control"
     },
@@ -1693,11 +1695,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Motion Feedback",
-              "Actions",
-              "motion"
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
             ]
           },
           {
@@ -1710,11 +1712,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Motion Feedback",
-              "Actions",
-              "motion"
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
             ]
           },
           {
@@ -1724,11 +1726,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Motion Feedback",
-              "Actions",
-              "motion"
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
             ]
           },
           {
@@ -1742,11 +1744,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Motion Feedback",
-              "Actions",
-              "motion"
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
             ]
           }
         ]
@@ -1758,7 +1760,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal c=g.GameMenu.Content\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('Sound Feedback')\n b=row and row.Actions:FindFirstChild('sound')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==5 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==true\n if s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row=c:FindFirstChild('Sound Feedback')\n b=row and row.Actions:FindFirstChild('sound')\nend\nlocal ok=s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C18_motion'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C19_sound')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C19_sound' then\n   g:SetAttribute('Flow31ActivatedControl','C19_sound')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('SOUNDSetting')\n b=row and row.Options:FindFirstChild('SoundOff')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==5 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==true\n if s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C18_motion'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C19_sound')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C19_sound' then\n   g:SetAttribute('Flow31ActivatedControl','C19_sound')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -1787,11 +1789,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Sound Feedback",
-              "Actions",
-              "sound"
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
             ]
           },
           {
@@ -1804,11 +1806,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Sound Feedback",
-              "Actions",
-              "sound"
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
             ]
           },
           {
@@ -1818,11 +1820,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Sound Feedback",
-              "Actions",
-              "sound"
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
             ]
           },
           {
@@ -1836,11 +1838,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "Sound Feedback",
-              "Actions",
-              "sound"
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
             ]
           }
         ]
@@ -1852,7 +1854,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal c=g.GameMenu.Content\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale0.8')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==6 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false\n if s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale0.8')\n if b then b.Name='Scale80RealInput' end\nend\nlocal ok=s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active and b.Text=='80%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C19_sound'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C20_Scale80RealInput')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C20_Scale80RealInput' then\n   g:SetAttribute('Flow31ActivatedControl','C20_Scale80RealInput')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale0.8',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale80')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==6 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false\n if s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active and b.Text=='80%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C19_sound'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C20_Scale80')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C20_Scale80' then\n   g:SetAttribute('Flow31ActivatedControl','C20_Scale80')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale0.8',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -1861,7 +1863,7 @@
         "\"requestSequence\"\\s*:\\s*6",
         "\"requestAttested\"\\s*:\\s*true",
         "\"original\"\\s*:\\s*\"Scale0.8\"",
-        "\"safeName\"\\s*:\\s*\"Scale80RealInput\"",
+        "\"safeName\"\\s*:\\s*\"Scale80\"",
         "\"text\"\\s*:\\s*\"80%\"",
         "\"activated\"\\s*:\\s*true",
         "\"hittable\"\\s*:\\s*true",
@@ -1883,11 +1885,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale80RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
             ]
           },
           {
@@ -1900,11 +1902,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale80RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
             ]
           },
           {
@@ -1914,11 +1916,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale80RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
             ]
           },
           {
@@ -1932,11 +1934,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale80RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
             ]
           }
         ]
@@ -1948,14 +1950,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal c=g.GameMenu.Content\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale1')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==7 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-.8)<.001\n if math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale1')\n if b then b.Name='Scale100RealInput' end\nend\nlocal ok=math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='100%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C20_Scale80RealInput'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C21_Scale100RealInput')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C21_Scale100RealInput' then\n   g:SetAttribute('Flow31ActivatedControl','C21_Scale100RealInput')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale100')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==7 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-.8)<.001\n if math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='100%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C20_Scale80'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C21_Scale100')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C21_Scale100' then\n   g:SetAttribute('Flow31ActivatedControl','C21_Scale100')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"uiScale\"\\s*:\\s*0.8",
         "\"requestSequence\"\\s*:\\s*7",
         "\"requestAttested\"\\s*:\\s*true",
-        "\"safeName\"\\s*:\\s*\"Scale100RealInput\"",
+        "\"safeName\"\\s*:\\s*\"Scale100\"",
         "\"text\"\\s*:\\s*\"100%\"",
         "\"activated\"\\s*:\\s*true",
         "\"hittable\"\\s*:\\s*true",
@@ -1977,11 +1979,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale100RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
             ]
           },
           {
@@ -1994,11 +1996,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale100RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
             ]
           },
           {
@@ -2008,11 +2010,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale100RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
             ]
           },
           {
@@ -2026,11 +2028,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale100RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
             ]
           }
         ]
@@ -2042,7 +2044,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal c=g.GameMenu.Content\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale1.2')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==8 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-1)<.001\n if math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row=c:FindFirstChild('UI Scale')\n b=row and row.Actions:FindFirstChild('Scale1.2')\n if b then b.Name='Scale120RealInput' end\nend\nlocal ok=math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='120%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C21_Scale100RealInput'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C22_Scale120RealInput')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C22_Scale120RealInput' then\n   g:SetAttribute('Flow31ActivatedControl','C22_Scale120RealInput')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1.2',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale120')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==8 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-1)<.001\n if math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='120%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C21_Scale100'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C22_Scale120')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C22_Scale120' then\n   g:SetAttribute('Flow31ActivatedControl','C22_Scale120')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1.2',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -2050,7 +2052,7 @@
         "\"requestSequence\"\\s*:\\s*8",
         "\"requestAttested\"\\s*:\\s*true",
         "\"original\"\\s*:\\s*\"Scale1.2\"",
-        "\"safeName\"\\s*:\\s*\"Scale120RealInput\"",
+        "\"safeName\"\\s*:\\s*\"Scale120\"",
         "\"text\"\\s*:\\s*\"120%\"",
         "\"activated\"\\s*:\\s*true",
         "\"hittable\"\\s*:\\s*true",
@@ -2072,11 +2074,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale120RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
             ]
           },
           {
@@ -2089,11 +2091,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale120RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
             ]
           },
           {
@@ -2103,11 +2105,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale120RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
             ]
           },
           {
@@ -2121,11 +2123,11 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
-              "Content",
-              "UI Scale",
-              "Actions",
-              "Scale120RealInput"
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
             ]
           }
         ]
@@ -2154,7 +2156,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal s,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==9 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false and math.abs((payload.value.uiScale or 0)-1.2)<.001\n if math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal b=g.GameMenu.Close\nlocal ok=math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C22_Scale120RealInput'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C23_Close')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C23_Close' then\n   g:SetAttribute('Flow31ActivatedControl','C23_Close')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal s,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==9 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false and math.abs((payload.value.uiScale or 0)-1.2)<.001\n if math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal b=g.SettingsWindow.Close\nlocal ok=g.SettingsWindow.Visible and s.settingsVisible==true and math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C22_Scale120'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C23_Close')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C23_Close' then\n   g:SetAttribute('Flow31ActivatedControl','C23_Close')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,uiScale=s.uiScale,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -2183,7 +2185,7 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
+              "SettingsWindow",
               "Close"
             ]
           },
@@ -2197,7 +2199,7 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
+              "SettingsWindow",
               "Close"
             ]
           },
@@ -2208,7 +2210,7 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
+              "SettingsWindow",
               "Close"
             ]
           },
@@ -2223,7 +2225,7 @@
               "LocalPlayer",
               "PlayerGui",
               "PunchWallHUD",
-              "GameMenu",
+              "SettingsWindow",
               "Close"
             ]
           }
@@ -2236,7 +2238,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.SpinButton local ok=s.menuVisible==false and s.spinVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C23_Close'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C24_SpinButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C24_SpinButton' then\n   g:SetAttribute('Flow31ActivatedControl','C24_SpinButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,menu=s.menuVisible,spin=s.spinVisible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.SpinButton local ok=s.menuVisible==false and s.settingsVisible==false and not g.SettingsWindow.Visible and s.spinVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C23_Close'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal visibleArea=b~=nil and clickCenter.X>=0 and clickCenter.Y>=0 and clickCenter.X<=viewport.X and clickCenter.Y<=viewport.Y\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C24_SpinButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C24_SpinButton' then\n   g:SetAttribute('Flow31ActivatedControl','C24_SpinButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,activated=activated,ok=ok,menu=s.menuVisible,spin=s.spinVisible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",

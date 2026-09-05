@@ -202,18 +202,18 @@ const expectedPathSuffixes = [
   "CategoryBar/CategoryFists",
   "InventoryToolbar/RarityFilter",
   "RarityMenu/RarityRare",
-  "InventoryGrid/ItemCard_fist_Boxing_Glove",
+  "InventoryGrid/ItemCard_fist_Iron_Knuckle",
   "DetailActions/Actionequip",
   "PixelPerfectHeroCityHUD/DailyButton",
   "Daily Supply/Actions/ClaimDaily",
   "City Cleanup/Actions/ClaimQuest",
   "Five Minute Supply/Actions/ClaimPlaytime",
   "PixelPerfectHeroCityHUD/SettingsTool",
-  "Motion Feedback/Actions/motion",
-  "Sound Feedback/Actions/sound",
-  "UI Scale/Actions/Scale80RealInput",
-  "UI Scale/Actions/Scale100RealInput",
-  "UI Scale/Actions/Scale120RealInput",
+  "SettingsWindow/Body/MOTIONSetting/Options/MotionCalm",
+  "SettingsWindow/Body/SOUNDSetting/Options/SoundOff",
+  "SettingsWindow/Body/UI SIZESetting/Options/Scale80",
+  "SettingsWindow/Body/UI SIZESetting/Options/Scale100",
+  "SettingsWindow/Body/UI SIZESetting/Options/Scale120",
   "PixelPerfectHeroCityHUD/SpinButton",
   "SpinPanel/CloseSpin",
 ];
@@ -445,7 +445,7 @@ check(
   includesAll(allStepSource, [
     "Flow31ActionRequestSequence')==1",
     "Flow31LastActionRequest')=='EquipFist'",
-    "Flow31LastActionTarget')=='Boxing Glove'",
+    "Flow31LastActionTarget')=='Iron Knuckle'",
     "Flow31ActionRequestSequence')==2",
     "Flow31LastActionRequest')=='ClaimDaily'",
     "Flow31ActionRequestSequence')==3",
@@ -490,13 +490,13 @@ check(
 
 check(
   "inventory_safe_action_is_server_verified",
-  allStepSource.includes("d.key=='fist:Boxing Glove'")
+  allStepSource.includes("d.key=='fist:Iron Knuckle'")
     && allStepSource.includes("d.equipped==true")
     && allStepSource.includes(
-      "p.RPGStats.EquippedFist.Value=='Boxing Glove'",
+      "p.RPGStats.EquippedFist.Value=='Iron Knuckle'",
     )
     && allStepSource.includes("payload.action=='EquipFist'")
-    && allStepSource.includes("payload.target=='Boxing Glove'")
+    && allStepSource.includes("payload.target=='Iron Knuckle'")
     && !allStepSource.includes("DeletePet")
     && !allStepSource.includes("BuyPremium"),
   "Inventory coverage must use one owned safe Equip action and prove callback, request, ownership, and exact equipped authority.",
@@ -514,20 +514,11 @@ check(
 );
 
 check(
-  "settings_rebuilds_use_path_safe_current_controls",
-  allStepSource.includes("FindFirstChild('Scale0.8')")
-    && allStepSource.includes("b.Name='Scale80RealInput'")
-    && allStepSource.includes("FindFirstChild('Scale1')")
-    && allStepSource.includes("b.Name='Scale100RealInput'")
-    && allStepSource.includes("FindFirstChild('Scale1.2')")
-    && allStepSource.includes("b.Name='Scale120RealInput'")
-    && allStepSource.includes(
-      "settings.motion==false and settings.sound==false and math.abs((settings.uiScale or 0)-1.2)<.001",
-    )
-    && pathStrings.some((value) => value.endsWith("Scale80RealInput"))
-    && pathStrings.some((value) => value.endsWith("Scale100RealInput"))
-    && pathStrings.some((value) => value.endsWith("Scale120RealInput")),
-  "Each rebuilt Settings callback must be reacquired, renamed to a dot-safe current path, and correlated with its UpdateSettings payload.",
+  "settings_rebuilds_use_current_standalone_controls",
+  includesAll(allStepSource, ["g:FindFirstChild('SettingsWindow')", "row.Options:FindFirstChild('MotionCalm')", "row.Options:FindFirstChild('SoundOff')", "row.Options:FindFirstChild('Scale80')", "row.Options:FindFirstChild('Scale100')", "row.Options:FindFirstChild('Scale120')", "s.settingsVisible==true", "s.activeWindow=='Settings'", "local b=g.SettingsWindow.Close", "s.settingsVisible==false", "settings.motion==false and settings.sound==false and math.abs((settings.uiScale or 0)-1.2)<.001"])
+    && ['MotionCalm','SoundOff','Scale80','Scale100','Scale120'].every(name=>pathStrings.some(value=>value.includes('SettingsWindow/Body/')&&value.endsWith('/'+name)))
+    && pathStrings.some(value=>value.endsWith('SettingsWindow/Close')),
+  "Standalone Settings must use its current semantic controls, one actual gesture per action, fresh callback checks and the same exact UpdateSettings authority sequence.",
 );
 
 check(
@@ -539,8 +530,11 @@ check(
     'makeMenuCommand(dailyActions, "ClaimDaily"',
     'makeMenuCommand(questActions, "ClaimQuest"',
     'makeMenuCommand(playActions, "ClaimPlaytime"',
-    'makeMenuCommand(actions, key, clientSettings[key]',
-    '"Scale" .. value',
+    'makeMenuCommand(optionArea, option.name, option.label',
+    'name = "Scale80", label = "80%"',
+    'name = "Scale100", label = "100%"',
+    'name = "Scale120", label = "120%"',
+    'settingsClose.Activated:Connect(function() closeStandaloneWindows("SettingsClose") end)',
     'spinOverlay.Name = "HeroSpinModal"',
     'local close = imageLayer("ImageButton", "CloseSpin"',
     'referenceButton("SettingsTool"',
@@ -592,6 +586,63 @@ check(
   "A clean console assertion and terminal Play stop are mandatory.",
 );
 
+
+const gameConfigPath = path.join(repositoryRoot, 'work/punch-wall-rpg/src/shared/GameConfig.lua');
+const gameConfig = fs.readFileSync(gameConfigPath, 'utf8');
+function validRareFixture(candidate, config) {
+  const seed = candidate.steps.find(step => step.label === 'seed ready safe authoritative UI state')?.args?.code ?? '';
+  const pre = candidate.steps.find(step => step.label === 'assert canonical Rare rarity and precheck Iron card')?.args?.code ?? '';
+  const authority = candidate.steps.find(step => step.label === 'assert authoritative safe Inventory equip')?.args?.code ?? '';
+  return /name = "Iron Knuckle"[^\n]+rarity = "Rare"/.test(config)
+    && /name = "Boxing Glove"[^\n]+rarity = "Common"/.test(config)
+    && seed.includes('OwnedFistsJSON=\'["Starter Glove","Boxing Glove","Iron Knuckle"]\'')
+    && includesAll(pre, ["s.rarity=='Rare'", "grid:FindFirstChild('ItemCard_fist_Iron_Knuckle')", "table.find(s.visibleKeys or {},'fist:Iron Knuckle')~=nil", "table.find(s.visibleKeys or {},'fist:Boxing Glove')==nil", "table.find(s.visibleKeys or {},'fist:Starter Glove')==nil", 'and present and commonExcluded and', 'local deadline=os.clock()+3', 'until os.clock()>=deadline'])
+    && includesAll(authority, ["payload.target=='Iron Knuckle'", "p.RPGStats.EquippedFist.Value=='Iron Knuckle'", "table.find(owned,'Iron Knuckle')~=nil"])
+    && candidate.steps.filter(step => step.tool === 'user_mouse_input').some(step => step.args.actions[0].instance_path_segments.at(-1) === 'ItemCard_fist_Iron_Knuckle');
+}
+check('rare_fixture_matches_current_catalog_and_excludes_owned_common_items', validRareFixture(flow, gameConfig), 'Rare filtering must expose the real owned Rare Iron item, exclude both seeded Common items, and retain exact real-click/authority identity.');
+const fixtureNegativeControls = [];
+for (const [name, mutateFlow, mutateConfig] of [
+  ['common_item_in_rare_fixture', value => JSON.parse(JSON.stringify(value).replaceAll('Iron Knuckle','Boxing Glove').replaceAll('Iron_Knuckle','Boxing_Glove')), null],
+  ['drop_common_exclusion', value => { value.steps.find(step => step.label === 'assert canonical Rare rarity and precheck Iron card').args.code = value.steps.find(step => step.label === 'assert canonical Rare rarity and precheck Iron card').args.code.replace('and present and commonExcluded and','and present and'); return value; }, null],
+  ['wrong_authoritative_item', value => { value.steps.find(step => step.label === 'assert authoritative safe Inventory equip').args.code = value.steps.find(step => step.label === 'assert authoritative safe Inventory equip').args.code.replaceAll("payload.target=='Iron Knuckle'", "payload.target=='Starter Glove'"); return value; }, null],
+  ['changed_catalog_rarity', null, value => value.replace(/(name = "Iron Knuckle"[^\n]+rarity = )"Rare"/, '$1"Common"')],
+]) {
+  const candidate = mutateFlow ? mutateFlow(structuredClone(flow)) : flow;
+  const config = mutateConfig ? mutateConfig(gameConfig) : gameConfig;
+  const applied = JSON.stringify(candidate) !== JSON.stringify(flow) || config !== gameConfig;
+  const rejected = !validRareFixture(candidate, config);
+  check('rare_negative_' + name, applied && rejected, 'The changed fixture/config must be applied and rejected.');
+  fixtureNegativeControls.push({name, mutationApplied: applied, status: rejected ? 'REJECTED' : 'MISSED'});
+}
+check('real_ui_seed_refuses_live_persistence', includesAll(seedStep.args.code, ["PersistenceMode')=='EphemeralStudio'", "ProfileWritable')==false", "PunchWallAllowLiveDataStoreAccess')~=true", "verifyEphemeralSeed(game.Players:GetPlayers()[1]"]) && seedStep.args.code.indexOf('verifyEphemeralSeed(game.Players:GetPlayers()[1]') < seedStep.args.code.indexOf("c:Invoke('Reset')"), 'The fixture must assert the existing isolated persistence state before Reset.');
+
+function validStandaloneSettingsGestures(candidate) {
+  return [
+    ['real click Settings Motion control', 'SettingsWindow/Body/MOTIONSetting/Options/MotionCalm'],
+    ['real click Settings Sound control', 'SettingsWindow/Body/SOUNDSetting/Options/SoundOff'],
+    ['real click Settings 80 percent control', 'SettingsWindow/Body/UI SIZESetting/Options/Scale80'],
+    ['real click Settings 100 percent control', 'SettingsWindow/Body/UI SIZESetting/Options/Scale100'],
+    ['real click Settings 120 percent control', 'SettingsWindow/Body/UI SIZESetting/Options/Scale120'],
+    ['real click Settings close', 'SettingsWindow/Close'],
+  ].every(([label, suffix]) => {
+    const step = candidate.steps.find(item => item.label === label);
+    const paths = step?.args?.actions?.filter(action => action.instance_path_segments) ?? [];
+    return paths.length === 4 && paths.every(action => action.instance_path_segments.join('/').endsWith(suffix));
+  });
+}
+check('standalone_settings_gestures_keep_exact_action_identity', validStandaloneSettingsGestures(flow), 'Each complete gesture must target the semantic option for that step, including both moves and release.');
+for (const [name, mutate] of [
+  ['obsolete_settings_host', value => JSON.parse(JSON.stringify(value).replaceAll('"SettingsWindow","Body"','"GameMenu","Content"'))],
+  ['wrong_scale_option', value => { const step = value.steps.find(item => item.label === 'real click Settings 80 percent control'); for (const action of step.args.actions) if (action.instance_path_segments) action.instance_path_segments[action.instance_path_segments.length - 1] = 'Scale120'; return value; }],
+]) {
+  const candidate = mutate(structuredClone(flow));
+  const applied = JSON.stringify(candidate) !== JSON.stringify(flow);
+  const rejected = !validStandaloneSettingsGestures(candidate);
+  check('settings_negative_' + name, applied && rejected, 'An obsolete host or wrong scale option must fail the gesture contract.');
+  fixtureNegativeControls.push({name, mutationApplied: applied, status: rejected ? 'REJECTED' : 'MISSED'});
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -610,10 +661,13 @@ console.log(
       callbackAttestations: postchecks.length,
       requestAttestations: 9,
       checks,
+      fixtureNegativeControls,
+      studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
       files: [
         path.relative(repositoryRoot, flowPath),
         path.relative(repositoryRoot, clientPath),
         path.relative(repositoryRoot, inventoryPath),
+        path.relative(repositoryRoot, gameConfigPath),
       ],
     },
     null,
