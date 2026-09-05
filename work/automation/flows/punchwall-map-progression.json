@@ -24,14 +24,30 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\"):GetPlayers()[1]\nassert(player, \"missing player\")\nlocal character = player.Character or player.CharacterAdded:Wait()\nlocal root = character:WaitForChild(\"HumanoidRootPart\", 5)\nassert(root, \"missing character root\")\nlocal distance = (root.Position - Vector3.new(-42, 2, 0)).Magnitude\nreturn HttpService:JSONEncode({ hasCharacter = true, spawnNearTraining = distance < 40, spawnDistance = math.floor(distance + 0.5), mapExists = workspace:FindFirstChild(\"PunchWallRPG\") ~= nil })"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\"):GetPlayers()[1]\nassert(player, \"missing player\")\nlocal character = player.Character or player.CharacterAdded:Wait()\nlocal root = character:WaitForChild(\"HumanoidRootPart\", 5)\nassert(root, \"missing character root\")\nlocal target=workspace.PunchWallRPG.Interactables['Depth Course Entrance'] local distance = (root.Position - target.Position).Magnitude\nreturn HttpService:JSONEncode({ hasCharacter = true, spawnPlaced=character:GetAttribute(\"PunchWallSpawnPlaced\")==true, canonicalRespawn=player.RespawnLocation==workspace.PunchWallRPG[\"Punch Rookie Spawn\"], facingCourse=root.CFrame.LookVector.Z<-.9, spawnNearFirstWall = distance <= 18, spawnDistance = math.floor(distance + 0.5), mapExists = workspace:FindFirstChild(\"PunchWallRPG\") ~= nil })\n"
       },
       "expectRegex": [
         "\"hasCharacter\"\\s*:\\s*true",
-        "\"spawnNearTraining\"\\s*:\\s*true",
-        "\"mapExists\"\\s*:\\s*true"
+        "\"spawnNearFirstWall\"\\s*:\\s*true",
+        "\"mapExists\"\\s*:\\s*true",
+        "\"spawnPlaced\"\\s*:\\s*true",
+        "\"canonicalRespawn\"\\s*:\\s*true",
+        "\"facingCourse\"\\s*:\\s*true"
       ],
-      "label": "spawn near training island"
+      "label": "punch-first spawn is within the first wall approach"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game.HttpService local p=game.Players:GetPlayers()[1] local a=game.ServerStorage.PunchWallAutomation local old=p.Character a:Invoke('Respawn') local deadline=os.clock()+6 repeat task.wait(.1) until (p.Character~=old and p.Character and p.Character:GetAttribute('PunchWallSpawnPlaced'))or os.clock()>deadline local c=p.Character local r=c and c:FindFirstChild('HumanoidRootPart') local entrance=workspace.PunchWallRPG.Interactables['Depth Course Entrance'] assert(r and c~=old and c:GetAttribute('PunchWallSpawnPlaced'),'new character not placed') task.wait(.4) local distance=(r.Position-entrance.Position).Magnitude local facing=r.CFrame.LookVector.Z<-.9 local target=r.Position+Vector3.new(3,0,0) r.CFrame=CFrame.lookAt(target,target+Vector3.new(0,0,-1)) task.wait(.6) local noRepeatedTeleport=math.abs(r.Position.X-target.X)<.5 return H:JSONEncode({respawnContractValid=distance<=18 and facing and noRepeatedTeleport and p.RespawnLocation==workspace.PunchWallRPG['Punch Rookie Spawn'],distance=distance,facing=facing,noRepeatedTeleport=noRepeatedTeleport})"
+      },
+      "timeoutMs": 35000,
+      "expectRegex": [
+        "\"respawnContractValid\"\\s*:\\s*true"
+      ],
+      "label": "normal respawn approaches course once without repeated relocation"
     },
     {
       "type": "call",
@@ -66,14 +82,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local stand=root.Interactables[\"Boxing Glove Stand\"] local plate=root.Polish[\"City Decor\"][\"Boxing Glove Armory Nameplate\"] return H:JSONEncode({click=stand:FindFirstChildWhichIsA(\"ClickDetector\")~=nil,front=plate:FindFirstChild(\"Sign\")~=nil,plateRole=plate:GetAttribute(\"PolishRole\")})"
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local merchant=root.Interactables['Hero Armory Merchant Interaction'] local click=merchant and merchant:FindFirstChildWhichIsA('ClickDetector') local visible=root:FindFirstChild('Hero Armory Merchant NPC',true) or root:FindFirstChild('Hero Armory Merchant NPC Fallback',true) return H:JSONEncode({merchantPresent=merchant~=nil,click=click~=nil and click.MaxActivationDistance>0,visibleLandmark=visible~=nil})"
       },
       "expectRegex": [
+        "\"merchantPresent\"\\s*:\\s*true",
         "\"click\"\\s*:\\s*true",
-        "\"front\"\\s*:\\s*true",
-        "ArmoryFixedNameplate"
+        "\"visibleLandmark\"\\s*:\\s*true"
       ],
-      "label": "shop stand has click target and fixed nameplate"
+      "label": "current armory merchant has an actionable visible landmark"
     },
     {
       "type": "call",

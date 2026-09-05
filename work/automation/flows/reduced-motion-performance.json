@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=60,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nreturn true"
+        "code": "local command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nreturn true"
       },
       "label": "prepare deterministic state"
     },
@@ -111,7 +113,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -120,7 +124,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

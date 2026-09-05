@@ -107,7 +107,7 @@
         "VERIFY",
         "ADDED",
         "\"canceled\"\\s*:\\s*true",
-        "740x339"
+        "740, 339"
       ],
       "label": "compact transient purchase states and cancel recovery fit"
     },

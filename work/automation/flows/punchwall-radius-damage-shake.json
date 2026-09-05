@@ -47,11 +47,11 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,0)) local r=c:Invoke(\"PunchRadius\") return H:JSONEncode({ok=r.ok,reason=r.reason,broken=r.BrokenDepthBlocks,score=r.Score})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") local p=game.Players:GetPlayers()[1] local root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,0)) local r=c:Invoke(\"PunchRadius\") return H:JSONEncode({ok=r.ok,outcome=r.outcome,broken=r.BrokenDepthBlocks,score=r.Score})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*false",
-        "\"reason\"\\s*:\\s*\"no_block\"",
+        "\"outcome\"\\s*:\\s*\"no_block\"",
         "\"broken\"\\s*:\\s*0",
         "\"score\"\\s*:\\s*0"
       ],

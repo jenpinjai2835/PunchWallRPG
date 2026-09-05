@@ -1,6 +1,6 @@
 {
   "name": "punchwall-mobile-controls",
-  "description": "Validate Android/iOS touch buttons exist and drive Train, Punch, and Use actions through the live UI.",
+  "description": "Verify the visible reference touch action and retained client Train/Punch/Use input routes against current world targets and server-authoritative outcomes; actual device clicks are covered by training-ui-pet-recovery.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -24,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal frame = gui:WaitForChild(\"MobileControls\", 5)\nassert(frame, \"missing MobileControls\")\nframe.Visible = true\nlocal result = { visible = frame.Visible }\nfor _, name in ipairs({ \"ActionPunch\", \"ActionTrain\", \"ActionUse\" }) do\n\tlocal button = frame:FindFirstChild(name)\n\tresult[name] = button and button.Text or \"missing\"\nend\nreturn HttpService:JSONEncode(result)"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal frame = gui:WaitForChild(\"MobileControls\", 5)\nassert(frame, \"missing MobileControls\")\nlocal reference=assert(gui:FindFirstChild(\"PixelPerfectHeroCityHUD\")) local actual=assert(reference:FindFirstChild(\"ActionPunch\")) assert(reference.Visible and actual.Visible and actual.AbsoluteSize.X>=44 and actual.AbsoluteSize.Y>=44,\"real touch action unavailable\")\nlocal result = { visible = reference.Visible and actual.Visible, legacyHidden=not frame.Visible }\nfor _, name in ipairs({ \"ActionPunch\", \"ActionTrain\", \"ActionUse\" }) do\n\tlocal button = frame:FindFirstChild(name)\n\tresult[name] = button and button.Text or \"missing\"\nend\nreturn HttpService:JSONEncode(result)"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
@@ -39,7 +39,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-53, 7, 13)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Power Bag\"\nreturn HttpService:JSONEncode(snapshot)"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\nlocal bag=workspace.PunchWallRPG.Interactables['Power Bag'] character:WaitForChild('HumanoidRootPart').CFrame=CFrame.lookAt(bag.Position+Vector3.new(0,-1,7),bag.Position)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Power Bag\"\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
         "\"Power\"\\s*:\\s*15",
@@ -67,7 +67,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal snapshot=command:Invoke(\"Snapshot\")\nsnapshot.ValidContinuousTraining=(snapshot.Power or 0)>=19 and snapshot.TrainingActive==1\ncommand:Invoke(\"Train\",\"Power Bag\")\nreturn HttpService:JSONEncode(snapshot)"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal deadline=os.clock()+3 local snapshot repeat snapshot=command:Invoke('Snapshot') if snapshot.TrainingActive==1 and snapshot.Power>=19 then break end task.wait(.05) until os.clock()>=deadline\nsnapshot.ValidContinuousTraining=(snapshot.Power or 0)>=19 and snapshot.TrainingActive==1\ncommand:Invoke(\"Train\",\"Power Bag\")\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
         "\"ValidContinuousTraining\"\\s*:\\s*true"
@@ -126,7 +126,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\ncharacter:WaitForChild(\"HumanoidRootPart\").CFrame = CFrame.new(-69, 5, -14)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Hero Armory Merchant Interaction\"\nreturn HttpService:JSONEncode(snapshot)"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal player = Players:GetPlayers()[1]\nlocal character = player.Character or player.CharacterAdded:Wait()\nlocal merchant=workspace.PunchWallRPG.Interactables['Hero Armory Merchant Interaction'] character:WaitForChild('HumanoidRootPart').CFrame=CFrame.lookAt(merchant.Position+Vector3.new(-6,0,0),merchant.Position)\nlocal snapshot = command:Invoke(\"Snapshot\")\nsnapshot.PositionedNear = \"Hero Armory Merchant Interaction\"\nreturn HttpService:JSONEncode(snapshot)"
       },
       "expectRegex": [
         "\"EquippedFist\"\\s*:\\s*\"Starter Glove\"",

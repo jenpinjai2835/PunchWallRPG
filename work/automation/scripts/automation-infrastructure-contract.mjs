@@ -216,7 +216,7 @@ const iteration04 = read(path.join(flowsRoot, "iteration04-armory-pets-feedback.
 check(
   "iteration04_uses_current_catalog_selector",
   !iteration04.includes("Gauntlet Palm")
-    && iteration04.includes("cfg.PremiumFists")
+    && /ipairs\([A-Za-z_]\w*\.PremiumFists\)/.test(iteration04)
     && iteration04.includes("PremiumFistShowcase"),
   "Iteration 04 must validate the current PremiumFist catalog, not removed fixtures.",
 );

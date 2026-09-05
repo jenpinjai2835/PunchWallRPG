@@ -5,8 +5,20 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7500, "label": "wait for preload and onboarding" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for preload and onboarding"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -28,7 +40,14 @@
       ],
       "label": "loading screen and critical preload ready"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Branded_Loading" }, "label": "capture loading screen" },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_Branded_Loading"
+      },
+      "label": "capture loading screen"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -38,13 +57,17 @@
       },
       "label": "reset fresh player at spawn"
     },
-    { "type": "wait", "ms": 900, "label": "wait for objective refresh" },
+    {
+      "type": "wait",
+      "ms": 900,
+      "label": "wait for objective refresh"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke('__HideLoading') task.wait(.2) local w=g.TutorialWaypoint local h=g.PixelPerfectHeroCityHUD local objective=h:FindFirstChild('ObjectiveText',true) return H:JSONEncode({loadingHidden=not g.HeroCitySpawnReveal.Visible,objectiveReady=g:GetAttribute('OnboardingObjectiveReady'),step=g:GetAttribute('OnboardingObjectiveStep'),waypointReady=g:GetAttribute('OnboardingWaypointReady'),target=g:GetAttribute('OnboardingWaypointTarget'),waypointEnabled=w.Enabled,objective=objective and objective.Text or '',fits=objective and objective.TextFits or false})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke('__HideLoading') task.wait(.2) local w=g.TutorialWaypoint local h=g.PixelPerfectHeroCityHUD local objective=h:FindFirstChild('ObjectiveText',true) return H:JSONEncode({loadingHidden=not g.HeroCitySpawnReveal.Visible,objectiveReady=g:GetAttribute('OnboardingObjectiveReady'),step=g:GetAttribute('OnboardingObjectiveStep'),waypointReady=g:GetAttribute('OnboardingWaypointReady'),target=g:GetAttribute('OnboardingWaypointTarget'),waypointEnabled=w.Enabled,nearTarget=(w.Adornee.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude<=18,objective=objective and objective.Text or '',fits=objective and objective.TextFits or false})"
       },
       "expectRegex": [
         "\"loadingHidden\"[ ]*:[ ]*true",
@@ -52,18 +75,52 @@
         "\"step\"[ ]*:[ ]*1",
         "\"waypointReady\"[ ]*:[ ]*true",
         "\"target\"[ ]*:[ ]*\"Depth Course Entrance\"",
-        "\"waypointEnabled\"[ ]*:[ ]*true",
+        "\"waypointEnabled\"[ ]*:[ ]*false",
         "PUNCH THE WALL",
-        "\"fits\"[ ]*:[ ]*true"
+        "\"fits\"[ ]*:[ ]*true",
+        "\"nearTarget\"\\s*:\\s*true"
       ],
       "label": "first objective and waypoint are readable"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_First_Objective" }, "label": "capture first objective" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_First_Objective"
+      },
+      "label": "capture first objective"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

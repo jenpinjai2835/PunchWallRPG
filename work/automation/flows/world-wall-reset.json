@@ -5,14 +5,26 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 8000, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for runtime bootstrap"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,hookOwned=playEmote and playEmote:GetAttribute('PunchWallOwnedFallback')==true,repairState=character:GetAttribute('PunchWallAnimateRepairState'),adoptedLate=character:GetAttribute('PunchWallAdoptedLatePlayEmoteHook')==true,animateEnabled=animate and animate.Enabled,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
       },
       "saveAs": "animateBootstrap",
       "expectRegex": [
@@ -25,7 +37,12 @@
       ],
       "label": "capture Animate bootstrap snapshot"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "bootstrapConsole", "label": "capture bootstrap console" },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "bootstrapConsole",
+      "label": "capture bootstrap console"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -54,7 +71,10 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local deadline=os.clock()+3 repeat if gui:GetAttribute('LastFeedbackType')=='WorldReset' and gui:GetAttribute('LastFeedbackTarget')=='Spawn' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({feedback=gui:GetAttribute('LastFeedbackType'),target=gui:GetAttribute('LastFeedbackTarget')})"
       },
-      "expectRegex": ["\"feedback\"\\s*:\\s*\"WorldReset\"", "\"target\"\\s*:\\s*\"Spawn\""],
+      "expectRegex": [
+        "\"feedback\"\\s*:\\s*\"WorldReset\"",
+        "\"target\"\\s*:\\s*\"Spawn\""
+      ],
       "label": "client receives reset feedback"
     },
     {
@@ -62,7 +82,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,hookOwned=playEmote and playEmote:GetAttribute('PunchWallOwnedFallback')==true,repairState=character:GetAttribute('PunchWallAnimateRepairState'),adoptedLate=character:GetAttribute('PunchWallAdoptedLatePlayEmoteHook')==true,animateEnabled=animate and animate.Enabled,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
       },
       "saveAs": "animateAfterReset",
       "expectRegex": [
@@ -75,11 +95,37 @@
       ],
       "label": "capture Animate post-reset snapshot"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

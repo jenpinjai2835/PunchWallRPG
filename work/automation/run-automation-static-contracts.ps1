@@ -333,6 +333,8 @@ $checks.persistenceContract = @{
 }
 
 $additionalStaticContracts = @(
+    @{ file = "combat-target-boss-hud-contract.mjs"; key = "combatTargetBossHudContract" },
+    @{ file = "camera-geometry-guard-contract.mjs"; key = "cameraGeometryGuardContract" },
     @{ file = "camera-shop-stability-contract.mjs"; key = "cameraShopStabilityContract" },
     @{ file = "client-runtime-performance-contract.mjs"; key = "clientRuntimePerformanceContract" },
     @{ file = "device-matrix-hud-shop-contract.mjs"; key = "deviceMatrixHudShopContract" },

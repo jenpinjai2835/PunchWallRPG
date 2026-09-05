@@ -3530,13 +3530,47 @@ spawn.Name = "Punch Rookie Spawn"
 spawn.Anchored = true
 spawn.Size = Vector3.new(10, 1, 10)
 spawn.Position = Vector3.new(-2, 2, -18)
-spawn.Orientation = Vector3.new(0, 180, 0)
+spawn.Orientation = Vector3.zero
 spawn.Color = PolishConfig.Palette.HeroCyan
 spawn.Material = Enum.Material.Slate
 spawn.Transparency = 1
 spawn.CanCollide = false
 spawn.Neutral = true
 spawn.Parent = root
+
+-- A character can finish loading while the world is still being generated.
+-- Bind both existing and future characters to the completed map's spawn.
+local spawnBindings = {}
+local function bindPlayerSpawn(player)
+	if spawnBindings[player] then return end
+	player.RespawnLocation = spawn
+	local state = {}
+	spawnBindings[player] = state
+	local function placeCharacter(character)
+		if state.character == character then return end
+		state.character = character
+		task.spawn(function()
+			local rootPart = character:WaitForChild("HumanoidRootPart", 5)
+			local deadline = os.clock() + 5
+			while player.Character == character and not character:IsDescendantOf(workspace) and os.clock() < deadline do
+				task.wait()
+			end
+			if not rootPart or spawnBindings[player] ~= state or state.character ~= character
+				or player.Character ~= character or not character:IsDescendantOf(workspace) then return end
+			rootPart.AssemblyLinearVelocity = Vector3.zero
+			rootPart.AssemblyAngularVelocity = Vector3.zero
+			local position = spawn.Position + Vector3.new(0, 4, 0)
+			rootPart.CFrame = CFrame.lookAt(position, position + Vector3.new(0, 0, -1))
+			character:SetAttribute("PunchWallSpawnPlaced", true)
+		end)
+	end
+	state.connection = player.CharacterAdded:Connect(placeCharacter)
+	if player.Character then placeCharacter(player.Character) end
+end
+Players.PlayerRemoving:Connect(function(player)
+	local state = spawnBindings[player]
+	if state then state.connection:Disconnect() spawnBindings[player] = nil end
+end)
 
 local fallRecovery = makePart("Fall Recovery Zone", root, Vector3.new(150, 1, 470), Vector3.new(-2, -35, -150), Color3.new(0, 0, 0), Enum.Material.SmoothPlastic)
 fallRecovery.Transparency = 1
@@ -6639,7 +6673,8 @@ local boostShowcaseSpecs = {
 	{
 		id = "CoinBoost",
 		displayName = "2X COINS",
-		detail = "15 MINUTES  |  5K COINS",
+		detail = "15 MINUTES  |  ROBUX SHOP",
+		shopPage = "Robux",
 		position = Vector3.new(27.5, 0.7, -21.5),
 		color = Color3.fromRGB(244, 168, 29),
 		accent = Color3.fromRGB(255, 226, 78),
@@ -6767,11 +6802,11 @@ shared.PunchWallOpenWorldBoostKiosk = function(player, boostId)
 	sendFeedback(player, {
 		type = "OpenMenu",
 		target = selected.id,
-		tab = "Boosts",
+		tab = selected.shopPage or "Boosts",
 		message = selected.displayName,
 		color = selected.accent,
 	})
-	return { ok = true, page = "Boosts", boostId = selected.id }
+	return { ok = true, page = selected.shopPage or "Boosts", boostId = selected.id }
 end
 
 local boostShowcasePartCount = 0
@@ -6780,7 +6815,7 @@ for index, spec in ipairs(boostShowcaseSpecs) do
 	model.Name = spec.id .. " World Showcase"
 	model:SetAttribute("VisualRole", "WorldBoostProductModel")
 	model:SetAttribute("BoostId", spec.id)
-	model:SetAttribute("ShopPage", "Boosts")
+	model:SetAttribute("ShopPage", spec.shopPage or "Boosts")
 	model:SetAttribute("HighTrafficRoute", "SpawnToDepthEntrance")
 	model:SetAttribute("NoGameplayCollision", true)
 	model:SetAttribute("StaticPresentation", true)
@@ -6797,7 +6832,7 @@ for index, spec in ipairs(boostShowcaseSpecs) do
 	)
 	plinth.CanCollide = false
 	plinth.CanTouch = false
-	plinth:SetAttribute("InteractionMenu", "Boosts")
+	plinth:SetAttribute("InteractionMenu", spec.shopPage or "Boosts")
 	plinth:SetAttribute("BoostId", spec.id)
 	model.PrimaryPart = plinth
 	local inset = makePart(
@@ -10149,6 +10184,8 @@ if RunService:IsStudio() then
 	end
 end
 
+Players.PlayerAdded:Connect(bindPlayerSpawn)
+for _, player in ipairs(Players:GetPlayers()) do bindPlayerSpawn(player) end
 Players.PlayerAdded:Connect(depthPunch.BindCharacterLifetime)
 for _, player in ipairs(Players:GetPlayers()) do depthPunch.BindCharacterLifetime(player) end
 Players.PlayerAdded:Connect(ensureStats)
