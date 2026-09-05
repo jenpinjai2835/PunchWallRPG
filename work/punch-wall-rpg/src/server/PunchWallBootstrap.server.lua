@@ -4433,6 +4433,8 @@ local depthPunch = {
 	LungeSeconds = 0.42,
 	OwnershipHoldSeconds = 0.35,
 	MaxStructuralFalling = 60,
+	ActiveShakes = setmetatable({}, { __mode = "k" }),
+	ActiveLunges = {},
 }
 local structuralDirtyLayers = {}
 local function markStructuralLayerDirty(layer)
@@ -4461,7 +4463,45 @@ root:SetAttribute("LastWorldResetAt", 0)
 root:SetAttribute("NextWorldResetAt", workspace:GetServerTimeNow() + WORLD_RESET_INTERVAL)
 root:SetAttribute("LastCharacterOverlapShatterCount", 0)
 
+function depthPunch.CancelShake(block)
+	local tween = depthPunch.ActiveShakes[block]
+	depthPunch.ActiveShakes[block] = nil
+	block:SetAttribute("ShakeToken", (block:GetAttribute("ShakeToken") or 0) + 1)
+	block:SetAttribute("Shaking", false)
+	if tween then tween:Cancel() end
+end
+
+function depthPunch.CancelPunch(player)
+	player:SetAttribute("PunchOwnershipToken", (player:GetAttribute("PunchOwnershipToken") or 0) + 1)
+	local tween = depthPunch.ActiveLunges[player]
+	depthPunch.ActiveLunges[player] = nil
+	if tween then tween:Cancel() end
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	if rootPart then
+		shared.PunchWallSetCharacterCollisionGroup(character, "PlayerCharacters")
+		pcall(function() rootPart:SetNetworkOwnershipAuto() end)
+	end
+end
+
+function depthPunch.BindCharacterLifetime(player)
+	local function watch(character)
+		local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 10)
+		if not humanoid or player.Character ~= character then return end
+		humanoid.Died:Once(function()
+			if player.Character == character then depthPunch.CancelPunch(player) end
+		end)
+	end
+	player.CharacterRemoving:Connect(function(character)
+		if player.Character == character then depthPunch.CancelPunch(player) end
+	end)
+	player.CharacterAdded:Connect(watch)
+	if player.Character then task.spawn(watch, player.Character) end
+end
+
 function depthPunch.Shake(block, intensity)
+	if not block.Anchored or block:GetAttribute("Broken") or block:GetAttribute("StructuralDetached") then return end
+	depthPunch.CancelShake(block)
 	local baseCFrame = block:GetAttribute("BaseCFrame") or block.CFrame
 	local token = (block:GetAttribute("ShakeToken") or 0) + 1
 	block:SetAttribute("ShakeToken", token)
@@ -4469,13 +4509,19 @@ function depthPunch.Shake(block, intensity)
 	block:SetAttribute("LastShakeAt", workspace:GetServerTimeNow())
 	local amount = math.clamp(tonumber(intensity) or 0.12, 0.05, 0.28)
 	local offset = Vector3.new((math.random() - 0.5) * amount, (math.random() - 0.5) * amount, (math.random() - 0.5) * amount * 0.55)
-	TweenService:Create(block, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { CFrame = baseCFrame * CFrame.new(offset) }):Play()
+	local shake = TweenService:Create(block, TweenInfo.new(0.09, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { CFrame = baseCFrame * CFrame.new(offset) })
+	depthPunch.ActiveShakes[block] = shake
+	shake:Play()
 	task.delay(0.1, function()
-		if block.Parent and not block:GetAttribute("Broken") and block:GetAttribute("ShakeToken") == token then
+		if block.Parent and block.Anchored and not block:GetAttribute("Broken") and not block:GetAttribute("StructuralDetached") and block:GetAttribute("ShakeToken") == token then
 			local restore = TweenService:Create(block, TweenInfo.new(0.22, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { CFrame = baseCFrame })
+			depthPunch.ActiveShakes[block] = restore
 			restore:Play()
 			restore.Completed:Once(function()
-				if block.Parent and block:GetAttribute("ShakeToken") == token then block:SetAttribute("Shaking", false) end
+				if block.Parent and block:GetAttribute("ShakeToken") == token then
+					depthPunch.ActiveShakes[block] = nil
+					block:SetAttribute("Shaking", false)
+				end
 			end)
 		end
 	end)
@@ -4579,6 +4625,7 @@ end
 
 function depthPunch.ShatterDetached(block, player, impactDirection, impactForceScale)
 	if not block or not block.Parent or block:GetAttribute("Broken") then return false end
+	depthPunch.CancelShake(block)
 	markDepthBlockDirty(block)
 	depthPunch.ReleaseStructuralSlot(block)
 	block:SetAttribute("Broken", true)
@@ -4606,6 +4653,7 @@ function depthPunch.DropStructural(block, player, ejectFromCharacter)
 	if not block or block:GetAttribute("Broken") or block:GetAttribute("StructuralDetached") then return false end
 	local active = root:GetAttribute("ActiveStructuralFalling") or 0
 	if active >= depthPunch.MaxStructuralFalling then return false end
+	depthPunch.CancelShake(block)
 	markDepthBlockDirty(block)
 	local token = (block:GetAttribute("StructuralToken") or 0) + 1
 	block:SetAttribute("StructuralToken", token)
@@ -4954,6 +5002,8 @@ function depthPunch.Lunge(player, rootPart, profile)
 	if not (profile and profile.skipWindup) then task.wait(depthPunch.WindupSeconds) end
 	profile = profile or depthPunch.PowerProfile(player)
 	if not rootPart or not rootPart.Parent then return nil end
+	if profile.ownershipToken and player:GetAttribute("PunchOwnershipToken") ~= profile.ownershipToken then return nil end
+	if rootPart.Parent ~= player.Character then return nil end
 	local requestedDirection = profile.direction
 	local look = typeof(requestedDirection) == "Vector3" and requestedDirection or rootPart.CFrame.LookVector
 	local horizontal = Vector3.new(look.X, 0, look.Z)
@@ -5004,8 +5054,12 @@ function depthPunch.Lunge(player, rootPart, profile)
 		local tween = TweenService:Create(rootPart, TweenInfo.new(depthPunch.LungeSeconds, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 			CFrame = rootPart.CFrame + direction * travel,
 		})
+		depthPunch.ActiveLunges[player] = tween
 		tween:Play()
-		tween.Completed:Wait()
+		local state = tween.Completed:Wait()
+		if depthPunch.ActiveLunges[player] == tween then depthPunch.ActiveLunges[player] = nil end
+		if state ~= Enum.PlaybackState.Completed or player:GetAttribute("PunchOwnershipToken") ~= ownershipToken
+			or not rootPart.Parent or rootPart.Parent ~= player.Character then return nil end
 		rootPart.AssemblyLinearVelocity = Vector3.new(0, rootPart.AssemblyLinearVelocity.Y, 0)
 	end
 	task.delay(depthPunch.OwnershipHoldSeconds, function()
@@ -5082,6 +5136,7 @@ local function hitDepthBlock(player, block, options)
 		return { ok = true, outcome = "hit", detached = wasDetached, damage = damage, hp = remainingHP, Depth = block:GetAttribute("Depth"), Tier = block:GetAttribute("Tier") }
 	end
 
+	depthPunch.CancelShake(block)
 	block:SetAttribute("Broken", true)
 	block:SetAttribute("StructuralDetached", false)
 	block:SetAttribute("StructuralFalling", false)
@@ -5144,6 +5199,8 @@ function depthPunch.Punch(player, directionName)
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	if not rootPart then return { ok = false, reason = "character" } end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then return { ok = false, reason = "character" } end
 	local actionLook = rootPart.CFrame.LookVector
 	local actionHorizontal = Vector3.new(actionLook.X, 0, actionLook.Z)
 	if actionHorizontal.Magnitude < 0.01 then return { ok = false, reason = "direction" } end
@@ -5176,6 +5233,13 @@ function depthPunch.Punch(player, directionName)
 
 	task.wait(depthPunch.WindupSeconds)
 	if not rootPart.Parent then return { ok = false, reason = "character" } end
+	if rootPart.Parent ~= player.Character or player:GetAttribute("PunchOwnershipToken") ~= profile.ownershipToken then
+		return { ok = false, reason = "cancelled" }
+	end
+	if humanoid.Health <= 0 then
+		depthPunch.CancelPunch(player)
+		return { ok = false, reason = "cancelled" }
+	end
 	local direction = actionDirection
 	player:SetAttribute("LastPunchPlanningDirection", direction)
 	local origin = rootPart.Position + Vector3.new(0, 0.8, 0)
@@ -5265,7 +5329,9 @@ function depthPunch.Punch(player, directionName)
 	player:SetAttribute("LastPunchPlanningBarrier", clearedPlan.barrier)
 	player:SetAttribute("LastPunchPredictedBreakCount", brokenCount)
 	local lunge = depthPunch.Lunge(player, rootPart, profile)
-	if not lunge then return { ok = false, reason = "lunge" } end
+	if not lunge then
+		return { ok = false, reason = player:GetAttribute("PunchOwnershipToken") ~= profile.ownershipToken and "cancelled" or "lunge" }
+	end
 
 	player:SetAttribute("LastRadiusHitCount", hitCount)
 	player:SetAttribute("LastPenetrationStuds", traceLength)
@@ -9035,7 +9101,8 @@ local function handleMobileAction(player, request)
 		stopTraining(player)
 	elseif action == "Punch" then
 		local radiusResult = depthPunch.Punch(player, value)
-		if radiusResult.ok or radiusResult.reason == "cooldown" then return end
+		if radiusResult.ok or radiusResult.reason == "cooldown" or radiusResult.reason == "cancelled"
+			or radiusResult.reason == "character" or radiusResult.reason == "lunge" then return end
 		local wall = nearestWall(player)
 		if not wall or wall:GetAttribute("IsDepthBlock") then
 			sendFeedback(player, { type = "Fail", target = "Punch", message = "Move closer", color = PolishConfig.Palette.Fail })
@@ -9089,6 +9156,7 @@ end
 
 function resetWorldState()
 	for _, activePlayer in ipairs(Players:GetPlayers()) do
+		depthPunch.CancelPunch(activePlayer)
 		petDropRuntime.Clear(activePlayer, "world_reset")
 		activePlayer:SetAttribute("PetDropCooldownUntil", 0)
 	end
@@ -9117,6 +9185,7 @@ function resetWorldState()
 			or block.CollisionGroup ~= "DepthStructure"
 			or (typeof(baseCFrame) == "CFrame" and block.CFrame ~= baseCFrame))
 		if needsReset then
+			depthPunch.CancelShake(block)
 			resetDepthBlocks += 1
 			block:SetAttribute("HP", maxHP)
 			block:SetAttribute("Broken", false)
@@ -10080,8 +10149,11 @@ if RunService:IsStudio() then
 	end
 end
 
+Players.PlayerAdded:Connect(depthPunch.BindCharacterLifetime)
+for _, player in ipairs(Players:GetPlayers()) do depthPunch.BindCharacterLifetime(player) end
 Players.PlayerAdded:Connect(ensureStats)
 Players.PlayerRemoving:Connect(function(player)
+	depthPunch.CancelPunch(player)
 	shared.PunchWallStatsSync.remove(player)
 	petDropRuntime.Clear(player, "player_removing")
 	local session = persistenceRuntime.profileSessions[player]

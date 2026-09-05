@@ -22,7 +22,7 @@ const textListener = extract("local function text(name)", "for _, name in ipairs
 assert(numberListener.includes('shared.PunchWallStatsSync.queue(player, name == "Depth" or name == "Score")'));
 assert(!numberListener.includes("syncStats("), "Ordinary numeric changes must use the queue");
 assert(textListener.includes("shared.PunchWallStatsSync.queue(player)"));
-assert(source.includes("Players.PlayerRemoving:Connect(function(player)\n\tshared.PunchWallStatsSync.remove(player)"));
+assert(source.match(/Players\.PlayerRemoving:Connect\(function\(player\)([\s\S]*?)\nend\)/)?.[1].includes("shared.PunchWallStatsSync.remove(player)"), "Player removal must discard queued snapshots");
 assert(source.includes('if action == "RequestSync" then\n\t\tif profileReady(player, false) then\n\t\t\tsyncStats(player)'));
 
 const cliDirIndex = process.argv.indexOf("--luau-tool-dir");
