@@ -294,3 +294,39 @@ proof and accurate stress/last-scan labels need correction before measurements.
 Thai game guide b90fe9a and Settings peer review55d4f30 are integrated doc-only.
 No artifact was rebuilt or published. Parent remains BLOCKED6/9. Latest quota:
 5% remaining, three reset credits available, none consumed.
+
+## Held handoffs 2026-09-06 06:24 ICT
+
+The frozen first integrated run has reached 40/124: 38 PASS and the same two
+camera failures. No source/flow/tool file in its 223-file freeze changed.
+Current integration HEAD c494d9c adds only documentation and reviewed historical
+JSON/menu/prototype evidence after the source freeze. The active suite evidence
+and remaining diagnostic PNGs are deliberately not staged mid-run.
+
+Do not integrate either pending script/source handoff until session56085 and
+its full manifest finish:
+
+- Camera source a5fea5d3b57dfa85393f8c4c8735ab5bf8c90004 and tests/docs
+  2ddecc6eb90abcb1dbaad97572079662335fe74b, isolated camera-final-safety tree.
+  The source respects current zoom bounds and repairs fresh physical overlaps
+  in PostSimulation; Heartbeat retains suspended-render recovery. Both strict
+  physical probes and 2.4/2.65 response gates remain. New bounded diagnostics
+  expose unresolved poses and actual sampled displacement context. PASS166
+  assertions,15 semantic mutations,two frozen regressions,21 earlier historical
+  controls,17 camera/Shop checks and all compilation levels. Agent1 peer review
+  is active. Actual Studio verification still pending.
+- Profiler b80d77003c629947be581fa05e7fa3772cb3d637, isolated frame-profile-final
+  tree: only new studio-frame-profile.mjs and its verification document.
+  Coordinator reviewed and independently ran its offline52 Node checks,31
+  exact Luau assertions and8 snippet compiles without Studio. Native execution
+  requires the final build manifest plus successful reopened-validation-copy
+  runtime proof, exact current nine source hashes and explicit observed id/name.
+  It accurately labels boundary overhead, last-scan values and the four-reset
+  direct-server stress; no actual performance numbers exist yet.
+
+After current full run: preserve all results; integrate reviewed camera and
+profiler handoffs, sync changed source, run camera-focused actual regressions,
+then perform a fresh complete frozen suite on the repaired source before build.
+Canonical output remains original. Latest quota at06:23 is4% remaining with
+three unused reset credits. At <=3%, consume the single authorized reset through
+native tool and retain its idempotency key for any uncertain retry.
