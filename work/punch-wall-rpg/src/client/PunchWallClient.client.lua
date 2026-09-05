@@ -6765,12 +6765,86 @@ shared.PunchWallRefreshHonorMotion = function()
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
 end
 
+function companionRuntime.CharacterHandSizeSignature(character)
+	local state = companionRuntime.handSizeObserver
+	local fields = {
+		tostring(state and state.character == character and state.generation or 0),
+		tostring(state and state.character == character and state.handRevision or 0),
+	}
+	for _, names in ipairs({ { "RightHand", "Right Arm" }, { "LeftHand", "Left Arm" } }) do
+		local hand = character and (character:FindFirstChild(names[1]) or character:FindFirstChild(names[2]))
+		if hand and hand:IsA("BasePart") then
+			table.insert(fields, hand.Name)
+			table.insert(fields, ("%.5f,%.5f,%.5f"):format(hand.Size.X, hand.Size.Y, hand.Size.Z))
+		else
+			table.insert(fields, names[1] .. ":Missing")
+		end
+	end
+	return table.concat(fields, "|")
+end
+
+function companionRuntime.ObserveCharacterHandSizes(character)
+	local previous = companionRuntime.handSizeObserver
+	if previous and previous.character == character and not previous.cancelled then return end
+	if previous then
+		previous.cancelled = true
+		for _, connection in ipairs(previous.connections) do connection:Disconnect() end
+		for _, connection in pairs(previous.hands) do connection:Disconnect() end
+	end
+	companionRuntime.handSizeObserverGeneration = (companionRuntime.handSizeObserverGeneration or 0) + 1
+	companionRuntime.handSizeObserver = nil
+	if not character then return end
+	local state = {
+		character = character,
+		generation = companionRuntime.handSizeObserverGeneration,
+		connections = {},
+		hands = {},
+		handRevision = 0,
+		pending = false,
+		cancelled = false,
+	}
+	companionRuntime.handSizeObserver = state
+	local function current()
+		return not state.cancelled and companionRuntime.handSizeObserver == state and player.Character == character
+	end
+	local function scheduleRefresh()
+		if not current() or state.pending then return end
+		state.pending = true
+		-- ScaleTo/appearance replication can resize both hands in one burst.
+		-- Coalesce that burst and let the signature skip unchanged dimensions.
+		task.delay(0.05, function()
+			if not current() then return end
+			state.pending = false
+			refreshCharacterVisuals()
+		end)
+	end
+	local function observeHand(hand)
+		if not current() or state.hands[hand] or not hand:IsA("BasePart") then return end
+		if hand.Name ~= "RightHand" and hand.Name ~= "Right Arm"
+			and hand.Name ~= "LeftHand" and hand.Name ~= "Left Arm" then return end
+		state.hands[hand] = hand:GetPropertyChangedSignal("Size"):Connect(scheduleRefresh)
+		state.handRevision += 1
+		scheduleRefresh()
+	end
+	table.insert(state.connections, character.ChildAdded:Connect(observeHand))
+	table.insert(state.connections, character.ChildRemoved:Connect(function(hand)
+		local connection = state.hands[hand]
+		if not connection then return end
+		connection:Disconnect()
+		state.hands[hand] = nil
+		state.handRevision += 1
+		scheduleRefresh()
+	end))
+	for _, child in ipairs(character:GetChildren()) do observeHand(child) end
+end
+
 refreshCharacterVisuals = function()
 	local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
 	local signature = tostring(latestStats.EquippedFist or "Starter Glove")
 		.. "|" .. table.concat(equippedPets, ",")
 		.. "|" .. tostring(latestStats.EquippedHonorItem or "None")
 		.. "|" .. tostring(player.Character)
+		.. "|" .. companionRuntime.CharacterHandSizeSignature(player.Character)
 	if signature == visualSignature and currentGauntlet and currentGauntlet.Parent then return end
 	if not companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove") then
 		visualSignature = ""
@@ -8623,11 +8697,18 @@ player.CharacterAdded:Connect(function(character)
 	gui:SetAttribute("PunchMotionPhase", "Idle")
 	shared.PunchWallResetCameraGeometryGuard(character)
 	companionRuntime.CancelVisualRetry("CharacterAdded")
+	companionRuntime.ObserveCharacterHandSizes(character)
 	visualSignature = ""
 	task.defer(refreshCharacterVisuals)
 end)
 
+player.CharacterRemoving:Connect(function(character)
+	local state = companionRuntime.handSizeObserver
+	if state and state.character == character then companionRuntime.ObserveCharacterHandSizes(nil) end
+end)
+
 task.defer(function()
+	companionRuntime.ObserveCharacterHandSizes(player.Character)
 	requestAction("RequestSync")
 	task.wait(0.2)
 	refreshCharacterVisuals()
