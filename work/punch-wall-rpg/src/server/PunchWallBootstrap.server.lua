@@ -3540,8 +3540,9 @@ spawn.Parent = root
 
 -- A character can finish loading while the world is still being generated.
 -- Bind both existing and future characters to the completed map's spawn.
+do
 local spawnBindings = {}
-local function bindPlayerSpawn(player)
+function shared.PunchWallBindPlayerSpawn(player)
 	if spawnBindings[player] then return end
 	player.RespawnLocation = spawn
 	local state = {}
@@ -3571,6 +3572,7 @@ Players.PlayerRemoving:Connect(function(player)
 	local state = spawnBindings[player]
 	if state then state.connection:Disconnect() spawnBindings[player] = nil end
 end)
+end
 
 local fallRecovery = makePart("Fall Recovery Zone", root, Vector3.new(150, 1, 470), Vector3.new(-2, -35, -150), Color3.new(0, 0, 0), Enum.Material.SmoothPlastic)
 fallRecovery.Transparency = 1
@@ -10184,8 +10186,8 @@ if RunService:IsStudio() then
 	end
 end
 
-Players.PlayerAdded:Connect(bindPlayerSpawn)
-for _, player in ipairs(Players:GetPlayers()) do bindPlayerSpawn(player) end
+Players.PlayerAdded:Connect(shared.PunchWallBindPlayerSpawn)
+for _, player in ipairs(Players:GetPlayers()) do shared.PunchWallBindPlayerSpawn(player) end
 Players.PlayerAdded:Connect(depthPunch.BindCharacterLifetime)
 for _, player in ipairs(Players:GetPlayers()) do depthPunch.BindCharacterLifetime(player) end
 Players.PlayerAdded:Connect(ensureStats)
