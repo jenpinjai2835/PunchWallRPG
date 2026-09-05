@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "natural-progression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for progression runtime",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"trainingGain\"[ ]*:[ ]*(?:5[2-9]|[6-9][0-9]|[1-9][0-9]{2,})\nReceived: {\"trainingStarted\":true,\"buyOk\":true,\"coinsBeforePet\":151,\"powerAfterWalls\":63,\"afterBuyCoins\":84,\"firstBroken\":1,\"testMode\":false,\"claimOk\":true,\"preBuyCoins\":264,\"concreteHits\":8,\"valid\":false,\"trainedPower\":63,\"pending\":true,\"petDropped\":true,\"preBuyDepth\":6,\"initialPower\":15,\"depthBeforePet\":9,\"routeBreaks\":3,\"fistMultiplier\":1.8,\"petMultiplier\":0.22,\"trainingGain\":48,\"trainingStopped\":true,\"preBuyLevel\":5,\"petOk\":true,\"firstCoins\":11,\"starterPowerStable\":true}",
+      "context": {
+        "naturalProgressionDiagnostics": "{\"trainingStarted\":true,\"buyOk\":true,\"coinsBeforePet\":151,\"powerAfterWalls\":63,\"afterBuyCoins\":84,\"firstBroken\":1,\"testMode\":false,\"claimOk\":true,\"preBuyCoins\":264,\"concreteHits\":8,\"valid\":false,\"trainedPower\":63,\"pending\":true,\"petDropped\":true,\"preBuyDepth\":6,\"initialPower\":15,\"depthBeforePet\":9,\"routeBreaks\":3,\"fistMultiplier\":1.8,\"petMultiplier\":0.22,\"trainingGain\":48,\"trainingStopped\":true,\"preBuyLevel\":5,\"petOk\":true,\"firstCoins\":11,\"starterPowerStable\":true}"
+      }
+    }
+  ]
+}

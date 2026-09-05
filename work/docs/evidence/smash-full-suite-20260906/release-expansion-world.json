@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "release-expansion-world",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for world build",
+        "tall dense cube course and hub boundaries",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"honorStands\"\\s*:\\s*4\nReceived: {\"ok\":true,\"honorStands\":8,\"noFuturePortal\":true,\"honorNpc\":true,\"premium\":3,\"armory\":true,\"pets\":true,\"rank\":true}",
+      "context": {}
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "steps": [
+    {
+      "label": "start play and wait for both runtime DataModels",
+      "text": "Game Started"
+    },
+    {
+      "label": "seed duplicate pet occurrences with only slot one equipped",
+      "text": "{\"rawSequence\":0,\"resultSequence\":0,\"hooked\":true,\"equipped\":[\"Forest Pup\"]}"
+    },
+    {
+      "label": "open legacy Pets and expose duplicate slot two action",
+      "text": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:80: post-focus real-input precondition failed: {\"visible\":true,\"visibleArea\":false,\"callbackSequence\":0,\"active\":true,\"interactable\":true,\"text\":\"EQUIP\",\"frames\":2,\"reacquired\":true,\"top\":\"\",\"selectable\":true,\"interactableAvailable\":true,\"topmost\":false,\"button\":true,\"selected\":true,\"row\":true,\"ancestorVisible\":true}"
+    }
+  ],
+  "error": "Error: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:80: post-focus real-input precondition failed: {\"visible\":true,\"visibleArea\":false,\"callbackSequence\":0,\"active\":true,\"interactable\":true,\"text\":\"EQUIP\",\"frames\":2,\"reacquired\":true,\"top\":\"\",\"selectable\":true,\"interactableAvailable\":true,\"topmost\":false,\"button\":true,\"selected\":true,\"row\":true,\"ancestorVisible\":true}\n    at file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-input-diagnostic.mjs:10:115"
+}

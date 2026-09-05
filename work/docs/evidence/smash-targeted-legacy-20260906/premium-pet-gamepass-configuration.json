@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "premium-pet-gamepass-configuration",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for premium catalog and UI",
+        "live Roblox Game Pass identities and regional prices are available",
+        "all premium pet world stands expose configured authoritative purchase paths",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"active\"\\s*:\\s*true\nReceived: {\"ok\":true,\"rows\":[{\"livePrice\":59,\"owned\":true,\"identity\":true,\"priceText\":\"59\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1948233870,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Crimson Phoenix\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":59},{\"livePrice\":125,\"owned\":true,\"identity\":true,\"priceText\":\"125\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1948851823,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Storm Wyvern\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":125},{\"livePrice\":255,\"owned\":true,\"identity\":true,\"priceText\":\"255\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1947471788,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Celestial Guardian\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":255}],\"count\":3}",
+      "context": {}
+    }
+  ]
+}

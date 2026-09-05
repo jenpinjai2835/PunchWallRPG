@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "contract": "generic-panel-stability",
+  "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906",
+  "baselineRef": "f6202ce",
+  "sourceSha256": "dbd724ff48d9ee77e6d3bde8115a5223316818566d87f093d440de8e210eb67f",
+  "producerSha256": "241df948e4dc29f4487586de3e7c4c473db95e0b4bc61eef63cd2a1f7ab4f8d5",
+  "completeClientCompile": true,
+  "executedProducerCases": 23,
+  "baselineFailuresReproduced": 2,
+  "compiledMutationControlsRejected": 13,
+  "compiledFlowSnippets": 54,
+  "idleEvidenceValid": 1,
+  "idleEvidenceFaultsRejected": 8,
+  "compiledIdleGuardWeakeningControlsRejected": 6,
+  "studioRuntime": "Coordinator-owned; production renderers execute in a deterministic mock"
+}

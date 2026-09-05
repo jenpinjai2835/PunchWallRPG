@@ -1,0 +1,158 @@
+[
+  {
+    "flow": "branded-loading-onboarding",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "BAEFEC4CE166B424B1C14930D026E2C90A1BA86E5B1412D6DE27AE10D37715BF"
+  },
+  {
+    "flow": "onboarding-waypoint",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "A18A76F1341D80B4A5CBE0662B13C3953822488881728908C9EA11495215D826"
+  },
+  {
+    "flow": "pet-wall-drops-and-fusion",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "26CB868B2B34F25CA6120AA979BDAAC49F0C4ACB0DCB857FAA9AF37621FFF60C"
+  },
+  {
+    "flow": "premium-pet-gamepass-configuration",
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"active\"\\s*:\\s*true\nReceived: {\"ok\":true,\"rows\":[{\"livePrice\":59,\"owned\":true,\"identity\":true,\"priceText\":\"59\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1948233870,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Crimson Phoenix\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":59},{\"livePrice\":125,\"owned\":true,\"identity\":true,\"priceText\":\"125\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1948851823,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Storm Wyvern\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":125},{\"livePrice\":255,\"owned\":true,\"identity\":true,\"priceText\":\"255\",\"renderedPrice\":true,\"actionState\":true,\"actionText\":\"EQUIPPED\",\"id\":1947471788,\"world\":true,\"price\":true,\"resolved\":true,\"configured\":true,\"found\":true,\"name\":\"Celestial Guardian\",\"card\":true,\"selectable\":false,\"bound\":false,\"active\":false,\"displayed\":255}],\"count\":3}"
+    ],
+    "flowSHA256": "DDA58C236A9FB0391DD88DC1BEE6EBE0AC9CCA953FBE55C6FA09CACEC94477CF"
+  },
+  {
+    "flow": "creator-store-fist-visuals",
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:154: idle native preview rotates/rebuilds"
+    ],
+    "flowSHA256": "BD4B3A441C00D948B4D900C60A75CD0ACBCD5A5DE199B1353CF867F3D447F26D"
+  },
+  {
+    "flow": "punchwall-map-progression",
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"spawnNearFirstWall\"\\s*:\\s*true\nReceived: {\"mapExists\":true,\"hasCharacter\":true,\"spawnDistance\":25,\"spawnNearFirstWall\":false}"
+    ],
+    "flowSHA256": "2FB6953787FBAD611A17B96DA7F7AEE5DE84838D7335A267E8DA4FD75FFF1D49"
+  },
+  {
+    "flow": "punchwall-mobile-controls",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "8F184D6B4133334DFDE6C278ED762CA08BA6E45EDAD602742182621EB33DED97"
+  },
+  {
+    "flow": "punchwall-player-state",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "62B0344D5A13FBA680D22B1CD58AA0F5B45EC32097A6D2A8CF32C0B4390CD175"
+  },
+  {
+    "flow": "punchwall-visual-polish-smoke",
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"facadeReady\"\\s*:\\s*true\nReceived: {\"hasGuide\":true,\"tierReady\":true,\"hasTier\":true,\"forestBudget\":true,\"forestParts\":391,\"hasVfx\":true,\"hasCity\":true,\"landmarks\":10,\"facadeReady\":false,\"depthBlocks\":5400,\"cityReady\":true}"
+    ],
+    "flowSHA256": "74412352E3CB2E1497FF25A8AACF6A7231FC415DCF60593051410EB2682CA3B7"
+  },
+  {
+    "flow": "reduced-motion-performance",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "4F3928F92ABEFD75C55BA49FDB75D3382839BA8A688CFEEAB833F70306781338"
+  },
+  {
+    "flow": "release-expansion-ui",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "7D56542B0ACB1FA3FD00349300997DD2370A716CF91BD7B7FD7D90DD7341414C"
+  },
+  {
+    "flow": "release-expansion-world",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "33346328F3D5199359D64299BD3F29A690C08C230555F821346D04473711BD31"
+  },
+  {
+    "flow": "shop-coin-and-music",
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"ok\":true\nReceived: {\"ok\":false,\"isLoaded\":true,\"timeLength\":122.7036507936508,\"advanced\":1.1090000000000018,\"musicOk\":true,\"isPlaying\":true,\"failures\":[\"Glacier ClawShopCard\",\"Toxic ReactorShopCard\",\"Void RipperShopCard\",\"Solar DominionShopCard\",\"Nebula CrusherShopCard\",\"Quantum BreakerShopCard\",\"Chrono SovereignShopCard\",\"Galaxy EmperorShopCard\",\"Infinity CoreShopCard\",\"Ascendant HeroShopCard\"],\"icons\":18,\"volume\":0.2199999988079071}"
+    ],
+    "flowSHA256": "1FEA9FFC8558697239E47CD07D43C97C9351BC4949A25976F4C950FB05249E78"
+  },
+  {
+    "flow": "studio-test-harness-control",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "B8E01707C6D8E7B480B0971F3AFCEEFC00D5EF9279AF4D0D6F8779739DA3FA41"
+  },
+  {
+    "flow": "titan-hq-tonal-readability",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "DD7B456FBF50ACB7AE2F1815833670DE6AD71C70CE1C1CDE4F2EBC2C7256777D"
+  },
+  {
+    "flow": "punchwall-hybrid-physics-lunge",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "A8055931DDD46660622E93BED2566724FB2F8773E2DDE87C4173A9D2B7D0F599"
+  },
+  {
+    "flow": "punchwall-radius-damage-shake",
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"reason\"\\s*:\\s*\"no_block\"\nReceived: {\"ok\":false,\"broken\":0,\"score\":0}"
+    ],
+    "flowSHA256": "F3063F5D4DBA640C0875C4726D7BB2BCB085E1B9679DECC1ED8CCF638FAA63EB"
+  },
+  {
+    "flow": "punchwall-shared-excavation-field",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "2C98F5199B72C4735E95A1E4F479C5F2E4790E466A215690CDE354720C52E21A"
+  },
+  {
+    "flow": "punchwall-train-and-break",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "B7364FCF96835B6BA62C257B52F2816A985150FCBC4DCE8443702AA2A3D4670A"
+  },
+  {
+    "flow": "punchwall-motion-feedback",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "F548AC41AF2E271ED1EEBC68DBDCE4C47033472AA33930FBD06F85F34DD94C1D"
+  },
+  {
+    "flow": "training-lock-motion-feedback",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "5DC35856E7343AE582F5AB9507BD8D06395D8D2B7DD144E2ED7E43AB16ACF68C"
+  },
+  {
+    "flow": "training-station-progression",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "C0093A4800D86C1FCF3913B59441EF7F9516166F0308338D993C9376A68BE436"
+  },
+  {
+    "flow": "natural-progression",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "AFD1CEC2E6BA6E8F75BE5D66CAF1BDCB81757749B53B149BDE13C401A3599AAA"
+  },
+  {
+    "flow": "iteration05-final-depth-motion",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "4608362F6B78C88EB9576A14E960014F8C400D087FD5E572E828D5C32625A47C"
+  }
+]

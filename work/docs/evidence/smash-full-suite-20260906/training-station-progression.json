@@ -1,0 +1,48 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "training-station-progression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "four-station matrix and Pet Lab annex are exact and non-overlapping",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Training threshold rejection failed {\"ok\":false,\"rows\":[{\"exact\":false,\"required\":1500,\"power\":1499,\"qualification\":1500.4989999999999,\"station\":\"Iron Impact Dummy\"},{\"exact\":false,\"required\":150000,\"power\":149999,\"qualification\":150148.99899999999,\"station\":\"Titan Reactor\"},{\"exact\":false,\"required\":15000000,\"power\":14999999,\"qualification\":15014998.998999998,\"station\":\"Celestial Power Core\"}]}",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    }
+  ]
+}

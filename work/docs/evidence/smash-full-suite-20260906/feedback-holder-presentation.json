@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "feedback-holder-presentation",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play and wait for runtime DataModels",
+        "wait for feedback UI bootstrap",
+        "prepare rejected rebirth and fresh premium state",
+        "request a gated rebirth through the player remote",
+        "wait for rejection feedback",
+        "gated action renders visible rejection feedback",
+        "let rejection presentation clear",
+        "request the deterministic Studio premium pet grant",
+        "wait for premium grant feedback",
+        "cleanup feedback regression"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"delta\"\\s*:\\s*1\nReceived: {\"toastHolder\":true,\"type\":\"Fail\",\"toasts\":1,\"rewardHolder\":false,\"target\":\"Rebirth\",\"rewards\":0,\"delta\":0,\"presented\":true}",
+      "context": {}
+    }
+  ]
+}

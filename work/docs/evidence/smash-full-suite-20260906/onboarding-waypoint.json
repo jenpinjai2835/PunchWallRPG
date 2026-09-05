@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "onboarding-waypoint",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for bootstrap",
+        "fresh spawn starts punch-first onboarding",
+        "wait for objective refresh",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"enabled\"\\s*:\\s*true\nReceived: {\"enabled\":false,\"objective\":\"OBJECTIVE  |  Punch The Wall\\nFollow the arrow and punch a front wall block  |  7 studs\",\"target\":\"Depth Course Entrance\",\"context\":\"Move near a target\",\"contextVisible\":false}",
+      "context": {}
+    }
+  ]
+}

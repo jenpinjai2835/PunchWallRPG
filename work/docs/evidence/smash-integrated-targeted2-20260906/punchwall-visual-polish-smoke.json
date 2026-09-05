@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-visual-polish-smoke",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "edit mode detected",
+        "polish config exists",
+        "start play",
+        "wait for runtime bootstrap",
+        "kaiju bloom configured",
+        "kaiju color correction configured",
+        "forest, depth, Titan, and polish budgets are present",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: Asphalt\nReceived: Error: Could not find any instances at path 'Workspace.PunchWallRPG.Downtown Smash Block'",
+      "context": {
+        "stateBefore": "- Current Studio Mode: Edit\n- Available DataModels: Edit\n- Focused DataModel in the viewport: Edit"
+      }
+    }
+  ]
+}

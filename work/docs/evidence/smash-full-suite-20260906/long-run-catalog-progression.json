@@ -1,0 +1,40 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "long-run-catalog-progression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime catalog",
+        "catalog is unique ordered and spans endgame",
+        "server enforces depth-only final fist and cost boundaries",
+        "depth-75 pet grants once and duplicate cannot farm Luck",
+        "wait for Omega Guardian visual",
+        "endgame pet uses bounded sanitized model",
+        "grant complete normal pet catalog",
+        "wait for complete pet inventory previews",
+        "all sixteen pet cards render exact bounded sanitized previews",
+        "seed high-level zero-depth shop lock state",
+        "client keeps fifteen fists locked despite high WallLevel",
+        "advance shop to penultimate depth",
+        "client leaves only final fist locked at depth seventy-four",
+        "unlock shop with depth despite low WallLevel",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: {\"ok\":false,\"canvas\":0,\"minHeight\":154,\"viewport\":0,\"cards\":16,\"locked\":0,\"mode\":\"FixedReadableCardsV1\",\"actions\":16,\"statesValid\":true}",
+      "context": {}
+    }
+  ]
+}

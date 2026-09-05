@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "hero-city-pixel-perfect-hud",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for pixel HUD",
+        "pixel HUD including the dedicated Inventory action is exact",
+        "prepare first depth block",
+        "break depth block through authoritative combat path",
+        "wait for physics debris",
+        "depth breach is open with visible debris",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"cards\"\\s*:\\s*5\nReceived: {\"visible\":true,\"tabs\":5,\"close\":true,\"minTouch\":true,\"art\":16,\"actions\":16,\"cards\":16}",
+      "context": {}
+    }
+  ]
+}

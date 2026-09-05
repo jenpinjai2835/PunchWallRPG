@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "creator-store-pet-pack-visuals",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "eight pack plus three detailed Premium templates are exact safe and bounded",
+        "start play",
+        "wait for runtime templates and Inventory",
+        "runtime keeps eight pack children and restores three detailed Premium assets",
+        "all eight Inventory cards render exact pack or detailed Premium sources",
+        "capture exact Inventory pet previews",
+        "equip all three detailed Premium pets",
+        "wait for premium formation",
+        "premium companions keep original detailed identities and non-overlapping formation",
+        "capture detailed Premium companions",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 0)"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "consoleBeforeStop",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleAfterStop",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

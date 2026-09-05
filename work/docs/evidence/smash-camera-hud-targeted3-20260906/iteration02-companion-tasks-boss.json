@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "iteration02-companion-tasks-boss",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for iteration runtime",
+        "DNA graphic and boss countdown contract exist",
+        "prepare one equipped companion and wall target",
+        "wait for client companion visuals",
+        "imported companion identity and real pet inventory",
+        "four menu actions route to their actual current surfaces",
+        "refresh deterministic wall target state",
+        "wait for refreshed wall target",
+        "wall HUD estimates actual effective-power hits remaining",
+        "unavailable task rewards communicate WAIT",
+        "early quest claim rejects through real remote feedback",
+        "wait for failed claim feedback",
+        "early quest reward remains authoritatively unavailable",
+        "enter Titan phase two without breaking boss",
+        "wait for countdown scheduling and boss HUD",
+        "Titan shockwave has a replicated countdown",
+        "phase-two boss HP, weak point and actual attack deadline agree",
+        "strike a Titan weak point",
+        "wait for weak point feedback",
+        "weak-point strike gives distinct local feedback",
+        "restore owned HUD observation pose",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}
