@@ -9,8 +9,9 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const clientPath = "work/punch-wall-rpg/src/client/PunchWallClient.client.lua";
-const baselineIndex = process.argv.indexOf("--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || "b521dea";
+const losBaseline = process.argv.includes("--baseline-los");
+const baselineIndex = process.argv.indexOf(losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -73,12 +74,13 @@ local bound,bindCounts={},{}
 local RunService={Heartbeat=signal(),BindToRenderStep=function(_,name,_,cb) bound[name]=cb bindCounts[name]=(bindCounts[name] or 0)+1 end}
 local UserInputService={InputChanged=signal(),TouchPinch=signal()}
 local blocked=function() return false end
+local occluded=function() return false end
 local resolver=function(cf,focus)
- if blocked(cf.Position) then return nil,nil,nil,nil end
+ if blocked(cf.Position) or occluded(cf.Position) then return nil,nil,nil,nil end
  return cf,focus,Vector3.zero,nil
 end
 local shared={PunchWallCameraPositionBlocked=function(p) return blocked(p) end}
-local function cameraPoseBlocked(cf) return blocked(cf.Position) end
+local function cameraPoseBlocked(cf) return blocked(cf.Position) or occluded(cf.Position) end
 local function cameraCharacterTarget(c) return c:FindFirstChild('HumanoidRootPart').Position end
 local function resolveClearCameraPose(cf,focus,c) return resolver(cf,focus,c) end
 local activePunchCamera=nil
@@ -202,7 +204,7 @@ print('PASS '..count)
   occlusion: `${common}
 local part={Parent=true,LocalTransparencyModifier=.75,IsA=function() return true end}
 function camera:GetPartsObscuringTarget() return {part} end
-${block("local cameraOcclusionApplied =", "\nlocal bossHudTimer =")}
+${block("local cameraOcclusionApplied =", source.includes("\nlocal bossHudTimer =") ? "\nlocal bossHudTimer =" : "\n-- Boss HP and countdown")}
 check(attrs.PreservePlayerZoomInTunnels==false,'initial_zoom_mode_is_not_misreported')
 player.DevCameraOcclusionMode='Invisicam' propertySignal:Fire()
 check(attrs.PreservePlayerZoomInTunnels==true and attrs.CameraOcclusionMode=='OpaqueInvisicam','late_invisicam_updates_policy')
@@ -215,6 +217,89 @@ part.LocalTransparencyModifier=.5 bound.PunchWallOpaqueOcclusion()
 check(attrs.CameraOcclusionOpaque==false and part.LocalTransparencyModifier==.5,'inactive_mode_does_not_override_other_owner')
 print('PASS '..count)
 `,
+  losLimiter: `${guardSetup}
+seed()
+occluded=function(p) return p.X>.15 and p.X<1 and p.Y<.35 end
+pose(4,4,0) update(1/60)
+check(not occluded(camera.CFrame.Position),'limited_pose_has_clear_line_of_sight')
+check(camera.CFrame.Position.Y>.39 and math.abs(camera.CFrame.Position.X)<.001,'los_blocked_diagonal_uses_clear_vertical_step')
+check(camera.CFrame.Position.Magnitude<=.40001,'los_alternative_keeps_correction_bounded')
+check(not occluded(shared.PunchWallHeartbeatLastClearCFrame.Position),'occluded_pose_never_poisoned_clear_cache')
+occluded=function() return false end
+local previous=camera.CFrame.Position
+pose(4,4,0) update(1/60)
+check((camera.CFrame.Position-previous).Magnitude<=.40001 and camera.CFrame.Position.X>0,'removed_los_obstacle_resumes_direct_follow')
+print('PASS '..count)
+`,
+  losFinal: `${guardSetup}
+occluded=function(p) return p.X==5 end
+resolver=function(_,focus) return CFrame.new(5,0,0),focus,Vector3.zero,nil end
+pose(4,0,0) update(1/60)
+check(camera.CFrame.Position.X==4,'final_los_check_precedes_publish')
+check(shared.PunchWallHeartbeatLastClearCFrame==nil,'invalid_los_final_pose_not_cached')
+print('PASS '..count)
+`,
+  losFallback: `${guardSetup}
+seed()
+attrs.PunchCameraFollowActive=false
+shared.PunchWallCameraBaselineCFrame=CFrame.new(3,0,0)
+shared.PunchWallCameraBaselineFocus=CFrame.new(3,0,-12)
+occluded=function(p) return p.X<2 or math.abs(p.X-3)<.01 end
+resolver=function() return nil,nil,nil,nil end
+pose(4,0,0) update(1/60)
+check(math.abs(camera.CFrame.Position.X-4)<.001,'occluded_cache_and_baseline_never_published')
+occluded=function(p) return p.X<2 end
+pose(4,0,0) update(1/60)
+check(math.abs(camera.CFrame.Position.X-3)<.001,'clear_los_baseline_remains_available')
+print('PASS '..count)
+`,
+  lowFpsRootFollow: `${guardSetup}
+lastPunchActionAt=0
+pose(0,0,12) update(1/60)
+attrs.PunchCameraFollowActive=true
+for index=1,10 do
+ rootPart.Position=Vector3.new(0,0,-5*index)
+ pose(0,0,rootPart.Position.Z+12)
+ now+=.2 update(.2)
+ check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-12)<.001,'low_fps_root_follow_preserves_requested_orbit')
+end
+check(attrs.PunchCameraMaxCorrectionStep<.001,'ordinary_root_translation_does_not_spend_correction_budget')
+check(attrs.PunchCameraInheritedRootStep==5,'ordinary_root_step_is_measured_separately')
+attrs.PunchCameraFollowActive=false
+pose(0,0,rootPart.Position.Z+12) update(.2)
+check(attrs.PunchCameraHandoffActive==false,'clear_follow_settles_without_backlog')
+check(camera.CFrame.Yaw==.7 and math.abs((camera.CFrame.Position-camera.Focus.Position).Magnitude-12)<.001,'root_follow_preserves_live_rotation_and_focus_distance')
+print('PASS '..count)
+`,
+  rootSweep: `${guardSetup}
+seed()
+blocked=function(p) return p.X>.9 and p.X<1.1 end
+rootPart.Position=Vector3.new(4,0,0)
+pose(4,0,0) update(1/60)
+check(camera.CFrame.Position.X<.9 and not blocked(camera.CFrame.Position),'inherited_root_motion_cannot_cross_thin_wall')
+check((attrs.PunchCameraInheritedRootStep or 0)==0,'blocked_root_translation_is_not_inherited')
+check(camera.CFrame.Position.Magnitude<=.40001,'blocked_root_path_retains_bounded_correction')
+print('PASS '..count)
+`,
+  rootCarryLos: `${guardSetup}
+seed()
+rootPart.Position=Vector3.new(4,0,0)
+occluded=function(p) return p.X>3.9 and p.X<5 and p.Y<.35 end
+pose(8,4,0) update(1/60)
+check(math.abs(camera.CFrame.Position.X-4)<.001 and camera.CFrame.Position.Y>.39,'carried_pose_keeps_current_character_line_of_sight')
+check(not occluded(camera.CFrame.Position) and not occluded(shared.PunchWallHeartbeatLastClearCFrame.Position),'carried_pose_and_cache_are_not_occluded')
+check(attrs.PunchCameraMaxCorrectionStep<=.40001,'carried_los_alternative_keeps_correction_bounded')
+print('PASS '..count)
+`,
+  clearPartialRecovery: `${guardSetup}
+seed()
+rootPart.Position=Vector3.new(5,0,0)
+resolver=function() return nil,nil,nil,nil end
+pose(15,0,0) update(1/60)
+check(camera.CFrame.Position.X>5 and camera.CFrame.Position.X<5.401,'verified_partial_recovery_does_not_stall_with_unavailable_far_endpoint')
+check(shared.PunchWallHeartbeatLastClearCFrame.Position.X==camera.CFrame.Position.X,'verified_partial_recovery_is_cached')
+print('PASS '..count)
+`,
 };
 const expectedFailures = {
   limiter: "limited_pose_physically_clear", sweep: "clear_endpoint_does_not_cross_thin_wall",
@@ -222,17 +307,27 @@ const expectedFailures = {
   lifecycle: "new_character_does_not_recover_toward_old_cache", occlusion: "late_invisicam_updates_policy",
   respawn: "respawn_clears_persistent_follow_flags",
 };
+const losFailures = {
+  losLimiter: "limited_pose_has_clear_line_of_sight",
+  losFinal: "final_los_check_precedes_publish",
+  losFallback: "occluded_cache_and_baseline_never_published",
+  lowFpsRootFollow: "low_fps_root_follow_preserves_requested_orbit",
+  rootCarryLos: "carried_pose_keeps_current_character_line_of_sight",
+  clearPartialRecovery: "verified_partial_recovery_does_not_stall_with_unavailable_far_endpoint",
+};
 const temp = fs.mkdtempSync(path.join(tempRoot, "smash-camera-guard-contract-"));
 const results = {};
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
+    if (baseline && !losBaseline && !(name in expectedFailures)) continue;
     const file = path.join(temp, `${name}.luau`);
     fs.writeFileSync(file, fixture);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    if (baseline) {
-      assert.ok(result.status !== 0 && output.includes(expectedFailures[name]), `${name}: expected baseline failure ${expectedFailures[name]}: ${output}`);
-      results[name] = { reproduced: expectedFailures[name] };
+    const expectedFailure = baseline && (losBaseline ? losFailures[name] : expectedFailures[name]);
+    if (expectedFailure) {
+      assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
+      results[name] = { reproduced: expectedFailure };
     } else {
       assert.equal(result.status, 0, `${name}: ${output}`);
       results[name] = { passed: Number(output.match(/PASS (\d+)/)?.[1] || 0) };

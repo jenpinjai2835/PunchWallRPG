@@ -7453,10 +7453,13 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraUserOrbitDistance", nil)
 		gui:SetAttribute("PunchCameraHandoffActive", false)
 		gui:SetAttribute("PunchCameraGeometryClamped", false)
+		gui:SetAttribute("PunchCameraInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
 	end
 	local function clearTranslationStep(origin, translation, character)
-		-- A clear destination does not imply a clear route to it. These steps are
-		-- at most 2.4 studs; overlapping probes also catch thin walls in between.
+		-- A clear destination does not imply a clear route to it. Overlapping
+		-- probes cover both ordinary root movement and the smaller correction.
 		if shared.PunchWallCameraPositionBlocked(origin, character) then return false end
 		local samples = math.max(1, math.ceil(translation.Magnitude / 0.25))
 		for index = 1, samples do
@@ -7475,11 +7478,14 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			if step.Magnitude > maxStep then step = step.Unit * maxStep end
 			if step.Magnitude > 0.001 and clearTranslationStep(origin, step, character) then
 				local translation = origin + step - desiredCFrame.Position
-				return desiredCFrame + translation, desiredFocus + translation
+				local candidateCFrame = desiredCFrame + translation
+				if not cameraPoseBlocked(candidateCFrame, character) then
+					return candidateCFrame, desiredFocus + translation
+				end
 			end
 		end
-		if not shared.PunchWallCameraPositionBlocked(origin, character) then
-			local translation = origin - desiredCFrame.Position
+		local translation = origin - desiredCFrame.Position
+		if not cameraPoseBlocked(desiredCFrame + translation, character) then
 			return desiredCFrame + translation, desiredFocus + translation
 		end
 		return nil, nil
@@ -7563,8 +7569,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				gui:SetAttribute("PunchCameraOcclusionZoomPrevented", false)
 			end
 		end
+		local rootDisplacement = rootPart and lastRootPosition and rootPart.Position - lastRootPosition or Vector3.zero
 		if rootPart and lastRootPosition then
-			local rootDisplacement = rootPart.Position - lastRootPosition
 			if rootDisplacement.Magnitude > 30 then
 				local rebasedCFrame = lastClearCameraCFrame and (lastClearCameraCFrame + rootDisplacement) or desiredCFrame
 				local rebasedFocus = lastClearCameraFocus and (lastClearCameraFocus + rootDisplacement) or desiredFocus
@@ -7639,13 +7645,36 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
 			local requestedPosition = desiredPosition
 			local maxStep = 24 * math.min(deltaTime, 0.1)
+			-- The character's ordinary movement must not spend the correction
+			-- budget. Otherwise low-FPS punches move the target faster than this
+			-- guard can follow, accumulating an ever longer camera orbit. Carry
+			-- the previous pose with the root only along a physically clear path,
+			-- then bound and validate the remaining camera correction separately.
+			local followOrigin = lastClearCameraCFrame.Position
+			local inheritedRootStep = 0
+			if rootDisplacement.Magnitude > 0.001
+				and rootDisplacement.Magnitude <= 30
+				and clearTranslationStep(followOrigin, rootDisplacement, character) then
+				followOrigin += rootDisplacement
+				inheritedRootStep = rootDisplacement.Magnitude
+			end
 			local limitedCFrame, limitedFocus = limitClearCameraStep(
-				lastClearCameraCFrame.Position, desiredCFrame, desiredFocus, character, maxStep
+				followOrigin, desiredCFrame, desiredFocus, character, maxStep
 			)
+			gui:SetAttribute("PunchCameraInheritedRootStep", inheritedRootStep)
+			gui:SetAttribute("PunchCameraMaxInheritedRootStep", math.max(
+				gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0, inheritedRootStep
+			))
 			if limitedCFrame and limitedFocus then
+				resolvedCFrame = limitedCFrame
+				resolvedFocus = limitedFocus
 				desiredCFrame = limitedCFrame
 				desiredFocus = limitedFocus
 				desiredPosition = limitedCFrame.Position
+				gui:SetAttribute("PunchCameraMaxCorrectionStep", math.max(
+					gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0,
+					(desiredPosition - followOrigin).Magnitude
+				))
 			else
 				resolvedCFrame = nil
 				resolvedFocus = nil
@@ -7661,7 +7690,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		end
 		-- Validate the pose we will actually publish, after all smoothing and
 		-- orbit correction, before marking it as a future safety fallback.
-		if shared.PunchWallCameraPositionBlocked(desiredPosition, character) then
+		if cameraPoseBlocked(desiredCFrame, character) then
 			resolvedCFrame = nil
 			resolvedFocus = nil
 		end
@@ -7679,7 +7708,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearCFrame = nil
 				clearFocus = nil
 			end
-			if clearCFrame and shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
+			if clearCFrame and cameraPoseBlocked(clearCFrame, character) then
 				clearCFrame = shared.PunchWallCameraBaselineCFrame
 				clearFocus = shared.PunchWallCameraBaselineFocus
 			end
@@ -7689,7 +7718,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearFocus = nil
 			end
 			if clearCFrame and clearFocus
-				and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
+				and not cameraPoseBlocked(clearCFrame, character) then
 				local focusDistance = math.max(0.5, (desiredPosition - desiredFocus.Position).Magnitude)
 				camera.CFrame = CFrame.new(clearCFrame.Position) * desiredCFrame.Rotation
 				camera.Focus = CFrame.new(clearCFrame.Position + desiredCFrame.LookVector * focusDistance)
@@ -7784,6 +7813,8 @@ if RunService:IsStudio() then
 		local currentPunch = 0
 		local obscurerNames = {}
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
+		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
+		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
 		local function sampleCamera(settledSample)
 			local cameraPosition = camera.CFrame.Position
 			local cameraStep = (cameraPosition - lastCameraPosition).Magnitude
@@ -7896,10 +7927,12 @@ if RunService:IsStudio() then
 		local settledReadableVisibility = settledReadableFrames / math.max(1, settledSamples)
 		local lead = maximumLead
 		local appliedStep = gui:GetAttribute("PunchCameraMaxAppliedStep") or 0
+		local correctionStep = gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0
 		local requested = math.max(1, math.floor(tonumber(punchCount) or 1))
 		local valid = actions == requested
 			and initialOrbitSettled
 			and appliedStep <= 2.65
+			and correctionStep <= 2.65
 			and math.abs(finishDistance - selectedDistance) < 0.08
 			and angle < 0.25
 			and visibility >= 0.9
@@ -7918,6 +7951,8 @@ if RunService:IsStudio() then
 			visualValid = visualValid,
 			actions = actions,
 			maxStep = appliedStep,
+			maxCorrectionStep = correctionStep,
+			maxInheritedRootStep = gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0,
 			sampleMaxStep = maxCameraStep,
 			maxStepFrom = tostring(maxStepFrom),
 			maxStepTo = tostring(maxStepTo),
@@ -9080,6 +9115,9 @@ RunService.Heartbeat:Connect(function(delta)
 	end
 	if not rootPart or not gameRoot then
 		clientRuntime.SetContextualAction(nil, nil)
+		shared.PunchWallCombatHUD.wall = nil
+		shared.PunchWallCombatHUD.boss = nil
+		shared.PunchWallCombatHUD.Refresh()
 		return
 	end
 	if (clientRuntime.WallsFolder and (clientRuntime.WallsFolder.Parent ~= gameRoot or clientRuntime.WallsFolder.Name ~= "Walls"))
@@ -9178,7 +9216,9 @@ RunService.Heartbeat:Connect(function(delta)
 		contextualAction = "Use"
 	end
 	clientRuntime.SetContextualAction(contextualAction, contextualAction and nearestAction or nil)
-	targetHUD.Visible = false
+	shared.PunchWallCombatHUD.wall = focusedWall and nearestWall or nil
+	shared.PunchWallCombatHUD.boss = clientRuntime.WallsFolder and clientRuntime.WallsFolder:FindFirstChild("Titan Server Wall") or nil
+	shared.PunchWallCombatHUD.Refresh()
 end)
 end
 
