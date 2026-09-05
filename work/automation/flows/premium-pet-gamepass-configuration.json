@@ -8,11 +8,17 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 60000,
       "label": "start play"
     },
-    { "type": "wait", "ms": 7500, "label": "wait for premium catalog and UI" },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for premium catalog and UI"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -51,7 +57,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local cfg=require(game.ReplicatedStorage.GameConfig) assert(a:Invoke('OpenTab','Pets')==true,'Pets tab did not open') local function buttonFor(pet) return g.GameMenu.Content:FindFirstChild(pet.name..'PremiumPet',true) end local deadline=os.clock()+8 local allResolved=false repeat task.wait(.1) allResolved=true for _,pet in ipairs(cfg.PremiumPets) do local button=buttonFor(pet) allResolved=allResolved and button~=nil and button:GetAttribute('RegionalPriceResolved')==true end until allResolved or os.clock()>=deadline local root=workspace:WaitForChild('PunchWallRPG') local rows={} local ok=allResolved for _,pet in ipairs(cfg.PremiumPets) do local button=buttonFor(pet) local lookup,info=pcall(function() return M:GetProductInfoAsync(pet.gamePassId,Enum.InfoType.GamePass) end) local livePrice=lookup and tonumber(info.PriceInRobux) or 0 local displayed=button and tonumber(button:GetAttribute('DisplayedRobuxPrice')) or 0 local stand=root:FindFirstChild(pet.name..' Premium Pet Stand',true) local price=root:FindFirstChild(pet.name..' Premium Pet Price',true) local worldText='' if price then for _,d in ipairs(price:GetDescendants()) do if d:IsA('TextLabel') and d.Name=='Subtitle' then worldText..=' '..string.upper(d.Text or '') end end end local row={name=pet.name,id=pet.gamePassId,livePrice=livePrice,displayed=displayed,actionText=button and button.Text or '',found=button~=nil,active=button and button.Active==true,selectable=button and button.Selectable==true,configured=button and button:GetAttribute('PurchaseConfigured')==true and button:GetAttribute('PurchaseUnavailable')==false,resolved=button and button:GetAttribute('RegionalPriceResolved')==true,price=displayed==livePrice,world=stand and price and stand:GetAttribute('RegionalPriceResolved')==true and price:GetAttribute('RegionalPriceResolved')==true and tonumber(price:GetAttribute('DisplayedRobuxPrice'))==livePrice and worldText:find('R$ '..livePrice,1,true)~=nil} ok=ok and lookup and row.found and row.active and row.selectable and row.configured and row.resolved and row.price and row.world table.insert(rows,row) end local result={ok=ok and #rows==3,count=#rows,rows=rows} assert(result.ok,'premium pet regional UI configuration mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local M=game:GetService('MarketplaceService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local a=g:WaitForChild('PunchWallClientAutomation') local cfg=require(game.ReplicatedStorage.GameConfig) assert(a:Invoke('OpenTab','Fists')==true,'Shop host did not open') assert(a:Invoke('OpenShopPage','Premium')==true,'Premium Shop page did not open') local shop=g.GameMenu:WaitForChild('FunctionalHeroShop') local function cardFor(pet) return shop:FindFirstChild(pet.name..'ShopCard',true) end local function buttonFor(pet) local card=cardFor(pet) return card and card:FindFirstChild(pet.name..'Action',true) end local deadline=os.clock()+8 local allResolved=false repeat task.wait(.1) allResolved=true for _,pet in ipairs(cfg.PremiumPets) do local button=buttonFor(pet) allResolved=allResolved and button~=nil and button:GetAttribute('RegionalPriceResolved')==true end until allResolved or os.clock()>=deadline local root=workspace:WaitForChild('PunchWallRPG') local rows={} local ok=allResolved and g.GameMenu.Visible and shop.Visible and a:Invoke('Snapshot').shopPage=='Premium' for _,pet in ipairs(cfg.PremiumPets) do local card=cardFor(pet) local button=buttonFor(pet) local priceLabel=card and card:FindFirstChild('Price',true) local scroll=shop:FindFirstChild('ShopCatalogScroll') if scroll and card then local y=scroll.CanvasPosition.Y+card.AbsolutePosition.Y-scroll.AbsolutePosition.Y scroll.CanvasPosition=Vector2.new(0,math.clamp(y,0,math.max(0,scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteWindowSize.Y))) task.wait(.1) end local lookup,info=pcall(function() return M:GetProductInfoAsync(pet.gamePassId,Enum.InfoType.GamePass) end) local livePrice=lookup and tonumber(info.PriceInRobux) or 0 local displayed=button and tonumber(button:GetAttribute('DisplayedRobuxPrice')) or 0 local stand=root:FindFirstChild(pet.name..' Premium Pet Stand',true) local price=root:FindFirstChild(pet.name..' Premium Pet Price',true) local worldText='' if price then for _,d in ipairs(price:GetDescendants()) do if d:IsA('TextLabel') and d.Name=='Subtitle' then worldText..=' '..string.upper(d.Text or '') end end end local row={card=card~=nil,identity=card and card:GetAttribute('GamePassId')==pet.gamePassId and button and button:GetAttribute('GamePassId')==pet.gamePassId,bound=button and button:GetAttribute('ShopActionBound')==true,priceText=priceLabel and priceLabel.Text or '',renderedPrice=priceLabel and priceLabel.Visible and priceLabel.TextFits and tonumber(priceLabel.Text)==livePrice,name=pet.name,id=pet.gamePassId,livePrice=livePrice,displayed=displayed,actionText=button and button.Text or '',found=button~=nil,active=button and button.Active==true,selectable=button and button.Selectable==true,configured=button and button:GetAttribute('PurchaseConfigured')==true and button:GetAttribute('PurchaseUnavailable')==false,resolved=button and button:GetAttribute('RegionalPriceResolved')==true,price=displayed==livePrice,world=stand and price and stand:GetAttribute('RegionalPriceResolved')==true and price:GetAttribute('RegionalPriceResolved')==true and tonumber(price:GetAttribute('DisplayedRobuxPrice'))==livePrice and worldText:find('R$ '..livePrice,1,true)~=nil} ok=ok and lookup and row.card and row.identity and row.bound and row.renderedPrice and row.found and row.active and row.selectable and row.configured and row.resolved and row.price and row.world table.insert(rows,row) end local result={ok=ok and #rows==3,count=#rows,rows=rows} assert(result.ok,'premium pet regional UI configuration mismatch '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -60,17 +66,55 @@
         "\"selectable\"\\s*:\\s*true",
         "\"resolved\"\\s*:\\s*true",
         "\"price\"\\s*:\\s*true",
-        "\"world\"\\s*:\\s*true"
+        "\"world\"\\s*:\\s*true",
+        "\"identity\"\\s*:\\s*true",
+        "\"bound\"\\s*:\\s*true",
+        "\"renderedPrice\"\\s*:\\s*true"
       ],
-      "label": "Pets menu and world boards display each player's live regional price"
+      "label": "Premium Shop and world boards display exact Game Pass identities and live regional prices"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleBeforeStop", "label": "capture runtime console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleBeforeStop", "label": "runtime console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleBeforeStop",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleBeforeStop",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleAfterStop",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleAfterStop",
+      "label": "post-stop console clean"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }
