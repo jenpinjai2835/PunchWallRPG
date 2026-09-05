@@ -7648,20 +7648,71 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraInheritedRootStep", 0)
 		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
 		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
+		gui:SetAttribute("PunchCameraOverlapEscapes", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeStep", 0)
+		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
 	end
-	local function clearTranslationStep(origin, translation, character)
+	local function clearTranslationStep(origin, translation, character, allowOverlapExit)
 		-- A clear destination does not imply a clear route to it. Overlapping
 		-- probes cover both ordinary root movement and the smaller correction.
-		if shared.PunchWallCameraPositionBlocked(origin, character) then return false end
+		local leftOverlap = not shared.PunchWallCameraPositionBlocked(origin, character)
+		if not leftOverlap and not allowOverlapExit then return false end
 		local samples = math.max(1, math.ceil(translation.Magnitude / 0.25))
 		for index = 1, samples do
 			if shared.PunchWallCameraPositionBlocked(origin + translation * (index / samples), character) then
-				return false
+				if leftOverlap then return false end
+			else
+				leftOverlap = true
 			end
 		end
-		return true
+		return leftOverlap
+	end
+	local function escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, maximumDistance)
+		-- Falling geometry can enclose a pose which was clear last frame. The
+		-- ordinary sweep correctly rejects that origin, but recovery must permit
+		-- leaving its initial overlap once, never entering a second obstruction.
+		local directions = {}
+		local target = cameraCharacterTarget(character)
+		for _, destination in ipairs({ desiredCFrame.Position, target or origin }) do
+			local offset = destination - origin
+			if offset.Magnitude > 0.001 then table.insert(directions, offset.Unit) end
+		end
+		for x = -1, 1 do
+			for y = -1, 1 do
+				for z = -1, 1 do
+					local offset = Vector3.new(x, y, z)
+					if offset.Magnitude > 0 then table.insert(directions, offset.Unit) end
+				end
+			end
+		end
+		local distances = { 0.35, 0.7, 1.2, 1.8, 2.4 }
+		if maximumDistance > 2.4 then
+			local distance = 3.6
+			while distance < maximumDistance do
+				table.insert(distances, distance)
+				distance *= 1.5
+			end
+			table.insert(distances, maximumDistance)
+		end
+		for _, distance in ipairs(distances) do
+			for _, direction in ipairs(directions) do
+				local step = direction * distance
+				local translation = origin + step - desiredCFrame.Position
+				local candidate = desiredCFrame + translation
+				if not cameraPoseBlocked(candidate, character)
+					and clearTranslationStep(origin, step, character, true) then
+					gui:SetAttribute("PunchCameraOverlapEscapes", (gui:GetAttribute("PunchCameraOverlapEscapes") or 0) + 1)
+					gui:SetAttribute("PunchCameraMaxEscapeStep", math.max(gui:GetAttribute("PunchCameraMaxEscapeStep") or 0, distance))
+					return candidate, desiredFocus + translation
+				end
+			end
+		end
+		return nil, nil
 	end
 	local function limitClearCameraStep(origin, desiredCFrame, desiredFocus, character, maxStep)
+		if shared.PunchWallCameraPositionBlocked(origin, character) then
+			return escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, 2.4)
+		end
 		local displacement = desiredCFrame.Position - origin
 		local direct = displacement.Magnitude > maxStep and displacement.Unit * maxStep or displacement
 		local vertical = Vector3.new(0, displacement.Y, 0)
@@ -7767,7 +7818,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				local rebasedCFrame = lastClearCameraCFrame and (lastClearCameraCFrame + rootDisplacement) or desiredCFrame
 				local rebasedFocus = lastClearCameraFocus and (lastClearCameraFocus + rootDisplacement) or desiredFocus
 				local safeCFrame, safeFocus, clearance = resolveClearCameraPose(rebasedCFrame, rebasedFocus, character)
-				if safeCFrame and safeFocus then
+				if safeCFrame and safeFocus and not cameraPoseBlocked(safeCFrame, character) then
 					camera.CFrame = safeCFrame
 					camera.Focus = safeFocus
 					lastClearCameraCFrame = safeCFrame
@@ -7894,9 +7945,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			local maximumFallbackDistance = math.max(24, (userOrbitDistance or 12) * 2.5)
 			if clearCFrame
 				and (clearCFrame.Position - desiredPosition).Magnitude > maximumFallbackDistance then
-				-- Never correct a blocked frame by teleporting to a stale camera
-				-- pose. Holding the current frame is less disruptive and the guard
-				-- will resume once the tunnel path becomes physically clear.
+				-- A previous character/tunnel pose is not a useful local fallback.
 				clearCFrame = nil
 				clearFocus = nil
 			end
@@ -7909,12 +7958,34 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearCFrame = nil
 				clearFocus = nil
 			end
+			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+				local escapeCFrame, escapeFocus = escapeCameraOverlap(
+					camera.CFrame.Position, desiredCFrame, desiredFocus, character, 2.4
+				)
+				if not escapeCFrame then
+					-- A larger enclosing object can make a small correction impossible.
+					-- Try a measured, clear egress rather than freezing an inside pose;
+					-- this exceptional distance remains visible to runtime assertions.
+					escapeCFrame, escapeFocus = escapeCameraOverlap(
+						camera.CFrame.Position, desiredCFrame, desiredFocus, character,
+						math.min(80, maximumFallbackDistance)
+					)
+				end
+				clearCFrame = escapeCFrame
+				clearFocus = escapeFocus
+			end
 			if clearCFrame and clearFocus
 				and not cameraPoseBlocked(clearCFrame, character) then
 				local focusDistance = math.max(0.5, (desiredPosition - desiredFocus.Position).Magnitude)
 				camera.CFrame = CFrame.new(clearCFrame.Position) * desiredCFrame.Rotation
 				camera.Focus = CFrame.new(clearCFrame.Position + desiredCFrame.LookVector * focusDistance)
+				lastClearCameraCFrame = camera.CFrame
+				lastClearCameraFocus = camera.Focus
+				shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
+				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
 			end
+			gui:SetAttribute("PunchCameraSafetyUnresolved", cameraPoseBlocked(camera.CFrame, character))
+			gui:SetAttribute("LastCameraInsideGeometry", shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character))
 			gui:SetAttribute("PunchCameraGeometryClamped", true)
 			gui:SetAttribute("PunchCameraGeometryClampFrames", cameraGeometryClampFrames)
 			return
@@ -7927,6 +7998,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		shared.PunchWallHeartbeatLastClearFocus = desiredFocus
 		gui:SetAttribute("PunchCameraGeometryClamped", false)
 		gui:SetAttribute("LastCameraInsideGeometry", false)
+		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
 		gui:SetAttribute("PunchCameraRebasedAfterTeleport", false)
 	end
 	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
@@ -7934,7 +8006,13 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		updateCameraGeometryGuard(deltaTime)
 	end)
 	RunService.Heartbeat:Connect(function(deltaTime)
-		if os.clock() - lastPunchCameraRenderAt > 0.35 then
+		local camera = workspace.CurrentCamera
+		local character = player.Character
+		-- Physics can move a falling block over the last rendered camera. Check
+		-- that exceptional case after physics even when rendering is current.
+		local newlyOverlapped = camera and character and camera.CameraType == Enum.CameraType.Custom
+			and shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character)
+		if newlyOverlapped or os.clock() - lastPunchCameraRenderAt > 0.35 then
 			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30))
 		end
 	end)
@@ -7961,12 +8039,18 @@ if RunService:IsStudio() then
 		local direction = horizontal.Unit
 		local originalMinZoom = player.CameraMinZoomDistance
 		local originalMaxZoom = player.CameraMaxZoomDistance
-		player.CameraMinZoomDistance = 12
-		player.CameraMaxZoomDistance = 12
+		local selectedOrbit = tonumber(gui:GetAttribute("PunchCameraUserOrbitDistance"))
+			or (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
+		selectedOrbit = math.clamp(selectedOrbit, 2, 80)
+		player.CameraMinZoomDistance = math.min(originalMinZoom, selectedOrbit)
+		player.CameraMaxZoomDistance = selectedOrbit
+		player.CameraMinZoomDistance = selectedOrbit
 		camera.CameraType = Enum.CameraType.Scriptable
 		camera.CameraSubject = humanoid
-		camera.CFrame = CFrame.lookAt(rootPart.Position - direction * 12 + Vector3.new(0, 4, 0), rootPart.Position + Vector3.new(0, 1.5, 0))
-		camera.Focus = CFrame.new(rootPart.Position + Vector3.new(0, 1.5, 0))
+		local orbitTarget = rootPart.Position + Vector3.new(0, 1.5, 0)
+		local orbitOffset = (direction * -12 + Vector3.new(0, 2.5, 0)).Unit * selectedOrbit
+		camera.CFrame = CFrame.lookAt(orbitTarget + orbitOffset, orbitTarget)
+		camera.Focus = CFrame.new(orbitTarget)
 		task.wait(0.1)
 		camera.CameraType = Enum.CameraType.Custom
 		local initialOrbitSettled = false
@@ -7997,6 +8081,7 @@ if RunService:IsStudio() then
 		local settledClearFrames = 0
 		local settledReadableFrames = 0
 		local insideFrames = 0
+		local unresolvedSafetyFrames = 0
 		local sampledFrames = 0
 		local actions = 0
 		local insideNames = {}
@@ -8007,7 +8092,10 @@ if RunService:IsStudio() then
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
 		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
 		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraOverlapEscapes", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeStep", 0)
 		local function sampleCamera(settledSample)
+			if gui:GetAttribute("PunchCameraSafetyUnresolved") then unresolvedSafetyFrames += 1 end
 			local cameraPosition = camera.CFrame.Position
 			local cameraStep = (cameraPosition - lastCameraPosition).Magnitude
 			if cameraStep > maxCameraStep then
@@ -8120,11 +8208,14 @@ if RunService:IsStudio() then
 		local lead = maximumLead
 		local appliedStep = gui:GetAttribute("PunchCameraMaxAppliedStep") or 0
 		local correctionStep = gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0
+		local escapeStep = gui:GetAttribute("PunchCameraMaxEscapeStep") or 0
 		local requested = math.max(1, math.floor(tonumber(punchCount) or 1))
 		local valid = actions == requested
 			and initialOrbitSettled
 			and appliedStep <= 2.65
 			and correctionStep <= 2.65
+			and escapeStep <= 2.65
+			and unresolvedSafetyFrames == 0
 			and math.abs(finishDistance - selectedDistance) < 0.08
 			and angle < 0.25
 			and visibility >= 0.9
@@ -8144,6 +8235,10 @@ if RunService:IsStudio() then
 			actions = actions,
 			maxStep = appliedStep,
 			maxCorrectionStep = correctionStep,
+			maxEscapeStep = escapeStep,
+			overlapEscapes = gui:GetAttribute("PunchCameraOverlapEscapes") or 0,
+			unresolvedSafetyFrames = unresolvedSafetyFrames,
+			configuredOrbit = selectedOrbit,
 			maxInheritedRootStep = gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0,
 			sampleMaxStep = maxCameraStep,
 			maxStepFrom = tostring(maxStepFrom),
