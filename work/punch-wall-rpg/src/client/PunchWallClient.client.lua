@@ -1777,6 +1777,52 @@ bossSubtitle.TextSize = 10
 bossSubtitle.TextXAlignment = Enum.TextXAlignment.Right
 bossSubtitle.Parent = bossHUD
 
+-- One display owner for the wall and Titan information in the reference HUD.
+shared.PunchWallCombatHUD = { layoutReady = false, renderCount = 0, layoutGeneration = 0 }
+do
+ local outline = Instance.new("Highlight")
+ outline.Name = "Local Target Highlight"
+ outline.FillTransparency = 1
+ outline.OutlineTransparency = 0.25
+ outline.OutlineColor = palette.Use
+ outline.DepthMode = Enum.HighlightDepthMode.Occluded
+ outline.Enabled = false
+ outline.Parent = workspace
+ shared.PunchWallCombatHUD.Outline = outline
+ for _,frame in ipairs({ targetHUD, bossHUD }) do
+  frame.BackgroundColor3 = Color3.fromRGB(10, 20, 28)
+  frame.BackgroundTransparency = 0.04
+  frame.ZIndex = 40
+  frame.Active = false
+  local stroke = Instance.new("UIStroke")
+  stroke.Color = frame == bossHUD and palette.Punch or palette.Use
+  stroke.Thickness = 2
+  stroke.Transparency = 0.12
+  stroke.Parent = frame
+  for _,object in ipairs(frame:GetDescendants()) do
+   if object:IsA("GuiObject") then object.ZIndex = object:IsA("TextLabel") and 43 or 41 end
+   if object.Name == "SegmentNotch" then object.Size = UDim2.new(0, 2, 1, 0) end
+  end
+ end
+ bossTrack.Name = "BossHealthTrack"
+ bossArt.Visible = false
+ bossHUD.HeroAccent.Visible = false
+ targetTitle.BackgroundTransparency = 1
+ targetDetail.TextStrokeTransparency = 0.4
+ bossSubtitle.TextColor3 = Color3.fromRGB(235, 244, 250)
+ for _,label in ipairs({ targetTitle, targetDetail, bossTitle, bossSubtitle }) do
+  label.TextScaled = true
+  label.TextWrapped = true
+  label.TextXAlignment = Enum.TextXAlignment.Center
+  label.TextYAlignment = Enum.TextYAlignment.Center
+  local limit = Instance.new("UITextSizeConstraint")
+  limit.Name = "CombatReadability"
+  limit.MinTextSize = (label == targetTitle or label == bossTitle) and 14 or 12
+  limit.MaxTextSize = (label == targetTitle or label == bossTitle) and 18 or 14
+  limit.Parent = label
+ end
+end
+
 local toastHolder = Instance.new("Frame")
 toastHolder.Name = "Toasts"
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
@@ -8840,6 +8886,186 @@ function clientRuntime.SetContextualAction(actionName, target)
 	gui:SetAttribute("ContextualActionUsesExistingTargetScan", true)
 end
 
+-- Pure presentation and placement helpers are exercised directly by the offline contract.
+function shared.PunchWallCombatHUD.Resolve(state)
+ if not state.ready or state.blocked then return nil end
+ local wall = state.wall
+ if wall and wall.valid and not wall.broken and wall.hp > 0 and wall.maxHP > 0
+  and wall.distance <= 24 and wall.facing > -0.1 then
+  local power = math.max(0, tonumber(state.power) or 0)
+  if state.damageBoostExpiresAt > state.now then power *= 2 end
+  local hits = power > 0 and math.ceil(wall.hp / power) or nil
+  local detail = ("HP %s/%s"):format(formatNumber(wall.hp), formatNumber(wall.maxHP))
+  if state.level < wall.requiredLevel then detail ..= ("  |  NEED LV %d"):format(wall.requiredLevel)
+  elseif hits then detail ..= ("  |  ~%s hits"):format(formatNumber(hits))
+  else detail ..= "  |  TRAIN FOR POWER" end
+  return { kind = "Wall", title = string.upper(wall.title), detail = detail,
+   ratio = math.clamp(wall.hp / wall.maxHP, 0, 1), target = wall.name,
+   canonical = wall.canonical, hits = hits or 0 }
+ end
+ local boss = state.boss
+ if boss and boss.valid and not boss.broken and boss.hp > 0 and boss.maxHP > 0 and boss.distance <= 55 then
+  local title = ("TITAN P%d  |  WEAK x1.5"):format(boss.phase)
+  local detail = ("HP %s/%s"):format(formatNumber(boss.hp), formatNumber(boss.maxHP))
+  if boss.nextAttackAt > 0 then
+   detail ..= ("  |  SHOCKWAVE %ds"):format(math.max(0, math.ceil(boss.nextAttackAt - state.now)))
+  else detail ..= "  |  TARGET RED CORES" end
+  return { kind = "Boss", title = title, detail = detail,
+   ratio = math.clamp(boss.hp / boss.maxHP, 0, 1), target = boss.name,
+   canonical = boss.name, hits = 0 }
+ end
+ return nil
+end
+
+function shared.PunchWallCombatHUD.FindLayout(width, height, compact, userScale, obstacles)
+ if width < 240 or height < 200 then return nil end
+ local scale = math.clamp(tonumber(userScale) or 1, 0.8, 1.2)
+ local panelHeight = math.ceil(86 * math.max(1, scale))
+ local maximumWidth = math.min(width - 24, (compact and 380 or 460) * math.max(1, scale))
+ local preferredTop = compact and 86 or math.max(86, math.ceil(height * 0.202) + 8)
+ local tops = { preferredTop }
+ for _,obstacle in ipairs(obstacles) do
+  table.insert(tops, obstacle.y + obstacle.height + 8)
+  table.insert(tops, obstacle.y - panelHeight - 8)
+ end
+ table.insert(tops, 8)
+ local widths = { maximumWidth, math.min(maximumWidth, 300), math.min(maximumWidth, 240) }
+ for _,panelWidth in ipairs(widths) do
+  local x = math.floor((width - panelWidth) / 2)
+  local best, bestScore
+  for _,top in ipairs(tops) do
+   local y = math.floor(top)
+   local clear = y >= 8 and y + panelHeight <= height - 8
+   for _,obstacle in ipairs(obstacles) do
+    if x < obstacle.x + obstacle.width + 6 and x + panelWidth > obstacle.x - 6
+     and y < obstacle.y + obstacle.height + 6 and y + panelHeight > obstacle.y - 6 then clear = false break end
+   end
+   local score = math.abs(y - preferredTop)
+   if clear and (not best or score < bestScore) then
+    best = { x = x, y = y, width = math.floor(panelWidth), height = panelHeight,
+     titleSize = math.max(14, math.floor((compact and 16 or 18) * scale)),
+     detailSize = math.max(12, math.floor(14 * scale)) }
+    bestScore = score
+   end
+  end
+  if best then return best end
+ end
+ return nil
+end
+
+function shared.PunchWallCombatHUD.Apply(presentation)
+ local runtime = shared.PunchWallCombatHUD
+ local function write(object, property, value)
+  if object[property] ~= value then object[property] = value end
+ end
+ local kind = presentation and presentation.kind or "Hidden"
+ local key = presentation and table.concat({ kind, presentation.title, presentation.detail,
+  tostring(presentation.ratio), presentation.target }, ":") or "Hidden"
+ write(targetHUD, "Visible", kind == "Wall")
+ write(bossHUD, "Visible", kind == "Boss")
+ local adornee = kind == "Wall" and runtime.wall or nil
+ write(runtime.Outline, "Adornee", adornee)
+ write(runtime.Outline, "Enabled", adornee ~= nil)
+ if key == runtime.renderKey then return false end
+ runtime.renderKey = key
+ runtime.renderCount += 1
+ if presentation then
+  local title = kind == "Wall" and targetTitle or bossTitle
+  local detail = kind == "Wall" and targetDetail or bossSubtitle
+  local fill = kind == "Wall" and targetFill or bossFill
+  write(title, "Text", presentation.title)
+  write(detail, "Text", presentation.detail)
+  write(fill, "Size", UDim2.fromScale(presentation.ratio, 1))
+ end
+ gui:SetAttribute("CombatHUDKind", kind)
+ gui:SetAttribute("CombatHUDTarget", presentation and presentation.target or "")
+ gui:SetAttribute("CombatHUDCanonicalTarget", presentation and presentation.canonical or "")
+ gui:SetAttribute("CombatHUDHitEstimate", presentation and presentation.hits or 0)
+ gui:SetAttribute("CombatHUDRenderCount", runtime.renderCount)
+ return true
+end
+
+function shared.PunchWallCombatHUD.Refresh()
+ local runtime = shared.PunchWallCombatHUD
+ local character = player.Character
+ local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+ local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+ local world = workspace:FindFirstChild("PunchWallRPG")
+ local function read(part, isBoss)
+  if not rootPart or not world or not part or not part:IsDescendantOf(world) or not part:IsA("BasePart") then return nil end
+  local delta = part.Position - rootPart.Position
+  local tier = tonumber(part:GetAttribute("MaterialTier") or part:GetAttribute("Tier")) or 1
+  local definition = GameConfig.Walls[math.clamp(tier, 1, #GameConfig.Walls)]
+  return { valid = part.Transparency < 1 and part.CanQuery, broken = part:GetAttribute("Broken") == true,
+   name = part.Name, title = tostring(part:GetAttribute("TierName") or definition.displayName or definition.name),
+   canonical = isBoss and part.Name or definition.name, hp = tonumber(part:GetAttribute("HP")) or 0,
+   maxHP = tonumber(part:GetAttribute("MaxHP")) or 0, distance = delta.Magnitude,
+   facing = delta.Magnitude > 0 and rootPart.CFrame.LookVector:Dot(delta.Unit) or 1,
+   requiredLevel = tonumber(part:GetAttribute("RequiredLevel")) or 1,
+   phase = tonumber(part:GetAttribute("BossPhase")) or 1, nextAttackAt = tonumber(part:GetAttribute("NextAttackAt")) or 0 }
+ end
+ local spin = gui:FindFirstChild("HeroSpinModal")
+ local state = { ready = runtime.layoutReady and rootPart ~= nil and humanoid ~= nil and humanoid.Health > 0,
+  blocked = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
+   or (spin and spin.Visible) or (tonumber(latestStats.TrainingActive) or 0) >= 1,
+  wall = read(runtime.wall, false), boss = read(runtime.boss, true),
+  power = latestStats.EffectivePower or latestStats.Power or 0, level = tonumber(latestStats.WallLevel) or 1,
+  now = workspace:GetServerTimeNow(), damageBoostExpiresAt = tonumber(player:GetAttribute("DamageBoostExpiresAt")) or 0 }
+ runtime.Apply(runtime.Resolve(state))
+end
+
+function shared.PunchWallCombatHUD.ScheduleLayout(viewport, compact, userScale, safeHost, controls)
+ local runtime = shared.PunchWallCombatHUD
+ runtime.layoutGeneration += 1
+ local generation = runtime.layoutGeneration
+ task.defer(function()
+  -- Wait for the responsive assignments above to acquire their actual rendered rectangles.
+  RunService.Heartbeat:Wait()
+  if generation ~= runtime.layoutGeneration or not safeHost.Parent then return end
+  local obstacles = {}
+  local origin = safeHost.AbsolutePosition
+  for _,control in ipairs(controls) do
+   if control and control.Parent and control.Visible and control.AbsoluteSize.X > 0 and control.AbsoluteSize.Y > 0 then
+    local position, size = control.AbsolutePosition - origin, control.AbsoluteSize
+    table.insert(obstacles, { x = position.X, y = position.Y, width = size.X, height = size.Y })
+   end
+  end
+  local layout = runtime.FindLayout(viewport.X, viewport.Y, compact, userScale, obstacles)
+  runtime.layoutReady = layout ~= nil
+  gui:SetAttribute("CombatHUDLayoutReady", runtime.layoutReady)
+  gui:SetAttribute("CombatHUDLayoutReason", layout and "VisibleControlSafeLaneV1" or "NoClearLane")
+  if layout then
+   for _,frame in ipairs({ targetHUD, bossHUD }) do
+    frame.AnchorPoint = Vector2.zero
+    frame.Position = UDim2.fromOffset(layout.x, layout.y)
+    frame.Size = UDim2.fromOffset(layout.width, layout.height)
+   end
+   for _,title in ipairs({ targetTitle, bossTitle }) do
+    title.Position = UDim2.fromOffset(12, 8)
+    title.Size = UDim2.new(1, -24, 0, 24)
+    title.TextSize = layout.titleSize
+    title.CombatReadability.MaxTextSize = layout.titleSize
+   end
+   for _,track in ipairs({ targetTrack, bossTrack }) do
+    track.Position = UDim2.fromOffset(12, 36)
+    track.Size = UDim2.new(1, -24, 0, 10)
+   end
+   for _,detail in ipairs({ targetDetail, bossSubtitle }) do
+    detail.Position = UDim2.fromOffset(12, 50)
+    detail.Size = UDim2.new(1, -24, 1, -56)
+    detail.TextSize = layout.detailSize
+    detail.CombatReadability.MaxTextSize = layout.detailSize
+   end
+  end
+  runtime.Refresh()
+ end)
+end
+
+gui:SetAttribute("CombatHUDScanInterval", 0.15)
+gui:GetAttributeChangedSignal("ModalCoreGuiHidden"):Connect(function()
+ shared.PunchWallCombatHUD.Refresh()
+end)
+
 local targetTimer = 0
 RunService.Heartbeat:Connect(function(delta)
 	targetTimer += delta
@@ -9000,49 +9226,7 @@ do
 	end)
 end
 
-local bossHudTimer = 0
-RunService.Heartbeat:Connect(function(delta)
-	bossHudTimer += delta
-	if bossHudTimer < 0.2 then return end
-	bossHudTimer = 0
-	if gui:GetAttribute("PixelReferenceHUDActive") == true then
-		bossHUD.Visible = false
-		help.Visible = false
-		return
-	end
-	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
-	local walls = gameRoot and gameRoot:FindFirstChild("Walls")
-	local boss = walls and walls:FindFirstChild("Titan Server Wall")
-	local character = player.Character
-	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local modalVisible = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
-	if not boss or not rootPart then bossHUD.Visible = false help.Visible = latestStats.Tutorial ~= nil and not modalVisible return end
-	local hp = boss:GetAttribute("HP") or 0
-	local maxHP = math.max(1, boss:GetAttribute("MaxHP") or 1)
-	local broken = boss:GetAttribute("Broken") == true
-	local nearby = (boss.Position - rootPart.Position).Magnitude <= 55
-	bossHUD.Visible = (broken or nearby or hp < maxHP) and not targetHUD.Visible and not modalVisible
-	help.Visible = latestStats.Tutorial ~= nil and not modalVisible
-	if not bossHUD.Visible then return end
-	local phase = boss:GetAttribute("BossPhase") or 1
-	bossTitle.Text = UserInputService.TouchEnabled and ("TITAN P%d  |  WEAK x1.5"):format(phase)
-		or ("TITAN HQ  |  PHASE %d  |  WEAK POINT x1.5"):format(phase)
-	bossFill.Size = UDim2.fromScale(math.clamp(hp / maxHP, 0, 1), 1)
-	if broken then
-		local remaining = math.max(0, math.ceil((boss:GetAttribute("RespawnAt") or 0) - workspace:GetServerTimeNow()))
-		bossSubtitle.Text = ("RECONSTRUCTING IN %ds"):format(remaining)
-	else
-		local nextAttackAt = boss:GetAttribute("NextAttackAt") or 0
-		local remaining = math.max(0, math.ceil(nextAttackAt - workspace:GetServerTimeNow()))
-		if UserInputService.TouchEnabled then
-			bossSubtitle.Text = nextAttackAt > 0 and ("HP %s/%s  |  SHOCKWAVE %ds"):format(formatNumber(hp), formatNumber(maxHP), remaining)
-				or ("HP %s/%s  |  TARGET RED CORES"):format(formatNumber(hp), formatNumber(maxHP))
-		else
-			local attackText = nextAttackAt > 0 and ("  |  SHOCKWAVE %ds"):format(remaining) or ""
-			bossSubtitle.Text = ("HP %s / %s  |  %d participant(s)%s"):format(formatNumber(hp), formatNumber(maxHP), boss:GetAttribute("ParticipantCount") or 0, attackText)
-		end
-	end
-end)
+-- Boss HP and countdown share the existing 0.15-second target scan above.
 
 local punchHeld = false
 local function setPunchHeld(value)
@@ -12227,7 +12411,7 @@ applyReferenceHUDState = function(force)
 	setVisibleIfChanged(nextWorld, false)
 	setVisibleIfChanged(help, false)
 	setVisibleIfChanged(mobileControls, false)
-	setVisibleIfChanged(bossHUD, false)
+	if shared.PunchWallCombatHUD.Refresh then shared.PunchWallCombatHUD.Refresh() end
 	setVisibleIfChanged(contextLabel, false)
 	setVisibleIfChanged(referenceHUD, not menuVisible)
 	local contextActionVisible = not menuVisible
@@ -12822,11 +13006,6 @@ applyResponsiveLayout = function()
 		toastHolder.Size = UDim2.fromOffset(260, 110)
 		rewardHolder.Position = UDim2.fromScale(0.5, 0.66)
 		rewardHolder.Size = UDim2.fromOffset(320, 150)
-		bossHUD.Position = UDim2.new(0.32, 0, 0, 66)
-		bossHUD.Size = UDim2.fromOffset(250, 56)
-		targetHUD.AnchorPoint = Vector2.new(0.5, 0)
-		targetHUD.Position = UDim2.fromScale(0.61, 0.16)
-		targetHUD.Size = UDim2.fromOffset(500, 86)
 		leftDock.Position = UDim2.new(0, 7, 0.5, 12)
 		rightDock.Position = UDim2.new(1, -7, 0.5, 44)
 		local leftScale = leftDock:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", leftDock)
@@ -12990,11 +13169,6 @@ applyResponsiveLayout = function()
 		toastHolder.Size = UDim2.fromOffset(460, 160)
 		rewardHolder.Position = UDim2.fromScale(0.5, 0.48)
 		rewardHolder.Size = UDim2.fromOffset(520, 220)
-		bossHUD.Position = UDim2.new(0.5, 0, 0, 82)
-		bossHUD.Size = UDim2.fromOffset(420, 58)
-		targetHUD.AnchorPoint = Vector2.new(0.5, 0)
-		targetHUD.Position = UDim2.fromScale(0.62, 0.14)
-		targetHUD.Size = UDim2.fromOffset(340, 62)
 		leftDock.Position = UDim2.new(0, 18, 0.5, 10)
 		rightDock.Position = UDim2.new(1, -18, 0.5, 74)
 		local leftScale = leftDock:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", leftDock)
@@ -13005,6 +13179,13 @@ applyResponsiveLayout = function()
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
 	end
+	shared.PunchWallCombatHUD.ScheduleLayout(viewport, compact, userScale, referenceHUD, {
+  referencePowerCard, referenceCoinsCard, referenceWallCard,
+  shared.PunchWallHUDWidgets.ObjectiveCard, shared.PunchWallHUDWidgets.QuestCard, rankWidgets.Root,
+  referenceDaily, referenceSpin, referenceInventory, referenceShop, referencePets, referenceQuests,
+  shared.PunchWallReferenceRebirth, shared.PunchWallSoundToolButton, shared.PunchWallSettingsToolButton,
+  shared.PunchWallMoreToolButton, referenceJoystick, referencePunch, referenceJump, punchUpButton, punchDownButton,
+ })
 	scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 	if shopOpen and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()
