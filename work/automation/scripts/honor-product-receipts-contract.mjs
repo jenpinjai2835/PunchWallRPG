@@ -126,11 +126,12 @@ check(
     "action.Selectable = actionEnabled",
     "action.TextWrapped = false",
     "action.TextTruncate = Enum.TextTruncate.AtEnd",
-    "compactActionTextConstraint.MinTextSize = 6",
-    "compactActionTextConstraint.MaxTextSize = 8",
+    "actionLimit.MinTextSize, actionLimit.MaxTextSize = 14, 14",
+    "action.Size = UDim2.fromOffset(112, 48)",
+    "action.TextTruncate = Enum.TextTruncate.None",
     "MarkControlUnavailable",
   ]),
-  "Configured Honor cards must use Marketplace price state and bind BUY, while invalid metadata remains fail-closed.",
+  "Configured Honor cards must retain live Marketplace state, server-bound BUY, and the final compact 14px/48px action override; invalid metadata remains fail-closed.",
 );
 check(
   "purchase_success_is_bound_to_authoritative_receipt_feedback",
