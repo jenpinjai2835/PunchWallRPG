@@ -2991,6 +2991,7 @@ local legacyPetMenuRuntime = {
 	deleteGeneration = 0,
 	deleteConfirmationSeconds = 3,
 }
+shared.PunchWallGenericPanelRuntime = { generation = 0 }
 
 local function setRounded(instance, radius)
 	local corner = Instance.new("UICorner")
@@ -3117,6 +3118,12 @@ closeButton.Selectable = true
 closeButton.NextSelectionLeft = orderedTabButtons[#orderedTabButtons]
 
 local function clearContent()
+	local runtime = shared.PunchWallGenericPanelRuntime
+	runtime.generation += 1
+	runtime.signature = nil
+	runtime.anchor = nil
+	runtime.playtimeLabel = nil
+	runtime.spinLabel = nil
 	for _, child in ipairs(content:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
@@ -3196,6 +3203,69 @@ local function genericMenuIsCompact()
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize or Vector2.new(800, 600)
 	return UserInputService.TouchEnabled or viewport.Y < 520
+end
+
+-- Keep native buttons alive across unrelated stat snapshots. A timer update
+-- must not destroy the button between the player's press and release.
+function shared.PunchWallGenericPanelRuntime.Signature(tabName)
+	if tabName ~= "Pets" and tabName ~= "Tasks" then return nil end
+	local fields = { tabName, tostring(genericMenuIsCompact()), tostring(clientSettings.uiScale or 1) }
+	if tabName == "Pets" then
+		legacyPetMenuRuntime.ValidateDelete(decodeJSON(latestStats.PetInventoryJSON, {}))
+		for _, key in ipairs({ "PetInventoryJSON", "EquippedPetsJSON", "LockedPetsJSON",
+			"DiscoveredPetsJSON", "OwnedPremiumPetsJSON", "PetDropPity" }) do
+			table.insert(fields, tostring(latestStats[key] or ""))
+		end
+		table.insert(fields, tostring(legacyPetMenuRuntime.deleteGeneration))
+		for _, pet in ipairs(GameConfig.PremiumPets) do
+			local passId = tonumber(pet.gamePassId) or 0
+			local cached = shared.PunchWallPurchaseRuntime.GamePassPriceCache[passId]
+			table.insert(fields, tostring(passId))
+			table.insert(fields, tostring(pet.robux))
+			table.insert(fields, tostring(shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(pet)))
+			table.insert(fields, cached and tostring(cached.price) or "Loading")
+			table.insert(fields, cached and tostring(cached.resolved) or "false")
+			table.insert(fields, cached and tostring(cached.state) or "Loading")
+		end
+	else
+		local tutorial = latestStats.Tutorial or {}
+		table.insert(fields, tostring(tutorial.title or "Complete"))
+		table.insert(fields, tostring(tutorial.detail or ""))
+		table.insert(fields, tostring(latestStats.LastDailyDate == os.date("!%Y-%m-%d")))
+		table.insert(fields, tostring(latestStats.DailyBreaks or 0))
+		table.insert(fields, tostring((latestStats.DailyQuestClaimed or 0) >= 1))
+		table.insert(fields, tostring((latestStats.PlaytimeClaimed or 0) >= 1))
+		table.insert(fields, tostring((latestStats.PlaytimeSeconds or 0) >= GameConfig.Rewards.PlaytimeSeconds))
+		table.insert(fields, tostring(tonumber(latestStats.SpinCredits) or 0))
+		table.insert(fields, tostring(os.time() >= (tonumber(latestStats.SpinReadyAt) or 0)))
+	end
+	return HttpService:JSONEncode(fields)
+end
+
+function shared.PunchWallGenericPanelRuntime.PlaytimeText()
+	return ("Playtime %d/%d sec  |  Reward %s coins"):format(
+		math.min(latestStats.PlaytimeSeconds or 0, GameConfig.Rewards.PlaytimeSeconds),
+		GameConfig.Rewards.PlaytimeSeconds, formatNumber(GameConfig.Rewards.PlaytimeCoins)
+	)
+end
+
+function shared.PunchWallGenericPanelRuntime.SpinText()
+	local credits = tonumber(latestStats.SpinCredits) or 0
+	local remaining = math.max(0, (tonumber(latestStats.SpinReadyAt) or 0) - os.time())
+	if credits > 0 then return ("%d bonus spin%s ready"):format(credits, credits == 1 and "" or "s") end
+	if remaining == 0 then return "Free Hero Spin ready now" end
+	return ("Next free spin in %dh %02dm"):format(math.floor(remaining / 3600), math.floor(remaining % 3600 / 60))
+end
+
+function shared.PunchWallGenericPanelRuntime.UpdateClocks()
+	local runtime = shared.PunchWallGenericPanelRuntime
+	if not runtime.playtimeLabel or not runtime.playtimeLabel:IsDescendantOf(content)
+		or not runtime.spinLabel or not runtime.spinLabel:IsDescendantOf(content) then return false end
+	local playtimeText = runtime.PlaytimeText()
+	local spinText = runtime.SpinText()
+	if runtime.playtimeLabel.Text ~= playtimeText then runtime.playtimeLabel.Text = playtimeText end
+	if runtime.spinLabel.Text ~= spinText then runtime.spinLabel.Text = spinText end
+	return true
 end
 
 local function addSection(textValue, color)
@@ -3724,16 +3794,16 @@ local function renderTasks()
 	local played = latestStats.PlaytimeSeconds or 0
 	local playtimeClaimed = (latestStats.PlaytimeClaimed or 0) >= 1
 	local playtimeReady = played >= GameConfig.Rewards.PlaytimeSeconds
-	local _, playActions = addRow("Five Minute Supply", ("Playtime %d/%d sec  |  Reward %s coins"):format(math.min(played, GameConfig.Rewards.PlaytimeSeconds), GameConfig.Rewards.PlaytimeSeconds, formatNumber(GameConfig.Rewards.PlaytimeCoins)), palette.Use, "Success")
+	local _, playActions, _, playtimeDescription = addRow("Five Minute Supply", shared.PunchWallGenericPanelRuntime.PlaytimeText(), palette.Use, "Success")
+	playtimeDescription.Name = "TaskClockPlaytime"
+	shared.PunchWallGenericPanelRuntime.playtimeLabel = playtimeDescription
 	local playButton = makeMenuCommand(playActions, "ClaimPlaytime", playtimeClaimed and "CLAIMED" or playtimeReady and "CLAIM" or "WAIT", playtimeReady and not playtimeClaimed and palette.Reward or palette.PanelSoft, function() actionRemote:FireServer({ action = "ClaimPlaytime" }) end)
 	playButton.Active = playtimeReady and not playtimeClaimed
 	playButton.Size = UDim2.fromOffset(100, 44)
 	local spinReady = (tonumber(latestStats.SpinCredits) or 0) > 0 or os.time() >= (tonumber(latestStats.SpinReadyAt) or 0)
-	local spinDescription = (tonumber(latestStats.SpinCredits) or 0) > 0
-		and (("%d bonus spin%s ready"):format(latestStats.SpinCredits, latestStats.SpinCredits == 1 and "" or "s"))
-		or spinReady and "Free Hero Spin ready now"
-		or ("Next free spin in %dh %02dm"):format(math.floor(math.max(0, latestStats.SpinReadyAt - os.time()) / 3600), math.floor(math.max(0, latestStats.SpinReadyAt - os.time()) % 3600 / 60))
-	local _, spinActions = addRow("Hero Prize Spin", spinDescription, palette.Use, "Success")
+	local _, spinActions, _, spinDescription = addRow("Hero Prize Spin", shared.PunchWallGenericPanelRuntime.SpinText(), palette.Use, "Success")
+	spinDescription.Name = "TaskClockSpin"
+	shared.PunchWallGenericPanelRuntime.spinLabel = spinDescription
 	makeMenuCommand(spinActions, "OpenSpin", spinReady and "SPIN" or "VIEW", spinReady and palette.Reward or palette.PanelSoft, function()
 		if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() end
 	end).Size = UDim2.fromOffset(100, 44)
@@ -4485,6 +4555,13 @@ renderOpenPanel = function()
 		gui:SetAttribute("ReferenceShopLegacyRenderSuppressed", true)
 		return
 	end
+	local runtime = shared.PunchWallGenericPanelRuntime
+	local signature = runtime.Signature(activeTab)
+	if signature and runtime.signature == signature and runtime.anchor and runtime.anchor.Parent == content
+		and (activeTab ~= "Tasks" or runtime.UpdateClocks()) then
+		gui:SetAttribute("GenericPanelRetainedRefreshCount", (gui:GetAttribute("GenericPanelRetainedRefreshCount") or 0) + 1)
+		return
+	end
 	clearContent()
 	addGeneratedBanner()
 	for name, button in pairs(tabButtons) do
@@ -4496,12 +4573,16 @@ renderOpenPanel = function()
 	elseif activeTab == "Tasks" then renderTasks()
 	else renderSettings() end
 	gui:SetAttribute("RenderedGenericTab", activeTab)
+	runtime.signature = signature
+	runtime.anchor = content:FindFirstChild("Hero City Generated Banner")
+	local generation = runtime.generation
+	gui:SetAttribute("GenericPanelStructuralRenderCount", (gui:GetAttribute("GenericPanelStructuralRenderCount") or 0) + 1)
 	if preserveCanvasY > 0 then
 		task.defer(function()
 			local deadline = os.clock() + 1.25
 			repeat RunService.Heartbeat:Wait()
 			until content.AbsoluteCanvasSize.Y > content.AbsoluteSize.Y or os.clock() >= deadline
-			if not mainPanel.Visible or activeTab ~= previouslyRenderedTab then return end
+			if not mainPanel.Visible or activeTab ~= previouslyRenderedTab or runtime.generation ~= generation then return end
 			local maxY = math.max(0, content.AbsoluteCanvasSize.Y - content.AbsoluteSize.Y)
 			content.CanvasPosition = Vector2.new(0, math.clamp(preserveCanvasY, 0, maxY))
 			if preserveHonorFocusId ~= "" then
