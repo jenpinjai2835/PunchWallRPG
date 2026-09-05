@@ -233,7 +233,7 @@ check(
     && capacityUpdate.includes('InventoryCapacityFullText", fullText')
     && capacityUpdate.includes('InventoryCapacityReadable", true')
     && responsive.includes(
-      "self.Capacity.TextSize = useCompact and (capacityWidth < 104 and 8 or 9) or 12",
+      "self.Capacity.TextSize = useCompact and secondaryTextSize or 12",
     ),
   "Compact capacity copy must keep explicit ITEM/PET semantics and readable type.",
 );
@@ -251,7 +251,7 @@ check(
 
 check(
   "rarity_entries_are_readable_and_touch_bounded",
-  source.includes("button.TextSize = useCompact and 11 or 13")
+  source.includes("button.TextSize = useCompact and secondaryTextSize or 13")
     && source.includes("button.Size = UDim2.new(1, 0, 0, touchTarget)")
     && source.includes("AutomaticCanvasSize = Enum.AutomaticSize.Y")
     && source.includes("ClipsDescendants = true")
@@ -325,7 +325,7 @@ check(
     && source.includes('InventoryWideActionLayout", "ThreeSingleOrFourTwoByTwo"')
     && source.includes('InventoryBackdropMode", "InputOnlyTransparent"')
     && source.includes("BackgroundTransparency = 1")
-    && responsive.includes("local headerHeight = useCompact and math.max(48, touchTarget + 4) or math.max(68, touchTarget + 16)")
+    && responsive.includes("local headerHeight = useCompact and (52 / scale) or math.max(68, touchTarget + 16)")
     && responsive.includes("local detailWidth = math.clamp(windowWidth * 0.285, 282, 320)")
     && responsive.includes("local artSize = math.clamp(detailHeight * 0.245, 124, 154)")
     && responsive.includes("local actionColumns = wideActionCount == 4 and 2 or math.min(3, wideActionCount)")
@@ -401,7 +401,7 @@ check(
     && viewModel.includes('actions = { primary, fusionAction, lockAction, deleteAction }')
     && source.includes('elseif remoteAction == "FusePet" then')
     && source.includes('return ACTION_STYLES.Fusion, "Fusion"')
-    && source.includes("local actionColumns = actionCount == 4 and 2 or math.min(3, actionCount)")
+    && source.includes("local actionColumns = math.min(2, actionCount)")
     && source.includes("local actionColumns = wideActionCount == 4 and 2 or math.min(3, wideActionCount)"),
   "Pets need a semantic Fusion button and a 2x2 four-action layout on compact and wide screens.",
 );

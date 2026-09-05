@@ -2,6 +2,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -39,104 +41,34 @@ function block(start, end) {
   return source.slice(startIndex, endIndex);
 }
 
-function allocateToolbarWidths(totalWidth, compact, touchTarget = 44) {
-  totalWidth = Math.max(0, Math.floor(Number(totalWidth) + 0.5));
-  touchTarget = Math.max(1, Math.floor(Number(touchTarget) + 0.5));
-  let gap = compact && totalWidth < 420 ? 6 : 8;
-  let minimumSearchWidth = compact ? touchTarget : 160;
-  let minimumCapacityWidth = Math.max(touchTarget, compact ? 78 : 86);
-  let minimumRarityWidth = Math.max(touchTarget, compact ? 88 : 96);
-  let requiredWidth =
-    minimumSearchWidth + minimumCapacityWidth + minimumRarityWidth + gap * 2;
-  if (totalWidth < requiredWidth) {
-    gap = 4;
-    minimumSearchWidth = touchTarget;
-    minimumCapacityWidth = touchTarget;
-    minimumRarityWidth = touchTarget;
-    requiredWidth =
-      minimumSearchWidth + minimumCapacityWidth + minimumRarityWidth + gap * 2;
-  }
-  const distributable = Math.max(0, totalWidth - requiredWidth);
-  const searchExtra = Math.floor(distributable * 0.6);
-  const controlsExtra = distributable - searchExtra;
-  const capacityExtra = Math.floor(controlsExtra * 0.55);
-  let search = minimumSearchWidth + searchExtra;
-  const capacity = minimumCapacityWidth + capacityExtra;
-  const rarity = Math.max(
-    touchTarget,
-    totalWidth - search - capacity - gap * 2,
-  );
-  let used = search + capacity + rarity + gap * 2;
-  if (used > totalWidth) {
-    search = Math.max(touchTarget, search - (used - totalWidth));
-    used = search + capacity + rarity + gap * 2;
-  }
-  return { search, capacity, rarity, gap, used, totalWidth };
-}
 
-function calculateResponsiveBounds(viewportWidth, viewportHeight, uiScale) {
-  const scale = Math.min(1.2, Math.max(0.75, Number(uiScale) || 1));
-  const availableWidth = viewportWidth / scale;
-  const availableHeight = viewportHeight / scale;
-  const compactMinimumWidth = 320 / scale;
-  const compactMinimumHeight = 280 / scale;
-  const compactMaximumWidth = Math.max(1, (viewportWidth - 20) / scale);
-  const compactMaximumHeight = Math.max(1, (viewportHeight - 24) / scale);
-  const compactDesiredWidth = Math.max(
-    compactMinimumWidth,
-    availableWidth - 12,
-  );
-  const compactDesiredHeight = Math.max(
-    compactMinimumHeight,
-    availableHeight - 12,
-  );
-  const width = Math.min(compactDesiredWidth, compactMaximumWidth);
-  const height = Math.min(compactDesiredHeight, compactMaximumHeight);
-  const touchTarget = Math.ceil(44 / scale);
-  const bodyWidth = width - 16;
-  const toolbarContentWidth = Math.max(0, bodyWidth - 8 - 16);
-  const toolbar = allocateToolbarWidths(
-    toolbarContentWidth,
-    true,
-    touchTarget,
-  );
-  const categoryWidth = Math.max(
-    touchTarget,
-    Math.floor((bodyWidth - 8 - 16 - 20) / 5),
-  );
-  const categoryUsedWidth = categoryWidth * 5 + 4 * 5 + 8;
-  const categoryAvailableWidth = bodyWidth - 8;
-  const gridContentWidth = Math.max(1, bodyWidth - 8 - 24);
-  const padding = 8;
-  const minimumCellWidth = Math.max(touchTarget, 92);
-  const fittingColumns = Math.max(
-    1,
-    Math.floor(
-      (gridContentWidth + padding) / (minimumCellWidth + padding),
-    ),
-  );
-  const preferredColumns = viewportWidth < 800 ? 3 : 4;
-  const columns = Math.min(preferredColumns, fittingColumns);
-  const cellWidth = Math.max(
-    touchTarget,
-    Math.floor(
-      (gridContentWidth - (columns - 1) * padding) / columns,
-    ),
-  );
-  return {
-    scale,
-    width,
-    height,
-    renderedWidth: width * scale,
-    renderedHeight: height * scale,
-    renderedTouchTarget: touchTarget * scale,
-    toolbar,
-    categoryUsedWidth,
-    categoryAvailableWidth,
-    gridContentWidth,
-    columns,
-    cellWidth,
-  };
+function runProductionLuau(name, code) {
+  const optionIndex = process.argv.indexOf("--luau-tool-dir");
+  const explicitDirectory = optionIndex >= 0
+    ? process.argv[optionIndex + 1] : process.env.PUNCH_WALL_LUAU_TOOL_DIR;
+  const directories = explicitDirectory ? [explicitDirectory] : [
+    path.join(repositoryRoot, ".tools/luau"),
+    ...String(process.env.PATH || "").split(path.delimiter),
+    ...fs.readdirSync(os.tmpdir(), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && /^codex-luau-/i.test(entry.name))
+      .map((entry) => path.join(os.tmpdir(), entry.name)),
+  ];
+  const executable = directories.filter(Boolean)
+    .map((directory) => path.join(directory, process.platform === "win32" ? "luau.exe" : "luau"))
+    .find((candidate) => fs.existsSync(candidate));
+  assert(executable, "BLOCKED: Luau runtime unavailable; pass --luau-tool-dir or PUNCH_WALL_LUAU_TOOL_DIR");
+  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), name + "-"));
+  const temporaryFile = path.join(temporaryDirectory, "contract.luau");
+  try {
+    fs.writeFileSync(temporaryFile, code);
+    const result = spawnSync(executable, [temporaryFile], { encoding: "utf8", timeout: 30000 });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stderr || result.stdout || "Luau contract failed without output");
+    return result.stdout.trim();
+  } finally {
+    if (fs.existsSync(temporaryFile)) fs.unlinkSync(temporaryFile);
+    fs.rmdirSync(temporaryDirectory);
+  }
 }
 
 const allocation = block(
@@ -184,55 +116,6 @@ check(
     ),
   "Search, rarity, and capacity widths must share the actual GridPane toolbar width.",
 );
-
-check(
-  "compact_minimums_and_touch_targets_are_rendered_units",
-  responsive.includes("local touchTarget = math.ceil(44 / scale)")
-    && responsive.includes("local compactMinimumWidth = 320 / scale")
-    && responsive.includes("local compactMinimumHeight = 280 / scale")
-    && responsive.includes(
-      "local compactMaximumWidth = math.max(1, (viewport.X - compactSafeInsetX) / scale)",
-    )
-    && responsive.includes(
-      "local compactMaximumHeight = math.max(1, (viewport.Y - compactSafeInsetY) / scale)",
-    )
-    && allocation.includes(
-      "touchTarget = math.max(1, math.floor((tonumber(touchTarget) or 44) + 0.5))",
-    ),
-  "Compact minima and 44 px targets must be divided by UIScale before sizing descendants.",
-);
-
-for (const viewport of [
-  { width: 320, height: 280 },
-  { width: 360, height: 240 },
-  { width: 480, height: 280 },
-  { width: 568, height: 320 },
-]) {
-  for (const scale of [0.8, 1, 1.2]) {
-    const result = calculateResponsiveBounds(
-      viewport.width,
-      viewport.height,
-      scale,
-    );
-    check(
-      `compact_${viewport.width}x${viewport.height}_scale_${String(scale).replace(".", "_")}_is_render_safe`,
-      result.renderedWidth <= viewport.width
-        && result.renderedHeight <= viewport.height
-        && result.renderedTouchTarget >= 44,
-      `Unexpected compact bounds: ${JSON.stringify(result)}`,
-    );
-    check(
-      `compact_${viewport.width}x${viewport.height}_scale_${String(scale).replace(".", "_")}_content_is_bounded`,
-      result.toolbar.used <= result.toolbar.totalWidth
-        && result.categoryUsedWidth <= result.categoryAvailableWidth
-        && result.columns >= 1
-        && result.cellWidth * result.columns
-          + Math.max(0, result.columns - 1) * 8
-          <= result.gridContentWidth,
-      `Unexpected compact content allocation: ${JSON.stringify(result)}`,
-    );
-  }
-}
 
 check(
   "narrow_grid_reduces_columns_before_overflow",
@@ -304,34 +187,6 @@ check(
   "The allocator and runtime hierarchy must expose the no-overlap invariant.",
 );
 
-for (const testCase of [
-  { name: "reported_1277_desktop_grid", width: 379, compact: false },
-  { name: "medium_desktop_grid", width: 440, compact: false },
-  { name: "wide_desktop_grid", width: 640, compact: false },
-]) {
-  const result = allocateToolbarWidths(testCase.width, testCase.compact);
-  check(
-    `${testCase.name}_is_readable_and_bounded`,
-    result.search >= 160
-      && result.capacity >= 44
-      && result.rarity >= 44
-      && result.used <= result.totalWidth,
-    `Unexpected desktop allocation: ${JSON.stringify(result)}`,
-  );
-}
-
-for (const width of [280, 320, 400]) {
-  const result = allocateToolbarWidths(width, true);
-  check(
-    `compact_${width}_keeps_touch_targets`,
-    result.search >= 44
-      && result.capacity >= 44
-      && result.rarity >= 44
-      && result.used <= result.totalWidth,
-    `Unexpected compact allocation: ${JSON.stringify(result)}`,
-  );
-}
-
 check(
   "category_pointer_and_selection_states_are_connected_once",
   [
@@ -398,6 +253,118 @@ check(
   "Narrow capacity chrome must retain an inspectable full semantic label.",
 );
 
+const code=String.raw`
+local function vec2(x,y) return {X=x,Y=y,__kind='Vector2'} end
+local Vector2={new=vec2,zero=vec2(0,0)}
+local UDim={new=function(s,o)return {Scale=s,Offset=o}end}
+local UDim2={new=function(xs,xo,ys,yo)return {X={Scale=xs,Offset=xo},Y={Scale=ys,Offset=yo}}end}
+UDim2.fromOffset=function(x,y)return UDim2.new(0,x,0,y)end
+local function typeof(x)return type(x)=='table' and x.__kind or type(x) end
+local Enum=setmetatable({},{__index=function(t,k)local v=setmetatable({},{__index=function(_,v)return v end});rawset(t,k,v);return v end})
+local function node()
+ local result={Visible=true,attrs={},AbsoluteSize=vec2(0,0),Position=UDim2.fromOffset(0,0),Size=UDim2.fromOffset(0,0),AnchorPoint=Vector2.zero}
+ result.SetAttribute=function(self,k,v)self.attrs[k]=v end
+ result.GetAttribute=function(self,k)return self.attrs[k] end
+ result.IsA=function(_,k)return k=='TextButton' end
+ return setmetatable(result,{__index=function(t,k)local n=node();rawset(t,k,n);return n end})
+end
+local CATEGORIES={'All','Fists','Pets','Boosts','Honor'}
+local RARITIES={'All','Common','Uncommon','Rare','Epic','Legendary','Mythic','Secret'}
+local WIDE_CATEGORY_WIDTH=164
+local WIDE_CATEGORY_GAP=12
+local InventoryUI={}
+`+block('local function allocateToolbarWidths(', 'local function hasTimedItem(')+block('function InventoryUI:ApplyResponsive(', 'function InventoryUI:_enabledActionNames(')+String.raw`
+local count=0
+local function check(ok,message) count+=1;assert(ok,message) end
+local function near(a,b)return math.abs(a-b)<.01 end
+local function makeSelf(actions)
+ local self=setmetatable({_layout={},_rarityButtons={},_cardPool={},_categoryButtons={},_activeActionButtons={},EmptySlotLabels={},_sparseSlotPool={},DetailStatRows={},_snapshot=false,_category='All',_detailExpanded=true,_selectedItem={key='pet:1'},_selectedKey='pet:1',_search='cat'}, {__index=function(t,k)
+  local n=node();rawset(t,k,n);return n
+ end})
+ for _,name in ipairs({'_updateCapacity','_setRarityMenu','_syncDetailVisibility'}) do self[name]=function()end end
+ for _,name in ipairs(CATEGORIES)do self._categoryButtons[name]={button=node(),padding=node(),icon=node(),indicator=node(),arrow=node()}end
+ for i=1,actions do table.insert(self._activeActionButtons,node())end
+ local card={}
+ for _,name in ipairs({'rarity','quantity','equipped','locked','lockedMessage','footerRail','artFrame','name','nameTextLimit'})do card[name]=node()end
+ card.quantity.Visible=true
+ table.insert(self._cardPool,card)
+ self.DetailStatus.Visible=false
+ self.Grid.CanvasPosition=vec2(0,93)
+ return self
+end
+for _,viewport in ipairs({{296,716},{336,616},{366,736},{716,296},{616,336},{576,316},{796,366},{876,466},{716,260},{776,315}}) do
+ for _,scale in ipairs({.8,1,1.2})do
+  for actions=1,4 do
+   local s=makeSelf(actions)
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),true,scale)
+   local prefix=tostring(viewport[1])..'x'..tostring(viewport[2])..'@'..tostring(scale)..'/'..actions..': '
+   check(near(s.Window.Size.X.Offset*scale,viewport[1]),prefix..'host width')
+   check(near(s.Window.Size.Y.Offset*scale,viewport[2]),prefix..'host height')
+   check(near(s.GridLayout.CellSize.Y.Offset*scale,92),prefix..'row height')
+   check(s._layout.columns==(s.Root.attrs.InventoryAvailableGridWidth>=600 and 2 or 1),prefix..'column breakpoint')
+   check(s._cardPool[1].name.TextSize*scale>=14,prefix..'primary text')
+   check(s._cardPool[1].rarity.TextSize*scale>=12,prefix..'secondary text')
+   check(s.Grid.CanvasPosition.Y==93 and s._selectedKey=='pet:1' and s._search=='cat',prefix..'state retained')
+   check(#s._cardPool==1 and #s._activeActionButtons==actions,prefix..'pool retained')
+   local card=s._cardPool[1]
+   local width=s.GridLayout.CellSize.X.Offset
+   local gridUsed=width*s._layout.columns+(s._layout.columns-1)*s.GridLayout.CellPadding.X.Offset
+   check(gridUsed*scale<=s.Root.attrs.InventoryAvailableGridWidth+.01,prefix..'grid cells within content')
+   local categoryUsed=s._categoryButtons.All.button.Size.X.Offset*#CATEGORIES+(#CATEGORIES-1)*s.CategoryLayout.Padding.Offset+s.CategoryPadding.PaddingLeft.Offset+s.CategoryPadding.PaddingRight.Offset
+   check(categoryUsed<=s.Window.Size.X.Offset-24+.01,prefix..'category controls within bar')
+   check(card.equipped.Position.X.Offset+card.equipped.Size.X.Offset<=width-card.quantity.Size.X.Offset-8/scale,prefix..'state quantity separation')
+   check(s.DetailActionLayout.CellSize.X.Offset*scale>=44 and s.DetailActionLayout.CellSize.Y.Offset*scale>=44,prefix..'actions touch target')
+   local action=s.DetailActions
+   local panelWidth=s.Window.Size.X.Offset-24
+   check(action.Position.X.Offset>=0 and action.Position.X.Offset+action.Size.X.Offset<=panelWidth+.01,prefix..'actions x bounds')
+   check(action.Position.Y.Offset>=0 and action.Position.Y.Offset+action.Size.Y.Offset<=s.Detail.Size.Y.Offset+.01,prefix..'actions y bounds')
+   local used=s.DetailActionLayout.CellSize.X.Offset*s.DetailActionLayout.FillDirectionMaxCells+(s.DetailActionLayout.FillDirectionMaxCells-1)*s.DetailActionLayout.CellPadding.X.Offset
+   check(used<=action.Size.X.Offset+.01,prefix..'action grid within panel')
+   check(s.Root.attrs.InventoryToolbarNoOverlap,prefix..'toolbar')
+   s._detailExpanded=false
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),true,scale)
+   check(s.Grid.Visible and s.GridPane.Visible and s.Grid.CanvasPosition.Y==93,prefix..'drawer return retains scroll')
+   InventoryUI.ApplyResponsive(s,vec2(1280,800),false,1)
+   check(s._cardPool[1].name.TextScaled and s.DetailInternalName.Visible and s._categoryButtons.Boosts.button.Text=='BOOSTS',prefix..'desktop restores')
+  end
+ end
+end
+-- Test both sides at every scale and the exact inclusive boundary at 100%.
+-- A double-based Vector2 mock cannot represent fractional scaled pixels exactly.
+for _,scale in ipairs({.8,1,1.2}) do
+ for _,availableGridWidth in ipairs(scale==1 and {599,600,601} or {599,601}) do
+  local s=makeSelf(1)
+  InventoryUI.ApplyResponsive(s,vec2(availableGridWidth+48*scale,616),true,scale)
+  check(s._layout.columns==(availableGridWidth>=600 and 2 or 1),'inclusive rendered column breakpoint: '..tostring(scale)..' / '..tostring(availableGridWidth)..' / actual '..tostring(s.Root.attrs.InventoryAvailableGridWidth)..' / columns '..tostring(s._layout.columns))
+ end
+end
+-- Execute the production allocator, including its desktop minimum and compact collapse.
+for _,width in ipairs({379,440,640}) do
+ local result=allocateToolbarWidths(width,false,44)
+ check(result.search>=160 and result.capacity>=44 and result.rarity>=44 and result.used<=width,'desktop toolbar allocation')
+end
+for _,width in ipairs({280,320,400}) do
+ local result=allocateToolbarWidths(width,true,44)
+ check(result.search>=44 and result.capacity>=44 and result.rarity>=44 and result.used<=width,'compact toolbar allocation')
+end
+print('Inventory production ApplyResponsive: '..count..' assertions passed')
+`;
+
+const productionOutput = runProductionLuau("inventory-responsive-contract", code);
+assert.match(productionOutput, /Inventory production ApplyResponsive: 2173 assertions passed/);
+const mutationChecks = [];
+if (process.argv.includes("--self-test")) {
+  for (const [name, original, replacement, failure] of [
+    ["duplicate_inset", "and availableWidth\n", "and (availableWidth - 40)\n", /host width/],
+    ["tiny_primary_text", "math.ceil(14 / scale)", "math.ceil(10 / scale)", /primary text/],
+    ["early_two_column_breakpoint", "gridContentWidth * scale >= 600", "gridContentWidth * scale >= 500", /column breakpoint/],
+    ["oversized_grid_cells", "math.floor((gridContentWidth - (columns - 1) * padding) / columns)", "100 + math.floor((gridContentWidth - (columns - 1) * padding) / columns)", /grid cells within content/],
+  ]) {
+    assert(code.includes(original), `Missing mutation target: ${name}`);
+    assert.throws(() => runProductionLuau("inventory-responsive-mutation", code.replace(original, replacement)), failure);
+    mutationChecks.push(name);
+  }
+}
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -406,6 +373,9 @@ console.log(
       passed,
       total: Object.keys(checks).length,
       checks,
+      productionOutput,
+      mutationChecks,
+      limitation: "UI value mocks do not render Roblox text or establish device performance",
       files: [
         path.relative(repositoryRoot, inventoryPath),
         path.relative(repositoryRoot, flowPath),
