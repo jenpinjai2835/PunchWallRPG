@@ -1,0 +1,277 @@
+{
+  "name": "combat-target-boss-hud",
+  "description": "Actual wall HP/hit estimate and Titan phase/HP/countdown with current display names, menu and stale-target cleanup, rendered control clearance, responsive devices and bounded presentation writes.",
+  "studioName": "PunchWallRPG",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') assert(workspace:GetAttribute('SmashCombatHUDOwnedDevice')==nil,'previous owned fixture device requires cleanup') workspace:SetAttribute('SmashCombatHUDOriginalDevice',S:GetDeviceAsync() or '')\nlocal name='Smash Combat HUD QA '..H:GenerateGUID(false) local id=S:CreateDeviceAsync({Name=name,Width=1277,Height=720,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop}) workspace:SetAttribute('SmashCombatHUDOwnedDevice',id) S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\nreturn H:JSONEncode({ok=true,ownedDevice=id})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "create owned desktop HUD fixture device",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start isolated combat HUD play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for isolated profile and HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player') local p=players[1] local world=workspace.PunchWallRPG local c=game.ServerStorage.PunchWallAutomation\nassert(game:GetService('RunService'):IsStudio() and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'requires ephemeral Studio with no live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'profile must be ready ephemeral and nonwritable')\nassert(c:Invoke('Reset').ok and c:Invoke('ResetWorld').ok,'reset failed') assert(c:Invoke('SetStats',{Power=2,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=0,Rebirths=0,HonorPowerBonus=0}).ok,'partial damage seed failed')\ntask.wait(.5) local root=assert(p.Character:FindFirstChild('HumanoidRootPart')) p:SetAttribute('SmashCombatHUDRootWasAnchored',root.Anchored) root.Anchored=true\nlocal block=world['Depth Blocks'].DepthBlock_L001_C06_R02 p:SetAttribute('SmashCombatHUDFixtureTarget',block.Name) root.CFrame=CFrame.lookAt(block.Position+Vector3.new(0,0,8),block.Position)\nlocal result=c:Invoke('HitWall','Brick Wall') assert(result.ok and block:GetAttribute('HP')==6 and block:GetAttribute('MaxHP')==8 and not block:GetAttribute('Broken'),'authoritative partial damage incorrect')\nreturn H:JSONEncode({ok=true,hp=block:GetAttribute('HP'),maxHP=block:GetAttribute('MaxHP'),target=block.Name})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "seed a stationary actual partial-damage target",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\na:Invoke('CloseMenus') local target=p:GetAttribute('SmashCombatHUDFixtureTarget') local block=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(target) assert(block,'fixture target missing')\nawaitCondition(function()return g.TargetWallHUD.Visible and g:GetAttribute('CombatHUDTarget')==target end,'actual wall HUD did not acquire fixture block')\nassert(not g.BossHUD.Visible,'wall/boss ownership overlaps')\nassert(g.TargetWallHUD.TargetTitle.Text==string.upper(block:GetAttribute('TierName')),'themed wall title incorrect')\nassert(g:GetAttribute('CombatHUDCanonicalTarget')=='Brick Wall','canonical identity lost')\nassert(math.abs(g.TargetWallHUD.HealthTrack.HealthFill.Size.X.Scale-block:GetAttribute('HP')/block:GetAttribute('MaxHP'))<.001,'actual wall HP fill mismatch')\nassert(g.TargetWallHUD.TargetDetail.Text:find('HP 6/8',1,true) and g.TargetWallHUD.TargetDetail.Text:find('~3 hits',1,true),'actual wall HP/hit estimate incorrect')\nlocal outline=assert(workspace:FindFirstChild('Local Target Highlight')) assert(outline.Enabled and outline.Adornee==block,'actual outline target wrong')\nlocal count=verifyPanel(g.TargetWallHUD,g.TargetWallHUD.TargetTitle,g.TargetWallHUD.TargetDetail) local before=g:GetAttribute('CombatHUDRenderCount') task.wait(.65) assert(g:GetAttribute('CombatHUDRenderCount')==before,'unchanged target rewrites presentation')\nreturn H:JSONEncode({ok=true,target=target,auditedControls=count,idleCoalesced=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "desktop actual HP estimate outline and idle coalescing",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nfor _,tab in ipairs({'Fists','Pets','Tasks','Settings'}) do a:Invoke('OpenTab',tab) awaitCondition(function()return not g.TargetWallHUD.Visible and not g.BossHUD.Visible end,'combat information overlays '..tab)\nlocal outline=workspace['Local Target Highlight'] assert(not outline.Enabled and outline.Adornee==nil,'menu retains target outline') a:Invoke('CloseMenus') awaitCondition(function()return g.TargetWallHUD.Visible end,'wall did not restore after '..tab) end\nreturn H:JSONEncode({ok=true,menuCases=4})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Shop Inventory Tasks Settings hide and restore combat ownership",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\nlocal S=game:GetService('StudioDeviceSimulatorService') local id=assert(workspace:GetAttribute('SmashCombatHUDOwnedDevice')) local info=S:GetDeviceInfoAsync(id)\nS:UpdateDeviceAsync(id,{Name=info.Name,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone}) S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\na:Invoke('SetSettings',{uiScale=0.8,motion=true,sound=true})\nawaitCondition(function()local r=S:GetResolutionAsync() return r.X==874 and r.Y==402 and g:GetAttribute('CombatHUDLayoutReady')==true end,'requested device/layout not ready') task.wait(.4)\nlocal target=p:GetAttribute('SmashCombatHUDFixtureTarget') local block=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(target) assert(block,'fixture target missing')\nawaitCondition(function()return g.TargetWallHUD.Visible and g:GetAttribute('CombatHUDTarget')==target end,'actual wall HUD did not acquire fixture block')\nassert(not g.BossHUD.Visible,'wall/boss ownership overlaps')\nassert(g.TargetWallHUD.TargetTitle.Text==string.upper(block:GetAttribute('TierName')),'themed wall title incorrect')\nassert(g:GetAttribute('CombatHUDCanonicalTarget')=='Brick Wall','canonical identity lost')\nassert(math.abs(g.TargetWallHUD.HealthTrack.HealthFill.Size.X.Scale-block:GetAttribute('HP')/block:GetAttribute('MaxHP'))<.001,'actual wall HP fill mismatch')\nassert(g.TargetWallHUD.TargetDetail.Text:find('HP 6/8',1,true) and g.TargetWallHUD.TargetDetail.Text:find('~3 hits',1,true),'actual wall HP/hit estimate incorrect')\nlocal outline=assert(workspace:FindFirstChild('Local Target Highlight')) assert(outline.Enabled and outline.Adornee==block,'actual outline target wrong')\n local count=verifyPanel(g.TargetWallHUD,g.TargetWallHUD.TargetTitle,g.TargetWallHUD.TargetDetail)\nreturn H:JSONEncode({ok=true,width=874,height=402,scale=0.8,auditedControls=count,panelWidth=g.TargetWallHUD.AbsoluteSize.X,panelHeight=g.TargetWallHUD.AbsoluteSize.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "actual control clearance 874x402 at 0.8",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\nlocal S=game:GetService('StudioDeviceSimulatorService') local id=assert(workspace:GetAttribute('SmashCombatHUDOwnedDevice')) local info=S:GetDeviceInfoAsync(id)\nS:UpdateDeviceAsync(id,{Name=info.Name,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone}) S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\na:Invoke('SetSettings',{uiScale=1.2,motion=true,sound=true})\nawaitCondition(function()local r=S:GetResolutionAsync() return r.X==874 and r.Y==402 and g:GetAttribute('CombatHUDLayoutReady')==true end,'requested device/layout not ready') task.wait(.4)\nlocal target=p:GetAttribute('SmashCombatHUDFixtureTarget') local block=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(target) assert(block,'fixture target missing')\nawaitCondition(function()return g.TargetWallHUD.Visible and g:GetAttribute('CombatHUDTarget')==target end,'actual wall HUD did not acquire fixture block')\nassert(not g.BossHUD.Visible,'wall/boss ownership overlaps')\nassert(g.TargetWallHUD.TargetTitle.Text==string.upper(block:GetAttribute('TierName')),'themed wall title incorrect')\nassert(g:GetAttribute('CombatHUDCanonicalTarget')=='Brick Wall','canonical identity lost')\nassert(math.abs(g.TargetWallHUD.HealthTrack.HealthFill.Size.X.Scale-block:GetAttribute('HP')/block:GetAttribute('MaxHP'))<.001,'actual wall HP fill mismatch')\nassert(g.TargetWallHUD.TargetDetail.Text:find('HP 6/8',1,true) and g.TargetWallHUD.TargetDetail.Text:find('~3 hits',1,true),'actual wall HP/hit estimate incorrect')\nlocal outline=assert(workspace:FindFirstChild('Local Target Highlight')) assert(outline.Enabled and outline.Adornee==block,'actual outline target wrong')\n local count=verifyPanel(g.TargetWallHUD,g.TargetWallHUD.TargetTitle,g.TargetWallHUD.TargetDetail)\nreturn H:JSONEncode({ok=true,width=874,height=402,scale=1.2,auditedControls=count,panelWidth=g.TargetWallHUD.AbsoluteSize.X,panelHeight=g.TargetWallHUD.AbsoluteSize.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "actual control clearance 874x402 at 1.2",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\nlocal S=game:GetService('StudioDeviceSimulatorService') local id=assert(workspace:GetAttribute('SmashCombatHUDOwnedDevice')) local info=S:GetDeviceInfoAsync(id)\nS:UpdateDeviceAsync(id,{Name=info.Name,Width=667,Height=375,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone}) S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\na:Invoke('SetSettings',{uiScale=1,motion=true,sound=true})\nawaitCondition(function()local r=S:GetResolutionAsync() return r.X==667 and r.Y==375 and g:GetAttribute('CombatHUDLayoutReady')==true end,'requested device/layout not ready') task.wait(.4)\nlocal target=p:GetAttribute('SmashCombatHUDFixtureTarget') local block=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(target) assert(block,'fixture target missing')\nawaitCondition(function()return g.TargetWallHUD.Visible and g:GetAttribute('CombatHUDTarget')==target end,'actual wall HUD did not acquire fixture block')\nassert(not g.BossHUD.Visible,'wall/boss ownership overlaps')\nassert(g.TargetWallHUD.TargetTitle.Text==string.upper(block:GetAttribute('TierName')),'themed wall title incorrect')\nassert(g:GetAttribute('CombatHUDCanonicalTarget')=='Brick Wall','canonical identity lost')\nassert(math.abs(g.TargetWallHUD.HealthTrack.HealthFill.Size.X.Scale-block:GetAttribute('HP')/block:GetAttribute('MaxHP'))<.001,'actual wall HP fill mismatch')\nassert(g.TargetWallHUD.TargetDetail.Text:find('HP 6/8',1,true) and g.TargetWallHUD.TargetDetail.Text:find('~3 hits',1,true),'actual wall HP/hit estimate incorrect')\nlocal outline=assert(workspace:FindFirstChild('Local Target Highlight')) assert(outline.Enabled and outline.Adornee==block,'actual outline target wrong')\n local count=verifyPanel(g.TargetWallHUD,g.TargetWallHUD.TargetTitle,g.TargetWallHUD.TargetDetail)\nreturn H:JSONEncode({ok=true,width=667,height=375,scale=1,auditedControls=count,panelWidth=g.TargetWallHUD.AbsoluteSize.X,panelHeight=g.TargetWallHUD.AbsoluteSize.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "actual control clearance 667x375 at 1",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\nlocal S=game:GetService('StudioDeviceSimulatorService') local id=assert(workspace:GetAttribute('SmashCombatHUDOwnedDevice')) local info=S:GetDeviceInfoAsync(id)\nS:UpdateDeviceAsync(id,{Name=info.Name,Width=900,Height=600,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop}) S:SetDeviceAsync(id) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\na:Invoke('SetSettings',{uiScale=1,motion=true,sound=true})\nawaitCondition(function()local r=S:GetResolutionAsync() return r.X==900 and r.Y==600 and g:GetAttribute('CombatHUDLayoutReady')==true end,'requested device/layout not ready') task.wait(.4)\nlocal target=p:GetAttribute('SmashCombatHUDFixtureTarget') local block=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(target) assert(block,'fixture target missing')\nawaitCondition(function()return g.TargetWallHUD.Visible and g:GetAttribute('CombatHUDTarget')==target end,'actual wall HUD did not acquire fixture block')\nassert(not g.BossHUD.Visible,'wall/boss ownership overlaps')\nassert(g.TargetWallHUD.TargetTitle.Text==string.upper(block:GetAttribute('TierName')),'themed wall title incorrect')\nassert(g:GetAttribute('CombatHUDCanonicalTarget')=='Brick Wall','canonical identity lost')\nassert(math.abs(g.TargetWallHUD.HealthTrack.HealthFill.Size.X.Scale-block:GetAttribute('HP')/block:GetAttribute('MaxHP'))<.001,'actual wall HP fill mismatch')\nassert(g.TargetWallHUD.TargetDetail.Text:find('HP 6/8',1,true) and g.TargetWallHUD.TargetDetail.Text:find('~3 hits',1,true),'actual wall HP/hit estimate incorrect')\nlocal outline=assert(workspace:FindFirstChild('Local Target Highlight')) assert(outline.Enabled and outline.Adornee==block,'actual outline target wrong')\n local count=verifyPanel(g.TargetWallHUD,g.TargetWallHUD.TargetTitle,g.TargetWallHUD.TargetDetail)\nreturn H:JSONEncode({ok=true,width=900,height=600,scale=1,auditedControls=count,panelWidth=g.TargetWallHUD.AbsoluteSize.X,panelHeight=g.TargetWallHUD.AbsoluteSize.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "actual control clearance 900x600 at 1",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player') local p=players[1] local world=workspace.PunchWallRPG local c=game.ServerStorage.PunchWallAutomation\nc:Invoke('SetStats',{Power=120,CritChance=0}) local r=c:Invoke('HitWall','Brick Wall') assert(r.ok and world['Depth Blocks'].DepthBlock_L001_C06_R02:GetAttribute('Broken'),'target was not broken by actual damage') return H:JSONEncode({ok=true,broken=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "break the displayed target through server gameplay",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal target=p:GetAttribute('SmashCombatHUDFixtureTarget') awaitCondition(function()return g:GetAttribute('CombatHUDTarget')~=target end,'broken target retained HUD ownership') local outline=workspace['Local Target Highlight'] assert(not outline.Adornee or outline.Adornee.Name~=target,'broken block outline stale') return H:JSONEncode({ok=true,staleTargetCleared=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "broken target releases both HUD and outline",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player') local p=players[1] local world=workspace.PunchWallRPG local c=game.ServerStorage.PunchWallAutomation\nc:Invoke('ResetWorld') c:Invoke('SetStats',{Power=200000000,WallLevel=99,Depth=75,FistMultiplier=1,PetMultiplier=0,FistMastery=1,CritChance=0}) task.wait(.5)\nlocal boss=world.Walls['Titan Server Wall'] local root=p.Character.HumanoidRootPart root.Anchored=true root.CFrame=CFrame.lookAt(Vector3.new(boss.Position.X,7,boss.Position.Z-boss.Size.Z*.5-16),Vector3.new(boss.Position.X,9,boss.Position.Z))\nlocal r=c:Invoke('HitBoss') assert(r.ok and not boss:GetAttribute('Broken') and boss:GetAttribute('BossPhase')==2,'actual phase-two boss setup failed')\nreturn H:JSONEncode({ok=true,hp=boss:GetAttribute('HP'),phase=boss:GetAttribute('BossPhase')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "enter actual qualified Titan phase two",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nlocal function visible(o) local n=o while n do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end return true end\nlocal function overlaps(a,b) return a.AbsolutePosition.X < b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X > b.AbsolutePosition.X and a.AbsolutePosition.Y < b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y > b.AbsolutePosition.Y end\nlocal function verifyPanel(panel,title,detail)\n local safe=g.PixelPerfectHeroCityHUD local p,s=panel.AbsolutePosition,panel.AbsoluteSize local o,v=safe.AbsolutePosition,safe.AbsoluteSize\n assert(visible(panel) and s.X>0 and s.Y>0,'combat panel not actually visible')\n assert(p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1,'combat panel outside actual safe viewport')\n local count=0 for _,button in ipairs(safe:GetDescendants()) do if button:IsA('GuiButton') and visible(button) and button.Active then assert(not overlaps(panel,button),'combat panel covers active control '..button.Name) count+=1 end end assert(count>0,'no actual controls audited')\n for _,label in ipairs({title,detail}) do assert(label.Text~='' and label.TextBounds.X>0 and label.TextBounds.Y>0,'combat text not rendered') assert(label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'combat text clipped '..label.Name) end\n assert(title.CombatReadability.MinTextSize>=14 and detail.CombatReadability.MinTextSize>=12,'readability floors missing')\n return count\nend\nlocal boss=workspace.PunchWallRPG.Walls['Titan Server Wall'] awaitCondition(function()return g.BossHUD.Visible and (boss:GetAttribute('NextAttackAt') or 0)>workspace:GetServerTimeNow()+3 end,'nearby boss phase/countdown not shown',10)\nlocal panel=g.BossHUD assert(not g.TargetWallHUD.Visible,'regular wall owns boss encounter') assert(panel.BossTitle.Text:find('TITAN P2',1,true) and panel.BossTitle.Text:find('WEAK x1.5',1,true),'actual phase or weak point guidance missing')\nlocal remaining=tonumber(panel.BossSubtitle.Text:match('SHOCKWAVE (%d+)s')) local expected=math.max(0,math.ceil(boss:GetAttribute('NextAttackAt')-workspace:GetServerTimeNow())) assert(remaining and math.abs(remaining-expected)<=1,'HUD countdown disagrees with replicated deadline')\nassert(math.abs(panel.BossHealthTrack.BossHealthFill.Size.X.Scale-boss:GetAttribute('HP')/boss:GetAttribute('MaxHP'))<.001,'boss HP fill incorrect') local controls=verifyPanel(panel,panel.BossTitle,panel.BossSubtitle)\nlocal before=panel.BossSubtitle.Text local renders=g:GetAttribute('CombatHUDRenderCount') task.wait(1.25) assert(panel.BossSubtitle.Text~=before,'countdown froze') local delta=g:GetAttribute('CombatHUDRenderCount')-renders assert(delta>=1 and delta<=3,'countdown rewrites too often or not at all')\na:Invoke('OpenTab','Fists') awaitCondition(function()return not g.BossHUD.Visible and not g.TargetWallHUD.Visible end,'boss overlays Shop') a:Invoke('CloseMenus') awaitCondition(function()return g.BossHUD.Visible end,'boss did not return after Shop')\nreturn H:JSONEncode({ok=true,controls=controls,countdown=remaining,countdownWrites=delta,phase=2})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "actual boss HP countdown control clearance and menu ownership",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player') local p=players[1] local world=workspace.PunchWallRPG local c=game.ServerStorage.PunchWallAutomation\nlocal root=p.Character.HumanoidRootPart root.CFrame=CFrame.new(0,3,70) return H:JSONEncode({ok=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "leave damaged Titan outside every combat range",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function awaitCondition(fn,message,seconds) local deadline=os.clock()+(seconds or 5) repeat if fn() then return end task.wait(.03) until os.clock()>=deadline error(message) end\nawaitCondition(function()return not g.BossHUD.Visible and not g.TargetWallHUD.Visible end,'distant damaged boss remains on screen') local outline=workspace['Local Target Highlight'] assert(not outline.Enabled and outline.Adornee==nil,'out-of-range outline remains') return H:JSONEncode({ok=true,distantBossHidden=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "damaged distant Titan cannot retain HUD ownership",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player') local p=players[1] local world=workspace.PunchWallRPG local c=game.ServerStorage.PunchWallAutomation\nlocal root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') if root then root.Anchored=p:GetAttribute('SmashCombatHUDRootWasAnchored')==true end p:SetAttribute('SmashCombatHUDRootWasAnchored',nil) p:SetAttribute('SmashCombatHUDFixtureTarget',nil) return H:JSONEncode({ok=true,fixtureReleased=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "release owned stationary character fixture",
+      "timeoutMs": 20000
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture combat HUD console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "combat HUD console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop isolated combat HUD play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local original=workspace:GetAttribute('SmashCombatHUDOriginalDevice') local owned=workspace:GetAttribute('SmashCombatHUDOwnedDevice')\nif original==nil and owned==nil then return H:JSONEncode({ok=true,alreadyRestored=true}) end\nS:StopSimulationAsync() if type(original)=='string' and original~='' then S:SetDeviceAsync(original) end\nif type(owned)=='string' and owned~='' then S:RemoveDeviceAsync(owned) end\nworkspace:SetAttribute('SmashCombatHUDOriginalDevice',nil) workspace:SetAttribute('SmashCombatHUDOwnedDevice',nil)\nreturn H:JSONEncode({ok=true,restored=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "restore simulator and remove only owned fixture device",
+      "timeoutMs": 20000
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "cleanup stop play",
+      "allowError": true
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local original=workspace:GetAttribute('SmashCombatHUDOriginalDevice') local owned=workspace:GetAttribute('SmashCombatHUDOwnedDevice')\nif original==nil and owned==nil then return H:JSONEncode({ok=true,alreadyRestored=true}) end\nS:StopSimulationAsync() if type(original)=='string' and original~='' then S:SetDeviceAsync(original) end\nif type(owned)=='string' and owned~='' then S:RemoveDeviceAsync(owned) end\nworkspace:SetAttribute('SmashCombatHUDOriginalDevice',nil) workspace:SetAttribute('SmashCombatHUDOwnedDevice',nil)\nreturn H:JSONEncode({ok=true,restored=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "cleanup owned simulator device",
+      "timeoutMs": 20000,
+      "allowError": true
+    }
+  ]
+}
