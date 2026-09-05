@@ -424,6 +424,7 @@ check(
     if (listenerStart < 0 || listenerEnd < 0) return false;
     const listener = source.slice(listenerStart, listenerEnd);
     return includesAll(listener, [
+      "if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')==",
       "Flow31ExpectedControl",
       "Flow31ActivatedControl",
       "SetAttribute",
@@ -839,6 +840,272 @@ for(const [name,from,to]of[
   idleObservationNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
 }
 
+const settingsStart = flow.steps.find(step => step.label === 'assert Settings opened and precheck Motion control')?.args?.code || '';
+const settingsSteps = [
+  'assert Settings opened and precheck Motion control',
+  'assert Motion toggled and precheck Sound control',
+  'assert Sound toggled and precheck path-safe 80 percent control',
+  'assert 80 percent and precheck path-safe 100 percent control',
+  'assert 100 percent and precheck path-safe 120 percent control',
+  'assert 120 percent Settings state and precheck Settings close',
+].map(label => flow.steps.find(step => step.label === label)?.args?.code || '');
+function settingsSlice(code, start, end) {
+  const from = code.indexOf(start), to = code.indexOf(end, from);
+  assert(from >= 0 && to > from, 'BLOCKED: missing Settings helper ' + start);
+  return code.slice(from, to + end.length);
+}
+const settingsCommon = settingsSlice(settingsStart, 'local function settingsControls(', '\n return #controls\nend');
+const settingsWatch = settingsSlice(settingsStart, 'local function watchSettingsContinuity(', '\n return controls\nend');
+const settingsIdle = settingsSlice(settingsStart, 'local function verifySettingsIdleState(', '\n return result\nend');
+const settingsClear = settingsSlice(client, 'local function clearStandaloneBody(', '\nend');
+check('settings_all_five_selections_preserve_original_lifetime_gate',
+  flow.settingsIdentityContractVersion === 'NativeSettingsLifetimeV1' && settingsSteps.length === 6 && settingsSteps.every(code =>
+    settingsSlice(code, 'local function settingsControls(', '\n return #controls\nend') === settingsCommon &&
+    code.includes('local settingsContinuity=verifySettingsContinuity(g,') && code.includes('settingsContinuity=settingsContinuity') &&
+    code.indexOf('local settingsContinuity=verifySettingsContinuity(g,') < code.indexOf("g:SetAttribute('Flow31ExpectedControl'")),
+  'The same eight original controls must survive the real idle snapshot and each of the five existing native selections.');
+check('settings_idle_observes_real_clock_without_actions_or_snapshot_hooks',
+  includesAll(settingsIdle, ['settled=now-started>=.5 and now-stableSince>=.2',
+    'StatsChanged.OnClientEvent:Connect(function(payload)', '(tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime',
+    'button~=originals[i]', 'local deadline=os.clock()+3', 'stats:Disconnect()']) &&
+  !/FireServer|:Invoke\(|SetAttribute|CreateVirtualInput|SendMouse/.test(settingsIdle) &&
+  settingsStart.indexOf('local idleOk,settingsIdle=pcall(observeSettingsIdle,') < settingsStart.indexOf("g:SetAttribute('Flow31ExpectedControl','C18_motion')"),
+  'Use an increasing real server clock snapshot after bounded focus/layout settling, with unchanged requests and actual instance equality.');
+check('settings_lifetime_observers_cleanup_before_close', includesAll(settingsSteps[5], [
+  "g:SetAttribute('Flow31SettingsWatchActive',false)", 'local cleanupDeadline=os.clock()+.5',
+  "repeat task.wait() until g:GetAttribute('Flow31SettingsWatchConnections')==0 or os.clock()>=cleanupDeadline",
+  "assert(g:GetAttribute('Flow31SettingsWatchConnections')==0,",
+]) && settingsSteps[5].indexOf('local cleanupDeadline=') < settingsSteps[5].indexOf("g:SetAttribute('Flow31ExpectedControl','C23_Close')"),
+  'Disconnect all eighteen bounded lifetime observers before the existing Close gesture, supporting deferred signals.');
+
+// Execute the exact flow helpers with native-like immediate and deferred signal delivery.
+// The historical clear operation is extracted from production, not recreated in the fixture.
+const settingsHarness = String.raw`
+local assertionCount=0
+local function check(ok,label) assertionCount+=1 assert(ok,'settings: '..label) end
+local clock=0 local queued={} local signals={} local tick=nil local deferred=false
+local function flush()
+ local old=queued queued={}
+ for _,callback in ipairs(old) do callback() end
+end
+local function signal()
+ local s={listeners={}}
+ function s:Connect(callback)
+  local connection={Connected=true,callback=callback}
+  function connection:Disconnect() self.Connected=false end
+  table.insert(self.listeners,connection) return connection
+ end
+ function s:Fire(...)
+  local args=table.pack(...)
+  for _,connection in ipairs(self.listeners) do
+   if connection.Connected then
+    local function invoke() if connection.Connected then connection.callback(table.unpack(args,1,args.n)) end end
+    if deferred then table.insert(queued,invoke) else invoke() end
+   end
+  end
+ end
+ table.insert(signals,s) return s
+end
+local function liveConnections()
+ local count=0
+ for _,s in ipairs(signals) do for _,c in ipairs(s.listeners) do if c.Connected then count+=1 end end end
+ return count
+end
+local vec={} vec.__index=function(self,key)
+ if key=='Magnitude' then return math.sqrt(self.X*self.X+self.Y*self.Y) end return vec[key]
+end
+vec.__sub=function(a,b)return setmetatable({X=a.X-b.X,Y=a.Y-b.Y},vec)end
+local function v(x,y)return setmetatable({X=x,Y=y},vec)end
+local function instance(name,parent,kind)
+ local self={Name=name,Parent=parent,kind=kind or 'GuiObject',children={},attributes={},attributeSignals={},Destroying=signal(),AncestryChanged=signal(),AbsolutePosition=v(20,40),AbsoluteSize=v(80,44)}
+ if parent then table.insert(parent.children,self) end
+ function self:IsA(class) return class==self.kind or class=='GuiObject' end
+ function self:GetChildren()return table.clone(self.children)end
+ function self:FindFirstChild(name)for _,child in ipairs(self.children)do if child.Name==name then return child end end return nil end
+ function self:IsDescendantOf(ancestor)
+  local p=self.Parent while p do if p==ancestor then return true end p=p.Parent end return false
+ end
+ function self:GetAttribute(name)return self.attributes[name]end
+ function self:SetAttribute(name,value)
+  if self.attributes[name]==value then return end
+  self.attributes[name]=value
+  if self.attributeSignals[name] then self.attributeSignals[name]:Fire() end
+ end
+ function self:GetAttributeChangedSignal(name)
+  if not self.attributeSignals[name] then self.attributeSignals[name]=signal() end
+  return self.attributeSignals[name]
+ end
+ function self:Reparent(parent)
+  if self.Parent then local index=table.find(self.Parent.children,self) if index then table.remove(self.Parent.children,index) end end
+  self.Parent=parent if parent then table.insert(parent.children,self) end
+  self.AncestryChanged:Fire(self,parent)
+  local function descendantChanged(item)for _,child in ipairs(item.children)do child.AncestryChanged:Fire(child,child.Parent) descendantChanged(child)end end
+  descendantChanged(self)
+ end
+ function self:Destroy()
+  self.Destroying:Fire()
+  for _,child in ipairs(self:GetChildren())do child:Destroy()end
+  self:Reparent(nil)
+ end
+ return self
+end
+local os={clock=function()return clock end}
+local task={wait=function(dt)clock+=dt or .05 if tick then tick(clock)end flush()end}
+local statsSignal=signal()
+local game={ReplicatedStorage={PunchWallEvents={StatsChanged={OnClientEvent=statsSignal}}},GetService=function()return {JSONEncode=function()return 'diagnostic' end}end}
+`;
+function settingsProgram(parts) {
+  return settingsHarness + parts.join('\n') + String.raw`
+local function fixture(mode)
+ deferred=mode clock=0 queued={} tick=nil
+ local g=instance('HUD') local body=instance('Body',g)
+ local p=instance('Player') p.RPGStats={PlaytimeSeconds={Value=30}}
+ p:SetAttribute('Flow31ActionRequestSequence',4)
+ for _,rowSpec in ipairs({{'SOUNDSetting','SoundOn','SoundOff'},{'MOTIONSetting','MotionOn','MotionCalm'},{'UI SIZESetting','Scale80','Scale100','Scale120'},{'Footer','Done'}})do
+  local row=instance(rowSpec[1],body)
+  local parent=rowSpec[1]=='Footer' and row or instance('Options',row)
+  for i=2,#rowSpec do instance(rowSpec[i],parent,'GuiButton')end
+ end
+ local originals=watchSettingsContinuity(g,body,'run-1')
+ return g,body,p,originals
+end
+local function stop(g)
+ g:SetAttribute('Flow31SettingsWatchActive',false) flush()
+ check(g:GetAttribute('Flow31SettingsWatchConnections')==0,'bounded cleanup counter')
+ check(liveConnections()==0,'all actual signal listeners disconnected')
+end
+local function rejects(callback,label)
+ local ok=pcall(callback) check(not ok,'reject '..label)
+end
+for _,mode in ipairs({false,true})do
+ do
+  local g,body,p,originals=fixture(mode)
+  check(verifySettingsContinuity(g,body)==8,'all eight controls before gesture')
+  check(liveConnections()==18,'eighteen lifetime listeners bounded')
+  local sent=false
+  tick=function(now)if now>=.8 and not sent then sent=true statsSignal:Fire({PlaytimeSeconds=31})end end
+  local e=observeSettingsIdle(g,body,p,originals)
+  check(e.observedSnapshot and e.identityStable and e.geometryStable,'stable increasing idle snapshot')
+  check(clock>=.8,'wait for actual snapshot after focus settle')
+  check(liveConnections()==18,'idle listener disconnected')
+  for selection=1,5 do
+   p:SetAttribute('Flow31ActionRequestSequence',4+selection)
+   originals[selection]:SetAttribute('SettingSelected',true)
+   originals[selection].AbsoluteSize=v(80+selection,44)
+   check(verifySettingsContinuity(g,body)==8,'same originals after native selection '..selection)
+  end
+  stop(g)
+  local before=g:GetAttribute('Flow31SettingsIdentityLost') originals[1]:Destroy() flush()
+  check(g:GetAttribute('Flow31SettingsIdentityLost')==before,'no lifetime updates after cleanup')
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  -- Exact production clearStandaloneBody caused the observed historical pre-gesture loss.
+  clearStandaloneBody(body) flush()
+  rejects(function()verifySettingsContinuity(g,body)end,'old production Settings body clear before click')
+  check(g:GetAttribute('Flow31SettingsIdentityLost')~='','old original destruction recorded')
+  stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  -- Same synchronous render after a valid native callback must also be rejected.
+  p:SetAttribute('Flow31ActionRequestSequence',5)
+  local old=originals[4] local parent=old.Parent local clone=instance(old.Name,parent,'GuiButton')
+  clone:SetAttribute('Flow31SettingsIdentityRun','run-1') old:Destroy() flush()
+  rejects(function()verifySettingsContinuity(g,body)end,'post-selection copied-token replacement')
+  stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  originals[1].Destroying:Fire() flush()
+  rejects(function()verifySettingsContinuity(g,body)end,'destroying event before ancestry removal') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  local originalParent=originals[1].Parent
+  originals[1]:Reparent(body) originals[1]:Reparent(originalParent) flush()
+  rejects(function()verifySettingsContinuity(g,body)end,'transient original reparent')
+  stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  originals[1]:SetAttribute('Flow31SettingsIdentityRun','foreign')
+  rejects(function()verifySettingsContinuity(g,body)end,'different original identity token') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  rejects(function()observeSettingsIdle(g,body,p,originals)end,'no real clock snapshot')
+  check(clock>=3.5 and clock<4,'clock observation bounded') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode) local sent=false
+  tick=function(now)if now>=.8 and not sent then sent=true statsSignal:Fire({PlaytimeSeconds=30})end end
+  rejects(function()observeSettingsIdle(g,body,p,originals)end,'unchanged clock payload') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode) local sent=false
+  tick=function(now)if now>=.8 and not sent then sent=true p:SetAttribute('Flow31ActionRequestSequence',5) statsSignal:Fire({PlaytimeSeconds=31})end end
+  rejects(function()observeSettingsIdle(g,body,p,originals)end,'unrelated observation changed authority') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode) local sent=false
+  tick=function(now)if now>=.8 and not sent then sent=true originals[1].AbsolutePosition=v(120,40) statsSignal:Fire({PlaytimeSeconds=31})end end
+  rejects(function()observeSettingsIdle(g,body,p,originals)end,'clock render moves settled control') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  tick=function(now)originals[1].AbsolutePosition=v(now*20,40)end
+  rejects(function()observeSettingsIdle(g,body,p,originals)end,'never settled initial layout')
+  check(clock>=2 and clock<2.1,'layout settling bounded') stop(g)
+ end
+ do
+  local g,body,p,originals=fixture(mode)
+  g:Destroy() flush()
+  check(liveConnections()==0,'HUD destruction cleans lifetime observers')
+ end
+end
+print('SETTINGS_PASS '..assertionCount)
+`;
+}
+const settingsTemp = fs.mkdtempSync(path.join(os.tmpdir(), 'smash-settings-lifetime-'));
+const settingsFiles = [], settingsNegativeControls = [];
+let settingsAssertions = 0;
+function runSettingsCase(name, parts) {
+  const file = path.join(settingsTemp, name + '.luau');
+  fs.writeFileSync(file, settingsProgram(parts)); settingsFiles.push(file);
+  const compile = spawnSync(luauCompiler, ['--binary', file], { encoding: 'utf8', timeout: 30000 });
+  assert.equal(compile.status, 0, 'BLOCKED: Settings fixture did not compile: ' + (compile.stderr || compile.error));
+  const result = spawnSync(luauCommand, [file], { encoding: 'utf8', timeout: 30000 });
+  return { status: result.status, text: `${result.stdout || ''}${result.stderr || ''}`, error: result.error };
+}
+try {
+  const parts = [settingsCommon, settingsWatch, settingsIdle, settingsClear];
+  const positive = runSettingsCase('exact-current-helpers', parts);
+  check('actual_settings_lifetime_and_idle_helpers_execute', positive.status === 0 && /SETTINGS_PASS \d+/.test(positive.text), positive.error?.message || positive.text);
+  settingsAssertions = Number(positive.text.match(/SETTINGS_PASS (\d+)/)[1]);
+  for (const [name, index, before, after] of [
+    ['ignore_original_loss', 0, "g:GetAttribute('Flow31SettingsIdentityLost')==''", 'true'],
+    ['ignore_identity_token', 0, "button:GetAttribute('Flow31SettingsIdentityRun')==token", 'true'],
+    ['drop_destroying_observer', 1, "lost(button.Name..': Destroying')", ''],
+    ['drop_ancestry_observer', 1, "lost(button.Name..': ancestry changed')", ''],
+    ['skip_lifetime_disconnect', 1, 'connection:Disconnect()', 'do end'],
+    ['accept_missing_clock', 2, "e.observedSnapshot==true", 'true'],
+    ['accept_request_mutation', 2, 'e.requestAfter==e.requestBefore', 'true'],
+    ['accept_geometry_motion', 2, 'e.geometryStable==true', 'true'],
+    ['leak_idle_listener', 2, 'stats:Disconnect()', '-- skipped'],
+  ]) {
+    const mutated = [...parts]; mutated[index] = mutated[index].replace(before, after);
+    assert.notEqual(mutated[index], parts[index], 'BLOCKED: Settings mutation did not apply: ' + name);
+    const result = runSettingsCase(name, mutated);
+    const rejected = result.status !== 0 && result.text.includes('settings:');
+    check('settings_behavior_negative_' + name, rejected, result.error?.message || result.text);
+    settingsNegativeControls.push({ name, status: 'REJECTED' });
+  }
+} finally {
+  for (const file of settingsFiles) fs.unlinkSync(file);
+  fs.rmdirSync(settingsTemp);
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -864,6 +1131,8 @@ console.log(
       checks,
       fixtureNegativeControls,
       idleObservationNegativeControls,
+      settingsAssertions,
+      settingsNegativeControls,
       studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
       files: [
         path.relative(repositoryRoot, flowPath),
