@@ -5304,6 +5304,44 @@ function companionRuntime.ResolveVisualPolicy(state, rootPart, cameraDistance, a
 	return repositionedTarget, 0.58, "CulledAfterBudgetLOD", 0
 end
 
+function companionRuntime.BoundsCorners(boundsSize)
+	local corners = {}
+	for x = -1, 1, 2 do
+		for y = -1, 1, 2 do
+			for z = -1, 1, 2 do
+				table.insert(corners, Vector3.new(boundsSize.X * x * 0.5, boundsSize.Y * y * 0.5, boundsSize.Z * z * 0.5))
+			end
+		end
+	end
+	return corners
+end
+
+function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize
+	if not viewport or viewport.X <= 1 or viewport.Y <= 1 then return boundsCFrame, false, 0 end
+	-- Translate the entire oriented box in the camera plane; preserve model
+	-- size and depth. Intersect each corner's allowable translation interval
+	-- so bob, tilt and smoothing cannot push an edge beyond the 1% safe frame.
+	local inset = math.min(viewport.X, viewport.Y) * 0.01 + 0.5
+	local verticalFrustum = 2 * math.tan(math.rad(camera.FieldOfView * 0.5))
+	local minX, maxX, minY, maxY = -math.huge, math.huge, -math.huge, math.huge
+	for _, localCorner in ipairs(boundsCorners) do
+		local corner = boundsCFrame:PointToWorldSpace(localCorner)
+		local point = camera:WorldToViewportPoint(corner)
+		if point.Z <= 0.05 then return boundsCFrame, false, 0 end
+		local worldPerPixel = verticalFrustum * point.Z / viewport.Y
+		minX = math.max(minX, (inset - point.X) * worldPerPixel)
+		maxX = math.min(maxX, (viewport.X - inset - point.X) * worldPerPixel)
+		minY = math.max(minY, (point.Y - viewport.Y + inset) * worldPerPixel)
+		maxY = math.min(maxY, (point.Y - inset) * worldPerPixel)
+	end
+	if minX > maxX or minY > maxY then return boundsCFrame, false, 0 end
+	local offset = camera.CFrame.RightVector * math.clamp(0, minX, maxX)
+		+ camera.CFrame.UpVector * math.clamp(0, minY, maxY)
+	return boundsCFrame + offset, true, offset.Magnitude
+end
+
 function companionRuntime.ApplyVisualScale(state, visualScale)
 	visualScale = math.clamp(tonumber(visualScale) or 1, 0.58, 1)
 	if math.abs((state.currentVisualScale or 1) - visualScale) <= 0.005 then return true end
@@ -6992,6 +7030,24 @@ refreshCharacterVisuals = function()
 	companionRuntime.CancelVisualRetry("BuildSucceeded")
 	visualSignature = signature
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
+	-- Hand geometry changes require new gloves and attached Honor cosmetics,
+	-- but pets have independent normalized sizes and motion state. Retain their
+	-- actual instances unless their character, tokens, templates or lifetime change.
+	local petTokens = table.concat(equippedPets, ",")
+	local petSources = {}
+	local petsCurrent = companionRuntime.petCharacter == player.Character
+		and companionRuntime.petTokens == petTokens and #companionModels == #equippedPets
+	for index, token in ipairs(equippedPets) do
+		local definition = GameConfig.PetDefinition(GameConfig.ParsePetToken(token))
+		petSources[index] = definition and catalogCompanionTemplate(definition) or nil
+		local state = companionModels[index]
+		petsCurrent = petsCurrent and state ~= nil and state.model.Parent == companionsFolder
+			and companionRuntime.petSources[index] == petSources[index]
+	end
+	if petsCurrent then return end
+	companionRuntime.petCharacter = player.Character
+	companionRuntime.petTokens = petTokens
+	companionRuntime.petSources = petSources
 	companionsFolder:ClearAllChildren()
 	companionModels = {}
 	local premiumCount = 0
@@ -9211,6 +9267,16 @@ RunService.Heartbeat:Connect(function(deltaTime)
 					local alpha = 1 - math.exp(-state.followResponsiveness * effectiveDelta)
 					state.currentBoundsCFrame = state.currentBoundsCFrame:Lerp(targetBounds, alpha)
 				end
+				if state.safeFrameBoundsSize ~= state.boundsSize then
+					state.safeFrameBoundsSize = state.boundsSize
+					state.safeFrameCorners = companionRuntime.BoundsCorners(state.boundsSize)
+				end
+				local safeBounds, safeFrameValid, safeFrameShift = companionRuntime.KeepBoundsInSafeFrame(
+					state.currentBoundsCFrame, state.safeFrameCorners
+				)
+				state.currentBoundsCFrame = safeBounds
+				state.safeFrameValid = safeFrameValid
+				state.safeFrameShift = safeFrameShift
 				model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
 				state.motionFrames += 1
 				local actualScreenArea = companionRuntime.ScreenArea(state.boundsSize, state.currentBoundsCFrame.Position)
@@ -9241,6 +9307,8 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		companionRuntime.telemetryAccumulator = 0
 		for _, state in ipairs(companionModels) do
 			if state.model and state.model.Parent then
+				state.model:SetAttribute("CompanionSafeFrameValid", state.safeFrameValid == true)
+				state.model:SetAttribute("CompanionSafeFrameShift", state.safeFrameShift or 0)
 				state.model:SetAttribute("EstimatedScreenArea", state.lastScreenArea or 0)
 				state.model:SetAttribute(
 					"ScreenAreaWithinBudget",
