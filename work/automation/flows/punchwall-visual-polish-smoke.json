@@ -87,15 +87,15 @@
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG.Downtown Smash Block"
+        "datamodel_type": "Server",
+        "code": "local p=workspace.PunchWallRPG['World 1 Forest Ground'] return game.HttpService:JSONEncode({groundContractValid=p:IsA('BasePart') and p.Material==Enum.Material.Grass and p.Size==Vector3.new(190,3,150) and p.Anchored and p.CanCollide,material=p.Material.Name,size=tostring(p.Size)})"
       },
       "expectRegex": [
-        "Asphalt",
-        "\"Size\""
+        "\"groundContractValid\"\\s*:\\s*true"
       ],
-      "label": "asphalt city base exists"
+      "label": "forest ground has current material and full playable collision footprint"
     },
     {
       "type": "call",

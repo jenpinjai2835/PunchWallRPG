@@ -3551,12 +3551,17 @@ function shared.PunchWallBindPlayerSpawn(player)
 		if state.character == character then return end
 		state.character = character
 		task.spawn(function()
-			local rootPart = character:WaitForChild("HumanoidRootPart", 5)
+			character:WaitForChild("HumanoidRootPart", 5)
+			character:WaitForChild("Humanoid", 5)
 			local deadline = os.clock() + 5
 			while player.Character == character and not character:IsDescendantOf(workspace) and os.clock() < deadline do
 				task.wait()
 			end
-			if not rootPart or spawnBindings[player] ~= state or state.character ~= character
+			local rootPart = character:FindFirstChild("HumanoidRootPart")
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if not rootPart or not rootPart:IsA("BasePart") or rootPart.Parent ~= character
+				or not humanoid or humanoid.Health <= 0
+				or spawnBindings[player] ~= state or state.character ~= character
 				or player.Character ~= character or not character:IsDescendantOf(workspace) then return end
 			rootPart.AssemblyLinearVelocity = Vector3.zero
 			rootPart.AssemblyAngularVelocity = Vector3.zero
