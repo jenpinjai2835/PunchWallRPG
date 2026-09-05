@@ -4377,16 +4377,66 @@ renderStandaloneRebirth = function()
 	task.defer(applyResponsiveLayout)
 end
 
-renderStandaloneSettings = function()
-	if not settingsPanel.Visible then return end
-	clearStandaloneBody(settingsBody)
+local settingsRuntime = { generation = 0, controls = {}, builds = 0, refreshes = 0, reuses = 0 }
+function settingsRuntime.ControlsCurrent()
+	if settingsBody.Parent ~= settingsPanel or #settingsRuntime.controls ~= 7
+		or not settingsRuntime.footer or settingsRuntime.footer.Parent ~= settingsBody
+		or not settingsRuntime.done or settingsRuntime.done.Parent ~= settingsRuntime.footer then return false end
+	for _, control in ipairs(settingsRuntime.controls) do
+		if control.row.Parent ~= settingsBody or control.options.Parent ~= control.row
+			or control.button.Parent ~= control.options then return false end
+	end
+	return true
+end
+function settingsRuntime.UpdateSelection()
+	for _, control in ipairs(settingsRuntime.controls) do
+		local value = control.key == "uiScale" and (tonumber(clientSettings.uiScale) or 1)
+			or clientSettings[control.key] == true
+		local selected = control.value == value
+		control.button.BackgroundColor3 = selected and palette.Reward or palette.PanelSoft
+		control.button:SetAttribute("SettingSelected", selected)
+	end
+end
+function settingsRuntime.FocusOnOpen()
+	local generation = settingsRuntime.generation
+	task.defer(function()
+		if not settingsPanel.Visible or settingsPanel.Parent ~= gui
+			or generation ~= settingsRuntime.generation or not settingsRuntime.ControlsCurrent() then return end
+		local selected = GuiService.SelectedObject
+		if selected and selected:IsDescendantOf(settingsBody) and selected.Active and selected.Selectable then return end
+		local lastInput = UserInputService:GetLastInputType()
+		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+		GuiService.SelectedObject = selectionInput and settingsRuntime.controls[1].button or nil
+	end)
+end
+renderStandaloneSettings = function(focusOnOpen)
+	if not settingsPanel.Visible or settingsPanel.Parent ~= gui then return end
+	settingsRuntime.refreshes += 1
+	settingsPanel:SetAttribute("SettingsRefreshCount", settingsRuntime.refreshes)
 	settingsSubtitle.Text = "SOUND • MOTION • UI SIZE"
 	settingsPanel:SetAttribute("SoundEnabled", clientSettings.sound == true)
 	settingsPanel:SetAttribute("MotionEnabled", clientSettings.motion == true)
 	settingsPanel:SetAttribute("UiScale", tonumber(clientSettings.uiScale) or 1)
 	settingsPanel:SetAttribute("LegacyCombinedTabsVisible", false)
-	local firstControl
-	local function makeSettingRow(rowIndex, iconName, titleText, helperText, options, selectedValue, onSelect)
+	settingsPanel:SetAttribute("SettingsControlsVersion", "StableNativeControlsV1")
+	if settingsRuntime.ControlsCurrent() then
+		settingsRuntime.reuses += 1
+		settingsPanel:SetAttribute("SettingsReuseCount", settingsRuntime.reuses)
+		settingsRuntime.UpdateSelection()
+		if focusOnOpen then settingsRuntime.FocusOnOpen() end
+		if settingsRuntime.lastScale ~= clientSettings.uiScale then
+			settingsRuntime.lastScale = clientSettings.uiScale
+			task.defer(applyResponsiveLayout)
+		end
+		return
+	end
+	settingsRuntime.generation += 1
+	local generation = settingsRuntime.generation
+	settingsRuntime.controls = {}
+	clearStandaloneBody(settingsBody)
+	settingsRuntime.builds += 1
+	settingsPanel:SetAttribute("SettingsBuildCount", settingsRuntime.builds)
+	local function makeSettingRow(rowIndex, iconName, titleText, helperText, key, options, selectedValue, onSelect)
 		local row = standaloneCard(settingsBody, titleText .. "Setting", UDim2.new(0, 0, 0, (rowIndex - 1) * 82), UDim2.new(1, 0, 0, 72), Color3.fromRGB(46, 205, 255))
 		createThemeIcon(row, iconName, UDim2.fromOffset(12, 12), UDim2.fromOffset(48, 48), "SettingIcon")
 		standaloneLabel(row, "SettingTitle", titleText, UDim2.fromOffset(70, 7), UDim2.fromOffset(130, 25), palette.Text, 14, Enum.Font.GothamBlack)
@@ -4408,7 +4458,11 @@ renderStandaloneSettings = function()
 		local previous
 		for _, option in ipairs(options) do
 			local selected = option.value == selectedValue
-			local button = makeMenuCommand(optionArea, option.name, option.label, selected and palette.Reward or palette.PanelSoft, function()
+			local button
+			button = makeMenuCommand(optionArea, option.name, option.label, selected and palette.Reward or palette.PanelSoft, function()
+				if generation ~= settingsRuntime.generation or not settingsPanel.Visible or settingsPanel.Parent ~= gui
+					or button.Parent ~= optionArea or optionArea.Parent ~= row or row.Parent ~= settingsBody
+					or settingsBody.Parent ~= settingsPanel then return end
 				onSelect(option.value)
 				renderStandaloneSettings()
 			end)
@@ -4419,18 +4473,18 @@ renderStandaloneSettings = function()
 			button.Size = UDim2.fromOffset(option.width or 78, 44)
 			button:SetAttribute("MinimumTouchTarget", 44)
 			button:SetAttribute("SettingValue", tostring(option.value))
-			if not firstControl then firstControl = button end
+			table.insert(settingsRuntime.controls, { button = button, options = optionArea, row = row, key = key, value = option.value })
 			if previous then previous.NextSelectionRight = button button.NextSelectionLeft = previous end
 			previous = button
 		end
 	end
-	makeSettingRow(1, "SoundTool", "SOUND", "MUSIC + SFX", {
+	makeSettingRow(1, "SoundTool", "SOUND", "MUSIC + SFX", "sound", {
 		{ name = "SoundOn", label = "ON", value = true },
 		{ name = "SoundOff", label = "OFF", value = false },
 	}, clientSettings.sound == true, function(value)
 		shared.PunchWallApplySoundSetting(value, true)
 	end)
-	makeSettingRow(2, "Punch", "MOTION", "CAMERA + PUNCH FX", {
+	makeSettingRow(2, "Punch", "MOTION", "CAMERA + PUNCH FX", "motion", {
 		{ name = "MotionOn", label = "ON", value = true },
 		{ name = "MotionCalm", label = "CALM", value = false },
 	}, clientSettings.motion == true, function(value)
@@ -4439,14 +4493,13 @@ renderStandaloneSettings = function()
 		if shared.PunchWallRefreshHonorMotion then shared.PunchWallRefreshHonorMotion() end
 		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
 	end)
-	makeSettingRow(3, "Menu", "UI SIZE", "TEXT + BUTTONS", {
+	makeSettingRow(3, "Menu", "UI SIZE", "TEXT + BUTTONS", "uiScale", {
 		{ name = "Scale80", label = "80%", value = 0.8, width = 72 },
 		{ name = "Scale100", label = "100%", value = 1, width = 72 },
 		{ name = "Scale120", label = "120%", value = 1.2, width = 72 },
 	}, tonumber(clientSettings.uiScale) or 1, function(value)
 		clientSettings.uiScale = value
 		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
-		task.defer(applyResponsiveLayout)
 	end)
 	local footer = Instance.new("Frame")
 	footer.Name = "Footer"
@@ -4456,18 +4509,22 @@ renderStandaloneSettings = function()
 	footer.ZIndex = 73
 	footer.Parent = settingsBody
 	standaloneLabel(footer, "ApplyHint", "CHANGES APPLY NOW", UDim2.fromScale(0, 0), UDim2.fromScale(0.62, 1), palette.MutedText, 11, Enum.Font.GothamBold)
-	local done = makeMenuCommand(footer, "Done", "DONE", Color3.fromRGB(31, 148, 206), function() closeStandaloneWindows("SettingsDone") end)
+	local done
+	done = makeMenuCommand(footer, "Done", "DONE", Color3.fromRGB(31, 148, 206), function()
+		if generation ~= settingsRuntime.generation or not settingsPanel.Visible or settingsPanel.Parent ~= gui
+			or done.Parent ~= footer or footer.Parent ~= settingsBody or settingsBody.Parent ~= settingsPanel then return end
+		closeStandaloneWindows("SettingsDone")
+	end)
 	done.AnchorPoint = Vector2.new(1, 0.5)
 	done.Position = UDim2.fromScale(1, 0.5)
 	done.Size = UDim2.fromOffset(130, 48)
 	done:SetAttribute("MinimumTouchTarget", 44)
+	settingsRuntime.footer = footer
+	settingsRuntime.done = done
+	settingsRuntime.lastScale = clientSettings.uiScale
+	settingsRuntime.UpdateSelection()
 	setDescendantZIndex(settingsPanel, 72)
-	task.defer(function()
-		if not settingsPanel.Visible then return end
-		local lastInput = UserInputService:GetLastInputType()
-		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
-		GuiService.SelectedObject = selectionInput and firstControl or nil
-	end)
+	settingsRuntime.FocusOnOpen()
 	task.defer(applyResponsiveLayout)
 end
 
@@ -4499,7 +4556,7 @@ local function openStandaloneWindow(windowName, origin)
 	shared.PunchWallSetModalCoreGuiHidden(true, "StandaloneWindow")
 	applyReferenceHUDState(true)
 	task.defer(applyResponsiveLayout)
-	if windowName == "Rebirth" then renderStandaloneRebirth() else renderStandaloneSettings() end
+	if windowName == "Rebirth" then renderStandaloneRebirth() else renderStandaloneSettings(true) end
 end
 
 shared.PunchWallOpenSettingsPanel = function(origin)
