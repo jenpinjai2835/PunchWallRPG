@@ -5,13 +5,99 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7500, "label": "wait for progression runtime" },
-    { "type": "call", "tool": "execute_luau", "timeoutMs": 120000, "saveAs": "naturalProgressionDiagnostics", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('SetStats',{DailyQuestDate=os.date('!%Y-%m-%d')}) local r=p.Character.HumanoidRootPart r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-400)) local initialPower=p.leaderstats.Power.Value local testMode=p:GetAttribute('StudioHighPowerTestMode')==true local firstBroken,firstCoins=0,0 local starterPowerStable=true for i=1,4 do local result=c:Invoke('PunchWithCooldown') if i==1 then firstBroken=result.brokenCount or 0 firstCoins=p.leaderstats.Coins.Value end starterPowerStable=starterPowerStable and p.leaderstats.Power.Value==initialPower task.wait(1.02) end local preBuyCoins=p.leaderstats.Coins.Value local preBuyDepth=p.leaderstats.Depth.Value local preBuyLevel=p.leaderstats.WallLevel.Value local buy=c:Invoke('BuyFist','Boxing Glove') local afterBuyCoins=p.leaderstats.Coins.Value local trainingStart=p.leaderstats.Power.Value local training=c:Invoke('Train','Power Bag') task.wait(13.2) local stopped=c:Invoke('StopTraining') local trainedPower=p.leaderstats.Power.Value local combatPower=trainedPower local routeBreaks,concreteHits=0,0 for layer=math.max(1,p.leaderstats.Depth.Value+1),9 do for attempt=1,20 do local result=c:Invoke('HitDepthBlock',{layer=layer,column=6,row=1}) if layer==9 then concreteHits=attempt end if result.ok and result.outcome=='broken' then routeBreaks+=1 break end end end local powerAfterWalls=p.leaderstats.Power.Value local coinsBeforePet=p.leaderstats.Coins.Value local depthBeforePet=p.leaderstats.Depth.Value local pet=c:Invoke('ForcePetEggDrop',depthBeforePet) local pending=pet.ok and pet.dropped and p.RPGStats.PetInventoryJSON.Value=='[]' task.wait(.8) local claim=c:Invoke('ClaimPetEggDrop') local petMultiplier=p.RPGStats.PetMultiplier.Value local trainingGain=trainedPower-trainingStart local valid=initialPower==15 and not testMode and firstBroken>=1 and firstCoins>0 and starterPowerStable and preBuyCoins>=180 and preBuyDepth>=1 and preBuyLevel>=3 and buy.ok and p.RPGStats.FistMultiplier.Value==1.8 and afterBuyCoins==preBuyCoins-180 and training.ok and stopped.ok and trainingGain>=52 and powerAfterWalls==combatPower and depthBeforePet>=9 and routeBreaks>=1 and concreteHits>1 and pending and claim.ok and petMultiplier>0 return H:JSONEncode({initialPower=initialPower,testMode=testMode,firstBroken=firstBroken,firstCoins=firstCoins,starterPowerStable=starterPowerStable,preBuyCoins=preBuyCoins,preBuyDepth=preBuyDepth,preBuyLevel=preBuyLevel,buyOk=buy.ok,afterBuyCoins=afterBuyCoins,fistMultiplier=p.RPGStats.FistMultiplier.Value,trainingStarted=training.ok,trainingStopped=stopped.ok,trainingGain=trainingGain,trainedPower=trainedPower,powerAfterWalls=powerAfterWalls,routeBreaks=routeBreaks,concreteHits=concreteHits,depthBeforePet=depthBeforePet,coinsBeforePet=coinsBeforePet,petOk=pet.ok,petDropped=pet.dropped,pending=pending,claimOk=claim.ok,petMultiplier=petMultiplier,valid=valid})" }, "expectRegex": ["\"initialPower\"[ ]*:[ ]*15", "\"testMode\"[ ]*:[ ]*false", "\"firstBroken\"[ ]*:[ ]*[1-9]", "\"starterPowerStable\"[ ]*:[ ]*true", "\"buyOk\"[ ]*:[ ]*true", "\"fistMultiplier\"[ ]*:[ ]*1[.]8", "\"trainingStarted\"[ ]*:[ ]*true", "\"trainingStopped\"[ ]*:[ ]*true", "\"trainingGain\"[ ]*:[ ]*(?:5[2-9]|[6-9][0-9]|[1-9][0-9]{2,})", "\"concreteHits\"[ ]*:[ ]*(?:[2-9]|1[0-9]|20)", "\"petOk\"[ ]*:[ ]*true", "\"petDropped\"[ ]*:[ ]*true", "\"pending\"[ ]*:[ ]*true", "\"claimOk\"[ ]*:[ ]*true", "\"valid\"[ ]*:[ ]*true"], "label": "fresh player picks up a hidden wall pet egg" },
-    { "type": "call", "tool": "execute_luau", "timeoutMs": 120000, "saveAs": "tierGateDiagnostics", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local monotonicHP,monotonicLevel,monotonicReward=true,true,true local gatePass,breakPass=0,0 c:Invoke('ResetWorld') for tier,w in ipairs(G.Walls) do if tier>1 then local prev=G.Walls[tier-1] monotonicHP=monotonicHP and w.hp>prev.hp monotonicLevel=monotonicLevel and w.level>prev.level monotonicReward=monotonicReward and w.coins>prev.coins end c:Invoke('SetStats',{Power=1e15,WallLevel=math.max(0,w.level-1),CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0}) if tier>1 then local gated=c:Invoke('HitDepthBlock',{layer=(tier-1)*8+1,column=6,row=1}) if gated.reason=='level_gate' then gatePass+=1 end end c:Invoke('SetStats',{Power=tier==1 and 15 or w.hp,WallLevel=w.level,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0}) local result=c:Invoke('HitDepthBlock',{layer=(tier-1)*8+1,column=6,row=1}) if result.ok and result.outcome=='broken' then breakPass+=1 end end c:Invoke('ResetWorld') local valid=#G.Walls==10 and monotonicHP and monotonicLevel and monotonicReward and gatePass==9 and breakPass==10 return H:JSONEncode({tiers=#G.Walls,monotonicHP=monotonicHP,monotonicLevel=monotonicLevel,monotonicReward=monotonicReward,gatePass=gatePass,breakPass=breakPass,valid=valid})" }, "expectRegex": ["\"tiers\"[ ]*:[ ]*10", "\"monotonicHP\"[ ]*:[ ]*true", "\"monotonicLevel\"[ ]*:[ ]*true", "\"monotonicReward\"[ ]*:[ ]*true", "\"gatePass\"[ ]*:[ ]*9", "\"breakPass\"[ ]*:[ ]*10", "\"valid\"[ ]*:[ ]*true"], "label": "ten-tier difficulty and level-gate matrix" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for progression runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 120000,
+      "saveAs": "naturalProgressionDiagnostics",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal function verifyTrainingCredits(before,after,minimumTicks)\n assert(before.active and after.active and before.sessionGeneration==after.sessionGeneration,'training session changed or stopped')\n local ticks=after.sessionTickCount-before.sessionTickCount local payouts=after.payoutSerial-before.payoutSerial\n assert(ticks>=minimumTicks and ticks%1==0,'insufficient credited training ticks')\n assert(payouts>=1 and payouts%1==0 and payouts<=ticks,'payout serial does not match credited batches')\n assert(before.gainPerSecond>0 and after.gainPerSecond==before.gainPerSecond,'training rate changed')\n local expected=ticks*before.gainPerSecond local actual=after.basePower-before.basePower\n assert(actual==expected,'authoritative power does not equal credited ticks times station gain')\n assert(after.lastTickBatch>=1 and after.lastTickBatch<=ticks and after.lastGrant==after.lastTickBatch*before.gainPerSecond,'last batch payout incorrect')\n return ticks,payouts,expected\nend\nlocal H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('SetStats',{DailyQuestDate=os.date('!%Y-%m-%d')}) local r=p.Character.HumanoidRootPart r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-400)) local initialPower=p.leaderstats.Power.Value local testMode=p:GetAttribute('StudioHighPowerTestMode')==true local firstBroken,firstCoins=0,0 local starterPowerStable=true for i=1,4 do local result=c:Invoke('PunchWithCooldown') if i==1 then firstBroken=result.brokenCount or 0 firstCoins=p.leaderstats.Coins.Value end starterPowerStable=starterPowerStable and p.leaderstats.Power.Value==initialPower task.wait(1.02) end local preBuyCoins=p.leaderstats.Coins.Value local preBuyDepth=p.leaderstats.Depth.Value local preBuyLevel=p.leaderstats.WallLevel.Value local buy=c:Invoke('BuyFist','Boxing Glove') local afterBuyCoins=p.leaderstats.Coins.Value local trainingStart=p.leaderstats.Power.Value local training=c:Invoke('Train','Power Bag') assert(training.ok and training.gain==0,'training start must not pay immediately') local beforeTraining=c:Invoke('TrainingSnapshot') assert(beforeTraining.sessionTickCount==0 and beforeTraining.basePower==trainingStart,'training started with an unsolicited payout') local deadline=os.clock()+25 local afterTraining repeat task.wait(.05) afterTraining=c:Invoke('TrainingSnapshot') until afterTraining.sessionTickCount-beforeTraining.sessionTickCount>=13 or os.clock()>=deadline local creditedTicks,payoutBatches,expectedTrainingGain=verifyTrainingCredits(beforeTraining,afterTraining,13) local stopped=c:Invoke('StopTraining') assert(not c:Invoke('TrainingSnapshot').active,'training did not stop') local trainedPower=p.leaderstats.Power.Value local combatPower=trainedPower local routeBreaks,concreteHits=0,0 for layer=math.max(1,p.leaderstats.Depth.Value+1),9 do for attempt=1,20 do local result=c:Invoke('HitDepthBlock',{layer=layer,column=6,row=1}) if layer==9 then concreteHits=attempt end if result.ok and result.outcome=='broken' then routeBreaks+=1 break end end end local powerAfterWalls=p.leaderstats.Power.Value local coinsBeforePet=p.leaderstats.Coins.Value local depthBeforePet=p.leaderstats.Depth.Value local pet=c:Invoke('ForcePetEggDrop',depthBeforePet) local pending=pet.ok and pet.dropped and p.RPGStats.PetInventoryJSON.Value=='[]' task.wait(.8) local claim=c:Invoke('ClaimPetEggDrop') local petMultiplier=p.RPGStats.PetMultiplier.Value local trainingGain=trainedPower-trainingStart local valid=initialPower==15 and not testMode and firstBroken>=1 and firstCoins>0 and starterPowerStable and preBuyCoins>=180 and preBuyDepth>=1 and preBuyLevel>=3 and buy.ok and p.RPGStats.FistMultiplier.Value==1.8 and afterBuyCoins==preBuyCoins-180 and training.ok and stopped.ok and trainingGain==expectedTrainingGain and creditedTicks>=13 and powerAfterWalls==combatPower and depthBeforePet>=9 and routeBreaks>=1 and concreteHits>1 and pending and claim.ok and petMultiplier>0 return H:JSONEncode({initialPower=initialPower,testMode=testMode,firstBroken=firstBroken,firstCoins=firstCoins,starterPowerStable=starterPowerStable,preBuyCoins=preBuyCoins,preBuyDepth=preBuyDepth,preBuyLevel=preBuyLevel,buyOk=buy.ok,afterBuyCoins=afterBuyCoins,fistMultiplier=p.RPGStats.FistMultiplier.Value,trainingStarted=training.ok,trainingStopped=stopped.ok,trainingGain=trainingGain,creditedTicks=creditedTicks,payoutBatches=payoutBatches,expectedTrainingGain=expectedTrainingGain,trainedPower=trainedPower,powerAfterWalls=powerAfterWalls,routeBreaks=routeBreaks,concreteHits=concreteHits,depthBeforePet=depthBeforePet,coinsBeforePet=coinsBeforePet,petOk=pet.ok,petDropped=pet.dropped,pending=pending,claimOk=claim.ok,petMultiplier=petMultiplier,valid=valid})"
+      },
+      "expectRegex": [
+        "\"initialPower\"[ ]*:[ ]*15",
+        "\"testMode\"[ ]*:[ ]*false",
+        "\"firstBroken\"[ ]*:[ ]*[1-9]",
+        "\"starterPowerStable\"[ ]*:[ ]*true",
+        "\"buyOk\"[ ]*:[ ]*true",
+        "\"fistMultiplier\"[ ]*:[ ]*1[.]8",
+        "\"trainingStarted\"[ ]*:[ ]*true",
+        "\"trainingStopped\"[ ]*:[ ]*true",
+        "\"trainingGain\"[ ]*:[ ]*(?:5[2-9]|[6-9][0-9]|[1-9][0-9]{2,})",
+        "\"concreteHits\"[ ]*:[ ]*(?:[2-9]|1[0-9]|20)",
+        "\"petOk\"[ ]*:[ ]*true",
+        "\"petDropped\"[ ]*:[ ]*true",
+        "\"pending\"[ ]*:[ ]*true",
+        "\"claimOk\"[ ]*:[ ]*true",
+        "\"valid\"[ ]*:[ ]*true"
+      ],
+      "label": "fresh player picks up a hidden wall pet egg"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 120000,
+      "saveAs": "tierGateDiagnostics",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local monotonicHP,monotonicLevel,monotonicReward=true,true,true local gatePass,breakPass=0,0 c:Invoke('ResetWorld') for tier,w in ipairs(G.Walls) do if tier>1 then local prev=G.Walls[tier-1] monotonicHP=monotonicHP and w.hp>prev.hp monotonicLevel=monotonicLevel and w.level>prev.level monotonicReward=monotonicReward and w.coins>prev.coins end c:Invoke('SetStats',{Power=1e15,WallLevel=math.max(0,w.level-1),CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0}) if tier>1 then local gated=c:Invoke('HitDepthBlock',{layer=(tier-1)*8+1,column=6,row=1}) if gated.reason=='level_gate' then gatePass+=1 end end c:Invoke('SetStats',{Power=tier==1 and 15 or w.hp,WallLevel=w.level,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0}) local result=c:Invoke('HitDepthBlock',{layer=(tier-1)*8+1,column=6,row=1}) if result.ok and result.outcome=='broken' then breakPass+=1 end end c:Invoke('ResetWorld') local valid=#G.Walls==10 and monotonicHP and monotonicLevel and monotonicReward and gatePass==9 and breakPass==10 return H:JSONEncode({tiers=#G.Walls,monotonicHP=monotonicHP,monotonicLevel=monotonicLevel,monotonicReward=monotonicReward,gatePass=gatePass,breakPass=breakPass,valid=valid})"
+      },
+      "expectRegex": [
+        "\"tiers\"[ ]*:[ ]*10",
+        "\"monotonicHP\"[ ]*:[ ]*true",
+        "\"monotonicLevel\"[ ]*:[ ]*true",
+        "\"monotonicReward\"[ ]*:[ ]*true",
+        "\"gatePass\"[ ]*:[ ]*9",
+        "\"breakPass\"[ ]*:[ ]*10",
+        "\"valid\"[ ]*:[ ]*true"
+      ],
+      "label": "ten-tier difficulty and level-gate matrix"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
-  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
 }

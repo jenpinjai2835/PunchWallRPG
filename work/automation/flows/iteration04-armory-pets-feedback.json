@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,17 +24,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local cfg=require(game.ReplicatedStorage.GameConfig) local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local images,decals=0,0 for _,d in ipairs(sign:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://104014193600358\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://104014193600358\" then decals+=1 end end local city=root.Polish[\"City Decor\"] local plates,stands,showcases,faces,tiers=0,0,0,true,{} for _,item in ipairs(cfg.PremiumFists) do local plate=city:FindFirstChild(item.name..\" Armory Nameplate\") local stand=root.Interactables:FindFirstChild(item.name..\" Stand\") local display=city:FindFirstChild(item.name..\" Creator Store Display\") plates+=plate and 1 or 0 stands+=stand and 1 or 0 showcases+=display and display:GetAttribute(\"VisualRole\")==\"PremiumFistShowcase\" and display:GetAttribute(\"PremiumTier\")==item.tier and 1 or 0 tiers[item.tier]=true local front,back=false,false if plate then for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end end faces=faces and front and back end local tierCount=0 for _ in pairs(tiers) do tierCount+=1 end local catalog=#cfg.PremiumFists local valid=catalog>0 and plates==catalog and stands==catalog and showcases==catalog and tierCount==catalog and faces and images==2 and decals==2 return H:JSONEncode({valid=valid,catalog=catalog,plates=plates,stands=stands,showcases=showcases,tiers=tierCount,images=images,decals=decals,faces=faces})"
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local root=workspace.PunchWallRPG local function verifyArtworkFace(part,face,asset)\n assert(part and part:IsA('BasePart') and part.Transparency<1,'art host missing or hidden')\n assert(type(asset)=='string' and asset~='','configured art missing')\n local images,decals=0,0\n for _,d in ipairs(part:GetChildren()) do\n  if d:IsA('SurfaceGui') and d.Face==face and d.Enabled then\n   for _,image in ipairs(d:GetDescendants()) do\n    if image:IsA('ImageLabel') and image.Visible and image.ImageTransparency<1 and image.Image==asset then images+=1 end\n   end\n  elseif d:IsA('Decal') and d.Face==face and d.Texture==asset and d.Transparency<1 then decals+=1 end\n end\n assert(images==1 and decals==1,'expected one visible image and decal on '..tostring(face)..' for '..asset)\n return true\nend\nlocal function verifyBothFaceText(part,title)\n assert(part and part:IsA('BasePart') and part.Transparency<1,'text sign missing or hidden')\n for _,face in ipairs({Enum.NormalId.Front,Enum.NormalId.Back}) do\n  local found=false\n  for _,surface in ipairs(part:GetChildren()) do\n   if surface:IsA('SurfaceGui') and surface.Face==face and surface.Enabled then\n    for _,label in ipairs(surface:GetDescendants()) do if label:IsA('TextLabel') and label.Visible and label.TextTransparency<1 and string.find(string.upper(label.Text),string.upper(title),1,true) then found=true end end\n   end\n  end\n  assert(found,'visible sign text missing on '..tostring(face)..': '..title)\n end\n return true\nend\nlocal function verifyPremiumDisplays(root,G)\n local city=root.Polish['City Decor'] local count=0 local tiers={}\n assert(#G.PremiumFists>0,'empty premium catalog')\n for _,item in ipairs(G.PremiumFists) do\n  local stand=assert(root.Interactables:FindFirstChild(item.name..' Stand'),'configured stand missing '..item.name)\n  assert(stand:IsA('BasePart') and stand.Anchored and stand.CanQuery and stand:GetAttribute('PremiumOnly')==true,'stand is not an actual premium interaction')\n  local display=assert(city:FindFirstChild(item.name..' Creator Store Display'),'showcase missing '..item.name)\n  local visible=0 for _,d in ipairs(display:GetDescendants()) do if d:IsA('BasePart') and d.Transparency<1 then visible+=1 end end\n  assert(visible>0 and display:GetAttribute('VisualRole')=='PremiumFistShowcase' and display:GetAttribute('PremiumTier')==item.tier,'showcase geometry/tier missing')\n  verifyBothFaceText(city:FindFirstChild(item.name..' Armory Nameplate'),item.displayName or item.name)\n  assert(not tiers[item.tier],'duplicate premium tier') tiers[item.tier]=true count+=1\n end\n return count\nend\n\nlocal count=verifyPremiumDisplays(root,G) local sign=root['Fist Shop Sign'] verifyArtworkFace(sign,Enum.NormalId.Front,G.GeneratedGraphics.HeroCityHUDAtlas) verifyArtworkFace(sign,Enum.NormalId.Back,G.HeroCityPixelUI.SmashBillboard)\nreturn H:JSONEncode({ok=true,catalog=count,actualVisibleDisplays=count,frontAndBackArt=true}) "
       },
       "expectRegex": [
-        "\"valid\"\\s*:\\s*true",
-        "\"catalog\"\\s*:\\s*[1-9][0-9]*",
-        "\"plates\"\\s*:\\s*[1-9][0-9]*",
-        "\"stands\"\\s*:\\s*[1-9][0-9]*",
-        "\"showcases\"\\s*:\\s*[1-9][0-9]*",
-        "\"images\"\\s*:\\s*2",
-        "\"decals\"\\s*:\\s*2",
-        "\"faces\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "current PremiumFist catalog has stands, showcases, graphics, and both-face labels"
     },
@@ -41,23 +36,19 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local sign=root[\"Fist Shop Sign\"] local city=root[\"City Alert Billboard\"] return H:JSONEncode({signX=sign.Size.X,signY=sign.Size.Y,signHeight=sign.Position.Y,cityZ=city.Position.Z,separated=math.abs(sign.Position.Z-city.Position.Z)>50})"
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local shop=root['Fist Shop Sign'] local camp=root['Forest Training Camp Sign'] assert(shop.Transparency<1 and camp.Transparency<1 and math.abs(shop.Position.Z-camp.Position.Z)>50,'shop and training guidance overlap') local function verifyBothFaceText(part,title)\n assert(part and part:IsA('BasePart') and part.Transparency<1,'text sign missing or hidden')\n for _,face in ipairs({Enum.NormalId.Front,Enum.NormalId.Back}) do\n  local found=false\n  for _,surface in ipairs(part:GetChildren()) do\n   if surface:IsA('SurfaceGui') and surface.Face==face and surface.Enabled then\n    for _,label in ipairs(surface:GetDescendants()) do if label:IsA('TextLabel') and label.Visible and label.TextTransparency<1 and string.find(string.upper(label.Text),string.upper(title),1,true) then found=true end end\n   end\n  end\n  assert(found,'visible sign text missing on '..tostring(face)..': '..title)\n end\n return true\nend\n verifyBothFaceText(camp,'TRAIN') return H:JSONEncode({ok=true,separation=math.abs(shop.Position.Z-camp.Position.Z)}) "
       },
       "expectRegex": [
-        "\"signX\"\\s*:\\s*36",
-        "\"signY\"\\s*:\\s*10",
-        "\"signHeight\"\\s*:\\s*21\\.5",
-        "\"cityZ\"\\s*:\\s*42",
-        "\"separated\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "Armory landmark and city guidance billboard are visually separated"
+      "label": "Armory and current Forest training guidance are separated"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{PetInventoryJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',EquippedPetsJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',DiscoveredPetsJSON='[\"Crystal Fox\",\"Miner Cat\"]',LockedPetsJSON='[]',Power=123,FistMastery=50,BreakSpeed=1.5,CritChance=12,WallLevel=20}) return true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{PetInventoryJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',EquippedPetsJSON='[\"Crystal Fox\",\"Crystal Fox\",\"Miner Cat\"]',DiscoveredPetsJSON='[\"Crystal Fox\",\"Miner Cat\"]',LockedPetsJSON='[]',Power=123,FistMastery=50,BreakSpeed=1.5,CritChance=12,WallLevel=20}) return true"
       },
       "label": "prepare duplicate pets and combat profile"
     },
@@ -71,19 +62,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local U=game:GetService(\"UserInputService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local petLabel=\"\" for _,d in ipairs(g.StatsPanel:GetDescendants()) do if d:IsA(\"TextLabel\") and string.find(d.Text,\"Pets:\",1,true)==1 then petLabel=d.Text end end g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.3) local banner=g.GameMenu.Content:FindFirstChild(\"Hero City Generated Banner\") local profile=g.GameMenu.Content:FindFirstChild(\"COMBAT PROFILE\") local desc=\"\" if profile then for _,d in ipairs(profile:GetChildren()) do if d:IsA(\"TextLabel\") and d.Text~=\"COMBAT PROFILE\" then desc=d.Text end end end local t,c=g.Toasts,g.MobileControls local clear=t.AbsolutePosition.X+t.AbsoluteSize.X<=c.AbsolutePosition.X or t.AbsolutePosition.X>=c.AbsolutePosition.X+c.AbsoluteSize.X or t.AbsolutePosition.Y+t.AbsoluteSize.Y<=c.AbsolutePosition.Y or t.AbsolutePosition.Y>=c.AbsolutePosition.Y+c.AbsoluteSize.Y local toastSafe=t.AbsolutePosition.Y>=0 and t.AbsolutePosition.Y+t.AbsoluteSize.Y<=workspace.CurrentCamera.ViewportSize.Y and (not U.TouchEnabled or clear) return H:JSONEncode({petLabel=petLabel,banner=banner and banner.Image or \"\",profile=desc,toastSafe=toastSafe,toastClear=clear})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function assertContained(container,object)\n assert(object and object:IsA('GuiObject') and object.AbsoluteSize.X>0 and object.AbsoluteSize.Y>0,'missing rendered rectangle')\n local a,b=container.AbsolutePosition,container.AbsoluteSize local p,s=object.AbsolutePosition,object.AbsoluteSize\n assert(p.X>=a.X-1 and p.Y>=a.Y-1 and p.X+s.X<=a.X+b.X+1 and p.Y+s.Y<=a.Y+b.Y+1,'rendered bounds outside safe host: '..object.Name)\nend\nlocal function effectivelyVisible(object)\n local node=object while node do if node:IsA('GuiObject') and not node.Visible then return false end node=node.Parent end return true\nend\na:Invoke('OpenTab','Pets') task.wait(.4) local inv=a:Invoke('InventorySnapshot') assert(inv.visible and inv.category=='Pets' and #inv.visibleKeys==3,'three pets absent from actual inventory') local equipped=0\nfor i=1,3 do a:Invoke('SelectInventoryItem','pet:slot:'..i) local s=a:Invoke('InventorySnapshot') assert(s.selected and s.selected.equipped,'pet not equipped in UI') equipped+=1 end\na:Invoke('CloseMenus') task.wait(.25) local hud=g.PixelPerfectHeroCityHUD assert(effectivelyVisible(hud) and hud.PowerCard.PowerValue.Text=='123','actual HUD power incorrect') assertContained(hud,g.Toasts)\nreturn H:JSONEncode({ok=true,equipped=equipped,power=hud.PowerCard.PowerValue.Text,toastSafe=true}) "
       },
       "expectRegex": [
-        "Pets: 3 equipped",
-        "rbxassetid://104014193600358",
-        "Power 123",
-        "Mastery x1.050",
-        "Speed 1.50",
-        "Crit 12.0%",
-        "\"toastSafe\"\\s*:\\s*true",
-        "\"toastClear\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "pet summary, Combat Profile, banner, and toast lane are accurate"
+      "label": "actual Inventory equipment and visible power HUD match server profile"
     },
     {
       "type": "call",
@@ -104,13 +88,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Pets\") task.wait(.3) local states={} for _,r in ipairs(g.GameMenu.Content:GetChildren()) do if r:IsA(\"Frame\") and string.match(r.Name,\"^#0[12]\") then for _,b in ipairs(r.Actions:GetChildren()) do if b:IsA(\"TextButton\") and string.find(b.Name,\"Lock\",1,true) then states[r.Name]=b.Text end end end end return H:JSONEncode(states)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\na:Invoke('OpenTab','Pets') task.wait(.3) local states={}\nfor i=1,2 do a:Invoke('SelectInventoryItem','pet:slot:'..i) task.wait(.1) local s=a:Invoke('InventorySnapshot') assert(s.selected and s.selected.name=='Crystal Fox' and s.selected.slot==i,'wrong duplicate selected') assert(s.selected.locked==(i==2),'duplicate lock state leaked')\n local card for _,d in ipairs(g.GameMenu.FunctionalInventory:GetDescendants()) do if d:IsA('GuiObject') and d:GetAttribute('InventoryKey')=='pet:slot:'..i then card=d break end end assert(card and card.Visible and card:GetAttribute('InventoryLocked')==(i==2),'actual card lock disagrees with selected row') table.insert(states,{slot=i,locked=s.selected.locked}) end\nreturn H:JSONEncode({ok=true,states=states}) "
       },
       "expectRegex": [
-        "#01[^\"]*Crystal Fox\"\\s*:\\s*\"LOCK\"",
-        "#02[^\"]*Crystal Fox\"\\s*:\\s*\"UNLOCK\""
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "duplicate rows expose independent lock states"
+      "label": "duplicate cards expose independent actual slot lock states"
     },
     {
       "type": "call",
@@ -145,71 +128,78 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=2000,Luck=1}) return true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('Reset') c:Invoke('SetStats',{Coins=2000,Luck=1}) local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
-      "label": "prepare Hatch x3 economy"
+      "label": "prepare isolated wall-drop-only pet economy",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"BeforeFeedback\",g:GetAttribute(\"FeedbackCount\") or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"HatchPet\",value=3}) return true"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\na:Invoke('CloseMenus') local events=game.ReplicatedStorage.PunchWallEvents local response local connection=events.Feedback.OnClientEvent:Connect(function(v) if v.target=='SIDEKICK LAB' then response=v end end)\nlocal success,err=pcall(function() events.ActionRequest:FireServer({action='HatchPet',value=3}) local deadline=os.clock()+4 repeat task.wait(.04) until response or os.clock()>deadline assert(response and response.type=='Fail' and response.message=='PET EGGS ARE HIDDEN INSIDE DEPTH BLOCKS','retired paid hatch was not explicitly denied') end) connection:Disconnect() assert(success,err)\nreturn H:JSONEncode({ok=true,kind=response.type,message=response.message}) "
       },
-      "label": "trigger Hatch x3"
+      "label": "paid Hatch x3 is rejected with real wall-drop guidance",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
       "ms": 180,
-      "label": "wait for three hatch results"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local pops={} for _,d in ipairs(g.RewardPops:GetChildren()) do if d:IsA(\"TextLabel\") then table.insert(pops,d) end end local nonoverlap=true for i=1,#pops do for j=i+1,#pops do local a,b=pops[i],pops[j] if a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y then nonoverlap=false end end end local toasts=0 for _,d in ipairs(g.Toasts:GetChildren()) do if d:IsA(\"TextLabel\") then toasts+=1 end end return H:JSONEncode({delta=(g:GetAttribute(\"FeedbackCount\") or 0)-(g:GetAttribute(\"BeforeFeedback\") or 0),pops=#pops,nonoverlap=nonoverlap,toasts=toasts})"
-      },
-      "expectRegex": [
-        "\"delta\"\\s*:\\s*3",
-        "\"pops\"\\s*:\\s*3",
-        "\"nonoverlap\"\\s*:\\s*true",
-        "\"toasts\"\\s*:\\s*0"
-      ],
-      "label": "Hatch x3 feedback stacks once per result without toast duplicates"
+      "label": "wait for paid hatch rejection sync"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players:GetPlayers()[1] local s=p.RPGStats local inv=H:JSONDecode(s.PetInventoryJSON.Value) local eq=H:JSONDecode(s.EquippedPetsJSON.Value) return H:JSONEncode({coins=p.leaderstats.Coins.Value,inventory=#inv,equipped=#eq,mult=s.PetMultiplier.Value})"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal H=game:GetService('HttpService') assert(p.leaderstats.Coins.Value==2000 and p.RPGStats.PetInventoryJSON.Value=='[]' and p.RPGStats.EquippedPetsJSON.Value=='[]','rejected hatch mutated economy')\nfor i=1,3 do local drop=c:Invoke('ForcePetEggDrop',1) assert(drop.ok and drop.dropped,'hidden egg fixture did not spawn') local deadline=os.clock()+4 local s repeat task.wait(.05) s=c:Invoke('PetEggDropSnapshot') until s.armed or os.clock()>deadline assert(s.active and s.armed,'hidden egg not armed') local claim=c:Invoke('ClaimPetEggDrop') assert(claim.ok,'armed owned egg pickup failed') local items=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value) assert(#items==i,'pickup did not grant exactly one pet') assert(not c:Invoke('PetEggDropSnapshot').active,'claimed egg remains active') end\nlocal inv=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value) local eq=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value)\nassert(#inv==3 and #eq==3 and p.leaderstats.Coins.Value==2000 and p.RPGStats.PetMultiplier.Value>0,'three pickups/economy incorrect')\nreturn H:JSONEncode({ok=true,pickups=#inv,equipped=#eq,coins=p.leaderstats.Coins.Value,paidHatchRejected=true}) "
       },
       "expectRegex": [
-        "\"coins\"\\s*:\\s*950",
-        "\"inventory\"\\s*:\\s*3",
-        "\"equipped\"\\s*:\\s*3",
-        "\"mult\"\\s*:\\s*[0-9]"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "Hatch x3 charges and adds three pets"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.new(-53,7,13) return true"
-      },
-      "label": "prepare one training action"
+      "label": "three actual hidden-egg pickups grant one companion each",
+      "timeoutMs": 25000
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"BeforeFeedback\",g:GetAttribute(\"FeedbackCount\") or 0) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"Train\"}) return true"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal pops={} for _,d in ipairs(g.RewardPops:GetChildren()) do if d:IsA('TextLabel') and d.Visible then table.insert(pops,d) end end assert(#pops>=1,'pickup feedback missing')\nfor i=1,#pops do for j=i+1,#pops do local x,y=pops[i],pops[j] assert(x.AbsolutePosition.Y+x.AbsoluteSize.Y<=y.AbsolutePosition.Y or y.AbsolutePosition.Y+y.AbsoluteSize.Y<=x.AbsolutePosition.Y,'pickup feedback overlaps') end end\nassert(g.RewardPops:FindFirstChildOfClass('UIListLayout'),'feedback stack layout absent') return H:JSONEncode({ok=true,visiblePops=#pops,nonoverlap=true}) "
       },
-      "label": "trigger one training action"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "remaining pickup feedback is visible and does not overlap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('Reset') assert(c:Invoke('Teleport','Power Bag').ok) local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
+      },
+      "label": "move to actual qualified training station",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal events=game.ReplicatedStorage.PunchWallEvents local responses=0 local payload local connection=events.Feedback.OnClientEvent:Connect(function(v) if v.type=='TrainingState' and v.active==true then responses+=1 payload=v end end)\nlocal success,err=pcall(function() events.ActionRequest:FireServer({action='Train'}) local deadline=os.clock()+4 repeat task.wait(.03) until payload or os.clock()>deadline assert(payload and responses==1,'single training start acknowledgement missing or duplicated') end) connection:Disconnect() assert(success,err)\nreturn H:JSONEncode({ok=true,acknowledgements=responses,type=payload.type,active=payload.active}) "
+      },
+      "label": "one real training start acknowledges continuous TrainingState",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
@@ -221,23 +211,24 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local toasts=0 for _,d in ipairs(g.Toasts:GetChildren()) do if d:IsA(\"TextLabel\") then toasts+=1 end end return H:JSONEncode({delta=(g:GetAttribute(\"FeedbackCount\") or 0)-(g:GetAttribute(\"BeforeFeedback\") or 0),type=g:GetAttribute(\"LastFeedbackType\"),toasts=toasts})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal s=a:Invoke('Snapshot') assert(s.trainingVisible and g:GetAttribute('ContinuousTrainingAnimation')==true,'actual training state/overlay missing') local label=assert(g:FindFirstChild('TrainingStatus',true)) assert(label.Text:find('+4 POWER / SEC',1,true),'training payout label incorrect') local exit=assert(g:FindFirstChild('ExitTraining',true)) assert(exit.Visible and exit.Active,'training exit missing')\nreturn H:JSONEncode({ok=true,trainingVisible=s.trainingVisible,label=label.Text}) "
       },
       "expectRegex": [
-        "\"delta\"\\s*:\\s*1",
-        "\"type\"\\s*:\\s*\"Train\"",
-        "\"toasts\"\\s*:\\s*0"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "training uses one feedback channel"
+      "label": "continuous training presents authoritative rate and exit action"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=20}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-4,6,-62),Vector3.new(-4,6,-69)) return true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('StopTraining') c:Invoke('SetStats',{WallLevel=20}) local G=require(game.ReplicatedStorage.GameConfig) local tier for i,w in ipairs(G.Walls) do if w.name=='Iron Wall' then tier=i end end assert(tier,'Iron tier missing') local block=root['Depth Blocks'][string.format('DepthBlock_L%03d_C06_R02',(tier-1)*8+1)] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(block.Position+Vector3.new(0,0,8),block.Position) local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
-      "label": "move to Iron wall inside old boss radius"
+      "label": "leave training and approach actual Iron depth tier",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
@@ -249,7 +240,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.GameMenu.Visible=false task.wait(.5) return H:JSONEncode({target=g.TargetWallHUD.Visible,boss=g.BossHUD.Visible,title=g.TargetWallHUD.TargetTitle.Text})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke('CloseMenus') task.wait(.5) return H:JSONEncode({target=g.TargetWallHUD.Visible,boss=g.BossHUD.Visible,title=g.TargetWallHUD.TargetTitle.Text})"
       },
       "expectRegex": [
         "\"target\"\\s*:\\s*true",
@@ -263,9 +254,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,7,-320),Vector3.new(-2,9,-340)) return true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal boss=root.Walls['Titan Server Wall']\np.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(boss.Position.X,7,boss.Position.Z+boss.Size.Z*.5+16),Vector3.new(boss.Position.X,9,boss.Position.Z))\nlocal H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
-      "label": "move into Titan encounter"
+      "label": "approach actual Titan encounter",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
@@ -300,7 +294,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -309,7 +305,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"
