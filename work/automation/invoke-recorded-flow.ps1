@@ -25,8 +25,8 @@ if (-not (Test-Path -LiteralPath $resolvedRunner -PathType Leaf)) {
 }
 
 $flow = Get-Content -Raw -LiteralPath $resolvedFlow | ConvertFrom-Json
-if ([string]::IsNullOrWhiteSpace($StudioInstanceId) -and [string]::IsNullOrWhiteSpace([string]$flow.studioInstanceId) -and [string]::IsNullOrWhiteSpace([string]$flow.studioName)) {
-    throw "Flow must declare studioName/studioInstanceId, or caller must pass -StudioInstanceId"
+if ([string]::IsNullOrWhiteSpace($StudioInstanceId) -and [string]::IsNullOrWhiteSpace($ExpectedStudioName) -and [string]::IsNullOrWhiteSpace([string]$flow.studioInstanceId) -and [string]::IsNullOrWhiteSpace([string]$flow.studioName)) {
+    throw "Flow must declare studioName/studioInstanceId, or caller must pass -StudioInstanceId/-ExpectedStudioName"
 }
 if ([string]::IsNullOrWhiteSpace($ExpectedStudioName)) {
     $ExpectedStudioName = [string]$flow.studioName
@@ -45,6 +45,9 @@ do {
         $arguments = @($resolvedRunner, "--flow", $resolvedFlow, "--result-file", $resultFile)
         if (-not [string]::IsNullOrWhiteSpace($StudioInstanceId)) {
             $arguments += @("--studio-instance-id", $StudioInstanceId)
+        }
+        if (-not [string]::IsNullOrWhiteSpace($ExpectedStudioName)) {
+            $arguments += @("--studio-name", $ExpectedStudioName)
         }
         if (-not [string]::IsNullOrWhiteSpace($ExpectedPlaceName)) {
             $arguments += @("--place-name", $ExpectedPlaceName)
