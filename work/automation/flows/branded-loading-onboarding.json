@@ -51,9 +51,9 @@
         "\"objectiveReady\"[ ]*:[ ]*true",
         "\"step\"[ ]*:[ ]*1",
         "\"waypointReady\"[ ]*:[ ]*true",
-        "\"target\"[ ]*:[ ]*\"Power Bag\"",
+        "\"target\"[ ]*:[ ]*\"Depth Course Entrance\"",
         "\"waypointEnabled\"[ ]*:[ ]*true",
-        "TRAIN POWER",
+        "PUNCH THE WALL",
         "\"fits\"[ ]*:[ ]*true"
       ],
       "label": "first objective and waypoint are readable"

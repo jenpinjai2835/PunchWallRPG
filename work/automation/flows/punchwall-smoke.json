@@ -19,6 +19,7 @@
       "tool": "search_game_tree",
       "args": {
         "datamodel_type": "Edit",
+        "datamodel_type": "Edit",
         "path": "Workspace.PunchWallRPG",
         "max_depth": 3,
         "head_limit": 120

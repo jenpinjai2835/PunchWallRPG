@@ -83,11 +83,12 @@ function countUnder(tree, parentName) {
 }
 
 function checkText(action, text) {
+  const received = text.length <= 4000 ? text : `${text.slice(0, 2000)}\n... <truncated ${text.length - 4000} chars> ...\n${text.slice(-2000)}`;
   for (const expected of action.expectText ?? []) {
-    assertCondition(text.includes(expected), `Expected text not found: ${expected}`);
+    assertCondition(text.includes(expected), `Expected text not found: ${expected}\nReceived: ${received}`);
   }
   for (const expected of action.expectRegex ?? []) {
-    assertCondition(new RegExp(expected, "i").test(text), `Expected regex not found: ${expected}`);
+    assertCondition(new RegExp(expected, "i").test(text), `Expected regex not found: ${expected}\nReceived: ${received}`);
   }
 }
 
