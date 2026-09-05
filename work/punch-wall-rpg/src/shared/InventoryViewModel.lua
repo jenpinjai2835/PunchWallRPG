@@ -228,6 +228,9 @@ local function fistArt(GameConfig, definition)
 	if definition.style == "Vanguard" then return art.StarterGlove or "" end
 	if definition.style == "Storm" then return art.ChampionGlove or "" end
 	if definition.style == "Celestial" then return art.TitanGlove or "" end
+	if definition.style == "Starter" or definition.style == "Boxing" then return art.StarterGlove or "" end
+	if definition.style == "Iron" then return art.ChampionGlove or "" end
+	if definition.style == "Thunder" or definition.style == "Titan" then return art.TitanGlove or "" end
 	local tier = math.max(1, math.floor(tonumber(definition.tier) or 1))
 	if tier == 1 then return art.StarterGlove or "" end
 	if tier >= 5 then return art.TitanGlove or "" end

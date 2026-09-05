@@ -27,7 +27,7 @@ Integration and Studio validation belong to the Coordinator.
 3. **Boost countdown repeatedly destroys the Shop.** Remaining seconds were
    structural cache inputs, so each displayed-second tick rebuilt all buttons
    and the ScrollingFrame. The signature now tracks authoritative expiry
-   timestamps. A bounded registry updates the existing three action labels and
+   timestamps. A bounded registry updates the existing two action labels and
    colors. Expiry restores `BUY`, including its hover color, and stops the
    scheduler. Hidden and stale-generation callbacks do no work. A same-page
    structural refresh preserves the scroll position; changing pages starts
@@ -92,3 +92,5 @@ July camera/Inventory failures are historical checkpoints. August closure and
 mobile/pet-recovery evidence supersede many of them. This handoff identifies
 the three source defects above; it does not reclassify every old failure as a
 current defect or claim overall release readiness.
+
+Peer review correction: runtime and extracted fixtures use the actual SpeedBoost/DamageBoost catalog. Structural scroll retention is exercised separately on the 16-item Fists page.

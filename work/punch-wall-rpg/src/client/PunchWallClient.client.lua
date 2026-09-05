@@ -5460,6 +5460,10 @@ function companionRuntime.ApplyFistAuraMotionSetting()
 end
 shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting
 
+function companionRuntime.BuildInventoryFistPreview(fistName)
+	return FistVisualBuilder.BuildCatalogModel(GameConfig.FistDefinition(fistName))
+end
+
 function companionRuntime.BuildItemMatchedGauntlet(fistName)
 	if shared.PunchWallHiddenFistHand and shared.PunchWallHiddenFistHand.Parent then
 		shared.PunchWallHiddenFistHand.LocalTransparencyModifier = 0
@@ -5608,6 +5612,56 @@ function companionRuntime.BuildItemMatchedGauntlet(fistName)
 
 	-- Use sanitized Creator Store visuals when available. The gameplay punch, input,
 	-- animation, and damage remain owned by this client/server code.
+	local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)
+	if catalogModel then
+		local rigProfile = FistVisualBuilder.GetRigProfile(hand)
+		catalogModel:ScaleTo(math.max(0.1, hand.Size.X) / catalogSpec.referenceHandWidth)
+		local wrist = hand.CFrame * CFrame.new(0, hand.Size.Y * rigProfile.cuffYScale, 0)
+			* CFrame.Angles(0, 0, math.rad(180))
+		catalogModel:PivotTo(wrist)
+		catalogModel.Parent = model
+		for key, value in pairs(catalogModel:GetAttributes()) do model:SetAttribute(key, value) end
+		model:SetAttribute("VisualSource", "SharedCatalogGeometry")
+		model:SetAttribute("GripAxis", "LocalYToDistalForearm")
+		model:SetAttribute("GripProfile", "CatalogWristOriginV1")
+		model:SetAttribute("AlignmentStandard", rigProfile.name)
+		model:SetAttribute("ImportedRuntimeSilhouette", false)
+		local palm = catalogModel:FindFirstChild("Catalog Closed Palm")
+		for _, part in ipairs(catalogModel:GetChildren()) do
+			if part:IsA("BasePart") then
+				part.Anchored = false
+				local weld = Instance.new("WeldConstraint")
+				weld.Part0, weld.Part1 = part, hand
+				weld.Parent = part
+			end
+		end
+		local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+		a0.Position, a1.Position = Vector3.new(-palm.Size.X * 0.4, 0, 0), Vector3.new(palm.Size.X * 0.4, 0, 0)
+		a0.Parent, a1.Parent = palm, palm
+		local trail = Instance.new("Trail")
+		trail.Attachment0, trail.Attachment1 = a0, a1
+		trail.Color = ColorSequence.new(accent, primary)
+		trail.Lifetime, trail.Enabled, trail.Parent = 0.16, false, palm
+		addTierAura(palm)
+		local bounds, size = catalogModel:GetBoundingBox()
+		local handLargest = math.max(hand.Size.X, hand.Size.Y, hand.Size.Z, 0.01)
+		local ratio = math.max(size.X, size.Y, size.Z) / handLargest
+		local offset = (bounds.Position - hand.Position).Magnitude
+		model:SetAttribute("VisualToHandRatio", ratio)
+		model:SetAttribute("WristCenterOffset", offset)
+		model:SetAttribute("WristAttachmentBounded", offset <= rigProfile.maxCenterOffset * math.max(1, hand.Size.X))
+		model:SetAttribute("FaceOcclusionSafe", ratio <= rigProfile.maxTargetRatio)
+		model:SetAttribute("VisualBoundsX", size.X)
+		model:SetAttribute("VisualBoundsY", size.Y)
+		model:SetAttribute("VisualBoundsZ", size.Z)
+		model:SetAttribute("EffectiveVisualBoundsX", size.X)
+		model:SetAttribute("EffectiveVisualBoundsY", size.Y)
+		model:SetAttribute("EffectiveVisualBoundsZ", size.Z)
+		model:SetAttribute("ItemVisualReady", true)
+		model.Parent = character
+		currentGauntlet, currentTrail = model, trail
+		return true
+	end
 	local importedSource
 	local assetFolder = ReplicatedStorage:FindFirstChild("PunchWallFistAssets")
 	local externalAssetFolder = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
@@ -10546,6 +10600,82 @@ shared.PunchWallBuildShopUI = function()
 		return HttpService:JSONEncode(fields), page
 	end
 
+	function shopRuntime.AddCatalogFistPreview(card, icon, item)
+		local viewport = Instance.new("ViewportFrame")
+		viewport.Name = "FistCatalogPreview"
+		viewport.BackgroundTransparency = 1
+		viewport.Size = UDim2.fromScale(1, 1)
+		viewport.ZIndex = icon.ZIndex + 1
+		viewport.Ambient = Color3.fromRGB(180, 190, 205)
+		viewport.LightColor = Color3.fromRGB(255, 244, 221)
+		viewport.LightDirection = Vector3.new(-1, -1, -1)
+		viewport:SetAttribute("RenderLoop", false)
+		viewport:SetAttribute("FistVisualKey", item.name)
+		viewport.Parent = icon
+		local camera = Instance.new("Camera")
+		camera.FieldOfView = 32
+		camera.Parent = viewport
+		viewport.CurrentCamera = camera
+		local world = Instance.new("WorldModel")
+		world.Parent = viewport
+		local scroll = card.Parent
+		local connections = {}
+		local model
+		local previewDirection
+		local fittedSize
+		local function refresh()
+			if not viewport.Parent then return end
+			local point, size = card.AbsolutePosition, card.AbsoluteSize
+			local clip, clipSize = scroll.AbsolutePosition, scroll.AbsoluteSize
+			local visible = shopReference.Visible and mainPanel.Visible and card.Visible
+				and size.X > 0 and size.Y > 0 and clipSize.Y > 0
+				and point.Y + size.Y > clip.Y and point.Y < clip.Y + clipSize.Y
+			viewport.Visible = visible
+			card:SetAttribute("FistPreviewVisible", visible)
+			if visible and not model then
+				local spec
+				model, spec = FistVisualBuilder.BuildCatalogModel(item)
+				if model then
+					model.Parent = world
+					previewDirection = spec.previewDirection.Unit
+					fittedSize = nil
+					icon.ImageTransparency = 1
+					card:SetAttribute("CatalogGeometryVersion", spec.version)
+				end
+			elseif not visible and model then
+				model:Destroy()
+				model = nil
+				icon.ImageTransparency = 0
+			end
+			local viewportSize = viewport.AbsoluteSize
+			if model and viewportSize.X > 0 and viewportSize.Y > 0 and fittedSize ~= viewportSize then
+				local bounds, boundsSize = model:GetBoundingBox()
+				local orientation = CFrame.lookAt(bounds.Position + previewDirection, bounds.Position)
+				local verticalTangent = math.tan(math.rad(camera.FieldOfView * 0.5))
+				local horizontalTangent = verticalTangent * viewportSize.X / viewportSize.Y
+				local distance = 0
+				for x = -1, 1, 2 do for y = -1, 1, 2 do for z = -1, 1, 2 do
+					local corner = bounds:VectorToWorldSpace(boundsSize * Vector3.new(x, y, z) * 0.5)
+					local point = orientation:VectorToObjectSpace(corner)
+					distance = math.max(distance, point.Z + math.abs(point.X) / horizontalTangent,
+						point.Z + math.abs(point.Y) / verticalTangent)
+				end end end
+				camera.CFrame = CFrame.lookAt(bounds.Position + previewDirection * distance * 1.12, bounds.Position)
+				fittedSize = viewportSize
+			end
+			card:SetAttribute("FistPreviewReady", model ~= nil)
+		end
+		for _, signal in ipairs({scroll:GetPropertyChangedSignal("CanvasPosition"), scroll:GetPropertyChangedSignal("AbsoluteSize"),
+			card:GetPropertyChangedSignal("AbsolutePosition"), viewport:GetPropertyChangedSignal("AbsoluteSize"), shopReference:GetPropertyChangedSignal("Visible"),
+			mainPanel:GetPropertyChangedSignal("Visible")}) do
+			table.insert(connections, signal:Connect(refresh))
+		end
+		viewport.Destroying:Once(function()
+			for _, connection in ipairs(connections) do connection:Disconnect() end
+		end)
+		task.defer(refresh)
+	end
+
 	function shopRuntime.AddStaticFistPresentation(card, icon, item)
 		local presentation = FistVisualBuilder.GetHeroGauntletPresentation(item)
 		card:SetAttribute("ShopFistPresentation", presentation.version .. "StaticChrome")
@@ -11032,7 +11162,7 @@ shared.PunchWallBuildShopUI = function()
 		cyanRail.Position = UDim2.fromScale(0.445, 0.84)
 		cyanRail.Size = UDim2.fromScale(0.42, 0.055)
 		cyanRail.Parent = header
-		local eyebrow = label(header, "Eyebrow", "HERO CITY ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
+		local eyebrow = label(header, "Eyebrow", "SMASH WALL ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
 		title.TextStrokeTransparency = 0.08
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
@@ -11456,7 +11586,12 @@ shared.PunchWallBuildShopUI = function()
 			-- A visible atlas placeholder bleeds old labels through transparent product art.
 			fallback.Visible = art == "" and not item.isPremiumPet
 			if fistPresentation then
-				shopRuntime.AddStaticFistPresentation(card, icon, item)
+				if FistVisualBuilder.GetCatalogSpec(item) then
+					shopRuntime.AddCatalogFistPreview(card, icon, item)
+					fallback.Visible = false
+				else
+					shopRuntime.AddStaticFistPresentation(card, icon, item)
+				end
 			end
 			if item.isHonorProduct then
 				local pipHolder = Instance.new("Frame")
@@ -11818,6 +11953,8 @@ shared.PunchWallBuildShopUI = function()
 				priceLabel.Text = purchaseUnavailable and "Unavailable" or purchaseLoading and "Checking..."
 					or item.regionalPriceState == "CheckoutOnly" and "At checkout" or priceText
 				priceLabel.TextWrapped = false
+				priceLabel.TextSize = 14
+				priceLabel.TextScaled = false
 				priceLabel:SetAttribute("ReadableTextRole", "Primary")
 				priceIcon.AnchorPoint = Vector2.zero
 				priceIcon.Position = narrowRow and UDim2.fromOffset(12, 92) or UDim2.new(1, -150, 0, 18)
@@ -11907,7 +12044,7 @@ shared.PunchWallBuildShopUI = function()
 			or page == "Boosts" and "BOOSTS"
 			or "HERO FISTS"
 		local catalogSummary = label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 12 or 11, Enum.Font.GothamBold)
-		local footerHint = label(footerBand, "ServerLabel", compactCards and "SCROLL FOR MORE" or "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 12 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		local footerHint = label(footerBand, "ServerLabel", compactCards and "SCROLL FOR MORE" or "EQUIP • POWER UP • BREAK THROUGH", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 12 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
 		if compactCards then
 			footerBand.Position = UDim2.new(0, 12, 1, -30)
 			footerBand.Size = UDim2.new(1, -24, 0, 24)
@@ -11949,6 +12086,7 @@ shared.PunchWallInventoryController = InventoryUI.new({
 		return latestStats
 	end,
 	BuildPetPreview = companionRuntime.BuildInventoryPetPreview,
+	BuildFistPreview = companionRuntime.BuildInventoryFistPreview,
 	GetHUDHidden = function()
 		return not referenceHUD.Visible
 			and not mobileControls.Visible

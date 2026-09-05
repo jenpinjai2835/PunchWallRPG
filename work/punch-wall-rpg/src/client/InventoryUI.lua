@@ -3113,10 +3113,10 @@ function InventoryUI:_renderDetail()
 	self.DetailInternalName.Text = item.slot
 		and ("OWNED ITEM  //  SLOT " .. tostring(item.slot))
 		or tostring(item.kind or "") == "Honor" and (
-			item.owned == true and "OWNED RELIC  //  SERVER VERIFIED"
-			or "HONOR CATALOG  //  SERVER VERIFIED"
+			item.owned == true and "YOUR RELIC"
+			or "EARN HONOR TO UNLOCK"
 		)
-		or "OWNED ITEM  //  SERVER VERIFIED"
+		or "YOUR EQUIPMENT"
 	self.DetailDescription.Text = tostring(item.description or item.detail or "No additional item details.")
 	self.DetailStatus.Visible = false
 	self.Root:SetAttribute("InventoryDetailStatusTreatment", "StateRowAndAction")

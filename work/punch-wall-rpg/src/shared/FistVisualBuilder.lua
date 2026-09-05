@@ -230,7 +230,7 @@ function FistVisualBuilder.GetCatalogSpec(definition)
 	local trim = primary:Lerp(accent, 0.22)
 	local width, height, depth = shape.width, shape.height, shape.depth
 	local palmY = 0.43 + height * 0.38
-	local knuckleY = palmY + height * 0.39
+	local knuckleY = palmY + height * 0.31
 	local parts = {}
 	local function add(name, size, position, color, partMaterial, partShape, role, rotation)
 		table.insert(parts, {
@@ -248,15 +248,15 @@ function FistVisualBuilder.GetCatalogSpec(definition)
 	add("Catalog Wrist Cuff", Vector3.new(shape.cuffHeight, shape.cuffWidth, depth * 0.94),
 		Vector3.new(0, 0.19, 0), dark, material, Enum.PartType.Cylinder, "WristCuff",
 		CFrame.Angles(0, 0, math.rad(90)))
-	add("Catalog Backhand Guard", Vector3.new(width * 0.78, height * 0.59, depth * 0.3),
-		Vector3.new(0, palmY + height * 0.02, depth * 0.38), trim,
+	add("Catalog Backhand Guard", Vector3.new(width * (shape.tier <= 2 and 0.68 or 0.78), height * (shape.tier <= 2 and 0.46 or shape.style == "Iron" and 0.48 or 0.59), depth * (shape.tier <= 2 and 0.16 or 0.3)),
+		Vector3.new(0, palmY + height * 0.02, depth * (shape.tier <= 2 and 0.4 or 0.38)), shape.tier <= 2 and primary:Lerp(accent, 0.04) or trim,
 		shape.tier >= 3 and Enum.Material.Metal or material,
 		shape.tier >= 3 and Enum.PartType.Block or Enum.PartType.Ball, "BackhandPlate")
 	for finger = 1, 4 do
 		local x = (finger - 2.5) * width * 0.225
 		-- Distal knuckles and curled finger pads describe a closed hand from both
 		-- front and back; no long fingers, blades, or detached decorative wedges.
-		add("Catalog Knuckle " .. finger, Vector3.new(width * 0.26, height * 0.34, depth * 0.53),
+		add("Catalog Knuckle " .. finger, Vector3.new(width * (shape.style == "Iron" and 0.205 or 0.26), height * 0.3, depth * 0.62),
 			Vector3.new(x, knuckleY, -depth * 0.025),
 			shape.style == "Iron" and accent:Lerp(primary, 0.58) or primary,
 			shape.tier >= 3 and Enum.Material.Metal or material,
@@ -277,7 +277,7 @@ function FistVisualBuilder.GetCatalogSpec(definition)
 				material, Enum.PartType.Block, "LeatherWrap")
 		end
 	elseif shape.style == "Boxing" then
-		add("Boxing Padded Crown", Vector3.new(width * 0.93, height * 0.34, depth * 0.73),
+		add("Boxing Padded Crown", Vector3.new(width * 0.93, height * 0.4, depth * 0.8),
 			Vector3.new(0, knuckleY - height * 0.045, depth * 0.14),
 			primary:Lerp(accent, 0.09), material, Enum.PartType.Ball, "PaddedCrown")
 		add("Boxing Wrist Strap", Vector3.new(shape.cuffWidth * 0.94, 0.19, 0.16),

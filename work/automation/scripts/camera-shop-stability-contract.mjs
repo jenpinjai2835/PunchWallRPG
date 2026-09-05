@@ -61,11 +61,12 @@ local workspace = {GetServerTimeNow=function() return now end}
 `;
 const shopSetup = `
 local shopRuntime = {Pages={'Fists','Premium','Boosts','Honor','Robux'}, BoostTickGeneration=0, BoostTickCount=0, BoostTickScheduled=false, BoostButtons={}}
-local latestStats = {OwnedFistsJSON={'Starter Glove'}, EquippedFist='Starter Glove',Depth=0,ShopBoosts={CoinEndsAt=110, SpeedEndsAt=0, DamageEndsAt=0}}
+local latestStats = {OwnedFistsJSON={'Starter Glove'}, EquippedFist='Starter Glove',Depth=0,ShopBoosts={CoinEndsAt=0, SpeedEndsAt=110, DamageEndsAt=0}}
 local clientSettings = {uiScale=1}
 local UserInputService = {TouchEnabled=true}
 local GameConfig = {PremiumProducts={}}
 workspace.CurrentCamera = {ViewportSize={X=740,Y=360}}
+shared.PunchWallGetResponsiveViewport=function() return workspace.CurrentCamera.ViewportSize end
 shared.PunchWallHeroShopPage = 'Fists'
 local HttpService = {JSONEncode=function(_, fields)
   local result={} for _,v in ipairs(fields) do table.insert(result,tostring(v)) end return table.concat(result,'|')
@@ -132,7 +133,7 @@ shared.PunchWallHeroShopPage='Boosts'
 local before=shopRuntime.StateSignature(now)
 now+=1
 check(shopRuntime.StateSignature(now)==before,'boost_without_rebuild')
-latestStats.ShopBoosts.CoinEndsAt=105
+latestStats.ShopBoosts.SpeedEndsAt=105
 check(shopRuntime.StateSignature(now)~=before,'boost_endpoint_invalidates')
 local shopReference={Visible=true,Parent=true,SetAttribute=gui.SetAttribute}
 local callbacks={}
@@ -140,19 +141,19 @@ local task={delay=function(_,callback) table.insert(callbacks,callback) end}
 local rebuilds=0
 shared.PunchWallHeroShopRefresh=function() rebuilds+=1 end
 ${block(source.includes("\tfunction shopRuntime.UpdateBoostCountdown(now)") ? "\tfunction shopRuntime.UpdateBoostCountdown(now)" : "\tfunction shopRuntime.ScheduleBoostTick(page, now)", "\tshared.PunchWallHeroShopRefresh = function(options)")}
-local coin={Parent=true,Text='',SetAttribute=gui.SetAttribute}
-local speed={Parent=true,Text='',SetAttribute=gui.SetAttribute}
-shopRuntime.BoostButtons={CoinBoost={button=coin,idleColor='idle'},SpeedBoost={button=speed,idleColor='idle'}}
+local activeSpeed={Parent=true,Text='',SetAttribute=gui.SetAttribute}
+local damage={Parent=true,Text='',SetAttribute=gui.SetAttribute}
+shopRuntime.BoostButtons={SpeedBoost={button=activeSpeed,idleColor='idle'},DamageBoost={button=damage,idleColor='idle'}}
 shopRuntime.UpdateBoostCountdown(now)
-check(coin.Text=='ACTIVE 00:04' and speed.Text=='BUY','boost_initial_labels')
+check(activeSpeed.Text=='ACTIVE 00:04' and damage.Text=='BUY','boost_initial_labels')
 shopRuntime.ScheduleBoostTick('Boosts',now)
 now+=1
 table.remove(callbacks,1)()
-check(coin.Text=='ACTIVE 00:03' and rebuilds==0 and #callbacks==1,'boost_tick_mutates_only_existing_labels')
+check(activeSpeed.Text=='ACTIVE 00:03' and rebuilds==0 and #callbacks==1,'boost_tick_mutates_only_existing_labels')
 now=106
 table.remove(callbacks,1)()
-check(coin.Text=='BUY' and coin.BackgroundColor3=='idle' and #callbacks==0 and not shopRuntime.BoostTickScheduled,'boost_expiry_restores_buy_and_stops')
-latestStats.ShopBoosts.CoinEndsAt=200
+check(activeSpeed.Text=='BUY' and activeSpeed.BackgroundColor3=='idle' and #callbacks==0 and not shopRuntime.BoostTickScheduled,'boost_expiry_restores_buy_and_stops')
+latestStats.ShopBoosts.SpeedEndsAt=200
 shopRuntime.ScheduleBoostTick('Boosts',now)
 shopReference.Visible=false
 table.remove(callbacks,1)()
