@@ -517,6 +517,22 @@ shared.PunchWallClassifyResponsiveViewport = function(size)
 	return "Desktop", false
 end
 
+shared.PunchWallGetResponsiveViewport = function()
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize or Vector2.zero
+	local hud = player.PlayerGui:FindFirstChild("PunchWallHUD")
+	local reference = hud and hud:FindFirstChild("PixelPerfectHeroCityHUD")
+	local size = reference and reference.AbsoluteSize
+	-- Device simulation can render the safe ScreenGui at a different size from
+	-- Camera.ViewportSize. HUD, modal host, and catalog must use the same pixels.
+	if size and size.X >= 240 and size.Y >= 200
+		and (viewport.X < 240 or viewport.Y < 200
+			or math.abs(size.X - viewport.X) > 2 or math.abs(size.Y - viewport.Y) > 2) then
+		return size, "ReferenceHUD"
+	end
+	return viewport, "Camera"
+end
+
 shared.PunchWallOpenRebirthPanel = function() end
 shared.PunchWallRebirthRuntime = {
 	armed = false,
@@ -10490,8 +10506,7 @@ shared.PunchWallBuildShopUI = function()
 	end
 
 	function shopRuntime.StateSignature(now)
-		local camera = workspace.CurrentCamera
-		local viewport = camera and camera.ViewportSize or Vector2.zero
+		local viewport = shared.PunchWallGetResponsiveViewport()
 		local page = shopRuntime.ResolvePage()
 		local fields = {
 			"HeroShopStateV1",
@@ -11021,9 +11036,8 @@ shared.PunchWallBuildShopUI = function()
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
 		title.TextStrokeTransparency = 0.08
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-		local _, compactHeader = shared.PunchWallClassifyResponsiveViewport(
-			workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.zero
-		)
+		local shopViewport = shared.PunchWallGetResponsiveViewport()
+		local _, compactHeader = shared.PunchWallClassifyResponsiveViewport(shopViewport)
 		local honorBalanceText = formatNumber(math.max(0, tonumber(latestStats.Honor) or 0))
 		local headerSubtitle = page == "Honor"
 			and ((compactHeader and "HONOR %s  •  CURRENCY ONLY  •  GATES APPLY"
@@ -11059,30 +11073,46 @@ shared.PunchWallBuildShopUI = function()
 		close.Activated:Connect(function() setMenuVisible(false) end)
 		if compactHeader then
 			eyebrow.Visible = false
-			title.Position = UDim2.fromScale(0.19, 0.16)
-			title.Size = UDim2.fromScale(0.22, 0.66)
-			title.TextSize = 16
-			headerSubtitleLabel.Position = UDim2.fromScale(0.43, 0.2)
-			headerSubtitleLabel.Size = UDim2.fromScale(0.39, 0.58)
-			headerSubtitleSize.MinTextSize = 6
-			headerSubtitleSize.MaxTextSize = 8
-			close.Size = UDim2.fromOffset(44, 44)
-			close.TextSize = 18
-			header:SetAttribute("ResponsiveProfile", "PhoneCompactArmoryV3")
+			header.Position = UDim2.fromOffset(8, 6)
+			header.Size = UDim2.new(1, -16, 0, 52)
+			headerGradient.Color = ColorSequence.new(Color3.fromRGB(16, 38, 57), Color3.fromRGB(8, 24, 39))
+			title.Position = UDim2.fromOffset(132, 0)
+			title.Size = UDim2.new(1, -196, 1, 0)
+			title.TextSize = 20
+			headerSubtitleLabel.Visible = false
+			redRail.Visible = false
+			cyanRail.Visible = false
+			close.Position = UDim2.new(1, -2, 0.5, 0)
+			close.Size = UDim2.fromOffset(48, 48)
+			close.TextSize = 22
+			header:SetAttribute("ResponsiveProfile", "PhoneReadableArmoryV1")
 		end
 
 		local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
 		local ownedPremium = decodeJSON(latestStats.OwnedPremiumPetsJSON, {})
 		local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
-		local tabBand = Instance.new("Frame")
+		local tabBand = Instance.new("ScrollingFrame")
 		tabBand.Name = "ShopTabs"
 		tabBand.BackgroundTransparency = 1
+		tabBand.BorderSizePixel = 0
+		tabBand.CanvasSize = UDim2.new()
+		tabBand.ScrollBarThickness = 0
+		tabBand.ScrollingDirection = Enum.ScrollingDirection.X
+		tabBand.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 		tabBand.Position = UDim2.fromScale(0.025, 0.162)
 		tabBand.Size = UDim2.fromScale(0.95, 0.085)
 		tabBand.ZIndex = 102
-		tabBand.Parent = shopReference
+		 tabBand.Parent = shopReference
 		local tabGap = 0.012
 		local tabWidth = (1 - tabGap * (#shopRuntime.Pages - 1)) / #shopRuntime.Pages
+		local compactTabWidth = math.max(96, math.floor((shopViewport.X - 48 - 24) / #shopRuntime.Pages))
+		if compactHeader then
+			tabBand.Position = UDim2.fromOffset(12, 64)
+			tabBand.Size = UDim2.new(1, -24, 0, 48)
+			tabBand.CanvasSize = UDim2.fromOffset(#shopRuntime.Pages * (compactTabWidth + 6) - 6, 0)
+			local selectedIndex = table.find(shopRuntime.Pages, page) or 1
+			tabBand.CanvasPosition = Vector2.new(math.max(0, selectedIndex * (compactTabWidth + 6) - (shopViewport.X - 48)), 0)
+		end
 		for index, pageName in ipairs(shopRuntime.Pages) do
 			local selected = page == pageName
 			local tab = Instance.new("TextButton")
@@ -11094,7 +11124,11 @@ shared.PunchWallBuildShopUI = function()
 			tab.Font = Enum.Font.GothamBlack
 			tab.Text = string.upper(pageName)
 			tab.TextColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(191, 205, 212)
-			tab.TextSize = compactHeader and 8 or 14
+			tab.TextSize = 14
+			if compactHeader then
+				tab.Position = UDim2.fromOffset((index - 1) * (compactTabWidth + 6), 0)
+				tab.Size = UDim2.fromOffset(compactTabWidth, 48)
+			end
 			tab.TextStrokeTransparency = selected and 0.45 or 0.8
 			tab.ZIndex = 104
 			tab.Parent = tabBand
@@ -11202,13 +11236,9 @@ shared.PunchWallBuildShopUI = function()
 			end
 		end
 
-		local camera = workspace.CurrentCamera
-		local _, compactCards = shared.PunchWallClassifyResponsiveViewport(camera and camera.ViewportSize or Vector2.zero)
-		if compactCards then
-			tabBand.Position = UDim2.fromScale(0.025, 0.15)
-			tabBand.Size = UDim2.new(0.95, 0, 0, 44)
-		end
-		local rowCount = math.max(1, math.ceil(#products / 2))
+		local compactCards = compactHeader
+		local catalogColumns = compactCards and 1 or 2
+		local rowCount = math.max(1, math.ceil(#products / catalogColumns))
 		-- Compact tabs have a fixed 44 px touch target, so proportional card
 		-- placement must reserve enough room even on 270-336 px tall phones.
 		local cardsTop = compactCards and 0.31 or 0.265
@@ -11216,8 +11246,8 @@ shared.PunchWallBuildShopUI = function()
 		local rowGap = compactCards and 0.008 or 0.014
 		local cardHeight = (cardsBottom - cardsTop - rowGap * (rowCount - 1)) / rowCount
 		local catalogScrollable = compactCards or (page == "Fists" and #products > 6)
-		local scrollCardHeight = compactCards and 86 or 154
-		local scrollRowGap = compactCards and 5 or 9
+		local scrollCardHeight = compactCards and 112 or 154
+		local scrollRowGap = compactCards and 8 or 9
 		local cardsHost = shopReference
 		if catalogScrollable then
 			local catalogScroll = Instance.new("ScrollingFrame")
@@ -11226,6 +11256,10 @@ shared.PunchWallBuildShopUI = function()
 			catalogScroll.BorderSizePixel = 0
 			catalogScroll.Position = UDim2.fromScale(0, cardsTop)
 			catalogScroll.Size = UDim2.fromScale(1, cardsBottom - cardsTop)
+			if compactCards then
+				catalogScroll.Position = UDim2.fromOffset(0, 120)
+				catalogScroll.Size = UDim2.new(1, 0, 1, -156)
+			end
 			catalogScroll.CanvasSize = UDim2.fromOffset(
 				0,
 				rowCount * scrollCardHeight + math.max(0, rowCount - 1) * scrollRowGap
@@ -11243,7 +11277,7 @@ shared.PunchWallBuildShopUI = function()
 			shopReference:SetAttribute("ShopCatalogScrollable", true)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
 			shopReference:SetAttribute("ShopCatalogRowCount", rowCount)
-			shopReference:SetAttribute("ShopCatalogScrollMode", compactCards and "MobileDenseCatalogV3" or "FixedReadableCardsV1")
+			shopReference:SetAttribute("ShopCatalogScrollMode", compactCards and "MobileReadableRowsV1" or "FixedReadableCardsV1")
 		else
 			shopReference:SetAttribute("ShopCatalogScrollable", false)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
@@ -11269,8 +11303,8 @@ shared.PunchWallBuildShopUI = function()
 			HonorTreasury850 = "850 HONOR",
 		}
 		for index, item in ipairs(products) do
-			local column = (index - 1) % 2
-			local row = math.floor((index - 1) / 2)
+			local column = (index - 1) % catalogColumns
+			local row = math.floor((index - 1) / catalogColumns)
 			local featuredCard = not compactCards and index == #products and #products % 2 == 1
 			local card = Instance.new("Frame")
 			card.Name = item.name .. "ShopCard"
@@ -11284,6 +11318,10 @@ shared.PunchWallBuildShopUI = function()
 					row * (scrollCardHeight + scrollRowGap)
 				)
 				card.Size = UDim2.new(featuredCard and 0.94 or 0.455, 0, 0, scrollCardHeight)
+				if compactCards then
+					card.Position = UDim2.fromOffset(12, row * (scrollCardHeight + scrollRowGap))
+					card.Size = UDim2.new(1, -30, 0, scrollCardHeight)
+				end
 			else
 				card.Position = UDim2.fromScale(
 					featuredCard and 0.03 or 0.03 + column * 0.485,
@@ -11291,7 +11329,7 @@ shared.PunchWallBuildShopUI = function()
 				)
 				card.Size = UDim2.fromScale(featuredCard and 0.94 or 0.455, cardHeight)
 			end
-			card:SetAttribute("ShopCardLayout", featuredCard and "FeaturedFullWidthV2" or "StandardHalfWidthV2")
+			card:SetAttribute("ShopCardLayout", compactCards and "ReadableFullWidthRowV1" or featuredCard and "FeaturedFullWidthV2" or "StandardHalfWidthV2")
 			card:SetAttribute("CatalogScrollable", catalogScrollable)
 			card.ZIndex = 102
 			card.ClipsDescendants = true
@@ -11461,8 +11499,8 @@ shared.PunchWallBuildShopUI = function()
 			-- on a name-length heuristic that still clipped narrow glyph runs.
 			productNameLabel.TextScaled = true
 			local productNameSize = Instance.new("UITextSizeConstraint")
-			productNameSize.MinTextSize = compactCards and 6 or 10
-			productNameSize.MaxTextSize = compactCards and 8 or 17
+			productNameSize.MinTextSize = compactCards and 14 or 10
+			productNameSize.MaxTextSize = compactCards and 16 or 17
 			productNameSize.Parent = productNameLabel
 			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, compactCards and 7 or 11, Enum.Font.GothamBlack)
 			if compactCards and item.isHonorProduct then
@@ -11569,8 +11607,8 @@ shared.PunchWallBuildShopUI = function()
 			priceLabel:SetAttribute("CurrencyPalette", item.robux and "RobuxGreen" or "CoinGold")
 			priceLabel.TextScaled = true
 			local priceTextSize = Instance.new("UITextSizeConstraint")
-			priceTextSize.MinTextSize = compactCards and 6 or 7
-			priceTextSize.MaxTextSize = compactCards and 8 or 14
+			priceTextSize.MinTextSize = compactCards and 14 or 7
+			priceTextSize.MaxTextSize = compactCards and 16 or 14
 			priceTextSize.Parent = priceLabel
 			if purchaseUnavailable then
 				if priceIcon:IsA("ImageLabel") then
@@ -11728,9 +11766,84 @@ shared.PunchWallBuildShopUI = function()
 				action:SetAttribute("RegionalPriceResolved", item.regionalPriceResolved)
 				action:SetAttribute("RegionalPriceState", item.regionalPriceState)
 			end
+			if compactCards then
+				-- One readable offer per row. Names and power are the decision;
+				-- art, rarity, price, and one action each receive a separate lane.
+				local narrowRow = shopViewport.X < 520
+				card.BackgroundColor3 = Color3.fromRGB(13, 30, 46)
+				artPlate.Position = UDim2.fromOffset(12, narrowRow and 8 or 18)
+				artPlate.Size = UDim2.fromOffset(narrowRow and 64 or 76, narrowRow and 64 or 76)
+				icon.Position = artPlate.Position
+				icon.Size = artPlate.Size
+				fallback.Position, fallback.Size = icon.Position, icon.Size
+				local petPlate = card:FindFirstChild("PremiumPetPreviewPlate")
+				if petPlate then petPlate.Position, petPlate.Size = icon.Position, icon.Size end
+				local tierChrome = card:FindFirstChild("HeroGauntletTierChrome")
+				if tierChrome then tierChrome.Visible = false end
+				local packPips = card:FindFirstChild("HonorPackTierPips")
+				if packPips then packPips.Visible = false end
+				productNameLabel.Text = string.upper(item.displayName)
+				productNameLabel.Position = UDim2.fromOffset(narrowRow and 88 or 100, 8)
+				productNameLabel.Size = UDim2.new(1, narrowRow and -100 or -254, 0, narrowRow and 32 or 40)
+				productNameLabel.TextWrapped = true
+				productNameLabel.TextTruncate = Enum.TextTruncate.None
+				productNameLabel:SetAttribute("ReadableTextRole", "Primary")
+				local summary = item.tier and (compactStat(item.mult) .. "x Power")
+					or item.isPremiumPet and (("+%d%% Power"):format(math.floor(item.mult * 100 + 0.5)))
+					or item.isHonorProduct and "Relic gates still apply"
+					or item.coins and ("+" .. formatNumber(item.coins) .. " Coins")
+					or item.spins and ("+" .. tostring(item.spins) .. " Spins")
+					or item.name == "SpeedBoost" and "Speed boost • 15 min"
+					or item.name == "DamageBoost" and "2x Damage • 15 min"
+					or item.boost == "TrainingBoostExpiresAt" and "2x Training • 15 min"
+					or "2x Coins • 15 min"
+				detail.Text = summary
+				detail.Position = UDim2.fromOffset(narrowRow and 88 or 100, narrowRow and 42 or 54)
+				detail.Size = UDim2.new(1, narrowRow and -100 or -254, 0, 18)
+				detail.TextSize = 14
+				detail.TextWrapped = false
+				detail.TextYAlignment = Enum.TextYAlignment.Center
+				detail.Visible = true
+				detail:SetAttribute("ReadableTextRole", "Primary")
+				detailBackdrop.Visible = false
+				rarityLabel.TextScaled = false
+				rarityLabel.TextSize = 12
+				rarityLabel.Text = item.isPremiumPet and "PREMIUM" or item.isHonorProduct and "HONOR"
+					or item.isRobuxProduct and "OFFER" or string.upper(item.rarity or rarity)
+				if not narrowRow and item.tier then rarityLabel.Text = ("T%02d  •  %s"):format(item.tier, rarityLabel.Text) end
+				rarityLabel.Position = UDim2.fromOffset(narrowRow and 12 or 100, narrowRow and 74 or 82)
+				rarityLabel.Size = narrowRow and UDim2.fromOffset(76, 16) or UDim2.new(1, -254, 0, 18)
+				local rarityLimit = rarityLabel:FindFirstChildOfClass("UITextSizeConstraint")
+				if rarityLimit then rarityLimit.MinTextSize, rarityLimit.MaxTextSize = 12, 12 end
+				priceLabel.Text = purchaseUnavailable and "Unavailable" or purchaseLoading and "Checking..."
+					or item.regionalPriceState == "CheckoutOnly" and "At checkout" or priceText
+				priceLabel.TextWrapped = false
+				priceLabel:SetAttribute("ReadableTextRole", "Primary")
+				priceIcon.AnchorPoint = Vector2.zero
+				priceIcon.Position = narrowRow and UDim2.fromOffset(12, 92) or UDim2.new(1, -150, 0, 18)
+				priceIcon.Size = UDim2.fromOffset(18, 18)
+				if priceIcon:IsA("TextLabel") then priceIcon.TextSize = 12 end
+				priceLabel.AnchorPoint = narrowRow and Vector2.zero or Vector2.new(1, 0)
+				priceLabel.Position = narrowRow and UDim2.fromOffset(34, 91) or UDim2.new(1, -12, 0, 13)
+				priceLabel.Size = UDim2.fromOffset(narrowRow and 104 or 116, narrowRow and 20 or 24)
+				priceLabel.TextXAlignment = narrowRow and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
+				action.Position = UDim2.new(1, -12, 1, -4)
+				action.Size = UDim2.fromOffset(112, 48)
+				action.TextSize = 14
+				action.TextScaled = false
+				action.TextWrapped = true
+				action.TextTruncate = Enum.TextTruncate.None
+				action:SetAttribute("ReadableTextRole", "Primary")
+				local actionLimit = action:FindFirstChildOfClass("UITextSizeConstraint")
+				if actionLimit then actionLimit.MinTextSize, actionLimit.MaxTextSize = 14, 14 end
+				actionShadow.Position = UDim2.new(1, -10, 1, -2)
+				actionShadow.Size = action.Size
+				card:SetAttribute("ShopPrimaryTextFloor", 14)
+				card:SetAttribute("ShopSecondaryTextFloor", 12)
+			end
 			local actionSize = Instance.new("UISizeConstraint")
 			actionSize.Name = "MinimumTouchTarget"
-			actionSize.MinSize = Vector2.new(44, 44)
+			actionSize.MinSize = compactCards and Vector2.new(48, 48) or Vector2.new(44, 44)
 			actionSize.Parent = action
 			addCorner(action, 4)
 			addStroke(action, Color3.fromRGB(5, 9, 11), 2)
@@ -11793,11 +11906,22 @@ shared.PunchWallBuildShopUI = function()
 			or page == "Robux" and "ROBUX OFFERS"
 			or page == "Boosts" and "BOOSTS"
 			or "HERO FISTS"
-		label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 7 or 11, Enum.Font.GothamBold)
-		label(footerBand, "ServerLabel", "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 7 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
-		shopReference:SetAttribute("ShopCompactLayout", compactCards and "MobileCatalogDenseV3" or "DesktopCatalogV2")
+		local catalogSummary = label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 12 or 11, Enum.Font.GothamBold)
+		local footerHint = label(footerBand, "ServerLabel", compactCards and "SCROLL FOR MORE" or "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 12 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		if compactCards then
+			footerBand.Position = UDim2.new(0, 12, 1, -30)
+			footerBand.Size = UDim2.new(1, -24, 0, 24)
+			catalogSummary.Text = ("%d ITEMS"):format(#products)
+			catalogSummary.Size = UDim2.fromScale(0.38, 1)
+			footerHint.Position = UDim2.fromScale(0.4, 0)
+			footerHint.Size = UDim2.fromScale(0.575, 1)
+		end
+		shopReference:SetAttribute("ShopCompactLayout", compactCards and "MobileReadableRowsV1" or "DesktopCatalogV2")
 		shopReference:SetAttribute("ShopCompactCardHeight", compactCards and scrollCardHeight or 0)
-		shopReference:SetAttribute("ShopCompactTextScale", compactCards and 0.5 or 1)
+		shopReference:SetAttribute("ShopCompactTextScale", 1)
+		shopReference:SetAttribute("ShopCatalogColumns", catalogColumns)
+		shopReference:SetAttribute("ShopMinimumPrimaryTextSize", compactCards and 14 or 0)
+		shopReference:SetAttribute("ShopMinimumSecondaryTextSize", compactCards and 12 or 0)
 		shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
 		return true
 	end
@@ -12112,24 +12236,7 @@ end, false, Enum.KeyCode.B, Enum.KeyCode.Escape, Enum.KeyCode.ButtonSelect, Enum
 applyResponsiveLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
-	local viewport = camera.ViewportSize
-	-- Studio Device Simulator may retain the host-window camera viewport while
-	-- rasterizing ScreenGui content at the selected phone/tablet dimensions.
-	-- Prefer the actual full-screen HUD bounds whenever they disagree so compact
-	-- controls are selected from the pixels players can really touch.
-	local viewportSource = "Camera"
-	local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
-	local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
-	if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
-		if viewport.X < 320
-			or viewport.Y < 240
-			or math.abs(referenceSize.X - viewport.X) > 2
-			or math.abs(referenceSize.Y - viewport.Y) > 2
-		then
-			viewport = referenceSize
-			viewportSource = "ReferenceHUD"
-		end
-	end
+	local viewport, viewportSource = shared.PunchWallGetResponsiveViewport()
 	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
 	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
 	gui:SetAttribute("ResponsiveViewportSource", viewportSource)
@@ -12444,16 +12551,11 @@ applyResponsiveLayout = function()
 		if inventoryOpen then
 			local availableWidth = math.max(1, viewport.X - 24)
 			local availableHeight = math.max(1, viewport.Y - 24)
-			local compactAspect = math.clamp(availableWidth / availableHeight, 1.5, 2.1)
-			local modalWidth = math.min(availableWidth, availableHeight * compactAspect)
-			local modalHeight = math.min(availableHeight, modalWidth / compactAspect)
-			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
-			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeMargin12V3")
+			mainPanel.Size = UDim2.fromOffset(availableWidth, availableHeight)
+			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeFill12V1")
 		elseif shopOpen then
-			local aspect = 1.72
-			local modalHeight = math.max(270, math.min(viewport.Y - 40, (viewport.X - 40) / aspect))
-			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
-			mainPanel:SetAttribute("ShopModalSizing", "CompactBalanced1.72V3")
+			mainPanel.Size = UDim2.fromOffset(math.max(1, viewport.X - 24), math.max(1, viewport.Y - 24))
+			mainPanel:SetAttribute("ShopModalSizing", "PhoneSafeFill12V1")
 		else
 			local panelHeight = math.max(210, math.min(viewport.Y - 24, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
