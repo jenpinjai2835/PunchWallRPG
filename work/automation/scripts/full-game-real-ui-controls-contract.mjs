@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -117,6 +119,152 @@ function nextClientStep(mouseStep, order) {
 
 const prechecks = mouseSteps.map(previousClientStep);
 const postchecks = mouseSteps.map(nextClientStep);
+
+const coordinateBlocks = prechecks.map(step => {
+  const code = step?.args?.code || "";
+  const start = code.indexOf("local clickCenter=");
+  const end = code.indexOf("local hittable=", start);
+  assert(start >= 0 && end > start, "BLOCKED: missing current coordinate precheck");
+  return code.slice(start, end);
+});
+function coordinateHelper(code) {
+  const start = code.indexOf("local function guiPointInViewport(");
+  const end = code.indexOf("\nlocal guiInset=", start);
+  return start >= 0 && end > start ? code.slice(start, end) : "";
+}
+const coordinateHelpers = coordinateBlocks.map(coordinateHelper);
+check("all_25_prechecks_share_inset_aware_viewport_geometry",
+  flow.coordinateContractVersion === "GuiAbsoluteInputViewportInsetV1"
+    && coordinateHelpers.length === 25
+    && coordinateHelpers[0].length > 0
+    && coordinateHelpers.every(helper => helper === coordinateHelpers[0])
+    && coordinateBlocks.every(code => includesAll(code, [
+      "game:GetService('GuiService'):GetGuiInset()",
+      "guiPointInViewport(clickCenter,viewport,guiInset)",
+      "visibleArea=b~=nil and visibleArea",
+      "GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y)",
+    ])),
+  "Only viewport bounds may transform to raw screen coordinates; all copies must keep native GUI hit-test coordinates.");
+check("prechecks_report_both_coordinate_spaces",
+  prechecks.every(step => includesAll(step.args.code, [
+    "inputX=clickCenter.X,inputY=clickCenter.Y",
+    "screenX=screenCenter.X,screenY=screenCenter.Y",
+    "insetX=guiInset.X,insetY=guiInset.Y",
+  ])), "Actual input, screen and inset values must be visible in every precheck result.");
+
+// Execute the actual flow precheck, including the GUI hit-test call. The cases
+// carry independently specified screen coordinates; this is not a second copy
+// of the production transform. No Studio or synthetic input is used here.
+const coordinateHarness = String.raw`
+local assertionCount=0
+local function check(value,label) assert(value,'coordinate: '..label) assertionCount+=1 end
+local Vector2,mt={},{}
+function Vector2.new(x,y)return setmetatable({X=x,Y=y},mt)end
+mt.__add=function(a,b)return Vector2.new(a.X+b.X,a.Y+b.Y)end
+mt.__sub=function(a,b)return Vector2.new(a.X-b.X,a.Y-b.Y)end
+mt.__mul=function(a,b)return Vector2.new(a.X*b,a.Y*b)end
+Vector2.zero=Vector2.new(0,0)
+local function v(x,y)return Vector2.new(x,y)end
+local cases={
+ {'zero inset interior',v(100,100),v(0,0),v(1277,780),v(100,100),true},
+ {'zero inset top left',v(0,0),v(0,0),v(1277,780),v(0,0),true},
+ {'zero inset last interior',v(1276.99,779.99),v(0,0),v(1277,780),v(1276.99,779.99),true},
+ {'zero inset left outside',v(-.01,50),v(0,0),v(1277,780),v(-.01,50),false},
+ {'zero inset top outside',v(50,-.01),v(0,0),v(1277,780),v(50,-.01),false},
+ {'right edge excluded',v(1277,50),v(0,0),v(1277,780),v(1277,50),false},
+ {'bottom edge excluded',v(50,780),v(0,0),v(1277,780),v(50,780),false},
+ {'actual Settings negative Y',v(1236.52087,-13.6945419),v(0,58),v(1277,780),v(1236.52087,44.3054581),true},
+ {'inset top edge included',v(50,-58),v(0,58),v(1277,780),v(50,0),true},
+ {'above inset top rejected',v(50,-58.01),v(0,58),v(1277,780),v(50,-.01),false},
+ {'inset last bottom interior',v(50,721.99),v(0,58),v(1277,780),v(50,779.99),true},
+ {'inset bottom edge rejected',v(50,722),v(0,58),v(1277,780),v(50,780),false},
+ {'old absolute bounds false positive',v(50,760),v(0,58),v(1277,780),v(50,818),false},
+ {'both inset axes top left',v(-31,-58),v(31,58),v(1277,780),v(0,0),true},
+ {'both inset axes left outside',v(-31.01,20),v(31,58),v(1277,780),v(-.01,78),false},
+ {'both inset axes right edge',v(1246,20),v(31,58),v(1277,780),v(1277,78),false},
+ {'nonzero X inset interior',v(-10,20),v(31,58),v(1277,780),v(21,78),true},
+ {'double inset would fail',v(50,700),v(0,58),v(1277,780),v(50,758),true},
+ {'empty viewport rejected',v(0,0),v(0,0),v(0,0),v(0,0),false},
+ {'negative viewport rejected',v(0,0),v(0,0),v(-1,780),v(0,0),false},
+ {'phone with inset',v(150,-12),v(0,36),v(320,740),v(150,24),true},
+ {'phone bottom overflow',v(150,720),v(0,36),v(320,740),v(150,756),false},
+}
+`;
+function coordinateProgram(blocks) {
+  return coordinateHarness + blocks.map((code, index) => `
+do
+ local function evaluate(point,inset,size)
+  local b={AbsolutePosition=point-v(22,22),AbsoluteSize=v(44,44)}
+  local calls,hitX,hitY=0,nil,nil
+  local playerGui={GetGuiObjectsAtPosition=function(_,x,y)calls+=1 hitX=x hitY=y return {b}end}
+  local game={Players={LocalPlayer={PlayerGui=playerGui}},GetService=function(_,name)
+   assert(name=='GuiService') return {GetGuiInset=function()return inset,Vector2.zero end}
+  end}
+  local workspace={CurrentCamera={ViewportSize=size}}
+  ${code}
+  return visibleArea,screenCenter,topmost,calls,hitX,hitY
+ end
+ for _,case in ipairs(cases)do
+  local visible,screen,topmost,calls,hitX,hitY=evaluate(case[2],case[3],case[4])
+  local label='copy ${index + 1} '..case[1]
+  check(visible==case[6],label..' visible area')
+  check(math.abs(screen.X-case[5].X)<.00001 and math.abs(screen.Y-case[5].Y)<.00001,label..' screen transform')
+  check(calls==(visible and 1 or 0),label..' query only visible control')
+  check(topmost==visible,label..' topmost remains actual native target')
+  if visible then check(math.abs(hitX-case[2].X)<.00001 and math.abs(hitY-case[2].Y)<.00001,label..' preserve absolute hit coordinates')end
+ end
+end`).join("\n") + "\nprint('COORDINATE_PASS '..assertionCount)\n";
+}
+
+const luauCandidates = [process.env.LUAU_COMMAND, ...fs.readdirSync(os.tmpdir())
+  .filter(name => name.startsWith("codex-luau-")).sort().reverse()
+  .map(name => path.join(os.tmpdir(), name, process.platform === "win32" ? "luau.exe" : "luau")), "luau"];
+const luauCommand = luauCandidates.find(command => command && spawnSync(command, ["--help"], { encoding: "utf8", timeout: 10000 }).status === 0);
+assert(luauCommand, "BLOCKED: Luau runtime unavailable; set LUAU_COMMAND");
+const luauCompiler = process.env.LUAU_COMPILE_COMMAND || path.join(path.dirname(luauCommand), process.platform === "win32" ? "luau-compile.exe" : "luau-compile");
+const coordinateTemp = fs.mkdtempSync(path.join(os.tmpdir(), "smash-gui-coordinates-"));
+const generatedCoordinateFiles = [];
+const coordinateNegativeControls = [];
+let coordinateAssertions = 0;
+let compiledFlowChunks = 0;
+function runCoordinateCase(label, blocks) {
+  const file = path.join(coordinateTemp, label + ".luau");
+  fs.writeFileSync(file, coordinateProgram(blocks));
+  generatedCoordinateFiles.push(file);
+  const result = spawnSync(luauCommand, [file], { encoding: "utf8", timeout: 30000 });
+  return { status: result.status, text: `${result.stdout || ""}${result.stderr || ""}`, error: result.error };
+}
+try {
+  const positive = runCoordinateCase("current-all-25", coordinateBlocks);
+  check("actual_all_25_coordinate_prechecks_execute_correctly", positive.status === 0 && /COORDINATE_PASS \d+/.test(positive.text), positive.error?.message || positive.text);
+  coordinateAssertions = Number(positive.text.match(/COORDINATE_PASS (\d+)/)[1]);
+  for (const [name, before, after] of [
+    ["omit_inset", "absolutePoint+inset", "absolutePoint"],
+    ["subtract_inset", "absolutePoint+inset", "absolutePoint-inset"],
+    ["apply_inset_twice", "absolutePoint+inset", "absolutePoint+inset+inset"],
+    ["include_outside_right_edge", "screenPoint.X<viewportSize.X", "screenPoint.X<=viewportSize.X"],
+    ["include_outside_bottom_edge", "screenPoint.Y<viewportSize.Y", "screenPoint.Y<=viewportSize.Y"],
+    ["transform_native_hit_coordinates", "GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y)", "GetGuiObjectsAtPosition(screenCenter.X,screenCenter.Y)"],
+  ]) {
+    const changed = coordinateBlocks[0].replace(before, after);
+    assert.notEqual(changed, coordinateBlocks[0], "BLOCKED: coordinate mutation did not apply: " + name);
+    const result = runCoordinateCase(name, [changed]);
+    const rejected = result.status !== 0 && result.text.includes("coordinate:");
+    check("coordinate_negative_" + name, rejected, result.error?.message || result.text);
+    coordinateNegativeControls.push({ name, status: "REJECTED" });
+  }
+  for (const [index, step] of executeSteps.entries()) {
+    const file = path.join(coordinateTemp, `flow-${index}.luau`);
+    fs.writeFileSync(file, step.args.code);
+    generatedCoordinateFiles.push(file);
+    const result = spawnSync(luauCompiler, ["--null", file], { encoding: "utf8", timeout: 30000 });
+    assert.equal(result.status, 0, `BLOCKED: ${step.label} compile: ${result.error?.message || result.stdout || result.stderr}`);
+    compiledFlowChunks += 1;
+  }
+} finally {
+  for (const file of generatedCoordinateFiles) fs.unlinkSync(file);
+  fs.rmdirSync(coordinateTemp);
+}
 
 const inventoryCloseToShopPrecheck = flow.steps.find(
   (step) =>
@@ -659,6 +807,25 @@ function validTasksIdleObservation(candidate) {
     && code.indexOf('local idle=observeIdleControl(')<code.indexOf("g:SetAttribute('Flow31ExpectedControl','C13_ClaimDaily')");
 }
 check('tasks_claim_precheck_reacquires_after_idle_snapshot_and_scroll',validTasksIdleObservation(flow),'The actual native Daily button must survive a real clock snapshot, remain visible/hittable and leave request authority untouched; reacquire after every layout/idle wait before arming the single gesture.');
+const legacyIdleFlow = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'work/automation/flows/fist-pet-legacy-slot-safety.json'), 'utf8'));
+function extractIdleHelper(candidate, name, ending) {
+  const code = candidate.steps.find(step => step.args?.code?.includes('local function ' + name + '('))?.args?.code || '';
+  const start = code.indexOf('local function ' + name + '(');
+  const end = code.indexOf(ending, start);
+  return start >= 0 && end > start ? code.slice(start, end + ending.length) : '';
+}
+const idleObserver = extractIdleHelper(flow, 'observeIdleControl', '\n return result\nend');
+check('idle_observer_copies_preserve_native_selection_settle',
+  ['observeIdleControl', 'verifyIdleControlState'].every(name => {
+    const ending = name === 'observeIdleControl' ? '\n return result\nend' : '\n return true\nend';
+    const current = extractIdleHelper(flow, name, ending);
+    return current.length > 0 && current === extractIdleHelper(legacyIdleFlow, name, ending);
+  }) && includesAll(idleObserver, [
+    'local started=os.clock() local deadline=started+2',
+    'settled=now-started>=.5 and now-stableSince>=.2',
+    "assert(settled,'native selection canvas failed to settle before idle baseline')",
+  ]) && idleObserver.indexOf("assert(settled,") < idleObserver.indexOf('local original=assert(currentButton()'),
+  'Both copied helpers must retain the bounded .5-second minimum/.2-second stable canvas observation before the idle identity baseline.');
 const idleObservationNegativeControls=[];
 for(const [name,from,to]of[
   ['drop_identity_equality','b==original and b:IsDescendantOf(c) and not destroyed','b:IsDescendantOf(c)'],
@@ -689,6 +856,11 @@ console.log(
       freshPrechecks: prechecks.length,
       callbackAttestations: postchecks.length,
       requestAttestations: 9,
+      coordinateCopies: coordinateBlocks.length,
+      coordinateCasesPerCopy: 22,
+      coordinateAssertions,
+      coordinateNegativeControls,
+      compiledFlowChunks,
       checks,
       fixtureNegativeControls,
       idleObservationNegativeControls,
