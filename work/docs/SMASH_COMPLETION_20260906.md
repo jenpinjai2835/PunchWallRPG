@@ -330,3 +330,25 @@ then perform a fresh complete frozen suite on the repaired source before build.
 Canonical output remains original. Latest quota at06:23 is4% remaining with
 three unused reset credits. At <=3%, consume the single authorized reset through
 native tool and retain its idempotency key for any uncertain retry.
+
+## Continuation and authorized quota reset 2026-09-06 06:37 ICT
+
+Reconciled the live full-suite process (session56085), current Git state and HQ.
+The first frozen integrated run has reached 60/124: 58 PASS and the same two
+camera failures. All frozen source, flow and runner files remain unchanged.
+Camera peer review c3d1e74 is integrated; it finds no new actionable P1/P2 in
+the held source patch, while actual camera reruns and displacement attribution
+remain required. A3 now owns an isolated durable final visual capture tool,
+based on the reviewed artifact-bound profiler and the Coordinator prototype.
+Its integration also waits until the frozen suite completes. Studio remains
+exclusive to the active regression; canonical output is still unchanged.
+
+The user-authorized single banked reset was applied through the native Codex
+tool when the account showed 97% consumed / 3% remaining. The native outcome
+was `reset`, with 0% consumed / 100% remaining afterward. The available credit
+inventory fell from three to two; comparing the inventories confirms the
+earliest-expiring credit was used. The idempotency record is retained locally
+outside tracked evidence. This one-reset request is complete; no additional
+reset is authorized by this record. Game delivery remains BLOCKED 6/9 pending
+the repaired full suite, rebuilt/reopened artifact verification and reviewed
+merge.
