@@ -91,7 +91,68 @@ function checkText(action, text) {
   }
 }
 
-function runAssertion(action, context) {
+const defaultConsolePatterns = [
+  "Stack Begin",
+  "Stack End",
+  "Script Runtime Error",
+  "Infinite yield",
+  "attempt to",
+  "Traceback",
+  "Error:",
+];
+const studioInputHelper = "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils";
+const escapedStudioInputHelper = studioInputHelper.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const studioInputWarningHeader = new RegExp(
+  `^\\[Roblox\\]\\[${escapedStudioInputHelper}\\] VirtualInput::SendMousePosition: position \\(-?\\d+(?:\\.\\d+)?, -?\\d+(?:\\.\\d+)?\\) hits CoreGUI\\.$`,
+);
+const studioInputWarningFrame = new RegExp(`^Script '${escapedStudioInputHelper}', Line [1-9]\\d*$`);
+
+export function classifyStudioConsole(originalText, patterns = defaultConsolePatterns) {
+  assertCondition(typeof originalText === "string", "Console text must be a string");
+  const lines = originalText.split(/\r?\n/);
+  const expressions = patterns.map(pattern => new RegExp(pattern, "i"));
+  const identifiedToolWarnings = [];
+  const retainedLines = [];
+  const incompleteHeaders = new Set();
+  let retainedStackDepth = 0;
+  for (let index = 0; index < lines.length; index += 1) {
+    if (retainedStackDepth === 0 && studioInputWarningHeader.test(lines[index])) {
+      let end = index + 2;
+      if (lines[index + 1] === "Stack Begin") {
+        while (end < lines.length && studioInputWarningFrame.test(lines[end])) end += 1;
+        if (end > index + 2 && lines[end] === "Stack End") {
+          identifiedToolWarnings.push({
+            kind: "RobloxStudioAssistantVirtualInputCoreGui",
+            startLine: index + 1,
+            endLine: end + 1,
+            frameCount: end - index - 2,
+            header: lines[index],
+            script: studioInputHelper,
+          });
+          index = end;
+          continue;
+        }
+      }
+      // Even a lone recognized header must not pass as an incomplete block.
+      incompleteHeaders.add(index + 1);
+    }
+    retainedLines.push({ lineNumber: index + 1, text: lines[index] });
+    if (lines[index] === "Stack Begin") retainedStackDepth += 1;
+    if (lines[index] === "Stack End") retainedStackDepth = Math.max(0, retainedStackDepth - 1);
+  }
+  const suspiciousLines = retainedLines.filter(line =>
+    incompleteHeaders.has(line.lineNumber) || expressions.some(pattern => pattern.test(line.text)));
+  return {
+    ok: suspiciousLines.length === 0,
+    originalText,
+    identifiedToolWarningCount: identifiedToolWarnings.length,
+    identifiedToolWarnings,
+    retainedLines,
+    suspiciousLines,
+  };
+}
+
+export function runAssertion(action, context, consoleClassifications = []) {
   if (action.type === "assertTreeNames") {
     const tree = parseTree(context[action.source], action.source);
     const actual = namesUnder(tree, action.parentName);
@@ -107,21 +168,10 @@ function runAssertion(action, context) {
     return;
   }
   if (action.type === "assertNoConsoleErrors") {
-    const text = context[action.source] ?? "";
-    const patterns = action.patterns ?? [
-      "Stack Begin",
-      "Stack End",
-      "Script Runtime Error",
-      "Infinite yield",
-      "attempt to",
-      "Traceback",
-      "Error:",
-    ];
-    const hits = text
-      .split(/\r?\n/)
-      .filter((line) => patterns.some((pattern) => new RegExp(pattern, "i").test(line)));
-    assertCondition(hits.length === 0, `Console contains suspicious lines:\n${hits.slice(-20).join("\n")}`);
-    return;
+    const classification = classifyStudioConsole(context[action.source] ?? "", action.patterns);
+    consoleClassifications.push({ source: action.source, label: action.label ?? action.type, ...classification });
+    assertCondition(classification.ok, `Console contains suspicious lines:\n${classification.suspiciousLines.slice(-20).map(line => line.text).join("\n")}`);
+    return classification;
   }
   throw new Error(`Unknown assertion action: ${action.type}`);
 }
@@ -136,15 +186,16 @@ function summarizeContext(context) {
   }));
 }
 
-async function runAction(client, action, context, checks, readinessTimeoutMs) {
+async function runAction(client, action, context, checks, readinessTimeoutMs, consoleClassifications) {
   if (action.type === "wait") {
     await sleep(action.ms ?? 1000);
     checks.push(action.label ?? `wait ${action.ms ?? 1000}ms`);
     return;
   }
   if (action.type?.startsWith("assert")) {
-    runAssertion(action, context);
-    checks.push(action.label ?? action.type);
+    const classification = runAssertion(action, context, consoleClassifications);
+    const label = action.label ?? action.type;
+    checks.push(classification ? `${label} (identified Studio input warnings: ${classification.identifiedToolWarningCount})` : label);
     return;
   }
   if (action.type !== "call") throw new Error(`Unknown flow action type: ${action.type}`);
@@ -180,6 +231,7 @@ async function runFlow(file, studioMcp, commandLine) {
   const client = new McpClient(studioMcp, "punch-wall-flow-runner");
   const context = {};
   const checks = [];
+  const consoleClassifications = [];
   let selectedStudio = null;
   let selectedPlace = null;
   const selection = {
@@ -199,7 +251,7 @@ async function runFlow(file, studioMcp, commandLine) {
     selectedPlace = await inspectSelectedPlace(client);
     assertPlaceIdentity(selectedPlace, expectedPlace);
     for (const action of flow.steps ?? []) {
-      await runAction(client, action, context, checks, readinessTimeoutMs);
+      await runAction(client, action, context, checks, readinessTimeoutMs, consoleClassifications);
     }
     return {
       ok: true,
@@ -207,11 +259,12 @@ async function runFlow(file, studioMcp, commandLine) {
       selectedStudio,
       selectedPlace,
       checks,
+      consoleClassifications,
     };
   } catch (error) {
     for (const action of flow.cleanup ?? []) {
       try {
-        await runAction(client, action, context, checks, readinessTimeoutMs);
+        await runAction(client, action, context, checks, readinessTimeoutMs, consoleClassifications);
       } catch {
         // Preserve the original failure.
       }
@@ -222,6 +275,7 @@ async function runFlow(file, studioMcp, commandLine) {
       selectedStudio,
       selectedPlace,
       checks,
+      consoleClassifications,
       error: error.message,
       context: summarizeContext(context),
     };
