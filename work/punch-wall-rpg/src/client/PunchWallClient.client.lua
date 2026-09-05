@@ -6819,7 +6819,7 @@ local function beginPunchCamera(now)
 	local motionState = punchMotionState
 	if not motionState then return false end
 	local originalType = camera.CameraType
-	if originalType == Enum.CameraType.Scriptable then originalType = Enum.CameraType.Custom end
+	if originalType == Enum.CameraType.Scriptable then return false end
 	activePunchCamera = {
 		startedAt = now,
 		-- Let the avatar lead for a readable beat, then catch up quickly enough
@@ -7156,12 +7156,19 @@ shared.PunchWallCameraLineOfSightBlocked = cameraLineOfSightBlocked
 shared.PunchWallResolveClearCameraPose = resolveClearCameraPose
 
 local lastPunchCameraRenderAt = 0
-local function updatePunchCameraFollow(deltaTime)
+local function updatePunchCameraFollow(deltaTime, renderSuspended)
 	local state = activePunchCamera
 	if not state then return end
 	local camera = workspace.CurrentCamera
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if camera and camera.CameraType == Enum.CameraType.Scriptable then
+		-- A cinematic or another explicit camera owner supersedes punch feedback.
+		activePunchCamera = nil
+		gui:SetAttribute("PunchCameraFollowActive", false)
+		gui:SetAttribute("PunchCameraScriptableActive", false)
+		return
+	end
 	if not camera or not root then
 		if camera then
 			camera.CameraType = state.cameraType
@@ -7187,16 +7194,30 @@ local function updatePunchCameraFollow(deltaTime)
 		if step.Magnitude > maxStep then step = step.Unit * maxStep end
 		state.translation += step
 	end
-	local candidateCFrame = state.baseCFrame + state.translation
-	local candidateFocus = state.baseFocus + state.translation
+	-- Roblox has already applied the player's orbit and zoom this frame. Offset
+	-- only its translation by the remaining follow lag; replaying the punch's
+	-- original CFrame would swallow camera input until the follow completes.
+	local liveCFrame, liveFocus = camera.CFrame, camera.Focus
+	if renderSuspended then
+		-- The default camera does not run while Studio's viewport is suspended.
+		-- Advance its last unmodified pose once by root displacement; applying
+		-- the follow lag to our previous output would accumulate a camera drift.
+		local rootStep = rootDelta - (state.lastRootDelta or Vector3.zero)
+		liveCFrame = (state.lastLiveCFrame or state.baseCFrame) + rootStep
+		liveFocus = (state.lastLiveFocus or state.baseFocus) + rootStep
+	end
+	state.lastLiveCFrame, state.lastLiveFocus = liveCFrame, liveFocus
+	state.lastRootDelta = rootDelta
+	local followOffset = state.translation - rootDelta
+	local candidateCFrame = liveCFrame + followOffset
+	local candidateFocus = liveFocus + followOffset
 	local cameraBlocked = shared.PunchWallCameraPositionBlocked(candidateCFrame.Position, character)
 	if cameraBlocked then
 		state.translation = previousTranslation
 		gui:SetAttribute("PunchCameraGeometryClamped", true)
 		gui:SetAttribute("PunchCameraGeometryClampFrames", (gui:GetAttribute("PunchCameraGeometryClampFrames") or 0) + 1)
 	else
-		local previousCameraPosition = (state.baseCFrame + previousTranslation).Position
-		local appliedStep = (candidateCFrame.Position - previousCameraPosition).Magnitude
+		local appliedStep = (state.translation - previousTranslation).Magnitude
 		gui:SetAttribute("PunchCameraMaxAppliedStep", math.max(gui:GetAttribute("PunchCameraMaxAppliedStep") or 0, appliedStep))
 		camera.CFrame = candidateCFrame
 		camera.Focus = candidateFocus
@@ -7205,8 +7226,8 @@ local function updatePunchCameraFollow(deltaTime)
 	local lag = (rootDelta - state.translation).Magnitude
 	gui:SetAttribute("PunchCameraFollowPeakStuds", math.max(gui:GetAttribute("PunchCameraFollowPeakStuds") or 0, lag))
 	if elapsed >= 0.72 and lag <= state.settleDistance and not cameraBlocked then
-		camera.CFrame = state.baseCFrame + rootDelta
-		camera.Focus = state.baseFocus + rootDelta
+		camera.CFrame = liveCFrame
+		camera.Focus = liveFocus
 		camera.CameraSubject = state.cameraSubject
 		camera.CameraType = state.cameraType
 		activePunchCamera = nil
@@ -7248,7 +7269,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	-- never advances the same follow state a second time between slow frames.
 	local renderSuspended = os.clock() - lastPunchCameraRenderAt > 0.35
 	if activePunchCamera and renderSuspended then
-		updatePunchCameraFollow(math.min(deltaTime, 1 / 30))
+		updatePunchCameraFollow(math.min(deltaTime, 1 / 30), true)
 	end
 	if renderSuspended then
 		local camera = workspace.CurrentCamera
@@ -10445,6 +10466,8 @@ shared.PunchWallBuildShopUI = function()
 		BoostTickGeneration = 0,
 		BoostTickCount = 0,
 		BoostTickScheduled = false,
+		BoostButtons = {},
+		RenderedPage = nil,
 	}
 
 	function shopRuntime.ResolvePage()
@@ -10481,14 +10504,17 @@ shared.PunchWallBuildShopUI = function()
 		if page == "Fists" then
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedFistsJSON, { "Starter Glove" }))
 			table.insert(fields, tostring(latestStats.EquippedFist or ""))
+			table.insert(fields, math.max(0, math.floor(tonumber(latestStats.Depth) or 0)))
 		elseif page == "Premium" then
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumPetsJSON, {}))
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.EquippedPetsJSON, {}))
 		elseif page == "Boosts" then
 			local boostInfo = latestStats.ShopBoosts or {}
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now))
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now))
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now))
+			-- Endpoints change on authoritative purchases/resync. Remaining seconds
+			-- belong to the existing button labels, not the catalog structure.
+			table.insert(fields, tonumber(boostInfo.CoinEndsAt) or 0)
+			table.insert(fields, tonumber(boostInfo.SpeedEndsAt) or 0)
+			table.insert(fields, tonumber(boostInfo.DamageEndsAt) or 0)
 		elseif page == "Honor" then
 			table.insert(fields, math.max(0, math.floor(tonumber(latestStats.Honor) or 0)))
 		end
@@ -10674,6 +10700,24 @@ shared.PunchWallBuildShopUI = function()
 		card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistPerimeterV2")
 	end
 
+	function shopRuntime.UpdateBoostCountdown(now)
+		local boostInfo = latestStats.ShopBoosts or {}
+		local secondsByName = {
+			CoinBoost = shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now),
+			SpeedBoost = shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now),
+			DamageBoost = shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now),
+		}
+		for name, entry in pairs(shopRuntime.BoostButtons) do
+			if entry.button.Parent then
+				local seconds = secondsByName[name] or 0
+				entry.button.Text = seconds > 0 and ("ACTIVE %02d:%02d"):format(math.floor(seconds / 60), seconds % 60) or "BUY"
+				local idleColor = seconds > 0 and Color3.fromRGB(45, 145, 60) or entry.idleColor
+				entry.button.BackgroundColor3 = idleColor
+				entry.button:SetAttribute("ShopIdleColor", idleColor)
+			end
+		end
+	end
+
 	function shopRuntime.ScheduleBoostTick(page, now)
 		shopRuntime.BoostTickGeneration += 1
 		local generation = shopRuntime.BoostTickGeneration
@@ -10704,7 +10748,9 @@ shared.PunchWallBuildShopUI = function()
 			end
 			shopRuntime.BoostTickCount += 1
 			shopReference:SetAttribute("BoostTickCount", shopRuntime.BoostTickCount)
-			shared.PunchWallHeroShopRefresh()
+			local tickNow = workspace:GetServerTimeNow()
+			shopRuntime.UpdateBoostCountdown(tickNow)
+			shopRuntime.ScheduleBoostTick(page, tickNow)
 		end)
 	end
 
@@ -10718,8 +10764,11 @@ shared.PunchWallBuildShopUI = function()
 		if not force and signature == shopRuntime.LastSignature then
 			shopRuntime.RefreshSkipCount += 1
 			shopReference:SetAttribute("RefreshSkipCount", shopRuntime.RefreshSkipCount)
-			if page == "Boosts" and shopReference.Visible and not shopRuntime.BoostTickScheduled then
-				shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+			if page == "Boosts" and shopReference.Visible then
+				shopRuntime.UpdateBoostCountdown(shopRefreshNow)
+				if not shopRuntime.BoostTickScheduled then
+					shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+				end
 			end
 			return false
 		end
@@ -10734,6 +10783,11 @@ shared.PunchWallBuildShopUI = function()
 		shopReference:SetAttribute("RefreshSignature", signature)
 		shopReference:SetAttribute("RefreshReason", reason)
 		shopReference:SetAttribute("RefreshMode", "RelevantStateSignatureV1")
+		local previousScroll = shopReference:FindFirstChild("ShopCatalogScroll")
+		local previousScrollPosition = shopRuntime.RenderedPage == page and previousScroll
+			and previousScroll.CanvasPosition or Vector2.zero
+		shopRuntime.RenderedPage = page
+		shopRuntime.BoostButtons = {}
 		shared.PunchWallShopActions = {}
 		for _, child in ipairs(shopReference:GetChildren()) do
 			if not child:GetAttribute("ShopRootDecoration") then child:Destroy() end
@@ -10777,10 +10831,11 @@ shared.PunchWallBuildShopUI = function()
 			local scale = Instance.new("UIScale")
 			scale.Parent = button
 			button.MouseEnter:Connect(function()
-				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = idleColor:Lerp(Color3.new(1, 1, 1), 0.12) }):Play()
+				local currentIdle = button:GetAttribute("ShopIdleColor") or idleColor
+				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = currentIdle:Lerp(Color3.new(1, 1, 1), 0.12) }):Play()
 			end)
 			button.MouseLeave:Connect(function()
-				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = idleColor }):Play()
+				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = button:GetAttribute("ShopIdleColor") or idleColor }):Play()
 				TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1 }):Play()
 			end)
 			button.MouseButton1Down:Connect(function()
@@ -11183,6 +11238,7 @@ shared.PunchWallBuildShopUI = function()
 			catalogScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 			catalogScroll.ZIndex = 102
 			catalogScroll.Parent = shopReference
+			catalogScroll.CanvasPosition = previousScrollPosition
 			cardsHost = catalogScroll
 			shopReference:SetAttribute("ShopCatalogScrollable", true)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
@@ -11628,6 +11684,12 @@ shared.PunchWallBuildShopUI = function()
 			action.TextStrokeTransparency = 0.2
 			action.ZIndex = 106
 			action.Parent = card
+			if page == "Boosts" then
+				shopRuntime.BoostButtons[item.name] = {
+					button = action,
+					idleColor = Color3.fromRGB(232, 157, 22),
+				}
+			end
 			if item.isRobuxProduct and compactCards then
 				-- Compact purchase-state labels must remain legible inside the 44px touch
 				-- target while the card moves through opening/checkout/receipt states.
