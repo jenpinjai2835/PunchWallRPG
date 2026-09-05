@@ -1,0 +1,23 @@
+{
+  "raw": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\":true,\"templates\":[{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CrimsonPhoenixPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":0,\"parts\":1},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_StormWyvernPet\",\"visualPropertiesPreserved\":true,\"effects\":4,\"previousJoints\":34,\"parts\":35},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CelestialGuardianPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":9,\"parts\":10}]}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "text": "{\"ok\":true,\"templates\":[{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CrimsonPhoenixPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":0,\"parts\":1},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_StormWyvernPet\",\"visualPropertiesPreserved\":true,\"effects\":4,\"previousJoints\":34,\"parts\":35},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CelestialGuardianPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":9,\"parts\":10}]}",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"ok\":true,\"templates\":[{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CrimsonPhoenixPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":0,\"parts\":1},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_StormWyvernPet\",\"visualPropertiesPreserved\":true,\"effects\":4,\"previousJoints\":34,\"parts\":35},{\"removed\":null,\"sanitized\":true,\"name\":\"Sanitized_CelestialGuardianPet\",\"visualPropertiesPreserved\":true,\"effects\":0,\"previousJoints\":9,\"parts\":10}]}"
+    }
+  ],
+  "isError": false
+}

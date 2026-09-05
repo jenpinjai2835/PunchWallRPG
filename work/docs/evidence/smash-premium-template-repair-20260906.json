@@ -1,0 +1,16 @@
+{
+    "ok":  true,
+    "input":  "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+    "inputSha256":  "605A4F70169FD0C7C86635B20171576DC4A81C46B10A4E28C8744F4F29A40208",
+    "repairedModelsSha256":  "00B1A0008A1A96620BD1C7B8E449035900755490DE5BDAAD014D656DA604F019",
+    "output":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-asset-template.rbxlx",
+    "outputSha256":  "22406EFE5CFFCE2B6A4FC6669D99E1AC094BFDB8EAE7CDC59B760B86EC00191E",
+    "templates":  [
+                      "Sanitized_CrimsonPhoenixPet",
+                      "Sanitized_StormWyvernPet",
+                      "Sanitized_CelestialGuardianPet"
+                  ],
+    "sharedStringsAdded":  0,
+    "unrelatedContentPreserved":  true,
+    "canonicalWritten":  false
+}
