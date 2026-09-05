@@ -333,6 +333,7 @@ $checks.persistenceContract = @{
 }
 
 $additionalStaticContracts = @(
+    @{ file = "settings-panel-stability-contract.mjs"; key = "settingsPanelStabilityContract" },
     @{ file = "target-depth-selection-contract.mjs"; key = "targetDepthSelectionContract" },
     @{ file = "final-feedback-consumer-contract.mjs"; key = "finalFeedbackConsumerContract" },
     @{ file = "generic-panel-stability-contract.mjs"; key = "genericPanelStabilityContract" },
