@@ -7392,6 +7392,52 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 	local orbitCharacter
 	local pendingOrbitDelta = 0
 	local previousPinchScale
+	shared.PunchWallResetCameraGeometryGuard = function(character)
+		lastClearCameraCFrame = nil
+		lastClearCameraFocus = nil
+		cameraGeometryClampFrames = 0
+		recoveringFromGeometryClamp = false
+		recoveringFromFollowHandoff = false
+		wasActiveFollow = false
+		lastRootPosition = nil
+		userOrbitDistance = nil
+		orbitCharacter = character
+		pendingOrbitDelta = 0
+		previousPinchScale = nil
+		gui:SetAttribute("PunchCameraUserOrbitDistance", nil)
+		gui:SetAttribute("PunchCameraHandoffActive", false)
+		gui:SetAttribute("PunchCameraGeometryClamped", false)
+	end
+	local function clearTranslationStep(origin, translation, character)
+		-- A clear destination does not imply a clear route to it. These steps are
+		-- at most 2.4 studs; overlapping probes also catch thin walls in between.
+		if shared.PunchWallCameraPositionBlocked(origin, character) then return false end
+		local samples = math.max(1, math.ceil(translation.Magnitude / 0.25))
+		for index = 1, samples do
+			if shared.PunchWallCameraPositionBlocked(origin + translation * (index / samples), character) then
+				return false
+			end
+		end
+		return true
+	end
+	local function limitClearCameraStep(origin, desiredCFrame, desiredFocus, character, maxStep)
+		local displacement = desiredCFrame.Position - origin
+		local direct = displacement.Magnitude > maxStep and displacement.Unit * maxStep or displacement
+		local vertical = Vector3.new(0, displacement.Y, 0)
+		local horizontal = Vector3.new(displacement.X, 0, displacement.Z)
+		for _, step in ipairs({ direct, vertical, horizontal }) do
+			if step.Magnitude > maxStep then step = step.Unit * maxStep end
+			if step.Magnitude > 0.001 and clearTranslationStep(origin, step, character) then
+				local translation = origin + step - desiredCFrame.Position
+				return desiredCFrame + translation, desiredFocus + translation
+			end
+		end
+		if not shared.PunchWallCameraPositionBlocked(origin, character) then
+			local translation = origin - desiredCFrame.Position
+			return desiredCFrame + translation, desiredFocus + translation
+		end
+		return nil, nil
+	end
 	UserInputService.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseWheel then
 			pendingOrbitDelta -= input.Position.Z * 2
@@ -7414,9 +7460,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		local character = player.Character
 		if not camera or not character then return end
 		if orbitCharacter ~= character then
-			orbitCharacter = character
-			userOrbitDistance = nil
-			lastRootPosition = nil
+			shared.PunchWallResetCameraGeometryGuard(character)
 		end
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
 		if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then
@@ -7547,21 +7591,33 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			end
 		end
 		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
-			local displacement = desiredPosition - lastClearCameraCFrame.Position
+			local requestedPosition = desiredPosition
 			local maxStep = 24 * math.min(deltaTime, 0.1)
-			if displacement.Magnitude > maxStep then
-				local limitedPosition = lastClearCameraCFrame.Position + displacement.Unit * maxStep
-				local translation = limitedPosition - desiredPosition
-				desiredCFrame = desiredCFrame + translation
-				desiredFocus = desiredFocus + translation
-				desiredPosition = limitedPosition
-			elseif recoveringFromGeometryClamp and not activeFollow then
+			local limitedCFrame, limitedFocus = limitClearCameraStep(
+				lastClearCameraCFrame.Position, desiredCFrame, desiredFocus, character, maxStep
+			)
+			if limitedCFrame and limitedFocus then
+				desiredCFrame = limitedCFrame
+				desiredFocus = limitedFocus
+				desiredPosition = limitedCFrame.Position
+			else
+				resolvedCFrame = nil
+				resolvedFocus = nil
+			end
+			local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.001
+			if recoveringFromGeometryClamp and not activeFollow and arrived then
 				recoveringFromGeometryClamp = false
 			end
-			if recoveringFromFollowHandoff and not activeFollow and displacement.Magnitude <= maxStep then
+			if recoveringFromFollowHandoff and not activeFollow and arrived then
 				recoveringFromFollowHandoff = false
 				gui:SetAttribute("PunchCameraHandoffActive", false)
 			end
+		end
+		-- Validate the pose we will actually publish, after all smoothing and
+		-- orbit correction, before marking it as a future safety fallback.
+		if shared.PunchWallCameraPositionBlocked(desiredPosition, character) then
+			resolvedCFrame = nil
+			resolvedFocus = nil
 		end
 		if not resolvedCFrame then
 			cameraGeometryClampFrames += 1
@@ -7577,7 +7633,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearCFrame = nil
 				clearFocus = nil
 			end
-			if clearCFrame and cameraPoseBlocked(clearCFrame, character) then
+			if clearCFrame and shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
 				clearCFrame = shared.PunchWallCameraBaselineCFrame
 				clearFocus = shared.PunchWallCameraBaselineFocus
 			end
@@ -7586,7 +7642,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearCFrame = nil
 				clearFocus = nil
 			end
-			if clearCFrame and clearFocus then
+			if clearCFrame and clearFocus
+				and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
 				local focusDistance = math.max(0.5, (desiredPosition - desiredFocus.Position).Magnitude)
 				camera.CFrame = CFrame.new(clearCFrame.Position) * desiredCFrame.Rotation
 				camera.Focus = CFrame.new(clearCFrame.Position + desiredCFrame.LookVector * focusDistance)
@@ -7676,24 +7733,12 @@ if RunService:IsStudio() then
 		local sampledFrames = 0
 		local actions = 0
 		local insideNames = {}
+		local insideSamples = {}
 		local maximumLead = 0
 		local currentPunch = 0
 		local obscurerNames = {}
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
 		local function sampleCamera(settledSample)
-			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
-				local clearCFrame = shared.PunchWallHeartbeatLastClearCFrame
-				local clearFocus = shared.PunchWallHeartbeatLastClearFocus
-				if clearCFrame and shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-					clearCFrame = shared.PunchWallCameraBaselineCFrame
-					clearFocus = shared.PunchWallCameraBaselineFocus
-				end
-				if clearCFrame and clearFocus
-					and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-					camera.CFrame = clearCFrame
-					camera.Focus = clearFocus
-				end
-			end
 			local cameraPosition = camera.CFrame.Position
 			local cameraStep = (cameraPosition - lastCameraPosition).Magnitude
 			if cameraStep > maxCameraStep then
@@ -7746,7 +7791,19 @@ if RunService:IsStudio() then
 			for _, part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cameraPosition), Vector3.new(0.3, 0.3, 0.3))) do
 				if part:IsA("BasePart") and part.CanCollide and part.Transparency < 0.95 and not part:IsDescendantOf(character) then
 					blocked = true
-					if #insideNames < 8 then table.insert(insideNames, part:GetFullName()) end
+					if #insideNames < 8 then
+						table.insert(insideNames, part:GetFullName())
+						table.insert(insideSamples, {
+							part = part:GetFullName(),
+							punch = currentPunch,
+							camera = tostring(cameraPosition),
+							root = tostring(rootPart.Position),
+							renderAge = os.clock() - lastPunchCameraRenderAt,
+							follow = gui:GetAttribute("PunchCameraFollowActive") == true,
+							handoff = gui:GetAttribute("PunchCameraHandoffActive") == true,
+							clamped = gui:GetAttribute("PunchCameraGeometryClamped") == true,
+						})
+					end
 					break
 				end
 			end
@@ -7834,6 +7891,8 @@ if RunService:IsStudio() then
 			obscurerNames = obscurerNames,
 			inside = insideFrames,
 			insideNames = insideNames,
+			insideSamples = insideSamples,
+			sampledFrames = sampledFrames,
 			lead = lead,
 			selectedDistance = selectedDistance,
 			finishDistance = finishDistance,
@@ -8351,11 +8410,19 @@ if RunService:IsStudio() then
 	end)()
 end
 
-player.CharacterAdded:Connect(function()
+player.CharacterAdded:Connect(function(character)
 	punchMotionState = nil
 	activePunchCamera = nil
 	shared.PunchWallCameraBaselineCFrame = nil
 	shared.PunchWallCameraBaselineFocus = nil
+	shared.PunchWallHeartbeatLastClearCFrame = nil
+	shared.PunchWallHeartbeatLastClearFocus = nil
+	gui:SetAttribute("PunchCameraFollowActive", false)
+	gui:SetAttribute("PunchCameraScriptableActive", false)
+	gui:SetAttribute("PunchCameraGeometryHoldSettled", false)
+	gui:SetAttribute("CharacterPunchMotionActive", false)
+	gui:SetAttribute("PunchMotionPhase", "Idle")
+	shared.PunchWallResetCameraGeometryGuard(character)
 	companionRuntime.CancelVisualRetry("CharacterAdded")
 	visualSignature = ""
 	task.defer(refreshCharacterVisuals)
@@ -8893,17 +8960,23 @@ gui:SetAttribute("CombatCameraActive", false)
 if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable then
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 end
-local cameraOcclusionApplied = player.DevCameraOcclusionMode == Enum.DevCameraOcclusionMode.Invisicam
-gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "OpaqueInvisicam" or "Unavailable")
-gui:SetAttribute("CameraOcclusionOpaque", cameraOcclusionApplied)
-gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
+local cameraOcclusionApplied = false
+local function refreshCameraOcclusionMode()
+	cameraOcclusionApplied = player.DevCameraOcclusionMode == Enum.DevCameraOcclusionMode.Invisicam
+	gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "OpaqueInvisicam" or "Unavailable")
+	gui:SetAttribute("CameraOcclusionOpaque", cameraOcclusionApplied)
+	gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
+end
+player:GetPropertyChangedSignal("DevCameraOcclusionMode"):Connect(refreshCameraOcclusionMode)
+refreshCameraOcclusionMode()
 
 -- Roblox Invisicam normally fades parts between the camera and the character.
 -- Keep the zoom-preserving occlusion mode, but restore the obscuring parts to
 -- full local opacity after the camera update so the world stays visually solid.
-if cameraOcclusionApplied then
+do
 	shared.PunchWallForcedOpaqueParts = setmetatable({}, { __mode = "k" })
 	RunService:BindToRenderStep("PunchWallOpaqueOcclusion", Enum.RenderPriority.Last.Value, function()
+		if not cameraOcclusionApplied then return end
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if not camera or not character then return end
