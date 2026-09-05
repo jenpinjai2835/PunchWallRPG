@@ -1,18 +1,18 @@
 # Final release verification review — 2026-09-06
 
-Review baseline: integration `2fe4deada0efe8cbd3cab38a77c5d4edb992af7b`, followed by review of the Coordinator's final candidate helpers at `work/automation/run-smash-integrated-regression.ps1` and `work/automation/scripts/verify-studio-source.mjs`. Scope was read-only except this document. No Studio, build, output-file mutation, or HQ operation was performed by the reviewer. The worker worktree was clean at `1e45d78` before this assignment.
+Review baseline: integration `2fe4deada0efe8cbd3cab38a77c5d4edb992af7b`, followed by review of the final helpers committed in `8d0aace` at `work/automation/run-smash-integrated-regression.ps1` and `work/automation/scripts/verify-studio-source.mjs`. Scope was read-only except this document. No Studio, build, output-file mutation, or HQ operation was performed by the reviewer. The worker worktree was clean at `1e45d78` before this assignment.
 
 **Release remains BLOCKED pending final integrated fixes, the complete 124-flow run, build, independent reopening, evidence and Git gates.** Earlier targeted passes do not satisfy these gates.
 
 ## Findings
 
-1. **Resolved in the final candidate — close the whole regression freeze.** The original ignored wrapper could miss a source edit during the last flow, changes to already-run flows, additions/removals, and runner/helper edits. The replacement `run-smash-integrated-regression.ps1` snapshots source files, all flow JSON and automation MJS/PS1 infrastructure; checks exact inventory counts, keys and hashes before/after each flow and at finalization; takes read-only live source proof before/after; and preserves initial/failure manifests. No blocking defect was found for the current nine-source/124-flow inventory. One small hardening was reported: assert the exact nine local Lua paths before starting, because freezing an already-present unmapped tenth source is not equivalent to rejecting it. The later production builder already rejects that condition. The Coordinator owns executable negative controls for `Assert-Frozen`; those were not independently run here.
+1. **Resolved — close the whole regression freeze.** The original ignored wrapper could miss a source edit during the last flow, changes to already-run flows, additions/removals, and runner/helper edits. The replacement `run-smash-integrated-regression.ps1` snapshots source files, all flow JSON and automation MJS/PS1 infrastructure; checks exact inventory counts, keys and hashes before/after each flow and at finalization; takes read-only live source proof before/after; and preserves initial/failure manifests. The final live verifier derives its source root from its own file URL and rejects any extra/missing local Lua path before starting MCP. No blocking defect was found for the current nine-source/124-flow inventory. The Coordinator reports nine executable freeze controls PASS with 222 frozen files; those controls were not independently run by this reviewer.
 
 2. **Required execution gate — reopen and verify without sync.** `run-final-artifact-regression.ps1` alone verifies disk equality, embedded sources, Studio identity, behavior and unchanged disk hashes; it does not open the file or compare live Edit source bytes. The final `verify-studio-source.mjs` now supplies exact byte comparison, actual place-name checks, global nine-object topology and enabled/Legacy state for the two BaseScripts. Use it after a genuinely new open and before/after runtime, without sync. Opening evidence and the actual selected validation-copy id remain required. Retain fresh Edit template/property checks as well: source identity alone does not identify non-code assets or settings. The combined procedure is suitable; its actual final execution is still pending.
 
 3. **P2 — freeze and verify the approved asset template explicitly.** The build default input is the old canonical place, not the reviewed premium-template staging place. Independently read hashes still match: canonical `605A4F70169FD0C7C86635B20171576DC4A81C46B10A4E28C8744F4F29A40208`; reviewed staging `22406EFE5CFFCE2B6A4FC6669D99E1AC094BFDB8EAE7CDC59B760B86EC00191E`. Pass `-SourcePlace work/tools/smash-asset-template.rbxlx` explicitly and assert its hash against `smash-premium-template-repair-20260906.json` before/after build. Runtime sanitation could hide an old unsanitized template, so runtime attestation alone is insufficient proof that the approved staging file was used. Preserve the known repair recipe, original hash and staging hash in final evidence.
 
-4. **Resolved location; commit gate remains — preserve the procedure durably.** The Coordinator promoted the reviewed replacement helpers to automation paths outside ignored `work/tools`. Their contents must be included in the final reviewed commits. Current source/flow fixes, final evidence and artifacts must likewise be traceable to reviewed commits; the integration tree contains many untracked evidence files and a completion note that still need explicit disposition. The ignored draft wrappers should not be the documented final command.
+4. **Resolved helper durability; final evidence commit gate remains.** The Coordinator committed the reviewed replacement helpers in `8d0aace` to automation paths outside ignored `work/tools`. Current source/flow fixes, final evidence and artifacts must likewise be traceable to reviewed commits; the integration tree contains many untracked evidence files and a completion note that still need explicit disposition. The ignored draft wrappers are not the documented final command.
 
 ## What the existing checks do prove
 
@@ -27,10 +27,12 @@ The new live checker sends safely delimited expected source into Edit and perfor
 Run these only after A1/A2 fixes and their tests are integrated, Studio ownership is exclusive, and the final wrapper's mutation controls are verified. Commands are based on actual available scripts; they were reviewed but not executed here.
 
 ```powershell
+$ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath 'F:/Roblox/PuchWall-completion-20260906'
 $releaseStudioId = '0103740f-e1f7-4401-978a-bf2c80d66bde'
 $releaseSync = 'work/docs/evidence/smash-source-sync-release-20260906.json'
 git diff --check
+if ($LASTEXITCODE -ne 0) { throw 'Git whitespace gate failed' }
 git status --short
 node work/automation/scripts/sync_rojo_source_to_studio.mjs --studio-instance-id $releaseStudioId --studio-name '^PunchWallRPGPlayable_v1_final[.]rbxlx$' --place-name '^PunchWallRPGPlayable_v1_final[.]rbxlx$' > $releaseSync
 if ($LASTEXITCODE -ne 0) { throw 'Release source sync failed' }
