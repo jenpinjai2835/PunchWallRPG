@@ -763,7 +763,7 @@ const negativeResults=[
  rejectsFistMutation('allow_catalog_collision','native_geometry_is_visual_only_and_bounded','builder','part.CanCollide = false','part.CanCollide = true'),
  rejectsFistMutation('inflate_part_budget','native_geometry_is_visual_only_and_bounded','builder','partBudget = 28','partBudget = 999'),
  rejectsFistMutation('wrong_weld_endpoint','catalog_equipment_welds_measures_final_bounds_and_tears_down','client','weld.Part0, weld.Part1 = part, hand','weld.Part0, weld.Part1 = part, part'),
- rejectsFistMutation('leak_preview_connections','shop_catalog_releases_hidden_models_and_connections','client','for _, connection in ipairs(connections) do connection:Disconnect() end','for _, connection in ipairs(connections) do print(connection) end'),
+ rejectsFistMutation('leak_preview_connections','shop_catalog_releases_hidden_models_and_connections','client',/viewport\.Destroying:Once\(function\(\)\s*for _, connection in ipairs\(connections\) do connection:Disconnect\(\) end/,'viewport.Destroying:Once(function() for _, connection in ipairs(connections) do print(connection) end'),
 ];
 check('live_fist_negative_controls_reject_regressions',negativeResults.every(Boolean),'Every negative control needs a positive baseline and must fail its specific safety gate.');
 check(

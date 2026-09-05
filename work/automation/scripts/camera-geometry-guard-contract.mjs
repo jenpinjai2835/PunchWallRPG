@@ -66,7 +66,7 @@ local Enum={CameraType={Custom='Custom',Scriptable='Scriptable'},
 local rootPart={Position=Vector3.zero}
 local character={FindFirstChild=function() return rootPart end}
 local propertySignal=signal()
-local player={Character=character,CharacterAdded=signal(),DevCameraOcclusionMode='Zoom',
+local player={Character=character,CharacterAdded=signal(),CharacterRemoving=signal(),DevCameraOcclusionMode='Zoom',
  GetPropertyChangedSignal=function() return propertySignal end}
 local camera={CameraType='Custom',CFrame=CFrame.new(),Focus=CFrame.new(0,0,-12)}
 local workspace={CurrentCamera=camera}
@@ -168,11 +168,11 @@ attrs.PunchCameraHandoffActive=true
 attrs.CharacterPunchMotionActive=true
 shared.PunchWallCameraBaselineCFrame=CFrame.new(0,0,0)
 shared.PunchWallCameraBaselineFocus=CFrame.new(0,0,-12)
-local companionRuntime={CancelVisualRetry=function() end}
+local companionRuntime={CancelVisualRetry=function() end,ObserveCharacterHandSizes=function() end}
 local visualSignature='old'
 local refreshCharacterVisuals=function() end
 local task={defer=function() end}
-${block("\nplayer.CharacterAdded:Connect(function(", "\ntask.defer(function()\n\trequestAction(\"RequestSync\")")}
+${block("\nplayer.CharacterAdded:Connect(function(", source.includes("\ntask.defer(function()\n\tcompanionRuntime.ObserveCharacterHandSizes") ? "\ntask.defer(function()\n\tcompanionRuntime.ObserveCharacterHandSizes" : "\ntask.defer(function()\n\trequestAction(\"RequestSync\")")}
 player.CharacterAdded:Fire(newCharacter)
 check(attrs.PunchCameraFollowActive==false and attrs.PunchCameraHandoffActive==false,'respawn_clears_persistent_follow_flags')
 check(activePunchCamera==nil and punchMotionState==nil and attrs.CharacterPunchMotionActive==false,'respawn_cancels_motion_state')
@@ -191,11 +191,11 @@ local punchMotionState={}
 activePunchCamera={}
 attrs.PunchCameraFollowActive=true
 attrs.PunchCameraHandoffActive=true
-local companionRuntime={CancelVisualRetry=function() end}
+local companionRuntime={CancelVisualRetry=function() end,ObserveCharacterHandSizes=function() end}
 local visualSignature='old'
 local refreshCharacterVisuals=function() end
 local task={defer=function() end}
-${block("\nplayer.CharacterAdded:Connect(function(", "\ntask.defer(function()\n\trequestAction(\"RequestSync\")")}
+${block("\nplayer.CharacterAdded:Connect(function(", source.includes("\ntask.defer(function()\n\tcompanionRuntime.ObserveCharacterHandSizes") ? "\ntask.defer(function()\n\tcompanionRuntime.ObserveCharacterHandSizes" : "\ntask.defer(function()\n\trequestAction(\"RequestSync\")")}
 player.CharacterAdded:Fire(character)
 check(attrs.PunchCameraFollowActive==false and attrs.PunchCameraHandoffActive==false,'respawn_clears_persistent_follow_flags')
 check(activePunchCamera==nil and punchMotionState==nil,'respawn_releases_actual_follow_and_motion')
