@@ -12,8 +12,9 @@ const clientPath = "work/punch-wall-rpg/src/client/PunchWallClient.client.lua";
 const losBaseline = process.argv.includes("--baseline-los");
 const runtimeBaseline = process.argv.includes("--baseline-runtime2");
 const faceBaseline = process.argv.includes('--baseline-face');
-const baselineIndex = process.argv.indexOf(faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
+const finalBaseline = process.argv.includes('--baseline-final');
+const baselineIndex = process.argv.indexOf(finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -76,7 +77,7 @@ local player={Character=character,CharacterAdded=signal(),CharacterRemoving=sign
 local camera={CameraType='Custom',CFrame=CFrame.new(),Focus=CFrame.new(0,0,-12)}
 local workspace={CurrentCamera=camera}
 local bound,bindCounts={},{}
-local RunService={Heartbeat=signal(),BindToRenderStep=function(_,name,_,cb) bound[name]=cb bindCounts[name]=(bindCounts[name] or 0)+1 end}
+local RunService={IsStudio=function() return true end,Heartbeat=signal(),PostSimulation=signal(),BindToRenderStep=function(_,name,_,cb) bound[name]=cb bindCounts[name]=(bindCounts[name] or 0)+1 end}
 local UserInputService={InputChanged=signal(),TouchPinch=signal()}
 local blocked=function() return false end
 local occluded=function() return false end
@@ -368,10 +369,11 @@ pose(0,0,12) update(1/60)
 attrs.PunchCameraFollowActive=true
 blocked=function(p) return math.abs(p.X)<.6 and math.abs(p.Y)<.6 and math.abs(p.Z-12)<.6 end
 now+=.02
+RunService.PostSimulation:Fire(1/60)
 RunService.Heartbeat:Fire(1/60)
 check(not blocked(camera.CFrame.Position),'physics_overlap_is_repaired_before_next_render')
 check(attrs.PunchCameraOverlapEscapes==1,'fresh_render_physics_egress_is_measured')
-check(shared.PunchWallCameraFirstEscape.phase=='postphysics-overlap' and shared.PunchWallCameraFirstEscape.originKind=='cached','physics_egress_attributes_actual_phase_and_origin')
+check(shared.PunchWallCameraFirstEscape.phase=='postsimulation-overlap' and shared.PunchWallCameraFirstEscape.originKind=='cached','physics_egress_attributes_actual_phase_and_origin')
 camera.CameraType='Scriptable'
 pose(0,0,12) RunService.Heartbeat:Fire(1/60)
 check(blocked(camera.CFrame.Position),'physics_safety_does_not_steal_scriptable_camera')
@@ -512,6 +514,8 @@ pose(10,3,0)
 local originalPosition=camera.CFrame.Position
 local originalFocus=camera.Focus.Position
 update(1/60)
+RunService.PostSimulation:Fire(1/60)
+now+=.5 RunService.Heartbeat:Fire(1/60)
 check((camera.CFrame.Position-originalPosition).Magnitude<.00001,'new_scriptable_position_preserved')
 check((camera.Focus.Position-originalFocus).Magnitude<.00001,'new_scriptable_focus_preserved')
 check(attrs.PunchCameraScriptableBypass==true,'new_scriptable_owner_observed')
@@ -526,6 +530,7 @@ print('PASS '..count)
 `,
   freshPhysicalSample: `${common}
 local unresolvedSafetyFrames=0
+local unresolvedSafetySamples={}
 ${block('\t\tlocal function sampleCamera(settledSample)', '\n\t\t\tlocal cameraPosition')}
 return unresolvedSafetyFrames
 end
@@ -556,6 +561,105 @@ check(select('#',shared.PunchWallCameraPositionBlocked(Vector3.zero,character))=
 print('PASS '..count)
 `,
 };
+fixtures.boundsTransition = `${guardSetup}
+lastPunchActionAt=0
+player.CameraMinZoomDistance=2 player.CameraMaxZoomDistance=80
+pose(0,0,30.1643219) update(1/60)
+check(math.abs(attrs.PunchCameraUserOrbitDistance-30.1643219)<.00001,'prior_selected_radius_is_observed')
+camera.CameraType='Scriptable' pose(18,12,18)
+local scriptPosition=camera.CFrame.Position local scriptFocus=camera.Focus.Position
+player.CameraMinZoomDistance=12 player.CameraMaxZoomDistance=12
+update(1/60) RunService.PostSimulation:Fire(1/60)
+check(camera.CFrame.Position==scriptPosition and camera.Focus.Position==scriptFocus,'zoom_bounds_do_not_mutate_scriptable_owner')
+camera.CameraType='Custom' pose(0,0,12) update(1/60)
+check(math.abs(camera.CFrame.Position.Magnitude-12)<.00001,'new_zoom_bounds_replace_stale_selected_radius')
+check(attrs.PunchCameraUserOrbitDistance==12 and attrs.PunchCameraScriptableBypass==false,'custom_radius_and_bypass_report_current_owner')
+rootPart.Position=Vector3.new(63,0,0) pose(63,0,12) update(1/60)
+check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-12)<.00001,'teleport_preserves_new_bounded_orbit')
+player.CameraMinZoomDistance=2 player.CameraMaxZoomDistance=80
+pose(63,0,12) update(1/60)
+check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-12)<.00001,'widening_zoom_bounds_does_not_restore_old_radius')
+player.CameraMinZoomDistance=4 player.CameraMaxZoomDistance=14
+UserInputService.InputChanged:Fire({UserInputType=Enum.UserInputType.MouseWheel,Position=Vector3.new(0,0,-100)})
+update(1/60)
+check(attrs.PunchCameraUserOrbitDistance==14,'wheel_respects_current_maximum_zoom')
+UserInputService.TouchPinch:Fire(nil,1,nil,Enum.UserInputState.Begin)
+UserInputService.TouchPinch:Fire(nil,100,nil,Enum.UserInputState.Change)
+update(1/60)
+check(attrs.PunchCameraUserOrbitDistance==4,'pinch_respects_current_minimum_zoom')
+print('PASS '..count)
+`;
+fixtures.postSimulationOrdering = `${guardSetup}${orientedWorld}
+local origin=Vector3.new(-2.000030517578125,7.214212417602539,-184.6427001953125)
+pose(origin.X,origin.Y,origin.Z) update(1/60)
+blocks={testBlock('DepthBlock_L038_C07_R03',Vector3.new(-2.09546661,7.03004837,-185.077042),{
+ Vector3.new(.720844448,-.693060577,-.00710370345),
+ Vector3.new(.692197204,.719348729,.0583141856),
+ Vector3.new(.0353052169,.0469526164,-.998273015)})}
+check(blocked(origin),'recorded_falling_block_overlaps_previous_camera_box')
+now+=.05
+-- Documented deferred order: physics -> PostSimulation -> task.wait -> Heartbeat.
+RunService.PostSimulation:Fire(1/60)
+check(not blocked(camera.CFrame.Position),'recorded_overlap_is_clear_before_waiting_script_resumes')
+check((camera.CFrame.Position-origin).Magnitude<=2.65,'recorded_overlap_egress_keeps_existing_actual_bound')
+local repaired=camera.CFrame.Position
+RunService.Heartbeat:Fire(1/60)
+check((camera.CFrame.Position-repaired).Magnitude<.00001,'fresh_heartbeat_does_not_repeat_postsimulation_correction')
+check(attrs.PunchCameraLastGuardPhase=='postsimulation-overlap','recorded_physics_response_reports_owning_phase')
+blocks={} local previous=camera.CFrame.Position
+local lastGuard=attrs.PunchCameraLastGuardAt now+=.01
+RunService.PostSimulation:Fire(1/60)
+check((camera.CFrame.Position-previous).Magnitude<.00001,'clear_postsimulation_does_not_advance_camera_follow')
+check(attrs.PunchCameraLastGuardAt==lastGuard,'clear_postsimulation_does_not_run_ordinary_guard')
+print('PASS '..count)
+`;
+fixtures.unresolvedDiagnostics = `${common}
+local unresolvedSafetyFrames=0
+local unresolvedSafetySamples={}
+local currentPunch=11
+attrs.PunchCameraLastGuardPhase='postsimulation-overlap'
+attrs.PunchCameraLastGuardAt=99.9
+local parts={}
+for index=1,3 do table.insert(parts,{Size=Vector3.new(4,4,4),CFrame=CFrame.new(index,0,0),AssemblyLinearVelocity=Vector3.new(0,-7,0),
+ GetFullName=function() return 'FallingBlock'..index end,GetAttribute=function() return true end}) end
+shared.PunchWallCameraPositionBlocked=function(_,_,collect) return true,collect and parts or nil end
+${block('\t\tlocal function sampleCamera(settledSample)', '\n\t\t\tlocal cameraPosition')}
+return unresolvedSafetyFrames
+end
+for _=1,8 do sampleCamera() end
+check(unresolvedSafetyFrames==8,'bounded_diagnostics_do_not_cap_physical_failure_count')
+check(#unresolvedSafetySamples==4,'unresolved_sample_storage_is_bounded')
+check(#unresolvedSafetySamples[1].parts==2 and unresolvedSafetySamples[1].overlapCount==3,'part_detail_is_bounded_without_hiding_overlap_count')
+check(unresolvedSafetySamples[1].physicalBoxSize==.55 and unresolvedSafetySamples[1].punch==11,'unresolved_diagnostic_uses_actual_safety_box_and_punch')
+check(unresolvedSafetySamples[1].guardPhase=='postsimulation-overlap' and math.abs(unresolvedSafetySamples[1].guardAge-.1)<.00001,'unresolved_diagnostic_attributes_last_guard_phase_and_age')
+print('PASS '..count)
+`;
+fixtures.releaseNoPublicationDiagnostics = `${common.replace('IsStudio=function() return true end','IsStudio=function() return false end')}${guard}
+local update=bound.PunchWallCameraGeometryGuard
+blocked=function(p) return p.Magnitude<.2 end
+pose(0,0,0) update(1/60)
+check(not blocked(camera.CFrame.Position),'published_game_still_repairs_physical_overlap')
+check(shared.PunchWallCameraLastPublication==nil and shared.PunchWallCameraMaxCyclePublication==nil,'published_game_does_not_allocate_studio_publication_records')
+print('PASS '..count)
+`;
+fixtures.publicationDiagnostics = `${guardSetup}
+pose(0,0,0) update(1/60)
+blocked=function(p) return (p-Vector3.zero).Magnitude<.2 end
+RunService.PostSimulation:Fire(1/60)
+local first=camera.CFrame.Position local firstTravel=first.Magnitude
+blocked=function(p) return (p-first).Magnitude<.2 end
+RunService.PostSimulation:Fire(1/60)
+local secondTravel=(camera.CFrame.Position-first).Magnitude
+check(math.abs(attrs.PunchCameraMaxPublishedTravelPerCycle-firstTravel-secondTravel)<.00001,'multiple_guard_responses_publish_actual_cumulative_travel')
+check(attrs.PunchCameraMaxPublishedWritesPerCycle==2,'multiple_guard_responses_publish_actual_write_count')
+check(math.abs(attrs.PunchCameraMaxEscapeTravelPerCycle-firstTravel-secondTravel)<.00001,'multiple_escape_responses_are_not_hidden_by_per_call_maximum')
+check(shared.PunchWallCameraLastPublication.phase=='postsimulation-overlap' and shared.PunchWallCameraLastPublication.kind=='escape','last_publication_attributes_actual_phase_and_reason')
+check(shared.PunchWallCameraMaxCyclePublication.cycleWrites==2,'bounded_max_cycle_record_retains_actual_largest_cycle')
+blocked=function() return false end
+bound.PunchWallCameraGeometryGuard(1/60)
+check(shared.PunchWallCameraMaxCyclePublication.cycleWrites==2,'new_render_cycle_does_not_erase_largest_record')
+print('PASS '..count)
+`;
 const expectedFailures = {
   limiter: "limited_pose_physically_clear", sweep: "clear_endpoint_does_not_cross_thin_wall",
   fallback: "blocked_baseline_is_never_published", final: "final_physical_check_precedes_publish",
@@ -582,6 +686,10 @@ const faceFailures = {
   coarseGap: 'clear_exit_between_coarse_steps_keeps_existing_budget',
   freshPhysicalSample: 'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag',
 };
+const finalFailures = {
+ boundsTransition:'new_zoom_bounds_replace_stale_selected_radius',
+ postSimulationOrdering:'recorded_overlap_is_clear_before_waiting_script_resumes',
+};
 const temp = fs.mkdtempSync(path.join(tempRoot, "smash-camera-guard-contract-"));
 const results = {};
 const mutations = {};
@@ -589,9 +697,11 @@ const generated = [];
 const compiled = [];
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
+    if (finalBaseline && !(name in finalFailures)) continue;
     if (faceBaseline && !(name in faceFailures)) continue;
     if (runtimeBaseline && !(name in runtimeFailures)) continue;
-    if (baseline && !losBaseline && !runtimeBaseline && !faceBaseline && !(name in expectedFailures)) continue;
+    if (baseline && !losBaseline && !runtimeBaseline && !faceBaseline && !finalBaseline && !(name in expectedFailures)) continue;
+    if (baseline && !finalBaseline && ['boundsTransition','postSimulationOrdering','publicationDiagnostics','unresolvedDiagnostics','releaseNoPublicationDiagnostics'].includes(name)) continue;
     if (losBaseline && ['overlapRecovery','heartbeatOverlap','overlapWithoutHistory','enclosingObject','overlapControls','unavailableSafety','selectedOrbitSetup','runtimeAcceptance'].includes(name)) continue;
     if (losBaseline && ['orientedFaceExit','compoundFaceExit','physicalVersusLos','lateScriptableOwner','coarseGap','freshPhysicalSample','overlapCollection'].includes(name)) continue;
     const file = path.join(temp, `${name}.luau`);
@@ -599,7 +709,7 @@ try {
     generated.push(file);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    const expectedFailure = baseline && (faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
+    const expectedFailure = baseline && (finalBaseline ? finalFailures[name] : faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
     if (expectedFailure) {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
       results[name] = { reproduced: expectedFailure };
@@ -617,8 +727,14 @@ try {
       ['conflate_los_with_physical_failure','physicalVersusLos',text=>text.replace('gui:SetAttribute("PunchCameraSafetyUnresolved", physicallyBlocked)','gui:SetAttribute("PunchCameraSafetyUnresolved", cameraPoseBlocked(camera.CFrame, character))'),'opaque_query_only_egg_is_not_reported_as_physical_penetration'],
       ['steal_late_scriptable_owner','lateScriptableOwner',text=>text.replace('if camera.CameraType == Enum.CameraType.Scriptable then','if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then'),'new_scriptable_position_preserved'],
       ['allow_exit_path_reentry','sweep',text=>text.replace('if leftOverlap then return false end','if false then return false end'),'clear_endpoint_does_not_cross_thin_wall'],
-      ['sample_stale_safety_flag','freshPhysicalSample',text=>text.replace('if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then unresolvedSafetyFrames += 1 end','if gui:GetAttribute("PunchCameraSafetyUnresolved") then unresolvedSafetyFrames += 1 end'),'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag'],
+      ['sample_stale_safety_flag','freshPhysicalSample',text=>text.replace('if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then','if gui:GetAttribute("PunchCameraSafetyUnresolved") then'),'fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag'],
       ['mask_emergency_escape_distance','enclosingObject',text=>text.replace('local distance = selected.step.Magnitude','local distance = math.min(selected.step.Magnitude, 2.4)'),'exceptional_escape_exceeds_ordinary_gate_visibly_not_silently'],
+      ['ignore_current_zoom_bounds','boundsTransition',text=>text.replace('return math.clamp(distance, minimum, maximum)','return distance'),'new_zoom_bounds_replace_stale_selected_radius'],
+      ['defer_physical_repair_until_heartbeat','postSimulationOrdering',text=>text.replace('RunService.PostSimulation:Connect(function(deltaTime)','RunService.Heartbeat:Connect(function(deltaTime)'),'recorded_overlap_is_clear_before_waiting_script_resumes'],
+      ['run_ordinary_guard_after_physics','postSimulationOrdering',text=>text.replace('if camera and character and camera.CameraType == Enum.CameraType.Custom\n\t\t\tand shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then','if camera and character and camera.CameraType == Enum.CameraType.Custom then'),'clear_postsimulation_does_not_run_ordinary_guard'],
+      ['hide_cumulative_publication_distance','publicationDiagnostics',text=>text.replace('cyclePublishedTravel += distance','cyclePublishedTravel = distance'),'multiple_guard_responses_publish_actual_cumulative_travel'],
+      ['unbound_unresolved_sample_storage','unresolvedDiagnostics',text=>text.replace('if #unresolvedSafetySamples < 4 then','if true then'),'unresolved_sample_storage_is_bounded'],
+      ['allocate_studio_diagnostics_in_published_game','releaseNoPublicationDiagnostics',text=>text.replace('if not recordCameraDiagnostics then return end','if false then return end'),'published_game_does_not_allocate_studio_publication_records'],
     ];
     for (const [name, fixtureName, mutate, expectedFailure] of mutationsToCheck) {
       const fixture = mutate(fixtures[fixtureName]);
@@ -639,6 +755,11 @@ try {
       const result = spawnSync(compiler, ['--null', file], { encoding: 'utf8', timeout: 15000 });
       assert.equal(result.status, 0, `BLOCKED ${name} compile: ${result.error || result.stderr || result.stdout}`);
       compiled.push(name);
+      if(name==='complete-client')for(const level of [0,2]){
+        const optimized=spawnSync(compiler,['--null',`-O${level}`,file],{encoding:'utf8',timeout:15000});
+        assert.equal(optimized.status,0,`BLOCKED ${name} O${level} compile: ${optimized.error||optimized.stderr||optimized.stdout}`);
+        compiled.push(`${name}-O${level}`);
+      }
     }
   }
   console.log(JSON.stringify({ ok: true, mode: baseline ? `baseline ${baseline}` : "current source", luau, results, mutations, compiled }, null, 2));
