@@ -5,14 +5,97 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 6500, "label": "wait for runtime" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') local before=p.leaderstats.Power.Value local result=a:Invoke('Train','Power Bag') task.wait(1.25) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') local root=workspace.PunchWallRPG local station=root.Interactables:FindFirstChild('Power Bag') local impact=station and station:FindFirstChild('Training Impact') local bag=root:FindFirstChild('Creator Store Hero Power Bag',true) local shake=0 for _,d in ipairs(root:GetDescendants()) do shake=math.max(shake,tonumber(d:GetAttribute('TrainingShakeToken')) or 0) end local bagAsset=bag and bag:GetAttribute('AssetId') local minV=Vector3.new(math.huge,math.huge,math.huge) local maxV=Vector3.new(-math.huge,-math.huge,-math.huge) if bag then for _,d in ipairs(bag:GetDescendants()) do if d:IsA('BasePart') then for xs=-1,1,2 do for ys=-1,1,2 do for zs=-1,1,2 do local v=d.CFrame:PointToWorldSpace(Vector3.new(d.Size.X*xs*.5,d.Size.Y*ys*.5,d.Size.Z*zs*.5)) minV=Vector3.new(math.min(minV.X,v.X),math.min(minV.Y,v.Y),math.min(minV.Z,v.Z)) maxV=Vector3.new(math.max(maxV.X,v.X),math.max(maxV.Y,v.Y),math.max(maxV.Z,v.Z)) end end end end end end local bagSize=maxV-minV return H:JSONEncode({ok=result.ok==true and p.RPGStats.TrainingActive.Value==1 and p.leaderstats.Power.Value>before and h and h.WalkSpeed==0 and h.JumpPower==0 and h.JumpHeight==0 and p:GetAttribute('TrainingMovementLocked')==true and shake>0 and impact and impact.SoundId~='' and bag~=nil and bagAsset==140653091179998 and bag:GetAttribute('RuntimeVisualClone')==true and bagSize.Y>bagSize.X and bagSize.Y>bagSize.Z and math.abs(minV.Y-.35)<.05,powerBefore=before,powerAfter=p.leaderstats.Power.Value,walk=h and h.WalkSpeed or -1,shake=shake,impact=impact and impact.SoundId or '',bagAsset=bagAsset,bagWidth=bagSize.X,bagHeight=bagSize.Y,bagDepth=bagSize.Z,bagBottom=minV.Y})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"walk\"\\s*:\\s*0", "\"shake\"\\s*:\\s*[1-9][0-9]*", "\"bagAsset\"\\s*:\\s*140653091179998", "rbxassetid://"], "label": "training locks and impacts with upright grounded Creator Store power bag" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hud=g.PixelPerfectHeroCityHUD local overlay=hud:FindFirstChild('TrainingStateHUD') local exit=overlay and overlay:FindFirstChild('ExitTraining') return H:JSONEncode({ok=overlay~=nil and overlay.Visible and exit~=nil and exit.Active and g:GetAttribute('TrainingExitButtonReady')==true and g:GetAttribute('ContinuousTrainingAnimation')==true,visible=overlay and overlay.Visible or false,exit=exit~=nil,continuous=g:GetAttribute('ContinuousTrainingAnimation')})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"visible\"\\s*:\\s*true", "\"continuous\"\\s*:\\s*true"], "label": "training state and exit visible" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local r=game.ServerStorage.PunchWallAutomation:Invoke('StopTraining') task.wait(.2) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') return H:JSONEncode({ok=r.ok==true and p.RPGStats.TrainingActive.Value==0 and p:GetAttribute('TrainingMovementLocked')~=true and h and h.WalkSpeed>0 and h.JumpPower>0 and h.AutoRotate==true,walk=h and h.WalkSpeed or -1,jump=h and h.JumpPower or -1})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"walk\"\\s*:\\s*1[0-9]", "\"jump\"\\s*:\\s*[1-9][0-9]*"], "label": "exit restores movement" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal function verifyTrainingPayout(before, immediate, after, rate, tickSeconds)\n assert(immediate.Power==before.Power and immediate.payoutSerial==before.payoutSerial and immediate.sessionTickCount==0,'training paid before a scheduled tick')\n assert(immediate.sessionGeneration==before.sessionGeneration+1 and immediate.active and immediate.movementLocked,'training did not start one locked session')\n local ticks=after.sessionTickCount local delta=after.Power-before.Power\n assert(ticks>=1 and ticks<=2 and ticks==math.floor(ticks),'missing or excessive first scheduled tick batch')\n assert(after.payoutSerial==immediate.payoutSerial+1 and after.lastTickBatch==ticks,'duplicate or unaccounted payout batch')\n assert(delta==rate*ticks and after.lastGrant==delta and after.gainPerSecond==rate,'training rate differs from the server station configuration')\n assert(math.abs(after.tickAnchor-immediate.tickAnchor-ticks*tickSeconds)<1e-5,'payout did not consume exactly its scheduled intervals')\n assert(after.active and after.movementLocked,'training unlocked before its payout was observed')\n return true\nend\nlocal H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') p:SetAttribute('TrainingBoostExpiresAt',0) local G=require(game.ReplicatedStorage.GameConfig) local beforeSnapshot=a:Invoke('TrainingSnapshot') local before=beforeSnapshot.Power local result=a:Invoke('Train','Power Bag') local immediate=a:Invoke('TrainingSnapshot') assert(result.gain==0,'unexpected instant training payout') local after=immediate local deadline=os.clock()+2.6 repeat task.wait(.04) after=a:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=deadline local exactPayout=verifyTrainingPayout(beforeSnapshot,immediate,after,G.TrainingStation('rookie_bag').gain,G.Training.TickSeconds) local h=p.Character and p.Character:FindFirstChildOfClass('Humanoid') local root=workspace.PunchWallRPG local station=root.Interactables:FindFirstChild('Power Bag') local impact=station and station:FindFirstChild('Training Impact') local bag=root:FindFirstChild('Creator Store Hero Power Bag',true) local shake=0 for _,d in ipairs(root:GetDescendants()) do shake=math.max(shake,tonumber(d:GetAttribute('TrainingShakeToken')) or 0) end local bagAsset=bag and bag:GetAttribute('AssetId') local minV=Vector3.new(math.huge,math.huge,math.huge) local maxV=Vector3.new(-math.huge,-math.huge,-math.huge) if bag then for _,d in ipairs(bag:GetDescendants()) do if d:IsA('BasePart') then for xs=-1,1,2 do for ys=-1,1,2 do for zs=-1,1,2 do local v=d.CFrame:PointToWorldSpace(Vector3.new(d.Size.X*xs*.5,d.Size.Y*ys*.5,d.Size.Z*zs*.5)) minV=Vector3.new(math.min(minV.X,v.X),math.min(minV.Y,v.Y),math.min(minV.Z,v.Z)) maxV=Vector3.new(math.max(maxV.X,v.X),math.max(maxV.Y,v.Y),math.max(maxV.Z,v.Z)) end end end end end end local bagSize=maxV-minV return H:JSONEncode({ok=result.ok==true and p.RPGStats.TrainingActive.Value==1 and p.leaderstats.Power.Value>before and h and h.WalkSpeed==0 and h.JumpPower==0 and h.JumpHeight==0 and p:GetAttribute('TrainingMovementLocked')==true and shake>0 and impact and impact.SoundId~='' and bag~=nil and bagAsset==140653091179998 and bag:GetAttribute('RuntimeVisualClone')==true and bagSize.Y>bagSize.X and bagSize.Y>bagSize.Z and math.abs(minV.Y-.35)<.05,exactPayout=exactPayout,powerBefore=before,powerAfter=p.leaderstats.Power.Value,walk=h and h.WalkSpeed or -1,shake=shake,impact=impact and impact.SoundId or '',bagAsset=bagAsset,bagWidth=bagSize.X,bagHeight=bagSize.Y,bagDepth=bagSize.Z,bagBottom=minV.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"walk\"\\s*:\\s*0",
+        "\"shake\"\\s*:\\s*[1-9][0-9]*",
+        "\"bagAsset\"\\s*:\\s*140653091179998",
+        "rbxassetid://",
+        "\"exactPayout\"\\s*:\\s*true"
+      ],
+      "label": "training locks and impacts with upright grounded Creator Store power bag"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local hud=g.PixelPerfectHeroCityHUD local overlay=hud:FindFirstChild('TrainingStateHUD') local exit=overlay and overlay:FindFirstChild('ExitTraining') return H:JSONEncode({ok=overlay~=nil and overlay.Visible and exit~=nil and exit.Active and g:GetAttribute('TrainingExitButtonReady')==true and g:GetAttribute('ContinuousTrainingAnimation')==true,visible=overlay and overlay.Visible or false,exit=exit~=nil,continuous=g:GetAttribute('ContinuousTrainingAnimation')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"visible\"\\s*:\\s*true",
+        "\"continuous\"\\s*:\\s*true"
+      ],
+      "label": "training state and exit visible"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1]\nlocal r=c:Invoke('StopTraining') local before=c:Invoke('TrainingSnapshot') task.wait(1.2) local after=c:Invoke('TrainingSnapshot')\nlocal h=p.Character and p.Character:FindFirstChildOfClass('Humanoid')\nlocal noLeak=after.Power==before.Power and after.payoutSerial==before.payoutSerial and after.tickAnchor==nil\nlocal ok=r.ok==true and not after.active and not after.movementLocked and h and h.WalkSpeed>0 and h.JumpPower>0 and h.JumpHeight>0 and h.AutoRotate==true and noLeak\nassert(ok,'stop failed to restore movement or leaked a training payout')\nreturn H:JSONEncode({ok=ok,noLeak=noLeak,walk=h.WalkSpeed,jump=h.JumpPower})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"walk\"\\s*:\\s*1[0-9]",
+        "\"jump\"\\s*:\\s*[1-9][0-9]*",
+        "\"noLeak\"\\s*:\\s*true"
+      ],
+      "label": "exit restores movement"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
-  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
 }

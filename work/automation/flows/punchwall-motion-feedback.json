@@ -1,6 +1,6 @@
 {
   "name": "punchwall-motion-feedback",
-  "description": "Validate ordered bounded Train/TrainingState presentation plus Punch/Reward, Shop, Pet, Rebirth, and Boss feedback remotes at the client HUD.",
+  "description": "Validate one bounded start-training presentation, exact scheduled Power without tick feedback spam, and real Punch/Reward, Shop, fixture-granted Pet, Rebirth and Boss feedback.",
   "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -24,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
       },
       "expectRegex": [
         "\"Power\"\\s*:\\s*15"
@@ -32,30 +32,37 @@
       "label": "reset deterministic state"
     },
     {
+      "type": "wait",
+      "ms": 3200,
+      "label": "allow reset feedback to expire before the exact training presentation probe"
+    },
+    {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local previous=shared.PunchWallMotionFeedbackProbe if previous and previous.connection then previous.connection:Disconnect() end local probe={events={},feedbackBefore=gui:GetAttribute('FeedbackCount') or 0,toastSequenceBefore=gui.Toasts:GetAttribute('PresentationSequence') or 0,rewardSequenceBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0} probe.connection=RS.PunchWallEvents.Feedback.OnClientEvent:Connect(function(payload) if typeof(payload)=='table' then table.insert(probe.events,{type=tostring(payload.type or ''),target=tostring(payload.target or '')}) end end) shared.PunchWallMotionFeedbackProbe=probe return H:JSONEncode({ready=true,feedbackBefore=probe.feedbackBefore,toastSequenceBefore=probe.toastSequenceBefore,rewardSequenceBefore=probe.rewardSequenceBefore})"
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal G=require(RS.GameConfig) local station=G.TrainingStation('rookie_bag')\nlocal function inspect(holder)\n local count,bounded,text=0,true,'' local a=holder.AbsolutePosition local z=a+holder.AbsoluteSize\n for _,d in ipairs(holder:GetChildren()) do\n  if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n   count+=1 local l=d.AbsolutePosition local r=l+d.AbsoluteSize\n   bounded=bounded and l.X>=a.X-2 and l.Y>=a.Y-2 and r.X<=z.X+2 and r.Y<=z.Y+2\n   if d:IsA('TextLabel') then text=d.Text end\n  end\n end\n return {count=count,bounded=bounded,text=text,sequence=holder:GetAttribute('PresentationSequence') or 0,mode=holder:GetAttribute('PresentationMode'),cap=holder:GetAttribute('MaxVisibleItems')}\nend\nlocal initial=inspect(gui.Toasts) assert(initial.count==0,'old feedback must expire before arming training probe')\nlocal token=H:GenerateGUID(false) gui:SetAttribute('CombatQATrainToken',token)\nlocal state={token=token,events={},powerBefore=p.leaderstats.Power.Value,feedbackBefore=gui:GetAttribute('FeedbackCount') or 0,toastBefore=initial.sequence,rewardBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0,expectedTarget=station.displayName,rate=station.gain,captured=false}\nlocal function save() if gui:GetAttribute('CombatQATrainToken')==token then gui:SetAttribute('CombatQATrainEvidence',H:JSONEncode(state)) end end\nsave()\nlocal connection\nconnection=RS.PunchWallEvents.Feedback.OnClientEvent:Connect(function(payload)\n if gui:GetAttribute('CombatQATrainToken')~=token then connection:Disconnect() return end\n if typeof(payload)~='table' then return end\n state.events[#state.events+1]={type=tostring(payload.type or ''),target=tostring(payload.target or ''),active=payload.active==true,stationId=tostring(payload.stationId or ''),gain=tonumber(payload.gain) or 0}\n task.defer(function()\n  if gui:GetAttribute('CombatQATrainToken')~=token then return end\n  if not state.captured then\n   game:GetService('RunService').RenderStepped:Wait()\n   state.feedbackAfter=gui:GetAttribute('FeedbackCount') or 0 state.toasts=inspect(gui.Toasts) state.rewards=inspect(gui.RewardPops)\n   state.lastType=gui:GetAttribute('LastFeedbackType') state.lastTarget=gui:GetAttribute('LastFeedbackTarget') state.captured=true\n  end\n  save()\n end)\nend)\ntask.delay(30,function() connection:Disconnect() end)\nreturn H:JSONEncode({ready=true,token=token,expectedTarget=station.displayName,feedbackBefore=state.feedbackBefore})"
       },
       "expectRegex": [
         "\"ready\"\\s*:\\s*true"
       ],
-      "label": "arm ordered train feedback probe before the authoritative action"
+      "label": "arm serialized start-training event and fresh presentation capture"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Train\", \"Power Bag\"))"
+        "code": "local function verifyTrainingPayout(before, immediate, after, rate, tickSeconds)\n assert(immediate.Power==before.Power and immediate.payoutSerial==before.payoutSerial and immediate.sessionTickCount==0,'training paid before a scheduled tick')\n assert(immediate.sessionGeneration==before.sessionGeneration+1 and immediate.active and immediate.movementLocked,'training did not start one locked session')\n local ticks=after.sessionTickCount local delta=after.Power-before.Power\n assert(ticks>=1 and ticks<=2 and ticks==math.floor(ticks),'missing or excessive first scheduled tick batch')\n assert(after.payoutSerial==immediate.payoutSerial+1 and after.lastTickBatch==ticks,'duplicate or unaccounted payout batch')\n assert(delta==rate*ticks and after.lastGrant==delta and after.gainPerSecond==rate,'training rate differs from the server station configuration')\n assert(math.abs(after.tickAnchor-immediate.tickAnchor-ticks*tickSeconds)<1e-5,'payout did not consume exactly its scheduled intervals')\n assert(after.active and after.movementLocked,'training unlocked before its payout was observed')\n return true\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1]\np:SetAttribute('TrainingBoostExpiresAt',0) local station=G.TrainingStation('rookie_bag') local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train',station.name) local immediate=c:Invoke('TrainingSnapshot')\nassert(r.ok and r.gain==0 and r.active,'start must activate without a free payout')\nlocal after=immediate local deadline=os.clock()+2.6 repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=deadline\nlocal exactPayout=verifyTrainingPayout(before,immediate,after,station.gain,G.Training.TickSeconds)\nreturn H:JSONEncode({ok=r.ok,active=after.active,TrainingActive=after.TrainingActive,gain=r.gain,Power=after.Power,exactPayout=exactPayout,ticks=after.sessionTickCount})"
       },
       "expectRegex": [
-        "\"Power\"\\s*:\\s*19",
-        "\"TrainingActive\"\\s*:\\s*1",
-        "\"active\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*true",
+        "\"exactPayout\"\\s*:\\s*true",
+        "\"gain\"\\s*:\\s*0",
+        "\"TrainingActive\"\\s*:\\s*1"
       ],
-      "label": "trigger authoritative continuous train sequence"
+      "label": "start training without free gain and observe the first authoritative payout"
     },
     {
       "type": "wait",
@@ -67,28 +74,22 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD') local probe=shared.PunchWallMotionFeedbackProbe assert(probe,'missing train feedback probe') if probe.connection then probe.connection:Disconnect() probe.connection=nil end local function inspect(holder) local count,bounded,last,lastOrder=0,true,nil,-math.huge local left,top=holder.AbsolutePosition.X,holder.AbsolutePosition.Y local right,bottom=left+holder.AbsoluteSize.X,top+holder.AbsoluteSize.Y for _,d in ipairs(holder:GetChildren()) do if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then count+=1 local dl,dt=d.AbsolutePosition.X,d.AbsolutePosition.Y local dr,db=dl+d.AbsoluteSize.X,dt+d.AbsoluteSize.Y bounded=bounded and dl>=left-2 and dt>=top-2 and dr<=right+2 and db<=bottom+2 if d.LayoutOrder>lastOrder then last,lastOrder=d,d.LayoutOrder end end end return count,bounded,holder:GetAttribute('PresentationSequence') or 0,last and last.Text or '' end local toasts,toastBounded,toastSequence,toastText=inspect(gui.Toasts) local rewards,rewardBounded,rewardSequence=inspect(gui.RewardPops) local first,second=probe.events[1],probe.events[2] local ordered=#probe.events==2 and first.type=='Train' and first.target=='AUTO POWER TRAINING' and second.type=='TrainingState' and second.target=='TRAINING' local countDelta=(gui:GetAttribute('FeedbackCount') or 0)-probe.feedbackBefore local terminal=gui:GetAttribute('LastFeedbackType')=='TrainingState' and gui:GetAttribute('LastFeedbackTarget')=='TRAINING' local queueContract=gui.Toasts:GetAttribute('PresentationMode')=='BoundedVisibleQueueV1' and gui.Toasts:GetAttribute('MaxVisibleItems')==3 and toasts>=1 and toasts<=3 and toastBounded and toastSequence==probe.toastSequenceBefore+1 and toastText=='TRAINING' local noLeak=gui.RewardPops:GetAttribute('PresentationMode')=='BoundedVisibleQueueV1' and gui.RewardPops:GetAttribute('MaxVisibleItems')==3 and rewardBounded and rewardSequence==probe.rewardSequenceBefore local state=p.RPGStats.TrainingActive.Value==1 and p:GetAttribute('AutoTrainingActive')==true and p:GetAttribute('TrainingMovementLocked')==true and p.leaderstats.Power.Value>=19 local valid=ordered and countDelta==2 and terminal and queueContract and noLeak and state return H:JSONEncode({valid=valid,ordered=ordered,eventCount=#probe.events,firstType=first and first.type or '',firstTarget=first and first.target or '',secondType=second and second.type or '',secondTarget=second and second.target or '',countDelta=countDelta,terminalType=gui:GetAttribute('LastFeedbackType'),terminalTarget=gui:GetAttribute('LastFeedbackTarget'),toasts=toasts,toastBounded=toastBounded,toastSequenceDelta=toastSequence-probe.toastSequenceBefore,toastText=toastText,rewards=rewards,rewardBounded=rewardBounded,rewardSequenceDelta=rewardSequence-probe.rewardSequenceBefore,state=state,power=p.leaderstats.Power.Value})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal function verifyTrainingFeedback(e)\n assert(e.captured and #e.events==1,'training start must present exactly one feedback event')\n local event=e.events[1]\n assert(event.type=='TrainingState' and event.target==e.expectedTarget and event.active==true and event.stationId=='rookie_bag' and event.gain==e.rate,'wrong start training payload')\n assert(e.feedbackAfter-e.feedbackBefore==1 and e.lastType=='TrainingState' and e.lastTarget==e.expectedTarget,'start feedback counter or displayed identity drifted')\n assert(e.toasts.mode=='BoundedVisibleQueueV1' and e.toasts.cap==3 and e.toasts.count==1 and e.toasts.bounded and e.toasts.sequence==e.toastBefore+1 and e.toasts.text==e.expectedTarget,'start toast is duplicated, hidden, unbounded or wrong')\n assert(e.rewards.mode=='BoundedVisibleQueueV1' and e.rewards.cap==3 and e.rewards.bounded and e.rewards.sequence==e.rewardBefore,'training leaked a center reward presentation')\n return true\nend\nlocal raw=gui:GetAttribute('CombatQATrainEvidence') assert(type(raw)=='string','missing serialized training probe') local evidence=H:JSONDecode(raw)\nassert(gui:GetAttribute('CombatQATrainToken')==evidence.token,'stale training probe')\nlocal presentation=verifyTrainingFeedback(evidence)\nlocal ticks=p:GetAttribute('TrainingSessionTickCount') or 0 local delta=p.leaderstats.Power.Value-evidence.powerBefore\nlocal exactPower=ticks>=1 and delta==ticks*evidence.rate\nlocal noTickFeedback=(gui:GetAttribute('FeedbackCount') or 0)==evidence.feedbackAfter and #evidence.events==1 and (gui.Toasts:GetAttribute('PresentationSequence') or 0)==evidence.toastBefore+1 and (gui.RewardPops:GetAttribute('PresentationSequence') or 0)==evidence.rewardBefore\nlocal state=p.RPGStats.TrainingActive.Value==1 and p:GetAttribute('AutoTrainingActive')==true and p:GetAttribute('TrainingMovementLocked')==true and gui:GetAttribute('ContinuousTrainingAnimation')==true\nlocal valid=presentation and exactPower and noTickFeedback and state\nassert(valid,'training presentation, exact replicated payout, or quiet continuous tick failed '..H:JSONEncode({evidence=evidence,ticks=ticks,delta=delta,noTickFeedback=noTickFeedback,state=state}))\ngui:SetAttribute('CombatQATrainToken','')\nreturn H:JSONEncode({valid=valid,eventCount=#evidence.events,firstType=evidence.events[1].type,firstTarget=evidence.events[1].target,countDelta=evidence.feedbackAfter-evidence.feedbackBefore,toastBounded=evidence.toasts.bounded,rewardBounded=evidence.rewards.bounded,rewardSequenceDelta=evidence.rewards.sequence-evidence.rewardBefore,exactPower=exactPower,noTickFeedback=noTickFeedback,state=state,power=p.leaderstats.Power.Value,ticks=ticks})"
       },
       "expectRegex": [
         "\"valid\"\\s*:\\s*true",
-        "\"ordered\"\\s*:\\s*true",
-        "\"eventCount\"\\s*:\\s*2",
-        "\"firstType\"\\s*:\\s*\"Train\"",
-        "\"firstTarget\"\\s*:\\s*\"AUTO POWER TRAINING\"",
-        "\"secondType\"\\s*:\\s*\"TrainingState\"",
-        "\"secondTarget\"\\s*:\\s*\"TRAINING\"",
-        "\"countDelta\"\\s*:\\s*2",
-        "\"terminalType\"\\s*:\\s*\"TrainingState\"",
-        "\"terminalTarget\"\\s*:\\s*\"TRAINING\"",
-        "\"toasts\"\\s*:\\s*[1-3]",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"firstType\"\\s*:\\s*\"TrainingState\"",
+        "\"firstTarget\"\\s*:\\s*\"Rookie Power Bag\"",
+        "\"countDelta\"\\s*:\\s*1",
         "\"toastBounded\"\\s*:\\s*true",
-        "\"toastSequenceDelta\"\\s*:\\s*1",
-        "\"toastText\"\\s*:\\s*\"TRAINING\"",
         "\"rewardBounded\"\\s*:\\s*true",
         "\"rewardSequenceDelta\"\\s*:\\s*0",
+        "\"exactPower\"\\s*:\\s*true",
+        "\"noTickFeedback\"\\s*:\\s*true",
         "\"state\"\\s*:\\s*true"
       ],
-      "label": "ordered train sequence terminates in bounded TRAINING state without reward leak"
+      "label": "one bounded start toast accompanies exact quiet scheduled training"
     },
     {
       "type": "call",
