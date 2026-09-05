@@ -1,8 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { createHash } from "node:crypto";
 
-const repositoryRoot = path.resolve(import.meta.dirname, "..", "..", "..");
+const sourceRootIndex = process.argv.indexOf('--source-root');
+if (sourceRootIndex >= 0 && !process.argv[sourceRootIndex + 1]) throw new Error('--source-root requires a repository path');
+const repositoryRoot = sourceRootIndex >= 0 ? path.resolve(process.argv[sourceRootIndex + 1]) : path.resolve(import.meta.dirname, '..', '..', '..');
 const clientPath = path.join(
   repositoryRoot,
   "work",
@@ -83,16 +86,6 @@ const legacyPets = section(
   client,
   "local function renderPets()",
   "local function renderHonor()",
-);
-const heroGauntlet = section(
-  client,
-  "function companionRuntime.BuildHeroGauntlet",
-  "local function buildHonorCosmetic",
-);
-const itemMatchedGauntlet = section(
-  client,
-  "function companionRuntime.BuildItemMatchedGauntlet",
-  "function companionRuntime.BuildHeroGauntlet",
 );
 const proceduralPets = section(
   client,
@@ -707,91 +700,73 @@ check(
     && !proceduralPets.includes("RenderStepped:Connect"),
   "Visual upgrades must reuse the bounded companion runtime without another loop.",
 );
+// Test the active first-five catalog route; inactive HeroGauntlet code cannot satisfy it.
+function evaluateFistSources(clientSource, builderSource) {
+ const runtime=section(clientSource,'function companionRuntime.BuildItemMatchedGauntlet','function companionRuntime.BuildHeroGauntlet');
+ const catalog=section(runtime,'local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)','local importedSource');
+ const modelBuilder=section(builderSource,'function FistVisualBuilder.BuildCatalogModel','function FistVisualBuilder.ComputeImportedScale');
+ const spec=section(builderSource,'local CATALOG_GEOMETRY_VERSION','function FistVisualBuilder.BuildCatalogModel');
+ const preview=section(clientSource,'function shopRuntime.AddCatalogFistPreview','function shopRuntime.AddStaticFistPresentation');
+ const inventory=section(clientSource,'function companionRuntime.BuildInventoryFistPreview','function companionRuntime.BuildItemMatchedGauntlet');
+ const classes=[...modelBuilder.matchAll(/Instance\.new\("([^"]+)"\)/g)].map(m=>m[1]);
+ return {
+  active_route_prefers_catalog_retains_sanitized_fallback:
+   clientSource.includes('companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove")')
+   && includesAll(runtime,['"VisualSystem", "ItemMatchedClosedFistV3"','"SanitizedCreatorStoreMesh"','"CreatorStore_ArmoredClosedHeroFist"','"ItemColorMatched", true','"ItemMaterialMatched", true'])
+   && includesAll(catalog,['"SharedCatalogGeometry"','"ImportedRuntimeSilhouette", false','"ItemVisualReady", true','return true'])
+   && runtime.indexOf('FistVisualBuilder.BuildCatalogModel(definition)')<runtime.indexOf('local importedSource'),
+  native_geometry_is_visual_only_and_bounded:
+   classes.length===2 && classes[0]==='Model' && classes[1]==='Part'
+   && includesAll(modelBuilder,['#spec.parts >= 12','#spec.parts <= spec.partBudget','part.Anchored = true','part.CanCollide = false','part.CanTouch = false','part.CanQuery = false','part.Massless = true','part.CastShadow = false','FistVisualBuilder.SanitizeVisual(model)'])
+   && spec.includes('partBudget = 28') && !/Heartbeat:Connect|RenderStepped:Connect|while\s/.test(modelBuilder),
+  first_five_have_closed_anatomy_and_wrist_origin:
+   ['Starter Glove','Boxing Glove','Iron Knuckle','Thunder Fist','Titan Gauntlet'].every(name=>spec.includes('["'+name+'"]'))
+   && includesAll(spec,['catalog_identity_mismatch','unsupported_catalog_fist','Catalog Closed Palm','Catalog Wrist Cuff','Catalog Backhand Guard','Catalog Knuckle ','Catalog Curled Finger ','Catalog Folded Thumb','for finger = 1, 4 do','wristOrigin = CFrame.identity'])
+   && includesAll(modelBuilder,['model.WorldPivot = spec.wristOrigin','"FistCatalogVisual", true','"CatalogGeometryVersion", spec.version','"FistVisualKey", spec.name','"HasEnergyCore", spec.tier >= 4']),
+  catalog_equipment_welds_measures_final_bounds_and_tears_down:
+   includesAll(runtime,['if currentGauntlet then currentGauntlet:Destroy() end','"WholeHandHidden", false','"HandTransparencyPreserved", true'])
+   && includesAll(catalog,['hand.Size.X','catalogSpec.referenceHandWidth','rigProfile.cuffYScale','math.rad(180)','part.Anchored = false','Instance.new("WeldConstraint")','weld.Part0, weld.Part1 = part, hand','catalogModel:GetBoundingBox()','"CatalogWristOriginV1"','"WristAttachmentBounded"','"FaceOcclusionSafe"'])
+   && catalog.indexOf('catalogModel:GetBoundingBox()')>catalog.indexOf('catalogModel:PivotTo(wrist)') && !/Heartbeat:Connect|RenderStepped:Connect/.test(catalog),
+  imported_fallback_retains_collision_and_budget_guards:
+   includesAll(runtime,['descendant.CanCollide = false','descendant.CanTouch = false','descendant.CanQuery = false','"WristAttachmentBounded", wristCenterOffset <= rigProfile.maxCenterOffset','"FaceOcclusionSafe", visualToHandRatio <= rigProfile.maxTargetRatio + 0.01','"WithinVisualPartBudget", visualPartCount <= 28'])
+   && !/Heartbeat:Connect|RenderStepped:Connect/.test(runtime),
+  both_routes_reuse_bounded_motion_aware_aura:
+   catalog.includes('addTierAura(palm)') && includesAll(runtime,['if tier < 3 then','"AuraClass", "None"','"AuraEmitterCount", emitterCount','"AuraTotalRate", totalRate','"FistAuraEffect", true','"ProminenceSystem", "TierHeroVolumeV4"'])
+   && clientSource.includes('shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting') && clientSource.includes('"AuraReducedMotionSuppressed", not enabled and emitterCount > 0'),
+  r6_and_r15_have_live_shared_wrist_profiles:
+   includesAll(builderSource,['name = "R15RightHand"','name = "R6DistalWrist"','function FistVisualBuilder.GetRigProfile'])
+   && includesAll(catalog,['FistVisualBuilder.GetRigProfile(hand)','rigProfile.cuffYScale','"AlignmentStandard", rigProfile.name']),
+  shop_and_inventory_use_same_catalog_builder:
+   includesAll(preview,['FistVisualBuilder.BuildCatalogModel(item)','"FistCatalogPreview"','"FistVisualKey", item.name','"RenderLoop", false'])
+   && inventory.includes('FistVisualBuilder.BuildCatalogModel(GameConfig.FistDefinition(fistName))') && clientSource.includes('BuildFistPreview = companionRuntime.BuildInventoryFistPreview'),
+  shop_catalog_releases_hidden_models_and_connections:
+   includesAll(preview,['card.AbsolutePosition','scroll.AbsolutePosition','"FistPreviewVisible", visible','if visible and not model then','elseif not visible and model then','model:Destroy()','model = nil','viewport.Destroying:Once(function()','connection:Disconnect()'])
+   && !/Heartbeat:Connect|RenderStepped:Connect/.test(preview),
+  static_fallback_retains_distinct_existing_art_keys:
+   /Boxing = \{[\s\S]*?shopArtKey = "StarterGlove"/.test(builderSource) && /Iron = \{[\s\S]*?shopArtKey = "ChampionGlove"/.test(builderSource) && /Thunder = \{[\s\S]*?shopArtKey = "TitanGlove"/.test(builderSource),
+ };
+}
+const fistChecks=evaluateFistSources(client,builder);
+for(const [name,value] of Object.entries(fistChecks))check(name,value,'Active shared catalog or preserved sanitized fallback safety contract missing.');
+const negativeControls=[];
+function rejectsFistMutation(name,target,kind,before,after){
+ const original=kind==='client'?client:builder;
+ const mutated=original.replace(before,after);
+ const actual=evaluateFistSources(kind==='client'?mutated:client,kind==='builder'?mutated:builder);
+ const rejected=original!==mutated&&fistChecks[target]===true&&actual[target]===false;
+ negativeControls.push({name,target,status:rejected?'REJECTED':'BLOCKED',positiveBaseline:fistChecks[target]===true,mutationApplied:original!==mutated});
+ return rejected;
+}
+const negativeResults=[
+ rejectsFistMutation('remove_active_catalog_route','active_route_prefers_catalog_retains_sanitized_fallback','client','local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)','local catalogModel, catalogSpec = nil, nil'),
+ rejectsFistMutation('allow_catalog_collision','native_geometry_is_visual_only_and_bounded','builder','part.CanCollide = false','part.CanCollide = true'),
+ rejectsFistMutation('inflate_part_budget','native_geometry_is_visual_only_and_bounded','builder','partBudget = 28','partBudget = 999'),
+ rejectsFistMutation('wrong_weld_endpoint','catalog_equipment_welds_measures_final_bounds_and_tears_down','client','weld.Part0, weld.Part1 = part, hand','weld.Part0, weld.Part1 = part, part'),
+ rejectsFistMutation('leak_preview_connections','shop_catalog_releases_hidden_models_and_connections','client','for _, connection in ipairs(connections) do connection:Disconnect() end','for _, connection in ipairs(connections) do print(connection) end'),
+];
+check('live_fist_negative_controls_reject_regressions',negativeResults.every(Boolean),'Every negative control needs a positive baseline and must fail its specific safety gate.');
 check(
-  "item_matched_closed_fist_is_runtime_path",
-  client.includes(
-    'companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove")',
-  )
-    && (client.match(/BuildItemMatchedGauntlet\(/g) ?? []).length === 2
-    && itemMatchedGauntlet.includes('"VisualSystem", "ItemMatchedClosedFistV3"')
-    && itemMatchedGauntlet.includes('"VisualSource", "SanitizedCreatorStoreMesh"')
-    && itemMatchedGauntlet.includes('"ImportedRuntimeSilhouette", true')
-    && itemMatchedGauntlet.includes('"CreatorStore_ArmoredClosedHeroFist"')
-    && itemMatchedGauntlet.includes('"GripAxis", isImportedClosedFist and "LocalYToDistalForearm" or "Legacy"')
-    && !itemMatchedGauntlet.includes('"LocalYToPunchDirection"')
-    && itemMatchedGauntlet.includes('"ItemColorMatched", true')
-    && itemMatchedGauntlet.includes('"ItemMaterialMatched", true')
-    && itemMatchedGauntlet.includes('"ItemVisualReady", true'),
-  "Runtime refresh must use the approved sanitized closed-fist mesh with item-matched presentation.",
-);
-check(
-  "item_matched_closed_fist_is_bounded_and_noninteractive",
-  itemMatchedGauntlet.includes("descendant.CanCollide = false")
-    && itemMatchedGauntlet.includes("descendant.CanTouch = false")
-    && itemMatchedGauntlet.includes("descendant.CanQuery = false")
-    && itemMatchedGauntlet.includes('"WristAttachmentBounded", wristCenterOffset <= rigProfile.maxCenterOffset')
-    && itemMatchedGauntlet.includes('"FaceOcclusionSafe", visualToHandRatio <= rigProfile.maxTargetRatio + 0.01')
-    && itemMatchedGauntlet.includes('"WithinVisualPartBudget", visualPartCount <= 28')
-    && !itemMatchedGauntlet.includes("Heartbeat:Connect")
-    && !itemMatchedGauntlet.includes("RenderStepped:Connect"),
-  "The item-matched fist must be welded, non-interactive, bounded, and build-once.",
-);
-check(
-  "item_matched_fist_has_tier_prominence_and_bounded_motion_aware_aura",
-  itemMatchedGauntlet.includes('"ProminenceSystem", "TierHeroVolumeV4"')
-    && itemMatchedGauntlet.includes('"ProminenceScale", prominenceScale')
-    && itemMatchedGauntlet.includes("definition.tier >= 8 and 1.28")
-    && itemMatchedGauntlet.includes("if tier < 3 then")
-    && itemMatchedGauntlet.includes('"AuraClass", "None"')
-    && itemMatchedGauntlet.includes('"AuraEmitterCount", emitterCount')
-    && itemMatchedGauntlet.includes('"AuraTotalRate", totalRate')
-    && itemMatchedGauntlet.includes('"FistAuraEffect", true')
-    && client.includes("shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting")
-    && client.includes('"AuraReducedMotionSuppressed", not enabled and emitterCount > 0'),
-  "Equipped fists must be more prominent by tier and keep high-tier aura bounded and reduced-motion aware.",
-);
-check(
-  "hero_gauntlet_has_complete_closed_fist_anatomy",
-  heroGauntlet.includes('"Hero Gauntlet Wrist Cuff"')
-    && heroGauntlet.includes('"Hero Gauntlet Backhand Plate"')
-    && heroGauntlet.includes('"Hero Gauntlet Palm Shell"')
-    && heroGauntlet.includes('"Hero Closed Knuckle " .. finger')
-    && heroGauntlet.includes('"Hero Folded Thumb"')
-    && heroGauntlet.includes('"Hero Gauntlet Energy Core"')
-    && heroGauntlet.includes('"KnuckleCount", 4'),
-  "V2 needs cuff, backhand, palm, four knuckles, thumb, and core.",
-);
-check(
-  "hero_gauntlet_is_bounded_and_noninteractive",
-  heroGauntlet.includes("part.CanCollide = false")
-    && heroGauntlet.includes("part.CanTouch = false")
-    && heroGauntlet.includes("part.CanQuery = false")
-    && heroGauntlet.includes('"WristAttachmentBounded", wristBounded')
-    && heroGauntlet.includes('"FaceOcclusionSafe", faceSafe')
-    && heroGauntlet.includes('"WithinVisualPartBudget", visualPartCount <= 28')
-    && !heroGauntlet.includes("Heartbeat:Connect")
-    && !heroGauntlet.includes("RenderStepped:Connect")
-    && !heroGauntlet.includes("while "),
-  "Equipped geometry must be safe, bounded, and build-once.",
-);
-check(
-  "r15_and_r6_specs_are_explicit",
-  builder.includes('name = "R15RightHand"')
-    && builder.includes('name = "R6DistalWrist"')
-    && builder.includes("function FistVisualBuilder.GetHeroGauntletSpec")
-    && builder.includes("palmCFrame = CFrame.new(0, wristY, palmZ)")
-    && builder.includes("cuffCFrame = CFrame.new(0, cuffY, 0)"),
-  "Both rigs need explicit distal-wrist alignment profiles.",
-);
-check(
-  "shop_tiers_two_through_four_have_distinct_art_keys",
-  /Boxing = \{[\s\S]*?shopArtKey = "StarterGlove"/.test(builder)
-    && /Iron = \{[\s\S]*?shopArtKey = "ChampionGlove"/.test(builder)
-    && /Thunder = \{[\s\S]*?shopArtKey = "TitanGlove"/.test(builder),
-  "Street, Iron, and Thunder cards must not reuse one Champion image.",
-);
-check(
-  "shop_loaded_art_uses_perimeter_only_static_identity",
+  "shop_fallback_loaded_art_uses_perimeter_only_static_identity",
   shopPresentation.includes('"HeroGauntletTierChrome"')
     && shopPresentation.includes('"StaticPreviewRenderLoop", false')
     && shopPresentation.includes('"StaticPreviewChromeOnly", true')
@@ -932,6 +907,10 @@ console.log(
       passed,
       total,
       checks,
+      negativeControls,
+      sourceRoot: repositoryRoot,
+      sourceHashes: Object.fromEntries(Object.entries({client,server,builder}).map(([name,text]) => [name,createHash("sha256").update(text).digest("hex")])),
+      studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
       failures: notes,
       files: [
         path.relative(repositoryRoot, clientPath),
