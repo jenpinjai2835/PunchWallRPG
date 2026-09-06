@@ -36,3 +36,13 @@ existing device matrix/onboarding/Inventory routes, fresh current screenshots,
 and the frozen full flow suite before rebuilding the final artifact. The
 visual flow also checks genuine EQUIPPED versus EQUIP states, rarity semantics,
 44px targets and Inventory dimmer lifetime.
+
+The subsequent actual built-in phone capture (`smash-phone-native-area-20260906`)
+confirmed that the combat panel occupied too much of the scene. Its compact
+base size is now 300×64 instead of 380×86, with the same 14/12 text floors and
+obstacle-aware positioning. Desktop height is 72; user scale still applies.
+The health, title and detail have distinct vertical rows. The new visual flow
+checks its actual text bounds and maximum height when shown; the existing
+combat flow remains required for target/boss states. Exact combat helper tests
+pass 382 assertions and eight semantic mutations with full client and 17 flow
+chunks compiling. Actual post-integration combat text checks remain pending.

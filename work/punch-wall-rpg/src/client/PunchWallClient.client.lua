@@ -1913,8 +1913,8 @@ do
   frame.ZIndex = 40
   frame.Active = false
   local stroke = Instance.new("UIStroke")
-  stroke.Color = frame == bossHUD and palette.Punch or palette.Use
-  stroke.Thickness = 2
+  stroke.Color = frame == bossHUD and palette.Punch or Color3.fromRGB(61, 88, 101)
+  stroke.Thickness = frame == bossHUD and 2 or 1
   stroke.Transparency = 0.12
   stroke.Parent = frame
   for _,object in ipairs(frame:GetDescendants()) do
@@ -1926,7 +1926,7 @@ do
  bossArt.Visible = false
  bossHUD.HeroAccent.Visible = false
  targetTitle.BackgroundTransparency = 1
- targetDetail.TextStrokeTransparency = 0.4
+ targetDetail.TextStrokeTransparency = 1
  bossSubtitle.TextColor3 = Color3.fromRGB(235, 244, 250)
  for _,label in ipairs({ targetTitle, targetDetail, bossTitle, bossSubtitle }) do
   label.TextScaled = true
@@ -9948,8 +9948,8 @@ end
 function shared.PunchWallCombatHUD.FindLayout(width, height, compact, userScale, obstacles)
  if width < 240 or height < 200 then return nil end
  local scale = math.clamp(tonumber(userScale) or 1, 0.8, 1.2)
- local panelHeight = math.ceil(86 * math.max(1, scale))
- local maximumWidth = math.min(width - 24, (compact and 380 or 460) * math.max(1, scale))
+ local panelHeight = math.ceil((compact and 64 or 72) * math.max(1, scale))
+ local maximumWidth = math.min(width - 24, (compact and 300 or 420) * math.max(1, scale))
  local preferredTop = compact and 86 or math.max(86, math.ceil(height * 0.202) + 8)
  local tops = { preferredTop }
  for _,obstacle in ipairs(obstacles) do
@@ -10069,18 +10069,18 @@ function shared.PunchWallCombatHUD.ScheduleLayout(viewport, compact, userScale, 
     frame.Size = UDim2.fromOffset(layout.width, layout.height)
    end
    for _,title in ipairs({ targetTitle, bossTitle }) do
-    title.Position = UDim2.fromOffset(12, 8)
-    title.Size = UDim2.new(1, -24, 0, 24)
+    title.Position = UDim2.fromOffset(12, compact and 5 or 8)
+    title.Size = UDim2.new(1, -24, 0, compact and 20 or 24)
     title.TextSize = layout.titleSize
     title.CombatReadability.MaxTextSize = layout.titleSize
    end
    for _,track in ipairs({ targetTrack, bossTrack }) do
-    track.Position = UDim2.fromOffset(12, 36)
-    track.Size = UDim2.new(1, -24, 0, 10)
+    track.Position = UDim2.fromOffset(12, compact and 29 or 36)
+    track.Size = UDim2.new(1, -24, 0, compact and 7 or 10)
    end
    for _,detail in ipairs({ targetDetail, bossSubtitle }) do
-    detail.Position = UDim2.fromOffset(12, 50)
-    detail.Size = UDim2.new(1, -24, 1, -56)
+    detail.Position = UDim2.fromOffset(12, compact and 40 or 50)
+    detail.Size = UDim2.new(1, -24, 1, compact and -46 or -56)
     detail.TextSize = layout.detailSize
     detail.CombatReadability.MaxTextSize = layout.detailSize
    end
