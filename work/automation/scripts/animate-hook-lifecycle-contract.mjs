@@ -9,10 +9,12 @@ const nativeBinding="script:WaitForChild(\"PlayEmote\").OnInvoke = function(emot
 const option = (name, fallback) => { const i=process.argv.indexOf(name); return i>=0 ? process.argv[i+1] : fallback; };
 const sourceRoot=path.resolve(option('--source-root',process.cwd()));
 const baselineRef=option('--baseline-ref','0b061fbae8f80b120054a82462108818535c3c05');
+const arrivalBaselineRef=option('--arrival-baseline-ref','1529b7d');
 const luau=option('--luau',process.env.LUAU_QA_EXE || 'C:/Users/Jennarong Pinjai/AppData/Local/Temp/codex-luau-smash-0.737/luau.exe');
 const clientPath='work/punch-wall-rpg/src/client/PunchWallClient.client.lua';
 const current=fs.readFileSync(path.join(sourceRoot,clientPath),'utf8').replace(/\r/g,'');
 const baseline=cp.execFileSync('git',['show',baselineRef+':'+clientPath],{cwd:sourceRoot,encoding:'utf8'}).replace(/\r/g,'');
+const arrivalBaseline=cp.execFileSync('git',['show',arrivalBaselineRef+':'+clientPath],{cwd:sourceRoot,encoding:'utf8'}).replace(/\r/g,'');
 function fragment(source) { const a=source.search(/^do\n\s+local repairGeneration/m),z=source.indexOf('\nlocal PolishConfig',a);assert(a>=0&&z>a);return source.slice(a,z); }
 const production=fragment(current);
 function execute(code) {
@@ -29,10 +31,12 @@ assert(!/:Destroy\(|\.Enabled\s*=|\.Disabled\s*=/.test(production),'callbacks an
 
 const mock=String.raw`
 local callbacks,props,threads,canceled={}, {}, {}, {}
+local deferredThreads={}
 local queue,connections,trace={}, {}, {}
 local now,sequence,animationCalls,guid=0,0,0,0
 local invokeWaiters,childWaiters={},{}
 local schedulerErrors={}
+local parentReentryWarnings={}
 local eventDelay=EVENT_DELAY
 local newestLookup=NEWEST_LOOKUP
 local function schedule(thread,time,args)
@@ -57,6 +61,9 @@ end
 function task.delay(seconds,fn)
  local thread=coroutine.create(fn) threads[thread]=true schedule(thread,now+seconds) return thread
 end
+function task.defer(fn)
+ local thread=coroutine.create(fn) threads[thread]=true deferredThreads[thread]=true schedule(thread,now) return thread
+end
 function task.wait(seconds)return coroutine.yield({kind='wait',duration=seconds or .01})end
 function task.cancel(thread)
  canceled[thread]=true
@@ -72,6 +79,7 @@ local function advance(time)
  end
  now=time
  assert(#schedulerErrors==0,table.concat(schedulerErrors,' | '))
+ assert(#parentReentryWarnings==0,'reentrant Parent assignment: '..table.concat(parentReentryWarnings,' | '))
 end
 local os={clock=function()return now end}
 local function signal(owner,kind)
@@ -129,6 +137,11 @@ function Instance.new(class)
    invokeWaiters[self]={} return
   end
   if key=='Parent'then
+   if props[self].parentAssignment then
+    parentReentryWarnings[#parentReentryWarnings+1]=self.Name
+    return
+   end
+   props[self].parentAssignment=true
    local old=props[self].Parent
    if old then for i,c in ipairs(props[old].children)do if c==self then table.remove(props[old].children,i)break end end end
    props[self].Parent=value
@@ -138,7 +151,7 @@ function Instance.new(class)
      if waiting.name==self.Name then schedule(waiting.thread,now+eventDelay,table.pack(self))waiting.name=''end
     end
    end
-   self.AncestryChanged:Fire(self,value) return
+   self.AncestryChanged:Fire(self,value) props[self].parentAssignment=false return
   end
   props[self][key]=value
  end})
@@ -167,6 +180,9 @@ end
 local function pendingInvokes()
  local count=0 for _,list in pairs(invokeWaiters)do for _,thread in ipairs(list)do if not canceled[thread] and coroutine.status(thread)~='dead'then count+=1 end end end return count
 end
+local function pendingDeferred()
+ local count=0 for thread in pairs(deferredThreads)do if not canceled[thread] and coroutine.status(thread)~='dead'then count+=1 end end return count
+end
 local function publicCount(target)
  local count=0 for _,child in ipairs((target or animate):GetChildren())do if child.Name=='PlayEmote'then count+=1 end end return count
 end
@@ -192,6 +208,10 @@ function scenarioCode(repair,scenario) {
   +'\n'+(scenario.before || '')+'\n'+repair+'\n'+scenario.after+'\nprint("CASE_PASS '+scenario.name+'")';
 }
 const scenarios=[
+ {name:'immediate-childadded-defers-parent-change',after:"advance(.4) nativeInstall() advance(.5) local late=engineChild() assert(late.Parent==animate,'arrival handler mutated Parent synchronously') advance(.51) assertHeld(late) advance(3) assertWave()"},
+ {name:'queued-arrival-character-removal',after:"advance(.4) nativeInstall() local late=engineChild() assert(pendingDeferred()==1,'arrival must wait until Parent completes') player.CharacterRemoving:Fire(character) assert(pendingDeferred()==0,'removed character retained queued arrival thread') advance(.5) assert(late.Parent==animate,'queued old-character arrival reparented hook') assert(activeConnections(animate)==0 and activeConnections(character)==0) assert(pendingInvokes()==0)"},
+ {name:'queued-arrival-animate-removal',after:"advance(.4) nativeInstall() local late=engineChild() animate.Parent=nil advance(.5) assert(late.Parent==animate,'queued removed Animate arrival moved hook') assert(activeConnections(animate)==0 and pendingInvokes()==0)"},
+ {name:'queued-arrival-external-parent-change',after:"advance(.4) nativeInstall() local late=engineChild() local foreign=Instance.new('Folder') foreign.Parent=character late.Parent=foreign advance(.5) assert(late.Parent==foreign,'queued arrival reclaimed externally moved hook') advance(3) assertWave()"},
  {name:'native-nil-probe-response-while-moving',before:"local engine=engineChild() local setPose=nativeInstall(nil,'Running')",after:"advance(3) assert(character:GetAttribute('PunchWallAnimateNativeHookReady')==true,'native nil probe response is ready') setPose('Standing') assertWave()"},
  {name:'unexpected-probe-response-never-promoted',after:"advance(.4) local first=animate:FindFirstChild('PlayEmote') local late=engineChild() late.OnInvoke=function()return true end advance(3.5) assert(animate:FindFirstChild('PlayEmote')==first and character:GetAttribute('PunchWallAnimateNativeHookReady')==false,'unexpected reserved-name response must not hide pending state') assertHeld(late) assert(pendingInvokes()==0)"},
  {name:'existing-native-preserved',before:'local engine=engineChild() nativeInstall() local cb=callbacks[engine]',after:"advance(7) assert(animate:FindFirstChild('PlayEmote')==engine and callbacks[engine]==cb,'early native callback changed') assertWave()"},
@@ -213,11 +233,15 @@ const scenarios=[
  {name:'preexisting-duplicates-select-ready-producer',newest:true,before:'local ready=engineChild() nativeInstall() local unbound=engineChild()',after:"advance(3) assert(animate:FindFirstChild('PlayEmote')==ready,'ready early callback must remain accessible') assertHeld(unbound) assertWave()"}
 ];
 for(const scenario of scenarios)run(scenarioCode(production,scenario),scenario.name);
+const arrivalFailure=execute(scenarioCode(fragment(arrivalBaseline),scenarios.find(s=>s.name==='immediate-childadded-defers-parent-change')));
+assert(!arrivalFailure.ok && /reentrant Parent assignment/.test(arrivalFailure.output),'1529b7d must fail for the native-observed reentrant parent warning, not an unrelated error');
 const oldFailure=execute(scenarioCode(fragment(baseline),scenarios.find(s=>s.name==='fallback-native-before-late')));
 assert(!oldFailure.ok,'baseline unexpectedly passes the demonstrated callback-destruction race');
 const oldLate=execute(scenarioCode(fragment(baseline),scenarios.find(s=>s.name==='late-after-six-seconds')));
 assert(!oldLate.ok,'baseline unexpectedly maintains one hook after its six-second expiry');
 const mutations=[
+ ['restore-synchronous-arrival',p=>p.replace('pendingArrivals[child] = task.defer(function()','pendingArrivals[child] = task.spawn(function()'),'immediate-childadded-defers-parent-change'],
+ ['omit-arrival-cancellation',p=>p.replace('for _, thread in pairs(pendingArrivals) do cancelThread(thread) end','-- omitted arrival cancellation'),'queued-arrival-character-removal'],
  ['discard-owned-callback',p=>p.replace('holdHook(hook)\n    character:SetAttribute','canonicalHook:Destroy() canonicalHook=hook\n    character:SetAttribute'),'fallback-native-before-late'],
  ['skip-held-native-readiness',p=>p.replace('candidate:IsA("BindableFunction") and probeHook(candidate)','candidate:IsA("BindableFunction") and false'),'deferred-newest-binds-late-before-handler'],
  ['classify-pending-as-native',p=>p.replace('and result.marker ~= pendingSentinel',''),'deferred-newest-binds-late-before-handler'],
@@ -228,4 +252,4 @@ const mutations=[
  ['destroy-held-instead-of-preserve',p=>p.replace('hook.Parent = holding()','hook:Destroy()'),'fallback-native-before-late']
 ];
 for(const [name,mutate,target]of mutations){const changed=mutate(production);assert.notEqual(changed,production,name+' mutation marker missing');run('assert(loadstring('+JSON.stringify(changed)+')) print("CASE_PASS mutant-compiles")',name+' compilation');const result=execute(scenarioCode(changed,scenarios.find(s=>s.name===target)));assert(!result.ok,name+' survived its negative control');}
-console.log(JSON.stringify({ok:true,sourceRoot,clientSha256:crypto.createHash('sha256').update(current).digest('hex'),repairSha256:crypto.createHash('sha256').update(production).digest('hex'),nativeSourceHash,nativeBindingHash:crypto.createHash('sha256').update(nativeBinding).digest('hex'),fullClientCompilation:true,scenarios:scenarios.length,baselineFailuresCaught:2,weakeningMutationsCaught:mutations.length,callbackReads:0,callbackWrites:1,studio:'BLOCKED: Coordinator runtime pending'},null,2));
+console.log(JSON.stringify({ok:true,sourceRoot,clientSha256:crypto.createHash('sha256').update(current).digest('hex'),repairSha256:crypto.createHash('sha256').update(production).digest('hex'),nativeSourceHash,nativeBindingHash:crypto.createHash('sha256').update(nativeBinding).digest('hex'),fullClientCompilation:true,scenarios:scenarios.length,baselineFailuresCaught:3,arrivalBaselineRef,arrivalFailure:'Reentrant Parent assignment rejected; original hook remains Animate until deferred reconciliation',weakeningMutationsCaught:mutations.length,callbackReads:0,callbackWrites:1,studio:'BLOCKED: Coordinator runtime pending'},null,2));
