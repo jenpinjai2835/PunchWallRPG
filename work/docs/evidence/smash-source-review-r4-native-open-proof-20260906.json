@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "mode": "native-disk-open-without-source-sync",
+  "sourceCommit": "126a299f0fb18d99016781cbccb33e2972ee1ef2",
+  "studioInstanceId": "24528819-30cf-41f7-ba03-0006a355c7b8",
+  "processId": 11660,
+  "processStartTimeUtc": "2026-09-06T12:22:08.6475610Z",
+  "executablePath": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+  "placePath": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx",
+  "placeSHA256": "BF76298183C839DE578B119F881B34FC35DC8B235AE8316920C74E79869EB886",
+  "sourceVerification": "work/docs/evidence/smash-source-review-r4-live-source-20260906.json",
+  "sourceVerificationSHA256": "A5475AF22734B1E2D335CAB26A5B619A85D9DF0626C1FD24B35D81365A291162",
+  "sourceCount": 9,
+  "windowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio",
+  "windowBoundsVerified": false,
+  "existingStudiosLeftOpen": [
+    22388,
+    22472,
+    22788
+  ],
+  "recoveryFilesTouched": false,
+  "verifiedAt": "2026-09-06T12:23:00.5312481Z"
+}

@@ -1,15 +1,16 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 16:59 ICT:** the fresh full run completed
-**127 PASS / 4 FAIL of 131** in 54.98 minutes at `e2dbc16`, without interruption.
+**Current status, September 6 at 19:30 ICT:** the latest full run completed
+**130 PASS / 1 FAIL of 131** in 74.47 minutes at `1a97247`, without interruption.
 All source/automation hashes stayed frozen and exact live nine-source checks
-passed before and after. Required acceptance remains BLOCKED. The failures are
-client startup waiting for Feedback; missing failure cleanup contaminating the
-following stress test; a phone-camera metric whose failed values were truncated;
-and a tough-block fixture that struck an 8-HP forest block instead of 900-HP stone.
-Three isolated workers now own a bounded client handshake, verifiable flow
-cleanup/client readiness, and lossless camera diagnostics. Root owns radial
-fixture diagnosis, integration, native replay and the next complete regression.
+passed before and after. The four prior failure families pass in this full run.
+Required acceptance remains BLOCKED by a bootstrap Wave result before the
+world-reset steps: the invoke completed but did not produce the required true
+result. Two native diagnostic replays pass; the original cause remains unknown.
+Agent1 owns QA-only passive idle readiness and packed result diagnostics, with
+Agent2 peer review waiting for the immutable handoff. Root owns native replay,
+fresh-session complete regression and delivery. Fresh R4 source-bound Shop and
+tunnel timings are retained below; they do not replace final artifact acceptance.
 Canonical output remains unchanged. Artifact/profile/visual/reviewed-merge gates
 remain pending; earlier narrow UI visual acceptance is preserved.
 
@@ -1330,3 +1331,10 @@ Native replay `smash-world-reset-invoke-diagnostic-20260906.json` PASS with the 
 Root accepts passive, bounded idle observation as independent fixture hardening: keep the same real Wave-success requirement, original attempt/deadline timing and all world-reset gates; observe physical readiness before invocation and retain packed return diagnostics without embedded source. This is not a claim to have observed Animate's private pose or reproduced the original cause. No production source change is justified by the current evidence. Agent1 will own the flow and one focused executable contract in an isolated worktree; further combined regression and artifact/performance acceptance remain required.
 
 The final narrow-image validator controls have now actually passed:25 executed cases,4 compiling weakening mutations rejected,8 compiler invocations; no Studio or artifact capture. Evidence is `smash-final-narrow-capture-controls-20260906.json`, bound to capture helperC3382D1F and runner0F16B50C. This closes the offline helper check only; all final native image/artifact gates remain pending.
+## Fresh R4 native source session — 19:29 ICT
+
+Opened the noncanonical R4 build directly from disk in a new Studio process without source sync. The build at `126a299` contains the unchanged nine production modules from `1a97247`; artifact SHA256 `BF76298183C839DE578B119F881B34FC35DC8B235AE8316920C74E79869EB886`, 6,492,145 bytes. Native process11660, start12:22:08.6475610Z, Studio UUID `24528819-30cf-41f7-ba03-0006a355c7b8`, exact file title, all nine live sources and global code inventory were verified. Launch and proof are retained under `evidence/smash-source-review-r4-{launch,live-source,native-open-proof}-20260906.json`. Existing processes and recovery files were left untouched; window bounds/foreground were not inferred from the maximize launch request. Canonical output remains SHA256 `605A4F70169FD0C7C86635B20171576DC4A81C46B10A4E28C8744F4F29A40208`.
+
+The source diagnostic collector completed both phases and cleaned up, but its overall `ok` only indicates successful collection. Idle is **INVALID CONTEXT**, with one focus transition and two viewport events, so its timings are not accepted. The subsequent Shop phase has stable observed focused state and viewport1277x801:367 frames/6.101s, p50=16.748ms, p95=18.428ms, p99=20.406ms, max=31.470ms, zero intervals over50ms. Evidence: `evidence/smash-source-r4-idle-shop-profile-20260906.json`.
+
+The unchanged exact18-punch tunnel flow then passed its existing functional and observer gates:1,143 frames/19.417s, p50=16.710ms, p95=19.316ms, p99=40.142ms, max=82.273ms, two intervals over50ms, none over100ms, zero dropped samples, no watchdog expiry. Initial focus remains unknown to that observer; identical viewport endpoints do not prove no intermediate changes. Evidence: `evidence/smash-source-r4-tunnel-frame-profile-20260906.json`. This is whole-workload timing and does not establish a source change or a causal explanation for the previous slower session. Exact nine-source postflight and both disk hashes remained unchanged in `evidence/smash-source-r4-profile-live-after-20260906.json`. Final artifact performance and complete current-automation acceptance remain pending.
