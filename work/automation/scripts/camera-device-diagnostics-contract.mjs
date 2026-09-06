@@ -145,7 +145,8 @@ function verifyResults(step,results){
  assert(JSON.stringify(results.get('maximum_scalar_payload')).length<3900,'fixed scalar/schema bound failed');
 }
 const checkTextCode=between(runner,'function checkText(', '\nconst defaultConsolePatterns');
-const runActionCode=between(runner,'async function runAction(', '\nasync function runFlow(');
+const runActionEnd=runner.includes('\nexport async function runFailureCleanup(')?'\nexport async function runFailureCleanup(':'\nasync function runFlow(';
+const runActionCode=between(runner,'async function runAction(',runActionEnd);
 const assertCondition=(ok,message)=>{if(!ok)throw new Error(message);};
 const runAction=Function('assertCondition','waitForDataModels','normalizeMouseInputArgs','sleep','runAssertion',checkTextCode+'\n'+runActionCode+'\nreturn runAction;')(assertCondition,async()=>{},async(_,a)=>a,async()=>{},()=>{});
 try{
