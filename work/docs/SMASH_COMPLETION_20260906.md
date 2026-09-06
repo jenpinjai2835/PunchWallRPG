@@ -492,3 +492,62 @@ ray with `RespectCanCollide=true` has no hit across 48 studs. The previous depth
 primary is already broken with HP 0 and collision/query disabled. A3 exclusively
 owns the minimal server Lunge correction and its solid-obstacle/native tests.
 Camera visibility and movement thresholds have not been reduced.
+
+### September 6, 09:10 ICT — visual source integration and remaining narrow framing
+
+The minimal solid-collision Lunge correction is integrated as `37a00be` and
+verified in the actual Studio client/server. The new query-only egg versus solid
+obstacle flow, power-avatar-growth, power-scaled-penetration, and the separately
+run punchwall-hybrid-physics-lunge all pass. The first wrapper used a nonexistent
+fourth flow name; its exception is retained and is not counted as a pass.
+
+The original desktop companion matrix now passes. The independently reproduced
+active Scriptable Camera Focus reset to a 20-stud look plane is handled by a
+strict observed-fixture policy; requested pose/type, accepted Focus stability,
+size, separation, and visibility gates remain unchanged. The added 636×654
+actual-camera matrix still fails at distance 6: the third Guardian lies partly
+outside the left edge, while distances 12 and 18 pass. The retained actual-bounds
+record shows safe=false, pair overlap up to 0.609 and world separation down to
+0.890. A2 owns the concrete packing correction from clean source `3906ea9`;
+this remains an in-scope failed gate.
+
+Root's quiet navy Shop/HUD changes `1604d15` and `e7a6eee` are accepted as
+`eb4afe2` and `3906ea9`: less decorative framing, shared rarity colors, clear
+action/status distinction, a 14-pixel product-name floor, a shorter objective,
+and reduced combat-panel coverage. A1 owns Inventory consistency and the
+Forest Pup preview camera, whose old view was behind its retained face decal.
+Actual updated visual checks remain pending; these source changes alone do not
+establish premium visual acceptance.
+
+Capture tool `facb5d7`, integrated as `adb0501`, records original native JPEG or
+PNG bytes and distinguishes the phone's measured safe UI area from its full
+display and scaled capture raster. The native built-in phone probe measured
+749×361 safe UI, 873×401 full UI, and 1204×553 JPEG. The previous hardcoded
+874×402 Camera assertion was invalid. Starter screenshots now require settled
+account entitlements followed by an explicit ephemeral starter reset, with
+server/client/model/HUD verification; earlier Power=15-only screenshots show
+the real account's premium loadout and are not fresh-account evidence.
+
+Canonical output is still the old artifact. Fresh combined regression, rebuild,
+native disk reopen, complete actual visual review, final profiling and reviewed
+merge remain required. The parent remains BLOCKED 6/9; the authorized single
+usage reset has already been consumed and must not be redeemed again.
+
+At 09:18 ICT the source-only visual run completed successfully on `7b4c130`,
+with all nine live sources verified before and after and ten original JPEGs
+retained in `evidence/smash-premium-source-visual-review-20260906/`. The
+Coordinator viewed all ten: quieter Shop/Inventory surfaces, readable shown
+item names, visible Pup face, and desktop/phone Settings controls. This does
+not replace testing scrolled items, alternate scales, empty/search states or
+the final artifact. A1 identified one remaining no-results text scale omission;
+the one-line fix and its runtime check are pending. A3 independently reviewed
+both UI implementations without a new P1/P2 source finding, and identified two
+test-fixture defects (late entitlement reconciliation and requested-only device
+metadata) in the new HUD flow; both are assigned for correction before use.
+
+The pre-UI live verification first used two older worker baselines, producing
+expected source-mismatch errors (client, then server). A reconstructed immutable
+`86b88e5` source snapshot matched all nine actual live scripts exactly before
+the UI sync; the authoritative record is
+`smash-before-premium-ui-sync-live-r3-20260906.json`. The earlier attempts are
+not evidence of a live source regression or passing checks.

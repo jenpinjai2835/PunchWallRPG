@@ -336,6 +336,7 @@ $additionalStaticContracts = @(
     @{ file = "onboarding-waypoint-contract.mjs"; key = "onboardingWaypointContract" },
     @{ file = "pet-size-position-contract.mjs"; key = "petSizePositionContract" },
     @{ file = "power-scaled-penetration-contract.mjs"; key = "powerScaledPenetrationContract" },
+    @{ file = "punch-lunge-collision-contract.mjs"; key = "punchLungeCollisionContract" },
     @{ file = "reduced-motion-scene-contract.mjs"; key = "reducedMotionSceneContract" },
     @{ file = "release-spin-credit-contract.mjs"; key = "releaseSpinCreditContract" },
     @{ file = "settings-panel-stability-contract.mjs"; key = "settingsPanelStabilityContract" },
