@@ -13,8 +13,9 @@ const losBaseline = process.argv.includes("--baseline-los");
 const runtimeBaseline = process.argv.includes("--baseline-runtime2");
 const faceBaseline = process.argv.includes('--baseline-face');
 const finalBaseline = process.argv.includes('--baseline-final');
-const baselineIndex = process.argv.indexOf(finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
+const settleBaseline = process.argv.includes('--baseline-settle');
+const baselineIndex = process.argv.indexOf(settleBaseline ? '--baseline-settle' : finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (settleBaseline ? '07e4009' : finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -660,6 +661,107 @@ bound.PunchWallCameraGeometryGuard(1/60)
 check(shared.PunchWallCameraMaxCyclePublication.cycleWrites==2,'new_render_cycle_does_not_erase_largest_record')
 print('PASS '..count)
 `;
+// Execute the real radial resolver together with the complete guard. The LOS
+// scene models an edge around the cached pose; it is not a captured live wall.
+const settleSetup = common
+ .replace('vm.__add=', 'vm.__unm=function(a)return a*-1 end\nvm.__add=')
+ .replace("if k=='Rotation'", "if k=='RightVector' then return Vector3.new(math.cos(a.Yaw),0,math.sin(a.Yaw)) end\n if k=='Rotation'")
+ .replace('local rootPart={Position=Vector3.zero}', "local rootPart={Position=Vector3.zero,CFrame=CFrame.new(),IsA=function(_,k)return k=='BasePart'end}")
+ .replace('local function resolveClearCameraPose(cf,focus,c) return resolver(cf,focus,c) end','')
+ + block('local function resolveClearCameraPose(desiredCFrame','\nlocal lastPunchCameraRenderAt') + guard + `
+local update=bound.PunchWallCameraGeometryGuard
+lastPunchActionAt=0 pose(0,0,12)update(1/60)
+attrs.PunchCameraFollowActive=true update(1/60)
+attrs.PunchCameraFollowActive=false
+occluded=function(p)return p.Z<12.02 and math.abs(p.X)<3 end
+`;
+fixtures.settleEdge = `${settleSetup}
+local arrived=false local previous=camera.CFrame.Position local steps=0
+for i=1,81 do
+ now+=.05 pose(0,0,12.026091575622558)update(.05)steps=i
+ check(not blocked(camera.CFrame.Position) and not occluded(camera.CFrame.Position),'recovery_publication_is_physical_and_LOS_clear')
+ check((camera.CFrame.Position-previous).Magnitude<=24*.05+.00001,'actual_recovery_publications_keep_original_correction_bound')
+ previous=camera.CFrame.Position
+ if attrs.PunchCameraHandoffActive==false then arrived=true break end
+end
+check(arrived,'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout')
+check(math.abs(camera.CFrame.Position.Magnitude-12)<.001,'handoff_completes_only_at_original_exact_radius')
+check(camera.CFrame.Yaw==.7 and math.abs((camera.CFrame.Position-camera.Focus.Position).Magnitude-12)<.001,'recovery_waypoints_preserve_camera_rotation_and_focus_distance')
+check(steps>1 and steps<81,'edge_recovery_requires_bounded_progress_without_timeout_acceptance')
+check(attrs.PunchCameraMaxCorrectionStep<=2.4 and (attrs.PunchCameraMaxEscapeStep or 0)<=2.65,'ordinary_and_escape_metrics_keep_original_gates')
+if shared.PunchWallCameraLastRecovery then
+ local d=shared.PunchWallCameraLastRecovery
+ check(d.handoffRecovery==false and d.remaining<.001 and d.raw and d.cache and d.origin and d.requested and d.candidate and d.published,'final_recovery_diagnostics_expose_all_pose_stages')
+end
+occluded=function()return false end now+=.05 pose(0,0,12.026091575622558)update(.05)
+check(attrs.PunchCameraHandoffActive==false and math.abs(camera.CFrame.Position.Magnitude-12)<.08,'released_native_camera_keeps_existing_regular_zoom_tolerance')
+print('PASS '..count)
+`;
+fixtures.teleportHandoffMarker = `${settleSetup}
+-- Isolate marker ownership with no available recovery path before teleport.
+occluded=function()return true end
+now+=.05 pose(0,0,12.026091575622558)update(.05)
+check(attrs.PunchCameraHandoffActive==true,'control_enters_real_handoff_before_teleport')
+occluded=function()return false end rootPart.Position=Vector3.new(0,0,40)
+now+=.05 pose(0,0,52)update(.05)
+check(attrs.PunchCameraTeleportRebaseCount==1,'control_takes_successful_teleport_rebase')
+check(attrs.PunchCameraHandoffActive==false,'successful_rebase_synchronizes_public_handoff_marker')
+check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-12)<.001,'teleport_keeps_exact_selected_radius')
+if shared.PunchWallCameraLastRecovery then local d=shared.PunchWallCameraLastRecovery
+ check(d.reason=='teleport-rebase' and d.teleportRebaseCount==1 and not d.handoffRecovery and not d.handoffAttribute,'teleport_diagnostics_distinguish_internal_and_public_state')end
+for i=1,81 do now+=.05 pose(0,0,52)update(.05)end
+check(attrs.PunchCameraHandoffActive==false,'teleport_marker_stays_released_after_original_timeout_window')
+print('PASS '..count)
+`;
+fixtures.exactHandoffArrival = `${guardSetup}
+seed()pose(0,0,0)update(.01)attrs.PunchCameraFollowActive=false
+pose(.05,0,0)update(.0002)
+check(attrs.PunchCameraHandoffActive==true,'sub_point_zero_eight_error_does_not_clear_original_arrival_gate')
+check(camera.CFrame.Position.X<.005,'small_frame_keeps_original_response_budget')
+pose(.05,0,0)update(.05)
+check(attrs.PunchCameraHandoffActive==false and math.abs(camera.CFrame.Position.X-.05)<.001,'exact_endpoint_releases_handoff')
+print('PASS '..count)
+`;
+fixtures.rawOriginControls = `${settleSetup}
+local function restart(rawZ,physical,los,active)
+ blocked=function()return false end occluded=function()return false end
+ attrs.PunchCameraFollowActive=false shared.PunchWallResetCameraGeometryGuard(character)
+ pose(0,0,12)update(1/60)attrs.PunchCameraFollowActive=true update(1/60)
+ attrs.PunchCameraFollowActive=active==true blocked=physical occluded=los
+ now+=.05 pose(0,0,rawZ)update(.05)
+ return shared.PunchWallCameraLastRecovery
+end
+local clear=function()return false end
+local edge=function(p)return p.Z<12.2 and math.abs(p.X)<3 end
+local d=restart(12.4,function(p)return p.Z>12.12 and p.Z<12.24 end,edge)
+check(d.reason:find('cached%-recovery/')~=nil and shared.PunchWallHeartbeatLastClearCFrame.Position.Z==12,'physical_barrier_prevents_native_origin_adoption')
+check(d.rawBlocked==false and d.cacheBlocked==true,'barrier_control_distinguishes_safe_endpoints_from_unsafe_route')
+d=restart(12.4,clear,function(p)return p.Z<12.5 and math.abs(p.X)<3 end)
+check(d.reason:find('cached%-recovery/')~=nil and d.rawBlocked==true,'LOS_blocked_raw_pose_never_becomes_recovery_origin')
+d=restart(14.4,clear,edge)
+check(d.reason:find('cached%-recovery/')~=nil and shared.PunchWallHeartbeatLastClearCFrame.Position.Z==12,'distant_native_pose_does_not_bypass_local_recovery_budget')
+d=restart(12.4,clear,clear)
+check(d.reason:find('cached%-recovery/')~=nil and d.cacheBlocked==false,'valid_cached_origin_remains_owned_by_existing_limiter')
+d=restart(12.4,clear,edge,true)
+check(d.reason:find('cached%-recovery/')~=nil and d.activeFollow==true,'active_punch_follow_does_not_adopt_native_recovery_origin')
+d=restart(12.4,function(p)return p.Z>12.12 and p.Z<12.24 end,edge)
+local first=shared.PunchWallCameraFirstStalledRecovery
+for i=1,100 do now+=.05 pose(0,0,12.4)update(.05)end
+check(first and shared.PunchWallCameraFirstStalledRecovery==first,'first_stall_diagnostic_remains_bounded_and_stable')
+check(shared.PunchWallCameraLastRecovery and shared.PunchWallCameraMaxRemainingRecovery,'last_and_max_remaining_diagnostics_are_available')
+shared.PunchWallResetCameraGeometryGuard(character)
+check(shared.PunchWallCameraLastRecovery==nil and shared.PunchWallCameraFirstStalledRecovery==nil and shared.PunchWallCameraMaxRemainingRecovery==nil,'respawn_reset_clears_all_recovery_diagnostics')
+print('PASS '..count)
+`;
+fixtures.releaseNoRecoveryDiagnostics = `${settleSetup.replace('IsStudio=function() return true end','IsStudio=function() return false end')}
+now+=.05 pose(0,0,12.026091575622558)update(.05)
+check(shared.PunchWallCameraLastRecovery==nil and shared.PunchWallCameraFirstStalledRecovery==nil and shared.PunchWallCameraMaxRemainingRecovery==nil,'published_game_does_not_allocate_recovery_records')
+print('PASS '..count)
+`;
+const settleFailures = {
+ settleEdge:'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout',
+ teleportHandoffMarker:'successful_rebase_synchronizes_public_handoff_marker',
+};
 const expectedFailures = {
   limiter: "limited_pose_physically_clear", sweep: "clear_endpoint_does_not_cross_thin_wall",
   fallback: "blocked_baseline_is_never_published", final: "final_physical_check_precedes_publish",
@@ -697,10 +799,13 @@ const generated = [];
 const compiled = [];
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
+    if (settleBaseline && !(name in settleFailures)) continue;
+    if (baseline && !settleBaseline && name in settleFailures) continue;
+    if (baseline && ['exactHandoffArrival','rawOriginControls','releaseNoRecoveryDiagnostics'].includes(name)) continue;
     if (finalBaseline && !(name in finalFailures)) continue;
     if (faceBaseline && !(name in faceFailures)) continue;
     if (runtimeBaseline && !(name in runtimeFailures)) continue;
-    if (baseline && !losBaseline && !runtimeBaseline && !faceBaseline && !finalBaseline && !(name in expectedFailures)) continue;
+    if (baseline && !settleBaseline && !losBaseline && !runtimeBaseline && !faceBaseline && !finalBaseline && !(name in expectedFailures)) continue;
     if (baseline && !finalBaseline && ['boundsTransition','postSimulationOrdering','publicationDiagnostics','unresolvedDiagnostics','releaseNoPublicationDiagnostics'].includes(name)) continue;
     if (losBaseline && ['overlapRecovery','heartbeatOverlap','overlapWithoutHistory','enclosingObject','overlapControls','unavailableSafety','selectedOrbitSetup','runtimeAcceptance'].includes(name)) continue;
     if (losBaseline && ['orientedFaceExit','compoundFaceExit','physicalVersusLos','lateScriptableOwner','coarseGap','freshPhysicalSample','overlapCollection'].includes(name)) continue;
@@ -709,7 +814,7 @@ try {
     generated.push(file);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    const expectedFailure = baseline && (finalBaseline ? finalFailures[name] : faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
+    const expectedFailure = baseline && (settleBaseline ? settleFailures[name] : finalBaseline ? finalFailures[name] : faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
     if (expectedFailure) {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
       results[name] = { reproduced: expectedFailure };
@@ -720,6 +825,15 @@ try {
   }
   if (!baseline) {
     const mutationsToCheck = [
+      ['ignore_valid_native_recovery_origin','settleEdge',text=>text.replace('local adoptedRawOrigin = not activeFollow','local adoptedRawOrigin = false'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
+      ['omit_axis_waypoints','settleEdge',text=>text.replace('Vector3.new(displacement.X, 0, 0), Vector3.new(0, 0, displacement.Z)','Vector3.zero, Vector3.zero'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
+      ['ignore_origin_adoption_budget','settleEdge',text=>text.replace('correctionBudget = math.max(0, maxStep - rawOffset.Magnitude)','correctionBudget = maxStep'),'actual_recovery_publications_keep_original_correction_bound'],
+      ['leave_stale_rebase_handoff_marker','teleportHandoffMarker',text=>text.replace('recoveringFromFollowHandoff = false\n\t\t\t\t\tgui:SetAttribute("PunchCameraHandoffActive", false)','recoveringFromFollowHandoff = false'),'successful_rebase_synchronizes_public_handoff_marker'],
+      ['loosen_exact_handoff_arrival','exactHandoffArrival',text=>text.replace('local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.001','local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.08'),'sub_point_zero_eight_error_does_not_clear_original_arrival_gate'],
+      ['skip_raw_origin_physical_sweep','rawOriginControls',text=>text.replace('and clearTranslationStep(followOrigin, rawOffset, character)','and true'),'physical_barrier_prevents_native_origin_adoption'],
+      ['accept_LOS_blocked_native_origin','rawOriginControls',text=>text.replace('and not cameraPoseBlocked(rawCFrame, character)','and true'),'LOS_blocked_raw_pose_never_becomes_recovery_origin'],
+      ['adopt_distant_native_origin','rawOriginControls',text=>text.replace('and rawOffset.Magnitude <= maxStep','and true'),'distant_native_pose_does_not_bypass_local_recovery_budget'],
+      ['allocate_release_recovery_records','releaseNoRecoveryDiagnostics',text=>text.replace('local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)\n\t\tif not recordCameraDiagnostics then return end','local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)\n\t\tif false then return end'),'published_game_does_not_allocate_recovery_records'],
       ['omit_face_candidates','orientedFaceExit',text=>text.replace('if distance > 0 then addCandidate(normal * distance, "face") end','if false then addCandidate(normal * distance, "face") end'),'rotated_block_uses_near_face_exit_within_existing_budget'],
       ['undersized_camera_support','orientedFaceExit',text=>text.replace('local support = 0.275 *','local support = 0.05 *'),'rotated_block_uses_near_face_exit_within_existing_budget'],
       ['skip_compound_endpoint_and_sweep','compoundFaceExit',text=>text.replace('if not shared.PunchWallCameraPositionBlocked(candidate.cframe.Position, character)\n\t\t\t\tand clearTranslationStep(origin, candidate.step, character, true) then','if true then'),'compound_egress_checks_entire_overlap_set'],
