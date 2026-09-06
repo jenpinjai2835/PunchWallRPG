@@ -12,7 +12,7 @@ const config=fs.readFileSync(path.join(root,'work/punch-wall-rpg/src/shared/Game
 const targets=[['iteration01-complete-polish',10],['hero-shop-reference-polish',7],['hero-city-theme',3]];
 const current={},historical={};
 let structuralChecks=0;
-const heroDependency=spawnSync('git',['show','c668b9c42ae4cdd2b9662fd491158f33319248f2:work/automation/flows/hero-shop-reference-polish.json'],{cwd:root,encoding:'utf8'});
+const heroDependency=spawnSync('git',['show','72b36c94d86a5f57f18703de86f809e86ef6f79f:work/automation/flows/hero-shop-reference-polish.json'],{cwd:root,encoding:'utf8'});
 assert.equal(heroDependency.status,0,heroDependency.stderr);const approvedHero=JSON.parse(heroDependency.stdout);
 function assertHeroCompatibility(actual,old){
  assert.equal(actual.steps.length,old.steps.length+1,'Exactly one approved scale matrix step was added');

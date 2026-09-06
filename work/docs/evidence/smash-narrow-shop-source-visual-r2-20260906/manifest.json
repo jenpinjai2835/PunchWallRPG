@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-06T05:08:00.772Z",
+  "kind": "Actual native source-in-Studio narrow Shop visual; not final artifact proof",
+  "observations": [
+    {
+      "label": "start",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "open actual Shop route",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "before visual",
+      "text": "{\"visible\":true,\"hud\":[637,654],\"bad\":[],\"modal\":[12,-46,613,630],\"layout\":\"DesktopReadableRowsV1\"}",
+      "isError": false
+    },
+    {
+      "label": "after visual",
+      "text": "{\"visible\":true,\"hud\":[637,654],\"bad\":[],\"modal\":[12,-46,613,630],\"layout\":\"DesktopReadableRowsV1\"}",
+      "isError": false
+    },
+    {
+      "label": "console",
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+      "isError": false
+    },
+    {
+      "label": "stop",
+      "text": "Game Stopped",
+      "isError": false
+    }
+  ],
+  "ok": true,
+  "selected": {
+    "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "before": "{\"visible\":true,\"hud\":[637,654],\"bad\":[],\"modal\":[12,-46,613,630],\"layout\":\"DesktopReadableRowsV1\"}",
+  "image": {
+    "file": "work/docs/evidence/smash-narrow-shop-source-visual-r2-20260906/premium-shop.jpg",
+    "width": 637,
+    "height": 654,
+    "mimeType": "image/jpeg",
+    "sha256": "AA1FAA4CE21A1298B9E272FD7B42F70C31FBF8930A4C07EB2171C21128A7C14D"
+  },
+  "after": "{\"visible\":true,\"hud\":[637,654],\"bad\":[],\"modal\":[12,-46,613,630],\"layout\":\"DesktopReadableRowsV1\"}"
+}

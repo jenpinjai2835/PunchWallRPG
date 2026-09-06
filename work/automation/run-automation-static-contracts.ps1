@@ -362,6 +362,7 @@ $additionalStaticContracts = @(
     @{ file = "long-run-content-contract.mjs"; key = "longRunContentContract" },
     @{ file = "mobile-iphone17-layout-contract.mjs"; key = "mobileIphone17LayoutContract" },
     @{ file = "narrow-directional-controls-contract.mjs"; key = "narrowDirectionalControlsContract" },
+    @{ file = "narrow-shop-readability-contract.mjs"; key = "narrowShopReadabilityContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
     @{ file = "quiet-visual-oracle-contract.mjs"; key = "quietVisualOracleContract" },
     @{ file = "server-snapshot-coalescing-contract.mjs"; key = "serverSnapshotCoalescingContract" },

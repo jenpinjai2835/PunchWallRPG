@@ -741,3 +741,50 @@ workload and exact readback remain. Coordinator self-test passed 88 checks,
 the final artifact performance measurement is still pending.
 
 At 11:54 ICT, automatic approval review rejected the combined command that would have archived the seven original native AutoRecovery files and reopened Studio maximized; the only stated reason was `blocked by policy`. The command did not execute: the archive directory is absent and PID 22788 remains running. All original AutoRecovery files remain in place. This operation was not retried through another mechanism. Native Ignore/Escape still failed to dismiss the notice through the computer-use tool, but the selected Studio MCP flows remain usable. This UI limitation is separate from game runtime results.
+
+### September 6, 12:18 ICT — native narrow Shop passes and portable test history
+
+Narrow Shop source 666acb was independently reviewed without an introduced P1/P2
+and integrated as c47d2fa. The Shop now chooses a safe modal and full-width
+154px desktop rows when its available width is insufficient for paired cards.
+Actual mobile rows and wide desktop cards are preserved. The new desktop rows
+retain full Premium Power/Luck descriptions, 14/12px product text floors and
+48px actions. The catalog-derived first-fist fixture 03b3101 was independently
+reviewed and integrated as 608b0af; its visible UI assertions are unchanged.
+
+Native iteration01 passed (`smash-first-fist-narrow-shop-r2-20260906.json`). The
+expanded Hero Shop flow, integrated from c668b9c as 72b36c9, also passed all five
+pages at authoritative settings 80/100/120%, visible exact copy/bounds, the
+actual button-handler purchase, server coin/equipment results and both console
+checks (`smash-hero-shop-narrow-copy-r2-20260906.json`). The new static Shop
+contract passed 1,761 extracted production assertions, 105 unchanged phone/wide
+comparisons, two historical failure controls, 11 mutations and 30 compiles.
+
+The original visual helper's first capture incorrectly called OpenShopPage
+without opening the Shop route. Root viewed it and identified a HUD screenshot,
+so `smash-narrow-shop-source-visual-r1-invalid-20260906.json` explicitly rejects
+it as Shop evidence. The corrected R2 helper opens the real route and asserts
+visible Shop state, containment and glyph fit before and after the original
+637×654 JPEG. Root and Agent 2 viewed that image: all three Premium names,
+Power/Luck descriptions, prices and actions are readable, models remain within
+their frames, and no actionable clipping/overlap was found. This is source-only
+static visual evidence, not final artifact or motion verification.
+
+The quiet-oracle compatibility patch 1aa994c, integrated as 24644d2, pins only
+the approved changed Shop steps, aligns the one added scale-matrix step and
+strictly preserves unaffected steps/cleanup and the first-fist gate checks.
+The aggregate then exposed two stale source-text assertions in long-run and
+mobile layout contracts. Their scrolling/column predicates now include desktop
+rows, retaining the phone and wide-grid conditions. Both failed aggregates are
+preserved. A targeted execution of all twelve contracts from long-run onward
+passed (`smash-static-tail-after-shop-20260906.json`).
+
+Independent Agent 1 audit covered all 237 automation files: 36 literal Git-ref
+occurrences referred to 27 commits, seven of which existed only through local
+worker history. Root replaced those references with integrated ancestors whose
+exact loaded file blobs are identical. All seven blob/ancestry comparisons
+passed (`smash-historical-git-ref-portability-20260906.json`). This preserves
+the original historical negative controls while making them available through
+the branch history that will be pushed and merged. The pending full run still
+requires the final combined static gate and two source-affected flow-oracle
+updates: first-five preview resizing and the long-run Shop scroll-mode check.

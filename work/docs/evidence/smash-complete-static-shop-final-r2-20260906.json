@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "error": "Static contract: mobile-iphone17-layout-contract.mjs failed:\nnode:internal/modules/run_main:122\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: shop_uses_full_width_readable_mobile_rows\r\n\r\nfalse !== true\r\n\r\n    at file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/mobile-iphone17-layout-contract.mjs:49:45\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: false,\r\n  expected: true,\r\n  operator: 'strictEqual'\r\n}\r\n\r\nNode.js v22.12.0",
+  "stack": "at Invoke-CheckedNode, F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-automation-static-contracts.ps1: line 51\r\nat <ScriptBlock>, F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-automation-static-contracts.ps1: line 376\r\nat <ScriptBlock>, F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-full-static-safe.ps1: line 8\r\nat <ScriptBlock>, <No file>: line 2",
+  "recordedAt": "2026-09-06T05:15:15.4658605Z"
+}

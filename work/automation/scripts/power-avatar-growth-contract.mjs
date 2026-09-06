@@ -35,7 +35,7 @@ const observationSteps=flow.steps.filter(step=>/^growthCamera(?:Server|Client)(?
 const originalSteps=flow.steps.filter(step=>!observationSteps.includes(step));
 assert.equal(originalSteps.length,originalFlow.steps.length,'Keep original growth sequence');
 for(let i=0;i<originalSteps.length;i++)if(originalSteps[i].label!==cameraLabel)assert.deepEqual(originalSteps[i],originalFlow.steps[i]);
-const beforeDiagnostic=spawnSync('git',['show','40d9390:work/automation/flows/power-avatar-growth.json'],{cwd:repositoryRoot,encoding:'utf8'});
+const beforeDiagnostic=spawnSync('git',['show','39d3c409c7c4a619f244bb463a3da0942883af85:work/automation/flows/power-avatar-growth.json'],{cwd:repositoryRoot,encoding:'utf8'});
 assert.equal(beforeDiagnostic.status,0,beforeDiagnostic.stderr);
 assert.deepEqual(cameraStep,JSON.parse(beforeDiagnostic.stdout).steps.find(step=>step.label===cameraLabel),'Observations cannot change the actual six-punch payload or its gates');
 assert.equal(observationSteps.length,4,'Server and client before/after observations');

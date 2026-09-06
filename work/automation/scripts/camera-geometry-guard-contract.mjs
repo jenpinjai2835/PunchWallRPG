@@ -15,7 +15,7 @@ const faceBaseline = process.argv.includes('--baseline-face');
 const finalBaseline = process.argv.includes('--baseline-final');
 const settleBaseline = process.argv.includes('--baseline-settle');
 const baselineIndex = process.argv.indexOf(settleBaseline ? '--baseline-settle' : finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (settleBaseline ? '07e4009' : finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (settleBaseline ? '1164ca9b8196c9c8e3c5c562c358dfa8afddd596' : finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");

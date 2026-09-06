@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "production": "PASS 1761 extracted Shop geometry/semantic assertions",
+  "baseline": "361d13b",
+  "historicalFailures": 2,
+  "mutations": 11,
+  "compiledPrograms": 30,
+  "clientOptimizationLevels": [
+    0,
+    1,
+    2
+  ],
+  "nativeTypography": "PENDING Coordinator runtime; no mocked TextFits claim"
+}

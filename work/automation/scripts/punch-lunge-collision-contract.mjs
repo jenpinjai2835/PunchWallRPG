@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'../../..');
 const sourcePath='work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua';
 const source=fs.readFileSync(path.join(root,sourcePath),'utf8').replace(/\r\n?/g,'\n');
-const baselineResult=spawnSync('git',['show',`f10dfc5:${sourcePath}`],{cwd:root,encoding:'utf8'});
+const baselineResult=spawnSync('git',['show',`d97bbad4f669c61e2f9c0ee29ef5255ef508861f:${sourcePath}`],{cwd:root,encoding:'utf8'});
 assert.equal(baselineResult.status,0,baselineResult.stderr);
 const baseline=baselineResult.stdout.replace(/\r\n?/g,'\n');
 const flow=JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows/punch-lunge-collision-filter.json'),'utf8'));
@@ -130,4 +130,4 @@ try{
   const file=write(name,text);const result=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});assert.equal(result.status,0,result.stdout+result.stderr);compiled++;
  }
 }finally{for(const file of files)fs.unlinkSync(file);fs.rmdirSync(directory);}
-console.log(JSON.stringify({ok:true,exactProductionAssertions:assertions,actualFlowOracleAssertions:oracleAssertions,baseline:'f10dfc5 fails on query-only egg',rejectedMutations:rejected,compiled},null,2));
+console.log(JSON.stringify({ok:true,exactProductionAssertions:assertions,actualFlowOracleAssertions:oracleAssertions,baseline:'d97bbad4f669c61e2f9c0ee29ef5255ef508861f fails on query-only egg',rejectedMutations:rejected,compiled},null,2));
