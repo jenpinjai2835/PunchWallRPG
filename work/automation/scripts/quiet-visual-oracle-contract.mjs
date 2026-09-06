@@ -12,11 +12,31 @@ const config=fs.readFileSync(path.join(root,'work/punch-wall-rpg/src/shared/Game
 const targets=[['iteration01-complete-polish',10],['hero-shop-reference-polish',7],['hero-city-theme',3]];
 const current={},historical={};
 let structuralChecks=0;
+const heroDependency=spawnSync('git',['show','c668b9c42ae4cdd2b9662fd491158f33319248f2:work/automation/flows/hero-shop-reference-polish.json'],{cwd:root,encoding:'utf8'});
+assert.equal(heroDependency.status,0,heroDependency.stderr);const approvedHero=JSON.parse(heroDependency.stdout);
+function assertHeroCompatibility(actual,old){
+ assert.equal(actual.steps.length,old.steps.length+1,'Exactly one approved scale matrix step was added');
+ const restored=structuredClone(actual);
+ for(const index of [3,4,5,7,8])assert.deepEqual(actual.steps[index],approvedHero.steps[index],`Exact approved Shop step ${index+1}`);
+ restored.steps.splice(8,1);
+ for(const index of [3,4,5,7])restored.steps[index]=old.steps[index];
+ assert.deepEqual(restored,old,'Every unaffected Shop step, shifted tail and cleanup must remain exact');
+}
 for(const [name,index]of targets){
   const file='work/automation/flows/'+name+'.json';
   current[name]=JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
   const old=spawnSync('git',['show','1529b7d:'+file],{cwd:root,encoding:'utf8'});assert.equal(old.status,0,old.stderr);
   historical[name]=JSON.parse(old.stdout);
+  if(name==='hero-shop-reference-polish'){
+    assertHeroCompatibility(current[name],historical[name]);structuralChecks++;
+    for(const mutate of [
+      f=>{f.steps[0].args.is_start=false;},f=>{f.steps[6].args.code='return true';},
+      f=>{f.steps.findLast(step=>step.tool==='start_stop_play').args.is_start=true;},f=>{f.cleanup[0].allowError=false;},
+      f=>{f.steps[3].args.code=f.steps[3].args.code.replace('minHeight>=110','minHeight>=1');},
+      f=>{f.steps[8].args.code=f.steps[8].args.code.replace('#samples==15','#samples==14');},
+    ]){const altered=structuredClone(current[name]);mutate(altered);assert.throws(()=>assertHeroCompatibility(altered,historical[name]),undefined,'Unapproved Shop change must reject');structuralChecks++;}
+    continue;
+  }
   const copy=structuredClone(current[name]);copy.steps[index]=historical[name].steps[index];
   if(name==='iteration01-complete-polish'){
     copy.steps[8]=historical[name].steps[8];
@@ -29,7 +49,10 @@ for(const [name,index]of targets){
 const objective=current['iteration01-complete-polish'].steps[10].args.code;
 const prerequisite=current['iteration01-complete-polish'].steps[8].args.code;
 const oldPrerequisite=historical['iteration01-complete-polish'].steps[8].args.code;
-const chrome=current['hero-shop-reference-polish'].steps[7].args.code;
+const chromePayload=current['hero-shop-reference-polish'].steps[7].args.code;
+// The runner now checks the returned JSON; execute that exact acceptance rule in the mock.
+assert.deepEqual(current['hero-shop-reference-polish'].steps[7].expectRegex,['"ok"\\s*:\\s*true']);
+const chrome=`local result=(function()\n${chromePayload}\nend)()assert(result.ok==true,'current Shop returned ok=false')return result`;
 const theme=current['hero-city-theme'].steps[3].args.code;
 const oldObjective=historical['iteration01-complete-polish'].steps[10].args.code;
 const oldChrome=historical['hero-shop-reference-polish'].steps[7].args.code;
@@ -149,14 +172,18 @@ local game={Players={LocalPlayer=p},ReplicatedStorage={GameConfig={}},GetService
 
 const chromeMock=`
 local objects={} local function object(name,class)
- local o={Name=name,class=class or 'Frame',children={},Visible=true}
- function o:IsA(class)return self.class==class end
+ local o={Name=name,class=class or 'Frame',children={},Visible=true,AbsolutePosition={X=0,Y=0},AbsoluteSize={X=900,Y=700},TextBounds={X=80,Y=16},TextSize=14,TextFits=true}
+ function o:IsA(class)return self.class==class or class=='GuiObject' and self.class~='ScreenGui' end
  function o:FindFirstChild(name)return self.children[name]end
+ function o:WaitForChild(name)return assert(self.children[name])end
+ function o:GetAttribute(key)return key=='ShopCompactLayout' and 'DesktopReadableRowsV1' or nil end
  function o:GetChildren()local out={}for _,c in pairs(self.children)do table.insert(out,c)end return out end
  objects[name]=o return o
 end
-local function add(parent,name,class)local o=object(name,class)parent.children[name]=o parent[name]=o return o end
-local shop=object('Shop')local header=add(shop,'ShopHeader')local footer=add(shop,'ShopFooter')local tabs=add(shop,'ShopTabs')
+local function add(parent,name,class)local o=object(name,class)parent.children[name]=o parent[name]=o o.Parent=parent return o end
+local gui=object('PunchWallHUD','ScreenGui')local menu=add(gui,'GameMenu')local safe=add(gui,'PixelPerfectHeroCityHUD')
+menu.AbsolutePosition={X=50,Y=80}menu.AbsoluteSize={X=800,Y=600}
+local shop=add(menu,'FunctionalHeroShop')local header=add(shop,'ShopHeader')local footer=add(shop,'ShopFooter')local tabs=add(shop,'ShopTabs')
 local title=add(header,'Title','TextLabel')title.Text='SHOP'title.TextFits=true
 for _,name in ipairs({'Subtitle','HeaderRedRail','HeaderCyanRail','CloseShop'})do add(header,name)end
 header.HeaderRedRail.Visible=false header.HeaderCyanRail.Visible=false
@@ -164,7 +191,9 @@ for _,name in ipairs({'SecureLabel','ServerLabel'})do add(footer,name)end
 for _,name in ipairs({'Fists','Premium','Boosts','Honor','Robux'})do local tab=add(tabs,name..'ShopTab','TextButton')tab.TextFits=true add(tab,'SelectedRail')end
 function shop:GetDescendants()local out={}for _,o in pairs(objects)do if o~=self then table.insert(out,o)end end return out end
 local H={JSONEncode=function(_,value)return value end}local automation={Invoke=function()return true end}
-local game={Players={LocalPlayer={PlayerGui={PunchWallHUD={PunchWallClientAutomation=automation,GameMenu={FunctionalHeroShop=shop}}}}},GetService=function()return H end}
+gui.PunchWallClientAutomation=automation
+local game={Players={LocalPlayer={PlayerGui={PunchWallHUD=gui}}},GetService=function()return H end}
+local workspace={CurrentCamera={ViewportSize={X=900,Y=700}}}
 local task={wait=function()end}
 `;
 
@@ -247,6 +276,7 @@ try {
   ['small-buy-target','action.AbsoluteSize.Y=43'],['wrong-buy-state',"action.Text='EQUIP'"],['clipped-card','card.AbsolutePosition.X=1000'],['accidental-purchase','faults.purchase=true'],
  ])fixture(name,objectiveMock,setup,objective,false);
  fixture('current-chrome-hides-decorative-rails',chromeMock,'',chrome,true);
+ fixture('current-chrome-rejects-modal-outside-safe-viewport',chromeMock,'menu.AbsoluteSize.X=1000',chrome,false);
  for(const [name,setup]of [['wrong-shop-title',"title.Text='WRONG'"],['duplicate-close',"add(footer,'CloseShopBottom','TextButton').TextFits=true"]]){
   fixture(name+'-rejected',chromeMock,setup,chrome,false);
   fixture(name+'-historical-false-pass',chromeMock,setup,oldChrome,true);
