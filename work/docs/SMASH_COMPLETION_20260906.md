@@ -463,3 +463,32 @@ to continue now that they stopped. Current integration `d97bbad` is synced with
 all nine sources, and the growth/pet focused run is active. The parent remains
 BLOCKED 6/9 until the new full suite, native reopened artifact checks, visual
 review, and reviewed merge are complete. Canonical output remains unreconstructed.
+
+### September 6, 08:30 ICT — current failures and visual acceptance
+
+The user confirmed Studio is available and explicitly added premium visual
+quality, reduced clutter, and eye comfort to acceptance. Agent HQ records an
+independent current-image/source review by A1, covering information hierarchy,
+spacing, restrained colors, consistent panels/type, and touch readability.
+Geometric no-overlap checks alone are not aesthetic acceptance. New actual
+desktop and built-in phone screenshots are being captured before selecting
+concrete visual corrections; prototype renders remain separate evidence.
+
+The focused source `a57c3ae` run completed with two failures. Companion safety,
+avatar overlap (0), pet overlap (0), and world separation (minimum above 1.55)
+passed all sampled distances, but the combined Scriptable camera-preservation
+oracle was false. A2 owns only the pet flow/contract/document diagnostic and
+must identify the failing camera component before changing its predicate.
+Independent bounded-layout review `0e4c3a5` is integrated as `70ef9e0`:
+5,182 independent assertions pass, with conservative no-fit and near-plane
+limitations explicitly retained.
+
+The growth camera failure is backed by an actual server movement defect:
+accepted punches planned 48 studs but moved about 0.00018 stud. The read-only
+same-pose native comparison in `smash-growth-native-ray-compare-20260906.json`
+shows the original ray hits a freshly spawned PetDropEgg at 2.60032 studs,
+despite `CanCollide=false`; that egg has `CanQuery=true`. The otherwise identical
+ray with `RespectCanCollide=true` has no hit across 48 studs. The previous depth
+primary is already broken with HP 0 and collision/query disabled. A3 exclusively
+owns the minimal server Lunge correction and its solid-obstacle/native tests.
+Camera visibility and movement thresholds have not been reduced.
