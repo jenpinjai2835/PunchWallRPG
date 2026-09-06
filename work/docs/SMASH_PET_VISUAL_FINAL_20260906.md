@@ -1,6 +1,6 @@
 # Pet safe frame and growth lifetime — 2026-09-06
 
-Source handoff: `521711b5aa76e98b4faf9678fbb5afdda429d640`, after the held camera commits `a5fea5d` and `2ddecc6`. Coordinator owns integration and Studio verification. This work did not run Studio or change the frozen full-suite source.
+Source handoffs: `521711b5aa76e98b4faf9678fbb5afdda429d640`, then projection correction `efa90fc492d5ad134363c0ac2db9203ff50adc1b` and near-plane guard `4033e884315ae759fe2c0ab10dca83973856ba88` (initial tests/docs `8d1a273`), after the held camera commits `a5fea5d` and `2ddecc6`. Coordinator owns integration and Studio verification. This work did not run Studio or change the frozen full-suite source.
 
 ## Recorded defects
 
@@ -9,11 +9,19 @@ Source handoff: `521711b5aa76e98b4faf9678fbb5afdda429d640`, after the held camer
 
 ## Source behavior
 
-`companionRuntime.BoundsCorners` and `KeepBoundsInSafeFrame` (client lines 5307 and 5319) cache eight local OBB corners and intersect the permitted camera-plane translations for their actual projections. The existing heartbeat follower applies the result after bob, roll and smoothing, before `PivotTo` (line 9270). The original 1% inset is retained with an additional half pixel numerical reserve. Model scale, orientation, depth and camera pose remain unchanged. Viewport/aspect and the current vertical FOV participate in the fit. Nonpositive corner depth, an uninitialized viewport or an impossible interval returns an unsuccessful result without shrinking the pet. `CompanionSafeFrameValid` and `CompanionSafeFrameShift` are published at the existing telemetry cadence.
+`companionRuntime.BoundsCorners` and `KeepBoundsInSafeFrame` (client lines 5307 and 5319) cache eight local OBB corners and intersect the permitted camera-plane translations for their actual projections. The existing heartbeat follower applies the result after bob, roll and smoothing, before `PivotTo` (line 9282). The original 1% inset is retained with an additional half pixel numerical reserve. Model scale, orientation, depth and camera pose remain unchanged. The conversion from screen offsets to camera-plane offsets is calibrated with three actual `WorldToViewportPoint` calls at a fixed reference depth, independently on X and Y. This follows the actual projection when the device-safe viewport differs from the fullscreen render area. A corner at or behind `max(0.05, abs(Camera.NearPlaneZ))`, an uninitialized viewport or an impossible interval returns an unsuccessful result without shrinking the pet. `CompanionSafeFrameValid` and `CompanionSafeFrameShift` are published at the existing telemetry cadence.
 
-The render path performs eight projections per updated pet. It reuses model bounds and corner vectors until bounds size changes; it does not add per-frame `GetDescendants` or `GetBoundingBox` work. This is a bounded workload description, not a measured FPS claim.
+The render path performs eleven projections per updated pet: three calibration points and eight corners. It reuses model bounds and corner vectors until bounds size changes; it does not add per-frame `GetDescendants` or `GetBoundingBox` work. This is a bounded workload description, not a measured FPS claim.
 
-The pet cache (line 7036) separates companion identity from the hand/fist/Honor visual signature. Ordinary hand-size bursts and fist/Honor refreshes retain the existing companion models and motion state. Character and equipped-token/order changes rebuild them; when this cache block is reached, missing models or changed template instances also invalidate it. The existing early return for a completely unchanged combined signature remains. This is **not** an independent hot-reload/template/lifetime observer, and this patch does not claim recovery from arbitrary external destruction with no other visual change.
+The pet cache (line 7048) separates companion identity from the hand/fist/Honor visual signature. Ordinary hand-size bursts and fist/Honor refreshes retain the existing companion models and motion state. Character and equipped-token/order changes rebuild them; when this cache block is reached, missing models or changed template instances also invalidate it. The existing early return for a completely unchanged combined signature remains. This is **not** an independent hot-reload/template/lifetime observer, and this patch does not claim recovery from arbitrary external destruction with no other visual change.
+
+## Projection follow-up from independent peer review
+
+The first source handoff incorrectly derived pixels per world unit from the safe viewport height. Roblox documents that FOV uses the fullscreen render area while `ViewportSize` excludes cutouts ([official Camera source documentation](https://raw.githubusercontent.com/Roblox/creator-docs/main/content/en-us/reference/engine/classes/Camera.yaml)). A1 provided a counterexample with a 390 × 750 safe area and an 844-high projection, FOV 70, a 1.8 × .054 × .054 box at x=.15 / depth=2.88. The old source reports a valid fit but moves its opposite edge to x=1.45008, outside the original 3.9 inset. The corrected source derives both scale factors from the same projection API used for every corner.
+
+`node work/automation/scripts/pet-size-position-contract.mjs --projection-baseline 521711b` reproduces that exact-source failure. The current fixture passes, preserves depth/size, retains the half-pixel reserve, and reports an impossible cropped fit without shrinking. A mutation that restores the FOV/safe-height assumption is rejected. An ordinary-size 1.8 × 1.1 × .95 box at depth 3.328 also passes. This is a documented projection counterexample, not measured Studio device evidence.
+
+The final small guard additionally refuses to label positive-depth corners inside the actual hardware near plane as safe. A tiny centered box at depth .3 with NearPlaneZ=-.5 is rejected; the mutation restoring a fixed .05 threshold fails. The caller retains its existing no-fit behavior, so this guard alone does not hide or reposition a clipped model.
 
 ## Runtime flow changes
 
@@ -26,7 +34,7 @@ Commands run from the task worktree:
 
 | Command | Result |
 | --- | --- |
-| `node work/automation/scripts/pet-size-position-contract.mjs` | PASS: 440 actual geometry/publication assertions, 38 full production-refresh lifetime assertions, 6 actual safe-frame flow assertions; 8 weakening mutations rejected; complete source and all payloads in both changed flows compile. |
+| `node work/automation/scripts/pet-size-position-contract.mjs` | PASS: 441 actual geometry/publication assertions, 38 full production-refresh lifetime assertions, 5 cropped-projection assertions, 6 actual safe-frame flow assertions; 10 weakening mutations rejected; complete source and all payloads in both changed flows compile. |
 | `node work/automation/scripts/pet-size-position-contract.mjs --baseline 2ddecc6` | Both historical failures reproduced by extracted old source: one-pixel top edge remains outside inset; hand growth replaces actual companion instances. |
 | `node work/automation/scripts/power-avatar-growth-contract.mjs` | PASS: existing 18 source/coverage checks plus 18 executed assertions against both exact flow payloads; 4 weakening mutations rejected. Includes delayed readiness, absent baseline, copied-tag replacement, real height/scale growth, changed target, missing pet and watcher cleanup. |
 | `node work/automation/scripts/fist-growth-lifecycle-contract.mjs` | PASS: 25 production lifecycle assertions. |

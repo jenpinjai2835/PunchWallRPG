@@ -5,7 +5,8 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'../../..');
 const relative='work/punch-wall-rpg/src/client/PunchWallClient.client.lua';
-const at=process.argv.indexOf('--baseline'),baseline=at<0?null:process.argv[at+1]||'2ddecc6';
+const projectionAt=process.argv.indexOf('--projection-baseline'),projectionBaseline=projectionAt<0?null:process.argv[projectionAt+1]||'521711b';
+const at=process.argv.indexOf('--baseline'),baseline=projectionBaseline||(at<0?null:process.argv[at+1]||'2ddecc6');
 const old=baseline&&spawnSync('git',['show',`${baseline}:${relative}`],{cwd:root,encoding:'utf8'});
 if(old)assert.equal(old.status,0,old.stderr);
 const source=(old?old.stdout:fs.readFileSync(path.join(root,relative),'utf8')).replace(/\r\n?/g,'\n');
@@ -30,8 +31,8 @@ F.__mul=function(a,b)return a end
 F.__index={PointToWorldSpace=function(a,v)local c,s=math.cos(a.roll),math.sin(a.roll)return a.Position+Vector3.new(v.X*c-v.Y*s,v.X*s+v.Y*c,v.Z)end,
  Lerp=function(a,b,t)return frame(a.Position.X+(b.Position.X-a.Position.X)*t,a.Position.Y+(b.Position.Y-a.Position.Y)*t,a.Position.Z+(b.Position.Z-a.Position.Z)*t,a.roll+(b.roll-a.roll)*t)end,
  Inverse=function(a)return a end}
-local camera={ViewportSize={X=1277,Y=780},FieldOfView=70,CFrame={RightVector=Vector3.new(1,0,0),UpVector=Vector3.new(0,1,0)}}
-function camera:WorldToViewportPoint(p)local f=self.ViewportSize.Y/(2*math.tan(math.rad(self.FieldOfView/2)))return Vector3.new(self.ViewportSize.X/2+p.X*f/p.Z,self.ViewportSize.Y/2-p.Y*f/p.Z,p.Z)end
+local camera={ViewportSize={X=1277,Y=780},FieldOfView=70,CFrame={Position=Vector3.new(0,0,0),LookVector=Vector3.new(0,0,1),RightVector=Vector3.new(1,0,0),UpVector=Vector3.new(0,1,0)}}
+function camera:WorldToViewportPoint(p)local f=(self.projectionHeight or self.ViewportSize.Y)/(2*math.tan(math.rad(self.FieldOfView/2)))return Vector3.new(self.ViewportSize.X/2+p.X*f/p.Z,self.ViewportSize.Y/2-p.Y*f/p.Z,p.Z)end
 local workspace={CurrentCamera=camera} local companionRuntime={}
 ${geometry}
 local function rect(cf,size)
@@ -99,6 +100,9 @@ check(same==original and ok==false,'invalid_viewport_cannot_claim_fit')
 camera.ViewportSize={X=1277,Y=780}local behind=frame(0,0,-1)
 same,ok=companionRuntime.KeepBoundsInSafeFrame(behind,companionRuntime.BoundsCorners(size))check(same==behind and ok==false,'behind_camera_cannot_claim_fit')
 local huge=Vector3.new(100,100,1)same,ok=companionRuntime.KeepBoundsInSafeFrame(frame(0,0,2),companionRuntime.BoundsCorners(huge))check(ok==false,'impossible_frame_fit_is_reported_without_shrinking')
+camera.NearPlaneZ=-.5 local near=frame(0,0,.3)
+same,ok=companionRuntime.KeepBoundsInSafeFrame(near,companionRuntime.BoundsCorners(Vector3.new(.02,.02,.02)))
+check(same==near and ok==false,'positive_depth_inside_hardware_near_plane_cannot_claim_safe_fit')
 print('PASS '..n)
 `,
  petLifetime:`${petSetup}
@@ -114,6 +118,21 @@ player.Character={}refreshCharacterVisuals()check(created==13,'new_character_reb
 latestStats.EquippedPetsJSON={}refreshCharacterVisuals()check(#companionModels==0,'unequipping_last_pet_clears_models')
 print('PASS '..n)
 `};
+if(!baseline||projectionBaseline){
+ fixtures.croppedProjection=`${vector}
+camera.ViewportSize={X=390,Y=750}camera.projectionHeight=844 camera.FieldOfView=70
+local original=frame(.15,0,2.88)local size=Vector3.new(1.8,.054,.054)
+local out,state=publish(original,size)
+check(state.safeFrameValid and safe(rect(out,size)),'cropped_projection_keeps_both_opposite_edges_inside_original_inset')
+check(out.Position.Z==original.Position.Z and state.boundsSize==size,'cropped_projection_preserves_depth_and_readable_geometry')
+local r=rect(out,size)check(r.maxX<=390-4.4+.00001 and r.minX>=4.4-.00001,'cropped_projection_retains_extra_half_pixel_reserve')
+local normal=frame(.15,0,3.328)local normalSize=Vector3.new(1.8,1.1,.95)local fitted,normalState=publish(normal,normalSize)
+check(normalState.safeFrameValid and safe(rect(fitted,normalSize)),'ordinary_pet_height_and_depth_fit_cropped_projection')
+camera.projectionHeight=1200
+out,state=publish(original,size)check(state.safeFrameValid==false and (out.Position-original.Position).Magnitude<.00001 and state.boundsSize==size,'cropped_impossible_box_is_not_shrunk_or_marked_safe')
+print('PASS '..n)
+`;
+}
 if(!baseline){
  const actualFlow=JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows/pet-size-position-qc.json'))).steps.find(s=>s.saveAs==='premiumSafeFrame');
  assert.ok(actualFlow.expectRegex.some(p=>p.includes('contractValid')),'unique top-level all-distances gate');
@@ -148,13 +167,16 @@ print('PASS '..n)
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'smash-pet-contract-')),files=[],results={},mutations=[];
 function run(name,text){const file=path.join(temp,`${name}.luau`);files.push(file);fs.writeFileSync(file,text);const r=spawnSync(luau,[file],{encoding:'utf8',timeout:15000});return {status:r.status,output:(r.stdout||'')+(r.stderr||'')};}
 try{
- for(const [name,text]of Object.entries(fixtures)){const r=run(name,text);if(baseline){const expected=name==='safeFrame'?'all_eight_corners_publish_inside_original_one_percent_inset':'hand_growth_retains_actual_companion_instances';assert.ok(r.status!==0&&r.output.includes(expected),r.output);results[name]={reproduced:expected};}else{assert.equal(r.status,0,r.output);results[name]={passed:Number(r.output.match(/PASS (\d+)/)?.[1])};}}
+ for(const [name,text]of Object.entries(fixtures)){if(projectionBaseline&&name!=='croppedProjection')continue;const r=run(name,text);if(baseline){const expected=projectionBaseline?'cropped_projection_keeps_both_opposite_edges_inside_original_inset':name==='safeFrame'?'all_eight_corners_publish_inside_original_one_percent_inset':'hand_growth_retains_actual_companion_instances';assert.ok(r.status!==0&&r.output.includes(expected),r.output);results[name]={reproduced:expected};}else{assert.equal(r.status,0,r.output);results[name]={passed:Number(r.output.match(/PASS (\d+)/)?.[1])};}}
  if(!baseline){
   const controls=[['skip_actual_safe_publication','safeFrame',t=>t.replace('state.currentBoundsCFrame = safeBounds','state.currentBoundsCFrame = state.currentBoundsCFrame'),'all_eight_corners_publish_inside_original_one_percent_inset'],['remove_safe_inset','safeFrame',t=>t.replace('math.min(viewport.X, viewport.Y) * 0.01 + 0.5','0'),'all_eight_corners_publish_inside_original_one_percent_inset'],['rebuild_pets_on_hand_size','petLifetime',t=>t.replace('if petsCurrent then return end','if false then return end'),'hand_growth_retains_actual_companion_instances'],['ignore_template_replacement','petLifetime',t=>t.replace('and companionRuntime.petSources[index] == petSources[index]','and true'),'template_instance_replacement_invalidates_pet_cache_on_refresh'],['ignore_companion_lifetime','petLifetime',t=>t.replace('state.model.Parent == companionsFolder','true'),'detached_companion_invalidates_cache_on_refresh']];
   for(const [name,fixture,mutate,expected]of controls){const altered=mutate(fixtures[fixture]);assert.notEqual(altered,fixtures[fixture],name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);}
   for(const [name,from,to,expected]of [['allow_partial_front','front==8 and minX','front>0 and minX','exact_flow_rejects_partially_behind_camera_bounds'],['allow_top_edge','minY>=inset','minY>=0','exact_flow_rejects_transient_one_pixel_top_edge'],['skip_motion_window','for sample=1,20 do','for sample=1,1 do','exact_flow_samples_full_bob_window_at_all_three_distances']]){
    const altered=fixtures.frameOracle.replace(from,to);assert.notEqual(altered,fixtures.frameOracle,name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
   }
+  const wrongProjection=fixtures.croppedProjection.replace('local worldPerPixelX = point.Z / pixelsAtUnitDepthX','local worldPerPixelX = 2 * math.tan(math.rad(camera.FieldOfView * 0.5)) * point.Z / viewport.Y');
+  assert.notEqual(wrongProjection,fixtures.croppedProjection);const wrongResult=run('assume_safe_height_equals_projection_height',wrongProjection);assert.ok(wrongResult.status!==0&&wrongResult.output.includes('cropped_projection_keeps_both_opposite_edges_inside_original_inset'),wrongResult.output);mutations.push('assume_safe_height_equals_projection_height');
+  const wrongNear=fixtures.safeFrame.replace('if point.Z <= nearDepth then','if point.Z <= 0.05 then');assert.notEqual(wrongNear,fixtures.safeFrame);const wrongNearResult=run('ignore_hardware_near_plane',wrongNear);assert.ok(wrongNearResult.status!==0&&wrongNearResult.output.includes('positive_depth_inside_hardware_near_plane_cannot_claim_safe_fit'),wrongNearResult.output);mutations.push('ignore_hardware_near_plane');
   for(const [name,code]of [['client',source],...['pet-size-position-qc','power-avatar-growth'].flatMap(name=>JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows',name+'.json'))).steps.flatMap((s,i)=>s.args?.code?[[`${name}-${i}`,s.args.code]]:[]))]){const file=path.join(temp,name+'.luau');files.push(file);fs.writeFileSync(file,code);const r=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);}
  }
  console.log(JSON.stringify({ok:true,source:baseline||'current',results,mutations},null,2));
