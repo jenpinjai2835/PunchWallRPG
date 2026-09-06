@@ -5324,17 +5324,28 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
 	-- size and depth. Intersect each corner's allowable translation interval
 	-- so bob, tilt and smoothing cannot push an edge beyond the 1% safe frame.
 	local inset = math.min(viewport.X, viewport.Y) * 0.01 + 0.5
-	local verticalFrustum = 2 * math.tan(math.rad(camera.FieldOfView * 0.5))
+	-- Calibrate against the same projection as the corners: FOV can use the
+	-- full render area while ViewportSize excludes a device cutout.
+	local reference = camera.CFrame.Position + camera.CFrame.LookVector * 10
+	local center = camera:WorldToViewportPoint(reference)
+	local right = camera:WorldToViewportPoint(reference + camera.CFrame.RightVector)
+	local up = camera:WorldToViewportPoint(reference + camera.CFrame.UpVector)
+	local pixelsAtUnitDepthX = (right.X - center.X) * center.Z
+	local pixelsAtUnitDepthY = (center.Y - up.Y) * center.Z
+	if center.Z <= 0.05 or pixelsAtUnitDepthX <= 0.0001 or pixelsAtUnitDepthY <= 0.0001 then
+		return boundsCFrame, false, 0
+	end
 	local minX, maxX, minY, maxY = -math.huge, math.huge, -math.huge, math.huge
 	for _, localCorner in ipairs(boundsCorners) do
 		local corner = boundsCFrame:PointToWorldSpace(localCorner)
 		local point = camera:WorldToViewportPoint(corner)
 		if point.Z <= 0.05 then return boundsCFrame, false, 0 end
-		local worldPerPixel = verticalFrustum * point.Z / viewport.Y
-		minX = math.max(minX, (inset - point.X) * worldPerPixel)
-		maxX = math.min(maxX, (viewport.X - inset - point.X) * worldPerPixel)
-		minY = math.max(minY, (point.Y - viewport.Y + inset) * worldPerPixel)
-		maxY = math.min(maxY, (point.Y - inset) * worldPerPixel)
+		local worldPerPixelX = point.Z / pixelsAtUnitDepthX
+		local worldPerPixelY = point.Z / pixelsAtUnitDepthY
+		minX = math.max(minX, (inset - point.X) * worldPerPixelX)
+		maxX = math.min(maxX, (viewport.X - inset - point.X) * worldPerPixelX)
+		minY = math.max(minY, (point.Y - viewport.Y + inset) * worldPerPixelY)
+		maxY = math.min(maxY, (point.Y - inset) * worldPerPixelY)
 	end
 	if minX > maxX or minY > maxY then return boundsCFrame, false, 0 end
 	local offset = camera.CFrame.RightVector * math.clamp(0, minX, maxX)
