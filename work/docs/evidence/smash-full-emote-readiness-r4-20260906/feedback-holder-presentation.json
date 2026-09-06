@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "feedback-holder-presentation",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play and wait for runtime DataModels",
+        "wait for feedback UI bootstrap",
+        "prepare rejected rebirth and fresh premium state",
+        "request a gated rebirth through the player remote",
+        "wait for rejection feedback",
+        "gated action renders visible rejection feedback",
+        "let rejection presentation clear",
+        "arm exact premium Feedback observation before server grant",
+        "request the deterministic Studio premium pet grant",
+        "wait for premium grant feedback",
+        "premium grant renders one visible feedback channel",
+        "capture feedback presentation console",
+        "feedback presentation console clean (identified Studio input warnings: 0)",
+        "stop play and wait for Edit"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "feedback presentation console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

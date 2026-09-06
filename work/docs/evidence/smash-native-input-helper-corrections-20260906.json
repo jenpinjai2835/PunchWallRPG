@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-09-06T14:17:16.6871678Z",
+  "helperSHA256": "328C3D828445B60A91C59082E413BBAA331CCAB6DE718E8554794E558C4F1DB1",
+  "ok": true,
+  "checks": {
+    "ok": true,
+    "selfTest": "bounded native input/readonly route/context/independent cleanup checks",
+    "nativeRouteEvidence": {
+      "path": "F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-artifact-native-input-profile-r2-20260906.json",
+      "sha256": "D413CBC4BA5F904315A2F31B6530F037645E7ACCAAAF5230E1FDDED71DB5BD35",
+      "historicalFailurePreserved": true
+    },
+    "approvedLuaHashes": {
+      "guard": "2A3681F69E342F3C9E93915A9F4D1D583CAB4112F4433406E514F1A990874D94",
+      "seed": "31A504C9965CDA44AEC2AEBAA051C08CA7AA8074FFCCCB5D9A522267EEE74597",
+      "clientReady": "E44565781336E18B60833C893166E30667857CD400A56C806AA883DA22C95E03",
+      "profiler": "73FAAB312994DDC12C8DB94685BD32AE6A43E034AF906A124E95097DFEBF3457"
+    },
+    "helperSHA256": "328C3D828445B60A91C59082E413BBAA331CCAB6DE718E8554794E558C4F1DB1",
+    "noStudio": true
+  },
+  "nativeExecuted": false,
+  "disposition": "Supplementary helper corrections checked offline only. Retained R1 failed before native click due missing runner normalization; R2 actual native click succeeded but validator wrongly required hero HUD visible under Shop. Production intentionally hides hero HUD. The required full131 native flows and unchanged final four-phase profiler are separate accepted evidence; no failed helper run is relabelled as passing."
+}

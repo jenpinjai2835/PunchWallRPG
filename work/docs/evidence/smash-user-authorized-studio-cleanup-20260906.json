@@ -1,0 +1,108 @@
+{
+  "startedAt": "2026-09-06T14:06:20.6604098Z",
+  "authorization": "User explicitly requested closing unused Studio windows because the computer is very slow, after earlier restart rejections.",
+  "retainedPid": 7716,
+  "retainedStudioId": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+  "before": [
+    {
+      "pid": 22788,
+      "workingSetMiB": 1043.0,
+      "privateMiB": 9830.0,
+      "commandLine": "\"C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe\" \"F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_20260906\\PunchWallRPGPlayable_v1_final.rbxlx\"",
+      "start": "2026-09-06T04:37:29.5150686Z",
+      "file": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_20260906\\PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    {
+      "pid": 22388,
+      "workingSetMiB": 418.0,
+      "privateMiB": 4615.0,
+      "commandLine": "\"C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe\" \"F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx\"",
+      "start": "2026-09-06T07:17:36.7479823Z",
+      "file": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    {
+      "pid": 22472,
+      "workingSetMiB": 1105.0,
+      "privateMiB": 16369.0,
+      "commandLine": "\"C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe\" \"F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R3_20260906\\PunchWallRPGPlayable_v1_final.rbxlx\"",
+      "start": "2026-09-06T08:14:11.6836440Z",
+      "file": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R3_20260906\\PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    {
+      "pid": 11660,
+      "workingSetMiB": 1352.0,
+      "privateMiB": 9769.0,
+      "commandLine": "\"C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe\" \"F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx\"",
+      "start": "2026-09-06T12:22:08.6475610Z",
+      "file": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx"
+    }
+  ],
+  "stopped": [
+    {
+      "pid": 22788,
+      "stoppedAt": "2026-09-06T14:06:21.7873883Z"
+    },
+    {
+      "pid": 22388,
+      "stoppedAt": "2026-09-06T14:06:21.7987956Z"
+    },
+    {
+      "pid": 22472,
+      "stoppedAt": "2026-09-06T14:06:21.8083815Z"
+    },
+    {
+      "pid": 11660,
+      "stoppedAt": "2026-09-06T14:06:21.8219816Z"
+    }
+  ],
+  "diskHashes": {
+    "outputs/PunchWallRPGPlayable_v1_final.build.json": "F06521B6D714479C271C2C6C194B3E422A3E944EE9FB61A937F9E553A09EA5F2",
+    "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx": "683D09398A87FB6359327A4D00C5E1029BCFFD69F54B928F1257F11BA6E58470",
+    "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R3_20260906\\PunchWallRPGPlayable_v1_final.rbxlx": "6D15D52110FCAAD7E13A46129A7D4116EC995D8AD400DE8C0A2293FBD96A9B4D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx": "BF76298183C839DE578B119F881B34FC35DC8B235AE8316920C74E79869EB886",
+    "outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+    "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_20260906\\PunchWallRPGPlayable_v1_final.rbxlx": "156E4A5EEE45B812B0381042803363CB67C55BC492C50115472B4AA529671CF7",
+    "outputs/PunchWallRPGPlayable_v1_final.rbxlx": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+  },
+  "error": "Expected exactly retained final Studio",
+  "ok": false,
+  "memoryBefore": {
+    "TotalVisibleMemorySize": 16621748,
+    "FreePhysicalMemory": 1001884,
+    "TotalVirtualMemorySize": 78354740,
+    "FreeVirtualMemory": 9239336
+  },
+  "after": [
+    {
+      "Id": 7716,
+      "MainWindowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx - Roblox Studio",
+      "StartTime": "2026-09-06T20:40:59.3156237+07:00",
+      "WorkingSetMiB": 2127.0
+    },
+    {
+      "Id": 11660,
+      "MainWindowTitle": "",
+      "StartTime": "2026-09-06T19:22:08.647561+07:00",
+      "WorkingSetMiB": 1352.0
+    },
+    {
+      "Id": 22388,
+      "MainWindowTitle": "",
+      "StartTime": "2026-09-06T14:17:36.7479823+07:00",
+      "WorkingSetMiB": 418.0
+    },
+    {
+      "Id": 22472,
+      "MainWindowTitle": "",
+      "StartTime": "2026-09-06T15:14:11.683644+07:00",
+      "WorkingSetMiB": 1105.0
+    },
+    {
+      "Id": 22788,
+      "MainWindowTitle": "",
+      "StartTime": "2026-09-06T11:37:29.5150686+07:00",
+      "WorkingSetMiB": 1043.0
+    }
+  ],
+  "completedAt": "2026-09-06T14:06:21.9097791Z"
+}

@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "hero-city-pixel-perfect-hud",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for pixel HUD",
+        "pixel HUD including the dedicated Inventory action is exact",
+        "prepare first depth block",
+        "break depth block through authoritative combat path",
+        "wait for physics debris",
+        "depth breach is open with visible debris",
+        "fist shop is fully assembled and interactive",
+        "trigger punch feedback",
+        "wait for local punch feedback",
+        "punch feedback avoids center-screen spam",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

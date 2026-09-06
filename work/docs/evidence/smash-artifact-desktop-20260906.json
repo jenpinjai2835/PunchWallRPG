@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "startedAt": "2026-09-06T13:43:39.754Z",
+  "operations": [
+    {
+      "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync()\nassert(S:GetDeviceAsync()=='default','desktop simulation did not stop')\nreturn game.HttpService:JSONEncode({ok=true,name='Studio desktop window',device=S:GetDeviceAsync(),emulated=false})",
+      "result": {
+        "raw": {
+          "jsonrpc": "2.0",
+          "id": 6,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"ok\":true,\"device\":\"default\",\"name\":\"Studio desktop window\",\"emulated\":false}"
+              }
+            ],
+            "isError": false
+          }
+        },
+        "text": "{\"ok\":true,\"device\":\"default\",\"name\":\"Studio desktop window\",\"emulated\":false}",
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"ok\":true,\"device\":\"default\",\"name\":\"Studio desktop window\",\"emulated\":false}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "code": "local c=assert(workspace.CurrentCamera) local v=c.ViewportSize assert(v.X>=900 and v.Y>=600,'usable desktop viewport required') return game.HttpService:JSONEncode({ok=true,viewport={x=v.X,y=v.Y},device=game:GetService('StudioDeviceSimulatorService'):GetDeviceAsync()})",
+      "result": {
+        "raw": {
+          "jsonrpc": "2.0",
+          "id": 7,
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"ok\":true,\"device\":\"default\",\"viewport\":{\"y\":801,\"x\":1277}}"
+              }
+            ],
+            "isError": false
+          }
+        },
+        "text": "{\"ok\":true,\"device\":\"default\",\"viewport\":{\"y\":801,\"x\":1277}}",
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"ok\":true,\"device\":\"default\",\"viewport\":{\"y\":801,\"x\":1277}}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "selectedStudio": {
+    "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+    "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+  },
+  "last": {
+    "ok": true,
+    "device": "default",
+    "viewport": {
+      "y": 801,
+      "x": 1277
+    }
+  },
+  "completedAt": "2026-09-06T13:43:40.264Z"
+}

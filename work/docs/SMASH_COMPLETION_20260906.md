@@ -1,18 +1,71 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 19:30 ICT:** the latest full run completed
-**130 PASS / 1 FAIL of 131** in 74.47 minutes at `1a97247`, without interruption.
-All source/automation hashes stayed frozen and exact live nine-source checks
-passed before and after. The four prior failure families pass in this full run.
-Required acceptance remains BLOCKED by a bootstrap Wave result before the
-world-reset steps: the invoke completed but did not produce the required true
-result. Two native diagnostic replays pass; the original cause remains unknown.
-Agent1 owns QA-only passive idle readiness and packed result diagnostics, with
-Agent2 peer review waiting for the immutable handoff. Root owns native replay,
-fresh-session complete regression and delivery. Fresh R4 source-bound Shop and
-tunnel timings are retained below; they do not replace final artifact acceptance.
-Canonical output remains unchanged. Artifact/profile/visual/reviewed-merge gates
-remain pending; earlier narrow UI visual acceptance is preserved.
+**Current status, September 6 at 21:19 ICT:** the complete regression passed
+**131/131, zero failures or exclusions**, in 57.69 minutes at `de8ffeb`.
+All 258 source/automation files stayed frozen, and exact read-only live equality
+of all nine source objects passed before and after. The latest combined static
+check executed 61 contracts successfully; one separately identified Studio-only
+benchmark is not included in that static count. Historical failures remain below.
+
+The canonical and validation places were deliberately rebuilt from this accepted
+source. Both are 6,492,145 bytes, SHA256
+`F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781`.
+The validation copy was natively opened without source synchronization; all 11
+runtime checks and exact embedded/live source checks passed. Root and Agent2
+viewed all 14 final original images: desktop, emulated phone landscape, and four
+637 x 654 narrow modal/detail layouts. No actionable clipping, overlap or model
+framing defect was found in those captured views. Agent1 independently accepted
+the full/source/build/native provenance chain.
+
+**Desktop performance review is accepted within the measured scope.** The final
+Git review and merge outcome is recorded in Agent HQ and the task pull request.
+After the user's requested
+cleanup, the unchanged original 18-punch tunnel workload passed on the exact final
+artifact: 1,159 frames over 19.469 seconds, p50 16.699 ms, p95 19.430 ms, maximum
+52.824 ms, two intervals above 50 ms and none above 100 ms. The original four-phase
+collector then recorded idle, Shop and Inventory p95 values of 18.239, 18.288 and
+18.391 ms, respectively, with no intervals above 50 ms in those three phases.
+Agent1 independently reviewed both final reports and found no new actionable
+P1/P2 source defect. No further source change or repeat runtime test is justified
+by those observations.
+
+The artificial four-world-reset plus 20 direct-server-punch stress still contains
+real hitches: 23 of 732 intervals exceeded 50 ms, seven exceeded 100 ms, maximum
+147.585 ms. This remains a disclosed stress limitation. The observer includes MCP
+and diagnostic work and does not isolate normal client input or camera CPU cost.
+Initial focus remains unknown; viewport stayed stable in the four-phase sample.
+Earlier approximately 66.7 ms measurements are retained, and their cause remains
+unresolved. No foreground or memory causation, physical-phone performance, or
+stutter-free claim is made. The user reported Codex or another application was
+in front before cleanup; this is separate context, not retrospective proof.
+
+At 21:06, following the user's explicit
+request, root closed four verified historical Studio instances and retained only
+PID 7716 / UUID `656ac8ed-1afe-488d-a5f9-adc196517b71`. Seven saved artifact hashes
+stayed unchanged. Free physical memory increased from about 1 GB to 5 GB.
+The initial immediate process enumeration caught exiting processes; a subsequent
+read-only check confirmed exactly the retained Studio. No production or recorded
+automation changes were made
+after the accepted full run.
+
+Current evidence: `smash-full-emote-readiness-r4-20260906/manifest.json`,
+`smash-final-artifact-build-20260906.json`, `smash-artifact-runtime-20260906.json`,
+`smash-final-artifact-visuals-20260906/manifest.json`,
+`smash-final-narrow-artifact-visuals-20260906/manifest.json`,
+`smash-final-artifact-peer-reviews-20260906.json`,
+`smash-final-artifact-tunnel-20260906/manifest.json`,
+`smash-frame-profile-final-single-studio-20260906.json`, and
+`smash-user-authorized-studio-cleanup-verified-20260906.json`, all under
+`work/docs/evidence/`.
+
+Two supplementary native-input helper runs remain recorded as failed diagnostic
+runs. R1 passed flow-only path segments directly to MCP; R2 successfully opened
+Shop but incorrectly required the hero HUD to remain visible beneath a modal.
+Both are helper defects, with cleanup and source/file preservation verified.
+The correction is checked against the actual retained snapshots, offline only;
+neither old result is relabelled as passing. Required native controls already
+passed in the full suite, and the unchanged final four-phase profiler and exact
+tunnel flow provide the accepted performance observations.
 
 **Prior checkpoint, September 6 at 16:02 ICT:** all then-known source repairs were integrated
 through `e69e586`. The tall Inventory detail now uses an approximately 259 px
@@ -77,9 +130,9 @@ Agent HQ mutations and Studio ownership are exclusive to the Coordinator. Any im
 - [x] Verified defects separated from design hypotheses and historical unresolved gates.
 - [x] Concrete Shop/Inventory, model, camera/performance and cooperative-play design recorded.
 - [x] Accepted focused fixes accompanied by reproducible regression.
-- [x] Combined applicable non-Studio checks completed; final rerun required after pending QA integrations.
-- [ ] Current desktop/mobile player view and camera/performance runtime checked.
-- [ ] Reviewable handoff with evidence, Git state and exact blockers recorded in Agent HQ.
+- [x] Combined applicable non-Studio checks completed: 61 executed contracts, with one explicit runtime-only benchmark outside the static count.
+- [x] Current desktop/emulated-mobile visuals and camera/runtime checked; desktop performance accepted with the stated measurement and stress limits.
+- [x] Reviewable handoff with evidence, Git state and measured limitations recorded in Agent HQ; PR review and merge are tracked there separately.
 
 Required failed, unavailable, stale or unrun gates remain BLOCKED. A passing static assertion does not prove mobile visual quality, physical touch, smooth frame time, live commerce, production rejoin persistence, or retention.
 

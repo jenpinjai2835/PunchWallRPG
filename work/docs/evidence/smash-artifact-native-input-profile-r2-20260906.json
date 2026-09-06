@@ -1,0 +1,1577 @@
+{
+  "ok": false,
+  "kind": "Verified artifact native Shop click comparison; Studio whole-workload RenderStepped intervals",
+  "startedAt": "2026-09-06T14:11:35.572Z",
+  "phases": [
+    {
+      "viewportStart": {
+        "y": 801,
+        "x": 1277,
+        "valid": true
+      },
+      "totalIntervals": 360,
+      "viewportEnd": {
+        "y": 801,
+        "x": 1277,
+        "valid": true
+      },
+      "focusTrace": [],
+      "over50MS": 1,
+      "memoryEndMB": 1804.1171875,
+      "viewportTrace": [],
+      "invalidSamples": 0,
+      "viewportChanges": 0,
+      "samples": 360,
+      "focusKnownWholePhase": false,
+      "lastTargetScan": {
+        "queries": 3,
+        "unique": 72,
+        "candidates": 72
+      },
+      "focusStart": "unknown",
+      "focusTraceTruncated": false,
+      "focusEnd": "unknown",
+      "ok": true,
+      "viewportTraceTruncated": false,
+      "p50MS": 16.753800213336945,
+      "p99MS": 26.007400825619698,
+      "memoryStartMB": 1803.63671875,
+      "maxMS": 125.18960237503052,
+      "sampleCap": 36000,
+      "contextTraceLimit": 12,
+      "seconds": 6.097869000004721,
+      "over100MS": 1,
+      "name": "idle-before-native-input",
+      "p95MS": 18.367599695920944,
+      "focusTransitions": 0,
+      "contextValid": true,
+      "saturated": false,
+      "droppedSamples": 0,
+      "begin": {
+        "ok": true,
+        "name": "idle-before-native-input",
+        "focusStart": "unknown",
+        "sampleCap": 36000,
+        "viewportStart": {
+          "y": 801,
+          "x": 1277,
+          "valid": true
+        }
+      },
+      "collectionPassed": true,
+      "performanceContextAccepted": false
+    }
+  ],
+  "operations": [
+    {
+      "label": "read default simulator",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') local id=S:GetDeviceAsync() assert(id=='default','Default simulator required; helper will not change devices') return game.HttpService:JSONEncode({ok=true,device=id})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:11:40.215Z",
+      "finishedAt": "2026-09-06T14:11:40.360Z",
+      "text": "{\"ok\":true,\"device\":\"default\"}",
+      "isError": false
+    },
+    {
+      "label": "start owned Play",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeout": 60000,
+      "requestedAt": "2026-09-06T14:11:40.360Z",
+      "finishedAt": "2026-09-06T14:11:46.415Z",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "strict ephemeral settled seed",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local R=game:GetService('RunService') local H=game:GetService('HttpService')\nlocal players=game:GetService('Players'):GetPlayers() assert(R:IsStudio() and #players==1,'isolated Studio player required')\nlocal p=players[1] local w=assert(workspace:FindFirstChild('PunchWallRPG')) local ss=game:GetService('ServerStorage')\nassert(w:GetAttribute('PersistenceMode')=='EphemeralStudio' and w:GetAttribute('PersistenceStudioDefaultEphemeral')==true\n and w:GetAttribute('PersistenceStudioLiveDataOptIn')==false and ss:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'strict ephemeral defaults required')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio'\n and p:GetAttribute('ProfileWritable')==false,'non-writable ephemeral profile required')\nlocal a=assert(ss:FindFirstChild('PunchWallAutomation'))\nlocal G=require(game.ReplicatedStorage.GameConfig) local values={[\"OwnedFistsJSON\"]=\"[\\\"Starter Glove\\\",\\\"Boxing Glove\\\",\\\"Iron Knuckle\\\",\\\"Thunder Fist\\\",\\\"Titan Gauntlet\\\"]\",[\"PetInventoryJSON\"]=\"[\\\"Forest Pup\\\",\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\",[\"EquippedPetsJSON\"]=\"[\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\"}\nlocal function catalogHas(catalog,name) for _,item in ipairs(catalog) do if item.name==name then return true end end return false end\nfor _,name in ipairs(H:JSONDecode(values.OwnedFistsJSON)) do assert(catalogHas(G.Fists,name),'invalid configured fist '..name) end\nfor _,name in ipairs(H:JSONDecode(values.PetInventoryJSON)) do assert(catalogHas(G.Pets,name),'invalid configured pet '..name) end\nlocal function reconciled()\n local pending=p:GetAttribute('PendingGamePassGrantCount')\n return p:GetAttribute('GamePassOwnershipReconciled')==true\n  and p:GetAttribute('GamePassOwnershipReconciliationFailed')==false and (pending==nil or pending==0)\nend\nlocal deadline=os.clock()+25\nwhile not reconciled() and os.clock()<deadline do\n assert(p:GetAttribute('GamePassOwnershipReconciliationFailed')~=true,'Entitlement reconciliation exhausted its retries') task.wait(.1)\nend\nassert(reconciled(),'Timed out waiting for entitlement reconciliation; Reset was not invoked')\nlocal reset=a:Invoke('Reset') assert(type(reset)=='table' and reset.ok==true,'Reset failed')\nlocal seeded=a:Invoke('SetStats',values) assert(type(seeded)=='table' and seeded.ok==true,'SetStats failed')\nlocal readback=a:Invoke('Snapshot') assert(type(readback)=='table' and readback.ok==true,'Snapshot failed')\nfor key,expected in pairs(values) do\n local actual=assert(p:FindFirstChild('RPGStats'):FindFirstChild(key),'missing stat '..key).Value\n assert(actual==expected and readback[key]==expected,'seed readback differs '..key)\nend\nreturn H:JSONEncode({ok=true,values=values,ownedFists=5,inventoryCopies=3,inventorySpecies=2,equippedPets=2})"
+      },
+      "timeout": 45000,
+      "requestedAt": "2026-09-06T14:11:53.517Z",
+      "finishedAt": "2026-09-06T14:11:53.611Z",
+      "text": "{\"ok\":true,\"inventoryCopies\":3,\"values\":{\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\",\\\"Boxing Glove\\\",\\\"Iron Knuckle\\\",\\\"Thunder Fist\\\",\\\"Titan Gauntlet\\\"]\",\"EquippedPetsJSON\":\"[\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\",\"PetInventoryJSON\":\"[\\\"Forest Pup\\\",\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\"},\"inventorySpecies\":2,\"equippedPets\":2,\"ownedFists\":5}",
+      "isError": false
+    },
+    {
+      "label": "verify exact replicated seed and close setup menus",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local H=game:GetService('HttpService') local g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD'))\nlocal expected={[\"OwnedFistsJSON\"]=\"[\\\"Starter Glove\\\",\\\"Boxing Glove\\\",\\\"Iron Knuckle\\\",\\\"Thunder Fist\\\",\\\"Titan Gauntlet\\\"]\",[\"PetInventoryJSON\"]=\"[\\\"Forest Pup\\\",\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\",[\"EquippedPetsJSON\"]=\"[\\\"Forest Pup\\\",\\\"Miner Cat\\\"]\"} local stats=assert(p:FindFirstChild('RPGStats'))\nfor key,value in pairs(expected) do assert(stats:FindFirstChild(key) and stats[key].Value==value,'seed not replicated '..key) end\nlocal companions=assert(workspace:FindFirstChild(p.Name..' Client Companions'),'missing companions') local models=0\nfor _,d in ipairs(companions:GetChildren()) do if d:IsA('Model') then models+=1 end end assert(models==2,'two equipped companion models required')\nlocal a=assert(g:FindFirstChild('PunchWallClientAutomation'))\nassert(type(a:Invoke('OpenInventory'))=='table','Inventory controller unavailable')\nlocal result=a:Invoke('SelectInventoryCategory','All') assert(type(result)=='table' and result.ok==true,'Inventory selection failed')\nlocal s=a:Invoke('Snapshot') assert(s.ok==true and s.inventoryVisible==true and s.inventory.ok==true and s.inventory.category=='All','Inventory seed view unavailable')\nassert(s.inventory.capacity.used==3,'Inventory capacity does not reflect three copies')\nlocal names={} for _,name in ipairs(s.inventory.visibleNames) do names[name]=(names[name] or 0)+1 end\nfor _,name in ipairs(H:JSONDecode(expected.OwnedFistsJSON)) do assert(names[name]==1,'missing owned fist '..name) end\nassert(names['Forest Pup']==2 and names['Miner Cat']==1,'Inventory does not expose exact seeded pet copies')\nassert(a:Invoke('CloseMenus')==true,'CloseMenus failed') local closed=a:Invoke('Snapshot')\nassert(closed.ok==true and not closed.menuVisible and not closed.shopVisible and not closed.inventoryVisible,'Menus did not close')\nreturn H:JSONEncode({ok=true,companions=models,inventory=s.inventory,closed=closed})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:11:54.822Z",
+      "finishedAt": "2026-09-06T14:11:55.000Z",
+      "text": "{\"ok\":true,\"closed\":{\"inventory\":{\"ok\":true,\"rarity\":\"All\",\"visibleNames\":[\"Starter Glove\",\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\",\"Forest Pup\",\"Forest Pup\",\"Miner Cat\",\"Vanguard Trail\",\"Storm Hero Aura\",\"Relic Sidekick Core\",\"Crown of the Deep\",\"Titan Vanguard Trail\",\"Tempest Commander Aura\",\"Celestial Relic Core\",\"Eternal Crown of Honor\"],\"layout\":{\"searchReadable\":true,\"rarityEntryHeight\":44,\"rarityMenuBounded\":true,\"renderedWindowHeight\":408,\"rarityMenuHeight\":212,\"noOverlap\":true,\"viewportWidth\":677,\"minTouchTarget\":44,\"rarityMenuZLayer\":170,\"boundsSafe\":true,\"searchWidth\":290,\"allTextFits\":true,\"detailMode\":\"Drawer\",\"columns\":2,\"compact\":true,\"toolbarNoOverlap\":true,\"renderedWindowWidth\":677,\"capacityMode\":\"Full\",\"hoveredCategory\":\"\",\"viewportHeight\":408,\"searchMinimum\":44,\"rarityMenuOpen\":false,\"capacityText\":\"ITEMS 16  |  PETS 3/150\",\"capacityFullText\":\"ITEMS 16  |  PETS 3/150\",\"capacityReadable\":true,\"uiScale\":1,\"insideSafeArea\":true},\"visibleKeys\":[\"fist:Starter Glove\",\"fist:Boxing Glove\",\"fist:Iron Knuckle\",\"fist:Thunder Fist\",\"fist:Titan Gauntlet\",\"pet:slot:1\",\"pet:slot:2\",\"pet:slot:3\",\"honor:vanguard_trail\",\"honor:storm_hero_aura\",\"honor:relic_sidekick_core\",\"honor:crown_of_the_deep\",\"honor:titan_vanguard_trail\",\"honor:tempest_commander_aura\",\"honor:celestial_relic_core\",\"honor:eternal_crown_of_honor\"],\"visible\":false,\"selected\":{\"description\":\"Tier 1 | x1 Power\",\"cost\":0,\"owned\":false,\"previewPet\":\"\",\"key\":\"fist:Starter Glove\",\"fusionNextStars\":0,\"locked\":false,\"equipped\":true,\"rarity\":\"Common\",\"affordable\":false,\"missingHonor\":0,\"unlocked\":false,\"displayName\":\"Starter Fist\",\"state\":\"\",\"fusionOwned\":0,\"name\":\"Starter Glove\",\"fusionRequired\":0,\"artKey\":\"\",\"kind\":\"Fist\",\"fusionEnabled\":false,\"actions\":[]},\"hudHidden\":false,\"search\":\"\",\"category\":\"All\",\"performance\":{\"sparseSlotsBounded\":true,\"actionCallbacks\":0,\"sparseSlots\":0,\"deleteConfirmationScheduled\":false,\"cardConnections\":48,\"activeActions\":0,\"timedRefreshMode\":\"Stopped\",\"cardReuses\":16,\"gridRebuilds\":2,\"sparseSlotCreates\":0,\"diagnosticSnapshots\":4,\"actionControls\":0,\"cardCreates\":16,\"timedExpiryRebuilds\":0,\"activeCards\":16,\"liveCards\":16,\"cardConnectionBounded\":true,\"actionConnectionBounded\":true,\"selectionVisualUpdates\":0,\"sparseSlotListeners\":0,\"diagnosticSnapshotSkips\":1,\"detailRenders\":0,\"detailRendersCoalesced\":1,\"timedDetailUpdates\":0,\"actionConnections\":0,\"pooledCards\":0},\"accessibility\":{\"textGradientPolicy\":\"NeutralMultiplierV1\",\"actionVisuals\":[],\"actionContrastTarget\":4.5,\"enabledActionContrastPass\":true,\"minimumEnabledActionContrast\":0,\"auditedTextGradientControls\":8},\"capacity\":{\"used\":3,\"max\":150},\"art\":{\"chromeMode\":\"ReferenceNativeV3\",\"detailChromeMode\":\"LayeredNativeV3\",\"emptyTreatment\":\"Hidden\",\"magentaFree\":true,\"mode\":\"UploadedItemArt\",\"checkerboardFree\":true,\"cardChromeMode\":\"LayeredNativeV3\"}},\"rebirthVisible\":false,\"uiScale\":1,\"cameraType\":\"Custom\",\"feedbackCount\":7,\"activeWindow\":\"\",\"ok\":true,\"lastFeedbackTarget\":\"Spawn\",\"shopVisible\":false,\"position\":{\"y\":3.839998960494995,\"x\":-2,\"z\":-18},\"settingsVisible\":false,\"lastFeedbackType\":\"WorldReset\",\"motion\":true,\"sound\":true,\"trainingVisible\":false,\"shopPage\":\"Fists\",\"activeTab\":\"Inventory\",\"viewport\":{\"y\":801,\"x\":1277},\"spinVisible\":false,\"inventoryVisible\":false,\"menuVisible\":false},\"inventory\":{\"ok\":true,\"rarity\":\"All\",\"visibleNames\":[\"Starter Glove\",\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\",\"Forest Pup\",\"Forest Pup\",\"Miner Cat\",\"Vanguard Trail\",\"Storm Hero Aura\",\"Relic Sidekick Core\",\"Crown of the Deep\",\"Titan Vanguard Trail\",\"Tempest Commander Aura\",\"Celestial Relic Core\",\"Eternal Crown of Honor\"],\"layout\":{\"searchReadable\":true,\"rarityEntryHeight\":44,\"rarityMenuBounded\":true,\"renderedWindowHeight\":408,\"rarityMenuHeight\":212,\"noOverlap\":true,\"viewportWidth\":677,\"minTouchTarget\":44,\"rarityMenuZLayer\":170,\"boundsSafe\":true,\"searchWidth\":290,\"allTextFits\":true,\"detailMode\":\"Drawer\",\"columns\":2,\"compact\":true,\"toolbarNoOverlap\":true,\"renderedWindowWidth\":677,\"capacityMode\":\"Full\",\"hoveredCategory\":\"\",\"viewportHeight\":408,\"searchMinimum\":44,\"rarityMenuOpen\":false,\"capacityText\":\"ITEMS 16  |  PETS 3/150\",\"capacityFullText\":\"ITEMS 16  |  PETS 3/150\",\"capacityReadable\":true,\"uiScale\":1,\"insideSafeArea\":true},\"visibleKeys\":[\"fist:Starter Glove\",\"fist:Boxing Glove\",\"fist:Iron Knuckle\",\"fist:Thunder Fist\",\"fist:Titan Gauntlet\",\"pet:slot:1\",\"pet:slot:2\",\"pet:slot:3\",\"honor:vanguard_trail\",\"honor:storm_hero_aura\",\"honor:relic_sidekick_core\",\"honor:crown_of_the_deep\",\"honor:titan_vanguard_trail\",\"honor:tempest_commander_aura\",\"honor:celestial_relic_core\",\"honor:eternal_crown_of_honor\"],\"visible\":true,\"selected\":{\"description\":\"Tier 1 | x1 Power\",\"cost\":0,\"owned\":false,\"previewPet\":\"\",\"key\":\"fist:Starter Glove\",\"fusionNextStars\":0,\"locked\":false,\"equipped\":true,\"rarity\":\"Common\",\"affordable\":false,\"missingHonor\":0,\"unlocked\":false,\"displayName\":\"Starter Fist\",\"state\":\"\",\"fusionOwned\":0,\"name\":\"Starter Glove\",\"fusionRequired\":0,\"artKey\":\"\",\"kind\":\"Fist\",\"fusionEnabled\":false,\"actions\":[]},\"hudHidden\":true,\"search\":\"\",\"category\":\"All\",\"performance\":{\"sparseSlotsBounded\":true,\"actionCallbacks\":0,\"sparseSlots\":0,\"deleteConfirmationScheduled\":false,\"cardConnections\":48,\"activeActions\":0,\"timedRefreshMode\":\"Stopped\",\"cardReuses\":16,\"gridRebuilds\":2,\"sparseSlotCreates\":0,\"diagnosticSnapshots\":3,\"actionControls\":0,\"cardCreates\":16,\"timedExpiryRebuilds\":0,\"activeCards\":16,\"liveCards\":16,\"cardConnectionBounded\":true,\"actionConnectionBounded\":true,\"selectionVisualUpdates\":0,\"sparseSlotListeners\":0,\"diagnosticSnapshotSkips\":1,\"detailRenders\":0,\"detailRendersCoalesced\":1,\"timedDetailUpdates\":0,\"actionConnections\":0,\"pooledCards\":0},\"accessibility\":{\"textGradientPolicy\":\"NeutralMultiplierV1\",\"actionVisuals\":[],\"actionContrastTarget\":4.5,\"enabledActionContrastPass\":true,\"minimumEnabledActionContrast\":0,\"auditedTextGradientControls\":8},\"capacity\":{\"used\":3,\"max\":150},\"art\":{\"chromeMode\":\"ReferenceNativeV3\",\"detailChromeMode\":\"LayeredNativeV3\",\"emptyTreatment\":\"Hidden\",\"magentaFree\":true,\"mode\":\"UploadedItemArt\",\"checkerboardFree\":true,\"cardChromeMode\":\"LayeredNativeV3\"}},\"companions\":2}",
+      "isError": false
+    },
+    {
+      "label": "install exact approved collector",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD'))\nlocal R=game:GetService('RunService') local Stats=game:GetService('Stats') local H=game:GetService('HttpService')\nlocal U=game:GetService('UserInputService')\nassert(R:IsStudio() and not g:FindFirstChild('SmashFramePacingQA'),'isolated profiler required')\nlocal f=Instance.new('BindableFunction') f.Name='SmashFramePacingQA' f.Parent=g\nlocal phase=nil local frames={} local before=0 local began=0 local total=0 local dropped=0 local invalid=0 local limit=36000\nlocal connection local destroying local stopped=false local contextConnections={} local viewportConnection\nlocal focus='unknown' local context local currentCamera=workspace.CurrentCamera local traceLimit=12\nlocal function viewport()\n local camera=workspace.CurrentCamera local v=camera and camera.ViewportSize\n local x,y=v and v.X or 0,v and v.Y or 0\n local valid=type(x)=='number' and type(y)=='number' and x==x and y==y and x>1 and y>1 and x<math.huge and y<math.huge\n local function finite(v)return type(v)=='number' and v==v and v>-math.huge and v<math.huge end\n return {x=finite(x) and x or 0,y=finite(y) and y or 0,valid=valid}\nend\nlocal function recordViewport(kind)\n if not phase then return end\n local v=viewport() local camera=workspace.CurrentCamera\n context.viewportValid=context.viewportValid and v.valid\n -- Property events prove a change even if deferred delivery sees the already-restored value.\n if kind~='Finish' or camera~=context.lastCamera or v.x~=context.lastViewport.x or v.y~=context.lastViewport.y then\n  context.viewportChanges+=1\n  if #context.viewportTrace<traceLimit then table.insert(context.viewportTrace,{kind=kind,at=os.clock()-began,viewport=v}) end\n end\n context.lastCamera=camera context.lastViewport=v\nend\nlocal function bindCamera()\n if viewportConnection then viewportConnection:Disconnect() viewportConnection=nil end\n currentCamera=workspace.CurrentCamera\n if currentCamera then viewportConnection=currentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()recordViewport('ViewportSize')end) end\n recordViewport('CurrentCamera')\nend\nlocal function observeFocus(value)\n if value==focus then return end\n if phase then\n  context.focusTransitions+=1\n  if #context.focusTrace<traceLimit then table.insert(context.focusTrace,{from=focus,to=value,at=os.clock()-began}) end\n end\n focus=value\nend\nlocal function stop() if stopped then return end stopped=true phase=nil\n if connection then connection:Disconnect() end if destroying then destroying:Disconnect() end\n if viewportConnection then viewportConnection:Disconnect() end\n for _,c in ipairs(contextConnections) do c:Disconnect() end\nend\ntable.insert(contextConnections,workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(bindCamera))\ntable.insert(contextConnections,U.WindowFocused:Connect(function()observeFocus('focused')end))\ntable.insert(contextConnections,U.WindowFocusReleased:Connect(function()observeFocus('unfocused')end))\nbindCamera()\ndestroying=f.Destroying:Connect(stop)\nconnection=R.RenderStepped:Connect(function(dt)\n if phase then total+=1\n  if type(dt)~='number' or dt~=dt or dt<=0 or dt==math.huge then invalid+=1\n  elseif #frames<limit then table.insert(frames,dt*1000) else dropped+=1 end\n end\nend)\nf.OnInvoke=function(action,value)\n if action=='Destroy' then stop() f:Destroy() return {ok=true,disconnected=true} end\n assert(not stopped,'profiler expired')\n if action=='Begin' then assert(not phase,'phase already active') assert(type(value)=='string','phase name required')\n  frames={} total=0 dropped=0 invalid=0 before=Stats:GetTotalMemoryUsageMb() began=os.clock()\n  local v=viewport() context={viewportStart=v,lastViewport=v,lastCamera=workspace.CurrentCamera,viewportValid=v.valid,\n   viewportChanges=0,viewportTrace={},focusStart=focus,focusTransitions=0,focusTrace={}}\n  phase=value return {ok=true,name=phase,sampleCap=limit,viewportStart=v,focusStart=focus}\n end\n if action=='Finish' then assert(phase==value,'phase boundary mismatch') recordViewport('Finish') local ended=os.clock() phase=nil\n  local out={ok=true,name=value,seconds=ended-began,samples=#frames,totalIntervals=total,sampleCap=limit,\n   droppedSamples=dropped,invalidSamples=invalid,saturated=dropped>0,memoryStartMB=before,memoryEndMB=Stats:GetTotalMemoryUsageMb(),\n   viewportStart=context.viewportStart,viewportEnd=context.lastViewport,viewportChanges=context.viewportChanges,\n   viewportTrace=context.viewportTrace,viewportTraceTruncated=context.viewportChanges>#context.viewportTrace,\n   focusStart=context.focusStart,focusEnd=focus,focusTransitions=context.focusTransitions,focusTrace=context.focusTrace,\n   focusTraceTruncated=context.focusTransitions>#context.focusTrace,contextTraceLimit=traceLimit,\n   focusKnownWholePhase=context.focusStart~='unknown',\n   contextValid=context.viewportValid and context.viewportChanges==0 and context.focusTransitions==0}\n  assert(#frames>=30,'insufficient frame samples') assert(invalid==0,'invalid frame intervals')\n  table.sort(frames) local function percentile(q) return frames[math.clamp(math.ceil(#frames*q),1,#frames)] end\n  out.p50MS=percentile(.5) out.p95MS=percentile(.95) out.p99MS=percentile(.99) out.maxMS=frames[#frames]\n  out.over50MS=0 out.over100MS=0\n  for _,dt in ipairs(frames) do if dt>50 then out.over50MS+=1 end if dt>100 then out.over100MS+=1 end end\n  out.lastTargetScan={queries=g:GetAttribute('TargetDepthQueryCount'),candidates=g:GetAttribute('TargetDepthCandidateCount'),unique=g:GetAttribute('TargetDepthUniqueCandidates')}\n  return out\n end error('unknown profiler action')\nend\ntask.delay(300,function() if f.Parent then stop() f:Destroy() end end)\nlocal quality='unavailable' pcall(function() quality=tostring(settings().Rendering.QualityLevel) end)\nreturn H:JSONEncode({ok=true,viewport=tostring(workspace.CurrentCamera.ViewportSize),graphics=quality,\n device='Studio desktop window',sampleCap=limit,maximumLifetimeSeconds=300,focusState=focus,focusSource='ObservedWindowEvents',contextTraceLimit=traceLimit})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:11:55.000Z",
+      "finishedAt": "2026-09-06T14:11:55.087Z",
+      "text": "{\"ok\":true,\"sampleCap\":36000,\"device\":\"Studio desktop window\",\"contextTraceLimit\":12,\"focusState\":\"unknown\",\"graphics\":\"Enum.QualityLevel.Automatic\",\"viewport\":\"1277, 801\",\"focusSource\":\"ObservedWindowEvents\",\"maximumLifetimeSeconds\":300}",
+      "isError": false
+    },
+    {
+      "label": "read closed idle before",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer\nlocal g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD')) local h=assert(g:FindFirstChild('PixelPerfectHeroCityHUD'))\nlocal a=assert(g:FindFirstChild('PunchWallClientAutomation')) local s=a:Invoke('Snapshot') assert(type(s)=='table' and s.ok,'snapshot unavailable')\nlocal menu=assert(g:FindFirstChild('GameMenu')) local shop=assert(menu:FindFirstChild('FunctionalHeroShop'))\nlocal button=assert(h:FindFirstChild('ShopButton')) local camera=assert(workspace.CurrentCamera)\nlocal function visible(item) local n=item while n do if n:IsA('GuiObject') and not n.Visible then return false end if n:IsA('ScreenGui') and not n.Enabled then return false end n=n.Parent end return true end\nlocal pos,size=button.AbsolutePosition,button.AbsoluteSize local hp,hs=h.AbsolutePosition,h.AbsoluteSize\nlocal center=pos+size*.5 local hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nlocal topmost=hit==button or (hit and hit:IsDescendantOf(button)) or false\nlocal inside=size.X>=44 and size.Y>=44 and pos.X>=hp.X-1 and pos.Y>=hp.Y-1 and pos.X+size.X<=hp.X+hs.X+1 and pos.Y+size.Y<=hp.Y+hs.Y+1\nreturn H:JSONEncode({ok=true,hudEnabled=g.Enabled,hudVisible=visible(h),menuVisible=s.menuVisible,shopVisible=s.shopVisible,inventoryVisible=s.inventoryVisible,\n activeTab=s.activeTab,shopPage=s.shopPage,actualMenuVisible=visible(menu),actualShopVisible=visible(shop),settingsVisible=s.settingsVisible,rebirthVisible=s.rebirthVisible,\n spinVisible=s.spinVisible,trainingVisible=s.trainingVisible,sound=s.sound,motion=s.motion,uiScale=s.uiScale,\n viewport={x=camera.ViewportSize.X,y=camera.ViewportSize.Y},cameraType=camera.CameraType.Name,\n safe={hp.X,hp.Y,hs.X,hs.Y},launcher={name=button.Name,class=button.ClassName,visible=visible(button),active=button.Active,selectable=button.Selectable,topmost=topmost,inside=inside,bounds={pos.X,pos.Y,size.X,size.Y}},\n inputPath={'LocalPlayer','PlayerGui','PunchWallHUD','PixelPerfectHeroCityHUD','ShopButton'}})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:20.805Z",
+      "finishedAt": "2026-09-06T14:12:20.897Z",
+      "text": "{\"shopPage\":\"Fists\",\"uiScale\":1,\"hudVisible\":true,\"actualShopVisible\":false,\"cameraType\":\"Custom\",\"sound\":true,\"ok\":true,\"shopVisible\":false,\"launcher\":{\"visible\":true,\"bounds\":[1199.096923828125,193.96173095703126,66.44676971435547,84.77690887451172],\"name\":\"ShopButton\",\"active\":true,\"selectable\":true,\"class\":\"ImageButton\",\"topmost\":true,\"inside\":true},\"safe\":[0,-58,1277,801],\"settingsVisible\":false,\"inputPath\":[\"LocalPlayer\",\"PlayerGui\",\"PunchWallHUD\",\"PixelPerfectHeroCityHUD\",\"ShopButton\"],\"trainingVisible\":false,\"motion\":true,\"actualMenuVisible\":false,\"rebirthVisible\":false,\"hudEnabled\":true,\"activeTab\":\"Inventory\",\"viewport\":{\"y\":801,\"x\":1277},\"spinVisible\":false,\"inventoryVisible\":false,\"menuVisible\":false}",
+      "isError": false
+    },
+    {
+      "label": "profiler Begin idle-before-native-input",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "return game.HttpService:JSONEncode(game.Players.LocalPlayer.PlayerGui.PunchWallHUD.SmashFramePacingQA:Invoke(\"Begin\",\"idle-before-native-input\"))"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:20.897Z",
+      "finishedAt": "2026-09-06T14:12:20.992Z",
+      "text": "{\"ok\":true,\"name\":\"idle-before-native-input\",\"focusStart\":\"unknown\",\"sampleCap\":36000,\"viewportStart\":{\"y\":801,\"x\":1277,\"valid\":true}}",
+      "isError": false
+    },
+    {
+      "label": "profiler Finish idle-before-native-input",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "return game.HttpService:JSONEncode(game.Players.LocalPlayer.PlayerGui.PunchWallHUD.SmashFramePacingQA:Invoke(\"Finish\",\"idle-before-native-input\"))"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:27.000Z",
+      "finishedAt": "2026-09-06T14:12:27.095Z",
+      "text": "{\"viewportStart\":{\"y\":801,\"x\":1277,\"valid\":true},\"totalIntervals\":360,\"viewportEnd\":{\"y\":801,\"x\":1277,\"valid\":true},\"focusTrace\":[],\"over50MS\":1,\"memoryEndMB\":1804.1171875,\"viewportTrace\":[],\"invalidSamples\":0,\"viewportChanges\":0,\"samples\":360,\"focusKnownWholePhase\":false,\"lastTargetScan\":{\"queries\":3,\"unique\":72,\"candidates\":72},\"focusStart\":\"unknown\",\"focusTraceTruncated\":false,\"focusEnd\":\"unknown\",\"ok\":true,\"viewportTraceTruncated\":false,\"p50MS\":16.753800213336946,\"p99MS\":26.007400825619699,\"memoryStartMB\":1803.63671875,\"maxMS\":125.18960237503052,\"sampleCap\":36000,\"contextTraceLimit\":12,\"seconds\":6.097869000004721,\"over100MS\":1,\"name\":\"idle-before-native-input\",\"p95MS\":18.367599695920945,\"focusTransitions\":0,\"contextValid\":true,\"saturated\":false,\"droppedSamples\":0}",
+      "isError": false
+    },
+    {
+      "label": "read closed idle after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer\nlocal g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD')) local h=assert(g:FindFirstChild('PixelPerfectHeroCityHUD'))\nlocal a=assert(g:FindFirstChild('PunchWallClientAutomation')) local s=a:Invoke('Snapshot') assert(type(s)=='table' and s.ok,'snapshot unavailable')\nlocal menu=assert(g:FindFirstChild('GameMenu')) local shop=assert(menu:FindFirstChild('FunctionalHeroShop'))\nlocal button=assert(h:FindFirstChild('ShopButton')) local camera=assert(workspace.CurrentCamera)\nlocal function visible(item) local n=item while n do if n:IsA('GuiObject') and not n.Visible then return false end if n:IsA('ScreenGui') and not n.Enabled then return false end n=n.Parent end return true end\nlocal pos,size=button.AbsolutePosition,button.AbsoluteSize local hp,hs=h.AbsolutePosition,h.AbsoluteSize\nlocal center=pos+size*.5 local hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nlocal topmost=hit==button or (hit and hit:IsDescendantOf(button)) or false\nlocal inside=size.X>=44 and size.Y>=44 and pos.X>=hp.X-1 and pos.Y>=hp.Y-1 and pos.X+size.X<=hp.X+hs.X+1 and pos.Y+size.Y<=hp.Y+hs.Y+1\nreturn H:JSONEncode({ok=true,hudEnabled=g.Enabled,hudVisible=visible(h),menuVisible=s.menuVisible,shopVisible=s.shopVisible,inventoryVisible=s.inventoryVisible,\n activeTab=s.activeTab,shopPage=s.shopPage,actualMenuVisible=visible(menu),actualShopVisible=visible(shop),settingsVisible=s.settingsVisible,rebirthVisible=s.rebirthVisible,\n spinVisible=s.spinVisible,trainingVisible=s.trainingVisible,sound=s.sound,motion=s.motion,uiScale=s.uiScale,\n viewport={x=camera.ViewportSize.X,y=camera.ViewportSize.Y},cameraType=camera.CameraType.Name,\n safe={hp.X,hp.Y,hs.X,hs.Y},launcher={name=button.Name,class=button.ClassName,visible=visible(button),active=button.Active,selectable=button.Selectable,topmost=topmost,inside=inside,bounds={pos.X,pos.Y,size.X,size.Y}},\n inputPath={'LocalPlayer','PlayerGui','PunchWallHUD','PixelPerfectHeroCityHUD','ShopButton'}})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:27.095Z",
+      "finishedAt": "2026-09-06T14:12:27.188Z",
+      "text": "{\"shopPage\":\"Fists\",\"uiScale\":1,\"hudVisible\":true,\"actualShopVisible\":false,\"cameraType\":\"Custom\",\"sound\":true,\"ok\":true,\"shopVisible\":false,\"launcher\":{\"visible\":true,\"bounds\":[1199.096923828125,193.96173095703126,66.44676971435547,84.77690887451172],\"name\":\"ShopButton\",\"active\":true,\"selectable\":true,\"class\":\"ImageButton\",\"topmost\":true,\"inside\":true},\"safe\":[0,-58,1277,801],\"settingsVisible\":false,\"inputPath\":[\"LocalPlayer\",\"PlayerGui\",\"PunchWallHUD\",\"PixelPerfectHeroCityHUD\",\"ShopButton\"],\"trainingVisible\":false,\"motion\":true,\"actualMenuVisible\":false,\"rebirthVisible\":false,\"hudEnabled\":true,\"activeTab\":\"Inventory\",\"viewport\":{\"y\":801,\"x\":1277},\"spinVisible\":false,\"inventoryVisible\":false,\"menuVisible\":false}",
+      "isError": false
+    },
+    {
+      "label": "resolve actual native Shop center",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "\nlocal H=game:GetService(\"HttpService\")\nlocal spec=H:JSONDecode([[{\"segments\":[\"LocalPlayer\",\"PlayerGui\",\"PunchWallHUD\",\"PixelPerfectHeroCityHUD\",\"ShopButton\"]}]])\nlocal function rootFor(name)\n\tif name==\"game\" then return game end\n\tif name==\"Workspace\" or name==\"workspace\" then return workspace end\n\tif name==\"LocalPlayer\" then return game:GetService(\"Players\").LocalPlayer end\n\treturn nil\nend\nlocal function exactWalk(segments)\n\tlocal node=rootFor(segments[1])\n\tif not node then return {} end\n\tlocal results={}\n\tlocal function walk(current,index)\n\t\tif index>#segments then table.insert(results,current) return end\n\t\tlocal child=current:FindFirstChild(segments[index])\n\t\tif child then walk(child,index+1) end\n\tend\n\twalk(node,2)\n\treturn results\nend\nlocal function dottedWalk(rawPath)\n\tlocal parts=string.split(rawPath,\".\")\n\tlocal node=rootFor(parts[1])\n\tif not node then return {} end\n\tlocal results={}\n\tlocal function walk(current,index)\n\t\tif index>#parts then table.insert(results,current) return end\n\t\tlocal candidate=\"\"\n\t\tfor stop=index,#parts do\n\t\t\tcandidate=candidate..(stop==index and \"\" or \".\")..parts[stop]\n\t\t\tlocal child=current:FindFirstChild(candidate)\n\t\t\tif child then walk(child,stop+1) end\n\t\tend\n\tend\n\twalk(node,2)\n\treturn results\nend\nlocal results=spec.segments and exactWalk(spec.segments) or dottedWalk(spec.path)\nlocal guiResults={}\nfor _,node in ipairs(results) do if node:IsA(\"GuiObject\") then table.insert(guiResults,node) end end\nassert(#guiResults==1,(\"expected one GuiObject, found %d\"):format(#guiResults))\nlocal target=guiResults[1]\nlocal position=target.AbsolutePosition\nlocal size=target.AbsoluteSize\nassert(size.X>0 and size.Y>0,\"target GuiObject has no clickable area\")\nreturn H:JSONEncode({x=position.X+size.X*.5,y=position.Y+size.Y*.5,name=target.Name})\n"
+      },
+      "timeout": 30000,
+      "requestedAt": "2026-09-06T14:12:27.189Z",
+      "finishedAt": "2026-09-06T14:12:27.281Z",
+      "text": "{\"y\":236.3501853942871,\"x\":1232.3203086853028,\"name\":\"ShopButton\"}",
+      "isError": false
+    },
+    {
+      "label": "one native Shop launcher click",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "x": 1232,
+            "y": 236
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "x": 1232,
+            "y": 236
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "x": 1232,
+            "y": 236
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "x": 1232,
+            "y": 236
+          }
+        ]
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:27.281Z",
+      "finishedAt": "2026-09-06T14:12:28.161Z",
+      "text": "Success",
+      "isError": false
+    },
+    {
+      "label": "read native Shop outcome",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer\nlocal g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD')) local h=assert(g:FindFirstChild('PixelPerfectHeroCityHUD'))\nlocal a=assert(g:FindFirstChild('PunchWallClientAutomation')) local s=a:Invoke('Snapshot') assert(type(s)=='table' and s.ok,'snapshot unavailable')\nlocal menu=assert(g:FindFirstChild('GameMenu')) local shop=assert(menu:FindFirstChild('FunctionalHeroShop'))\nlocal button=assert(h:FindFirstChild('ShopButton')) local camera=assert(workspace.CurrentCamera)\nlocal function visible(item) local n=item while n do if n:IsA('GuiObject') and not n.Visible then return false end if n:IsA('ScreenGui') and not n.Enabled then return false end n=n.Parent end return true end\nlocal pos,size=button.AbsolutePosition,button.AbsoluteSize local hp,hs=h.AbsolutePosition,h.AbsoluteSize\nlocal center=pos+size*.5 local hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nlocal topmost=hit==button or (hit and hit:IsDescendantOf(button)) or false\nlocal inside=size.X>=44 and size.Y>=44 and pos.X>=hp.X-1 and pos.Y>=hp.Y-1 and pos.X+size.X<=hp.X+hs.X+1 and pos.Y+size.Y<=hp.Y+hs.Y+1\nreturn H:JSONEncode({ok=true,hudEnabled=g.Enabled,hudVisible=visible(h),menuVisible=s.menuVisible,shopVisible=s.shopVisible,inventoryVisible=s.inventoryVisible,\n activeTab=s.activeTab,shopPage=s.shopPage,actualMenuVisible=visible(menu),actualShopVisible=visible(shop),settingsVisible=s.settingsVisible,rebirthVisible=s.rebirthVisible,\n spinVisible=s.spinVisible,trainingVisible=s.trainingVisible,sound=s.sound,motion=s.motion,uiScale=s.uiScale,\n viewport={x=camera.ViewportSize.X,y=camera.ViewportSize.Y},cameraType=camera.CameraType.Name,\n safe={hp.X,hp.Y,hs.X,hs.Y},launcher={name=button.Name,class=button.ClassName,visible=visible(button),active=button.Active,selectable=button.Selectable,topmost=topmost,inside=inside,bounds={pos.X,pos.Y,size.X,size.Y}},\n inputPath={'LocalPlayer','PlayerGui','PunchWallHUD','PixelPerfectHeroCityHUD','ShopButton'}})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:28.875Z",
+      "finishedAt": "2026-09-06T14:12:28.969Z",
+      "text": "{\"shopPage\":\"Fists\",\"uiScale\":1,\"hudVisible\":false,\"actualShopVisible\":true,\"cameraType\":\"Custom\",\"sound\":true,\"ok\":true,\"shopVisible\":true,\"launcher\":{\"visible\":false,\"bounds\":[1199.096923828125,193.96173095703126,66.44676971435547,84.77690887451172],\"name\":\"ShopButton\",\"active\":true,\"selectable\":true,\"class\":\"ImageButton\",\"topmost\":false,\"inside\":true},\"safe\":[0,-58,1277,801],\"settingsVisible\":false,\"inputPath\":[\"LocalPlayer\",\"PlayerGui\",\"PunchWallHUD\",\"PixelPerfectHeroCityHUD\",\"ShopButton\"],\"trainingVisible\":false,\"motion\":true,\"actualMenuVisible\":true,\"rebirthVisible\":false,\"hudEnabled\":true,\"activeTab\":\"Fists\",\"viewport\":{\"y\":801,\"x\":1277},\"spinVisible\":false,\"inventoryVisible\":false,\"menuVisible\":true}",
+      "isError": false
+    },
+    {
+      "label": "destroy owned profiler",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD') local f=g and g:FindFirstChild('SmashFramePacingQA') if f then return game.HttpService:JSONEncode(f:Invoke('Destroy')) end return game.HttpService:JSONEncode({ok=true,alreadyAbsent=true})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:28.970Z",
+      "finishedAt": "2026-09-06T14:12:29.061Z",
+      "text": "{\"ok\":true,\"disconnected\":true}",
+      "isError": false
+    },
+    {
+      "label": "stop owned Play",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeout": 60000,
+      "requestedAt": "2026-09-06T14:12:29.061Z",
+      "finishedAt": "2026-09-06T14:12:30.465Z",
+      "text": "Game Stopped",
+      "isError": false
+    },
+    {
+      "label": "read unchanged simulator after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local id=game:GetService('StudioDeviceSimulatorService'):GetDeviceAsync() assert(id=='default','Simulator changed during comparison') return game.HttpService:JSONEncode({ok=true,device=id})"
+      },
+      "timeout": 35000,
+      "requestedAt": "2026-09-06T14:12:30.558Z",
+      "finishedAt": "2026-09-06T14:12:30.653Z",
+      "text": "{\"ok\":true,\"device\":\"default\"}",
+      "isError": false
+    }
+  ],
+  "limitations": [
+    "A single native Shop launcher gesture is not OS foreground activation proof.",
+    "Unknown initial focus and all focus/viewport transitions remain reported; both phases are retained even when context is not accepted.",
+    "Idle and Shop have different rendering workloads, so this comparison cannot isolate a focus or input effect.",
+    "Six-second phases include MCP Begin/Finish boundary overhead; no ordinary punch, physical-phone FPS, or frame-rate threshold claim.",
+    "Last target scan is a last observation, not a phase aggregate. Memory is client total MB, not game allocation or leak proof."
+  ],
+  "binding": {
+    "disk": {
+      "canonical": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "validation": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
+      "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "validationSHA256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+    },
+    "sources": {
+      "GameConfig": {
+        "rawSHA256": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+        "normalizedSHA256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+        "normalizedBytes": 38942
+      },
+      "PolishConfig": {
+        "rawSHA256": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+        "normalizedSHA256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+        "normalizedBytes": 12834
+      },
+      "ForestVisualBuilder": {
+        "rawSHA256": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+        "normalizedSHA256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+        "normalizedBytes": 34025
+      },
+      "FistVisualBuilder": {
+        "rawSHA256": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+        "normalizedSHA256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+        "normalizedBytes": 24885
+      },
+      "InventoryViewModel": {
+        "rawSHA256": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+        "normalizedSHA256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+        "normalizedBytes": 29640
+      },
+      "ProfilePersistence": {
+        "rawSHA256": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+        "normalizedSHA256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+        "normalizedBytes": 72504
+      },
+      "PunchWallBootstrap": {
+        "rawSHA256": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+        "normalizedSHA256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+        "normalizedBytes": 434288
+      },
+      "InventoryUI": {
+        "rawSHA256": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+        "normalizedSHA256": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+        "normalizedBytes": 167898
+      },
+      "PunchWallClient": {
+        "rawSHA256": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E",
+        "normalizedSHA256": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B",
+        "normalizedBytes": 666401
+      }
+    },
+    "manifest": {
+      "ok": true,
+      "game": "Smash Wall",
+      "branch": "codex/feature/smash-completion-20260906",
+      "sourceCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+      "sourcePlace": "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-asset-template.rbxlx",
+      "outputPlace": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "templateSha256": "22406EFE5CFFCE2B6A4FC6669D99E1AC094BFDB8EAE7CDC59B760B86EC00191E",
+      "sourceMapVersion": 1,
+      "codeAllowlistVersion": 1,
+      "embeddedModuleCount": 9,
+      "codeObjectCount": 9,
+      "removedCodeObjectCount": 0,
+      "removedCodeObjects": [],
+      "embeddedScripts": [
+        "GameConfig",
+        "PolishConfig",
+        "ForestVisualBuilder",
+        "FistVisualBuilder",
+        "InventoryViewModel",
+        "ProfilePersistence",
+        "PunchWallBootstrap",
+        "InventoryUI",
+        "PunchWallClient"
+      ],
+      "exactSourceSha256": {
+        "GameConfig": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+        "PolishConfig": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+        "ForestVisualBuilder": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+        "FistVisualBuilder": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+        "InventoryViewModel": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+        "ProfilePersistence": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+        "PunchWallBootstrap": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+        "InventoryUI": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+        "PunchWallClient": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B"
+      },
+      "sourceFileSha256": {
+        "GameConfig": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+        "PolishConfig": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+        "ForestVisualBuilder": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+        "FistVisualBuilder": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+        "InventoryViewModel": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+        "ProfilePersistence": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+        "PunchWallBootstrap": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+        "InventoryUI": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+        "PunchWallClient": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E"
+      },
+      "cdataPreserved": true,
+      "configuredGamePasses": 6,
+      "configuredDeveloperProducts": 8,
+      "studioHarnessGuarded": true,
+      "generatedAtUtc": "2026-09-06T13:40:02.3388880Z"
+    },
+    "proof": {
+      "ok": true,
+      "canonicalOutput": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "canonicalValidationCopy": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
+      "rbxlxSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "moduleCount": 9,
+      "sourceMapVersion": 1,
+      "codeAllowlistVersion": 1,
+      "codeObjectCount": 9,
+      "cdataPreserved": true,
+      "exactSourceHashes": {
+        "GameConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 38942,
+          "normalizedSha256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+          "sourceFileSha256": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+          "cdata": true
+        },
+        "PolishConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 12834,
+          "normalizedSha256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+          "sourceFileSha256": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+          "cdata": true
+        },
+        "ForestVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 34025,
+          "normalizedSha256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+          "sourceFileSha256": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+          "cdata": true
+        },
+        "FistVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 24885,
+          "normalizedSha256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+          "sourceFileSha256": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+          "cdata": true
+        },
+        "InventoryViewModel": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 29640,
+          "normalizedSha256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+          "sourceFileSha256": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+          "cdata": true
+        },
+        "ProfilePersistence": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 72504,
+          "normalizedSha256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+          "sourceFileSha256": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+          "cdata": true
+        },
+        "PunchWallBootstrap": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 434272,
+          "normalizedSha256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+          "sourceFileSha256": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+          "cdata": true
+        },
+        "InventoryUI": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 167896,
+          "normalizedSha256": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+          "sourceFileSha256": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+          "cdata": true
+        },
+        "PunchWallClient": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 666269,
+          "normalizedSha256": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B",
+          "sourceFileSha256": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E",
+          "cdata": true
+        }
+      },
+      "selectedStudio": {
+        "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start rebuilt final copy",
+        "wait for embedded scripts to bootstrap",
+        "rebuilt final exposes the exact nine-module source map",
+        "embedded server release boots complete world",
+        "embedded client release boots HUD Inventory shop spin and music",
+        "rebuilt final loads approved NPC bag training and premium pet displays",
+        "rebuilt final attests all eleven sanitized pet templates",
+        "rebuilt final uses supplied Spin vertical race and directional controls",
+        "capture rebuilt final console",
+        "rebuilt final console clean (identified Studio input warnings: 0)",
+        "stop rebuilt final copy"
+      ]
+    },
+    "exactDisk": {
+      "ok": true,
+      "sourceMapVersion": 1,
+      "repositoryRoot": "F:\\Roblox\\PuchWall-completion-20260906",
+      "place": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "fileName": "PunchWallRPGPlayable_v1_final.rbxlx",
+      "rbxlxSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "moduleCount": 9,
+      "codeAllowlistVersion": 1,
+      "codeObjectCount": 9,
+      "rejectedCodeObjectCount": 0,
+      "cdataPreserved": true,
+      "modules": {
+        "GameConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 38942,
+          "normalizedSha256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+          "sourceFileSha256": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+          "cdata": true
+        },
+        "PolishConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 12834,
+          "normalizedSha256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+          "sourceFileSha256": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+          "cdata": true
+        },
+        "ForestVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 34025,
+          "normalizedSha256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+          "sourceFileSha256": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+          "cdata": true
+        },
+        "FistVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 24885,
+          "normalizedSha256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+          "sourceFileSha256": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+          "cdata": true
+        },
+        "InventoryViewModel": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 29640,
+          "normalizedSha256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+          "sourceFileSha256": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+          "cdata": true
+        },
+        "ProfilePersistence": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 72504,
+          "normalizedSha256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+          "sourceFileSha256": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+          "cdata": true
+        },
+        "PunchWallBootstrap": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 434272,
+          "normalizedSha256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+          "sourceFileSha256": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+          "cdata": true
+        },
+        "InventoryUI": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 167896,
+          "normalizedSha256": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+          "sourceFileSha256": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+          "cdata": true
+        },
+        "PunchWallClient": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 666269,
+          "normalizedSha256": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B",
+          "sourceFileSha256": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E",
+          "cdata": true
+        }
+      }
+    },
+    "manifestSHA256": "F06521B6D714479C271C2C6C194B3E422A3E944EE9FB61A937F9E553A09EA5F2",
+    "reopenProofSHA256": "D46C7F44DD417EB36D1DB9C3E48D324A18C7666047FD88943C2D1B920D89F5BF",
+    "toolHashes": {
+      "work/tools/smash-artifact-native-input-profile-20260906.mjs": "C78DADD37CEF7F36BF83D740EE2BA5742A140ADF3336B4AC1B8CE15807155016",
+      "work/automation/flows/full-game-real-ui-controls.json": "299555173298C4ED19DF065FE60569897FDFFC5E93AE4DEB93C5877613DAB158",
+      "work/automation/scripts/studio-frame-profile.mjs": "BAF689468A3AB73DBC7268CB76C0D12720D4AE3AB74A3C816FFFDF7EC3F1CDBF",
+      "work/automation/scripts/verify-studio-source.mjs": "B91FD8B14AC317914B5D5330F7BA9FD877A659270CFB25C9A1A75003D0B118D1",
+      "work/automation/scripts/studio_mcp_client.mjs": "1384C89971A3F339F1CF37DA36CED827FEF77796D650A703D78484AC7147EB75",
+      "work/automation/scripts/flow_runner.mjs": "B856767DC3378691501AF7FABA7EF1F4E4FF5DA4AE59CC0E01E2B1E7646EC5F1",
+      "work/automation/verify-exact-rbxlx-sources.ps1": "FB7D598CE0C24243995574128D1C5AF68CE3FAD047144DFA26FE8EB1FE705EBC"
+    },
+    "approvedLuaHashes": {
+      "guard": "2A3681F69E342F3C9E93915A9F4D1D583CAB4112F4433406E514F1A990874D94",
+      "seed": "31A504C9965CDA44AEC2AEBAA051C08CA7AA8074FFCCCB5D9A522267EEE74597",
+      "clientReady": "E44565781336E18B60833C893166E30667857CD400A56C806AA883DA22C95E03",
+      "profiler": "73FAAB312994DDC12C8DB94685BD32AE6A43E034AF906A124E95097DFEBF3457"
+    }
+  },
+  "repositoryCommit": "0296d19aabf82d72c5dc014cdd0bfd4e0de988f0",
+  "artifactBuildCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+  "liveBefore": {
+    "ok": true,
+    "checkedAt": "2026-09-06T14:11:39.909Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+      "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "28c74805a4cb778edf8c527d208c2d9ca86ec326480a23e12ee1464999b1431b",
+        "rawSHA256": "0ef2251928515bdb8b5e64e3e3d71a70b56656dd17013f1045b68010cefd0d2e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 666401,
+          "name": "PunchWallClient",
+          "actualBytes": 666401
+        }
+      }
+    ]
+  },
+  "selectedStudio": {
+    "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+    "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+  },
+  "deviceBefore": {
+    "ok": true,
+    "device": "default"
+  },
+  "seed": {
+    "ok": true,
+    "inventoryCopies": 3,
+    "values": {
+      "OwnedFistsJSON": "[\"Starter Glove\",\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"]",
+      "EquippedPetsJSON": "[\"Forest Pup\",\"Miner Cat\"]",
+      "PetInventoryJSON": "[\"Forest Pup\",\"Forest Pup\",\"Miner Cat\"]"
+    },
+    "inventorySpecies": 2,
+    "equippedPets": 2,
+    "ownedFists": 5
+  },
+  "client": {
+    "ok": true,
+    "closed": {
+      "inventory": {
+        "ok": true,
+        "rarity": "All",
+        "visibleNames": [
+          "Starter Glove",
+          "Boxing Glove",
+          "Iron Knuckle",
+          "Thunder Fist",
+          "Titan Gauntlet",
+          "Forest Pup",
+          "Forest Pup",
+          "Miner Cat",
+          "Vanguard Trail",
+          "Storm Hero Aura",
+          "Relic Sidekick Core",
+          "Crown of the Deep",
+          "Titan Vanguard Trail",
+          "Tempest Commander Aura",
+          "Celestial Relic Core",
+          "Eternal Crown of Honor"
+        ],
+        "layout": {
+          "searchReadable": true,
+          "rarityEntryHeight": 44,
+          "rarityMenuBounded": true,
+          "renderedWindowHeight": 408,
+          "rarityMenuHeight": 212,
+          "noOverlap": true,
+          "viewportWidth": 677,
+          "minTouchTarget": 44,
+          "rarityMenuZLayer": 170,
+          "boundsSafe": true,
+          "searchWidth": 290,
+          "allTextFits": true,
+          "detailMode": "Drawer",
+          "columns": 2,
+          "compact": true,
+          "toolbarNoOverlap": true,
+          "renderedWindowWidth": 677,
+          "capacityMode": "Full",
+          "hoveredCategory": "",
+          "viewportHeight": 408,
+          "searchMinimum": 44,
+          "rarityMenuOpen": false,
+          "capacityText": "ITEMS 16  |  PETS 3/150",
+          "capacityFullText": "ITEMS 16  |  PETS 3/150",
+          "capacityReadable": true,
+          "uiScale": 1,
+          "insideSafeArea": true
+        },
+        "visibleKeys": [
+          "fist:Starter Glove",
+          "fist:Boxing Glove",
+          "fist:Iron Knuckle",
+          "fist:Thunder Fist",
+          "fist:Titan Gauntlet",
+          "pet:slot:1",
+          "pet:slot:2",
+          "pet:slot:3",
+          "honor:vanguard_trail",
+          "honor:storm_hero_aura",
+          "honor:relic_sidekick_core",
+          "honor:crown_of_the_deep",
+          "honor:titan_vanguard_trail",
+          "honor:tempest_commander_aura",
+          "honor:celestial_relic_core",
+          "honor:eternal_crown_of_honor"
+        ],
+        "visible": false,
+        "selected": {
+          "description": "Tier 1 | x1 Power",
+          "cost": 0,
+          "owned": false,
+          "previewPet": "",
+          "key": "fist:Starter Glove",
+          "fusionNextStars": 0,
+          "locked": false,
+          "equipped": true,
+          "rarity": "Common",
+          "affordable": false,
+          "missingHonor": 0,
+          "unlocked": false,
+          "displayName": "Starter Fist",
+          "state": "",
+          "fusionOwned": 0,
+          "name": "Starter Glove",
+          "fusionRequired": 0,
+          "artKey": "",
+          "kind": "Fist",
+          "fusionEnabled": false,
+          "actions": []
+        },
+        "hudHidden": false,
+        "search": "",
+        "category": "All",
+        "performance": {
+          "sparseSlotsBounded": true,
+          "actionCallbacks": 0,
+          "sparseSlots": 0,
+          "deleteConfirmationScheduled": false,
+          "cardConnections": 48,
+          "activeActions": 0,
+          "timedRefreshMode": "Stopped",
+          "cardReuses": 16,
+          "gridRebuilds": 2,
+          "sparseSlotCreates": 0,
+          "diagnosticSnapshots": 4,
+          "actionControls": 0,
+          "cardCreates": 16,
+          "timedExpiryRebuilds": 0,
+          "activeCards": 16,
+          "liveCards": 16,
+          "cardConnectionBounded": true,
+          "actionConnectionBounded": true,
+          "selectionVisualUpdates": 0,
+          "sparseSlotListeners": 0,
+          "diagnosticSnapshotSkips": 1,
+          "detailRenders": 0,
+          "detailRendersCoalesced": 1,
+          "timedDetailUpdates": 0,
+          "actionConnections": 0,
+          "pooledCards": 0
+        },
+        "accessibility": {
+          "textGradientPolicy": "NeutralMultiplierV1",
+          "actionVisuals": [],
+          "actionContrastTarget": 4.5,
+          "enabledActionContrastPass": true,
+          "minimumEnabledActionContrast": 0,
+          "auditedTextGradientControls": 8
+        },
+        "capacity": {
+          "used": 3,
+          "max": 150
+        },
+        "art": {
+          "chromeMode": "ReferenceNativeV3",
+          "detailChromeMode": "LayeredNativeV3",
+          "emptyTreatment": "Hidden",
+          "magentaFree": true,
+          "mode": "UploadedItemArt",
+          "checkerboardFree": true,
+          "cardChromeMode": "LayeredNativeV3"
+        }
+      },
+      "rebirthVisible": false,
+      "uiScale": 1,
+      "cameraType": "Custom",
+      "feedbackCount": 7,
+      "activeWindow": "",
+      "ok": true,
+      "lastFeedbackTarget": "Spawn",
+      "shopVisible": false,
+      "position": {
+        "y": 3.839998960494995,
+        "x": -2,
+        "z": -18
+      },
+      "settingsVisible": false,
+      "lastFeedbackType": "WorldReset",
+      "motion": true,
+      "sound": true,
+      "trainingVisible": false,
+      "shopPage": "Fists",
+      "activeTab": "Inventory",
+      "viewport": {
+        "y": 801,
+        "x": 1277
+      },
+      "spinVisible": false,
+      "inventoryVisible": false,
+      "menuVisible": false
+    },
+    "inventory": {
+      "ok": true,
+      "rarity": "All",
+      "visibleNames": [
+        "Starter Glove",
+        "Boxing Glove",
+        "Iron Knuckle",
+        "Thunder Fist",
+        "Titan Gauntlet",
+        "Forest Pup",
+        "Forest Pup",
+        "Miner Cat",
+        "Vanguard Trail",
+        "Storm Hero Aura",
+        "Relic Sidekick Core",
+        "Crown of the Deep",
+        "Titan Vanguard Trail",
+        "Tempest Commander Aura",
+        "Celestial Relic Core",
+        "Eternal Crown of Honor"
+      ],
+      "layout": {
+        "searchReadable": true,
+        "rarityEntryHeight": 44,
+        "rarityMenuBounded": true,
+        "renderedWindowHeight": 408,
+        "rarityMenuHeight": 212,
+        "noOverlap": true,
+        "viewportWidth": 677,
+        "minTouchTarget": 44,
+        "rarityMenuZLayer": 170,
+        "boundsSafe": true,
+        "searchWidth": 290,
+        "allTextFits": true,
+        "detailMode": "Drawer",
+        "columns": 2,
+        "compact": true,
+        "toolbarNoOverlap": true,
+        "renderedWindowWidth": 677,
+        "capacityMode": "Full",
+        "hoveredCategory": "",
+        "viewportHeight": 408,
+        "searchMinimum": 44,
+        "rarityMenuOpen": false,
+        "capacityText": "ITEMS 16  |  PETS 3/150",
+        "capacityFullText": "ITEMS 16  |  PETS 3/150",
+        "capacityReadable": true,
+        "uiScale": 1,
+        "insideSafeArea": true
+      },
+      "visibleKeys": [
+        "fist:Starter Glove",
+        "fist:Boxing Glove",
+        "fist:Iron Knuckle",
+        "fist:Thunder Fist",
+        "fist:Titan Gauntlet",
+        "pet:slot:1",
+        "pet:slot:2",
+        "pet:slot:3",
+        "honor:vanguard_trail",
+        "honor:storm_hero_aura",
+        "honor:relic_sidekick_core",
+        "honor:crown_of_the_deep",
+        "honor:titan_vanguard_trail",
+        "honor:tempest_commander_aura",
+        "honor:celestial_relic_core",
+        "honor:eternal_crown_of_honor"
+      ],
+      "visible": true,
+      "selected": {
+        "description": "Tier 1 | x1 Power",
+        "cost": 0,
+        "owned": false,
+        "previewPet": "",
+        "key": "fist:Starter Glove",
+        "fusionNextStars": 0,
+        "locked": false,
+        "equipped": true,
+        "rarity": "Common",
+        "affordable": false,
+        "missingHonor": 0,
+        "unlocked": false,
+        "displayName": "Starter Fist",
+        "state": "",
+        "fusionOwned": 0,
+        "name": "Starter Glove",
+        "fusionRequired": 0,
+        "artKey": "",
+        "kind": "Fist",
+        "fusionEnabled": false,
+        "actions": []
+      },
+      "hudHidden": true,
+      "search": "",
+      "category": "All",
+      "performance": {
+        "sparseSlotsBounded": true,
+        "actionCallbacks": 0,
+        "sparseSlots": 0,
+        "deleteConfirmationScheduled": false,
+        "cardConnections": 48,
+        "activeActions": 0,
+        "timedRefreshMode": "Stopped",
+        "cardReuses": 16,
+        "gridRebuilds": 2,
+        "sparseSlotCreates": 0,
+        "diagnosticSnapshots": 3,
+        "actionControls": 0,
+        "cardCreates": 16,
+        "timedExpiryRebuilds": 0,
+        "activeCards": 16,
+        "liveCards": 16,
+        "cardConnectionBounded": true,
+        "actionConnectionBounded": true,
+        "selectionVisualUpdates": 0,
+        "sparseSlotListeners": 0,
+        "diagnosticSnapshotSkips": 1,
+        "detailRenders": 0,
+        "detailRendersCoalesced": 1,
+        "timedDetailUpdates": 0,
+        "actionConnections": 0,
+        "pooledCards": 0
+      },
+      "accessibility": {
+        "textGradientPolicy": "NeutralMultiplierV1",
+        "actionVisuals": [],
+        "actionContrastTarget": 4.5,
+        "enabledActionContrastPass": true,
+        "minimumEnabledActionContrast": 0,
+        "auditedTextGradientControls": 8
+      },
+      "capacity": {
+        "used": 3,
+        "max": 150
+      },
+      "art": {
+        "chromeMode": "ReferenceNativeV3",
+        "detailChromeMode": "LayeredNativeV3",
+        "emptyTreatment": "Hidden",
+        "magentaFree": true,
+        "mode": "UploadedItemArt",
+        "checkerboardFree": true,
+        "cardChromeMode": "LayeredNativeV3"
+      }
+    },
+    "companions": 2
+  },
+  "profiler": {
+    "ok": true,
+    "sampleCap": 36000,
+    "device": "Studio desktop window",
+    "contextTraceLimit": 12,
+    "focusState": "unknown",
+    "graphics": "Enum.QualityLevel.Automatic",
+    "viewport": "1277, 801",
+    "focusSource": "ObservedWindowEvents",
+    "maximumLifetimeSeconds": 300
+  },
+  "focusHandoff": {
+    "marker": "SMASH_FOCUS_HANDOFF_READY",
+    "startedAt": "2026-09-06T14:11:55.087Z",
+    "waitMilliseconds": 25000,
+    "measured": false,
+    "instruction": "Switch to the selected Studio game viewport and click it now; leave Studio in front through the two measurements. Focus remains determined by actual collector events.",
+    "finishedAt": "2026-09-06T14:12:20.092Z"
+  },
+  "idleBefore": {
+    "shopPage": "Fists",
+    "uiScale": 1,
+    "hudVisible": true,
+    "actualShopVisible": false,
+    "cameraType": "Custom",
+    "sound": true,
+    "ok": true,
+    "shopVisible": false,
+    "launcher": {
+      "visible": true,
+      "bounds": [
+        1199.096923828125,
+        193.96173095703125,
+        66.44676971435547,
+        84.77690887451172
+      ],
+      "name": "ShopButton",
+      "active": true,
+      "selectable": true,
+      "class": "ImageButton",
+      "topmost": true,
+      "inside": true
+    },
+    "safe": [
+      0,
+      -58,
+      1277,
+      801
+    ],
+    "settingsVisible": false,
+    "inputPath": [
+      "LocalPlayer",
+      "PlayerGui",
+      "PunchWallHUD",
+      "PixelPerfectHeroCityHUD",
+      "ShopButton"
+    ],
+    "trainingVisible": false,
+    "motion": true,
+    "actualMenuVisible": false,
+    "rebirthVisible": false,
+    "hudEnabled": true,
+    "activeTab": "Inventory",
+    "viewport": {
+      "y": 801,
+      "x": 1277
+    },
+    "spinVisible": false,
+    "inventoryVisible": false,
+    "menuVisible": false
+  },
+  "idleAfter": {
+    "shopPage": "Fists",
+    "uiScale": 1,
+    "hudVisible": true,
+    "actualShopVisible": false,
+    "cameraType": "Custom",
+    "sound": true,
+    "ok": true,
+    "shopVisible": false,
+    "launcher": {
+      "visible": true,
+      "bounds": [
+        1199.096923828125,
+        193.96173095703125,
+        66.44676971435547,
+        84.77690887451172
+      ],
+      "name": "ShopButton",
+      "active": true,
+      "selectable": true,
+      "class": "ImageButton",
+      "topmost": true,
+      "inside": true
+    },
+    "safe": [
+      0,
+      -58,
+      1277,
+      801
+    ],
+    "settingsVisible": false,
+    "inputPath": [
+      "LocalPlayer",
+      "PlayerGui",
+      "PunchWallHUD",
+      "PixelPerfectHeroCityHUD",
+      "ShopButton"
+    ],
+    "trainingVisible": false,
+    "motion": true,
+    "actualMenuVisible": false,
+    "rebirthVisible": false,
+    "hudEnabled": true,
+    "activeTab": "Inventory",
+    "viewport": {
+      "y": 801,
+      "x": 1277
+    },
+    "spinVisible": false,
+    "inventoryVisible": false,
+    "menuVisible": false
+  },
+  "input": {
+    "flowIntent": {
+      "datamodel_type": "Client",
+      "actions": [
+        {
+          "action": "moveTo",
+          "instance_path_segments": [
+            "LocalPlayer",
+            "PlayerGui",
+            "PunchWallHUD",
+            "PixelPerfectHeroCityHUD",
+            "ShopButton"
+          ]
+        },
+        {
+          "action": "wait",
+          "wait_time_ms": 80
+        },
+        {
+          "action": "moveTo",
+          "instance_path_segments": [
+            "LocalPlayer",
+            "PlayerGui",
+            "PunchWallHUD",
+            "PixelPerfectHeroCityHUD",
+            "ShopButton"
+          ]
+        },
+        {
+          "action": "mouseButtonDown",
+          "mouse_button": "left",
+          "instance_path_segments": [
+            "LocalPlayer",
+            "PlayerGui",
+            "PunchWallHUD",
+            "PixelPerfectHeroCityHUD",
+            "ShopButton"
+          ]
+        },
+        {
+          "action": "wait",
+          "wait_time_ms": 60
+        },
+        {
+          "action": "mouseButtonUp",
+          "mouse_button": "left",
+          "instance_path_segments": [
+            "LocalPlayer",
+            "PlayerGui",
+            "PunchWallHUD",
+            "PixelPerfectHeroCityHUD",
+            "ShopButton"
+          ]
+        }
+      ]
+    },
+    "normalizationStartedAt": "2026-09-06T14:12:27.188Z",
+    "normalizedMcpArgs": {
+      "datamodel_type": "Client",
+      "actions": [
+        {
+          "action": "moveTo",
+          "x": 1232,
+          "y": 236
+        },
+        {
+          "action": "wait",
+          "wait_time_ms": 80
+        },
+        {
+          "action": "moveTo",
+          "x": 1232,
+          "y": 236
+        },
+        {
+          "action": "mouseButtonDown",
+          "mouse_button": "left",
+          "x": 1232,
+          "y": 236
+        },
+        {
+          "action": "wait",
+          "wait_time_ms": 60
+        },
+        {
+          "action": "mouseButtonUp",
+          "mouse_button": "left",
+          "x": 1232,
+          "y": 236
+        }
+      ]
+    },
+    "requestedAt": "2026-09-06T14:12:27.281Z",
+    "finishedAt": "2026-09-06T14:12:28.161Z"
+  },
+  "shopBefore": {
+    "shopPage": "Fists",
+    "uiScale": 1,
+    "hudVisible": false,
+    "actualShopVisible": true,
+    "cameraType": "Custom",
+    "sound": true,
+    "ok": true,
+    "shopVisible": true,
+    "launcher": {
+      "visible": false,
+      "bounds": [
+        1199.096923828125,
+        193.96173095703125,
+        66.44676971435547,
+        84.77690887451172
+      ],
+      "name": "ShopButton",
+      "active": true,
+      "selectable": true,
+      "class": "ImageButton",
+      "topmost": false,
+      "inside": true
+    },
+    "safe": [
+      0,
+      -58,
+      1277,
+      801
+    ],
+    "settingsVisible": false,
+    "inputPath": [
+      "LocalPlayer",
+      "PlayerGui",
+      "PunchWallHUD",
+      "PixelPerfectHeroCityHUD",
+      "ShopButton"
+    ],
+    "trainingVisible": false,
+    "motion": true,
+    "actualMenuVisible": true,
+    "rebirthVisible": false,
+    "hudEnabled": true,
+    "activeTab": "Fists",
+    "viewport": {
+      "y": 801,
+      "x": 1277
+    },
+    "spinVisible": false,
+    "inventoryVisible": false,
+    "menuVisible": true
+  },
+  "error": "AssertionError [ERR_ASSERTION]: HUD unavailable\n    at assertRoute (file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-artifact-native-input-profile-20260906.mjs:88:2)\n    at run (file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-artifact-native-input-profile-20260906.mjs:137:77)\n    at async file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-artifact-native-input-profile-20260906.mjs:186:6",
+  "cleanup": [
+    {
+      "name": "destroyProfiler",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "disconnected": true
+      }
+    },
+    {
+      "name": "stopPlay",
+      "ok": true,
+      "result": {
+        "ok": true,
+        "editAvailable": true
+      }
+    },
+    {
+      "name": "closeMcp",
+      "ok": true,
+      "result": {
+        "ok": true
+      }
+    }
+  ],
+  "deviceAfter": {
+    "ok": true,
+    "device": "default"
+  },
+  "liveAfter": {
+    "ok": true,
+    "checkedAt": "2026-09-06T14:12:31.992Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+      "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "28c74805a4cb778edf8c527d208c2d9ca86ec326480a23e12ee1464999b1431b",
+        "rawSHA256": "0ef2251928515bdb8b5e64e3e3d71a70b56656dd17013f1045b68010cefd0d2e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 666401,
+          "name": "PunchWallClient",
+          "actualBytes": 666401
+        }
+      }
+    ]
+  },
+  "postflightUnchanged": true,
+  "collectionPassed": false,
+  "performanceContextAccepted": false,
+  "finishedAt": "2026-09-06T14:12:33.902Z"
+}

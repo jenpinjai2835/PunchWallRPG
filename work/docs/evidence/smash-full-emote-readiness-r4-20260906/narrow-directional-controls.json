@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "narrow-directional-controls",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "Desktop: configure exact device",
+        "Desktop: start play",
+        "Desktop: wait for runtime",
+        "Desktop: seed isolated directional fixture",
+        "Desktop: actual stable target bounds",
+        "Desktop: native Up click",
+        "Desktop: exact Up server direction",
+        "Desktop: retain one-second attack cadence",
+        "Desktop: native Down click",
+        "Desktop: exact Down server direction",
+        "Desktop: final geometry and two punches",
+        "Desktop: capture console",
+        "Desktop: console clean (identified Studio input warnings: 0)",
+        "Desktop: stop play",
+        "Phone: configure exact device",
+        "Phone: start play",
+        "Phone: wait for runtime",
+        "Phone: seed isolated directional fixture",
+        "Phone: actual stable target bounds",
+        "Phone: native Up click",
+        "Phone: exact Up server direction",
+        "Phone: retain one-second attack cadence",
+        "Phone: native Down click",
+        "Phone: exact Down server direction",
+        "Phone: final geometry and two punches",
+        "Phone: capture console",
+        "Phone: console clean (identified Studio input warnings: 1)",
+        "Phone: stop play",
+        "verify default simulator restored"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "DesktopConsole",
+          "label": "Desktop: console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "PhoneConsole",
+          "label": "Phone: console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (27.4, 71.7) hits CoreGUI.\nStack Begin\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 286\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 164\nStack End",
+          "identifiedToolWarningCount": 1,
+          "identifiedToolWarnings": [
+            {
+              "kind": "RobloxStudioAssistantVirtualInputCoreGui",
+              "startLine": 2,
+              "endLine": 6,
+              "frameCount": 2,
+              "header": "[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (27.4, 71.7) hits CoreGUI.",
+              "script": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils"
+            }
+          ],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

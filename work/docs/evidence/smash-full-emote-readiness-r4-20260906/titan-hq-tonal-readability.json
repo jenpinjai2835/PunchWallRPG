@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "titan-hq-tonal-readability",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "settle Edit mode",
+        "start Titan tonal contract",
+        "wait for bounded world presentation",
+        "Titan tonal hierarchy is readable bounded and gameplay-neutral",
+        "capture Titan tonal contract console",
+        "Titan tonal contract console clean (identified Studio input warnings: 0)",
+        "stop Titan tonal contract"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "Titan tonal contract console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}
