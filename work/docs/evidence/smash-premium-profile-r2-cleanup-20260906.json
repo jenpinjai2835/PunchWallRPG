@@ -1,0 +1,15 @@
+{
+  "ownedDevice": {
+    "ok": true,
+    "name": "Smash Premium Profile 8d7b3bef-9428-4a2f-a48a-a88e035e3a05",
+    "id": "Smash Premium Profile 8d7b3bef-9428-4a2f-a48a-a88e035e3a05",
+    "scaling": "FitToWindow",
+    "resolution": {
+      "y": 654,
+      "x": 637
+    }
+  },
+  "ok": true,
+  "device": "default",
+  "removed": 1
+}
