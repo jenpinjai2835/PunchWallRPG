@@ -10606,6 +10606,48 @@ function shared.PunchWallResolveNarrowDirectionalPair(viewport)
 	}
 end
 
+function shared.PunchWallResolveNarrowMenuGrid(viewport)
+	if not (viewport.X > 0 and viewport.X < math.huge and viewport.Y > 0 and viewport.Y < math.huge) then return nil end
+	local authoredScale = math.min(viewport.X / 1672, viewport.Y / 941)
+	if 82 * authoredScale >= 44 then return nil end
+	local width, gap, margin = 48, 4, 12
+	local height = width * 111 / 87
+	local rebirthHeight = width * 111 / 82
+	-- A collapsed or very shallow desktop viewport cannot fit this grid.
+	-- Keep the authored fallback instead of clamping against reversed bounds.
+	if viewport.X < width * 3 + gap * 2 + margin * 2
+		or viewport.Y < height * 3 + gap * 2 + margin * 2 then return nil end
+	local right = viewport.X - margin - width
+	local left = right - width - gap
+	local top = math.clamp(viewport.Y * 296 / 941, margin, viewport.Y - margin - height * 3 - gap * 2)
+	return {
+		width = width, height = height, gap = gap, margin = margin,
+		targets = {
+			InventoryButton = { x = left, y = top, width = width, height = height },
+			ShopButton = { x = right, y = top, width = width, height = height },
+			PetsButton = { x = right, y = top + height + gap, width = width, height = height },
+			QuestsButton = { x = right, y = top + (height + gap) * 2, width = width, height = height },
+			RebirthButton = {
+				x = math.max(margin, viewport.X * 16 / 1672),
+				y = math.clamp(viewport.Y * 429 / 941, margin, viewport.Y - margin - rebirthHeight),
+				width = width, height = rebirthHeight,
+			},
+		},
+	}
+end
+
+function shared.PunchWallResolveGenericDesktopModal(viewport)
+	local viewportWidth = viewport.X >= 0 and viewport.X < math.huge and viewport.X or 0
+	local viewportHeight = viewport.Y >= 0 and viewport.Y < math.huge and viewport.Y or 0
+	local width = math.min(677, math.max(1, viewportWidth - 24))
+	local height = math.min(408, math.max(1, viewportHeight - 24))
+	local centerY = viewportHeight * 0.5
+	if viewportHeight >= height + 24 then
+		centerY = math.clamp(viewportHeight * 0.52, height * 0.5 + 12, viewportHeight - height * 0.5 - 12)
+	end
+	return { width = width, height = height, centerY = centerY, safeMarginFits = viewportWidth >= width + 24 and viewportHeight >= height + 24 }
+end
+
 local rankWidgets = (function()
 	local widgets = {}
 	local rankHUD = Instance.new("Frame")
@@ -14058,6 +14100,12 @@ applyResponsiveLayout = function()
 		or 1
 	gui:SetAttribute("ResponsiveProfile", responsiveProfile)
 	gui:SetAttribute("ResponsivePhoneScale", phoneScale)
+	referenceHUD:SetAttribute("RightMenuLayoutMode", "UniformIconGridV1")
+	referenceHUD:SetAttribute("RightMenuIconSize", "87x111")
+	referenceHUD:SetAttribute("RightMenuIconGap", 3)
+	referenceHUD:SetAttribute("RightMenuRenderedWidth", nil)
+	referenceHUD:SetAttribute("RightMenuRenderedHeight", nil)
+	referenceHUD:SetAttribute("RightMenuSafeMargin", nil)
 	local coreGuiTopLeft = Vector2.zero
 	local coreGuiBottomRight = Vector2.zero
 	pcall(function()
@@ -14475,6 +14523,23 @@ applyResponsiveLayout = function()
 		referencePets.Position, referencePets.Size = designRect(rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight)
 		referenceQuests.Position, referenceQuests.Size = designRect(rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight)
 		shared.PunchWallReferenceRebirth.Position, shared.PunchWallReferenceRebirth.Size = designRect(16, 429, 82, 111)
+		-- Keep the authored aspect ratios while giving the narrow desktop menu
+		-- real touch targets and equal horizontal/vertical spacing.
+		local narrowMenuLayout = shared.PunchWallResolveNarrowMenuGrid(viewport)
+		if narrowMenuLayout then
+			for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
+				local target = narrowMenuLayout.targets[button.Name]
+				button.Position = UDim2.fromOffset(target.x, target.y)
+				button.Size = UDim2.fromOffset(target.width, target.height)
+				enforceReferenceTouchTarget(button)
+			end
+			referenceHUD:SetAttribute("RightMenuLayoutMode", "NarrowDesktopUniformIconGridV1")
+			referenceHUD:SetAttribute("RightMenuIconSize", ("%dx%.6f"):format(narrowMenuLayout.width, narrowMenuLayout.height))
+			referenceHUD:SetAttribute("RightMenuIconGap", narrowMenuLayout.gap)
+			referenceHUD:SetAttribute("RightMenuRenderedWidth", narrowMenuLayout.width)
+			referenceHUD:SetAttribute("RightMenuRenderedHeight", narrowMenuLayout.height)
+			referenceHUD:SetAttribute("RightMenuSafeMargin", narrowMenuLayout.margin)
+		end
 		shared.PunchWallSoundToolButton.AnchorPoint = Vector2.zero
 		shared.PunchWallSoundToolButton.Position, shared.PunchWallSoundToolButton.Size = designRect(1465, 22, 60, 64)
 		shared.PunchWallSettingsToolButton.AnchorPoint = Vector2.zero
@@ -14556,8 +14621,10 @@ applyResponsiveLayout = function()
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
 			mainPanel:SetAttribute("ShopModalSizing", shopLayout.desktopRows and "DesktopSafeFill12V1" or "DesktopSafeMarginV2")
 		else
-			mainPanel.Size = UDim2.fromOffset(677, 408)
-			mainPanel.Position = UDim2.fromScale(0.5, 0.52)
+			local genericLayout = shared.PunchWallResolveGenericDesktopModal(viewport)
+			mainPanel.Size = UDim2.fromOffset(genericLayout.width, genericLayout.height)
+			mainPanel.Position = UDim2.new(0.5, 0, 0, genericLayout.centerY)
+			mainPanel:SetAttribute("GenericDesktopMenuLayout", "SafeBounds12V1")
 			closeButton.Position = UDim2.new(1, -10, 0, 10)
 			closeButton.Size = UDim2.fromOffset(44, 44)
 			tabBar.Position = UDim2.fromOffset(12, 12)
