@@ -905,3 +905,60 @@ native-area matching, product availability lookup, phone camera settled LOS and
 the same narrow right-menu uniformity defect. All three workers were then given
 offline test slots; native tests stay stopped during these CPU checks. This is
 a completed failed regression, not a passing release run.
+
+### September 6, 13:49 ICT — reviewed repairs integrated; native probes preserved
+
+The Coordinator integrated the validated camera repair as18f9056 (worker
+dca2450c), Inventory/Honor QA as0cd930a (e7d82b60), ambient/phone-objective
+QA asf339677 (cb9a429f), one-Jump diagnostics as6872633 (88240e8), and the
+three runtime-probe/product-route flows as1aa0135 (7ce148a). Agent1 accepted
+the bounded camera review; Agent2 accepted the Inventory/Honor review and
+found no incompatible remaining contract pins at1aa0135. No broader quiet
+visual allowlist changes were justified.
+
+Focused validation: camera317 production assertions/37 negative mutations,
+17 related checks and O0/O1/O2 compilation passed; Honor30 and Inventory38
+checks,35 flow chunks and16 compiling mutations passed; ambient640 observed
+phase/FPS/settings checks and mobile123 checks passed with their historical
+negative controls. Jump20 checks/four mutations and all32 changed flow chunks
+plus five diagnostic mock programs compiled. Root's three runtime flows
+compiled34 action/cleanup chunks and passed the29-check product contract.
+These are focused checks, not the pending combined regression.
+
+Client ownership passed exclusively to Agent3 after the camera review, in
+`PuchWall-narrow-menu-final-20260906` atb5932d1. Its scope is the narrow right
+menu, generic Tasks/More modal, three affected flows and one new focused
+contract. Agent3 must preserve the accepted camera code and defer heavy tests
+during native measurements. Root owns contract-registry integration.
+
+The sequential native diagnostic batch in
+`evidence/smash-postfull-runtime-probes-20260906/` completed at13:49:09 ICT.
+Studio still contained source85c51e5; the source9 read-only comparison passed
+before and after against the clean7ce148a probe worktree. Product availability
+passed26.72s; the single-Jump flow passed22.09s; the complete pet flow passed
+153.55s, including default, narrow and landscape framing. Original timing and
+motion thresholds were retained. These passes do not explain or erase the
+earlier intermittent Jump/pet failures, so bounded diagnostics remain in place.
+
+Premium readability failed25.86s with complete native geometry retained:
+the custom1277x720 FitToWindow preset reported actual full/safe/HUD/camera
+areas1277x718, rather than the old assumed maximum one-pixel discrepancy.
+This observation does not implicate the responsive HUD, whose rectangle
+matches the native area exactly. Root is testing the documented
+DeviceSimulatorScalingMode.ActualResolution fixture with the same requested
+resolutions and every original dimension, safe-area, text and action gate.
+The candidate changes only three simulator-mode references; no tolerance is
+increased. Roblox API references were checked on September6:
+https://create.roblox.com/docs/reference/engine/enums/DeviceSimulatorScalingMode
+and https://create.roblox.com/docs/reference/engine/classes/StudioDeviceSimulatorService.
+Its native result is pending. Canonical output and recovery originals remain
+unchanged; source-in-Studio evidence is not final-artifact acceptance.
+
+The exact-resolution candidate passed all four requested resolution/UI-scale
+rows and clean-console/stop/device-removal checks in
+`smash-premium-exact-resolution-r1-20260906.json`. Six action/cleanup chunks
+compiled; normalizing only the three enum substitutions reproduces7ce148a
+exactly (`smash-premium-exact-resolution-check-20260906.json`). Agent2 accepted
+the read-only review of34d2b691; root integrated it. The official enum page
+establishes API availability; the native comparison supports this fixture
+correction. Agent3's focused CPU test slot is now open with native Play stopped.
