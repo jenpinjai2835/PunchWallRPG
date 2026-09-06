@@ -209,11 +209,39 @@ const weakChecks=[
 ];
 for(const [code,from,to]of weakChecks){assert(code.includes(from));const altered=code.replace(from,()=>to);const suite=(code===rewardVerifier?altered+petVerifier:rewardVerifier+altered)+verifierFixture+verifierCases;compile(suite,'weak verifier compiles');const result=execute(suite);assert(!result.ok&&result.out.includes(code===rewardVerifier?'reward fault escaped':'pet fault escaped'),'weakened verifier did not expose the intended fault: '+result.out);}
 // Preserve every unrelated authority, wall, boss, safe-area, and cleanup gate.
+// Only this exact reviewed step supersedes its older safe-area fixture. Keep
+// its full call metadata and code pinned, rather than excluding the label.
+const approvedSafeStepLabel='actual HUD and standalone Settings fit safe area with touch targets';
+const approvedSafeStepRef='81219f24a824f8636ff55457d7817b4ca971592e';
+const approvedSafeFlow=JSON.parse(cp.execFileSync('git',['show',approvedSafeStepRef+':work/automation/flows/iteration03-safearea-destruction.json'],{cwd:root,encoding:'utf8'}));
+const approvedSafeStep=approvedSafeFlow.steps.find(s=>s.label===approvedSafeStepLabel);
+assert(approvedSafeStep,'Approved safe-area step missing');
+function verifyApprovedSafeStep(step){assert.deepEqual(step,approvedSafeStep,'Approved safe-area step changed');}
+verifyApprovedSafeStep(flows[0].steps.find(s=>s.label===approvedSafeStepLabel));
+const safeStepWeakeningCopies=[
+ ['modal safe margin','assert(host.Visible and p.X>=q.X+11 and p.Y>=q.Y+11 and p.X+s.X<=q.X+t.X-11 and p.Y+s.Y<=q.Y+t.Y-11,','assert(true,'],
+ ['bounded modal dimensions','assert(math.abs(s.X-math.min(677,t.X-24))<=1 and math.abs(s.Y-math.min(408,t.Y-24))<=1,','assert(true,'],
+ ['scroll capability','assert(scroller:IsA(\'ScrollingFrame\') and scroller.ScrollingEnabled and scroller.AutomaticCanvasSize==Enum.AutomaticSize.Y,','assert(true,'],
+ ['close action size','assert(close.Visible and close.Active and close.Selectable and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44,','assert(true,'],
+ ['all visible action sizes','assert(math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)>=44,','assert(true,'],
+ ['actual scroll end','assert(math.abs(scroller.CanvasPosition.Y-maxY)<=1,','assert(true,'],
+ ['last action containment','assertContained(scroller,last)','do end'],
+ ['scroll position restoration','scroller.CanvasPosition=before','do end'],
+];
+for(const [name,from,to]of safeStepWeakeningCopies){
+ const changed=structuredClone(approvedSafeStep);
+ assert(changed.args.code.includes(from),'Approved safe-area control moved: '+name);
+ changed.args.code=changed.args.code.replace(from,()=>to);
+ compile(changed.args.code,'weaker safe-area copy compiles: '+name);
+ assert.throws(()=>verifyApprovedSafeStep(changed),/Approved safe-area step changed/,'Weaker safe-area copy accepted: '+name);
+}
+const missingSafeEvidence=structuredClone(approvedSafeStep);delete missingSafeEvidence.saveAs;
+assert.throws(()=>verifyApprovedSafeStep(missingSafeEvidence),/Approved safe-area step changed/,'Safe-area evidence retention removed');
 const allowed=new Set(['break depth block with bounded camera-safe physics','wait for stacked reward feedback','level and reward feedback stack without duplicates','observe each real Pet event and visible presentation before pickups','all three real pickup events have matching visible feedback in one non-overlapping channel']);
 let preserved=0;
 for(let i=0;i<flowNames.length;i++){
  const before=JSON.parse(cp.execFileSync('git',['show','5fb7237:work/automation/flows/'+flowNames[i]+'.json'],{cwd:root,encoding:'utf8'}));
- for(const step of before.steps){if(allowed.has(step.label))continue;const current=flows[i].steps.find(s=>s.label===step.label);assert.deepEqual(current,step,'Unrelated gate changed: '+step.label);preserved++;}
+ for(const step of before.steps){if(allowed.has(step.label))continue;const current=flows[i].steps.find(s=>s.label===step.label);if(i===0&&step.label===approvedSafeStepLabel)verifyApprovedSafeStep(current);else assert.deepEqual(current,step,'Unrelated gate changed: '+step.label);preserved++;}
  assert.deepEqual(flows[i].cleanup,before.cleanup,'Cleanup gate changed');
 }
-console.log(JSON.stringify({ok:true,clientSHA256:crypto.createHash('sha256').update(client).digest('hex'),compiledFlowSnippets:snippets,producerMutations:mutations.length,actualPetCaptureControls:9,verifierFaults:27,verifierMutations:weakChecks.length,unrelatedGatesPreserved:preserved,runtime:'PENDING: Coordinator owns Studio; mocks do not prove rendering, audio audibility or server replication'},null,2));
+console.log(JSON.stringify({ok:true,clientSHA256:crypto.createHash('sha256').update(client).digest('hex'),compiledFlowSnippets:snippets,producerMutations:mutations.length,actualPetCaptureControls:9,verifierFaults:27,verifierMutations:weakChecks.length,approvedSafeStepRef,approvedSafeStepCopyRejections:safeStepWeakeningCopies.length+1,unrelatedGatesPreserved:preserved,runtime:'PENDING: Coordinator owns Studio; mocks do not prove rendering, audio audibility or server replication'},null,2));
