@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,21 +24,21 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD') local inventory=h:WaitForChild('InventoryButton') local shop=h:WaitForChild('ShopButton') local pets=h:WaitForChild('PetsButton') local quests=h:WaitForChild('QuestsButton') local function near(a,b,t) return math.abs(a-b)<=t end local sameSize=inventory.Size==shop.Size and shop.Size==pets.Size and pets.Size==quests.Size local sameRenderedSize=near(inventory.AbsoluteSize.X,shop.AbsoluteSize.X,1) and near(inventory.AbsoluteSize.Y,shop.AbsoluteSize.Y,1) and near(shop.AbsoluteSize.X,pets.AbsoluteSize.X,1) and near(shop.AbsoluteSize.Y,pets.AbsoluteSize.Y,1) and near(pets.AbsoluteSize.X,quests.AbsoluteSize.X,1) and near(pets.AbsoluteSize.Y,quests.AbsoluteSize.Y,1) local sameTop=near(inventory.AbsolutePosition.Y,shop.AbsolutePosition.Y,1) local sameColumn=near(shop.AbsolutePosition.X,pets.AbsolutePosition.X,1) and near(pets.AbsolutePosition.X,quests.AbsolutePosition.X,1) local horizontalGap=shop.AbsolutePosition.X-(inventory.AbsolutePosition.X+inventory.AbsoluteSize.X) local shopPetsGap=pets.AbsolutePosition.Y-(shop.AbsolutePosition.Y+shop.AbsoluteSize.Y) local petsQuestsGap=quests.AbsolutePosition.Y-(pets.AbsolutePosition.Y+pets.AbsoluteSize.Y) local evenGaps=horizontalGap>=0 and shopPetsGap>=0 and petsQuestsGap>=0 and near(shopPetsGap,petsQuestsGap,1) local minTarget=math.min(inventory.AbsoluteSize.X,inventory.AbsoluteSize.Y,shop.AbsoluteSize.X,shop.AbsoluteSize.Y,pets.AbsoluteSize.X,pets.AbsoluteSize.Y,quests.AbsoluteSize.X,quests.AbsoluteSize.Y) local ok=h:GetAttribute('RightMenuLayoutMode')=='UniformIconGridV1' and h:GetAttribute('RightMenuIconSize')=='87x111' and h:GetAttribute('RightMenuIconGap')==3 and sameSize and sameRenderedSize and sameTop and sameColumn and evenGaps and minTarget>=44 return H:JSONEncode({ok=ok,layout=h:GetAttribute('RightMenuLayoutMode'),declaredSize=h:GetAttribute('RightMenuIconSize'),declaredGap=h:GetAttribute('RightMenuIconGap'),sameSize=sameSize,sameRenderedSize=sameRenderedSize,sameTop=sameTop,sameColumn=sameColumn,evenGaps=evenGaps,horizontalGap=horizontalGap,shopPetsGap=shopPetsGap,petsQuestsGap=petsQuestsGap,minTarget=minTarget})"
+        "code": "-- BEGIN RIGHT MENU GEOMETRY ASSERTIONS\nlocal function verifyRightMenu(h,profile)\n assert(profile=='Desktop','uniform right-menu flow requires the actual desktop profile')\n local names={'InventoryButton','ShopButton','PetsButton','QuestsButton','RebirthButton'}\n local buttons={}\n local hp,hs=h.AbsolutePosition,h.AbsoluteSize\n local expectedNarrow=82*math.min(hs.X/1672,hs.Y/941)<44\n local expectedLayout=expectedNarrow and 'NarrowDesktopUniformIconGridV1' or 'UniformIconGridV1'\n assert(h:GetAttribute('RightMenuLayoutMode')==expectedLayout,'right-menu layout metadata disagrees with actual viewport')\n local function near(a,b)return math.abs(a-b)<=1 end\n local function overlap(a,b)\n  local p,s,q,t=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize\n  return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y))\n end\n local minTarget=math.huge\n for _,name in ipairs(names)do\n  local button=assert(h:FindFirstChild(name),'missing menu '..name)\n  assert(button:IsA('ImageButton') and button.Active and button.Selectable,'menu is not an active selectable button '..name)\n  local node=button while node do if node:IsA('GuiObject')then assert(node.Visible,'hidden menu '..name)end node=node.Parent end\n  local p,s=button.AbsolutePosition,button.AbsoluteSize\n  minTarget=math.min(minTarget,s.X,s.Y)\n  assert(math.min(s.X,s.Y)>=44,'menu below actual 44px target '..name)\n  local margin=expectedNarrow and 12 or 0\n  assert(p.X>=hp.X+margin-1 and p.Y>=hp.Y+margin-1 and p.X+s.X<=hp.X+hs.X-margin+1 and p.Y+s.Y<=hp.Y+hs.Y-margin+1,'menu outside safe host '..name)\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'menu buttons overlap')end\n  table.insert(buttons,button)\n end\n local inventory,shop,pets,quests,rebirth=table.unpack(buttons)\n local sameSize=inventory.Size==shop.Size and shop.Size==pets.Size and pets.Size==quests.Size\n local sameRenderedSize=true\n for i=2,4 do sameRenderedSize=sameRenderedSize and near(buttons[i].AbsoluteSize.X,inventory.AbsoluteSize.X) and near(buttons[i].AbsoluteSize.Y,inventory.AbsoluteSize.Y)end\n local sameTop=near(inventory.AbsolutePosition.Y,shop.AbsolutePosition.Y)\n local sameColumn=near(shop.AbsolutePosition.X,pets.AbsolutePosition.X) and near(pets.AbsolutePosition.X,quests.AbsolutePosition.X)\n local horizontalGap=shop.AbsolutePosition.X-inventory.AbsolutePosition.X-inventory.AbsoluteSize.X\n local shopPetsGap=pets.AbsolutePosition.Y-shop.AbsolutePosition.Y-shop.AbsoluteSize.Y\n local petsQuestsGap=quests.AbsolutePosition.Y-pets.AbsolutePosition.Y-pets.AbsoluteSize.Y\n local evenGaps=horizontalGap>=0 and shopPetsGap>=0 and petsQuestsGap>=0 and near(shopPetsGap,petsQuestsGap)\n assert(sameSize and sameRenderedSize and sameTop and sameColumn and evenGaps,'right-menu uniform grid geometry disagrees')\n if expectedNarrow then\n  local height=48*111/87\n  assert(h:GetAttribute('RightMenuIconSize')==('48x%.6f'):format(height) and h:GetAttribute('RightMenuIconGap')==4,'narrow menu declared geometry changed')\n  assert(h:GetAttribute('RightMenuRenderedWidth')==48 and math.abs(h:GetAttribute('RightMenuRenderedHeight')-height)<.00001 and h:GetAttribute('RightMenuSafeMargin')==12,'narrow menu actual metadata missing')\n  assert(near(inventory.AbsoluteSize.X,48) and near(inventory.AbsoluteSize.Y,height) and near(rebirth.AbsoluteSize.X,48) and near(rebirth.AbsoluteSize.Y,48*111/82),'narrow menu lost authored icon ratios')\n  assert(near(horizontalGap,4) and near(shopPetsGap,4) and near(petsQuestsGap,4),'narrow menu must use equal 4px gaps')\n else\n  assert(h:GetAttribute('RightMenuIconSize')=='87x111' and h:GetAttribute('RightMenuIconGap')==3,'wide reference geometry changed')\n end\n return {ok=true,layout=expectedLayout,declaredSize=h:GetAttribute('RightMenuIconSize'),declaredGap=h:GetAttribute('RightMenuIconGap'),sameSize=sameSize,sameRenderedSize=sameRenderedSize,sameTop=sameTop,sameColumn=sameColumn,evenGaps=evenGaps,horizontalGap=horizontalGap,shopPetsGap=shopPetsGap,petsQuestsGap=petsQuestsGap,minTarget=minTarget,safeBounds=true,allFiveTargets=true,viewportWidth=hs.X,viewportHeight=hs.Y}\nend\n-- END RIGHT MENU GEOMETRY ASSERTIONS\nlocal H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD') return H:JSONEncode(verifyRightMenu(h,g:GetAttribute('ResponsiveProfile')))"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"layout\"\\s*:\\s*\"UniformIconGridV1\"",
-        "\"declaredSize\"\\s*:\\s*\"87x111\"",
-        "\"declaredGap\"\\s*:\\s*3",
         "\"sameSize\"\\s*:\\s*true",
         "\"sameRenderedSize\"\\s*:\\s*true",
         "\"sameTop\"\\s*:\\s*true",
         "\"sameColumn\"\\s*:\\s*true",
         "\"evenGaps\"\\s*:\\s*true",
-        "\"minTarget\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"
+        "\"minTarget\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
+        "\"safeBounds\"\\s*:\\s*true",
+        "\"allFiveTargets\"\\s*:\\s*true"
       ],
-      "label": "right HUD actions share one uniform icon grid"
+      "label": "right HUD actions share one uniform icon grid",
+      "saveAs": "rightMenuGeometry"
     },
     {
       "type": "call",
@@ -59,6 +61,522 @@
     },
     {
       "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('InventoryButton'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','InventoryButton')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='InventoryButton' then\n  g:SetAttribute('RightMenuNativeActivated','InventoryButton')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual InventoryButton hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          }
+        ]
+      },
+      "label": "native click InventoryButton"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.inventoryVisible==true and s.activeTab=='Inventory' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='InventoryButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='InventoryButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativeInventoryButton",
+      "label": "verify actual InventoryButton route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('ShopButton'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','ShopButton')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='ShopButton' then\n  g:SetAttribute('RightMenuNativeActivated','ShopButton')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual ShopButton hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          }
+        ]
+      },
+      "label": "native click ShopButton"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.shopVisible==true and s.activeTab=='Fists' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='ShopButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='ShopButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativeShopButton",
+      "label": "verify actual ShopButton route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('PetsButton'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','PetsButton')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='PetsButton' then\n  g:SetAttribute('RightMenuNativeActivated','PetsButton')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual PetsButton hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PetsButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PetsButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PetsButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PetsButton"
+            ]
+          }
+        ]
+      },
+      "label": "native click PetsButton"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.inventoryVisible==true and s.activeTab=='Inventory' and s.inventory and s.inventory.category=='Pets' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='PetsButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='PetsButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativePetsButton",
+      "label": "verify actual PetsButton route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('QuestsButton'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','QuestsButton')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='QuestsButton' then\n  g:SetAttribute('RightMenuNativeActivated','QuestsButton')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual QuestsButton hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "QuestsButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "QuestsButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "QuestsButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "QuestsButton"
+            ]
+          }
+        ]
+      },
+      "label": "native click QuestsButton"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.menuVisible==true and s.activeTab=='Tasks' and g.GameMenu.Visible until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='QuestsButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='QuestsButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativeQuestsButton",
+      "label": "verify actual QuestsButton route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('RebirthButton'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','RebirthButton')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='RebirthButton' then\n  g:SetAttribute('RightMenuNativeActivated','RebirthButton')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual RebirthButton hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "RebirthButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "RebirthButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "RebirthButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "RebirthButton"
+            ]
+          }
+        ]
+      },
+      "label": "native click RebirthButton"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.rebirthVisible==true and s.activeWindow=='Rebirth' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='RebirthButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='RebirthButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativeRebirthButton",
+      "label": "verify actual RebirthButton route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') task.wait(.2)\nlocal h=g.PixelPerfectHeroCityHUD local button=assert(h:FindFirstChild('MoreTool'))\nassert(h.Visible and button.Visible and button.Active and button.Selectable and button:IsDescendantOf(g),'native menu target unavailable')\nlocal p0,size=button.AbsolutePosition,button.AbsoluteSize\nlocal safe,sizeSafe=h.AbsolutePosition,h.AbsoluteSize\nassert(size.X>=44 and size.Y>=44 and p0.X>=safe.X-1 and p0.Y>=safe.Y-1 and p0.X+size.X<=safe.X+sizeSafe.X+1 and p0.Y+size.Y<=safe.Y+sizeSafe.Y+1,'native menu hitbox is small or clipped')\nlocal center=p0+size*.5\nlocal hit=p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y)[1]\nassert(hit==button or (hit and hit:IsDescendantOf(button)),'native menu target is covered')\ng:SetAttribute('RightMenuNativeExpected','MoreTool')\ng:SetAttribute('RightMenuNativeActivated','')\ng:SetAttribute('RightMenuNativeActivationCount',0)\nbutton.Activated:Once(function()\n if button.Parent and g:GetAttribute('RightMenuNativeExpected')=='MoreTool' then\n  g:SetAttribute('RightMenuNativeActivated','MoreTool')\n  g:SetAttribute('RightMenuNativeActivationCount',(g:GetAttribute('RightMenuNativeActivationCount') or 0)+1)\n end\nend)\nreturn H:JSONEncode({ready=true,target=button.Name,width=size.X,height=size.Y,topmost=true})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "precheck actual MoreTool hitbox"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "MoreTool"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "MoreTool"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "MoreTool"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "MoreTool"
+            ]
+          }
+        ]
+      },
+      "label": "native click MoreTool"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.menuVisible==true and s.activeTab=='Tasks' and g.GameMenu.Visible until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='MoreTool' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='MoreTool',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "saveAs": "nativeMoreTool",
+      "label": "verify actual MoreTool route"
+    },
+    {
+      "type": "call",
       "tool": "get_console_output",
       "saveAs": "console",
       "label": "capture console"
@@ -71,7 +589,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -80,7 +600,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"
