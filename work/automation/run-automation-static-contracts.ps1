@@ -352,6 +352,7 @@ $additionalStaticContracts = @(
     @{ file = "client-runtime-performance-contract.mjs"; key = "clientRuntimePerformanceContract" },
     @{ file = "device-matrix-hud-shop-contract.mjs"; key = "deviceMatrixHudShopContract" },
     @{ file = "fist-pet-safety-contract.mjs"; key = "fistPetSafetyContract" },
+    @{ file = "forest-pup-silhouette-contract.mjs"; key = "forestPupSilhouetteContract" },
     @{ file = "full-game-real-ui-controls-contract.mjs"; key = "fullGameRealUiControlsContract" },
     @{ file = "inventory-card-render-contract.mjs"; key = "inventoryCardRenderContract" },
     @{ file = "inventory-model-preview-contract.mjs"; key = "inventoryModelPreviewContract" },

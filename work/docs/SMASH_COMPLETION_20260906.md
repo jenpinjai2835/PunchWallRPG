@@ -551,3 +551,50 @@ expected source-mismatch errors (client, then server). A reconstructed immutable
 the UI sync; the authoritative record is
 `smash-before-premium-ui-sync-live-r3-20260906.json`. The earlier attempts are
 not evidence of a live source regression or passing checks.
+
+### September 6, 09:50 ICT — integrated visual and framing gates
+
+The complete pet flow now passes in actual Studio on source `c032854`: original
+desktop, measured narrow 636×654, and landscape, each with near/mid/far camera
+matrices. This covers visibility, actual eight-corner safe frame, original
+overlap/separation/area gates, normal-pet size, motion and clean console.
+The complete-formation fallback preserves camera, geometry scale, rotation and
+axial depth. Independent review reports no P1/P2 defect; 3,630 assertions and
+40 mutation controls pass, including an old-source failure reproduction.
+The bounded search is not a globally exhaustive packing algorithm. Its operation
+counts in mocks are not native frame times.
+
+Combat-target/boss HUD and the five-device HUD/Shop matrix pass. New premium HUD
+readability also passes after the strictly settled entitlement and actual
+device/scale fixture correction. Inventory's first two-device run failed because
+the fixture used `persist=false`; a later authoritative snapshot restored its
+old UI scale. This was not a production settings defect. One ordinary settings
+request plus bounded agreement of replicated SettingsJSON, client Snapshot and
+rendered InventoryScale fixes the fixture. Both desktop and the exact built-in
+iPhone 17 Pro now pass at 80%, 100% and 120%, including text bounds, empty search,
+selection/scroll/cache identity and all four pet actions. The failed run and its
+initial cleanup failure are retained; a subsequent owned timeline probe restored
+settings and stopped Play, and the revised two-device wrapper cleaned up.
+
+Source `18ddcc6`, integrated as `d0bc7a3`, adds eight matte visual-only accents to
+Forest Pup in the shared catalog styling path: ears, low muzzle, paws, collar
+and tag. Both imported meshes and the visible face decal remain intact.
+Two new actual source captures were viewed on desktop and phone; the silhouette
+is recognizably dog-like within the retained block-pet style, with no visible
+clipping in those images. This is not blanket approval of every model. The
+source-bound capture and Inventory runs verify all nine live sources before
+and after. Forest Pup's focused geometry flow is pending worker test handoff.
+
+The aggregate static run exposed stale assertions for the intentionally removed
+Shop text stroke and previous objective/product-name geometry. Root updated
+these to the current quiet card's authored contrast (at least 7:1, with three
+negative controls), 36px objective and stronger 14px product-name floor. Focused
+checks pass; the aggregate must be rerun after the final test registry handoff.
+The first dedicated premium-pet profile failed before starting Play because it
+queried active-device-only simulator properties in the cleared/default state.
+No frame result was produced. The tool owner is fixing default-state setup and
+cleanup; existing source proofs remain unchanged.
+
+Canonical artifact, native disk reopen, final artifact pictures/profile and
+reviewed merge are still pending the new full frozen regression. Parent status
+remains BLOCKED 6/9 and no READY release is claimed.
