@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "rebirth-progression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "lock exact phone 740 viewport",
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "canonical scalable Rebirth checkpoints are exact and finite",
+        "seed one-level-short Rebirth state",
+        "standalone Rebirth route opens without legacy combined tabs",
+        "wait for locked Rebirth row",
+        "locked row shows exact progress and compact hit targets",
+        "seed ready state with training and permanent progression",
+        "wait for ready Rebirth row",
+        "ready standalone Rebirth route restores visibility",
+        "wait for focused ready row",
+        "review uses the bound Rebirth callback without mutation",
+        "wait for confirmation render",
+        "confirmation exposes safe cancel and confirm targets",
+        "cancel uses the bound Rebirth callback",
+        "wait for canceled row",
+        "cancel visibly disarms without a server request",
+        "cancel leaves server state unchanged",
+        "review callback re-arms confirmation after cancel",
+        "wait for rebuilt confirm target",
+        "confirm uses the bound Rebirth callback exactly once",
+        "wait for authoritative Rebirth sync",
+        "Rebirth resets the exact prestige fields and retains permanent progression",
+        "stopped training cannot pay after Rebirth",
+        "stale confirmed replay uses production remote",
+        "wait for stale replay rejection",
+        "stale duplicate cannot create a second Rebirth",
+        "respawn retains authoritative Rebirth state and rebuilt UI",
+        "seed insufficient Honor headroom state",
+        "production confirmation reaches Honor headroom guard",
+        "wait for headroom rejection",
+        "insufficient Honor headroom rejects the whole Rebirth",
+        "record compact Rebirth diagnostics",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 0)",
+        "restore default simulator and remove Rebirth device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "runtimeConsole",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

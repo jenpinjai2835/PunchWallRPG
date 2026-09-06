@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "inventory-delete-real-input",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play and wait for both runtime DataModels",
+        "wait for gameplay bootstrap",
+        "seed one unlocked unequipped pet",
+        "select the deletable pet and settle action controls",
+        "real click arms Delete confirmation",
+        "wait for confirmation presentation",
+        "first click reached the live Inventory callback",
+        "real confirmation click dispatches Delete",
+        "wait for authoritative inventory sync",
+        "server deleted exactly the selected pet",
+        "capture Delete regression console",
+        "Delete regression console clean (identified Studio input warnings: 0)",
+        "stop play and wait for Edit"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "Delete regression console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

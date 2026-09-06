@@ -1,0 +1,31 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-scaled-penetration",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for penetration runtime",
+        "fixed cadence and penetration contract",
+        "client hold cadence matches server",
+        "server rejects sub-second repeat regardless of break speed",
+        "starter power breaks front block with short lunge",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"maxSpeed\"\\s*:\\s*(?:[3-9][0-9]|[1-9][0-9]{2,})(?:\\.[0-9]+)?\nReceived: {\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"scale\":1,\"travel\":48,\"maxInitial\":137.36000061035157,\"maxSpeed\":21.75751304626465,\"outcome\":\"penetration\",\"requested\":48,\"broken\":44,\"force\":3.4,\"hit\":44,\"limit\":48}",
+      "context": {}
+    }
+  ]
+}

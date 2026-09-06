@@ -1,0 +1,35 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "reduced-motion-performance",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for audio and runtime",
+        "prepare deterministic state",
+        "enable reduced motion",
+        "wait for settings sync",
+        "trigger punch feedback",
+        "reduced motion suppresses camera impulse",
+        "reduced camera is judged by suppressed-motion invariants without an unconditional lead requirement",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"stable\"\\s*:\\s*true\nReceived: {\"before\":{\"sounds\":7,\"loaded\":7,\"debris\":0,\"particles\":111,\"parts\":6690},\"after\":{\"sounds\":7,\"loaded\":7,\"debris\":0,\"particles\":111,\"parts\":6697},\"stable\":false,\"loadedAll\":true}",
+      "context": {
+        "reducedCameraDiagnostics": "{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0,\"configuredOrbit\":23.31972312927246,\"maxEscapeStep\":0,\"inside\":0,\"obscurerNames\":[],\"maxBackPunch\":0,\"visualValid\":false,\"angle\":0,\"actions\":3,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.0201873779296875,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":9.693523406982422,\"selectedDistance\":23.31972312927246,\"maxStepTo\":\"-2.000030517578125, 9.996156692504883, -5.670232772827148\",\"reducedValid\":true,\"settledReadableRatio\":1,\"userOrbitDistance\":23.31972312927246,\"insideNames\":[],\"maxBack\":0,\"handoffActive\":false,\"maxBackFrom\":\"-2, 3.839998960494995, -18\",\"type\":\"Custom\",\"settledSamples\":3,\"unresolvedSafetyFrames\":0,\"maxBackTo\":\"-2, 3.839998960494995, -18\",\"sampledFrames\":29,\"lastGuardAge\":0.017302100000961219,\"lead\":0,\"insideSamples\":[],\"settledClearRatio\":1,\"maxStep\":0,\"finishDistance\":23.299535751342775,\"maxCorrectionStep\":0,\"maxStepFrom\":\"-2.000030517578125, 9.996156692504883, 4.023290634155273\",\"transientLineOfSightFrames\":0,\"visibleRatio\":1}"
+      }
+    }
+  ]
+}

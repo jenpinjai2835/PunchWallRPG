@@ -1,0 +1,65 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punchwall-motion-feedback",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "reset deterministic state",
+        "allow reset feedback to expire before the exact training presentation probe",
+        "arm serialized start-training event and fresh presentation capture",
+        "start training without free gain and observe the first authoritative payout",
+        "wait for train feedback",
+        "one bounded start toast accompanies exact quiet scheduled training",
+        "arm exact punch reward and coin VFX probe",
+        "trigger punch and exact contribution reward feedback",
+        "wait for reward feedback",
+        "ordered exact reward drives bounded coin VFX without center pop",
+        "trigger shop feedback",
+        "wait for shop feedback",
+        "shop feedback received",
+        "trigger pet feedback",
+        "wait for pet feedback",
+        "pet feedback is a canonical current hatch token replicated into inventory",
+        "trigger rebirth feedback",
+        "wait for rebirth feedback",
+        "rebirth feedback received",
+        "trigger boss feedback",
+        "wait for boss feedback",
+        "boss feedback received",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}
