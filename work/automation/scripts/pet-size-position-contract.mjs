@@ -245,6 +245,39 @@ mode='firstDistance'r=execute()check(not r.contractValid and not r.matrix['6'].v
 mode='clear'camera.ViewportSize={X=1,Y=1}r=execute()check(not r.contractValid,'uninitialized_viewport_cannot_pass_separation')
 print('PASS '..n)
 `;
+ const matrixFlow=flow.steps.find(s=>s.saveAs==='premiumCameraMatrix');
+ for(const suffix of ['', 'Narrow', 'Landscape']){
+  const step=flow.steps.find(s=>s.saveAs==='premiumCameraMatrix'+suffix);
+  assert.equal(step.args.code,matrixFlow.args.code,'same camera-size oracle in every viewport');
+  assert.ok(step.expectRegex.some(p=>p.includes('contractValid')),'top-level aggregate is required before passing');
+  assert.ok(!step.args.code.includes('assert('),'return complete matrix before runner assertion');
+ }
+ fixtures.cameraMatrixOracle=`${vector}
+local Vector2={new=function(x,y)return Vector3.new(x,y,0)end}
+local CFrame={new=function(p)return frame(p.X,p.Y,p.Z)end,lookAt=function(p)return frame(p.X,p.Y,p.Z)end}
+local Enum={CameraType={Scriptable='Scriptable'}}
+local mode='clear'local phase=0
+local root={Position=Vector3.new(0,0,0),CFrame={LookVector=Vector3.new(0,0,-1)}}
+local model={IsA=function()return true end}
+function model:GetBoundingBox()return frame(mode=='separation'and 23.9 or 30,0,8),Vector3.new(mode=='size'and 1.811 or 1.8,1,1)end
+function model:GetAttribute(k)if k=='CompanionBudgetCulled'then return mode=='unculled'elseif k=='EstimatedScreenArea'then return mode=='individualArea'and .181 or .1 end end
+local folder={GetChildren=function()return mode=='count'and {model,model}or {model,model,model}end}
+function workspace:FindFirstChild()return folder end
+function camera:WorldToViewportPoint(p)if p.Z==0 then return Vector3.new(0,0,8),mode~='rootOn'end return Vector3.new(p.X,0,8),not(mode=='visible'or mode=='firstDistance'and phase%3==1)end
+local gui={GetAttribute=function(_,k)if k=='CompanionCombinedScreenAreaEstimate'then return mode=='combinedArea'and .351 or .3 end return 'CameraSafeThreePetLOD1'end}
+local game={Players={LocalPlayer={Name='Player',Character={FindFirstChild=function()return root end},PlayerGui={PunchWallHUD=gui}}},GetService=function()return {JSONEncode=function(_,v)return v end}end}
+local task={wait=function()phase+=1 end}
+local function execute()
+${matrixFlow.args.code}
+end
+local r=execute()check(r.contractValid and r.valid and r.matrix['6'].gates.rootOn,'matrix_keeps_original_positive_gates')
+for _,m in ipairs({'count','visible','unculled','size','individualArea','combinedArea','separation','rootOn'})do
+ mode=m r=execute()check(not r.contractValid and not r.valid and r.matrix['6'].gates[m]==false,m..'_fails_without_throwing_away_full_matrix')
+ check(r.matrix['6']and r.matrix['12']and r.matrix['18']and r.matrix['6'].viewportX==1277,m..'_retains_all_three_distance_metrics')
+end
+mode='firstDistance'r=execute()check(not r.contractValid and not r.matrix['6'].valid and r.matrix['12'].valid and r.matrix['18'].valid,'matrix_preserves_failed_first_distance_when_later_pass')
+print('PASS '..n)
+`;
  const formationSetup=block('\tlocal formationRects = {}','\n\tfor index, state in ipairs(companionModels) do');
  fixtures.formationWiring=`${vector}
 local queried=0 local size=Vector3.new(4,5,1)
@@ -318,6 +351,13 @@ try{
    ['unbound_first_camera_failure','separationOracle','not sampleValid and #failures<1','not sampleValid and #failures<6','unexpected19_retains_policy_and_first_failure'],
   ]){
    const altered=fixtures[fixture].replace(from,to);assert.notEqual(altered,fixtures[fixture],name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
+  }
+  for(const [name,from,to,expected]of [
+   ['matrix_accept_failed_first_distance','allValid=allValid and valid','allValid=valid','matrix_preserves_failed_first_distance_when_later_pass'],
+   ['matrix_allow_oversize','maxLargest<=1.81','maxLargest<=2','size_fails_without_throwing_away_full_matrix'],
+   ['matrix_allow_overlapping_avatar_center','minAvatarSeparation>=24','minAvatarSeparation>=23','separation_fails_without_throwing_away_full_matrix'],
+   ['matrix_hide_combined_area_failure','combined<=0.35','combined<=.4','combinedArea_fails_without_throwing_away_full_matrix']]){
+   const altered=fixtures.cameraMatrixOracle.replace(from,to);assert.notEqual(altered,fixtures.cameraMatrixOracle,name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
   }
   const arbitraryFocus=fixtures.separationOracle.replace("local acceptedFocus=focusPolicy=='ObservedStudio20StudPlane' and studioFocusPlane or focus",'local acceptedFocus=observedFocus').replace("local focusSetupValid=focusPolicy~='UnexpectedFocus'",'local focusSetupValid=true');
   assert.notEqual(arbitraryFocus,fixtures.separationOracle);const arbitraryResult=run('accept_arbitrary_initial_focus',arbitraryFocus);assert.ok(arbitraryResult.status!==0&&arbitraryResult.output.includes('unexpected19_cannot_pass_qualified_focus_policy'),arbitraryResult.output);mutations.push('accept_arbitrary_initial_focus');
