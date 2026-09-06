@@ -1,36 +1,35 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 15:30 ICT:** the latest two-case native run at
-`63eeb8f` passes the explicit637px menus/details and the three-viewport pet flow,
-with frozen inputs and exact live source verification before and after. All four
-new637x654 source-only screenshots were captured and viewed. Settings/Rebirth
-fit; the selected Inventory drawer still has an undersized preview and excessive
-empty framed space. That visual gap fails the user's polished, non-hollow UI
-brief despite passing functional geometry. Agent3 owns a bounded tall compact
-detail layout in InventoryUI; Agent2 reviews its visuals and responsive behavior.
-The full131 run and final artifact gates remain pending this final visual repair.
+**Current status, September 6 at 16:02 ICT:** all source repairs are integrated
+through `e69e586`. The tall Inventory detail now uses an approximately 259 px
+model stage with a concise adjacent summary and 44 px actions. Root and Agent 2
+viewed all four original 637 x 654 screenshots and accepted the captured narrow
+presentation. The former tiny preview and oversized empty description are resolved.
+Settings and Rebirth remain contained and readable.
 
-The earlier targeted native batch at
-`59ad454` completed **18 PASS / 2 FAIL** across20 cases, with exact live source
-verification before and after. All targeted camera cases, phone HUD, Shop,
-Inventory categories/fusion, Honor, ambient motion and Jump pass. Static R3
-passes52/53 contracts, with one explicit runtime-only benchmark and131 flows.
-The new explicit637px desktop test now passes all six real menu click routes
-but finds Settings clipping; source review additionally finds Rebirth clipping
-and an Inventory selected-detail overlap. Agent3 owns those bounded UI fixes.
-Agent1 owns a flow-only pet timing correction after recorded gradual motion
-proved the original50ms observation is sensitive to Heartbeat phase; Agent2
-reviews both candidates. These pending changes still require native validation.
+Combined static checks pass **55 of 55 executed contracts**, with one explicitly
+runtime-only benchmark, 131 recorded flows and all nine source files compiled.
+Three targeted native flows pass: narrow menus/details (28.65 s), responsive
+Inventory (31.80 s) and premium readability (25.36 s). All source/automation
+inputs were frozen, with exact read-only nine-source equality before and after.
+These passes do not replace the pending fresh full 131-flow run. The previous
+full result remains 115 PASS / 14 FAIL at `85c51e5` and is retained as history.
 
-The most recent full run remains115PASS/14FAIL at85c51e5; targeted passes do not
-replace the required fresh full131 run. Canonical output has not been rebuilt;
+Current Studio 22472 / UUID `1cb6d64a-f1c3-4c7a-90c4-bff91af224f8` received the
+accepted source through MCP. The source-only bridge records all nine actual
+writes, exact subsequent live bytes and the unchanged original R3 native-open
+proof. The R3 disk file remains at its older source; no current disk equality or
+canonical artifact acceptance is claimed. Agent 1 reviewed the concrete bridge;
+the actual fingerprint guard accepted the sync and rejected five controls,
+including identical names/lengths with changed source content.
+
+Canonical output remains unchanged at SHA256 `605A4F70...`. Final build, native
 artifact runtime, profile, visual inspection and reviewed merge remain required.
-Current test Studio22388 opened the R2 staged file natively, with exact nine-file
-equality and no source sync. Older Studio22788 and every recovery original remain
-intact after rejected termination/restart operations; the safer file-open-only
+Older Studio windows and all recovery originals remain intact after automatic
+approval rejected termination/restart operations; the safer file-open-only
 operation succeeded. Native fullscreen and popup dismissal remain unverified.
-One authorized usage reset was redeemed at06:36 ICT; no second reset was used.
-Earlier sections below are dated progress history, not current acceptance.
+One authorized usage reset was redeemed at 06:36 ICT; no second reset was used.
+The following sections retain dated progress history, not current acceptance.
 
 ## User outcome and accepted direction
 
@@ -1211,3 +1210,12 @@ action placement for tall compact drawers, preserving short mobile and wide
 layouts, cached state, callbacks and server authority. Agent2 owns read-only
 visual/geometry review. Root owns integration, the next native capture and the
 full/artifact gates; no simultaneous source editing or Studio testing occurs.
+
+## Tall Inventory visual acceptance and source sync — 16:02 ICT
+
+- Agent 3 handoff `f90bded` was peer accepted by Agent 2 and integrated as `65f09ab`; registry `e69e586` includes the new actual-producer tall-detail contract. Source-only changes are InventoryUI, its new contract and additive narrow-flow gates. Short landscape and wide layouts restore their original geometry; model fitting uses eight oriented bounds corners and keeps the cached clone.
+- Focused worker checks passed 5,656 geometry, 3,904 refit/lifecycle and 1,980 restoration assertions, 16 negative controls and 40 compilation checks. Integrated combined static evidence: `evidence/smash-combined-final-tall-detail-static-20260906.json` (55 executed, one explicit runtime-only benchmark).
+- Concrete provenance: `evidence/smash-tall-detail-source-sync-bridge-20260906.json`, with hash-linked actual sync, read-only live source and preserved R3 native-open proof. Full harness SHA256 `E9A7DDF54DFAC4C3E240A1F60A42DCF6D336B8D5906EAED868C1FC5F50D4173C` checks current mapped source fingerprints. Executed local positive/negative evidence is `evidence/smash-tall-detail-sync-fingerprint-controls-20260906.json`. Agent 1 reviewed actual records and hashes without rerunning native work.
+- Native targeted evidence: `evidence/smash-tall-inventory-native-targeted-20260906/manifest.json`, all three flows PASS, frozen input hashes and before/after exact nine-source proofs. The narrow flow adds actual 240–280 px hero, concise 64 px summary, text bounds, all-region containment/non-overlap, projected model corners and retained model identity to the original six native click routes.
+- Original images: `evidence/smash-narrow-modal-source-visual-r2-20260906/{settings,rebirth,selected-fist,selected-pet}.jpg`. Root and Agent 2 viewed all four and accepted the captured 637 x 654 source presentation. The actual console classifier reports no suspicious lines or tool warnings; the sole line identifies the ephemeral Studio session. Capture cleanup restored stopped/default state and exact source equality.
+- This closes the bounded tall Inventory visual defect. The full 131-flow suite and rebuilt canonical artifact gates remain required. Physical mobile hardware, production persistence and live paid commerce remain outside the executed Studio evidence.
