@@ -365,6 +365,7 @@ $additionalStaticContracts = @(
     @{ file = "narrow-directional-controls-contract.mjs"; key = "narrowDirectionalControlsContract" },
     @{ file = "narrow-menu-layout-contract.mjs"; key = "narrowMenuLayoutContract" },
     @{ file = "narrow-desktop-modal-contract.mjs"; key = "narrowDesktopModalContract" },
+    @{ file = "inventory-tall-detail-contract.mjs"; key = "inventoryTallDetailContract" },
     @{ file = "narrow-shop-readability-contract.mjs"; key = "narrowShopReadabilityContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
     @{ file = "quiet-visual-oracle-contract.mjs"; key = "quietVisualOracleContract" },
