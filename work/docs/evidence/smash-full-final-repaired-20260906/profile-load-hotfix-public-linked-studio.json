@@ -1,0 +1,75 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "profile-load-hotfix-public-linked-studio",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start linked published-place Studio lifecycle",
+        "linked Studio receives a ready non-writable ephemeral profile",
+        "capture runtime console"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "runtimeConsole",
+          "label": "runtime console has no DataStore access or fail-closed kick",
+          "ok": false,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nInfinite yield possible on 'ReplicatedStorage.PunchWallEvents:WaitForChild(\"Feedback\")'\nStack Begin\nScript 'Players.jennarong2835.PlayerScripts.PunchWallClient', Line 621\nStack End",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "Infinite yield possible on 'ReplicatedStorage.PunchWallEvents:WaitForChild(\"Feedback\")'"
+            },
+            {
+              "lineNumber": 3,
+              "text": "Stack Begin"
+            },
+            {
+              "lineNumber": 4,
+              "text": "Script 'Players.jennarong2835.PlayerScripts.PunchWallClient', Line 621"
+            },
+            {
+              "lineNumber": 5,
+              "text": "Stack End"
+            }
+          ],
+          "suspiciousLines": [
+            {
+              "lineNumber": 2,
+              "text": "Infinite yield possible on 'ReplicatedStorage.PunchWallEvents:WaitForChild(\"Feedback\")'"
+            },
+            {
+              "lineNumber": 3,
+              "text": "Stack Begin"
+            },
+            {
+              "lineNumber": 5,
+              "text": "Stack End"
+            }
+          ]
+        }
+      ],
+      "error": "Console contains suspicious lines:\nInfinite yield possible on 'ReplicatedStorage.PunchWallEvents:WaitForChild(\"Feedback\")'\nStack Begin\nStack End",
+      "context": {
+        "ephemeralProfileReady": "{\"ok\":true,\"state\":\"EphemeralStudio\",\"liveOptIn\":false,\"writable\":false,\"mode\":\"EphemeralStudio\",\"ready\":true,\"defaultEphemeral\":true}",
+        "runtimeConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nInfinite yield possible on 'ReplicatedStorage.PunchWallEvents:WaitForChild(\"Feedback\")'\nStack Begin\nScript 'Players.jennarong2835.PlayerScripts.PunchWallClient', Line 621\nStack End"
+      }
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "full-game-real-ui-controls",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start real UI control playtest",
+        "wait for player and authoritative UI bootstrap",
+        "seed ready safe authoritative UI state",
+        "wait for seeded stats replication",
+        "precheck reference Inventory open button",
+        "real click reference Inventory open",
+        "assert Inventory opened and precheck Inventory close",
+        "real click Inventory close",
+        "assert Inventory closed and precheck reference Shop open",
+        "real click reference Shop open",
+        "assert Shop opened and precheck Shop close",
+        "real click Shop close",
+        "assert Shop closed and precheck Inventory filtering pass",
+        "real click Inventory open for filtering",
+        "assert Inventory filtering pass opened and precheck Fists category",
+        "real click Inventory Fists category",
+        "assert Fists category and precheck rarity filter",
+        "real click Inventory rarity filter",
+        "assert rarity menu and precheck canonical Rare rarity",
+        "real click Inventory Rare rarity",
+        "assert canonical Rare rarity and precheck Iron card",
+        "real click Inventory Iron card",
+        "assert Iron card selected and precheck safe Equip action",
+        "real click safe Inventory Equip action",
+        "assert authoritative safe Inventory equip",
+        "assert client equip result and precheck Inventory close",
+        "real click Inventory close after safe action",
+        "assert Inventory closed and precheck reference Daily Tasks open",
+        "real click reference Daily Tasks open",
+        "assert Tasks opened and precheck Daily claim",
+        "real click legacy Daily claim",
+        "assert authoritative Daily claim",
+        "assert Daily button settled and precheck Quest claim",
+        "real click legacy Quest claim",
+        "assert authoritative Quest claim",
+        "record exact authoritative Playtime reward baseline",
+        "reacquire a fresh current Playtime CLAIM button immediately after Tasks rebuild",
+        "real click current player-facing Playtime claim",
+        "observe the single real Playtime click with bounded client and request attestation",
+        "poll exact authoritative Playtime reward delta and final state",
+        "assert Playtime button settled and precheck Tasks close",
+        "real click Tasks close",
+        "assert Tasks closed and precheck reference Settings open",
+        "real click reference Settings open",
+        "assert Settings opened and precheck Motion control",
+        "real click Settings Motion control",
+        "assert Motion toggled and precheck Sound control",
+        "real click Settings Sound control",
+        "assert Sound toggled and precheck path-safe 80 percent control",
+        "real click Settings 80 percent control",
+        "assert 80 percent and precheck path-safe 100 percent control",
+        "real click Settings 100 percent control",
+        "assert 100 percent and precheck path-safe 120 percent control",
+        "real click Settings 120 percent control",
+        "assert authoritative final Settings state",
+        "assert 120 percent Settings state and precheck Settings close",
+        "real click Settings close",
+        "assert Settings closed and precheck reference Spin open",
+        "real click reference Spin open",
+        "assert Spin opened and precheck Spin close",
+        "real click Spin close",
+        "assert Spin closed and reference HUD restored",
+        "capture full real UI control console",
+        "full real UI control console clean (identified Studio input warnings: 0)",
+        "stop real UI control playtest"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "full real UI control console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

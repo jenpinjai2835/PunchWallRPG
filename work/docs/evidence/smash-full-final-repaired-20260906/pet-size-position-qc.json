@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "premium pet follows smoothly after player movement",
+        "reduced motion keeps stable 20 Hz pet formation",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "select exact narrow pet framing device",
+        "start narrow pet framing play",
+        "wait for narrow companion runtime",
+        "equip exact premium pets for narrow framing",
+        "wait for narrow premium formation",
+        "verify actual narrow safe camera viewport",
+        "premium pets remain visible and bounded at near mid far cameras (narrow)",
+        "premium formation clears avatar and each pet at near mid far cameras (narrow)",
+        "premium models stay fully inside near mid far safe frame (narrow)",
+        "capture narrow console",
+        "narrow console clean (identified Studio input warnings: 0)",
+        "stop narrow pet framing play",
+        "select exact landscape pet framing device",
+        "start landscape pet framing play",
+        "wait for landscape companion runtime",
+        "equip exact premium pets for landscape framing",
+        "wait for landscape premium formation",
+        "verify actual landscape safe camera viewport",
+        "premium pets remain visible and bounded at near mid far cameras (landscape)",
+        "premium formation clears avatar and each pet at near mid far cameras (landscape)",
+        "premium models stay fully inside near mid far safe frame (landscape)",
+        "capture landscape console",
+        "landscape console clean (identified Studio input warnings: 0)",
+        "stop landscape pet framing play",
+        "restore simulator and remove only pet framing presets"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_PET_FOLLOW_OBSERVATION_V1]{\"valid\":true,\"totalSamples\":57,\"cleanupRestored\":true,\"nominalObservation\":{\"move\":2.5811259746551515,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.06560129999706987,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"nominal .05\",\"ready\":true},\"samples\":[{\"at\":0.0004313000026741065,\"move\":0,\"motionHz\":20,\"index\":1,\"dt\":0.01905764639377594},{\"at\":0.0150904999973136,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":2,\"dt\":0.014649886637926102},{\"at\":0.030831099997158164,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":3,\"dt\":0.015987088903784753},{\"at\":0.04799020000064047,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":4,\"dt\":0.01698628067970276},{\"at\":0.06563959999766667,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":5,\"dt\":0.01698628067970276},{\"at\":0.08123869999690214,\"move\":4.647819519042969,\"motionHz\":20,\"index\":6,\"dt\":0.015987088903784753},{\"at\":0.09717049999744632,\"move\":4.647819519042969,\"motionHz\":20,\"index\":7,\"dt\":0.015987088903784753},{\"at\":0.11509079999814276,\"move\":4.647819519042969,\"motionHz\":20,\"index\":8,\"dt\":0.018319811671972276},{\"at\":0.1312130000005709,\"move\":5.687131404876709,\"motionHz\":20,\"index\":9,\"dt\":0.01603902317583561},{\"at\":0.14790589999756777,\"move\":5.687131404876709,\"motionHz\":20,\"index\":10,\"dt\":0.01603902317583561},{\"at\":0.16480410000076518,\"move\":5.687131404876709,\"motionHz\":20,\"index\":11,\"dt\":0.01804390177130699},{\"at\":0.9320300999970641,\"move\":7.899965763092041,\"motionHz\":20,\"index\":57,\"dt\":0.0179535411298275}],\"timing\":{\"earlyDeadline\":0.08811529278755188,\"policy\":\"SecondEligibleHeartbeatV1\",\"nominal\":0.05,\"earlyAllowance\":0.03811529278755188,\"lateGap\":0.85,\"maxFrame\":0.1,\"earlyMaxDelta\":0.01905764639377594,\"lateAllowance\":0.01905764639377594,\"lateMaxDelta\":0.01905764639377594,\"eligible\":2,\"lateDeadline\":0.9502963463906781},\"smoothing\":\"ExponentialCFrame\",\"earlyObservation\":{\"move\":4.647819519042969,\"rootMove\":8,\"frameDelta\":0.015987088903784753,\"anchored\":true,\"heartbeat\":6,\"cameraDistance\":19.820192337036134,\"at\":0.08123869999690214,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"heartbeat\",\"ready\":true},\"watchdogTimedOut\":false,\"droppedSamples\":45,\"lateObservation\":{\"move\":7.899965763092041,\"rootMove\":8,\"frameDelta\":0.0179535411298275,\"anchored\":true,\"heartbeat\":57,\"cameraDistance\":19.820192337036134,\"at\":0.9320300999970641,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"heartbeat\",\"ready\":true},\"late\":7.899965763092041,\"initial\":{\"move\":0,\"rootMove\":0,\"anchored\":false,\"cameraDistance\":18.13394546508789,\"at\":0.000013000004400964827,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"before\",\"ready\":true},\"early\":4.647819519042969,\"ready\":true}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "[SMASH_PET_FOLLOW_OBSERVATION_V1]{\"valid\":true,\"totalSamples\":57,\"cleanupRestored\":true,\"nominalObservation\":{\"move\":2.5811259746551515,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.06560129999706987,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"nominal .05\",\"ready\":true},\"samples\":[{\"at\":0.0004313000026741065,\"move\":0,\"motionHz\":20,\"index\":1,\"dt\":0.01905764639377594},{\"at\":0.0150904999973136,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":2,\"dt\":0.014649886637926102},{\"at\":0.030831099997158164,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":3,\"dt\":0.015987088903784753},{\"at\":0.04799020000064047,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":4,\"dt\":0.01698628067970276},{\"at\":0.06563959999766667,\"move\":2.5811259746551515,\"motionHz\":20,\"index\":5,\"dt\":0.01698628067970276},{\"at\":0.08123869999690214,\"move\":4.647819519042969,\"motionHz\":20,\"index\":6,\"dt\":0.015987088903784753},{\"at\":0.09717049999744632,\"move\":4.647819519042969,\"motionHz\":20,\"index\":7,\"dt\":0.015987088903784753},{\"at\":0.11509079999814276,\"move\":4.647819519042969,\"motionHz\":20,\"index\":8,\"dt\":0.018319811671972276},{\"at\":0.1312130000005709,\"move\":5.687131404876709,\"motionHz\":20,\"index\":9,\"dt\":0.01603902317583561},{\"at\":0.14790589999756777,\"move\":5.687131404876709,\"motionHz\":20,\"index\":10,\"dt\":0.01603902317583561},{\"at\":0.16480410000076518,\"move\":5.687131404876709,\"motionHz\":20,\"index\":11,\"dt\":0.01804390177130699},{\"at\":0.9320300999970641,\"move\":7.899965763092041,\"motionHz\":20,\"index\":57,\"dt\":0.0179535411298275}],\"timing\":{\"earlyDeadline\":0.08811529278755188,\"policy\":\"SecondEligibleHeartbeatV1\",\"nominal\":0.05,\"earlyAllowance\":0.03811529278755188,\"lateGap\":0.85,\"maxFrame\":0.1,\"earlyMaxDelta\":0.01905764639377594,\"lateAllowance\":0.01905764639377594,\"lateMaxDelta\":0.01905764639377594,\"eligible\":2,\"lateDeadline\":0.9502963463906781},\"smoothing\":\"ExponentialCFrame\",\"earlyObservation\":{\"move\":4.647819519042969,\"rootMove\":8,\"frameDelta\":0.015987088903784753,\"anchored\":true,\"heartbeat\":6,\"cameraDistance\":19.820192337036134,\"at\":0.08123869999690214,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"heartbeat\",\"ready\":true},\"watchdogTimedOut\":false,\"droppedSamples\":45,\"lateObservation\":{\"move\":7.899965763092041,\"rootMove\":8,\"frameDelta\":0.0179535411298275,\"anchored\":true,\"heartbeat\":57,\"cameraDistance\":19.820192337036134,\"at\":0.9320300999970641,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"heartbeat\",\"ready\":true},\"late\":7.899965763092041,\"initial\":{\"move\":0,\"rootMove\":0,\"anchored\":false,\"cameraDistance\":18.13394546508789,\"at\":0.000013000004400964827,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"samePet\":true,\"motionHz\":20,\"sameRoot\":true,\"stage\":\"before\",\"ready\":true},\"early\":4.647819519042969,\"ready\":true}"
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleNarrow",
+          "label": "narrow console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleLandscape",
+          "label": "landscape console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

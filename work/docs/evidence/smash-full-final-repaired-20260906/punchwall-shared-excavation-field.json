@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punchwall-shared-excavation-field",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for shared field bootstrap",
+        "reset shared field before geometry assertions",
+        "solid field dimensions and tier materials",
+        "world one uses a natural forest environment",
+        "damage affects only one shared block",
+        "starter fist one-shots a block and opens a physics hole",
+        "shared hole replicates while camera stays player controlled",
+        "two cubic blocks form a full character passage",
+        "deeper material tier requires stronger wall level",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

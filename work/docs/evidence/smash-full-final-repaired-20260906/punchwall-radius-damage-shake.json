@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-radius-damage-shake",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "one body-directed punch damages a radius with falloff",
+        "facing away causes no damage and proves no target lock",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"shakeToken\"\\s*:\\s*[2-9][0-9]*\nReceived: {\"ok\":true,\"shakeToken\":1,\"exactDamage\":false,\"maxHP\":8,\"hp\":0,\"primary\":\"DepthBlock_L008_C06_R01\",\"survived\":false}",
+      "context": {}
+    }
+  ]
+}

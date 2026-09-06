@@ -1,0 +1,83 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "device-matrix-hud-shop",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set 1920x1080 desktop",
+        "start 1920 play",
+        "wait 1920 runtime",
+        "1920 HUD fits",
+        "1920 Inventory action fits beside Shop",
+        "1920 shop fits",
+        "capture 1920 shop",
+        "stop 1920 play",
+        "set 1366x768 desktop",
+        "start 1366 play",
+        "wait 1366 runtime",
+        "1366 HUD fits",
+        "1366 Inventory action fits beside Shop",
+        "1366 shop fits",
+        "capture 1366 shop",
+        "stop 1366 play",
+        "set 1024x768 tablet",
+        "start 1024 play",
+        "wait 1024 runtime",
+        "1024 HUD fits",
+        "1024 Inventory action fits beside Shop",
+        "1024 shop fits",
+        "capture 1024 shop",
+        "stop 1024 play",
+        "set 844x390 phone",
+        "start 844 play",
+        "wait 844 runtime",
+        "844 HUD fits",
+        "844 all visible HUD targets are touch safe and redundant Quests is hidden",
+        "844 Inventory action fits beside Shop",
+        "844 shop fits",
+        "capture 844 shop",
+        "stop 844 play",
+        "set 740x360 phone",
+        "start 740 play",
+        "wait 740 runtime",
+        "740 HUD fits",
+        "740 all visible HUD targets are touch safe and redundant Quests is hidden",
+        "740 Inventory action fits beside Shop",
+        "740 shop fits",
+        "capture 740 shop",
+        "capture matrix console",
+        "matrix console clean (identified Studio input warnings: 0)",
+        "stop 740 play",
+        "restore default viewport"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "matrix console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

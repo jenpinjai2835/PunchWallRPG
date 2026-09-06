@@ -1,6 +1,19 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 16:02 ICT:** all source repairs are integrated
+**Current status, September 6 at 16:59 ICT:** the fresh full run completed
+**127 PASS / 4 FAIL of 131** in 54.98 minutes at `e2dbc16`, without interruption.
+All source/automation hashes stayed frozen and exact live nine-source checks
+passed before and after. Required acceptance remains BLOCKED. The failures are
+client startup waiting for Feedback; missing failure cleanup contaminating the
+following stress test; a phone-camera metric whose failed values were truncated;
+and a tough-block fixture that struck an 8-HP forest block instead of 900-HP stone.
+Three isolated workers now own a bounded client handshake, verifiable flow
+cleanup/client readiness, and lossless camera diagnostics. Root owns radial
+fixture diagnosis, integration, native replay and the next complete regression.
+Canonical output remains unchanged. Artifact/profile/visual/reviewed-merge gates
+remain pending; earlier narrow UI visual acceptance is preserved.
+
+**Prior checkpoint, September 6 at 16:02 ICT:** all then-known source repairs were integrated
 through `e69e586`. The tall Inventory detail now uses an approximately 259 px
 model stage with a concise adjacent summary and 44 px actions. Root and Agent 2
 viewed all four original 637 x 654 screenshots and accepted the captured narrow
@@ -1227,3 +1240,20 @@ full/artifact gates; no simultaneous source editing or Studio testing occurs.
 - Agent 2 accepted the explicit artifact procedure: canonical builder and manifest arguments, byte-identical validation copy, separate native PID/start/executable/path/hash/UUID open proof, immediate exact read-only nine-source check without syncing, default desktop verification, wrapper-native JSON as profiler/capture reopen proof, frozen bindings and cleanup/postflight. The ten final images cover HUD, Fists Shop, Inventory lists and Settings; selected tall details and Rebirth retain separate source-reviewed evidence unless additionally captured from the artifact.
 - The new full-run tunnel profile completed correctly but is NOT smoothness acceptance: 287 frames over 19.418 s, p50 66.677 ms, p95 77.066 ms, p99 99.994 ms, maximum 120.183 ms, 285 intervals over 50 ms and two over 100 ms. Viewport 1277 x 801, initial focus unknown. This is a whole-workload measurement including MCP, not isolated camera CPU cost.
 - Read-only system observation shortly afterward: physical RAM approximately 16 GiB, free 2.47 million KiB. Studio 22472 private 6.069 GB / working 3.316 GB; 22388 private 4.839 GB / working 1.094 GB; 22788 private 10.308 GB / working 1.303 GB. These observations do not establish the cause of the slower frames. Keep the source suite running unchanged; measure the final artifact in its fresh native default-desktop session and report its actual context. Earlier automatic-review rejection of process termination remains respected.
+
+## Full 131-flow result and next repair ownership — 16:59 ICT
+
+Full source evidence: `evidence/smash-full-final-repaired-20260906/manifest.json`, source `e2dbc169326ae325f0aa17f72c6513a9e71ab287`, 127 PASS / 4 FAIL / 131 discovered, no exclusions, no interruption, 54.98 minutes. Frozen inputs and exact before/after nine-source checks passed. This is not release acceptance.
+
+| Failed flow | Retained finding | Next action / owner |
+| --- | --- | --- |
+| profile-load-hotfix-public-linked-studio | Server ephemeral profile ready; client Feedback WaitForChild exceeds five seconds and console gate correctly rejects the warning | Agent 1: finite complete typed remote handshake, same deadline across replacements, explicit failure diagnostics. Server publisher remains unchanged. Agent 2: independently verify actual client startup. |
+| punch-200-stress | No stress action ran. Prior failure left Play active; exact place guard saw Server Game and correctly rejected it. Its cleanup restored Edit | Agent 2: failure StopPlay and exact Edit readback, preserve primary error and report cleanup errors instead of silently swallowing them. |
+| punch-camera-device-20 | Desktop/tablet pass. Phone asserts before returning; saved result lacks phone scalar values and the tool error is truncated. The visible 1.8-stud escape is below its 2.65 limit and does not prove a cause | Agent 3: preserve all 20 actions, timings and thresholds, retain compact scalar decision data before the outer gate, then root replays natively. No speculative camera change. |
+| punchwall-radius-damage-shake | Radius and facing-away phases pass. Tough-block phase returns L008_C06_R01, HP0/MaxHP8, shakeToken1; the fixture expected a surviving 900-HP stone block | Root: record actual pre/post pose and block identity, then correct the fixture if overlap/selection is confirmed. No damage formula change is justified by this result. |
+
+The server creates all four remotes without a yield before ProfileReady; its remote setup and client handshake match baseline4094. The warning establishes delayed client availability, not permanent server omission or a diagnosed transport cause. The old profile flow lacks failure cleanup, explaining the next identity failure. Console warnings remain failures.
+
+New isolated worktrees start from verified `2a2f14b` (source unchanged from the frozen handoff): Agent 1 `F:/Roblox/PuchWall-startup-deadline-20260906`, Agent 2 `F:/Roblox/PuchWall-profile-flow-isolation-20260906`, Agent 3 `F:/Roblox/PuchWall-camera-diagnostics-20260906`. Allowed paths were registered in Agent HQ. Only isolated authoring occurred while full regression ran; compilation/unit execution was released after full completion. Integration order is source handshake, lifecycle flow/runner, diagnostic flow, then root fixture and combined gates. Root owns registry, all Studio use and canonical artifacts.
+
+The full pet flow passes145.25s. Agent 1 extracted one unique native motion trace (not three duplicated traces): nominal65.601ms/2.581studs; earlyHeartbeat6 at81.239ms/4.648studs, within88.115ms deadline; lateHeartbeat57 at932.030ms/7.900studs,850.791ms later and within950.296ms deadline. Cleanup restored, no watchdog timeout,57 callbacks with12 retained diagnostics. The flow separately checks three viewport framing cases; these motion timings do not establish foreground state or general FPS.
