@@ -8780,8 +8780,18 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
 			end
 			local physicallyBlocked = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character)
+			local lineOfSightBlocked = not physicallyBlocked and cameraPoseBlocked(camera.CFrame, character)
+			if not physicallyBlocked and not lineOfSightBlocked then
+				-- A fallback can leave the native camera untouched when old cached
+				-- poses are obstructed. Track that actually published clear pose so
+				-- the next bounded correction does not restart from stale history.
+				lastClearCameraCFrame = camera.CFrame
+				lastClearCameraFocus = camera.Focus
+				shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
+				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
+			end
 			gui:SetAttribute("PunchCameraSafetyUnresolved", physicallyBlocked)
-			gui:SetAttribute("PunchCameraLineOfSightUnresolved", not physicallyBlocked and cameraPoseBlocked(camera.CFrame, character))
+			gui:SetAttribute("PunchCameraLineOfSightUnresolved", lineOfSightBlocked)
 			gui:SetAttribute("LastCameraInsideGeometry", physicallyBlocked)
 			gui:SetAttribute("PunchCameraGeometryClamped", true)
 			gui:SetAttribute("PunchCameraGeometryClampFrames", cameraGeometryClampFrames)

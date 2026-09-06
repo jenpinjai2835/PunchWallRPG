@@ -192,7 +192,7 @@ blocked=function(p) return p.X==5 end
 resolver=function(_,focus) return CFrame.new(5,0,0),focus,Vector3.zero,nil end
 pose(4,0,0) update(1/60)
 check(camera.CFrame.Position.X==4,'final_physical_check_precedes_publish')
-check(shared.PunchWallHeartbeatLastClearCFrame==nil,'invalid_final_pose_not_cached')
+check(shared.PunchWallHeartbeatLastClearCFrame==camera.CFrame and camera.CFrame.Position.X==4,'invalid_final_pose_not_cached')
 print('PASS '..count)
 `,
   lifecycle: `${guardSetup}
@@ -281,7 +281,7 @@ occluded=function(p) return p.X==5 end
 resolver=function(_,focus) return CFrame.new(5,0,0),focus,Vector3.zero,nil end
 pose(4,0,0) update(1/60)
 check(camera.CFrame.Position.X==4,'final_los_check_precedes_publish')
-check(shared.PunchWallHeartbeatLastClearCFrame==nil,'invalid_los_final_pose_not_cached')
+check(shared.PunchWallHeartbeatLastClearCFrame==camera.CFrame and camera.CFrame.Position.X==4,'invalid_los_final_pose_not_cached')
 print('PASS '..count)
 `,
   losFallback: `${guardSetup}
@@ -295,6 +295,13 @@ pose(4,0,0) update(1/60)
 check(math.abs(camera.CFrame.Position.X-4)<.001,'occluded_cache_and_baseline_never_published')
 occluded=function(p) return p.X<2 end
 pose(4,0,0) update(1/60)
+check(camera.CFrame.Position.X==4 and shared.PunchWallHeartbeatLastClearCFrame==camera.CFrame,'newly_valid_published_cache_is_preferred_to_older_baseline')
+-- Exercise the original baseline path independently with obstructed history.
+occluded=function()return false end
+resolver=function(cf,focus)return cf,focus,Vector3.zero,nil end
+shared.PunchWallResetCameraGeometryGuard(character)seed()attrs.PunchCameraFollowActive=false
+occluded=function(p)return p.X<2 end resolver=function()return nil,nil,nil,nil end
+pose(4,0,0)update(1/60)
 check(math.abs(camera.CFrame.Position.X-3)<.001,'clear_los_baseline_remains_available')
 print('PASS '..count)
 `,
@@ -735,12 +742,12 @@ end
 local clear=function()return false end
 local edge=function(p)return p.Z<12.2 and math.abs(p.X)<3 end
 local d=restart(12.4,function(p)return p.Z>12.12 and p.Z<12.24 end,edge)
-check(d.reason:find('cached%-recovery/')~=nil and shared.PunchWallHeartbeatLastClearCFrame.Position.Z==12,'physical_barrier_prevents_native_origin_adoption')
+check(d.reason:find('cached%-recovery/')~=nil and camera.CFrame.Position.Z==12.4 and shared.PunchWallHeartbeatLastClearCFrame==camera.CFrame,'physical_barrier_prevents_native_origin_adoption')
 check(d.rawBlocked==false and d.cacheBlocked==true,'barrier_control_distinguishes_safe_endpoints_from_unsafe_route')
 d=restart(12.4,clear,function(p)return p.Z<12.5 and math.abs(p.X)<3 end)
 check(d.reason:find('cached%-recovery/')~=nil and d.rawBlocked==true,'LOS_blocked_raw_pose_never_becomes_recovery_origin')
 d=restart(14.4,clear,edge)
-check(d.reason:find('cached%-recovery/')~=nil and shared.PunchWallHeartbeatLastClearCFrame.Position.Z==12,'distant_native_pose_does_not_bypass_local_recovery_budget')
+check(d.reason:find('cached%-recovery/')~=nil and camera.CFrame.Position.Z==14.4 and shared.PunchWallHeartbeatLastClearCFrame==camera.CFrame,'distant_native_pose_does_not_bypass_local_recovery_budget')
 d=restart(12.4,clear,clear)
 check(d.reason:find('cached%-recovery/')~=nil and d.cacheBlocked==false,'valid_cached_origin_remains_owned_by_existing_limiter')
 d=restart(12.4,clear,edge,true)
@@ -1065,7 +1072,10 @@ try {
       ['conflate_prior_guard_and_current_LOS','visibilityObservation',text=>text.replace('headRayBlocked = headBlocked, bodyRayBlocked = bodyBlocked','headRayBlocked = recovery and recovery.publishedBlocked, bodyRayBlocked = bodyBlocked'),'fresh_sample_LOS_is_distinguished_from_prior_guard_clearance'],
       ['unbound_visibility_stage_records','visibilityObservation',text=>text.replace('visibilityDiagnostics.stages[stage] = visibilityDiagnostics.stages[stage] or sample','visibilityDiagnostics.stages[currentPunch] = visibilityDiagnostics.stages[currentPunch] or sample'),'three_stage_records_are_bounded_and_first_record_is_stable'],
       ['mask_visibility_failure_in_summary','compactVisibilityResult',text=>text.replace('summary[key]=value','summary[key]=key=="visualValid" and true or value'),'compact_evidence_retains_failed_acceptance_and_exact_measurements'],
-      ['ignore_valid_native_recovery_origin','settleEdge',text=>text.replace('local adoptedRawOrigin = not activeFollow','local adoptedRawOrigin = false'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
+      // Early raw-origin adoption is now redundant for convergence: the actual
+      // clear-publication cache is an accepted alternate path. Reject losing
+      // that real published pose instead of asserting one internal branch.
+      ['forget_actual_clear_publication','losFallback',text=>text.replace('if not physicallyBlocked and not lineOfSightBlocked then','if false then'),'newly_valid_published_cache_is_preferred_to_older_baseline'],
       ['omit_axis_waypoints','settleEdge',text=>text.replace('Vector3.new(displacement.X, 0, 0), Vector3.new(0, 0, displacement.Z)','Vector3.zero, Vector3.zero'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
       ['ignore_origin_adoption_budget','settleEdge',text=>text.replace('correctionBudget = math.max(0, maxStep - rawOffset.Magnitude)','correctionBudget = maxStep'),'actual_recovery_publications_keep_original_correction_bound'],
       ['leave_stale_rebase_handoff_marker','teleportHandoffMarker',text=>text.replace('recoveringFromFollowHandoff = false\n\t\t\t\t\tgui:SetAttribute("PunchCameraHandoffActive", false)','recoveringFromFollowHandoff = false'),'successful_rebase_synchronizes_public_handoff_marker'],
