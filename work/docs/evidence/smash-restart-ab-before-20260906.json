@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "smash-restart-ab-observations",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "verify default simulator",
+        "start default desktop",
+        "settle default desktop",
+        "desktop server readiness and bounds",
+        "desktop actual control rectangles",
+        "desktop per-session console",
+        "desktop console remains fatal (identified Studio input warnings: 0)",
+        "stop default desktop",
+        "set 740x360 phone",
+        "start 740 play",
+        "wait 740 runtime",
+        "phoneStartup server readiness and bounds",
+        "phoneStartup actual control rectangles",
+        "phoneStartup per-session console",
+        "phoneStartup console remains fatal (identified Studio input warnings: 0)",
+        "740 HUD fits",
+        "740 all visible HUD targets are touch safe and redundant Quests is hidden",
+        "740 Inventory action fits beside Shop",
+        "740 shop fits",
+        "capture 740 shop",
+        "phoneAfterShop server readiness and bounds",
+        "phoneAfterShop actual control rectangles",
+        "phoneAfterShop per-session console",
+        "phoneAfterShop console remains fatal (identified Studio input warnings: 0)",
+        "stop phone",
+        "verify default simulator"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "desktopConsole",
+          "label": "desktop console remains fatal",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "phoneStartupConsole",
+          "label": "phoneStartup console remains fatal",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "phoneAfterShopConsole",
+          "label": "phoneAfterShop console remains fatal",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

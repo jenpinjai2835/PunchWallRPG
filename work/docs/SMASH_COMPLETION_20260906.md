@@ -628,3 +628,74 @@ The next full run freezes all current source, flows and automation scripts and
 discovers all 128 flows. Its source sync is
 `smash-source-sync-pup-silhouette-20260906.json`. No release artifact is rebuilt
 until that combined native regression passes.
+
+### September 6, 10:17 ICT — frozen full run and independent combined review
+
+The fresh 128-flow run is active at frozen commit
+`1529b7d7f0d5a87447fe27005c3729c3cf202c0e`, with no excluded flows. Its durable
+manifest is `evidence/smash-full-premium-integrated-20260906/manifest.json`.
+Source and all automation inputs remain frozen; only the Coordinator's runner
+owns Studio. This is still a source-in-Studio run, not verification of the old
+canonical file on disk.
+
+Agents 1 and 2 independently reviewed the final combined diff against
+`4094e51` without edits, test execution or Studio calls. Agent 1 found no
+introduced P1/P2 in server authority, persistence lifecycle or client/server
+selection contracts. ProfilePersistence, GameConfig and PolishConfig remain
+unchanged from that baseline; the latest Bootstrap change filters nonphysical
+lunge obstacles while retaining body sweeps, progression barriers and
+cancellation. Agent 2 found no actionable introduced defect in snapshot and
+settings settlement, Shop/Inventory layering, preview cleanup, respawn hand
+observers, companion/Pup styling or camera ownership and recovery. These are
+bounded code reviews; actual multiplayer concurrency, live persistence and
+real purchases are not demonstrated by them. Both worker handoffs are accepted
+and recorded in Agent HQ. Full regression, rebuilt artifact verification and
+release integration remain open Coordinator gates.
+
+### September 6, 11:36 ICT — interrupted regression, preserved recovery and fixes
+
+The frozen run above ended as an **interrupted failed run**, with 24/128 flows
+completed: 22 passed and two failed. Its partial manifest is retained unchanged;
+`smash-full-premium-interruption-20260906.json` records closure, the unchanged
+frozen inputs and nine matching live sources. The device matrix passed its
+geometry checks but exposed three fatal server ScriptTimeouts. The directional
+flow had two punch events, satisfying its count gate; the failing result was
+not evidence of a missing punch. Subsequent native measurements confirmed a
+9.71px overlap between Up/Down at 637×654, and a separate false-positive test
+intersection with a hidden Next World control on phone.
+
+The long-running Studio process had approximately 24 GiB private memory on a
+16 GiB host. Native Save As could not be completed because the computer-control
+tool could not resolve its controls. Instead, the existing 09:43 native
+AutoRecovery binary was copied byte-for-byte into an ignored recovery file.
+Its nine extracted script sources matched the integrated source and the live
+Studio exactly. The recovery SHA is
+`D702BF922C1D02CD9C9BCDF114118C2322E85CE5876B3FF75B72F2365208F435`.
+The canonical artifact was never temporarily saved or overwritten and remains
+at SHA `605A4F70169FD0C7C86635B20171576DC4A81C46B10A4E28C8744F4F29A40208`.
+All original recovery files are preserved.
+
+Studio was restarted on that verified binary, with no source sync before the
+paired observation. The new process is PID 23300 / Studio UUID
+`69828fb1-9021-4113-9df4-b498e49b6b76`. Both old-source runs observed server
+harness/profile readiness, actual desktop and phone rectangles, and restored
+the simulator default. Startup tool latency changed from approximately 42s to
+3.5s, with substantially lower process memory; the narrow desktop overlap
+persisted identically. No ScriptTimeout was observed in these short retries.
+This correlation does not establish the sole cause of the earlier timeouts or
+prove a game memory leak. The before retry also captured a reentrant PlayEmote
+parent warning. Evidence: `smash-restart-ab-before-r2-20260906.json`,
+`smash-restart-ab-after-20260906.json`, their live-source proofs and host samples.
+
+Coordinator accepted Agent 1's independent review of worker commits 776e797,
+ab8a0a5 and e7c9031: no introduced P1/P2 was found within the reviewed scope.
+Integration is 29f0a6c (44px targets with a 4px narrow desktop gap, deferred and
+cancelled Animate arrivals), f4dd1f9 (native direction/lifecycle regressions),
+and 9c42522 (quiet objective plus real 180-Coin Shop price, strict chrome boolean,
+measured responsive breakpoints). The hidden Next World exception applies only
+when it is actually invisible; visible overlap and active input gates remain.
+Two new static contracts are registered. Combined static and native runtime
+validation remain pending; the new full suite discovers 129 flows. A separate
+staging build will be used before any canonical artifact rebuild.
+
+Combined static passed at 11:38 ICT: `smash-complete-static-narrow-final-20260906.json` records 50 executed contracts / 51 discovered, with only the separate Studio Inventory benchmark excluded; all nine sources compile at O0/O1/O2 and all 129 flow JSON files validate. Native acceptance is still pending.
