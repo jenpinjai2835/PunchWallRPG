@@ -151,6 +151,16 @@ local a=assert(ss:FindFirstChild('PunchWallAutomation'))
 local function catalogHas(catalog,name) for _,item in ipairs(catalog) do if item.name==name then return true end end return false end
 for _,name in ipairs(H:JSONDecode(values.OwnedFistsJSON)) do assert(catalogHas(G.Fists,name),'invalid configured fist '..name) end
 for _,name in ipairs(H:JSONDecode(values.PetInventoryJSON)) do assert(catalogHas(G.Pets,name),'invalid configured pet '..name) end
+local function reconciled()
+ local pending=p:GetAttribute('PendingGamePassGrantCount')
+ return p:GetAttribute('GamePassOwnershipReconciled')==true
+  and p:GetAttribute('GamePassOwnershipReconciliationFailed')==false and (pending==nil or pending==0)
+end
+local deadline=os.clock()+25
+while not reconciled() and os.clock()<deadline do
+ assert(p:GetAttribute('GamePassOwnershipReconciliationFailed')~=true,'Entitlement reconciliation exhausted its retries') task.wait(.1)
+end
+assert(reconciled(),'Timed out waiting for entitlement reconciliation; Reset was not invoked')
 local reset=a:Invoke('Reset') assert(type(reset)=='table' and reset.ok==true,'Reset failed')
 local seeded=a:Invoke('SetStats',values) assert(type(seeded)=='table' and seeded.ok==true,'SetStats failed')
 local readback=a:Invoke('Snapshot') assert(type(readback)=='table' and readback.ok==true,'Snapshot failed')
@@ -448,6 +458,63 @@ export async function selfTest() {
       check(result.status === 0, `Snippet ${index} compile: ${result.stderr || result.stdout}`);
     }
     const runtime = path.join(path.dirname(compiler), process.platform === 'win32' ? 'luau.exe' : 'luau');
+    const seedCases = [
+      ['already_settled', '{}', true, 1, 1, 1, 0, 0],
+      ['absent_pending_queue', '{pendingAbsent=true}', true, 1, 1, 1, 0, 0],
+      ['delayed_reconciliation_and_queue', '{unreconciled=true,pending=2,resolveAt=.3,drainAt=.5}', true, 1, 1, 1, .5, .61],
+      ['delayed_queue_only', '{pending=2,drainAt=.4}', true, 1, 1, 1, .4, .51],
+      ['near_deadline_success', '{unreconciled=true,resolveAt=24.8}', true, 1, 1, 1, 24.8, 24.91],
+      ['immediate_failure', '{failed=true}', false, 0, 0, 0, 0, 0],
+      ['delayed_failure', '{unreconciled=true,failAt=.2}', false, 0, 0, 0, .2, .31],
+      ['reconciliation_timeout', '{unreconciled=true}', false, 0, 0, 0, 25, 25.11],
+      ['pending_queue_timeout', '{pending=1}', false, 0, 0, 0, 25, 25.11],
+      ['missing_failure_status', '{failureAbsent=true}', false, 0, 0, 0, 25, 25.11],
+      ['too_late_reconciliation', '{unreconciled=true,resolveAt=26}', false, 0, 0, 0, 25, 25.11],
+      ['reset_failure', '{resetFails=true}', false, 1, 0, 0, 0, 0],
+      ['set_stats_failure', '{setFails=true}', false, 1, 1, 0, 0, 0],
+      ['readback_mismatch', '{badReadback=true}', false, 1, 1, 1, 0, 0],
+    ];
+    const seedTest = `
+local count=0 local function check(v,n)assert(v,n)count+=1 end
+local function fixture(name,flags,expected,expectedReset,expectedSet,expectedSnapshot,minClock,maxClock)
+ local clock=0 local attrs={GamePassOwnershipReconciled=not flags.unreconciled,GamePassOwnershipReconciliationFailed=flags.failed==true,PendingGamePassGrantCount=flags.pending or 0}
+ if flags.pendingAbsent then attrs.PendingGamePassGrantCount=nil end if flags.failureAbsent then attrs.GamePassOwnershipReconciliationFailed=nil end
+ local resetCount,setCount,snapshotCount,unsafeResets=0,0,0,0 local stats={}
+ function stats:FindFirstChild(key)return self[key]end
+ local p={GetAttribute=function(_,key)return attrs[key]end,FindFirstChild=function(_,key)return key=='RPGStats' and stats or nil end}
+ local os={clock=function()return clock end}
+ local task={wait=function(seconds)clock+=seconds
+  if flags.resolveAt and clock>=flags.resolveAt then attrs.GamePassOwnershipReconciled=true end
+  if flags.drainAt and clock>=flags.drainAt then attrs.PendingGamePassGrantCount=0 end
+  if flags.failAt and clock>=flags.failAt then attrs.GamePassOwnershipReconciliationFailed=true end
+ end}
+ local decoded={${Object.values(seedValues).map(value => `[${luaString(value)}]={${JSON.parse(value).map(luaString).join(',')}}`).join(',')}}
+ local H={JSONDecode=function(_,raw)return table.clone(assert(decoded[raw],'unknown seed JSON'))end,JSONEncode=function(_,value)return value end}
+ local G={Fists={${FISTS.map(name => `{name=${luaString(name)}}`).join(',')}},Pets={${[...new Set(PETS)].map(name => `{name=${luaString(name)}}`).join(',')}}}
+ local game={ReplicatedStorage={GameConfig={}}} local require=function()return G end
+ local a={Invoke=function(_,action,value)
+  if action=='Reset' then resetCount+=1
+   if attrs.GamePassOwnershipReconciled~=true or attrs.GamePassOwnershipReconciliationFailed~=false or (attrs.PendingGamePassGrantCount~=nil and attrs.PendingGamePassGrantCount~=0) then unsafeResets+=1 end
+   return {ok=not flags.resetFails}
+  elseif action=='SetStats' then setCount+=1 for key,raw in pairs(value)do stats[key]={Value=raw}end return {ok=not flags.setFails}
+  elseif action=='Snapshot' then snapshotCount+=1 local result={ok=true}
+   for key,item in pairs(stats)do if type(item)=='table' then result[key]=item.Value end end
+   if flags.badReadback then result.OwnedFistsJSON='wrong' end return result
+  end error('Unexpected fixture action '..action)
+ end}
+ local ok,result=pcall(function() ${LUA.seed} end)
+ check(ok==expected,name..'_result')
+ check(resetCount==expectedReset,name..'_single_reset')check(setCount==expectedSet,name..'_set_count')check(snapshotCount==expectedSnapshot,name..'_snapshot_count')
+ check(unsafeResets==0,name..'_reset_held_until_settlement')check(clock>=minClock-.000001 and clock<=maxClock,name..'_bounded_wait')
+ if expected then
+  check(result.ok and result.ownedFists==5 and result.inventoryCopies==3 and result.equippedPets==2,name..'_exact_seed_result')
+  ${Object.entries(seedValues).map(([key, value]) => `check(stats[${luaString(key)}].Value==${luaString(value)},name..'_exact_${key}')`).join('\n  ')}
+ end
+end
+${seedCases.map(([name, flags, ...expected]) => `fixture(${luaString(name)},${flags},${expected.join(',')})`).join('\n')}
+print('PASS '..count)
+`;
+    const seedAssertions = seedCases.reduce((sum, [, , pass]) => sum + 6 + (pass ? 4 : 0), 0);
     const guardTest = `
 local count=0 local function check(v,n) assert(v,n) count+=1 end
 local function fixture(change,expected)
@@ -579,13 +646,35 @@ check(not third.Parent and not R.RenderStepped.connections[3].Connected,'maximum
 check(contextListeners()==0,'deadline_disconnects_all_context_listeners')
 print('PASS '..count)
 `;
-    for (const [name, code, expected] of [['ephemeral', guardTest, 16], ['collector', collectorTest, 37]]) {
+    for (const [name, code, expected] of [['ephemeral', guardTest, 16], ['seed-settlement', seedTest, seedAssertions], ['collector', collectorTest, 37]]) {
       const file = path.join(temp, `${name}.luau`); fs.writeFileSync(file, code);
       const compiled = spawnSync(compiler, ['--null', file], {encoding: 'utf8', timeout: 15000});
       check(compiled.status === 0, `${name} mock compile: ${compiled.stderr || compiled.stdout}`);
       const result = spawnSync(runtime, [file], {encoding: 'utf8', timeout: 15000});
       check(result.status === 0 && result.stdout.trim() === `PASS ${expected}`, `${name} exact execution: ${result.stderr || result.stdout}`);
       executedLuauAssertions += expected;
+    }
+    const baseline = spawnSync('git', ['show', '361d13b:work/automation/scripts/studio-frame-profile.mjs'], {cwd: root, encoding: 'utf8', timeout: 15000});
+    check(baseline.status === 0, 'Exact pre-settlement profiler baseline is available');
+    const baselineSeed = baseline.stdout.replace(/\r\n?/g, '\n').match(/  seed: `([\s\S]*?)`,\n  clientReady:/)?.[1].replace('${luaSeed}', luaSeed);
+    const settlementStart = LUA.seed.indexOf('local function reconciled()');
+    const resetStart = LUA.seed.indexOf("local reset=a:Invoke('Reset')");
+    check(baselineSeed === LUA.seed.slice(0, settlementStart) + LUA.seed.slice(resetStart), 'Single settlement addition preserves the exact prior seed/readback producer');
+    for (const [name, mutated, expected] of [
+      ['historical_seed_resets_before_settlement', baselineSeed, 'delayed_reconciliation_and_queue_reset_held_until_settlement'],
+      ['waive_pending_queue', LUA.seed.replace(' and (pending==nil or pending==0)', ''), 'delayed_reconciliation_and_queue_reset_held_until_settlement'],
+      ['waive_failure_status', LUA.seed.replace("p:GetAttribute('GamePassOwnershipReconciliationFailed')==false", 'true'), 'immediate_failure_result'],
+      ['extend_settlement_deadline', LUA.seed.replace('os.clock()+25', 'os.clock()+30'), 'reconciliation_timeout_bounded_wait'],
+      ['waive_timeout_rejection', LUA.seed.replace("assert(reconciled(),'Timed out waiting for entitlement reconciliation; Reset was not invoked')", ''), 'reconciliation_timeout_result'],
+      ['waive_seed_readback', LUA.seed.replace("assert(actual==expected and readback[key]==expected,'seed readback differs '..key)", ''), 'readback_mismatch_result'],
+    ]) {
+      check(typeof mutated === 'string' && mutated !== LUA.seed, `Meaningful seed mutation ${name}`);
+      const file = path.join(temp, name + '.luau'); fs.writeFileSync(file, seedTest.replace(LUA.seed, () => mutated));
+      const compiled = spawnSync(compiler, ['--null', file], {encoding: 'utf8', timeout: 15000});
+      check(compiled.status === 0, `${name} mutation compile: ${compiled.stderr || compiled.stdout}`);
+      const result = spawnSync(runtime, [file], {encoding: 'utf8', timeout: 15000});
+      check(result.status !== 0 && (result.stderr + result.stdout).includes(expected), `${name} mutation survived or failed for another reason: ${result.stderr || result.stdout}`);
+      mutationsRejected.push(name);
     }
     const mutations = [
       ['trust_only_current_property_value', "kind~='Finish' or camera~=context.lastCamera", 'camera~=context.lastCamera', 'deferred_resize_events_reject_even_when_values_already_restored'],
