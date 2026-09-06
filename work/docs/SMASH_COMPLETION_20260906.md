@@ -699,3 +699,45 @@ validation remain pending; the new full suite discovers 129 flows. A separate
 staging build will be used before any canonical artifact rebuild.
 
 Combined static passed at 11:38 ICT: `smash-complete-static-narrow-final-20260906.json` records 50 executed contracts / 51 discovered, with only the separate Studio Inventory benchmark excluded; all nine sources compile at O0/O1/O2 and all 129 flow JSON files validate. Native acceptance is still pending.
+
+### September 6, 11:50 ICT — staging runtime exposes remaining narrow Shop defects
+
+The separate `outputs/SmashWall_SourceReview_20260906/` staging build passed
+exact source and code-object checks at source commit 361d13b. It was opened
+through the registered Studio executable with the explicit disk path; PID 22788,
+Studio UUID `450e00ec-0d7d-4d1b-858b-f11fabd13295`. All nine live scripts matched
+before a recorded source sync. The canonical output remains unchanged.
+
+Focused native passes: narrow-directional-controls (both devices and four
+gestures), directional-punch-controls, hero-city-theme, world-wall-reset, and
+the complete five-device HUD/Shop matrix. The matrix took 89.54s and its console
+contained only the expected ephemeral-session notice, with no ScriptTimeout or
+PlayEmote warning. Evidence is in `smash-narrow-quiet-focused-20260906/` and
+`smash-narrow-quiet-focused-remaining-20260906/`; neither overall focused batch
+is a pass because the following checks failed.
+
+`hero-shop-reference-polish` found genuinely clipped, effectively visible
+Premium card text at actual 637×654. Native raw observations identify Crimson
+Phoenix Name/Rarity/Detail and Storm Wyvern Rarity/Detail. Agent 2 traced this
+to a desktop Shop minimum height producing a 668.8px-wide modal on the narrower
+viewport, with insufficient width inside its paired cards. It owns a Shop-only
+responsive correction and tests, retaining readable font floors and controls.
+
+`iteration01-complete-polish` also failed actual containment. Its diagnostic
+confirmed the route and visibility were true, but additionally exposed a stale
+test prerequisite: setting tutorial step 3 after a depth-0 reset left the real
+first-fist button correctly locked at `DEPTH 1`. Agent 3 owns only the fixture
+and its contract, to establish catalog-derived prerequisites before verifying
+the real price and BUY button. No production progression gate is weakened.
+Both diagnostic JSON files preserve the native observations; a long assertion
+message was truncated by Studio, so it is not evidence for missing fields.
+
+The final frame-profiler fixture was independently reviewed and integrated as
+5e938a2 from worker e8dd660. It now waits for completed entitlement reconciliation
+and an empty pending queue before its single ephemeral Reset. The original
+workload and exact readback remain. Coordinator self-test passed 88 checks,
+8 compiled snippets, 157 executable Luau assertions and 13 rejected mutations
+(`smash-profile-settlement-contract-20260906.json`). This is tool verification;
+the final artifact performance measurement is still pending.
+
+At 11:54 ICT, automatic approval review rejected the combined command that would have archived the seven original native AutoRecovery files and reopened Studio maximized; the only stated reason was `blocked by policy`. The command did not execute: the archive directory is absent and PID 22788 remains running. All original AutoRecovery files remain in place. This operation was not retried through another mechanism. Native Ignore/Escape still failed to dismiss the notice through the computer-use tool, but the selected Studio MCP flows remain usable. This UI limitation is separate from game runtime results.
