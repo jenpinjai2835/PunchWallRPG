@@ -614,11 +614,67 @@ shared.PunchWallPurchaseRuntime.MarkControlConfigured = function(button)
 	button:SetAttribute("PurchaseUnavailable", false)
 end
 
-local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
-local notifyRemote = remotes:WaitForChild("Notify")
-local statRemote = remotes:WaitForChild("StatsChanged")
-local actionRemote = remotes:WaitForChild("ActionRequest")
-local feedbackRemote = remotes:WaitForChild("Feedback")
+-- Complete remote discovery shares one deadline, including folder replacements.
+local remotes, notifyRemote, statRemote, actionRemote, feedbackRemote
+do
+	local requiredNames = { "Notify", "StatsChanged", "ActionRequest", "Feedback" }
+	local startedAt = os.clock()
+	local deadline = startedAt + 20
+	local problem = "PunchWallEvents missing"
+	while os.clock() < deadline do
+		local candidate = ReplicatedStorage:FindFirstChild("PunchWallEvents")
+		if not candidate then
+			problem = "PunchWallEvents missing"
+		elseif not candidate:IsA("Folder") then
+			problem = "PunchWallEvents expected Folder, got " .. candidate.ClassName
+		elseif candidate.Parent ~= ReplicatedStorage then
+			problem = "PunchWallEvents parent changed"
+		else
+			local found, problems = {}, {}
+			for index, name in ipairs(requiredNames) do
+				local remote = candidate:FindFirstChild(name)
+				if not remote then
+					table.insert(problems, name .. " missing")
+				elseif not remote:IsA("RemoteEvent") then
+					table.insert(problems, name .. " expected RemoteEvent, got " .. remote.ClassName)
+				elseif remote.Parent ~= candidate then
+					table.insert(problems, name .. " parent changed")
+				else
+					found[index] = remote
+				end
+			end
+			-- Recheck the entire captured set before exposing any handle.
+			if candidate.Parent ~= ReplicatedStorage or ReplicatedStorage:FindFirstChild("PunchWallEvents") ~= candidate then
+				table.insert(problems, "PunchWallEvents replaced during discovery")
+			else
+				for index, remote in pairs(found) do
+					if remote.Parent ~= candidate or candidate:FindFirstChild(requiredNames[index]) ~= remote then
+						table.insert(problems, requiredNames[index] .. " replaced during discovery")
+					end
+				end
+			end
+			if candidate.Parent ~= ReplicatedStorage or ReplicatedStorage:FindFirstChild("PunchWallEvents") ~= candidate then
+				table.insert(problems, "PunchWallEvents replaced before binding")
+			end
+			if #problems == 0 then
+				if os.clock() < deadline then
+					remotes = candidate
+					notifyRemote, statRemote, actionRemote, feedbackRemote = found[1], found[2], found[3], found[4]
+					break
+				end
+				problem = "complete remote set arrived after deadline"
+			else
+				problem = table.concat(problems, ", ")
+			end
+		end
+		local remaining = deadline - os.clock()
+		if remaining > 0 then task.wait(math.min(0.05, remaining)) end
+	end
+	if not remotes then
+		error(("[PunchWallRPG] Client startup timed out after %.2fs awaiting server remotes; last observation: %s")
+			:format(os.clock() - startedAt, problem), 0)
+	end
+end
 
 local latestStats = {}
 local clientSettings = { motion = true, sound = true, uiScale = 1 }
