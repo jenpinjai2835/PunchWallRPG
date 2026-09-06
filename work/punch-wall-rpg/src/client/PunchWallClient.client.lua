@@ -5037,6 +5037,9 @@ end
 
 function companionRuntime.StyleNormalCatalogPet(model, definition)
 	if not model or definition.rarity == "Premium" then return model end
+	if definition.name == "Forest Pup" and model:GetAttribute("ForestPupSilhouetteVersion") == "AuthoredPupV1" then
+		return model
+	end
 	local primary = definition.color or Color3.fromRGB(120, 170, 210)
 	local accent = primary:Lerp(Color3.new(1, 1, 1), 0.38)
 	local shadow = primary:Lerp(Color3.fromRGB(20, 27, 34), 0.48)
@@ -5087,7 +5090,55 @@ function companionRuntime.StyleNormalCatalogPet(model, definition)
 		return part
 	end
 
-	if definition.name == "Miner Cat" then
+	if definition.name == "Forest Pup" then
+		local facePart
+		for _, descendant in ipairs(model:GetDescendants()) do
+			local parent = descendant.Parent
+			if descendant:IsA("Decal") and descendant.Face == Enum.NormalId.Front
+				and descendant.Transparency < 1 and parent and parent:IsA("BasePart")
+				and parent.Name == "AnimatedFace" then
+				facePart = parent
+				break
+			end
+		end
+		if facePart then
+			-- The retained Dowodle meshes and OWO face stay intact. Add a small dog
+			-- silhouette in the authored face basis, shared by previews and followers.
+			local faceSize = facePart.Size
+			local featureCount = 0
+			local function pupPart(role, sizeScale, offsetScale, color, roll)
+				local part = Instance.new("Part")
+				part.Name = "Forest Pup " .. role
+				part.Shape = Enum.PartType.Ball
+				part.Size = Vector3.new(faceSize.X * sizeScale.X, faceSize.Y * sizeScale.Y, faceSize.Z * sizeScale.Z)
+				part.CFrame = facePart.CFrame * CFrame.new(
+					faceSize.X * offsetScale.X,
+					faceSize.Y * offsetScale.Y,
+					-faceSize.Z * (0.5 + offsetScale.Z)
+				) * CFrame.Angles(0, 0, math.rad(roll or 0))
+				part.Color = color
+				part.Material = Enum.Material.SmoothPlastic
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanTouch = false
+				part.CanQuery = false
+				part.CastShadow = false
+				part:SetAttribute("ForestPupFeature", role)
+				part.Parent = model
+				featureCount += 1
+			end
+			for side = -1, 1, 2 do
+				local suffix = side < 0 and "Left" or "Right"
+				pupPart("Ear" .. suffix, Vector3.new(0.26, 0.58, 0.24), Vector3.new(side * 0.60, 0.25, -0.12), Color3.fromRGB(91, 66, 48), side * 12)
+				pupPart("Muzzle" .. suffix, Vector3.new(0.26, 0.16, 0.15), Vector3.new(side * 0.12, -0.35, 0.055), Color3.fromRGB(221, 208, 174))
+				pupPart("Paw" .. suffix, Vector3.new(0.27, 0.15, 0.30), Vector3.new(side * 0.25, -0.67, -0.12), Color3.fromRGB(139, 108, 76))
+			end
+			pupPart("Collar", Vector3.new(0.86, 0.12, 0.22), Vector3.new(0, -0.51, 0.01), Color3.fromRGB(40, 86, 63))
+			pupPart("Tag", Vector3.new(0.12, 0.14, 0.08), Vector3.new(0, -0.57, 0.14), Color3.fromRGB(201, 166, 73))
+			model:SetAttribute("ForestPupSilhouetteVersion", "AuthoredPupV1")
+			model:SetAttribute("ForestPupSilhouettePartCount", featureCount)
+		end
+	elseif definition.name == "Miner Cat" then
 		styledPart("Miner Helmet", Vector3.new(0.42, 0.2, 0.72), Vector3.new(-0.26, 0.46, 0), shadow, Enum.Material.Metal, Enum.PartType.Ball)
 		local lamp = styledPart("Miner Lamp", Vector3.new(0.13, 0.24, 0.32), Vector3.new(-0.44, 0.5, -0.3), Color3.fromRGB(255, 214, 62), Enum.Material.Neon, Enum.PartType.Ball)
 		local light = Instance.new("PointLight")
