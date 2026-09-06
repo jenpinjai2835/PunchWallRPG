@@ -166,6 +166,8 @@ print('PASS '..n)
 const lifecycle=`
 local function runFlow(mode,originalAnchored,injectionAt)
  local clock=0 local os={clock=function()return clock end}local conn,watchdog,lastResult local disconnects,cancels=0,0
+ local printed={}local returned,lastEncoded
+ local function print(message)table.insert(printed,message)end
  local injected=false local restorationAttempts=0
  local character={}local rootPart=setmetatable({_cf=frame(0),_anchored=originalAnchored,Parent=character},{
   __index=function(t,k)if k=='CFrame'then return rawget(t,'_cf')elseif k=='Position'then return rawget(t,'_cf').Position elseif k=='Anchored'then return rawget(t,'_anchored')end end,
@@ -185,7 +187,7 @@ local function runFlow(mode,originalAnchored,injectionAt)
   local t=type(v)if t=='table'then local out={}for k,x in pairs(v)do table.insert(out,'"'..tostring(k)..'":'..json(x))end return '{'..table.concat(out,',')..'}'
   elseif t=='string'then return string.format('%q',v)elseif t=='boolean'then return tostring(v)elseif t=='number'then assert(v==v and math.abs(v)<math.huge,'invalid JSON number')return tostring(v)else return 'null'end
  end
- local H={JSONEncode=function(_,v)lastResult=v return json(v)end}
+ local H={JSONEncode=function(_,v)lastResult=v lastEncoded=json(v)return lastEncoded end}
  local R={Heartbeat={Connect=function(_,callback)conn={Connected=true,callback=callback,Disconnect=function(self)self.Connected=false disconnects+=1 end}return conn end}}
  local game={Players={LocalPlayer=p},GetService=function(_,name)return name=='HttpService' and H or R end}
  local task={wait=function(t)return coroutine.yield(t or 0)end,
@@ -200,7 +202,7 @@ local function runFlow(mode,originalAnchored,injectionAt)
   if watchdog and not watchdog.cancelled and not watchdog.fired and clock>=watchdog.at then watchdog.fired=true watchdog.callback()end
   -- Waiting tasks resume before this tick's producer and observer.
   if coroutine.status(co)~='dead' and clock>=wake then
-   local resumed,value=coroutine.resume(co)check(resumed,'flow does not leak an uncaught error')if coroutine.status(co)~='dead'then wake=clock+(value or 0)end
+   local resumed,value=coroutine.resume(co)check(resumed,'flow does not leak an uncaught error')if coroutine.status(co)~='dead'then wake=clock+(value or 0)else returned=value end
   end
   if mode~='frozen' then producer(m,1/60,frame(rootPart.Position.X),20)end
   if mode~='watchdog' and conn and conn.Connected then conn.callback(1/60)end
@@ -214,6 +216,8 @@ local function runFlow(mode,originalAnchored,injectionAt)
  end
  check(coroutine.status(co)=='dead','flow has bounded completion')
  check(lastResult~=nil,'flow exports durable result')
+ check(type(returned)=='string' and returned==lastEncoded and #returned<=3500,'unchanged return JSON is the final budget-checked payload')
+ check(#printed==1 and printed[1]=='[SMASH_PET_FOLLOW_OBSERVATION_V1]'..returned,'exact unique console tag retains the complete final JSON on success and failure')
  check(conn and not conn.Connected and disconnects==1,'success/failure/watchdog disconnect exactly once')
  check(cancels==1 and watchdog.cancelled,'watchdog cancelled after completion')
  if injectionAt then
@@ -277,6 +281,9 @@ try{
   ['no-watchdog-cancel','pcall(task.cancel,watchdog)','do end'],
   ['late-watchdog','task.delay(2,','task.delay(20,'],
   ['old-cleanup-diagnostic-only','result.valid=result.valid and result.cleanupRestored','do end'],
+  ['missing-durable-print',"print('[SMASH_PET_FOLLOW_OBSERVATION_V1]'..encoded)",'do end'],
+  ['wrong-durable-tag',"print('[SMASH_PET_FOLLOW_OBSERVATION_V1]'..encoded)","print('[OTHER]'..encoded)"],
+  ['wrong-durable-payload',"print('[SMASH_PET_FOLLOW_OBSERVATION_V1]'..encoded)","print('[SMASH_PET_FOLLOW_OBSERVATION_V1]{}')"],
  ]){assert.ok(code.includes(from),label);run(`mutation-${label}`,setup+lifecycle.replace('FLOW_CODE',code.replace(from,to)),true);}
  console.log(JSON.stringify({ok:true,baseline,unchangedFlowOutsideObserver:true,compiled,executedAssertions:executed,compilingMutationsRejected:mutations,phaseCases:880,scope:'Exact production cadence/smoothing plus extracted observer and full flow lifecycle; no native runtime claim.'},null,2));
 }finally{
