@@ -335,6 +335,7 @@ $checks.persistenceContract = @{
 $additionalStaticContracts = @(
     @{ file = "onboarding-waypoint-contract.mjs"; key = "onboardingWaypointContract" },
     @{ file = "pet-size-position-contract.mjs"; key = "petSizePositionContract" },
+    @{ file = "pet-follow-observation-contract.mjs"; key = "petFollowObservationContract" },
     @{ file = "power-scaled-penetration-contract.mjs"; key = "powerScaledPenetrationContract" },
     @{ file = "punch-lunge-collision-contract.mjs"; key = "punchLungeCollisionContract" },
     @{ file = "reduced-motion-scene-contract.mjs"; key = "reducedMotionSceneContract" },
@@ -363,6 +364,7 @@ $additionalStaticContracts = @(
     @{ file = "mobile-iphone17-layout-contract.mjs"; key = "mobileIphone17LayoutContract" },
     @{ file = "narrow-directional-controls-contract.mjs"; key = "narrowDirectionalControlsContract" },
     @{ file = "narrow-menu-layout-contract.mjs"; key = "narrowMenuLayoutContract" },
+    @{ file = "narrow-desktop-modal-contract.mjs"; key = "narrowDesktopModalContract" },
     @{ file = "narrow-shop-readability-contract.mjs"; key = "narrowShopReadabilityContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
     @{ file = "quiet-visual-oracle-contract.mjs"; key = "quietVisualOracleContract" },
