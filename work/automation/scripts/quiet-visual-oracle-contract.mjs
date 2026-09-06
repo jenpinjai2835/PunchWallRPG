@@ -18,10 +18,17 @@ for(const [name,index]of targets){
   const old=spawnSync('git',['show','1529b7d:'+file],{cwd:root,encoding:'utf8'});assert.equal(old.status,0,old.stderr);
   historical[name]=JSON.parse(old.stdout);
   const copy=structuredClone(current[name]);copy.steps[index]=historical[name].steps[index];
+  if(name==='iteration01-complete-polish'){
+    copy.steps[8]=historical[name].steps[8];
+    const prerequisiteStep=structuredClone(current[name].steps[8]);prerequisiteStep.args.code=historical[name].steps[8].args.code;
+    assert.deepEqual(prerequisiteStep,historical[name].steps[8],'Only prerequisite code may change in step 9');structuralChecks++;
+  }
   assert.deepEqual(copy,historical[name],'Unrelated flow steps/cleanup changed: '+name);structuralChecks++;
   assert.deepEqual(current[name].steps[index].expectRegex,historical[name].steps[index].expectRegex,'Original acceptance markers preserved');structuralChecks++;
 }
 const objective=current['iteration01-complete-polish'].steps[10].args.code;
+const prerequisite=current['iteration01-complete-polish'].steps[8].args.code;
+const oldPrerequisite=historical['iteration01-complete-polish'].steps[8].args.code;
 const chrome=current['hero-shop-reference-polish'].steps[7].args.code;
 const theme=current['hero-city-theme'].steps[3].args.code;
 const oldObjective=historical['iteration01-complete-polish'].steps[10].args.code;
@@ -36,10 +43,65 @@ assert(tutorialLine&&fistLine);
 const title=tutorialLine.match(/title = ("[^"]+")/)[1],detail=tutorialLine.match(/detail = ("[^"]+")/)[1];
 const display=fistLine.match(/displayName = ("[^"]+")/)[1],cost=Number(fistLine.match(/cost = ([0-9]+)/)[1]);
 assert.equal(cost,180,'Current first-fist boundary changed; review intended tutorial fixture');
+const fists=between(config,'GameConfig.Fists = {','-- Coin cost controls pacing inside a band;');
+const fistNames=[...fists.matchAll(/\{ name = "([^"]+)"/g)].map(match=>match[1]);
+const unlockDepths=config.match(/local fistUnlockDepths = \{([^}]+)\}/)[1].split(',').map(Number);
+const unlockDepth=unlockDepths[fistNames.indexOf('Boxing Glove')];assert.equal(unlockDepth,1,'Review first-fist catalog depth boundary');
+const server=fs.readFileSync(path.join(root,'work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua'),'utf8').replace(/\r\n?/g,'\n');
+const buy=between(server,'local function buyFist(player, item)','local function ');
+const buyGates=between(buy,'\tlocal requiredDepth =','\taddStat(player, "Coins", -item.cost)');
 const responsive=between(theme,'local function expectedResponsive','local viewport=');
 const actualResponsive=between(source,'shared.PunchWallClassifyResponsiveViewport = function(size)','shared.PunchWallGetResponsiveViewport = function()');
 const actualViewport=between(source,'shared.PunchWallGetResponsiveViewport = function()','shared.PunchWallOpenRebirthPanel = function()');
 const observedViewport=between(theme,'local viewport=','local titleResponsive=');
+const beforeGateFix=spawnSync('git',['show','5e938a2:work/automation/flows/iteration01-complete-polish.json'],{cwd:root,encoding:'utf8'});
+assert.equal(beforeGateFix.status,0,beforeGateFix.stderr);
+const beforeGateFlow=JSON.parse(beforeGateFix.stdout),withOldPrerequisite=structuredClone(current['iteration01-complete-polish']);
+withOldPrerequisite.steps[8]=beforeGateFlow.steps[8];assert.deepEqual(withOldPrerequisite,beforeGateFlow,'Guidance gates fix must preserve every UI/price/BUY/bounds oracle');structuralChecks++;
+
+const prerequisiteMock=`
+local flags={PersistenceMode='EphemeralStudio',PersistenceStudioLiveDataOptIn=false,ProfileReady=true,ProfilePersistenceState='EphemeralStudio',ProfileWritable=false,studio=true}
+local stats={TutorialStep={Value=1},TutorialCompleted={Value=0},Depth={Value=0},EquippedFist={Value='Starter Glove'},OwnedFistsJSON={Value='starter'}}
+local leader={Coins={Value=0}}function stats:FindFirstChild(key)return self[key]end function leader:FindFirstChild(key)return self[key]end
+local p={RPGStats=stats,leaderstats=leader,GetAttribute=function(_,key)return flags[key]end}
+local def={name='Boxing Glove',displayName=${display},cost=${cost},unlockDepth=${unlockDepth}}
+local G={FistDefinition=function()return def end}local require=function()return G end
+local H={JSONEncode=function(_,value)return value end,JSONDecode=function(_,raw)return raw=='owned' and {'Starter Glove','Boxing Glove'} or {'Starter Glove'}end}
+local setCalls,snapshotCalls=0,0
+local function snapshot()
+ local result={ok=true}for key,item in pairs(stats)do if type(item)=='table'then result[key]=item.Value end end
+ for key,item in pairs(leader)do if type(item)=='table'then result[key]=item.Value end end return result
+end
+local c={Invoke=function(_,action,values)
+ if action=='SetStats'then setCalls+=1
+  for key,value in pairs(values)do
+   if not (key=='Depth' and flags.ignoreDepth or key=='Coins' and flags.ignoreCoins)then
+    local stat=stats[key] or leader[key] assert(stat,'unknown prerequisite stat')stat.Value=value
+   end
+  end
+  if flags.oneCoinShort then leader.Coins.Value=def.cost-1 end
+  if flags.grantOwned then stats.OwnedFistsJSON.Value='owned' end
+  if flags.equipWrong then stats.EquippedFist.Value='Boxing Glove' end
+  local result=snapshot()if flags.setFails then result.ok=false end if flags.badSeedReceipt then result.Depth=-1 end return result
+ elseif action=='Snapshot'then snapshotCalls+=1 local result=snapshot()
+  if flags.snapshotFails then result.ok=false end
+  if flags.badReadback and setCalls>0 then result.Coins=-1 end return result
+ end error('Prerequisite may not buy, grant or reset: '..action)
+end}
+local root={GetAttribute=function(_,key)return flags[key]end}
+local storage={PunchWallAutomation=c,GetAttribute=function(_,key)return flags[key]end}
+local services={HttpService=H,RunService={IsStudio=function()return flags.studio end},ServerStorage=storage}
+local game={Players={GetPlayers=function()return {p}end},ReplicatedStorage={GameConfig={}},GetService=function(_,key)return services[key]end}
+local workspace={FindFirstChild=function()return root end}
+local function buyGate()
+ local player,item=p,def
+ local function statValue(_,key,fallback)local stat=stats[key] or leader[key]return stat and stat.Value or fallback end
+ local function sendFeedback()end local PolishConfig={Palette={Fail=0}}
+ ${buyGates}
+ return {ok=true}
+end
+`;
+const verifyPrerequisite=code=>`local result=(function()\n${code}\nend)()\nassert(buyGate().ok,'actual server purchase gates remain unsatisfied')\nassert(leader.Coins.Value==def.cost and stats.Depth.Value==def.unlockDepth,'catalog exact funding/depth boundary differs')\nreturn result`;
 
 const objectiveMock=`
 local clock=0 local os={clock=function()return clock end} local task={wait=function(seconds)clock+=seconds end}
@@ -68,8 +130,8 @@ local action=text(card,'Boxing GloveAction','BUY',300,246,100,44)action.class='T
 local actionAttrs={ShopActionBound=true}function action:GetAttribute(key)return actionAttrs[key]end
 local attrs={OnboardingObjectiveReady=true,OnboardingObjectiveStep=3}
 function gui:GetAttribute(key)return attrs[key]end
-local stats={TutorialStep={Value=3},TutorialCompleted={Value=0},EquippedFist={Value='Starter Glove'},OwnedFistsJSON={Value='starter'}}
-local p={PlayerGui={PunchWallHUD=gui},RPGStats=stats,leaderstats={Coins={Value=12}}}
+local stats={TutorialStep={Value=3},TutorialCompleted={Value=0},Depth={Value=${unlockDepth}},EquippedFist={Value='Starter Glove'},OwnedFistsJSON={Value='starter'}}
+local p={PlayerGui={PunchWallHUD=gui},RPGStats=stats,leaderstats={Coins={Value=${cost}}}}
 local calls={}local faults={}local closes=0
 local automation={Invoke=function(_,command,value)
  calls[#calls+1]=command assert(command~='InvokeShopAction' and command~='RequestAction','guidance check must not purchase')
@@ -155,7 +217,23 @@ function fixture(name,prefix,setup,code,pass,after='true'){
  assert.equal(result.status,0,result.stderr||result.stdout);controls.push(name);
 }
 try {
- for(const [name,code]of [['objective',objective],['shop',chrome],['theme',theme]])compile(name,code);
+ for(const [name,code]of [['prerequisite',prerequisite],['objective',objective],['shop',chrome],['theme',theme]])compile(name,code);
+ fixture('catalog-prerequisites-meet-actual-server-gates',prerequisiteMock,'',verifyPrerequisite(prerequisite),true,"setCalls==1 and snapshotCalls==2 and result.unowned and result.cost==def.cost and result.depth==def.unlockDepth and stats.OwnedFistsJSON.Value=='starter'");
+ fixture('historical-fixture-leaves-actual-depth-locked',prerequisiteMock,'',oldPrerequisite,true,"buyGate().ok==false and buyGate().reason=='depth_locked' and stats.Depth.Value==0 and leader.Coins.Value==0");
+ fixture('actual-server-rejects-one-coin-short',prerequisiteMock,'stats.Depth.Value=def.unlockDepth leader.Coins.Value=def.cost-1','return buyGate()',true,"result.ok==false and result.reason=='not_enough_coins'");
+ for(const [name,setup]of [
+  ['prerequisite-missing-depth','flags.ignoreDepth=true'],['prerequisite-walllevel-is-not-depth','flags.ignoreDepth=true stats.WallLevel={Value=999}'],
+  ['prerequisite-missing-coins','flags.ignoreCoins=true'],['prerequisite-one-coin-short','flags.oneCoinShort=true'],
+  ['prerequisite-already-owned',"stats.OwnedFistsJSON.Value='owned'"],['prerequisite-accidental-grant','flags.grantOwned=true'],
+  ['prerequisite-accidental-equip','flags.equipWrong=true'],['prerequisite-set-failed','flags.setFails=true'],
+  ['prerequisite-snapshot-failed','flags.snapshotFails=true'],['prerequisite-seed-receipt-disagrees','flags.badSeedReceipt=true'],
+  ['prerequisite-readback-disagrees','flags.badReadback=true'],['prerequisite-missing-catalog-depth','def.unlockDepth=nil'],
+  ['prerequisite-live-profile',"flags.ProfilePersistenceState='Live'"],['prerequisite-live-optin','flags.PersistenceStudioLiveDataOptIn=true'],
+ ])fixture(name,prerequisiteMock,setup,verifyPrerequisite(prerequisite),false);
+ for(const [name,from,to]of [
+  ['missing-depth-in-fixture','Depth=requiredDepth,',''],['missing-funding-in-fixture',',Coins=def.cost',''],
+  ['excess-funding-in-fixture','Coins=def.cost','Coins=def.cost+1'],
+ ]){const changed=prerequisite.replace(from,to);assert.notEqual(changed,prerequisite);fixture(name,prerequisiteMock,'',verifyPrerequisite(changed),false);}
  fixture('current-objective-real-route',objectiveMock,'',objective,true,"result.step==3 and result.objective==string.upper(tutorial.title) and result.purchaseGuidance.price=='180' and result.unchangedAfterClose and closes==2");
  fixture('historical-objective-fails-title-only-producer',objectiveMock,'',oldObjective,false,"string.find(tostring(result),'purchase cost guidance missing',1,true)~=nil");
  for(const [name,setup]of [
@@ -187,5 +265,5 @@ try {
  const changedBreakpoint=responsiveProgram.replace('if shortSide<520 and longSide<1180 then','if shortSide<520 then');assert.notEqual(changedBreakpoint,responsiveProgram);
  const breakpointResult=run('weakened-breakpoint',changedBreakpoint);assert(breakpointResult.status!==0&&breakpointResult.stderr.includes('actual responsive producer parity'),'Old breakpoint must fail against production');
  assert(oldTheme.includes('U.TouchEnabled or workspace.CurrentCamera.ViewportSize.Y<520'),'Historical breakpoint control changed');
- console.log(JSON.stringify({ok:true,studioUsed:false,structuralChecks,compiledPrograms:compiled,executedPrograms:executed,controls,mutationControls:5},null,2));
+ console.log(JSON.stringify({ok:true,studioUsed:false,structuralChecks,compiledPrograms:compiled,executedPrograms:executed,controls,mutationControls:8},null,2));
 } finally {for(const name of fs.readdirSync(directory))fs.unlinkSync(path.join(directory,name));fs.rmdirSync(directory);}
