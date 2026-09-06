@@ -229,6 +229,12 @@ print('SCROLL_MODE_PASS 12')
 const modeRun=runProjection(modeCases);
 result.checks.long_run_exact_three_scroll_modes_preserve_original_authority=has(scrollCode,['cards==16','actions==16','locked==0','minHeight>=110','statesValid','action.Active==true','action:GetAttribute(\'ShopActionBound\')==true','scroll.AbsoluteCanvasSize.Y>scroll.AbsoluteSize.Y'])&&(modeRun.stdout||'').includes('SCROLL_MODE_PASS 12');
 if(!result.checks.long_run_exact_three_scroll_modes_preserve_original_authority)result.failures.long_run_exact_three_scroll_modes_preserve_original_authority=modeRun.stdout;
+const scrollStep=longRun.steps.find(s=>s.label==='all fist offers are readable and scroll-accessible');
+const acceptsScrollResult=(patterns,mode,ok=true)=>patterns.every(pattern=>new RegExp(pattern).test(JSON.stringify({ok,cards:16,actions:16,locked:0,statesValid:true,mode})));
+const previousPatterns=scrollStep.expectRegex.map(pattern=>pattern.replace('|DesktopReadableRowsV1',''));
+result.checks.outer_scroll_result_accepts_all_three_valid_modes= ['FixedReadableCardsV1','MobileReadableRowsV1','DesktopReadableRowsV1'].every(mode=>acceptsScrollResult(scrollStep.expectRegex,mode))
+ && !acceptsScrollResult(scrollStep.expectRegex,'Unknown') && !acceptsScrollResult(scrollStep.expectRegex,'DesktopReadableRowsV1',false)
+ && !acceptsScrollResult(previousPatterns,'DesktopReadableRowsV1');
 const projectionEvidence={status:result.checks.actual_projection_identity_and_failure_cleanup_helpers?'PASS':'BLOCKED',positive:3,negative:10,cleanupRestored:3,mutations:projectionMutationEvidence,cleanupMutationPass,scrollModes:result.checks.long_run_exact_three_scroll_modes_preserve_original_authority?'PASS12':'BLOCKED'};
 const normalCount=(config.match(/GameConfig\.Fists = \{([\s\S]*?)\n\}/)?.[1].match(/name = "/g)||[]).length;
 const premiumCount=(config.match(/GameConfig\.PremiumFists = \{([\s\S]*?)\n\}/)?.[1].match(/name = "/g)||[]).length;

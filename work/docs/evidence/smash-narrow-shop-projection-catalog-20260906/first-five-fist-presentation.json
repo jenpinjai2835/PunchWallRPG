@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "first-five-fist-presentation",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set initial wide desktop projection viewport",
+        "start isolated Studio playtest",
+        "wait for character and UI",
+        "authoritatively own the complete configured catalog",
+        "actual native geometry anatomy distinctness and final bounds",
+        "five item Shop Inventory equipped actual geometry parity",
+        "resize active desktop simulation to 900x600",
+        "wait for desktop resize layout",
+        "narrow desktop actual preview projection and same-model resize refit",
+        "static preview cache and menu lifecycle population",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "restore simulator and remove owned fist QA device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

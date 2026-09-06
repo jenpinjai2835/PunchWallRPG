@@ -1,0 +1,130 @@
+{
+  "ok": true,
+  "passed": 18,
+  "total": 18,
+  "firstFiveCount": 5,
+  "normalCount": 16,
+  "premiumCount": 3,
+  "catalogCount": 19,
+  "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906",
+  "flowHashes": {
+    "first-five-fist-presentation": "f1807b64c093fb7d8c11956cbf6fe974916ae92c5265ed081002b61f312c288c",
+    "item-matched-fist-visuals": "7e2cb6ed81b6ed8c9f8b05a55bda8029c51e8497bfff2e24e313f1ebd1295a1b",
+    "fist-arm-alignment-qc": "7c36e60769d4c098011d86b9126c0d1e8a417254a2c5c4df93ca9e9bb455b821"
+  },
+  "studioRuntimeStatus": "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
+  "checks": {
+    "unique_studio_selection_and_clean_stop_gates": true,
+    "no_cross_vm_executable_or_instance_state": true,
+    "complete_catalog_seed_is_authoritative": true,
+    "five_native_and_complete_catalog_counts_are_asserted": true,
+    "real_equips_dispatch_once_before_bounded_observation": true,
+    "actual_shape_material_color_and_anatomy_parity": true,
+    "all_native_verifiers_call_explicit_hazard_audit": true,
+    "equipped_outer_models_are_audited": true,
+    "actual_final_bounds_weld_endpoints_and_current_rig": true,
+    "respawn_uses_tagged_serializable_identity_and_release": true,
+    "static_preview_and_resource_lifecycle_are_inspected": true,
+    "imported_fallback_and_aura_regression_are_preserved": true,
+    "authored_then_explicit_horizontal_fov_and_restoration": true,
+    "negative_flow_controls_reject_regressions": true,
+    "actual_hazard_helpers_reject_unsafe_descendants": true,
+    "actual_projection_identity_and_failure_cleanup_helpers": true,
+    "long_run_exact_three_scroll_modes_preserve_original_authority": true,
+    "outer_scroll_result_accepts_all_three_valid_modes": true
+  },
+  "failures": {},
+  "negativeControls": [
+    {
+      "name": "drop_second_narrow_refit",
+      "target": "authored_then_explicit_horizontal_fov_and_restoration",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "drop_authored_size_restore",
+      "target": "authored_then_explicit_horizontal_fov_and_restoration",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "restart_after_console_gate",
+      "target": "unique_studio_selection_and_clean_stop_gates",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "remove_cleanup_stop",
+      "target": "unique_studio_selection_and_clean_stop_gates",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "truncate_catalog_to_eight",
+      "target": "five_native_and_complete_catalog_counts_are_asserted",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "remove_actual_corner_audit",
+      "target": "actual_final_bounds_weld_endpoints_and_current_rig",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "allow_appearance_mismatch",
+      "target": "actual_shape_material_color_and_anatomy_parity",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    },
+    {
+      "name": "retry_equip_during_poll",
+      "target": "real_equips_dispatch_once_before_bounded_observation",
+      "status": "REJECTED",
+      "positiveBaseline": true
+    }
+  ],
+  "hazardEvidence": {
+    "status": "PASS",
+    "helpers": 1,
+    "markers": [
+      "HAZARD_HELPER_PASS safe=8 rejected=27"
+    ],
+    "mutationMarkers": [
+      "HAZARD_MUTATION_REJECTED allow_body_movers",
+      "HAZARD_MUTATION_REJECTED allow_wrong_weld_endpoint",
+      "HAZARD_MUTATION_REJECTED allow_preview_particles"
+    ]
+  },
+  "projectionEvidence": {
+    "status": "PASS",
+    "positive": 3,
+    "negative": 10,
+    "cleanupRestored": 3,
+    "mutations": [
+      {
+        "name": "ignore-horizontal-clipping",
+        "rejected": true
+      },
+      {
+        "name": "allow-camera-replacement",
+        "rejected": true
+      },
+      {
+        "name": "allow-model-replacement",
+        "rejected": true
+      },
+      {
+        "name": "drop-required-horizontal-aspect",
+        "rejected": true
+      }
+    ],
+    "cleanupMutationPass": true,
+    "scrollModes": "PASS12"
+  },
+  "files": [
+    "work/automation/flows/first-five-fist-presentation.json",
+    "work/automation/flows/item-matched-fist-visuals.json",
+    "work/automation/flows/fist-arm-alignment-qc.json"
+  ]
+}

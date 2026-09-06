@@ -205,7 +205,7 @@
         "\"cards\"\\s*:\\s*16",
         "\"actions\"\\s*:\\s*16",
         "\"locked\"\\s*:\\s*0",
-        "(?:FixedReadableCardsV1|MobileReadableRowsV1)",
+        "(?:FixedReadableCardsV1|MobileReadableRowsV1|DesktopReadableRowsV1)",
         "\"statesValid\"\\s*:\\s*true"
       ],
       "label": "all fist offers are readable and scroll-accessible"

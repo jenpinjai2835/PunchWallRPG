@@ -788,3 +788,30 @@ the original historical negative controls while making them available through
 the branch history that will be pushed and merged. The pending full run still
 requires the final combined static gate and two source-affected flow-oracle
 updates: first-five preview resizing and the long-run Shop scroll-mode check.
+
+### September 6, 12:33 ICT — final targeted native and combined static gates pass
+
+Worker 9ad3c49 was integrated as ee47459. The first-five fist flow now verifies
+the authored preview plus actual 72% and 52% width changes, preserving the
+same model, camera and palm transform and restoring the original size even
+on assertion failure. Its native run passed in 32.63 seconds, with evidence
+in `smash-narrow-shop-projection-catalog-20260906/`.
+
+The same batch exposed a missed outer response regex in the long-run flow:
+the Luau result passed all 16 cards/actions and zero-lock checks, but the runner
+still rejected the new valid DesktopReadableRowsV1 mode. That failed result is
+preserved. Root owned the atomic two-file correction because handing the same
+small gate back to a worker would add coordination without independent value.
+The executable contract now checks all actual outer regexes against the three
+valid modes, rejects unknown modes and ok=false, and proves the old two-mode
+pattern rejects the new valid response. All 18 checks passed in
+`smash-final-projection-scroll-contract-20260906.json`. Agent 1 independently
+accepted this correction and explicitly recorded the earlier review omission.
+
+The native long-run R2 passed, including depth boundaries, all catalog actions,
+pet duplicate non-farming, preview sanitization and both clean-console checks
+(`smash-long-run-narrow-shop-r2-20260906.json`). No gameplay source changed.
+The final aggregate `smash-complete-static-release-candidate-20260906.json`
+passed all 51 non-Studio contracts out of 52 discovered, retaining the explicit
+runtime-only inventory performance exclusion. This does not replace the full
+129 native flows or final rebuilt-artifact gates, which remain required.
