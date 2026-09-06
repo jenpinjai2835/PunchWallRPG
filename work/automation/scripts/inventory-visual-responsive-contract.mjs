@@ -208,7 +208,7 @@ check(
     'local state = selected and "Selected" or hovered and "Hovered" or "Idle"',
   )
     && categoryVisual.includes(
-      "widgets.stroke.Color = selected and PALETTE.Gold",
+      "widgets.stroke.Color = selected and PALETTE.Cyan",
     )
     && categoryVisual.includes(
       "widgets.indicator.Visible = selected or hovered",
@@ -325,7 +325,7 @@ for _,viewport in ipairs({{296,716},{336,616},{366,736},{716,296},{616,336},{576
    InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),true,scale)
    check(s.Grid.Visible and s.GridPane.Visible and s.Grid.CanvasPosition.Y==93,prefix..'drawer return retains scroll')
    InventoryUI.ApplyResponsive(s,vec2(1280,800),false,1)
-   check(s._cardPool[1].name.TextScaled and s.DetailInternalName.Visible and s._categoryButtons.Boosts.button.Text=='BOOSTS',prefix..'desktop restores')
+   check(not s._cardPool[1].name.TextScaled and s.DetailInternalName.Visible and s._categoryButtons.Boosts.button.Text=='BOOSTS',prefix..'desktop restores readable rows')
   end
  end
 end
@@ -347,11 +347,94 @@ for _,width in ipairs({280,320,400}) do
  local result=allocateToolbarWidths(width,true,44)
  check(result.search>=44 and result.capacity>=44 and result.rarity>=44 and result.used<=width,'compact toolbar allocation')
 end
+-- Real desktop layout must retain text floors at every scale. Increasing UI scale
+-- switches a too-narrow three-pane host to compact before its toolbar overlaps.
+for _,viewport in ipairs({{900,600},{980,620},{1100,720},{1277,780},{1600,900}}) do
+ for _,scale in ipairs({.8,1,1.2})do
+  for actions=1,4 do
+   local s=makeSelf(actions)
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),false,scale)
+   local c=s._cardPool[1]
+   local prefix='desktop '..tostring(viewport[1])..'@'..tostring(scale)..'/'..tostring(actions)..': '
+   check(not c.name.TextScaled and c.name.TextSize*scale>=14,prefix..'desktop primary floor')
+   check(c.rarity.TextSize*scale>=12 and c.equipped.TextSize*scale>=12 and c.locked.TextSize*scale>=12,prefix..'desktop secondary floor')
+   check(s.Empty.TextSize*scale>=12,prefix..'no-results secondary floor')
+   check(s._layout.columns<=2 and s._layout.columns>=1,prefix..'bounded columns')
+   local width=s.GridLayout.CellSize.X.Offset
+   check(width*scale>=280,prefix..'readable row width')
+   check(near(s.GridLayout.CellSize.Y.Offset*scale,s._layout.compact and 92 or 104),prefix..'readable row height')
+   check(s.Root.attrs.InventoryToolbarNoOverlap,prefix..'desktop toolbar no overlap')
+   check(c.artFrame.Position.X.Offset+c.artFrame.Size.X.Offset<=c.name.Position.X.Offset,prefix..'art name separation')
+   check(c.name.Position.Y.Offset+c.name.Size.Y.Offset<=c.rarity.Position.Y.Offset,prefix..'name rarity separation')
+   check(c.equipped.Position.X.Offset+c.equipped.Size.X.Offset<=width-c.quantity.Size.X.Offset-8/scale,prefix..'desktop state quantity separation')
+   check(width*s._layout.columns+(s._layout.columns-1)*s.GridLayout.CellPadding.X.Offset<=s.Root.attrs.InventoryAvailableGridWidth/scale+.01,prefix..'desktop grid bounds')
+   check(s.Grid.CanvasPosition.Y==93 and s._selectedKey=='pet:1' and s._search=='cat',prefix..'desktop state retained')
+   check(s.DetailActionLayout.CellSize.X.Offset*scale>=44 and s.DetailActionLayout.CellSize.Y.Offset*scale>=44,prefix..'desktop actions touch')
+  end
+ end
+end
 print('Inventory production ApplyResponsive: '..count..' assertions passed')
 `;
 
 const productionOutput = runProductionLuau("inventory-responsive-contract", code);
-assert.match(productionOutput, /Inventory production ApplyResponsive: 2173 assertions passed/);
+assert.match(productionOutput, /Inventory production ApplyResponsive: 2953 assertions passed/);
+const polishSource = fs.readFileSync(path.join(repositoryRoot, "work/punch-wall-rpg/src/shared/PolishConfig.lua"), "utf8").replace(/\r\n?/g, "\n");
+const rarityMapping = polishSource.match(/PolishConfig\.RarityColors = \{[\s\S]*?\n\}/)?.[0];
+assert(rarityMapping, "Missing shared rarity mapping");
+const premiumFlow = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "work/automation/flows/inventory-premium-readability.json"), "utf8"));
+const actualVerification = premiumFlow.steps.find((step) => step.label === "actual Inventory dimensions, semantic colors, selection, search and pet actions").args.code;
+const fitHelper = actualVerification.slice(actualVerification.indexOf("local function fits("), actualVerification.indexOf("local function cardByKey("));
+assert(fitHelper.startsWith("local function fits("), "Missing actual TextBounds verifier");
+const semanticCode = String.raw`
+local Color3={fromRGB=function(r,g,b)return {R=r/255,G=g/255,B=b/255,__kind='Color3'}end}
+local function typeof(v)return type(v)=='table' and v.__kind or type(v)end
+local PolishConfig={}
+` + rarityMapping + "\n" + block("local PALETTE = {", "-- UIGradient")
+  + block("local RARITY_COLORS = {", "local function create(")
+  + block("local function asColor(", "local function itemAccent(")
+  + block("local function itemRarityColor(", "local function actionName(")
+  + fitHelper + String.raw`
+local count=0
+local function check(value,message)count+=1;assert(value,message)end
+for rarity,expected in pairs(PolishConfig.RarityColors)do
+ local original=Color3.fromRGB(255,0,255)
+ local item={rarity=rarity,accent=original}
+ check(itemRarityColor(item)==expected,'shared rarity ignores model accent '..rarity)
+ check(item.accent==original,'model accent unchanged '..rarity)
+end
+check(itemRarityColor(nil)==PolishConfig.RarityColors.Common,'empty defaults to common')
+check(itemRarityColor({rarity='Premium'})==RARITY_COLORS.Premium,'premium fallback')
+check(itemRarityColor({rarity='Unmapped',accent=Color3.fromRGB(255,0,255)})==PALETTE.Muted,'unknown is semantic neutral')
+local function label()
+ return {Text='Readable',TextScaled=false,TextSize=14,TextFits=true,TextBounds={X=80,Y=17},AbsoluteSize={X=180,Y=36},GetFullName=function()return 'actual label' end}
+end
+check(pcall(fits,label(),14,1),'valid text accepted')
+for _,mutate in ipairs({
+ function(x)x.TextScaled=true end,
+ function(x)x.TextSize=13 end,
+ function(x)x.TextFits=false end,
+ function(x)x.TextBounds.X=182 end,
+ function(x)x.TextBounds.Y=38 end,
+})do local x=label();mutate(x);check(not pcall(fits,x,14,1),'invalid actual text rejected')end
+check(not pcall(fits,label(),14,.8),'rendered scale floor enforced')
+print('Inventory semantic/text helper: '..count..' assertions passed')
+`;
+const semanticOutput = runProductionLuau("inventory-semantic-contract", semanticCode);
+assert.match(semanticOutput, /Inventory semantic\/text helper: 20 assertions passed/);
+let baselineProof;
+const baselineIndex = process.argv.indexOf("--readability-baseline");
+if (baselineIndex >= 0) {
+  const ref = process.argv[baselineIndex + 1];
+  assert(ref, "--readability-baseline requires a Git ref");
+  const result = spawnSync("git", ["show", `${ref}:work/punch-wall-rpg/src/client/InventoryUI.lua`], {cwd: repositoryRoot, encoding:"utf8"});
+  assert.equal(result.status, 0, result.stderr);
+  const baseline = result.stdout.replace(/\r\n?/g, "\n");
+  const begin = baseline.indexOf("function InventoryUI:ApplyResponsive(");
+  const end = baseline.indexOf("function InventoryUI:_enabledActionNames(", begin);
+  assert(begin >= 0 && end > begin, "Missing baseline layout");
+  assert.throws(() => runProductionLuau("inventory-readability-baseline", code.replace(responsive, baseline.slice(begin,end))), /desktop restores readable rows|desktop primary floor|readable row width|no-results secondary floor/);
+  baselineProof = {ref, intendedFailure:true};
+}
 const mutationChecks = [];
 if (process.argv.includes("--self-test")) {
   for (const [name, original, replacement, failure] of [
@@ -359,11 +442,18 @@ if (process.argv.includes("--self-test")) {
     ["tiny_primary_text", "math.ceil(14 / scale)", "math.ceil(10 / scale)", /primary text/],
     ["early_two_column_breakpoint", "gridContentWidth * scale >= 600", "gridContentWidth * scale >= 500", /column breakpoint/],
     ["oversized_grid_cells", "math.floor((gridContentWidth - (columns - 1) * padding) / columns)", "100 + math.floor((gridContentWidth - (columns - 1) * padding) / columns)", /grid cells within content/],
+    ["tiny_desktop_primary_text", "cardRef.name.TextSize = primaryTextSize", "cardRef.name.TextSize = useCompact and primaryTextSize or 10", /desktop primary floor/],
+    ["tiny_desktop_empty_text", "self.Empty.TextSize = secondaryTextSize", "self.Empty.TextSize = useCompact and secondaryTextSize or 12", /no-results secondary floor/],
+    ["scale_ignores_available_width", " or availableWidth < 900", "", /readable row width/],
   ]) {
     assert(code.includes(original), `Missing mutation target: ${name}`);
     assert.throws(() => runProductionLuau("inventory-responsive-mutation", code.replace(original, replacement)), failure);
     mutationChecks.push(name);
   }
+  assert.throws(() => runProductionLuau("inventory-semantic-mutation", semanticCode.replace("PolishConfig.RarityColors[rarity]", "item and item.accent")), /shared rarity ignores model accent/);
+  mutationChecks.push("rarity_uses_model_accent");
+  assert.throws(() => runProductionLuau("inventory-text-mutation", semanticCode.replace("label.TextFits and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1", "true")), /invalid actual text rejected/);
+  mutationChecks.push("text_clipping_guard_removed");
 }
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
@@ -374,6 +464,8 @@ console.log(
       total: Object.keys(checks).length,
       checks,
       productionOutput,
+      semanticOutput,
+      baselineProof,
       mutationChecks,
       limitation: "UI value mocks do not render Roblox text or establish device performance",
       files: [

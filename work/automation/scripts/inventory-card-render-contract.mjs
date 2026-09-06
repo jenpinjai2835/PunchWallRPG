@@ -136,14 +136,14 @@ check(
   "Keyed refs must retain every rendered card even if an invalid duplicate key reaches the view.",
 );
 check(
-  "selection_restores_hover_and_rarity_visuals",
+  "selection_restores_hover_and_quiet_visuals",
   selectionVisual.includes("elseif ref.hovered then")
-    && selectionVisual.includes("stroke.Color = ref.accent")
-    && selectionVisual.includes("stroke.Color = PALETTE.Gold")
-    && selectionVisual.includes("stroke.Thickness = 3")
+    && selectionVisual.includes("stroke.Color = PALETTE.SteelLight")
+    && selectionVisual.includes("stroke.Color = PALETTE.Cyan")
+    && selectionVisual.includes("stroke.Thickness = 2")
     && renderGrid.includes("cardRef.hovered = true")
     && renderGrid.includes("cardRef.hovered = false"),
-  "Old/new selection changes must preserve hover, rarity accent, and selected styling.",
+  "Old/new selection changes retain hover and a consistent cyan selection, with semantic rarity left on its separate chip.",
 );
 check(
   "card_state_fidelity_is_unchanged",

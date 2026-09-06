@@ -137,9 +137,15 @@ const sparseSlots = block(
   "function InventoryUI:_renderGrid()",
 );
 
-const ink = [2, 9, 15];
-const lightText = [246, 249, 250];
-const mutedText = [157, 185, 201];
+const paletteSource = block(source, "local PALETTE = {", "-- UIGradient");
+function paletteColor(name) {
+  const match = paletteSource.match(new RegExp(`\\b${name} = Color3\\.fromRGB\\((\\d+), (\\d+), (\\d+)\\)`));
+  assert(match, `Missing actual palette color: ${name}`);
+  return match.slice(1).map(Number);
+}
+const ink = paletteColor("Ink");
+const lightText = paletteColor("Text");
+const mutedText = paletteColor("Muted");
 const goldText = [255, 194, 24];
 const cyanText = [165, 241, 255];
 const neutralStops = [
@@ -161,10 +167,10 @@ const actionContrastMatrix = {
 const textControlContrastMatrix = {
   capacity: effectiveContrasts(lightText, [4, 14, 22]),
   rarityFilter: effectiveContrasts(lightText, [6, 24, 36]),
-  close: effectiveContrasts(lightText, [139, 8, 17]),
-  categoryIdle: effectiveContrasts(lightText, [13, 31, 43]),
-  categoryHover: effectiveContrasts(cyanText, [10, 43, 57]),
-  categorySelected: effectiveContrasts(goldText, [34, 36, 28]),
+  close: effectiveContrasts(lightText, paletteColor("PanelRaised")),
+  categoryIdle: effectiveContrasts(lightText, paletteColor("PanelRaised")),
+  categoryHover: effectiveContrasts(lightText, [10, 43, 57]),
+  categorySelected: effectiveContrasts(lightText, paletteColor("CardHover")),
 };
 
 check(
@@ -233,7 +239,7 @@ check(
     && capacityUpdate.includes('InventoryCapacityFullText", fullText')
     && capacityUpdate.includes('InventoryCapacityReadable", true')
     && responsive.includes(
-      "self.Capacity.TextSize = useCompact and secondaryTextSize or 12",
+      "self.Capacity.TextSize = secondaryTextSize",
     ),
   "Compact capacity copy must keep explicit ITEM/PET semantics and readable type.",
 );
@@ -251,7 +257,7 @@ check(
 
 check(
   "rarity_entries_are_readable_and_touch_bounded",
-  source.includes("button.TextSize = useCompact and secondaryTextSize or 13")
+  source.includes("button.TextSize = secondaryTextSize")
     && source.includes("button.Size = UDim2.new(1, 0, 0, touchTarget)")
     && source.includes("AutomaticCanvasSize = Enum.AutomaticSize.Y")
     && source.includes("ClipsDescendants = true")
@@ -260,19 +266,18 @@ check(
 );
 
 check(
-  "native_fallback_has_reference_depth_without_uploaded_chrome",
+  "native_fallback_uses_quiet_shell_without_uploaded_chrome",
   source.includes('self.Root:SetAttribute("ArtMode", "ReferenceNativeV3")')
     && source.includes('self.Root:SetAttribute("ChromeAssetMode", "Native")')
-    && [
-      'Name = "InventoryWindowInnerFrame"',
-      'Name = "InventoryWindowTopRail"',
-      'Name = "HeaderPattern"',
-      'Name = "CardDepthInset"',
-      'Name = "ItemArtBloom"',
-      'Name = "DetailMetaStrip"',
-      'Name = "DetailArtCore"',
-    ].every((token) => source.includes(token)),
-  "The always-available fallback must provide layered red/cyan/steel chrome without requiring an uploaded atlas.",
+    && source.includes('InventoryVisualStyle", "QuietNavyV1"')
+    && source.includes('self.WindowStroke = addStroke(self.Window, PALETTE.SteelLight, 1)')
+    && source.includes('self.HeaderPattern.Visible = false')
+    && source.includes('self.DetailMetaStrip.Visible = false')
+    && source.includes('cardRef.footerRail.Visible = false')
+    && source.includes('cardRef.rarity.BackgroundColor3 = rarityColor')
+    && source.includes('self.DetailRarity.BackgroundColor3 = rarityColor')
+    && source.includes('PolishConfig.RarityColors[rarity]'),
+  "The native shell uses restrained chrome and shared semantic rarity colors; actual rendered visibility is checked by inventory-premium-readability.",
 );
 
 check(

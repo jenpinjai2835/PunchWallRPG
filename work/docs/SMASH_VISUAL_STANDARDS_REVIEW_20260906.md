@@ -89,3 +89,68 @@
 รับงานแยกสองด้าน: (ก) ข้อสอบขอบเขต/ข้อความ/input/authority เดิมผ่าน และ (ข) ผู้ตรวจดูภาพจริง 1:1 เทียบก่อน/หลังแล้วยืนยันลำดับสายตา ความสอดคล้อง ความอ่านง่าย และความสบายตา ไม่มีคะแนน geometry ใดแทนข้อ (ข) ได้ ภาพ Studio บนเครื่องนี้ยังไม่พิสูจน์หน้าจอ/ความลื่นของโทรศัพท์จริงหรือผลลัพธ์จากผู้เล่นทั่วโลก
 
 Checklist: ตรวจ source ปัจจุบันและภาพจริงที่มีอยู่แล้ว; จัดข้อเสนอและเกณฑ์ภาพครบ; ตรวจความตรงกันของข้อเสนอ/source และส่งเอกสารเพื่อยอมรับงานตรวจ ภาพใหม่ของ Coordinator และการยอมรับความสวยจริงยังเป็น gate แยกที่เปิดอยู่ ไม่มีการแก้ source, flow, tool, asset, เศรษฐกิจ หรือเรียก Studio/HQ จากงานตรวจนี้
+
+
+## งาน Inventory ที่ได้รับอนุมัติและลงมือทำต่อจากการตรวจ
+
+สถานะนี้แยกจากข้อเสนอเดิมด้านบน: Coordinator อนุมัติให้ Agent 1 แก้เฉพาะ `InventoryUI.lua`, flow/contract ของ Inventory และเอกสารนี้ งาน Shop/HUD/ฉากหลังเต็มจอเป็นของ Coordinator ส่วนการเปิด Studio, รวม source, ภาพหลังแก้ และ regression รวมยังเป็น gate ของ Coordinator
+
+Source หลักที่ส่งให้รวมเป็น commit `1290a1b074ef7ea1fdb37858afc3a4eddf8475b2` (source อย่างเดียว, หยุดแก้ไฟล์หลังส่งมอบครั้งแรก) ค่า SHA256 ของ Inventory ที่ normalize เป็น LF: `c195e4185085cc58125c0ff68fa4c72dc0bd182d0fc3bc39c3a7b7c979062ff8` ไม่มีการแก้ main client, config, โมเดล/texture ต้นทาง, authority หรือเศรษฐกิจในงานนี้
+
+### ภาพจริงที่ใช้ปรับงาน
+
+อ่านภาพ `work/docs/evidence/smash-current-source-visual-review-r2-20260906/desktop-inventory-fists.jpg` และ `desktop-inventory-pets.jpg` จาก integration tree ของ Coordinator: ขนาดภาพจริง 1277×780, manifest/source attestation ทั้งเก้าสคริปต์ก่อนและหลังผ่านตามรายงาน Coordinator ภาพยืนยันว่าหัวแดง/เพชรฟ้าและหลายชั้นกรอบแย่งรายการ พร้อมชื่อเล็กใน grid เดิม และ Forest Pup แสดงด้านหลังเป็นก้อนสีเทา ขณะที่ Miner Cat มีหน้าให้เห็น ภาพทั้งสองเป็น **ก่อน source commit นี้** จึงใช้ยืนยันสภาพเดิมและเลือกจุดแก้ ไม่ใช่หลักฐานภาพหลังแก้
+
+ภาพ phone ของ capture รอบนี้ยังไม่ผ่าน actual viewport gate จึงไม่เรียกภาพ desktop ว่า mobile proof และไม่ใช้ `desktop-fresh-hud.jpg` อ้างว่าเป็นผู้เล่นใหม่ไม่มีสัตว์เลี้ยง: บัญชีทดสอบมีสิทธิ์ pass จริงที่ reconciliation เติมสัตว์พรีเมียมได้
+
+### พฤติกรรมที่เปลี่ยน
+
+- กรอบนอก navy RGB 18/26/38, ภายใน 14/20/29 และเส้น muted 61/88/101: กรอบนอกเส้นเดียว 1 px, หัวเรียบ, ซ่อนเพชร/ราง/ลายหัว/กรอบซ้อนที่ตกแต่งไว้ สีฟ้าใช้บอกการเลือก รายการที่สวมอยู่เป็นป้ายสถานะสีเขียวเข้มตัวขาว ปุ่มใช้งาน/อันตรายยังแยกความหมายและรักษา contrast เดิม
+- Desktop ใช้รายการแนวนอนสูงจริง 104 px, mobile คง 92 px; ความกว้างรายการอย่างน้อย 280 px, จำนวนหนึ่งหรือสองคอลัมน์ตามพื้นที่ ชื่อไม่ย่อด้วย `TextScaled` และมีขนาดที่ render อย่างน้อย 14 px; rarity/สถานะอย่างน้อย 12 px ปรับตาม UI scale 80/100/120% พื้นที่เชิง layout ต่ำกว่า 900 จะใช้ compact ก่อนทำให้สาม pane เบียดกัน ปุ่ม touch ยังคงอย่างน้อย 44 px
+- Rarity chip และ marker ใช้ `PolishConfig.RarityColors` เดียวกัน เช่น Common/Rare/Epic ไม่ดึงสีจากโมเดลอีก สีและ geometry ของหมัด/สัตว์ยังคงเดิม; Premium ใช้ fallback เดิมสี 255/211/50 เพราะ shared mapping ยังไม่มี Premium
+- Search, rarity, scroll, selection, card pool, action callbacks และ master/model preview cache ใช้ lifecycle เดิม ไม่เพิ่ม frame loop งานฟิตภาพ Pup ทำเฉพาะครั้งสร้าง clone นั้น ทั้ง art frame ของ card/detail เป็นสี่เหลี่ยมจัตุรัสตาม layout ปัจจุบัน จึงไม่ต้องมี resize signal ใหม่
+- Backdrop ภายในโมดูลยังเป็นตัวรับ input โปร่งใสที่ถูกต้องตาม modal host; การ dim ฉากเต็มจอให้เหมือน Shop เป็นการแก้ main client ที่ Coordinator เป็นเจ้าของ ไม่วาง overlay เพิ่มผิดขอบเขต host
+
+### แก้ทิศภาพ Forest Pup โดยรักษาทรัพย์สินต้นฉบับ
+
+A2 ตรวจ XML ของ imported template: Forest Pup มี Decal `AnimatedFace/CanInvert`, Face=Front, URI `rbxassetid://2759037468`, normal โลกประมาณ (-0.976674259, 0, +0.214735135) กล้องเดิมวางด้วยเวกเตอร์โลก (+0.48d,+0.2d,-d) และ signed distance จากระนาบหน้าที่คำนวณจาก XML เท่ากับ **-2.525480094** ซึ่งอยู่ด้านหลังแน่นอน Miner Cat มี decal บนหน้าตรงข้ามสองฝั่ง จึงไม่ใช้กฎ “decal แรก” เปลี่ยนทุกสัตว์
+
+แก้เฉพาะ petName `Forest Pup`: หาพื้นผิว Front ที่ยังมองเห็นของ `AnimatedFace`, ใช้ `CFrame.LookVector` ของชิ้นนั้นโดยตรงพร้อม offset ข้าง/บนเล็กน้อย จากนั้นใช้ทั้งแปดมุม `GetBoundingBox` หาระยะกล้องที่พอดีกับ FOV/aspect โดยเว้นขอบ 1.12 เท่า ไม่หมุน/ย้าย/ย่อโมเดล ไม่เพิ่ม texture ไม่เปลี่ยน Cat หรือกล้องหมัด ถ้าไม่มีพื้นผิวที่กำหนดจะใช้ framing เดิม
+
+Fixture จากขอบเขตสี่ BaseParts ใน basis ของ PrimaryPart ที่ A2 คำนวณจาก XML (ไม่ใช่ผล Studio GetBoundingBox ที่จับสด) ให้ signed distance หลังแก้ **+3.489113722** และแปดมุมอยู่ในกรอบตามเกณฑ์ การทดสอบยังครอบคลุม bounding box สังเคราะห์ขนาดใหญ่กว่า, aspect .55/1/1.8 และ FOV 25/34/60 ข้อสรุปนี้พิสูจน์ทิศ/คณิตศาสตร์ของกล้อง ไม่พิสูจน์ว่า Roblox โหลด URI สำเร็จหรือผู้ตรวจชอบภาพหลังแก้ ต้องดูภาพเกมจริงของ Coordinator ต่อ
+
+### ตรวจที่ผ่านก่อนส่งมอบ
+
+รันจาก `F:/Roblox/PuchWall-post-full-oracles-20260906`:
+
+| คำสั่ง / gate | ผล |
+| --- | --- |
+| `node work/automation/scripts/inventory-visual-responsive-contract.mjs --self-test --readability-baseline ef2ce60` | 2,953 assertions ของ `ApplyResponsive` จริง + 20 ของ helper rarity/text จริง + 11 structural checks; 9 compiling weakening mutations ถูกปฏิเสธ; source เดิม fail-before ที่ desktop readability |
+| `node work/automation/scripts/inventory-model-preview-contract.mjs --self-test --preview-baseline ef2ce60` | 159 assertions ของ source/lifecycle/geometry และ helper flow จริง; 8 compiling mutations ถูกปฏิเสธ; ฟังก์ชันกล้อง pet เดิม fail-before ที่ด้านหน้าของ Pup |
+| `node work/automation/scripts/inventory-card-render-contract.mjs` | 17 checks; โมเดล lifecycle เดิมเลือก 10,000 ครั้งยังไม่เพิ่ม pool/connections |
+| `node work/automation/scripts/inventory-visual-fidelity-contract.mjs` | 20 checks; enabled action palette minimum contrast 5.445 ≥ 4.5 |
+| `node work/automation/scripts/inventory-runtime-cache-contract.mjs` | 16 checks |
+| official Luau 0.737 `luau-compile.exe -O0/-O1/-O2 InventoryUI.lua` | source ทั้งสามระดับผ่าน |
+| compile code ทุก chunk ของ `inventory-premium-readability.json` และ `inventory-visual-responsive.json` | 10 chunks ผ่าน |
+| `git diff --check` | ผ่าน |
+
+ไม่ลดเกณฑ์ functional bounds เดิมเพื่อให้ style ใหม่ผ่าน: contract เปลี่ยนเพียงความคาดหวังกรอบสีทอง/grid ตัวเล็กที่ถูกยกเลิก และเพิ่ม actual source cases กรณี desktop 900 px ที่ UI scale 120% การทดสอบผลด้วย mock ไม่ได้ render ฟอนต์ Roblox จึงมี flow วัด `TextFits`, `TextBounds`, AbsoluteSize และขอบ parent จริงประกอบ
+
+Flow ใหม่ `inventory-premium-readability.json` ต้องเพิ่มใน registry ของ Coordinator: seed เฉพาะ ready EphemeralStudio ที่ไม่ writable และไม่มี live DataStore opt-in, เปิด Inventory, ตรวจ 80/100/120% ใน viewport ปัจจุบัน, สี rarity จริง, ข้อความ/row/touch bounds, card และ preview instance เดิม, search no-results, scroll/selection retention, ปุ่ม pet ครบ และ Pup card/detail ที่มี URI จริง, signed front dot > .05, แปดมุมอยู่ใน inset จากนั้นคืน UI scale/ปิดเมนู/หยุด Play ไม่มี extra gesture หรือการเปลี่ยน server economics
+
+### Gate ที่ยังเปิดหลังส่ง source
+
+Coordinator ต้องรัน flow ใหม่นี้บน desktop และ phone ที่ยืนยันขนาด Camera/safe HUD จริง รวม regression เดิมของ Inventory/model/actions และชุดรวมที่เหมาะกับงานภาพ จับหลังแก้ในสถานะเดิมทั้ง Fists/Pets/detail/search และเทียบกับภาพก่อนแบบ 1:1 ผู้ตรวจต้องเห็นหน้า Pup เดิมจริง พื้นที่รายการอ่านได้ กรอบสงบ และ actions ชัดเจน การผ่าน geometry/test ไม่เท่ากับผ่านความสวยหรือเล่นลื่นบนโทรศัพท์จริง
+
+Checklist งานย่อย: ตรวจ source/ภาพก่อนและสาเหตุ Pup แล้ว; implementation ในขอบเขตพร้อม extracted checks/compile ผ่านแล้ว; source immutable ส่งมอบและคืน ownership แล้ว; test/doc ส่งเพื่อรวมเป็นลำดับถัดไป ภาพหลังแก้และ runtime รวมยัง **PENDING Coordinator** ไม่มีการเปิด Studio จากงานนี้
+
+
+### Follow-up ที่ตรวจพบก่อนปิด test/doc handoff
+
+หลังส่ง source หลักพบ `Empty.TextSize` ของ desktop ยังเป็น 12 ที่ไม่ชดเชย scale ทำให้ข้อความ no-results เหลือ 9.6 px เมื่อเลือก 80% Coordinator โอน ownership กลับมาเฉพาะหนึ่ง assignment นี้: แก้เป็น `self.Empty.TextSize = secondaryTextSize` เท่านั้น ค่า SHA256 ของ source สุดท้ายแบบ LF คือ `64de2702cd527ee6be13889fe1b8df7750325cac4db2031c6738e3f70c027f33` เพิ่ม 60 exact layout assertions และ mutation คืนค่าบรรทัดเก่า รวมเป็น 2,953/9 ตามตาราง พร้อม flow วัด no-results TextFits/TextBounds/ขอบ parent จริง
+
+รัน `node work/automation/scripts/inventory-visual-responsive-contract.mjs --readability-baseline 1290a1b` เพิ่มด้วย ผล fail-before ตรง `no-results secondary floor`; source หลังแก้และ compile O0/O1/O2 ผ่าน ทุก chunk ของ flow ทั้งสองผ่าน ไม่มีการเปลี่ยนขนาด container หรือยกเว้นข้อความที่ถูกตัด
+
+ได้รับภาพจริงหลัง source หลักจาก Coordinator ที่ `work/docs/evidence/smash-premium-source-visual-review-20260906/desktop-inventory-fists.jpg` และ `desktop-inventory-pets.jpg` แล้ว (1277×780; ก่อน Empty follow-up) ผู้ตรวจเห็นว่าหัว/กรอบ navy และแถวตัวอักษรใหม่จัดสายตาได้สงบขึ้นจริง และเห็นหน้า OWO ของ Forest Pup ทั้ง card/detail จึงไม่ใช่ภาพ texture ว่างเหมือนเดิม แต่ **ยังไม่รับคุณภาพรูปทรงสัตว์**: แทบทั้ง silhouette เป็นบล็อกเทาหน้าแบน ไม่มีหู/ปาก/ลำตัวที่อ่านเป็นลูกสุนัข Source `GameConfig.Pets` จับชื่อ Forest Pup กับ packModel `Dowodle`; `StyleNormalCatalogPet` เพียง tint และไม่มี silhouette เสริมสำหรับ Pup จึงมี P2 ด้านคุณภาพ art ตามคำขอผู้ใช้ค้างอยู่ โดยไม่ได้พบหลักฐานว่ากล้องใหม่ลบ/เปลี่ยน geometry
+
+ภาพนี้ยังไม่แยกได้ว่ารายละเอียด body mesh เดิมถูกบัง/โหลดไม่ขึ้นหรือเป็น art เดิม ต้องเทียบ Dowodle ต้นฉบับที่ framing เดียวกันกับ geometry/สถานะโหลดจริงก่อนเลือกแก้ pose หรืองาน model ส่วนภาพประวัติ `pet-pack-candidates-1.jpg` ถูก loading UI บัง จึงไม่ใช่หลักฐานต้นฉบับที่ใช้ตัดสินได้ Coordinator รับเรื่องนี้ไปจัด scope ต่อแล้ว; รอบนี้ยังไม่มีการปรับ silhouette/texture นอกขอบเขต Inventory

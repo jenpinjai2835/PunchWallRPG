@@ -3805,7 +3805,7 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.Empty.Position = UDim2.fromOffset(8, 5)
 		self.Empty.Size = UDim2.new(1, -16, 1, -10)
 	end
-	self.Empty.TextSize = useCompact and secondaryTextSize or 12
+	self.Empty.TextSize = secondaryTextSize
 	self.DetailMetaStrip.Visible = false
 	if useCompact then
 		self.DetailArtFrame.AnchorPoint = Vector2.zero
