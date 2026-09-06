@@ -105,3 +105,30 @@ Capture a bounded Studio-only record when handoff enters, changes recovery branc
 Keep the original four-second settle deadline, exact source arrival, physical/LOS/readability ratios, selected distance, rotation, native Custom ownership, and correction/publication/escape limits. Source controls must reject adoption of a physically blocked or LOS-blocked native pose, travel across a thin physical blocker, false completion at an unreachable destination, stale character/cache reuse, and theft of Scriptable ownership. Test ordinary movement separately from successful teleport rebases.
 
 After integration, rerun the unchanged `punch-camera-smooth-follow` flow and applicable long-tunnel, physical-overlap, orbit, and camera lifecycle contracts. The Coordinator's combined frozen regression and rebuilt/reopened artifact verification remain required. No actual rerun, artifact build, or release pass is claimed here.
+
+## Final source peer review — 099fe519
+
+Reviewed immutable source `099fe51977dcd0e2beeff8a1959155dcf854d8e8` and final contract/document handoff `0ff2ddf9d304cb0018787a2e7149791511bfe037`. **Both diagnosed P2 defects are corrected in the reviewed source; no remaining P1/P2 was found within this bounded patch.** This supersedes the earlier source-fix status above. Actual Studio rerun and release acceptance remain the Coordinator's pending gates at review time.
+
+The new origin can be adopted only after active punch following ends, when the carried cache is blocked and the current raw pose passes a fresh `cameraPoseBlocked` check. That check includes the existing `.55` physical probe and target sightlines. Adoption additionally requires distance within the current response budget and a physically clear sweep from the carried origin. A physically occupied carried origin cannot bypass the existing overlap-exit path through ordinary adoption. Distant, occluded, or physically blocked candidates are not accepted as recovery origins.
+
+The adoption distance is deducted from `24 * min(deltaTime, .1)` before further correction. New X/Z waypoints use the same step cap, physical sweep, endpoint LOS check, and rotation/focus translation as the existing candidates. The source retains the original `0.001` arrival condition; a radius error below the flow's `0.08` tolerance does not falsely end handoff. The successful greater-than-30-stud rebase now synchronizes the public handoff marker with the existing internal clear, without changing rebase eligibility or camera placement.
+
+The reviewer independently reran the original frozen-mock harness with the new exact resolver/guard: **18 assertions pass**. The original LOS-edge scene reaches its exact-radius destination in three responses. Consecutive actual published positions remain within `1.2` studs for the fixture's `.05`-second updates, including adoption plus waypoint travel. The rebase marker remains false through the original additional 4.05-second window. A late Scriptable owner retains its camera pose and the guard does not replace its cache. The generated peer chunk compiles.
+
+The complete final contract was independently executed read-only from the immutable worker handoff: **198 assertions and 24 mutation controls pass**, with whole-client compilation at normal/O0/O2 settings and the applicable long-tunnel snippets. Its physical-barrier, bad-LOS raw pose, distant raw pose, active-follow exclusion, exact-arrival, adoption-budget, and Scriptable controls remain meaningful. The `--baseline-settle` runs reproduce both original defects on `6211b00`, `a5fea5d`, and `07e4009` rather than accepting the old source.
+
+Reproducible commands from a checkout containing the final handoff:
+
+```powershell
+node work/automation/scripts/camera-geometry-guard-contract.mjs
+node work/automation/scripts/camera-geometry-guard-contract.mjs --baseline-settle 6211b00
+node work/automation/scripts/camera-geometry-guard-contract.mjs --baseline-settle a5fea5d
+node work/automation/scripts/camera-geometry-guard-contract.mjs --baseline-settle 07e4009
+```
+
+The added Studio records expose raw/cache/origin/requested/candidate/published poses, fresh physical and LOS observations, root displacement, internal/public state, and teleport count. Storage consists of the latest record, first stalled record, and maximum-remaining record; there is no growing history. Reset clears all three. The production guard returns from record creation before diagnostic tables and extra diagnostic queries when `IsStudio()` is false.
+
+Optional P3 precision: this establishes **no release recovery-record allocation**, not literally zero diagnostic preparation. The new local `stepKinds` table and recovery-reason concatenation are still evaluated during recovery outside Studio. They are bounded minor bookkeeping; this review did not measure a performance regression. Hoisting or conditionally preparing those labels is an optional cleanup, not a reason to weaken tests or claim an unmeasured performance problem.
+
+This peer review edits only this document. Source, contracts, flows, Studio state, and Agent HQ remain untouched. The actual frozen-run failure must still be closed with fresh runtime evidence; offline results do not retroactively turn its preserved failure into a pass.
