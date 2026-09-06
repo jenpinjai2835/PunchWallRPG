@@ -112,20 +112,94 @@ ${settings}
 return game.HttpService:JSONEncode(out)`;
 }
 
+const captureCRCTable = Uint32Array.from({length: 256}, (_, value) => {
+  for (let bit = 0; bit < 8; bit++) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+  return value >>> 0;
+});
+function captureCRC(bytes) {
+  let value = 0xffffffff;
+  for (const byte of bytes) value = captureCRCTable[(value ^ byte) & 255] ^ (value >>> 8);
+  return (value ^ 0xffffffff) >>> 0;
+}
+
 export function decodeCapture(result) {
   assert(!result.isError, result.text || 'screen_capture failed');
   const images = (result.content || []).filter(item => item.type === 'image');
   assert.equal(images.length, 1, 'Expected one actual MCP image');
-  const image = images[0]; assert.equal(image.mimeType, 'image/png', 'Expected actual PNG capture');
-  assert(typeof image.data === 'string' && /^[A-Za-z0-9+/]+={0,2}$/.test(image.data), 'Malformed image base64');
+  const image = images[0]; assert(['image/png', 'image/jpeg'].includes(image.mimeType), 'Expected original PNG or JPEG capture');
+  assert(typeof image.data === 'string' && image.data.length <= 128 * 1024 * 1024
+    && image.data.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(image.data), 'Malformed image base64');
   const bytes = Buffer.from(image.data, 'base64');
-  assert(bytes.length > 45 && bytes.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'PNG signature missing');
-  assert.equal(bytes.toString('ascii', 12, 16), 'IHDR', 'PNG header missing');
-  assert.equal(bytes.readUInt32BE(8), 13, 'PNG IHDR size');
-  const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
+  assert.equal(bytes.toString('base64'), image.data, 'Noncanonical image base64');
+  let width, height, extension;
+  if (image.mimeType === 'image/png') {
+    extension = '.png';
+    assert(bytes.length > 45 && bytes.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'PNG signature missing');
+    let offset = 8, dataSeen = false, ended = false;
+    while (offset < bytes.length) {
+      assert(offset + 12 <= bytes.length, 'Truncated PNG chunk header');
+      const length = bytes.readUInt32BE(offset), end = offset + 12 + length;
+      assert(length <= 0x7fffffff && end <= bytes.length, 'Truncated PNG chunk payload');
+      const kind = bytes.toString('ascii', offset + 4, offset + 8);
+      assert(/^[A-Za-z]{4}$/.test(kind), 'Invalid PNG chunk type');
+      assert.equal(captureCRC(bytes.subarray(offset + 4, end - 4)), bytes.readUInt32BE(end - 4), 'PNG chunk CRC mismatch');
+      if (offset === 8) {
+        assert(kind === 'IHDR' && length === 13, 'PNG IHDR missing or invalid');
+        width = bytes.readUInt32BE(offset + 8); height = bytes.readUInt32BE(offset + 12);
+        const depths = {0: [1,2,4,8,16], 2: [8,16], 3: [1,2,4,8], 4: [8,16], 6: [8,16]};
+        assert(depths[bytes[offset + 17]]?.includes(bytes[offset + 16]) && bytes[offset + 18] === 0
+          && bytes[offset + 19] === 0 && bytes[offset + 20] <= 1, 'Invalid PNG image header encoding');
+      } else assert(kind !== 'IHDR', 'Duplicate PNG IHDR');
+      if (kind === 'IDAT' && length > 0) dataSeen = true;
+      if (kind === 'IEND') {
+        assert(length === 0 && dataSeen && end === bytes.length, 'Incomplete PNG or bytes after IEND');
+        ended = true; break;
+      }
+      offset = end;
+    }
+    assert(ended, 'PNG capture is truncated');
+  } else {
+    extension = '.jpg';
+    assert(bytes.length > 4 && bytes[0] === 0xff && bytes[1] === 0xd8, 'JPEG SOI signature missing');
+    // ITU T.81 marker segments, including progressive multi-scan images. This
+    // validates the original container/header bounds; it does not transcode pixels.
+    let offset = 2, scanning = false, scans = 0, entropyBytes = 0, ended = false, components;
+    while (offset < bytes.length) {
+      if (scanning && bytes[offset] !== 0xff) { offset++; entropyBytes++; continue; }
+      assert.equal(bytes[offset++], 0xff, 'JPEG marker prefix missing');
+      while (offset < bytes.length && bytes[offset] === 0xff) offset++;
+      assert(offset < bytes.length, 'Truncated JPEG marker');
+      const marker = bytes[offset++];
+      if (scanning && marker === 0) { entropyBytes++; continue; }
+      if (scanning && marker >= 0xd0 && marker <= 0xd7) continue;
+      scanning = false;
+      if (marker === 0xd9) {
+        assert(width && scans > 0 && entropyBytes > 0 && offset === bytes.length, 'Incomplete JPEG or bytes after EOI');
+        ended = true; break;
+      }
+      assert(marker !== 0 && marker !== 0xd8 && marker !== 1 && !(marker >= 0xd0 && marker <= 0xd7), 'Unexpected JPEG standalone marker');
+      assert(offset + 2 <= bytes.length, 'Truncated JPEG segment length');
+      const length = bytes.readUInt16BE(offset), end = offset + length;
+      assert(length >= 2 && end <= bytes.length, 'Truncated JPEG segment payload');
+      if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+        assert(!width && length >= 8, 'Duplicate or incomplete JPEG frame header');
+        components = bytes[offset + 7];
+        assert(components > 0 && length === 8 + 3 * components, 'Invalid JPEG frame component length');
+        const precision = bytes[offset + 2];
+        assert(marker === 0xc0 ? precision === 8 : precision >= 2 && precision <= 16, 'Invalid JPEG sample precision');
+        height = bytes.readUInt16BE(offset + 3); width = bytes.readUInt16BE(offset + 5);
+      }
+      if (marker === 0xda) {
+        assert(width && length >= 6 && bytes[offset + 2] > 0 && bytes[offset + 2] <= components
+          && length === 6 + 2 * bytes[offset + 2], 'Invalid JPEG scan header');
+        scans++; scanning = true;
+      }
+      offset = end;
+    }
+    assert(ended, 'JPEG capture is truncated');
+  }
   assert(width > 200 && height > 200 && width <= 16384 && height <= 16384, 'Degenerate actual capture dimensions');
-  assert.equal(bytes.toString('ascii', bytes.length - 8, bytes.length - 4), 'IEND', 'PNG capture is truncated');
-  return {bytes, width, height, sha256: sha(bytes), mimeType: image.mimeType};
+  return {bytes, width, height, sha256: sha(bytes), mimeType: image.mimeType, extension};
 }
 
 export async function cleanupCaptureSession({stopPlay, resetDevice, closeMcp}) {
@@ -142,7 +216,7 @@ async function run(options) {
   assert(!fs.existsSync(directory), 'Preserve prior visual evidence; choose a new leaf');
   fs.mkdirSync(directory); // Reserve this evidence directory without replacing prior evidence.
   const record = {ok: false, startedAt: new Date().toISOString(), kind: 'Actual Studio screen captures; no generated artwork or FPS claims',
-    limitations: ['Built-in device emulation is not a physical phone GPU test.', 'PNG dimensions describe the actual MCP capture, not an assumed device raster.',
+    limitations: ['Built-in device emulation is not a physical phone GPU test.', 'Image header dimensions describe the original MCP capture, not an assumed device raster.',
       'UI is routed through the real existing automation controllers; this is not a native-input gesture test.'], devices: []};
   let c, binding, selected = false, playAttempted = false, primary;
   const call = async (type, code) => {
@@ -184,7 +258,7 @@ async function run(options) {
         const after = await call('Client', stateCode(device, screen));
         assert.equal(after.ok, true, 'Post-capture state failed');
         assert.deepEqual(after.viewport, before.viewport, 'Viewport changed during capture');
-        const target = path.join(directory, device + '-' + screen + '.png');
+        const target = path.join(directory, device + '-' + screen + image.extension);
         fs.writeFileSync(target, image.bytes, {flag: 'wx'});
         d.captures.push({screen, file: target, requestedAt, completedAt: new Date().toISOString(),
           width: image.width, height: image.height, bytes: image.bytes.length, sha256: image.sha256, mimeType: image.mimeType, before, after});
@@ -240,14 +314,54 @@ export async function selfTest() {
   rejects(() => stateCode('desktop', 'checkout'), 'Unknown screen rejected');
   rejects(() => decodeCapture({isError: true, text: 'injected capture failure'}), 'MCP capture error rejected');
   rejects(() => decodeCapture({content: []}), 'No actual image rejected');
-  rejects(() => decodeCapture({content: [{type: 'image', mimeType: 'image/jpeg', data: 'AA=='}]}), 'Wrong capture format rejected');
+  rejects(() => decodeCapture({content: [{type: 'image', mimeType: 'image/jpeg', data: 'AA=='}]}), 'Malformed JPEG capture rejected');
   rejects(() => decodeCapture({content: [{type: 'image', mimeType: 'image/png', data: '../bad'}]}), 'Invalid image data rejected');
-  const pngHeader = Buffer.alloc(50); Buffer.from([137,80,78,71,13,10,26,10]).copy(pngHeader); pngHeader.writeUInt32BE(13,8);
-  pngHeader.write('IHDR',12); pngHeader.writeUInt32BE(874,16); pngHeader.writeUInt32BE(402,20); pngHeader.write('IEND',42);
-  const response = data => ({content: [{type: 'image', mimeType: 'image/png', data: data.toString('base64')}]});
-  const parsed = decodeCapture(response(pngHeader)); check(parsed.width === 874 && parsed.height === 402, 'Read actual PNG dimensions');
-  const zero = Buffer.from(pngHeader); zero.writeUInt32BE(0,16); rejects(() => decodeCapture(response(zero)), 'Degenerate image rejected');
-  rejects(() => decodeCapture(response(pngHeader.subarray(0,45))), 'Truncated PNG rejected');
+  // Complete, independently encoded Pillow fixtures (256x224), not fabricated headers.
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAQAAAADgCAIAAABjIy8HAAACbUlEQVR4nO3TQQEAEADAQKSRRAj9g4jhsbsE+2zucwdUrd8B8JMBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0A5BmANIMQJoBSDMAaQYgzQCkGYA0AzDKHlORAoiZuxHGAAAAAElFTkSuQmCC', 'base64');
+  const jpeg = Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCADgAQADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAT/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCfALUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//2Q==', 'base64');
+  const progressive = Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCADgAQADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAwT/2gAMAwEAAhADEAAAAZ4WzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//EABQQAQAAAAAAAAAAAAAAAAAAAJD/2gAIAQEAAQUCYD//xAAUEQEAAAAAAAAAAAAAAAAAAABw/9oACAEDAQE/AWD/xAAUEQEAAAAAAAAAAAAAAAAAAABw/9oACAECAQE/AWD/xAAUEAEAAAAAAAAAAAAAAAAAAACQ/9oACAEBAAY/AmA//8QAFBABAAAAAAAAAAAAAAAAAAAAkP/aAAgBAQABPyFgP//aAAwDAQACAAMAAAAQ/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/8QAFBEBAAAAAAAAAAAAAAAAAAAAcP/aAAgBAwEBPxBg/8QAFBEBAAAAAAAAAAAAAAAAAAAAcP/aAAgBAgEBPxBg/8QAFBABAAAAAAAAAAAAAAAAAAAAkP/aAAgBAQABPxBgP//Z', 'base64');
+  const response = (data, mimeType = 'image/png') => ({content: [{type: 'image', mimeType, data: data.toString('base64')}]});
+  for (const [original, mime, extension] of [[png, 'image/png', '.png'], [jpeg, 'image/jpeg', '.jpg'], [progressive, 'image/jpeg', '.jpg']]) {
+    const parsed = decodeCapture(response(original, mime));
+    check(parsed.width === 256 && parsed.height === 224 && parsed.mimeType === mime && parsed.extension === extension, 'Read exact original header/MIME/extension');
+    check(parsed.bytes.equals(original) && parsed.sha256 === sha(original), 'Original capture bytes and hash preserved without transcoding');
+    rejects(() => decodeCapture(response(original.subarray(0, original.length - 1), mime)), 'Truncated original rejected');
+    rejects(() => decodeCapture(response(Buffer.concat([original, Buffer.from([0])]), mime)), 'Trailing bytes rejected');
+  }
+  rejects(() => decodeCapture(response(png, 'image/jpeg')), 'PNG bytes cannot masquerade as JPEG');
+  rejects(() => decodeCapture(response(jpeg, 'image/png')), 'JPEG bytes cannot masquerade as PNG');
+  rejects(() => decodeCapture(response(jpeg, 'image/gif')), 'Unsupported capture MIME rejected');
+  rejects(() => decodeCapture({content: [response(png).content[0], response(jpeg, 'image/jpeg').content[0]]}), 'Multiple ambiguous image blocks rejected');
+  const dimensionPNG = (width, height) => {const copy = Buffer.from(png); copy.writeUInt32BE(width, 16); copy.writeUInt32BE(height, 20); copy.writeUInt32BE(captureCRC(copy.subarray(12,29)),29); return copy;};
+  rejects(() => decodeCapture(response(dimensionPNG(0,224))), 'Zero PNG width rejected');
+  rejects(() => decodeCapture(response(dimensionPNG(256,200))), 'Degenerate PNG height rejected');
+  rejects(() => decodeCapture(response(dimensionPNG(16385,224))), 'Out-of-bounds PNG width rejected');
+  const corruptPNG = Buffer.from(png); corruptPNG[corruptPNG.length - 5] ^= 1;
+  rejects(() => decodeCapture(response(corruptPNG)), 'Corrupt PNG CRC rejected');
+  const badEncodingPNG = Buffer.from(png); badEncodingPNG[25] = 5; badEncodingPNG.writeUInt32BE(captureCRC(badEncodingPNG.subarray(12,29)),29);
+  rejects(() => decodeCapture(response(badEncodingPNG)), 'Invalid PNG color type rejected despite correct CRC');
+  const overrunPNG = Buffer.from(png); overrunPNG.writeUInt32BE(0x7fffffff,33);
+  rejects(() => decodeCapture(response(overrunPNG)), 'PNG chunk length overrun rejected');
+  const fakeHeader = Buffer.alloc(50); png.subarray(0,33).copy(fakeHeader); fakeHeader.write('IEND',42);
+  rejects(() => decodeCapture(response(fakeHeader)), 'Old fabricated PNG header without image stream rejected');
+  const frame = jpeg.indexOf(Buffer.from([0xff,0xc0])); assert(frame > 0);
+  const dimensionJPEG = (width, height) => {const copy = Buffer.from(jpeg); copy.writeUInt16BE(width,frame+7); copy.writeUInt16BE(height,frame+5); return copy;};
+  rejects(() => decodeCapture(response(dimensionJPEG(0,224),'image/jpeg')), 'Zero JPEG width rejected');
+  rejects(() => decodeCapture(response(dimensionJPEG(256,200),'image/jpeg')), 'Degenerate JPEG height rejected');
+  rejects(() => decodeCapture(response(dimensionJPEG(256,16385),'image/jpeg')), 'Out-of-bounds JPEG height rejected');
+  const overrunJPEG = Buffer.from(jpeg); overrunJPEG.writeUInt16BE(65535,4);
+  rejects(() => decodeCapture(response(overrunJPEG,'image/jpeg')), 'JPEG segment length overrun rejected');
+  const shortJPEG = Buffer.from(jpeg); shortJPEG.writeUInt16BE(1,4);
+  rejects(() => decodeCapture(response(shortJPEG,'image/jpeg')), 'JPEG segment length below two rejected');
+  const badFrame = Buffer.from(jpeg); badFrame[frame+9] = 0;
+  rejects(() => decodeCapture(response(badFrame,'image/jpeg')), 'JPEG frame component count mismatch rejected');
+  const badPrecision = Buffer.from(jpeg); badPrecision[frame+4] = 0;
+  rejects(() => decodeCapture(response(badPrecision,'image/jpeg')), 'Invalid JPEG precision rejected');
+  const scan = jpeg.indexOf(Buffer.from([0xff,0xda])); assert(scan > frame);
+  const emptyScan = Buffer.concat([jpeg.subarray(0,scan+2+jpeg.readUInt16BE(scan+2)),Buffer.from([0xff,0xd9])]);
+  rejects(() => decodeCapture(response(emptyScan,'image/jpeg')), 'JPEG header without entropy scan rejected');
+  const metadataEOI = Buffer.concat([jpeg.subarray(0,2),Buffer.from([0xff,0xfe,0,4,0xff,0xd9]),jpeg.subarray(2)]);
+  check(decodeCapture(response(metadataEOI,'image/jpeg')).bytes.equals(metadataEOI), 'EOI-like metadata bytes do not truncate a valid JPEG');
   let reset = 0, closed = 0;
   const cleanup = await cleanupCaptureSession({stopPlay: () => {throw Error('injected stop failure');}, resetDevice: () => {reset++;}, closeMcp: () => {closed++;}});
   check(!cleanup[0].ok && reset === 1 && closed === 1, 'Stop failure does not skip simulator reset/MCP close');
