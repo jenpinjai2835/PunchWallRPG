@@ -352,3 +352,45 @@ outside tracked evidence. This one-reset request is complete; no additional
 reset is authorized by this record. Game delivery remains BLOCKED 6/9 pending
 the repaired full suite, rebuilt/reopened artifact verification and reviewed
 merge.
+
+## Full-suite completion and follow-up 2026-09-06 07:33 ICT
+
+The frozen integrated run on `6211b0075df92b38e0b5c13f4824968909a06b10`
+completed all 124 flows: 114 PASS and 10 FAIL. Its 223 source, flow and runner
+files remained unchanged; read-only inspection confirmed the exact nine live
+code objects before and after. The 125 result JSON files are committed under
+`evidence/smash-full-integrated-final-20260906/`. The canonical output remains
+the old artifact with SHA-256 beginning `605A4F70`; no rebuilt-artifact pass is
+claimed from that run.
+
+Reviewed camera bounds, physical overlap and recovery fixes, pet identity and
+safe-frame fixes, and onboarding/physics test repairs were integrated through
+`533b412`. All nine sources were synced and verified against Studio. The next
+nine-flow run completed with five PASS and four FAIL, with evidence in
+`evidence/smash-post-full-targeted-camera-pets-20260906/`; its read-only
+`live-after.json` again verifies the exact nine sources. Teleport/Scriptable,
+punch camera settling, onboarding direction, Shop camera stability, and tunnel
+zoom preservation passed. Remaining failures are recorded without waivers:
+
+- Long tunnel: physical overlap zero, correction/escape bounds and settled
+  visibility passed; in-motion clear ratio was 0.4939, below the required 0.55.
+- Pet frame: all 60 corner-sampling checks passed, but the flow still expected
+  a `safe` JSON property absent from its result. The explicit aggregate needs
+  repair before this flow can count as passing.
+- Power growth: pet identity/size preservation passed, but the final camera
+  visibility gate failed despite zero overlap and eight visible body corners.
+- Penetration: actual observed physical launch and server ownership passed;
+  cumulative broken count 50 failed the old 40–48 expectation. The producer
+  semantics and per-action evidence must be checked before changing the oracle.
+
+Worker handoffs `0ff2ddf`, `7098c5f`, `1df7b94`, and `029c317` were reviewed and
+integrated in that order through `532e03c`: bounded camera recovery controls,
+spin reward/credit accounting, natural egg expiry scene checks, and independent
+camera review. Their actual runtime gates remain required. The Coordinator
+registered five added offline contracts in the static runner. A1 owns isolated
+pet/penetration oracle corrections; A3 owns isolated camera visibility/growth
+diagnosis. A2 owns the contextual Use fixture and must use measured live target
+selection before choosing a physical placement. Only the Coordinator accesses
+Studio, currently for that position diagnostic. The parent remains BLOCKED
+6/9 until the fresh full suite, rebuilt/reopened artifact, and final review and
+merge pass. The single authorized quota reset is already complete.

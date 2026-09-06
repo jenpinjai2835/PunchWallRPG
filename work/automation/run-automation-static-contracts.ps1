@@ -333,6 +333,11 @@ $checks.persistenceContract = @{
 }
 
 $additionalStaticContracts = @(
+    @{ file = "onboarding-waypoint-contract.mjs"; key = "onboardingWaypointContract" },
+    @{ file = "pet-size-position-contract.mjs"; key = "petSizePositionContract" },
+    @{ file = "power-scaled-penetration-contract.mjs"; key = "powerScaledPenetrationContract" },
+    @{ file = "reduced-motion-scene-contract.mjs"; key = "reducedMotionSceneContract" },
+    @{ file = "release-spin-credit-contract.mjs"; key = "releaseSpinCreditContract" },
     @{ file = "settings-panel-stability-contract.mjs"; key = "settingsPanelStabilityContract" },
     @{ file = "target-depth-selection-contract.mjs"; key = "targetDepthSelectionContract" },
     @{ file = "final-feedback-consumer-contract.mjs"; key = "finalFeedbackConsumerContract" },
