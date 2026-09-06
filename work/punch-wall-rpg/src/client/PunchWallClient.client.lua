@@ -5316,7 +5316,22 @@ function companionRuntime.BoundsCorners(boundsSize)
 	return corners
 end
 
-function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
+function companionRuntime.ProjectedBoundsRect(boundsCFrame, boundsCorners)
+	local camera = workspace.CurrentCamera
+	if not camera then return nil end
+	local rect = { minX = math.huge, minY = math.huge, maxX = -math.huge, maxY = -math.huge }
+	for _, corner in ipairs(boundsCorners) do
+		local point = camera:WorldToViewportPoint(boundsCFrame:PointToWorldSpace(corner))
+		if point.Z <= math.max(0.05, math.abs(tonumber(camera.NearPlaneZ) or 0)) then return nil end
+		rect.minX = math.min(rect.minX, point.X)
+		rect.minY = math.min(rect.minY, point.Y)
+		rect.maxX = math.max(rect.maxX, point.X)
+		rect.maxY = math.max(rect.maxY, point.Y)
+	end
+	return rect
+end
+
+function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, forbiddenRects)
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize
 	if not viewport or viewport.X <= 1 or viewport.Y <= 1 then return boundsCFrame, false, 0 end
@@ -5337,6 +5352,7 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
 		return boundsCFrame, false, 0
 	end
 	local minX, maxX, minY, maxY = -math.huge, math.huge, -math.huge, math.huge
+	local projected = forbiddenRects and #forbiddenRects > 0 and {} or nil
 	for _, localCorner in ipairs(boundsCorners) do
 		local corner = boundsCFrame:PointToWorldSpace(localCorner)
 		local point = camera:WorldToViewportPoint(corner)
@@ -5347,10 +5363,58 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
 		maxX = math.min(maxX, (viewport.X - inset - point.X) * worldPerPixelX)
 		minY = math.max(minY, (point.Y - viewport.Y + inset) * worldPerPixelY)
 		maxY = math.min(maxY, (point.Y - inset) * worldPerPixelY)
+		if projected then table.insert(projected, { point = point, x = worldPerPixelX, y = worldPerPixelY }) end
 	end
 	if minX > maxX or minY > maxY then return boundsCFrame, false, 0 end
-	local offset = camera.CFrame.RightVector * math.clamp(0, minX, maxX)
-		+ camera.CFrame.UpVector * math.clamp(0, minY, maxY)
+	local offsetX, offsetY = math.clamp(0, minX, maxX), math.clamp(0, minY, maxY)
+	if projected then
+		-- Every forbidden rectangle contributes four separating half-planes.
+		-- Intersect them with the eight-corner safe-frame intervals, then choose
+		-- the closest feasible camera-plane translation. Three pets need at most
+		-- three blockers (avatar plus earlier slots), hence 4^3 candidate regions.
+		local limits = {}
+		for _, rect in ipairs(forbiddenRects) do
+			local left, right, above, below = math.huge, -math.huge, -math.huge, math.huge
+			for _, corner in ipairs(projected) do
+				left = math.min(left, (rect.minX - 2 - corner.point.X) * corner.x)
+				right = math.max(right, (rect.maxX + 2 - corner.point.X) * corner.x)
+				above = math.max(above, (corner.point.Y - rect.minY + 2) * corner.y)
+				below = math.min(below, (corner.point.Y - rect.maxY - 2) * corner.y)
+			end
+			if rect.minimumCenterDistance and rect.worldPosition then
+				local delta = rect.worldPosition - boundsCFrame.Position
+				local depth = delta:Dot(camera.CFrame.LookVector)
+				local separation = math.sqrt(math.max(0, rect.minimumCenterDistance ^ 2 - depth * depth))
+				if separation > 0 then
+					local x, y = delta:Dot(camera.CFrame.RightVector), delta:Dot(camera.CFrame.UpVector)
+					left = math.min(left, x - separation)
+					right = math.max(right, x + separation)
+					above = math.max(above, y + separation)
+					below = math.min(below, y - separation)
+				end
+			end
+			table.insert(limits, { left, right, above, below })
+		end
+		local bestDistance = math.huge
+		local function visit(index, loX, hiX, loY, hiY)
+			if loX > hiX or loY > hiY then return end
+			local x, y = math.clamp(0, loX, hiX), math.clamp(0, loY, hiY)
+			local distance = x * x + y * y
+			if distance >= bestDistance then return end
+			local limit = limits[index]
+			if not limit then
+				offsetX, offsetY, bestDistance = x, y, distance
+				return
+			end
+			visit(index + 1, loX, math.min(hiX, limit[1]), loY, hiY)
+			visit(index + 1, math.max(loX, limit[2]), hiX, loY, hiY)
+			visit(index + 1, loX, hiX, math.max(loY, limit[3]), hiY)
+			visit(index + 1, loX, hiX, loY, math.min(hiY, limit[4]))
+		end
+		visit(1, minX, maxX, minY, maxY)
+		if bestDistance == math.huge then return boundsCFrame, false, 0 end
+	end
+	local offset = camera.CFrame.RightVector * offsetX + camera.CFrame.UpVector * offsetY
 	return boundsCFrame + offset, true, offset.Magnitude
 end
 
@@ -9379,6 +9443,27 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		and (lod == "Near60" and 0 or lod == "Mid30" and (1 / 30) or (1 / 20))
 		or (1 / 20)
 	local combinedScreenArea = 0
+	local formationRects = {}
+	local formationNeedsUpdate = false
+	for _, state in ipairs(companionModels) do
+		if state.model and state.model.Parent and state.model.PrimaryPart
+			and (updateInterval == 0 or state.updateAccumulator + deltaTime >= updateInterval) then
+			formationNeedsUpdate = true
+			break
+		end
+	end
+	if formationNeedsUpdate then
+		-- One native animated-character bounds query; pet boxes and all corner
+		-- arrays remain cached. Independent edge clamps can otherwise push a
+		-- companion onto the avatar when the viewport becomes narrow.
+		local avatarBounds, avatarSize = character:GetBoundingBox()
+		if companionRuntime.avatarBoundsSize ~= avatarSize then
+			companionRuntime.avatarBoundsSize = avatarSize
+			companionRuntime.avatarBoundsCorners = companionRuntime.BoundsCorners(avatarSize)
+		end
+		local avatarRect = companionRuntime.ProjectedBoundsRect(avatarBounds, companionRuntime.avatarBoundsCorners)
+		if avatarRect then table.insert(formationRects, avatarRect) end
+	end
 	for index, state in ipairs(companionModels) do
 		local model = state.model
 		if model and model.Parent and model.PrimaryPart then
@@ -9426,7 +9511,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 					state.safeFrameCorners = companionRuntime.BoundsCorners(state.boundsSize)
 				end
 				local safeBounds, safeFrameValid, safeFrameShift = companionRuntime.KeepBoundsInSafeFrame(
-					state.currentBoundsCFrame, state.safeFrameCorners
+					state.currentBoundsCFrame, state.safeFrameCorners, formationRects
 				)
 				state.currentBoundsCFrame = safeBounds
 				state.safeFrameValid = safeFrameValid
@@ -9451,6 +9536,14 @@ RunService.Heartbeat:Connect(function(deltaTime)
 				end
 				if state.motionFrames >= 3 and model:GetAttribute("SmoothFollowReady") ~= true then
 					model:SetAttribute("SmoothFollowReady", true)
+				end
+			end
+			if formationNeedsUpdate and state.safeFrameCorners then
+				local rect = companionRuntime.ProjectedBoundsRect(state.currentBoundsCFrame, state.safeFrameCorners)
+				if rect then
+					rect.worldPosition = state.currentBoundsCFrame.Position
+					rect.minimumCenterDistance = 1.45
+					table.insert(formationRects, rect)
 				end
 			end
 			combinedScreenArea += state.lastScreenArea or 0
