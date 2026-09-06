@@ -22,6 +22,13 @@ const petNames = ['Crimson Phoenix','Storm Wyvern','Celestial Guardian'];
 const namesLua = '{' + petNames.map(name => JSON.stringify(name)).join(',') + '}';
 const quote = value => { let equal='='; while(String(value).includes(']'+equal+']')) equal+='='; return `string.sub([${equal}[!${value}]${equal}],2)`; };
 const patternFor = value => '^' + value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$';
+const readDeviceState = `local function readDeviceState()
+ local ok,id=pcall(function()return S:GetDeviceAsync()end)
+ if not ok then assert(string.find(tostring(id),'no device is active',1,true),'Unrecognized device-state failure: '..tostring(id)) end
+ if not ok or id==nil or id=='default' then return {ok=true,id='default',active=false,state='cleared'} end
+ assert(type(id)=='string' and #id>0,'Invalid active device identity')
+ return {ok=true,id=id,active=true,state='configured',orientation=S:GetOrientationAsync().Name,scaling=S:GetScalingModeAsync().Name}
+end`;
 
 export function assertAbsentPlayModel(probe) {
   // An existing but still-loading execution bridge is not proof of absent Play.
@@ -78,7 +85,7 @@ local settings=H:JSONDecode(stats.SettingsJSON.Value) assert(settings.motion==tr
 assert(p:GetAttribute('GamePassOwnershipReconciled')==true and p:GetAttribute('GamePassOwnershipReconciliationFailed')==false
  and (p:GetAttribute('PendingGamePassGrantCount') or 0)==0,'Late entitlement work')
 return H:JSONEncode({ok=true,names=names,equipped=H:JSONDecode(snapshot.EquippedPetsJSON),power=snapshot.Power,effectivePower=snapshot.EffectivePower})`,
-  deviceBefore: `local S=game:GetService('StudioDeviceSimulatorService') return game.HttpService:JSONEncode({ok=true,id=S:GetDeviceAsync(),orientation=S:GetOrientationAsync().Name,scaling=S:GetScalingModeAsync().Name})`,
+  deviceBefore: `local S=game:GetService('StudioDeviceSimulatorService') ${readDeviceState} return game.HttpService:JSONEncode(readDeviceState())`,
 };
 
 export function deviceCode(name, id) {
@@ -96,16 +103,19 @@ return H:JSONEncode({ok=true,id=id,name=name,resolution={x=resolution.X,y=resolu
 
 export function deviceCleanup(name, before) {
   assert(/^Smash Premium Profile [a-f0-9-]+$/.test(name));
-  assert(before && typeof before.id==='string' && /^[A-Za-z]+$/.test(before.orientation) && /^[A-Za-z]+$/.test(before.scaling));
+  assert(before && typeof before.id==='string' && typeof before.active==='boolean');
+  assert(before.active ? before.id!=='default' && /^[A-Za-z]+$/.test(before.orientation) && /^[A-Za-z]+$/.test(before.scaling) : before.id==='default');
   return `local S=game:GetService('StudioDeviceSimulatorService') local H=game:GetService('HttpService')
+${readDeviceState}
 local previous=${quote(before.id)} local removed=0
-if previous=='default' then S:StopSimulationAsync() else S:SetDeviceAsync(previous) end
-S:SetOrientationAsync(Enum.ScreenOrientation[${quote(before.orientation)}]) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode[${quote(before.scaling)}])
+${before.active ? `S:SetDeviceAsync(previous)
+S:SetOrientationAsync(Enum.ScreenOrientation[${quote(before.orientation)}]) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode[${quote(before.scaling)}])`
+    : 'S:ClearDeviceAsync()'}
 for _,id in ipairs(S:GetDeviceListAsync())do local info=S:GetDeviceInfoAsync(id) if info.Name==${quote(name)} then
  assert(info.IsCustom,'Refuse to remove non-owned built-in preset') S:RemoveDeviceAsync(id) removed+=1 end end
-assert(removed<=1 and S:GetDeviceAsync()==previous,'Owned device cleanup failed')
-assert(S:GetOrientationAsync().Name==${quote(before.orientation)} and S:GetScalingModeAsync().Name==${quote(before.scaling)},'Previous device options not restored')
-return H:JSONEncode({ok=true,removed=removed,id=S:GetDeviceAsync(),orientation=S:GetOrientationAsync().Name,scaling=S:GetScalingModeAsync().Name})`;
+local state=readDeviceState() assert(removed<=1 and state.id==previous and state.active==${before.active},'Owned device cleanup failed')
+${before.active ? `assert(state.orientation==${quote(before.orientation)} and state.scaling==${quote(before.scaling)},'Previous device options not restored')` : ''}
+state.removed=removed return H:JSONEncode(state)`;
 }
 
 // These pure predicates are executed in offline controls as well as the actual native observer.
@@ -327,7 +337,7 @@ export async function selfTest() {
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),'smash-premium-profile-contract-'));let compiled=0;const outputs=[];
   try {
     const snippets=[PROFILE.guard,CAPTURE.freshServer,LUA.seed,LUA.deviceBefore,deviceCode('Smash Premium Profile abc'),deviceCode('Smash Premium Profile abc','owned'),
-      deviceCleanup('Smash Premium Profile abc',{id:'default',orientation:'LandscapeLeft',scaling:'FitToWindow'}),observationCode('Smash Premium Profile abc','owned')];
+      deviceCleanup('Smash Premium Profile abc',{id:'default',active:false}),deviceCleanup('Smash Premium Profile abc',{id:'prior',active:true,orientation:'LandscapeLeft',scaling:'FitToWindow'}),observationCode('Smash Premium Profile abc','owned')];
     for(const [i,code]of snippets.entries()){const file=path.join(directory,i+'.luau');fs.writeFileSync(file,code);const result=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);compiled++;}
     const script=METRIC_HELPERS+`
 local checks=0 local function check(v)assert(v)checks+=1 end
@@ -377,6 +387,43 @@ local workspace={FindFirstChild=function()return world end}
       assert.equal(r.status,0,r.stderr);seedChecks++;
     }
     outputs.push('PASS '+seedChecks+' exact seed controls');
+    const deviceMock=`
+local state={id='default',active=false,orientation='LandscapeLeft',scaling='ActualSize',metaReads=0,clears=0,sets=0,removed=0}
+local catalog={owned={Name='Smash Premium Profile abc',IsCustom=true},other={Name='Another task device',IsCustom=true}}
+local S={}
+function S:GetDeviceAsync()if state.unknown then error('unrelated service failure')end if state.throwNoActive and not state.active then error('StudioDeviceSimulatorService: no device is active — call SetDeviceAsync() first')end return state.id end
+function S:GetOrientationAsync()state.metaReads+=1 assert(state.active,'no device is active')if state.badOrientation then error('active orientation unavailable')end return {Name=state.orientation}end
+function S:GetScalingModeAsync()state.metaReads+=1 assert(state.active,'no device is active')return {Name=state.scaling}end
+function S:ClearDeviceAsync()state.clears+=1 if not state.ignoreClear then state.id='default'state.active=false end end
+function S:SetDeviceAsync(id)state.sets+=1 state.id=id state.active=true end
+function S:SetOrientationAsync(value)assert(state.active)if not state.ignoreOptions then state.orientation=value end end
+function S:SetScalingModeAsync(value)assert(state.active)if not state.ignoreOptions then state.scaling=value end end
+function S:GetDeviceListAsync()local ids={}for id in pairs(catalog)do table.insert(ids,id)end return ids end
+function S:GetDeviceInfoAsync(id)return catalog[id]end
+function S:RemoveDeviceAsync(id)assert(id=='owned','must retain unrelated preset')catalog[id]=nil state.removed+=1 end
+local Enum={ScreenOrientation={LandscapeLeft='LandscapeLeft'},DeviceSimulatorScalingMode={FitToWindow='FitToWindow',ActualSize='ActualSize'}}
+local H={JSONEncode=function(_,value)return value end}
+local game={HttpService=H,GetService=function(_,name)return name=='HttpService' and H or S end}
+`;
+    let deviceChecks=0;
+    const verifyDevice=(label,setup,code,pass,predicate='true')=>{
+      const r=execute('device-'+deviceChecks,deviceMock+setup+`\nlocal ok,result=pcall(function()${code}\nend)assert(ok==${pass},'${label}')assert(${predicate},'${label} readback')`);
+      assert.equal(r.status,0,r.stderr);deviceChecks++;
+    };
+    for(const setup of ['', 'state.throwNoActive=true', 'state.id=nil'])verifyDevice('cleared no active metadata',setup,LUA.deviceBefore,true,"result.id=='default' and result.active==false and result.state=='cleared' and state.metaReads==0");
+    verifyDevice('active metadata preserved',"state.id='prior' state.active=true",LUA.deviceBefore,true,"result.id=='prior' and result.active and result.orientation=='LandscapeLeft' and result.scaling=='ActualSize' and state.metaReads==2");
+    verifyDevice('unknown failure rejects','state.unknown=true',LUA.deviceBefore,false,'state.metaReads==0');
+    verifyDevice('active option failure rejects',"state.id='prior' state.active=true state.badOrientation=true",LUA.deviceBefore,false);
+    const clearedCleanup=deviceCleanup('Smash Premium Profile abc',{id:'default',active:false});
+    const activeCleanup=deviceCleanup('Smash Premium Profile abc',{id:'prior',active:true,orientation:'LandscapeLeft',scaling:'FitToWindow'});
+    for(const setup of ["state.id='owned' state.active=true",'state.throwNoActive=true'])verifyDevice('restore cleared state',setup,clearedCleanup,true,"not result.active and result.id=='default' and state.clears==1 and state.sets==0 and state.metaReads==0 and state.removed==1 and catalog.other~=nil");
+    verifyDevice('restore active options',"state.id='owned' state.active=true state.orientation='Portrait'",activeCleanup,true,"result.active and result.id=='prior' and result.orientation=='LandscapeLeft' and result.scaling=='FitToWindow' and state.clears==0 and state.sets==1 and state.removed==1 and catalog.other~=nil");
+    verifyDevice('failed clear rejects',"state.id='owned' state.active=true state.ignoreClear=true",clearedCleanup,false);
+    verifyDevice('failed option restore rejects',"state.id='owned' state.active=true state.orientation='Portrait' state.ignoreOptions=true",activeCleanup,false);
+    verifyDevice('built-in cannot be deleted','catalog.owned.IsCustom=false',clearedCleanup,false,'state.removed==0 and catalog.other~=nil');
+    const unconditional=LUA.deviceBefore.replace('local ok,id=pcall', 'S:GetOrientationAsync() local ok,id=pcall');assert.notEqual(unconditional,LUA.deviceBefore);
+    verifyDevice('old unconditional metadata fails', '',unconditional,false,'state.metaReads==1');
+    outputs.push('PASS '+deviceChecks+' exact device lifecycle controls (including fail-before)');
   } finally {for(const file of fs.readdirSync(directory))fs.unlinkSync(path.join(directory,file));fs.rmdirSync(directory);}
   return {ok:true,studioUsed:false,checks,compiledSnippets:compiled,executed:outputs,weakeningControls:5};
 }

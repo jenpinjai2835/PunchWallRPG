@@ -152,3 +152,11 @@ node work/automation/scripts/studio-premium-pet-profile.mjs --studio-id ACTUAL_I
 ```
 
 The native measurement is **pending**. Its result should be reported as the measured distribution with actual viewport, geometry validity and source binding, without adding an unsupported performance threshold or final-artifact claim.
+
+### Cleared simulator startup correction
+
+The first native invocation on integrated source `4af0376` stopped **before creating a preset or starting Play**. The preserved `smash-premium-pet-narrow-profile-20260906.json` reports `StudioDeviceSimulatorService: no device is active — call SetDeviceAsync() first` while reading the previous simulator configuration. Both read-only nine-source checks passed, and the unused Play/device cleanup stages were explicitly skipped. No frame or pet-geometry result was produced.
+
+The tool now records cleared/default state before trying active-device-only metadata. A native `default`/nil identity or the specific observed no-active-device error is represented as `{id: "default", active: false, state: "cleared"}`; unknown errors still fail. Orientation and scaling are read only for a confirmed active device. Restoring a cleared original state uses `ClearDeviceAsync()` and verifies that the simulator remains cleared without querying active-only options. An originally active device still requires its exact ID, orientation and scaling to be restored. Configured-preset resolution/identity/scaling checks, the six-second observer, geometry predicates, source binding and seed guards are unchanged.
+
+The updated self-test passes 28 Node guards, **nine** compiled production snippets, the existing 23 metric and 11 seed controls, and **13 additional executed device-lifecycle controls**. These cover cleared default/nil/error forms without any active-option calls, a genuine active preset, unknown errors, active metadata failure, exact active/cleared restoration, unrelated-preset preservation, failed clear/option restoration, built-in deletion refusal, and reproduction of the old unconditional metadata read failure. The five existing weakening controls still pass. Node syntax and `git diff --check` pass. The corrected native run remains pending and must use a new evidence leaf so the first failed record is preserved.
