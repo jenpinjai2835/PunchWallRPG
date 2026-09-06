@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 
 const root = path.resolve(import.meta.dirname, "..", "..");
 const gameConfig = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "shared", "GameConfig.lua"), "utf8");
@@ -31,6 +33,93 @@ const checks = [
 
 for (const [name, passed] of checks) assert.equal(passed, true, name);
 
+// Execute the exact two runtime payloads: these controls exercise the oracle's
+// readiness, measured geometry, native lifetime observation, and cleanup.
+const record = flow.steps.find(s => s.label === "record pet size before hero growth").args.code;
+const verify = flow.steps.find(s => s.label === "pets do not grow when hero Power grows").args.code;
+const candidates = [process.env.LUAU_COMMAND, ...fs.readdirSync(os.tmpdir()).filter(n => n.startsWith("codex-luau-")).sort().reverse().map(n => path.join(os.tmpdir(), n, process.platform === "win32" ? "luau.exe" : "luau")), "luau"];
+const luau = candidates.find(p => p && spawnSync(p, ["--help"]).status === 0);
+assert.ok(luau, "BLOCKED: Luau CLI required for actual growth-flow oracle controls");
+const setup = `
+local assertions=0 local function check(v,label)assert(v,label)assertions+=1 end
+local now=0 local models={}local bindable local attributes={}local active=0 local serial=0 local encoded={}
+local H={}
+function H:JSONEncode(v)serial+=1 local key=tostring(serial)encoded[key]=v return key end
+function H:JSONDecode(v)return encoded[v] or {}end
+function H:GenerateGUID()serial+=1 return 'instance-'..serial end
+local g={}
+function g:SetAttribute(k,v)attributes[k]=v end function g:GetAttribute(k)return attributes[k]end
+function g:FindFirstChild(name)if bindable and bindable.Name==name and bindable.Parent==g then return bindable end end
+local character={GetAttribute=function(_,k)if k=='PowerGrowthAppliedMultiplier'then return 1.25 end if k=='PowerGrowthPetScalePolicy'then return 'IndependentFixedTarget'end end}
+local folder={GetChildren=function()return models end}
+local game={Players={LocalPlayer={Name='Player',PlayerGui={PunchWallHUD=g},Character=character}},GetService=function()return H end}
+local workspace={FindFirstChild=function()return folder end}
+local Instance={new=function()bindable={Destroy=function(self)self.Parent=nil end,Invoke=function(self)return self.OnInvoke()end}return bindable end}
+local delayed=false local os={clock=function()return now end}
+local task={wait=function(dt)now+=dt if delayed and now>=.15 then for _,m in ipairs(models)do m.attrs.SmoothFollowReady=true end end end}
+local function model(name)
+ local m={Parent=folder,PrimaryPart={},height=1.45,scale=.84,attrs={PetDefinitionName=name,CompanionTargetHeight=1.45,SmoothFollowReady=true},events={}}
+ function m:IsA(v)return v=='Model'end function m:GetBoundingBox()return {},{Y=self.height}end function m:GetScale()return self.scale end
+ function m:GetAttribute(k)return self.attrs[k]end function m:SetAttribute(k,v)self.attrs[k]=v end
+ m.Destroying={Connect=function(_,callback)local c={alive=true,callback=callback}function c:Disconnect()if self.alive then active-=1 self.alive=false end end table.insert(m.events,c)active+=1 return c end}
+ function m:Destroy()for _,c in ipairs(self.events)do if c.alive then c.callback()end end self.Parent=nil end
+ return m
+end
+local function seed()
+ now=0 delayed=false models={model('Forest Pup'),model('Miner Cat'),model('Crystal Fox')}attributes={}bindable=nil active=0
+end
+local function record()
+${record}
+end
+local function verify()
+${verify}
+end
+local function rejected(label)
+ local ok=pcall(verify)check(not ok,label)check(active==0 and g:FindFirstChild('GrowthQCCleanup')==nil,label..'_observers_cleaned')
+end
+`;
+const cases = `
+seed()local baseline=H:JSONDecode(record())check(baseline.baselineReady and active==3,'baseline_has_three_initialized_observed_instances')
+local result=H:JSONDecode(verify())check(result.valid and result.baselinePresent and result.identitiesStable,'unchanged_real_instances_and_sizes_pass')
+check(result.rows[1].beforeHeight==1.45 and result.rows[1].beforeScale==.84,'measured_baseline_is_retained')
+check(active==0 and g:FindFirstChild('GrowthQCCleanup')==nil and models[1]:GetAttribute('GrowthQCIdentity')==nil,'successful_check_cleans_observers_and_tags')
+seed()delayed=true for _,m in ipairs(models)do m.attrs.SmoothFollowReady=false end
+record()check(now>=.15,'baseline_waits_for_actual_ready_models')verify()
+seed()models[1].height=0 local ok=pcall(record)check(not ok and active==0,'zero_geometry_never_becomes_a_baseline')
+seed()record()attributes.GrowthQCBaselinesJSON=nil rejected('missing_baseline_is_not_reported_as_physical_growth_or_success')
+seed()record()local old=models[1]local replacement=model('Forest Pup')replacement.attrs.GrowthQCIdentity=old.attrs.GrowthQCIdentity old:Destroy()models[1]=replacement
+rejected('same_tag_clone_does_not_satisfy_instance_continuity')
+seed()record()models[2].height+=.08 rejected('actual_height_growth_rejected')
+seed()record()models[2].scale+=.03 rejected('actual_model_scale_growth_rejected')
+seed()record()models[2].attrs.CompanionTargetHeight+=.1 rejected('changed_fixed_target_rejected')
+seed()record()table.remove(models,3)rejected('missing_expected_companion_rejected')
+print('PASS '..assertions)
+`;
+const temp = fs.mkdtempSync(path.join(os.tmpdir(), "smash-growth-flow-contract-")), files = [];
+let executedAssertions = 0;
+const rejectedMutations = [];
+function run(name, code) {
+  const file = path.join(temp, name + ".luau"); files.push(file); fs.writeFileSync(file, code);
+  const r = spawnSync(luau, [file], {encoding: "utf8", timeout: 15000});
+  return {status:r.status, output:(r.stdout || "") + (r.stderr || "")};
+}
+try {
+  const text = setup + cases, r = run("actual-payloads", text);
+  assert.equal(r.status, 0, r.output); executedAssertions = Number(r.output.match(/PASS (\d+)/)?.[1]);
+  const mutations = [
+    ["skip_readiness", t => t.replace("if ready and #models==3 then break end", "if #models==3 then break end"), "baseline_waits_for_actual_ready_models"],
+    ["ignore_destroyed_original", t => t.replace("identitiesStable=g:GetAttribute('GrowthQCModelDestroyed')==false", "identitiesStable=true"), "same_tag_clone_does_not_satisfy_instance_continuity"],
+    ["ignore_measured_growth", t => t.replace("hasBaseline and m:GetScale()<=b.scale+.012 and size.Y<=b.height+.035", "hasBaseline"), "actual_height_growth_rejected"],
+    ["leak_lifetime_observers", t => t.replace("for _,connection in ipairs(connections)do connection:Disconnect()end", "-- removed cleanup"), "successful_check_cleans_observers_and_tags"],
+  ];
+  for (const [name, mutate, expected] of mutations) {
+    const altered = mutate(text); assert.notEqual(altered, text, name);
+    const result = run(name, altered);
+    assert.ok(result.status !== 0 && result.output.includes(expected), name + ": " + result.output);
+    rejectedMutations.push(name);
+  }
+} finally { for (const file of files) fs.unlinkSync(file); fs.rmdirSync(temp); }
+
 console.log(JSON.stringify({
   ok: true,
   passed: checks.length,
@@ -39,4 +128,6 @@ console.log(JSON.stringify({
   maxScaleMultiplier: 1.25,
   fullGrowthPower: 1.5e9,
   checks: Object.fromEntries(checks),
+  actualFlowAssertions: executedAssertions,
+  rejectedMutations,
 }, null, 2));
