@@ -33,3 +33,13 @@ The flow preserves the original current-viewport phase and appends focused premi
 - `git diff --check`: PASS.
 
 Runtime status: **PENDING Coordinator verification of the synchronized immutable source and updated flow.** No measured performance improvement, device runtime pass or final artifact acceptance is claimed by this offline handoff.
+
+## Follow-up: preserve and diagnose camera ownership gates
+
+The Coordinator's later `smash-post-full-punch-pet-exclusion-20260906/pet-size-position-qc.json` records zero avatar and pair overlap and world pair separation above 1.55 studs at all three distances, but `cameraUnchanged=false`. That aggregate cannot identify the failed camera condition. The oracle does not compare CFrame identity; it requires Scriptable ownership, position delta below 0.001 studs, LookVector dot product above 0.999999, and Focus delta below 0.001 studs.
+
+The diagnostic follow-up preserves all four predicates exactly. Before evaluating them it records current camera type, actual/requested camera and Focus positions, position/Focus deltas, the raw LookVector dot product, vector-length product and normalized angular delta. Each distance retains maximum position, Focus and angular deltas; only the first detailed failure is retained to avoid losing the cause to runner output truncation.
+
+The actual flow payload is executed against independent one-stud camera translation, one-stud Focus movement, one-degree look rotation and owner-switch controls. Each fails and identifies its corresponding diagnostic field. Mutations that discard the Focus, angle or owner gate, or expand the first-failure record bound, are rejected. All original geometry and earlier flow checks remain: 3,165 executed assertions and 26 rejected mutations pass; all payloads compile.
+
+This follow-up is diagnostic-only. No normalization correction or tolerance relaxation is justified until the Coordinator captures native values. Gameplay source is unchanged, and the real camera gate remains **BLOCKED pending native diagnostic execution**.

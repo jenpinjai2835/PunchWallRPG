@@ -212,14 +212,22 @@ local game={Players={LocalPlayer={Name='Player',Character=character,PlayerGui={P
 local task={wait=function(dt)
  waits+=1 if dt==1 then sample=0 phase+=1 else sample+=1 end
  if mode=='camera'and sample==2 then camera.CFrame=camera.CFrame+Vector3.new(1,0,0)end
+ if mode=='focus'and sample==2 then camera.Focus=camera.Focus+Vector3.new(0,1,0)end
+ if mode=='type'and sample==2 then camera.CameraType='Custom'end
+ if mode=='angle'and sample==2 then local changed=camera.CFrame+Vector3.new(0,0,0)changed.LookVector=Vector3.new(math.sin(math.rad(1)),0,math.cos(math.rad(1)))camera.CFrame=changed end
 end}
 local function execute()
 ${separationFlow.args.code}
 end
 local r=execute()check(r.contractValid and r.valid and waits==63,'actual_separation_flow_accepts_complete_three_distance_bob_window')
-for _,m in ipairs({'avatar','pair','world','transient','near','camera'})do
+for _,m in ipairs({'avatar','pair','world','transient','near','camera','focus','type','angle'})do
  mode=m r=execute()check(not r.contractValid and not r.valid,m..'_cannot_pass_actual_separation_flow')
- check(#r.failures>0 and #r.failures<=6 and r.failures[1].avatarRect and #r.failures[1].pets==3,m..'_retains_bounded_actual_rectangle_diagnostics')
+ check(#r.failures==1 and r.failures[1].avatarRect and #r.failures[1].pets==3 and r.failures[1].camera,m..'_retains_bounded_actual_rectangle_diagnostics')
+ local c=r.failures[1].camera
+ if m=='camera'then check(c.positionDelta==1 and c.focusDelta==0 and c.angleDegrees==0 and c.scriptable,'translation_diagnostic_identifies_failed_camera_gate')end
+ if m=='focus'then check(c.positionDelta==0 and c.focusDelta==1 and c.angleDegrees==0 and c.scriptable,'focus_diagnostic_identifies_failed_camera_gate')end
+ if m=='type'then check(not c.scriptable and c.cameraType=='Custom','type_diagnostic_identifies_failed_camera_gate')end
+ if m=='angle'then check(c.angleDegrees>.99 and c.angleDegrees<1.01 and c.lookDot<.999999 and c.scriptable,'angle_diagnostic_identifies_failed_camera_gate')end
 end
 mode='firstDistance'r=execute()check(not r.contractValid and not r.matrix['6'].valid and r.matrix['12'].valid and r.matrix['18'].valid,'later_distances_cannot_erase_earlier_separation_failure')
 mode='clear'camera.ViewportSize={X=1,Y=1}r=execute()check(not r.contractValid,'uninitialized_viewport_cannot_pass_separation')
@@ -291,6 +299,10 @@ try{
    ['allow_pair_overlap','separationOracle','pairOverlap<=.08','true','pair_cannot_pass_actual_separation_flow'],
    ['allow_world_intersection','separationOracle','worldPair>=1.45','true','world_cannot_pass_actual_separation_flow'],
    ['check_only_final_separation_distance','separationOracle','allValid=allValid and valid','allValid=valid','later_distances_cannot_erase_earlier_separation_failure'],
+   ['allow_changed_focus','separationOracle','focusDelta<.001','true','focus_cannot_pass_actual_separation_flow'],
+   ['allow_changed_look_direction','separationOracle','lookDot>.999999','true','angle_cannot_pass_actual_separation_flow'],
+   ['allow_changed_camera_owner','separationOracle','cam.CameraType==Enum.CameraType.Scriptable and positionDelta','true and positionDelta','type_cannot_pass_actual_separation_flow'],
+   ['unbound_first_camera_failure','separationOracle','not sampleValid and #failures<1','not sampleValid and #failures<6','avatar_retains_bounded_actual_rectangle_diagnostics'],
   ]){
    const altered=fixtures[fixture].replace(from,to);assert.notEqual(altered,fixtures[fixture],name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
   }
