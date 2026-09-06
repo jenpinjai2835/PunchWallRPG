@@ -1,0 +1,275 @@
+{
+  "ok": true,
+  "automationRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation",
+  "studioUsed": false,
+  "checks": {
+    "nodeSyntax": {
+      "files": 79,
+      "passed": true
+    },
+    "powerShellSyntax": {
+      "files": 21,
+      "passed": true
+    },
+    "luauCompile": {
+      "compiler": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Temp\\codex-luau-smash-0.737\\luau-compile.exe",
+      "cases": 27,
+      "passed": true,
+      "optimizationLevels": 3,
+      "files": 9
+    },
+    "flowJson": {
+      "files": 128,
+      "passed": true
+    },
+    "runnerSelfTest": {
+      "passed": true,
+      "checks": 12
+    },
+    "infrastructureContract": {
+      "passed": true,
+      "checks": 27
+    },
+    "economyBoundaryContract": {
+      "checks": 11,
+      "passed": true,
+      "realSpinCalls": 2
+    },
+    "batchBFistFlowContract": {
+      "checks": 14,
+      "passed": true,
+      "fistTiers": null,
+      "creatorStoreTiers": null
+    },
+    "fistIconIdentityContract": {
+      "checks": 11,
+      "normalIcons": null,
+      "premiumIcons": null,
+      "passed": true
+    },
+    "worldBoostShowcaseContract": {
+      "checks": 11,
+      "passed": true,
+      "showcases": 3
+    },
+    "powerAvatarGrowthContract": {
+      "checks": 18,
+      "passed": true,
+      "maxScaleMultiplier": 1.25,
+      "curve": "PowerLogWallCappedV1"
+    },
+    "trainingStationProgressionContract": {
+      "checks": 21,
+      "stations": 4,
+      "passed": true
+    },
+    "honorProgressionContract": {
+      "checks": 19,
+      "passed": true,
+      "relics": 8,
+      "rebirthMilestones": 5,
+      "depthMilestones": 6
+    },
+    "rebirthProgressionContract": {
+      "checks": 19,
+      "passed": true,
+      "checkpoints": 11
+    },
+    "standalonePlayerWindowsContract": {
+      "passed": true,
+      "checks": 19
+    },
+    "honorProductReceiptContract": {
+      "checks": 14,
+      "packs": [
+        {
+          "id": "HonorPouch25",
+          "honor": 25,
+          "robux": 29,
+          "productId": 3708804891
+        },
+        {
+          "id": "HonorCache90",
+          "honor": 90,
+          "robux": 79,
+          "productId": 3708804911
+        },
+        {
+          "id": "HonorVault300",
+          "honor": 300,
+          "robux": 199,
+          "productId": 3708804933
+        },
+        {
+          "id": "HonorTreasury850",
+          "honor": 850,
+          "robux": 499,
+          "productId": 3708804944
+        }
+      ],
+      "passed": true
+    },
+    "creatorStorePetPackContract": {
+      "checks": 12,
+      "assetId": "70715599928632",
+      "passed": true
+    },
+    "persistenceContract": {
+      "checks": 31,
+      "dataVersion": 8,
+      "passed": true,
+      "contractVersion": "2.3.0"
+    },
+    "onboardingWaypointContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "petSizePositionContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "powerScaledPenetrationContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "punchLungeCollisionContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "reducedMotionSceneContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "releaseSpinCreditContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "settingsPanelStabilityContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "targetDepthSelectionContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "finalFeedbackConsumerContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "genericPanelStabilityContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "characterSpawnLifecycleContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "fistGrowthLifecycleContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "animateHookLifecycleContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "combatTargetBossHudContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "cameraGeometryGuardContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "cameraShopStabilityContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "clientRuntimePerformanceContract": {
+      "reportedChecks": 28,
+      "passed": true
+    },
+    "deviceMatrixHudShopContract": {
+      "reportedChecks": 8,
+      "passed": true
+    },
+    "fistPetSafetyContract": {
+      "reportedChecks": 56,
+      "passed": true
+    },
+    "forestPupSilhouetteContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "fullGameRealUiControlsContract": {
+      "reportedChecks": 56,
+      "passed": true
+    },
+    "inventoryCardRenderContract": {
+      "reportedChecks": 17,
+      "passed": true
+    },
+    "inventoryModelPreviewContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "inventoryRuntimeCacheContract": {
+      "reportedChecks": 16,
+      "passed": true
+    },
+    "inventoryVisualFidelityContract": {
+      "reportedChecks": 20,
+      "passed": true
+    },
+    "inventoryVisualResponsiveContract": {
+      "reportedChecks": 13,
+      "passed": true
+    },
+    "longRunContentContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "mobileIphone17LayoutContract": {
+      "reportedChecks": 46,
+      "passed": true
+    },
+    "productCompletenessContract": {
+      "reportedChecks": 29,
+      "passed": true
+    },
+    "serverSnapshotCoalescingContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "studioConsoleClassificationContract": {
+      "reportedChecks": 28,
+      "passed": true
+    },
+    "studioReadinessContract": {
+      "reportedChecks": null,
+      "passed": true
+    },
+    "titanHqVisualContract": {
+      "reportedChecks": 23,
+      "passed": true
+    },
+    "trainingUiPetRecoveryContract": {
+      "reportedChecks": 23,
+      "passed": true
+    },
+    "tutorialActionNotificationBadgesContract": {
+      "reportedChecks": 22,
+      "passed": true
+    },
+    "staticContractCoverage": {
+      "discovered": 49,
+      "passed": true,
+      "executed": 48,
+      "excluded": [
+        {
+          "file": "inventory-performance-contract.mjs",
+          "reason": "Studio-capable runtime benchmark; run explicitly with flow_runner instead of the non-Studio aggregate."
+        }
+      ]
+    }
+  }
+}

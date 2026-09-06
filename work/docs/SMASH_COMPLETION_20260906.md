@@ -598,3 +598,33 @@ cleanup; existing source proofs remain unchanged.
 Canonical artifact, native disk reopen, final artifact pictures/profile and
 reviewed merge are still pending the new full frozen regression. Parent status
 remains BLOCKED 6/9 and no READY release is claimed.
+
+### September 6, 10:06 ICT — ready for fresh frozen full regression
+
+All final source and test handoffs are integrated. The focused Forest Pup
+silhouette flow passes in actual Studio; independent source and two-image peer
+review found no actionable introduced defect. The corrected native premium-pet
+profile succeeds on exact source binding `e9bc6cc`, with all nine live sources
+unchanged and complete camera/Play/device cleanup. Its configured 637×654 preset
+rendered a measured 637×653 safe viewport in this run; do not substitute the
+earlier 636×654 measurement. Six seconds produced 359 valid intervals: p50
+16.428 ms, p95 22.831 ms, p99 29.916 ms and maximum 32.318 ms, with no intervals
+over 50 ms or dropped samples. Forty geometry observations passed, maximum
+avatar/pet overlap remained below the unchanged 8% gates, and root displacement
+was zero. This includes bounded observer work and Studio scheduling; it is
+source-bound evidence, not physical-phone or final-artifact FPS. No packing
+frequency can be claimed from unpublished runtime state.
+
+The complete aggregate static gate now passes in
+`smash-complete-static-final-20260906.json`: 48 executed contracts from 49
+discovered, excluding only the explicitly separate Studio Inventory performance
+benchmark. All nine source files compile at O0/O1/O2. The quiet-UI corrections
+also required replacing stale assertions for the unavailable-offer copy and
+the shared `contentLeft` row coordinate; purchase disable/authority and rendered
+layout gates remain intact. Earlier aggregate failures remain recorded as
+failures, not final passes.
+
+The next full run freezes all current source, flows and automation scripts and
+discovers all 128 flows. Its source sync is
+`smash-source-sync-pup-silhouette-20260906.json`. No release artifact is rebuilt
+until that combined native regression passes.
