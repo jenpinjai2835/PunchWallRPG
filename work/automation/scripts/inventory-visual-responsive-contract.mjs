@@ -421,6 +421,84 @@ print('Inventory semantic/text helper: '..count..' assertions passed')
 `;
 const semanticOutput = runProductionLuau("inventory-semantic-contract", semanticCode);
 assert.match(semanticOutput, /Inventory semantic\/text helper: 20 assertions passed/);
+const clientSource = fs.readFileSync(path.join(repositoryRoot,'work/punch-wall-rpg/src/client/PunchWallClient.client.lua'),'utf8').replace(/\r\n?/g,'\n');
+const setterStart=clientSource.indexOf('\t\t\tif action == "SetSettings" then');
+const setterEnd=clientSource.indexOf('\t\t\tif action == "ClearMarkers" then',setterStart);
+assert(setterStart>=0&&setterEnd>setterStart,'actual settings producer required');
+const settingsProducer=clientSource.slice(setterStart,setterEnd);
+const scaleStart=actualVerification.indexOf('local scaleSettlements={}');
+const scaleEnd=actualVerification.indexOf('local first=',scaleStart);
+assert(scaleStart>=0&&scaleEnd>scaleStart,'actual bounded scale observation helpers required');
+const scaleHelpers=actualVerification.slice(scaleStart,scaleEnd);
+check('premium_flow_uses_one_authoritative_request_per_scale',scaleHelpers.match(/a:Invoke\('SetSettings'/g)?.length===1&&!scaleHelpers.includes('persist=false'),'Polling must never repeat SetSettings or suppress authority');
+check('premium_flow_restores_authoritative_original_scale',actualVerification.includes('local originalSettings=H:JSONDecode(player.RPGStats.SettingsJSON.Value)')&&actualVerification.includes('pcall(setScale,oldScale)'),'Restore the server-backed original value through the same producer');
+const scaleCode=String.raw`
+local n=0 local function check(v,m)n+=1 assert(v,m)end
+local now=0 local os={clock=function()return now end}
+local mode='normal'local requested local requests,serverRequests=0,0 local pending local pendingAt=0
+local typeof=type
+local clientSettings={uiScale=1,motion=true,sound=true}
+local player={RPGStats={SettingsJSON={Value='1'}}}
+local g={GameMenu={FunctionalInventory={InventoryWindow={InventoryScale={Scale=1}}}}}
+local function decodeJSON(v,fallback)local scale=tonumber(v)return scale and{uiScale=scale,motion=true,sound=true}or fallback end
+local H={JSONDecode=function(_,s)local v=decodeJSON(s)assert(v,'malformed settings')return v end,JSONEncode=function(_,v)return 'authority='..tostring(v.authoritative)..', snapshot='..tostring(v.snapshot)..', rendered='..tostring(v.rendered)end}
+local shared={PunchWallStandaloneWindows={SettingsPanel={Visible=false}}}
+local function applyResponsiveLayout()g.GameMenu.FunctionalInventory.InventoryWindow.InventoryScale.Scale=clientSettings.uiScale end
+local function clientSnapshot()return {ok=true,uiScale=clientSettings.uiScale}end
+local actionRemote={FireServer=function(_,payload)
+ check(payload.action=='UpdateSettings','actual producer uses UpdateSettings')serverRequests+=1 pending=payload.value.uiScale pendingAt=now+(mode=='delayed'and 1 or .2)
+end}
+local function invokeSetter(value)local action='SetSettings'
+`+settingsProducer+String.raw`
+end
+local a={Invoke=function(_,action,value)
+ if action=='SetSettings'then requests+=1 requested=value.uiScale return invokeSetter(value)end
+ check(action=='Snapshot','observation only reads Snapshot')
+ if mode=='interInvoke'and requests>0 and serverRequests==0 then clientSettings=decodeJSON(player.RPGStats.SettingsJSON.Value,clientSettings)applyResponsiveLayout()end
+ local r=clientSnapshot()
+ if mode=='snapshotWrong'and now>.01 then r.uiScale=1 end
+ if mode=='malformedSnapshot'and now>.01 then return {}end
+ return r
+end}
+local task={wait=function(dt)
+ now+=dt check(now<10,'observation is bounded')
+ if pending and now>=pendingAt and mode~='authorityWrong'then player.RPGStats.SettingsJSON.Value=tostring(pending)pending=nil end
+ if mode=='authorityMalformed'then player.RPGStats.SettingsJSON.Value='broken'end
+ clientSettings=decodeJSON(player.RPGStats.SettingsJSON.Value,clientSettings)
+ if mode=='authorityWrong'then clientSettings.uiScale=requested end
+ if mode=='transient'and now>=.25 and now<.5 then clientSettings.uiScale=1 end
+ applyResponsiveLayout()
+ if mode=='renderWrong'then g.GameMenu.FunctionalInventory.InventoryWindow.InventoryScale.Scale=1 end
+end}
+`+scaleHelpers+String.raw`
+local function reset(which)
+ now=0 mode=which or'normal'requests=0 serverRequests=0 pending=nil requested=nil
+ clientSettings={uiScale=1,motion=true,sound=true}player.RPGStats.SettingsJSON.Value='1'applyResponsiveLayout()table.clear(scaleSettlements)
+end
+reset()local immediate=a:Invoke('SetSettings',{uiScale=.8,persist=false})
+check(immediate.uiScale==.8 and serverRequests==0,'actual local-only producer returns optimistic .8 without authority')
+task.wait(.05)check(a:Invoke('Snapshot').uiScale==1,'next authoritative snapshot overwrites local-only scale')
+for _,value in ipairs({.8,1,1.2})do reset()local result=setScale(value)
+ check(result.uiScale==value and requests==1 and serverRequests==1,'one authoritative request settles each supported scale')
+ check(#scaleSettlements==1 and scaleSettlements[1].authoritative==value and scaleSettlements[1].rendered==value and now>=.3,'settled evidence requires real authority plus rendered scale')
+ task.wait(.5)check(assertRequestedScale(value).uiScale==value,'later stats retain the authoritative requested value')
+end
+reset('interInvoke')setScale(.8)check(requests==1 and serverRequests==1,'authority_not_local_echo_controls_inter_invocation_snapshot')
+reset('delayed')setScale(.8)check(now>=1.3 and now<2 and requests==1 and serverRequests==1,'delayed authority settles without repeated requests')
+reset('transient')setScale(.8)check(now>=.8 and requests==1,'transient mismatch resets the continuous stability window')
+for _,which in ipairs({'authorityWrong','snapshotWrong','renderWrong','authorityMalformed','malformedSnapshot'})do reset(which)
+ local ok,err=pcall(setScale,.8)
+ check(not ok and tostring(err):find('did not settle within 6s')and now>=6 and now<6.1,which..'_cannot_pass_bounded_settlement')
+ check(requests==1 and serverRequests==1,which..'_cannot_be_masked_by_repeated_settings')
+end
+reset()setScale(.8)player.RPGStats.SettingsJSON.Value='1'task.wait(.1)
+check(not pcall(assertRequestedScale,.8),'later_authoritative_reversion_is_still_a_failure')
+reset()setScale(.8)setScale(.8)check(requests==2 and serverRequests==2,'explicit_same_state_check_has_one_request_each')
+setScale(1)check(assertRequestedScale(1).uiScale==1 and requests==3 and serverRequests==3,'cleanup_restores_original_authoritative_scale_once')
+print('Inventory scale observation: '..n..' assertions passed')
+`;
+const scaleOutput=runProductionLuau('inventory-scale-observation',scaleCode);
+assert.match(scaleOutput,/Inventory scale observation: \d+ assertions passed/);
 let baselineProof;
 const baselineIndex = process.argv.indexOf("--readability-baseline");
 if (baselineIndex >= 0) {
@@ -434,6 +512,18 @@ if (baselineIndex >= 0) {
   assert(begin >= 0 && end > begin, "Missing baseline layout");
   assert.throws(() => runProductionLuau("inventory-readability-baseline", code.replace(responsive, baseline.slice(begin,end))), /desktop restores readable rows|desktop primary floor|readable row width|no-results secondary floor/);
   baselineProof = {ref, intendedFailure:true};
+}
+let scaleBaselineProof;
+const scaleBaselineIndex=process.argv.indexOf('--scale-baseline');
+if(scaleBaselineIndex>=0){
+ const ref=process.argv[scaleBaselineIndex+1]||'0262ad6';
+ const result=spawnSync('git',['show',ref+':work/automation/flows/inventory-premium-readability.json'],{cwd:repositoryRoot,encoding:'utf8'});assert.equal(result.status,0,result.stderr);
+ const oldCode=JSON.parse(result.stdout).steps.find(s=>s.label==='actual Inventory dimensions, semantic colors, selection, search and pet actions').args.code;
+ const start=oldCode.indexOf('local function assertRequestedScale('),end=oldCode.indexOf('local first=',start);assert(start>=0&&end>start);
+ const prefix=scaleCode.slice(0,scaleCode.indexOf("reset()local immediate="));
+ const historical=prefix.replace(scaleHelpers,'local scaleSettlements={}\n'+oldCode.slice(start,end))+"reset('interInvoke')setScale(.8)";
+ assert.throws(()=>runProductionLuau('inventory-scale-old-flow',historical),/actual client Snapshot\.uiScale did not retain requested scale 0\.8/);
+ scaleBaselineProof={ref,intendedFailure:'actual client Snapshot.uiScale did not retain requested scale 0.8'};
 }
 const mutationChecks = [];
 if (process.argv.includes("--self-test")) {
@@ -450,6 +540,18 @@ if (process.argv.includes("--self-test")) {
     assert.throws(() => runProductionLuau("inventory-responsive-mutation", code.replace(original, replacement)), failure);
     mutationChecks.push(name);
   }
+  for(const [name,from,to,failure]of [
+   ['settings_local_only_again',"a:Invoke('SetSettings',{uiScale=requested})","a:Invoke('SetSettings',{uiScale=requested,persist=false})",/did not settle within 6s/],
+   ['ignore_scale_authority',"and type(authoritative)=='number' and math.abs(authoritative-requested)<.001","and true",/authorityWrong_cannot_pass_bounded_settlement/],
+   ['ignore_client_scale_snapshot',"and type(actual.uiScale)=='number' and math.abs(actual.uiScale-requested)<.001","and true",/snapshotWrong_cannot_pass_bounded_settlement/],
+   ['ignore_rendered_inventory_scale',"and type(rendered)=='number' and math.abs(rendered-requested)<.001","and true",/renderWrong_cannot_pass_bounded_settlement/],
+   ['ignore_unstable_scale_gap','else stableSince=nil end','end',/transient mismatch resets/],
+   ['accept_optimistic_scale_immediately','now-stableSince>=.3','now-stableSince>=0',/settled evidence requires/],
+   ['repeat_settings_while_polling','task.wait(.05)',"a:Invoke('SetSettings',{uiScale=requested}) task.wait(.05)",/did not settle within 6s/],
+   ['unbound_scale_settlement','deadline=started+6','deadline=started+60',/authorityWrong_cannot_pass_bounded_settlement/],
+  ]){
+   assert(scaleCode.includes(from),name);assert.throws(()=>runProductionLuau('inventory-scale-mutation',scaleCode.replace(from,to)),failure);mutationChecks.push(name);
+  }
   assert.throws(() => runProductionLuau("inventory-semantic-mutation", semanticCode.replace("PolishConfig.RarityColors[rarity]", "item and item.accent")), /shared rarity ignores model accent/);
   mutationChecks.push("rarity_uses_model_accent");
   assert.throws(() => runProductionLuau("inventory-text-mutation", semanticCode.replace("label.TextFits and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1", "true")), /invalid actual text rejected/);
@@ -465,7 +567,9 @@ console.log(
       checks,
       productionOutput,
       semanticOutput,
+      scaleOutput,
       baselineProof,
+      scaleBaselineProof,
       mutationChecks,
       limitation: "UI value mocks do not render Roblox text or establish device performance",
       files: [
