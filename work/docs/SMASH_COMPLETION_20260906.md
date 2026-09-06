@@ -1,18 +1,26 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 13:28 ICT:** the 129-flow native run completed
-at `85c51e5` with **115 PASS / 14 FAIL**. Final static contracts
-passed 51/52 with one explicit runtime-only benchmark. The full run has already
-recorded fourteen failures across all 129 flows. These include real
-camera LOS and narrow desktop menu sizing defects, obsolete UI oracles and
-three paths needing better native diagnostics. Isolated repairs are authored
-and are now undergoing focused tests with native Play stopped. Canonical output has
-not been rebuilt; artifact validation and reviewed merge remain required.
+**Current status, September 6 at 15:00 ICT:** the targeted native batch at
+`59ad454` completed **18 PASS / 2 FAIL** across20 cases, with exact live source
+verification before and after. All targeted camera cases, phone HUD, Shop,
+Inventory categories/fusion, Honor, ambient motion and Jump pass. Static R3
+passes52/53 contracts, with one explicit runtime-only benchmark and131 flows.
+The new explicit637px desktop test now passes all six real menu click routes
+but finds Settings clipping; source review additionally finds Rebirth clipping
+and an Inventory selected-detail overlap. Agent3 owns those bounded UI fixes.
+Agent1 owns a flow-only pet timing correction after recorded gradual motion
+proved the original50ms observation is sensitive to Heartbeat phase; Agent2
+reviews both candidates. These pending changes still require native validation.
+
+The most recent full run remains115PASS/14FAIL at85c51e5; targeted passes do not
+replace the required fresh full131 run. Canonical output has not been rebuilt;
+artifact runtime, profile, visual inspection and reviewed merge remain required.
+Current test Studio22388 opened the R2 staged file natively, with exact nine-file
+equality and no source sync. Older Studio22788 and every recovery original remain
+intact after rejected termination/restart operations; the safer file-open-only
+operation succeeded. Native fullscreen and popup dismissal remain unverified.
+One authorized usage reset was redeemed at06:36 ICT; no second reset was used.
 Earlier sections below are dated progress history, not current acceptance.
-One authorized usage reset was redeemed at 06:36 ICT; two credits remain and
-the latest account reading shows 72% quota remaining. Current Studio PID 22788
-is windowed with an Auto-Recovery notice: MCP remains usable, while native
-Ignore/maximize actions are unavailable. Original recovery files are preserved.
 
 ## User outcome and accepted direction
 
@@ -1047,7 +1055,7 @@ the original six menu routes and approved Tasks end-scroll check. This pending
 QA-only addition must be compiled/reviewed and included in final flow coverage.
 No final native acceptance run has started yet; canonical output is unchanged.
 
-### September 6, 14:54 ICT — targeted native results and remaining defects
+### September 6, 14:51 ICT — targeted native results and remaining defects
 
 The explicit637x654 ActualResolution flow be1ec995 was integrated as59ad454.
 Combined static R3 passes52/53 contracts (only the declared runtime inventory
