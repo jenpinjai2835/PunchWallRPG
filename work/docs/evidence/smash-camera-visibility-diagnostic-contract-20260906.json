@@ -1,0 +1,170 @@
+{
+  "ok": true,
+  "mode": "current source",
+  "luau": "C:\\Users\\JENNAR~1\\AppData\\Local\\Temp\\codex-luau-smash-0.737\\luau.exe",
+  "results": {
+    "limiter": {
+      "passed": 6
+    },
+    "sweep": {
+      "passed": 3
+    },
+    "fallback": {
+      "passed": 3
+    },
+    "final": {
+      "passed": 2
+    },
+    "lifecycle": {
+      "passed": 6
+    },
+    "respawn": {
+      "passed": 2
+    },
+    "occlusion": {
+      "passed": 5
+    },
+    "losLimiter": {
+      "passed": 5
+    },
+    "losFinal": {
+      "passed": 2
+    },
+    "losFallback": {
+      "passed": 2
+    },
+    "lowFpsRootFollow": {
+      "passed": 14
+    },
+    "rootSweep": {
+      "passed": 3
+    },
+    "rootCarryLos": {
+      "passed": 3
+    },
+    "clearPartialRecovery": {
+      "passed": 2
+    },
+    "overlapRecovery": {
+      "passed": 7
+    },
+    "heartbeatOverlap": {
+      "passed": 4
+    },
+    "overlapWithoutHistory": {
+      "passed": 4
+    },
+    "enclosingObject": {
+      "passed": 3
+    },
+    "overlapControls": {
+      "passed": 4
+    },
+    "unavailableSafety": {
+      "passed": 2
+    },
+    "selectedOrbitSetup": {
+      "passed": 13
+    },
+    "runtimeAcceptance": {
+      "passed": 17
+    },
+    "orientedFaceExit": {
+      "passed": 6
+    },
+    "compoundFaceExit": {
+      "passed": 5
+    },
+    "physicalVersusLos": {
+      "passed": 3
+    },
+    "lateScriptableOwner": {
+      "passed": 3
+    },
+    "coarseGap": {
+      "passed": 2
+    },
+    "freshPhysicalSample": {
+      "passed": 2
+    },
+    "overlapCollection": {
+      "passed": 5
+    },
+    "boundsTransition": {
+      "passed": 8
+    },
+    "postSimulationOrdering": {
+      "passed": 7
+    },
+    "unresolvedDiagnostics": {
+      "passed": 5
+    },
+    "releaseNoPublicationDiagnostics": {
+      "passed": 2
+    },
+    "publicationDiagnostics": {
+      "passed": 6
+    },
+    "settleEdge": {
+      "passed": 13
+    },
+    "teleportHandoffMarker": {
+      "passed": 6
+    },
+    "exactHandoffArrival": {
+      "passed": 3
+    },
+    "rawOriginControls": {
+      "passed": 9
+    },
+    "releaseNoRecoveryDiagnostics": {
+      "passed": 1
+    },
+    "visibilityObservation": {
+      "passed": 10
+    },
+    "compactVisibilityResult": {
+      "passed": 5
+    }
+  },
+  "mutations": {
+    "conflate_prior_guard_and_current_LOS": "fresh_sample_LOS_is_distinguished_from_prior_guard_clearance",
+    "unbound_visibility_stage_records": "three_stage_records_are_bounded_and_first_record_is_stable",
+    "mask_visibility_failure_in_summary": "compact_evidence_retains_failed_acceptance_and_exact_measurements",
+    "ignore_valid_native_recovery_origin": "valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout",
+    "omit_axis_waypoints": "valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout",
+    "ignore_origin_adoption_budget": "actual_recovery_publications_keep_original_correction_bound",
+    "leave_stale_rebase_handoff_marker": "successful_rebase_synchronizes_public_handoff_marker",
+    "loosen_exact_handoff_arrival": "sub_point_zero_eight_error_does_not_clear_original_arrival_gate",
+    "skip_raw_origin_physical_sweep": "physical_barrier_prevents_native_origin_adoption",
+    "accept_LOS_blocked_native_origin": "LOS_blocked_raw_pose_never_becomes_recovery_origin",
+    "adopt_distant_native_origin": "distant_native_pose_does_not_bypass_local_recovery_budget",
+    "allocate_release_recovery_records": "published_game_does_not_allocate_recovery_records",
+    "omit_face_candidates": "rotated_block_uses_near_face_exit_within_existing_budget",
+    "undersized_camera_support": "rotated_block_uses_near_face_exit_within_existing_budget",
+    "skip_compound_endpoint_and_sweep": "compound_egress_checks_entire_overlap_set",
+    "require_clear_los_before_physical_exit": "compound_egress_stays_within_existing_budget",
+    "conflate_los_with_physical_failure": "opaque_query_only_egg_is_not_reported_as_physical_penetration",
+    "steal_late_scriptable_owner": "new_scriptable_position_preserved",
+    "allow_exit_path_reentry": "clear_endpoint_does_not_cross_thin_wall",
+    "sample_stale_safety_flag": "fresh_clear_physical_pose_does_not_replay_stale_guard_los_flag",
+    "mask_emergency_escape_distance": "exceptional_escape_exceeds_ordinary_gate_visibly_not_silently",
+    "ignore_current_zoom_bounds": "new_zoom_bounds_replace_stale_selected_radius",
+    "defer_physical_repair_until_heartbeat": "recorded_overlap_is_clear_before_waiting_script_resumes",
+    "run_ordinary_guard_after_physics": "clear_postsimulation_does_not_run_ordinary_guard",
+    "hide_cumulative_publication_distance": "multiple_guard_responses_publish_actual_cumulative_travel",
+    "unbound_unresolved_sample_storage": "unresolved_sample_storage_is_bounded",
+    "allocate_studio_diagnostics_in_published_game": "published_game_does_not_allocate_studio_publication_records"
+  },
+  "compiled": [
+    "complete-client",
+    "complete-client-O0",
+    "complete-client-O2",
+    "long-tunnel-2",
+    "long-tunnel-3",
+    "long-tunnel-cleanup-0",
+    "long-tunnel-cleanup-1",
+    "long-tunnel-cleanup-2",
+    "long-tunnel-cleanup-3"
+  ]
+}

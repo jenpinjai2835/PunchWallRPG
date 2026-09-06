@@ -394,3 +394,72 @@ selection before choosing a physical placement. Only the Coordinator accesses
 Studio, currently for that position diagnostic. The parent remains BLOCKED
 6/9 until the fresh full suite, rebuilt/reopened artifact, and final review and
 merge pass. The single authorized quota reset is already complete.
+
+## Integration and measured runtime follow-up 2026-09-06 08:18 ICT
+
+The revised reduced-motion scene and spin economy flows both passed in Studio
+(`evidence/smash-post-full-scene-spin-20260906/`). Exact direct punch damage
+accounting also passed after separating direct damage from structural collateral;
+its 40–48 direct-break gate and physical launch/ownership gates were retained.
+The revised complete training/UI/pet recovery flow passed with the real Armory
+Use action, two observed Iron training ticks, restored test shoulder, fresh
+server menu feedback, and the existing mobile/Premium controls.
+
+The retained Use diagnostic measured the player at approximately
+`(-66.536, 4.394, -8.693)` after the old fixture requested `(-75, 4, -14)`.
+Both client and server correctly selected the closer Crimson stand. This is
+evidence of fixture drift, not proof of a selector defect or of which collider
+caused movement. The new fixture uses a clear plaza approach and bounded normal
+physics readiness. The initial diagnostic collector discarded context on
+success; the retained collection and its separate earlier training-readiness
+failure remain preserved, rather than being counted as release passes.
+
+Source frame samples are preliminary diagnostics, not final artifact benchmarks:
+
+| Recorded context | Viewport | Idle p50 / p95 ms | Shop p50 / p95 ms |
+| --- | --- | --- | --- |
+| Initial Studio state | 1277×780 | 66.80 / 71.17 | 69.75 / 100.08 |
+| After native foreground activation | 637×654 | 16.67 / 21.83 | 16.76 / 21.68 |
+| After confirmed native Maximize | 1277×780 | 16.67 / 21.09 | 16.54 / 21.73 |
+
+Each idle/Shop phase lasted about six seconds with two verified normal pets.
+The smaller second viewport is a confound; it is not a foreground-only
+comparison. The third run returned to 1277×780, with no frames above 50 ms in
+either phase. These observations do not establish a universal engine background
+cap, physical-phone FPS, or a game memory leak. Raw source-bound records are
+`smash-source-idle-shop-profile[-foreground|-maximized]-20260906.json`.
+Reviewed profiler change `a4fdc81` is integrated as `bc30bac`: final measurements
+now retain and validate per-phase viewport/camera transitions and observed focus
+events, including resize-and-restore. Initial focus stays unknown until observed.
+The unchanged artifact preflight and new controls passed 66 Node checks,
+53 executed Luau assertions, and seven compiling mutations; the final visual
+tool's shared-profiler compatibility checks also passed.
+
+The next camera run passed long-tunnel safety, visibility and zoom. The growth
+camera's complete saved metrics identify its remaining failure precisely:
+all visibility/readability ratios were 1, with no overlap, backward motion or
+settle timeout, but the combat sampler's minimum follow lead was not met
+(0.642 stud versus greater than 1). Counting client punch requests does not
+prove accepted server hits or lunges. The integrated diagnostic-only flow now
+records server/client before, after and failure state without changing any gate.
+
+Pet screen separation still failed at close zoom: avatar overlap reached 0.280
+on 637×654 and 0.105 on 1277×780 against the unchanged 0.08 gate. Source
+`052f8c6` adds calibrated camera-plane exclusion of the actual avatar and earlier
+pet boxes while preserving model size, rotation, depth and camera ownership.
+Its bounded sequential conservative search explicitly returns false when its
+regions have no solution; this does not prove globally impossible packing.
+Source and tests `052f8c6`/`a0b011e` are integrated as `a57c3ae`/`41ee09d`, with
+3,155 executed assertions and 22 mutation controls passing. The flow now samples
+the complete bob window and adds exact 637×654 and 874×402 desktop presets.
+Independent source review and actual updated Studio runs remain required.
+
+Native capture preparation encountered an unsuccessful window click and then
+unexpected user input/Play. No baseline pet PNG was produced by those attempts;
+their failure JSON is retained. A later read-only query observed Edit mode, and
+a byte-for-byte comparison of all nine live sources to `bc30bac` passed before
+any new sync. The user confirmed they had been playing and explicitly asked us
+to continue now that they stopped. Current integration `d97bbad` is synced with
+all nine sources, and the growth/pet focused run is active. The parent remains
+BLOCKED 6/9 until the new full suite, native reopened artifact checks, visual
+review, and reviewed merge are complete. Canonical output remains unreconstructed.

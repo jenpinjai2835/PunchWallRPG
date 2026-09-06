@@ -1,0 +1,47 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "smash-contextual-use-position-event-ready-diagnostic",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 and require eight pack plus three detailed Premium templates",
+        "wait for device simulator to settle",
+        "start focused play",
+        "wait for player UI and pet attestation",
+        "seed truly below-threshold displayed Power and prove pet release readiness",
+        "wait for exact training target scan",
+        "locked contextual action is exact compact and readable",
+        "wait for server rejection",
+        "below-threshold request never starts or switches training",
+        "reproduce public case where displayed effective Power exceeds Iron threshold",
+        "wait for eligible contextual state",
+        "exact eligible station starts through the production request path",
+        "wait for two fallback fist strikes",
+        "qualified player trains at the exact Iron rate",
+        "unsupported avatar visibly strikes with the equipped fist",
+        "stop training and seed exact pet preview catalog",
+        "wait for exact use target scan",
+        "observe actual root and nearest production contextual target before any Use",
+        "cleanup stop play",
+        "cleanup simulator"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: EXPECTED_DIAGNOSTIC_COLLECTION_STOP\nReceived: {\"observed\":true,\"side\":\"Server\",\"root\":\"-66.53825378417969, 4.389566421508789, -8.690413475036621\",\"velocity\":\"-0.013375059701502323, 0.055824749171733856, -0.0396626815199852\",\"nearby\":[{\"distance\":4.923582077026367,\"name\":\"Crimson Vanguard Fist Stand\",\"position\":\"-62, 3, -10\"},{\"distance\":5.865463733673096,\"name\":\"Hero Armory Merchant Interaction\",\"position\":\"-69, 4, -14\"},{\"distance\":24.6124324798584,\"name\":\"Stormbreaker Fist Stand\",\"position\":\"-42, 3, -10\"},{\"distance\":25.034385681152345,\"name\":\"Premium Robot Merchant Interaction\",\"position\":\"-91, 4, -14\"},{\"distance\":27.123783111572267,\"name\":\"Hero Coin Pack Premium Offer\",\"position\":\"-91, 5.199999809265137, 3\"},{\"distance\":32.87550354003906,\"name\":\"Celestial Power Core\",\"position\":\"-70, 4, 24\"},{\"distance\":35.779544830322269,\"name\":\"Titan Reactor\",\"position\":\"-52, 4, 24\"}],\"anchored\":false}",
+      "context": {
+        "actualClientUsePosition": "{\"side\":\"Client\",\"active\":true,\"root\":[-66.53590393066406,4.394216537475586,-8.69315242767334],\"velocity\":[0.0072419121861457829,-0.048486609011888507,0.03623011335730553],\"nearby\":[{\"name\":\"Crimson Vanguard Fist Stand\",\"position\":[-62,3,-10],\"collide\":false,\"distance\":4.922003269195557,\"size\":[12,5,10]},{\"name\":\"Hero Armory Merchant Interaction\",\"position\":[-69,4,-14],\"collide\":false,\"distance\":5.864282608032227,\"size\":[8,8,8]},{\"name\":\"Stormbreaker Fist Stand\",\"position\":[-42,3,-10],\"collide\":false,\"distance\":24.610206604003908,\"size\":[12,5,10]},{\"name\":\"Premium Robot Merchant Interaction\",\"position\":[-91,4,-14],\"collide\":false,\"distance\":25.036174774169923,\"size\":[8,8,8]},{\"name\":\"Hero Coin Pack Premium Offer\",\"position\":[-91,5.199999809265137,3],\"collide\":false,\"distance\":27.126943588256837,\"size\":[9.800000190734864,4.5,0.5]},{\"name\":\"Celestial Power Core\",\"position\":[-70,4,24],\"collide\":false,\"distance\":32.8785285949707,\"size\":[9,8,9]},{\"name\":\"Titan Reactor\",\"position\":[-52,4,24],\"collide\":false,\"distance\":35.78114318847656,\"size\":[9,8,9]}],\"observed\":true,\"title\":\"USE\",\"overlaps\":[{\"size\":[194,0.6000000238418579,154],\"name\":\"Workspace.PunchWallRPG.Polish.Forest Island Rock Edge\",\"position\":[-15,-3.1500000953674318,0]},{\"size\":[190,3,150],\"name\":\"Workspace.PunchWallRPG.World 1 Forest Ground\",\"position\":[-15,-1.5,0]},{\"size\":[80,0.25999999046325686,24],\"name\":\"Workspace.PunchWallRPG.Polish.City Decor.Forest Armory Path\",\"position\":[-43,0.28999999165534975,-9]},{\"size\":[11,1,8.5],\"name\":\"Workspace.PunchWallRPG.Polish.City Decor.Crimson Vanguard Fist Display Plinth\",\"position\":[-62,1,-10]},{\"size\":[0.07999999821186066,4.800000190734863,4.800000190734863],\"name\":\"Workspace.PunchWallRPG.Polish.City Decor.Crimson Vanguard Fist Pedestal Glow\",\"position\":[-62,1.5800000429153443,-10.5]}],\"target\":\"Crimson Vanguard Fist Stand\",\"anchored\":false,\"action\":\"Use\",\"detail\":\"CRIMSON VANGUARD FIST STAND\"}",
+        "actualServerUsePosition": "{\"observed\":true,\"side\":\"Server\",\"root\":\"-66.53825378417969, 4.389566421508789, -8.690413475036621\",\"velocity\":\"-0.013375059701502323, 0.055824749171733856, -0.0396626815199852\",\"nearby\":[{\"distance\":4.923582077026367,\"name\":\"Crimson Vanguard Fist Stand\",\"position\":\"-62, 3, -10\"},{\"distance\":5.865463733673096,\"name\":\"Hero Armory Merchant Interaction\",\"position\":\"-69, 4, -14\"},{\"distance\":24.6124324798584,\"name\":\"Stormbreaker Fist Stand\",\"position\":\"-42, 3, -10\"},{\"distance\":25.034385681152345,\"name\":\"Premium Robot Merchant Interaction\",\"position\":\"-91, 4, -14\"},{\"distance\":27.123783111572267,\"name\":\"Hero Coin Pack Premium Offer\",\"position\":\"-91, 5.199999809265137, 3\"},{\"distance\":32.87550354003906,\"name\":\"Celestial Power Core\",\"position\":\"-70, 4, 24\"},{\"distance\":35.779544830322269,\"name\":\"Titan Reactor\",\"position\":\"-52, 4, 24\"}],\"anchored\":false}"
+      }
+    }
+  ]
+}

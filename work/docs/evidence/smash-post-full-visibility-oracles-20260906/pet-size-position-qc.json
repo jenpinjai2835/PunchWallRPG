@@ -1,0 +1,40 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium screen separation failed {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.024500809030718316,\"minWorldPair\":2.4548165798187258},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.6451852321624756},\"6\":{\"valid\":false,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.2798631440163821,\"minWorldPair\":2.0174715518951418}},\"formation\":\"BoundsAwarePremiumFormationV2\"}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.654911518096924,\"screen\":0.002260965734260844,\"largest\":1.4500001668930054,\"x\":-3.1318726539611818,\"count\":1,\"z\":1.5500011444091797,\"policy\":\"Normal\",\"y\":1.0710961818695069,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.2345468997955324,\"rows\":[{\"y\":1.2217891216278077,\"x\":-3.3379034996032717,\"z\":1.5500011444091797,\"screen\":0.0022500344075196026,\"largest\":1.4500001668930054},{\"y\":1.1389076709747315,\"x\":3.1440131664276125,\"z\":1.550008773803711,\"screen\":0.002927718362119292,\"largest\":1.650001049041748},{\"y\":1.4000208377838135,\"x\":-5.181525230407715,\"z\":2.7999982833862306,\"screen\":0.00316324579569222,\"largest\":1.6500006914138795}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000006675720215,\"combined\":0.03738726430893946,\"maxScreen\":0.012984127252036675,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000006675720215,\"combined\":0.016623827839261065,\"maxScreen\":0.005728160317805675,\"viewportY\":654,\"minAvatarSeparation\":82.14188385009766,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000006675720215,\"combined\":0.1580977072500209,\"maxScreen\":0.06051808686606145,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3}},\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\"}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "errors": [
+      "Expected regex not found: \"growthCameraContractValid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.8878574371337891,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.026093482971191407,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":1.5638492107391358,\"maxGuardPublishedTravelPerCycle\":0.02609250880777836,\"maxBackTo\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"visibilityPhases\":{\"follow\":{\"maxGuardAge\":0.12373800000204938,\"samples\":48,\"rayMismatch\":0,\"obscured\":0},\"native\":{\"maxGuardAge\":0.01948419999826001,\"samples\":8,\"rayMismatch\":0,\"obscured\":0}},\"visualFailureReasons\":[\"motion_geometry_or_native_contract\"],\"finishDistance\":12.500587463378907,\"settledSamples\":7,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxBackFrom\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"maxGuardPublishedWritesPerCycle\":1,\"type\":\"Custom\",\"teleportRebaseCount\":1,\"unresolvedSafetyFrames\":0,\"selectedDistance\":12.474493980407715,\"sampledFrames\":56,\"userOrbitDistance\":12.474493980407715,\"lead\":0.6420499682426453,\"maxStepFrom\":\"-2.000030517578125, 8.684141159057617, -5.790571689605713\",\"lastGuardAge\":0.01656129999901168,\"maxStep\":0.4333325922489166,\"settledClearRatio\":1,\"maxCorrectionStep\":0.5034646987915039,\"maxEscapeStep\":0,\"maxStepTo\":\"-2.000030517578125, 8.683259963989258, -7.3544206619262695\",\"visibleRatio\":1},\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"heroMultiplier\":1.25,\"visualValid\":false,\"visibleCorners\":8,\"growthCameraContractValid\":false,\"settled\":true}"
+    ],
+    "flow": "power-avatar-growth",
+    "ok": false,
+    "flowSHA256": "05A74D546E90ADF1FC81ED4292DCC61A2F4397F21D2DA4A258D7927E30F85104"
+  },
+  {
+    "errors": [],
+    "flow": "training-ui-pet-recovery",
+    "ok": true,
+    "flowSHA256": "6872108389DB6E8E23DCA03B0951C48CE1A6282BFC89EE3D4563A8FEFB3FF927"
+  },
+  {
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium screen separation failed {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.7563835382461548},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":2.4822874069213869},\"6\":{\"valid\":false,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.10541316135167751,\"minWorldPair\":1.9220064878463746}},\"formation\":\"BoundsAwarePremiumFormationV2\"}"
+    ],
+    "flow": "pet-size-position-qc",
+    "ok": false,
+    "flowSHA256": "DBC623DDC1149132E0F3584EFBE14AB21E484C95C88A292F5D25C9E2B9DF9AA8"
+  }
+]
