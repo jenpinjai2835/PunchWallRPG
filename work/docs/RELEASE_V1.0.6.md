@@ -63,6 +63,17 @@ Repository `AGENTS.md` requires Creator Dashboard work through Chrome CDP and
 says to stop when no CDP endpoint is available. No extension fallback, browser
 cookie extraction, new credential or upload was attempted.
 
+The package and release preparation were pushed in draft PR #2:
+https://github.com/jenpinjai2835/PunchWallRPG/pull/2
+Independent review of `dcee9ce` found no actionable P1/P2 issue in packaging
+and documentation; all thirteen referenced package/proof hashes matched.
+The user then explicitly authorized opening a separate Chrome CDP window.
+Automatic approval review rejected that launch before execution, reporting
+only `blocked by policy`. No browser process was created by the attempt and
+no alternate launch was attempted. A user-established CDP connection is the
+remaining access prerequisite; publication and current live-version
+verification remain blocked.
+
 Before upload: establish the permitted authenticated CDP workflow, freshly
 verify the universe/place/current version, and prepare narrowly scoped
 `universe-places:write` authorization if the Open Cloud route is used. Record
