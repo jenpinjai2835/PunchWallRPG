@@ -21,3 +21,8 @@ work/docs/evidence/smash-frame-profile-final*.json -text whitespace=blank-at-eol
 work/docs/evidence/smash-windows-powershell-launch-context-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 work/docs/evidence/smash-native-input-helper-corrections-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 work/docs/evidence/smash-user-authorized-studio-cleanup*-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Release packaging and publication evidence retain their attested bytes.
+outputs/SmashWall_Production.build.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/releases/v1.0.6/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/release-v1.0.6/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
