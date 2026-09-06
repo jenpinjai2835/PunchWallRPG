@@ -798,17 +798,33 @@ check(
     && !shopPresentation.includes("RenderStepped:Connect"),
   "Loaded fist art must remain white and unobscured while unique style, motif, and signature identity stays in bounded perimeter chrome.",
 );
-check(
-  "shop_description_has_high_contrast_readability_panel",
-  shopCards.includes('"DetailReadabilityPanel"')
-    && shopCards.includes("BackgroundColor3 = Color3.fromRGB(3, 9, 13)")
-    && shopCards.includes("detailStroke.Transparency = 0.72")
-    && shopCards.includes("Color3.fromRGB(236, 242, 244)")
-    && shopCards.includes("Enum.Font.GothamMedium")
-    && shopCards.includes("detail.TextStrokeTransparency = 0.35")
-    && shopCards.includes('"DescriptionReadabilityMode", "HighContrastPanelV1"'),
-  "Visible Shop descriptions need a dark panel and higher-contrast, medium-weight type.",
-);
+const shopDescriptionSurface = section(client, 'for index, item in ipairs(products) do', 'detail:SetAttribute("DescriptionReadabilityMode"');
+function validShopDescriptionSurface(source) {
+  const background = source.match(/card\.BackgroundColor3 = Color3\.fromRGB\((\d+), (\d+), (\d+)\)/);
+  const foreground = source.match(/local detail = label\(card, "Detail",[^\n]+Color3\.fromRGB\((\d+), (\d+), (\d+)\), 12, Enum\.Font\.GothamMedium/);
+  if (!background || !foreground) return false;
+  const luminance = match => match.slice(1, 4).map(Number).map(value => {
+    const channel = value / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+  const dark = luminance(background), light = luminance(foreground);
+  return dark < 0.05 && (light + 0.05) / (dark + 0.05) >= 7
+    && source.includes('detailBackdrop.Visible = false')
+    && source.includes('detail.TextStrokeTransparency = 1')
+    && source.includes('ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1))')
+    && source.includes('ColorSequenceKeypoint.new(1, Color3.fromRGB(242, 247, 252))');
+}
+check('shop_description_has_high_contrast_readability_surface', validShopDescriptionSurface(shopDescriptionSurface),
+  'Descriptions require a quiet dark card with at least 7:1 authored text contrast and medium-weight type.');
+for (const [name, from, to] of [
+  ['bright_card', 'card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)', 'card.BackgroundColor3 = Color3.fromRGB(230, 230, 230)'],
+  ['low_contrast_text', 'Color3.fromRGB(236, 242, 244), 12, Enum.Font.GothamMedium', 'Color3.fromRGB(40, 48, 56), 12, Enum.Font.GothamMedium'],
+  ['extra_backdrop', 'detailBackdrop.Visible = false', 'detailBackdrop.Visible = true'],
+]) {
+  const mutated = shopDescriptionSurface.replace(from, to);
+  check('shop_description_rejects_' + name, validShopDescriptionSurface(shopDescriptionSurface) && mutated !== shopDescriptionSurface && !validShopDescriptionSurface(mutated),
+    'The readability surface check must reject this distinct regression.');
+}
 check(
   "shop_feedback_text_is_explicit_and_truthful",
   feedbackText.includes('elseif payload.type == "Shop" then')
