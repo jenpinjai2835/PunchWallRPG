@@ -63,6 +63,95 @@ for (const name of ["mobile-iphone17-layout", "device-matrix-hud-shop", "trainin
   }
 }
 assert.equal(helperCopies, 13, "every measured Shop/Inventory flow must share the executed assertions");
+
+const objectiveStep=flow.steps.find(step=>step.label==='top information hierarchy is clear');
+const objectiveHelpers=objectiveStep.args.code.split('-- BEGIN MOBILE OBJECTIVE ASSERTIONS\n')[1]?.split('-- END MOBILE OBJECTIVE ASSERTIONS')[0];
+assert(objectiveHelpers,'missing actual objective geometry/readability helper');
+const objectiveBaseline=spawnSync('git',['show','85c51e5:work/automation/flows/mobile-iphone17-layout.json'],{cwd:path.resolve(root,'..'),encoding:'utf8'});
+assert.equal(objectiveBaseline.status,0,objectiveBaseline.stderr);
+const oldMobile=JSON.parse(objectiveBaseline.stdout);
+const oldObjectiveFragment='local objectiveCompact=objects.TutorialObjectiveHUD.AbsoluteSize.X<=220 and objects.TutorialObjectiveHUD.AbsoluteSize.Y<=30 and objects.TutorialObjectiveHUD.AbsolutePosition.Y>=stats[1].AbsolutePosition.Y+stats[1].AbsoluteSize.Y';
+const newObjectiveFragment="local objectiveCompact=verifyMobileObjective(objects.TutorialObjectiveHUD,objects.TutorialObjectiveHUD:FindFirstChild('ObjectiveText'),h) and objects.TutorialObjectiveHUD.AbsolutePosition.Y>=stats[1].AbsolutePosition.Y+stats[1].AbsoluteSize.Y";
+function verifyObjectiveFlowShape(candidate){
+ const actual=structuredClone(candidate);
+ const step=actual.steps.find(s=>s.label==='top information hierarchy is clear');
+ assert(step.args.code.includes(newObjectiveFragment),'actual current objective assertion required');
+ step.args.code=step.args.code.split('-- END MOBILE OBJECTIVE ASSERTIONS\n')[1].replace(newObjectiveFragment,oldObjectiveFragment);
+ assert.deepEqual(actual,oldMobile,'all unrelated hierarchy, interaction, and cleanup gates must remain unchanged');
+}
+verifyObjectiveFlowShape(flow);
+const compactObjectiveStart=client.indexOf('\t\tshared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint',client.indexOf('-- Phone information hierarchy:'));
+const compactObjectiveEnd=client.indexOf('\n\t\tlocal honorCard',compactObjectiveStart);
+assert(compactObjectiveStart>=0&&compactObjectiveEnd>compactObjectiveStart);
+const objectiveProducer=client.slice(compactObjectiveStart,compactObjectiveEnd);
+const objectiveTextProducer=client.split('\twidgets.ObjectiveText.Position = ')[1]?.split('\n\twidgets.ObjectiveText.Font')[0];
+assert(objectiveTextProducer,'actual objective text rectangle missing');
+const objectiveFixture=String.raw`
+local function object(name,kind,parent)
+ local value={Name=name,ClassName=kind,Parent=parent,children={},Visible=true,Text='PUNCH THE WALL',TextSize=14,TextScaled=true,TextFits=true,TextBounds={X=150,Y=14}}
+ if parent then table.insert(parent.children,value)end
+ function value:IsA(k)return k==self.ClassName or k=='GuiObject'and(self.ClassName=='Frame'or self.ClassName=='TextLabel')end
+ function value:FindFirstChildOfClass(k)for _,child in ipairs(self.children)do if child:IsA(k)then return child end end end
+ return value
+end
+local Vector2={new=function(x,y)return {X=x,Y=y}end}
+local UDim2={}
+function UDim2.new(x,xo,y,yo)return {X={Scale=x,Offset=xo},Y={Scale=y,Offset=yo}}end
+function UDim2.fromOffset(x,y)return UDim2.new(0,x,0,y)end
+function UDim2.fromScale(x,y)return UDim2.new(x,0,y,0)end
+local function resolve(object,parent)
+ local size,position=object.Size,object.Position
+ local width,height=size.X.Scale*parent.AbsoluteSize.X+size.X.Offset,size.Y.Scale*parent.AbsoluteSize.Y+size.Y.Offset
+ local anchor=object.AnchorPoint or {X=0,Y=0}
+ object.AbsoluteSize={X=width,Y=height}
+ object.AbsolutePosition={X=parent.AbsolutePosition.X+position.X.Scale*parent.AbsoluteSize.X+position.X.Offset-width*anchor.X,Y=parent.AbsolutePosition.Y+position.Y.Scale*parent.AbsoluteSize.Y+position.Y.Offset-height*anchor.Y}
+end
+local function build(width,height,x,y)
+ local host=object('HUD','Frame')host.AbsolutePosition={X=x or 0,Y=y or 0}host.AbsoluteSize={X=width,Y=height}
+ local card=object('TutorialObjectiveHUD','Frame',host)
+ local text=object('ObjectiveText','TextLabel',card)
+ local limit=object('FontFloor','UITextSizeConstraint',text)limit.MinTextSize=7 limit.MaxTextSize=16
+ local shared={PunchWallHUDWidgets={ObjectiveCard=card,ObjectiveText=text}}
+ local widgets=shared.PunchWallHUDWidgets local viewport={X=width,Y=height}local topCardHeight=40
+`+objectiveProducer+'\n widgets.ObjectiveText.Position = '+objectiveTextProducer+String.raw`
+ resolve(card,host)resolve(text,card)
+ return card,text,host,limit
+end
+`;
+const objectiveCases=String.raw`
+local checks=0
+for _,width in ipairs({320,636,749,874})do
+ for _,height in ipairs({240,361,402,654})do
+  for _,offset in ipairs({{0,0},{17,-58}})do
+   local card,text,host,limit=build(width,height,offset[1],offset[2])
+   assert(verifyMobileObjective(card,text,host))
+   assert(limit.MinTextSize==14 and limit.MaxTextSize==14,'actual producer must set fourteen pixel bounds')
+   checks+=2
+  end
+ end
+end
+local function rejects(change,label)
+ local card,text,host,limit=build(749,361,0,-58)
+ change(card,text,host,limit)
+ assert(not pcall(verifyMobileObjective,card,text,host),label..' unexpectedly passed')
+ checks+=1
+end
+rejects(function(card,text)card.AbsoluteSize.Y=30 text.AbsoluteSize.Y=26.25 text.AbsolutePosition.Y=card.AbsolutePosition.Y+1.875 end,'old30')
+rejects(function(card,text)card.AbsoluteSize.X=220 text.AbsoluteSize.X=170 end,'old220')
+rejects(function(card)card.AbsoluteSize.X=282 end,'oversized')
+rejects(function(card)card.AbsolutePosition.X=-300 end,'offscreen')
+rejects(function(card,text,host)host.AbsoluteSize.Y=70 end,'short safe host')
+rejects(function(card)card.AbsolutePosition.Y+=4 end,'wrong stat-row gap')
+rejects(function(card,text,host,limit)limit.MinTextSize=13 end,'small primary font')
+rejects(function(card,text)text.TextFits=false end,'clipped text')
+rejects(function(card,text)text.TextBounds.X=text.AbsoluteSize.X+2 end,'overflowing rendered text')
+rejects(function(card,text)text.TextBounds.Y=0 end,'empty rendered text')
+rejects(function(card,text)text.Visible=false end,'hidden objective text')
+rejects(function(card,text,host)card.Parent={}end,'wrong parent')
+rejects(function(card,text,host)local scale=object('Scale','UIScale',host)scale.Scale=.8 end,'shrunk effective font')
+print('MOBILE_OBJECTIVE_PASS='..checks)
+`;
+
 const candidates = [process.env.LUAU_COMMAND, "luau"];
 for (const base of [...new Set([os.tmpdir(), process.env.TEMP].filter(Boolean))]) {
   if (!fs.existsSync(base)) continue;
@@ -111,7 +200,8 @@ button.AbsoluteSize.Y=47 rejects(function() touch(button,48) end,'47px purchase 
 print('MEASURED_MOBILE_ASSERTIONS_PASS='..passed)
 `;
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), "smash-mobile-assertions-"));
-let measurementChecks;
+let measurementChecks,objectiveChecks;
+const objectiveMutations=[];
 try {
   const file = path.join(temp, "runtime-assertions.luau");
   fs.writeFileSync(file, fixture);
@@ -119,10 +209,51 @@ try {
   assert.equal(run.status, 0, `Luau measurement assertions failed: ${run.stdout}\n${run.stderr}`);
   measurementChecks = Number(run.stdout.match(/MEASURED_MOBILE_ASSERTIONS_PASS=(\d+)/)?.[1]);
   assert.equal(measurementChecks, 18, "all measured assertion positive/negative fixtures must run");
+
+  const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),process.platform==='win32'?'luau-compile.exe':'luau-compile');
+  const runObjective=(name,helpersText=objectiveHelpers,fixtureText=objectiveFixture,expected)=>{
+    const source=helpersText+'\n'+fixtureText+'\n'+objectiveCases;
+    const target=path.join(temp,name+'.luau');fs.writeFileSync(target,source);
+    const compiled=spawnSync(compiler,['--null',target],{encoding:'utf8'});
+    assert.equal(compiled.status,0,compiled.stderr);
+    const result=spawnSync(luau,[target],{encoding:'utf8',timeout:10000});
+    const output=(result.stdout||'')+(result.stderr||'');
+    if(expected)assert(result.status!==0&&output.includes(expected),name+': '+output);
+    else assert.equal(result.status,0,name+': '+output);
+    return output;
+  };
+  objectiveChecks=Number(runObjective('objective-actual-producer').match(/MOBILE_OBJECTIVE_PASS=(\d+)/)?.[1]);
+  assert.equal(objectiveChecks,77,'all exact objective producer/helper controls must execute');
+  const mutations=[
+    ['height_gate',s=>s.replace('math.abs(s.Y-36)<=1','true'),'old30 unexpectedly passed'],
+    ['width_gate',s=>s.replace('math.abs(s.X-expectedWidth)<=1','true'),'old220 unexpectedly passed'],
+    ['safe_host_gate',s=>s.replace('p.X>=origin.X-1 and p.Y>=origin.Y-1 and p.X+s.X<=origin.X+size.X+1 and p.Y+s.Y<=origin.Y+size.Y+1','true'),'short safe host unexpectedly passed'],
+    ['font_floor',s=>s.replace('floor*scale>=13.99','true'),'small primary font unexpectedly passed'],
+    ['text_fits',s=>s.replace('text.TextFits and ',''),'clipped text unexpectedly passed'],
+    ['visibility',s=>s.replace('assert(node.Visible,','assert(true,'),'hidden objective text unexpectedly passed'],
+  ];
+  for(const [name,change,expected]of mutations){
+    const altered=change(objectiveHelpers);assert.notEqual(altered,objectiveHelpers,name);
+    runObjective('objective-mutant-'+name,altered,objectiveFixture,expected);
+    objectiveMutations.push(name);
+  }
+  const oldHeight=objectiveFixture.replace('math.min(280, viewport.X - 136), 36','math.min(280, viewport.X - 136), 30');
+  assert.notEqual(oldHeight,objectiveFixture);
+  runObjective('objective-old-source-height',objectiveHelpers,oldHeight,'objective must use current 280-bounded by 36 geometry');
+  objectiveMutations.push('actual_source_height');
+  const changedHierarchy=structuredClone(flow);
+  changedHierarchy.steps.find(s=>s.label==='top information hierarchy is clear').args.code=objectiveStep.args.code.replace("result.info=='FourStatsAlignedNoDowntownV5'","true");
+  assert.throws(()=>verifyObjectiveFlowShape(changedHierarchy),/unrelated/);objectiveMutations.push('original_hierarchy_gate');
+  const changedCleanup=structuredClone(flow);changedCleanup.cleanup.pop();
+  assert.throws(()=>verifyObjectiveFlowShape(changedCleanup),/unrelated/);objectiveMutations.push('original_cleanup');
+  const flowChunk=path.join(temp,'actual-objective-step.luau');fs.writeFileSync(flowChunk,objectiveStep.args.code);
+  const compiledFlow=spawnSync(compiler,['--null',flowChunk],{encoding:'utf8'});
+  assert.equal(compiledFlow.status,0,compiledFlow.stderr);
+
 } finally {
   const resolvedTemp = fs.realpathSync(temp);
   assert.equal(path.dirname(resolvedTemp), fs.realpathSync(os.tmpdir()), "temporary cleanup escaped temp parent");
   assert.ok(path.basename(resolvedTemp).startsWith("smash-mobile-assertions-"), "unexpected temporary cleanup target");
   fs.rmSync(resolvedTemp, { recursive: true, force: true });
 }
-console.log(JSON.stringify({ ok: true, passed: checks.length + measurementChecks, total: checks.length + measurementChecks, staticChecks: checks.length, measurementChecks, helperCopies, checks: Object.fromEntries(checks) }, null, 2));
+console.log(JSON.stringify({ ok: true, passed: checks.length + measurementChecks + objectiveChecks, total: checks.length + measurementChecks + objectiveChecks, staticChecks: checks.length, measurementChecks, objectiveChecks, objectiveMutations, helperCopies, checks: Object.fromEntries(checks) }, null, 2));

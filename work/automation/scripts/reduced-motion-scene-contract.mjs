@@ -194,6 +194,120 @@ const luau=candidates.find(p=>p&&spawnSync(p,['--help']).status===0);assert(luau
 const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),'luau-compile.exe');
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'smash-reduced-scene-')),files=[],results={},mutations=[];
 function run(name,text,expected){const file=path.join(temp,name+'.luau');files.push(file);fs.writeFileSync(file,text);const compiled=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(compiled.status,0,compiled.stderr);const r=spawnSync(luau,[file],{encoding:'utf8',timeout:10000});const output=(r.stdout||'')+(r.stderr||'');if(expected)assert(r.status!==0&&output.includes(expected),name+': '+output);else assert.equal(r.status,0,output);return output;}
+
+const ambientFlowPath='work/automation/flows/iteration05-final-depth-motion.json';
+const ambientFlow=JSON.parse(read(ambientFlowPath));
+const ambientLabel='ambient pulse runs and reduced motion restores a stable base';
+const ambientStep=ambientFlow.steps.find(step=>step.label===ambientLabel);
+const ambientBaselineRun=spawnSync('git',['show','85c51e5:'+ambientFlowPath],{cwd:root,encoding:'utf8'});
+assert.equal(ambientBaselineRun.status,0,ambientBaselineRun.stderr);
+const ambientBaseline=JSON.parse(ambientBaselineRun.stdout);
+function verifyAmbientFlowShape(value){
+ const actual=structuredClone(value),expected=structuredClone(ambientBaseline);
+ const index=expected.steps.findIndex(step=>step.label===ambientLabel);
+ assert.equal(actual.steps.length,expected.steps.length,'ambient change must preserve all world and objective steps');
+ assert.deepEqual(actual.steps[index].expectRegex.slice(0,4),expected.steps[index].expectRegex,'original ambient thresholds remain required');
+ assert.equal(actual.steps[index].timeoutMs,30000);
+ assert.equal(actual.steps[index].saveAs,'ambientMotionWindow');
+ assert(actual.steps[index].expectRegex.some(v=>v.includes('restored')),'restoration remains required');
+ assert(actual.steps[index].expectRegex.some(v=>v.includes('observed')),'complete observation remains required');
+ actual.steps[index]=expected.steps[index];
+ const cleanup=actual.cleanup.shift();
+ assert.equal(cleanup.label,'cleanup original ambient settings before stopping Play');
+ assert(cleanup.args.code.includes("Iteration05AmbientOriginalSettings")&&cleanup.args.code.includes("assert(restored,")&&!cleanup.allowError,'failure cleanup must restore authoritative original settings');
+ assert.deepEqual(actual,expected,'unrelated iteration05 gates or lifecycle changed');
+}
+verifyAmbientFlowShape(ambientFlow);
+const ambientClient=read('work/punch-wall-rpg/src/client/PunchWallClient.client.lua');
+const ambientProducer=block(ambientClient,'local ambientPhase = 0','\nlocal tutorialWaypoint');
+assert(ambientProducer.includes('math.clamp(base + math.sin(ambientPhase * 2.6 + index * 0.7) * 0.1, 0, 0.85)'),'current pulse source formula must be reviewed if changed');
+function ambientProgram(flowCode=ambientStep.args.code,producer=ambientProducer,tail=''){
+ return String.raw`
+local function runScene(initialPhase,fps,initialMotion,noFrames,base)
+ local now=initialPhase
+ local os={clock=function()return now end}
+ local listeners={} local disconnected=0 local requested={}
+ local signal={}
+ function signal:Connect(callback)
+  local entry={active=true,callback=callback} table.insert(listeners,entry)
+  return {Disconnect=function()if entry.active then entry.active=false disconnected+=1 end end}
+ end
+ local RunService={RenderStepped=signal}
+ local attributes={} local g={}
+ local gui=g
+ function g:GetAttribute(key)return attributes[key]end
+ function g:SetAttribute(key,value)attributes[key]=value end
+ local part={Parent=true,Transparency=base or 0}
+ function part:GetAttribute(key)if key=='AmbientBaseTransparency'then return base or 0 end end
+ local clientRuntime={AmbientPulseParts={part}}
+ local clientSettings={motion=initialMotion}
+ local encoded={}local serial=0 local H={}
+ function H:JSONEncode(value)serial+=1 local key='json'..serial encoded[key]=value return key end
+ function H:JSONDecode(value)return assert(encoded[value],'unknown JSON token')end
+ local original={motion=initialMotion,sound=false,uiScale=.8}
+ local settingsValue={Value=H:JSONEncode(original)}
+ local p={PlayerGui={PunchWallHUD=g},RPGStats={SettingsJSON=settingsValue}}
+ local pending
+ local remote={}
+ function remote:FireServer(request)
+  assert(request.action=='UpdateSettings','unexpected scene mutation')
+  table.insert(requested,table.clone(request.value))
+  pending={at=now+.12,value=table.clone(request.value)}
+ end
+ local game={Players={LocalPlayer=p},ReplicatedStorage={PunchWallEvents={ActionRequest=remote}}}
+ function game:GetService(name)if name=='HttpService'then return H elseif name=='RunService'then return RunService end error(name)end
+ local workspace={PunchWallRPG={Polish={['Wall Tier Frames']={['Titan Warning Beacon -1']=part}}}}
+ `+producer+String.raw`
+ listeners[1].callback(initialPhase)
+ local frameCount=0
+ local task={}
+ function task.wait(seconds)
+  local frames=math.max(1,math.ceil(seconds*fps))
+  for _=1,frames do
+   local dt=1/fps now+=dt frameCount+=1 assert(frameCount<5000,'bounded native observer scheduler')
+   if pending and now>=pending.at then
+    clientSettings.motion=pending.value.motion
+    settingsValue.Value=H:JSONEncode(pending.value)
+    pending=nil
+   end
+   if not noFrames then
+    for _,entry in ipairs(table.clone(listeners))do if entry.active then entry.callback(dt)end end
+   end
+  end
+  return frames/fps
+ end
+ local function executeFlow()
+ `+flowCode+String.raw`
+ end
+ local result=H:JSONDecode(executeFlow())
+ local activeObservers=0 for i,entry in ipairs(listeners)do if i>1 and entry.active then activeObservers+=1 end end
+ local current=H:JSONDecode(settingsValue.Value)
+ assert(activeObservers==0,'observer survives completion or failure')
+ assert(result.restored and current.motion==original.motion and current.sound==original.sound and current.uiScale==original.uiScale,'original settings were not restored')
+ assert(attributes.Iteration05AmbientOriginalSettings==nil,'restored marker was not cleared')
+ assert(#requested>=2 and requested[1].motion==true,'one normal settings request must precede observation')
+ return result,requested,disconnected
+end
+`+tail;
+}
+const ambientPositive=String.raw`
+local checks=0
+for _,fps in ipairs({15,30,60,144})do
+ for phase=0,15 do
+  for _,initialMotion in ipairs({true,false})do
+   local result,requests,disconnected=runScene(phase*.2,fps,initialMotion,false,0)
+   assert(result.observed and result.changed and result.stable and result.base and result.inactive,'actual pulse producer failed')
+   assert(result.normal.elapsed>=2.7 and result.reduced.elapsed>=2.7,'observer exited before full window')
+   assert(result.normal.samples>=math.floor(fps*2.7) and result.reduced.samples>=math.floor(fps*2.7),'complete RenderStepped samples not observed')
+   assert(#requests==3 and requests[1].motion==true and requests[2].motion==false and requests[3].motion==initialMotion,'settings requests are not exactly normal/reduced/restore')
+   assert(disconnected==2,'both observers must disconnect')
+   checks+=5
+  end
+ end
+end
+print('AMBIENT_PASS='..checks)
+`;
+
 try{
  results.production=Number(run('production',program()).match(/PASS (\d+)/)?.[1]);
  const negatives=[['fake_geometry','actual egg shape or size does not match'],['wrong_owner','egg ownership and active drop identity disagree'],['fake_expiry','expiry disagrees with authoritative lifetime'],['persistent_leak','scene instance identity changed beyond the verified egg'],['late_leak','scene instance identity changed beyond the verified egg'],['late_particles','scene composition did not return to expected counts'],['late_unloaded_sound','scene audio is not fully loaded'],['missing_baseline','scene instance identity changed beyond the verified egg'],['unloaded_sound','scene audio is not fully loaded'],['physics_leak','scene instance identity changed beyond the verified egg'],['early_removal','expiry observation is early']];
@@ -216,5 +330,56 @@ try{
  const fakeCleanup=structuredClone(flow);fakeCleanup.steps[8].args.code=fakeCleanup.steps[8].args.code.replace('task.wait(5)',"model:Destroy()\ntask.wait(5)");assert.throws(()=>verifyFlowShape(fakeCleanup),/no manual cleanup/);mutations.push('cleanup_cannot_mask_scene');
  const weakenedCamera=structuredClone(flow);weakenedCamera.steps[7].args.code=weakenedCamera.steps[7].args.code.replace('<=.05','<=500');assert.throws(()=>verifyFlowShape(weakenedCamera),/original reduced-motion/);mutations.push('camera_impulse_gate_unchanged');
  for(const [index,step]of flow.steps.entries())if(step.args?.code){const file=path.join(temp,'flow-'+index+'.luau');files.push(file);fs.writeFileSync(file,step.args.code);const c=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(c.status,0,c.stderr);}
+
+ results.ambientPhaseMatrix=Number(run('ambient-phases',ambientProgram(undefined,undefined,ambientPositive)).match(/AMBIENT_PASS=(\d+)/)?.[1]);
+ const constantProducer=ambientProducer.replace('active and math.clamp(base + math.sin(ambientPhase * 2.6 + index * 0.7) * 0.1, 0, 0.85) or base','base');
+ assert.notEqual(constantProducer,ambientProducer);
+ const movingReduced=ambientProducer.replace('or base\n','or math.clamp(base + math.sin(ambientPhase * 2.6) * 0.1, 0, 0.85)\n');
+ assert.notEqual(movingReduced,ambientProducer);
+ const wrongMotion=ambientProducer.replace('local active = clientSettings.motion and','local active = true and');
+ run('ambient-constant',ambientProgram(undefined,constantProducer,"local r=runScene(0,60,true,false,0)assert(r.observed and not r.changed and r.stable and r.base,'constant pulse must fail change gate') print('PASS')"));
+ run('ambient-reduced-still-moving',ambientProgram(undefined,movingReduced,"local r=runScene(0,60,true,false,0)assert(r.observed and r.changed and not r.stable and not r.base,'moving reduced pulse must fail stable and base gates') print('PASS')"));
+ run('ambient-wrong-motion-state',ambientProgram(undefined,wrongMotion,"local r=runScene(0,60,true,false,0)assert(not r.observed and r.error:find('did not settle',1,true),'incorrect motion state must fail settlement') print('PASS')"));
+ run('ambient-no-render-frames',ambientProgram(undefined,undefined,"local r=runScene(0,60,true,true,0)assert(not r.observed and r.error:find('timed out',1,true),'no RenderStepped frames must time out') print('PASS')"));
+ run('ambient-nonzero-base',ambientProgram(undefined,undefined,"local r=runScene(0,60,true,false,.01)assert(r.observed and not r.base,'nonzero reduced base must fail') print('PASS')"));
+ results.ambientNegativeScenarios=5;
+ const shortWindow=ambientStep.args.code.replaceAll('2.7','.45');
+ run('ambient-early-window-mutant',ambientProgram(shortWindow,ambientProducer,"local r=runScene(0,60,true,false,0)assert(r.normal and r.normal.elapsed>=2.7,'full-window negative control')"),'full-window negative control');
+ mutations.push('ambient_observer_must_finish_full_window');
+ const noChangeGate=ambientStep.args.code.replace('changed=normal.delta>.015','changed=true');
+ run('ambient-constant-gate-mutant',ambientProgram(noChangeGate,constantProducer,"local r=runScene(0,60,true,false,0)assert(not r.changed,'constant pulse negative control')"),'constant pulse negative control');
+ mutations.push('ambient_constant_pulse_must_fail');
+ const noStableGate=ambientStep.args.code.replace('stable=reduced.delta<.002','stable=true');
+ run('ambient-stable-gate-mutant',ambientProgram(noStableGate,movingReduced,"local r=runScene(0,60,true,false,0)assert(not r.stable,'moving reduced negative control')"),'moving reduced negative control');
+ mutations.push('ambient_reduced_motion_must_be_stable');
+ const noBaseGate=ambientStep.args.code.replace('base=math.max(math.abs(reduced.minimum),math.abs(reduced.maximum))<.002','base=true');
+ run('ambient-base-gate-mutant',ambientProgram(noBaseGate,ambientProducer,"local r=runScene(0,60,true,false,.01)assert(not r.base,'nonzero base negative control')"),'nonzero base negative control');
+ mutations.push('ambient_reduced_base_must_be_zero');
+ const noRestore=ambientStep.args.code.replace("remote:FireServer({action='UpdateSettings',value=original})",'-- removed restore mutation');
+ run('ambient-restore-mutant',ambientProgram(noRestore,ambientProducer,"runScene(0,60,true,false,0)"),'original settings were not restored');
+ mutations.push('ambient_original_settings_restored');
+ const shortCleanup=structuredClone(ambientFlow);shortCleanup.cleanup.shift();
+ assert.throws(()=>verifyAmbientFlowShape(shortCleanup));mutations.push('ambient_failure_cleanup_required');
+ const alteredWorld=structuredClone(ambientFlow);alteredWorld.steps[2].expectRegex.pop();
+ assert.throws(()=>verifyAmbientFlowShape(alteredWorld),/unrelated/);mutations.push('ambient_world_gates_unchanged');
+ const legacyPulse=String.raw`
+local frame
+local RunService={RenderStepped={Connect=function(_,fn)frame=fn end}}
+local gui={SetAttribute=function()end}
+local clientSettings={motion=true}
+local part={Parent=true,Transparency=0,GetAttribute=function()return 0 end}
+local clientRuntime={AmbientPulseParts={part}}
+`+ambientProducer+String.raw`
+frame((math.pi+.25-.7)/2.6)
+local first=part.Transparency frame(.45)
+assert(first==0 and part.Transparency==0,'actual clamped producer must reproduce old two-snapshot false failure')
+print('PASS')
+`;
+ run('ambient-historical-two-sample-failure',legacyPulse);results.ambientHistoricalFailBefore=true;
+ for(const [index,step]of [...ambientFlow.steps,...ambientFlow.cleanup].entries())if(step.args?.code){
+  const file=path.join(temp,'ambient-flow-'+index+'.luau');files.push(file);fs.writeFileSync(file,step.args.code);
+  const c=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(c.status,0,c.stderr);
+ }
+
  console.log(JSON.stringify({ok:true,results,mutations,compiledFlowChunks:flow.steps.filter(s=>s.args?.code).length},null,2));
 }finally{for(const file of files)fs.unlinkSync(file);fs.rmdirSync(temp);}

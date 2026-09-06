@@ -101,15 +101,19 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local part=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"][\"Titan Warning Beacon -1\"] local a=part.Transparency task.wait(.45) local b=part.Transparency game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) task.wait(.8) local c=part.Transparency task.wait(.45) local d=part.Transparency local inactive=g:GetAttribute(\"AmbientMotionActive\")==false game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return H:JSONEncode({changed=math.abs(a-b)>.015,stable=math.abs(c-d)<.002,base=math.abs(c)<.002,inactive=inactive})"
+        "code": "local H=game:GetService('HttpService')\nlocal RunService=game:GetService('RunService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal part=workspace.PunchWallRPG.Polish['Wall Tier Frames']['Titan Warning Beacon -1']\nlocal remote=game.ReplicatedStorage.PunchWallEvents.ActionRequest\nlocal settingsValue=p.RPGStats.SettingsJSON\n-- BEGIN AMBIENT WINDOW ASSERTIONS\nlocal function observeAmbientWindow(part,duration)\n assert(duration==2.7,'ambient observation must cover the full 2.7 second window')\n local started=os.clock()\n local first,last,minimum,maximum,count=nil,nil,math.huge,-math.huge,0\n local done,failure=false,nil\n local connection=RunService.RenderStepped:Connect(function()\n  if done or failure then return end\n  if not part.Parent then failure='ambient part removed during observation' return end\n  local value=part.Transparency\n  if value~=value or value<0 or value>1 then failure='invalid actual transparency' return end\n  local now=os.clock()\n  first=first or now last=now count+=1\n  minimum=math.min(minimum,value) maximum=math.max(maximum,value)\n  -- Continue through the entire cycle even after a sufficient delta appears.\n  done=last-first>=duration\n end)\n local ok,reason=pcall(function()\n  while not done and not failure and os.clock()-started<duration+2 do task.wait(.02) end\n end)\n connection:Disconnect()\n assert(ok,tostring(reason))\n assert(not failure,failure)\n assert(done and count>=3 and last-first>=duration,'full RenderStepped ambient observation timed out')\n return {minimum=minimum,maximum=maximum,delta=maximum-minimum,samples=count,elapsed=last-first}\nend\nlocal function evaluateAmbientWindows(normal,reduced,inactive)\n assert(normal.elapsed>=2.7 and reduced.elapsed>=2.7 and normal.samples>=3 and reduced.samples>=3,'incomplete ambient observation')\n return {changed=normal.delta>.015,stable=reduced.delta<.002,base=math.max(math.abs(reduced.minimum),math.abs(reduced.maximum))<.002,inactive=inactive,normal=normal,reduced=reduced}\nend\n-- END AMBIENT WINDOW ASSERTIONS\nlocal function settledSettings(expected)\n local ok,value=pcall(function() return H:JSONDecode(settingsValue.Value) end)\n return ok and type(value)=='table' and value.motion==expected.motion and value.sound==expected.sound\n  and math.abs((tonumber(value.uiScale) or -1)-expected.uiScale)<.00001\n  and g:GetAttribute('AmbientMotionActive')==expected.motion\nend\nlocal function awaitSettings(expected)\n local deadline=os.clock()+4\n repeat task.wait(.05) until settledSettings(expected) or os.clock()>=deadline\n assert(settledSettings(expected),'replicated settings and ambient state did not settle')\nend\nlocal originalRaw=settingsValue.Value\nlocal original=H:JSONDecode(originalRaw)\nassert(type(original)=='table' and type(original.motion)=='boolean' and type(original.sound)=='boolean' and type(original.uiScale)=='number' and original.uiScale>=.8 and original.uiScale<=1.2,'invalid original ambient settings')\ng:SetAttribute('Iteration05AmbientOriginalSettings',originalRaw)\nlocal result={changed=false,stable=false,base=false,inactive=false}\nlocal ok,reason=pcall(function()\n local normalSettings={motion=true,sound=original.sound,uiScale=original.uiScale}\n remote:FireServer({action='UpdateSettings',value=normalSettings})\n awaitSettings(normalSettings)\n local normal=observeAmbientWindow(part,2.7)\n local reducedSettings={motion=false,sound=original.sound,uiScale=original.uiScale}\n remote:FireServer({action='UpdateSettings',value=reducedSettings})\n awaitSettings(reducedSettings)\n local reduced=observeAmbientWindow(part,2.7)\n result=evaluateAmbientWindows(normal,reduced,g:GetAttribute('AmbientMotionActive')==false)\nend)\n-- Restore even when the observation or its assertions fail.\nlocal restored,restoreError=pcall(function()\n remote:FireServer({action='UpdateSettings',value=original})\n awaitSettings(original)\nend)\nif restored then g:SetAttribute('Iteration05AmbientOriginalSettings',nil) end\nresult.observed=ok result.restored=restored\nresult.error=not ok and tostring(reason):sub(1,240) or ''\nresult.restoreError=not restored and tostring(restoreError):sub(1,240) or ''\nreturn H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"changed\"\\s*:\\s*true",
         "\"stable\"\\s*:\\s*true",
         "\"base\"\\s*:\\s*true",
-        "\"inactive\"\\s*:\\s*true"
+        "\"inactive\"\\s*:\\s*true",
+        "\"observed\"\\s*:\\s*true",
+        "\"restored\"\\s*:\\s*true"
       ],
-      "label": "ambient pulse runs and reduced motion restores a stable base"
+      "label": "ambient pulse runs and reduced motion restores a stable base",
+      "saveAs": "ambientMotionWindow",
+      "timeoutMs": 30000
     },
     {
       "type": "call",
@@ -148,6 +152,18 @@
     }
   ],
   "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer\nlocal g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD')\nlocal raw=g and g:GetAttribute('Iteration05AmbientOriginalSettings')\nif type(raw)~='string' then return {restored=true,needed=false} end\nlocal H=game:GetService('HttpService')\nlocal value=H:JSONDecode(raw)\nassert(type(value)=='table' and type(value.motion)=='boolean' and type(value.sound)=='boolean' and type(value.uiScale)=='number' and value.uiScale>=.8 and value.uiScale<=1.2,'invalid saved ambient settings')\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='UpdateSettings',value=value})\nlocal deadline=os.clock()+4\nlocal restored=false\nrepeat\n task.wait(.05)\n local current=H:JSONDecode(p.RPGStats.SettingsJSON.Value)\n restored=current.motion==value.motion and current.sound==value.sound and math.abs(current.uiScale-value.uiScale)<.00001 and g:GetAttribute('AmbientMotionActive')==value.motion\nuntil restored or os.clock()>=deadline\nassert(restored,'ambient failure cleanup did not restore settings')\ng:SetAttribute('Iteration05AmbientOriginalSettings',nil)\nreturn {restored=true,needed=true}"
+      },
+      "expectRegex": [
+        "\"restored\"\\s*:\\s*true"
+      ],
+      "label": "cleanup original ambient settings before stopping Play"
+    },
     {
       "type": "call",
       "tool": "start_stop_play",
