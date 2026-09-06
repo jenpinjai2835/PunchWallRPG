@@ -5,6 +5,7 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'../../..');
 const relative='work/punch-wall-rpg/src/client/PunchWallClient.client.lua';
+const focusAt=process.argv.indexOf('--focus-baseline'),focusBaseline=focusAt<0?null:process.argv[focusAt+1]||'a49221b';
 const narrowAt=process.argv.indexOf('--narrow-baseline'),narrowBaseline=narrowAt<0?null:process.argv[narrowAt+1]||'39d3c40';
 const projectionAt=process.argv.indexOf('--projection-baseline'),projectionBaseline=projectionAt<0?null:process.argv[projectionAt+1]||'521711b';
 const at=process.argv.indexOf('--baseline'),baseline=narrowBaseline||projectionBaseline||(at<0?null:process.argv[at+1]||'2ddecc6');
@@ -211,6 +212,10 @@ local folder={GetChildren=function()return models end}function workspace:FindFir
 local game={Players={LocalPlayer={Name='Player',Character=character,PlayerGui={PunchWallHUD={GetAttribute=function()return 'BoundsAwarePremiumFormationV2'end}}}},GetService=function()return {JSONEncode=function(_,v)return v end}end}
 local task={wait=function(dt)
  waits+=1 if dt==1 then sample=0 phase+=1 else sample+=1 end
+ if mode=='native20'or mode=='native20Drift'or mode=='native20Camera'then local point=camera.CFrame.Position+camera.CFrame.LookVector*20 camera.Focus=frame(point.X,point.Y,point.Z)end
+ if dt==1 and(mode=='unexpected19'or mode=='unexpectedOffset')then local point=camera.CFrame.Position+camera.CFrame.LookVector*(mode=='unexpected19'and 19 or 20)if mode=='unexpectedOffset'then point=point+Vector3.new(.01,0,0)end camera.Focus=frame(point.X,point.Y,point.Z)end
+ if mode=='native20Drift'and sample>=2 then camera.Focus=camera.Focus+Vector3.new(.002,0,0)end
+ if mode=='native20Camera'and sample==2 then camera.CFrame=camera.CFrame+Vector3.new(1,0,0)end
  if mode=='camera'and sample==2 then camera.CFrame=camera.CFrame+Vector3.new(1,0,0)end
  if mode=='focus'and sample==2 then camera.Focus=camera.Focus+Vector3.new(0,1,0)end
  if mode=='type'and sample==2 then camera.CameraType='Custom'end
@@ -220,6 +225,13 @@ local function execute()
 ${separationFlow.args.code}
 end
 local r=execute()check(r.contractValid and r.valid and waits==63,'actual_separation_flow_accepts_complete_three_distance_bob_window')
+check(r.matrix['6'].focusPolicy=='RequestedFocus'and r.matrix['6'].requestedFocusDelta==0,'requested_focus_contract_remains_accepted')
+mode='native20'r=execute()check(r.contractValid and r.valid and r.matrix['6'].focusPolicy=='ObservedStudio20StudPlane','only_observed_exact_twenty_stud_plane_is_accepted_after_settle')
+check(r.matrix['6'].requestedFocusDelta>1 and r.matrix['6'].maxCameraFocusDelta==0,'native_reference_records_requested_delta_and_frozen_reference_stability')
+for _,m in ipairs({'unexpected19','unexpectedOffset','native20Drift','native20Camera'})do
+ mode=m r=execute()check(not r.contractValid and not r.valid,m..'_cannot_pass_qualified_focus_policy')
+ check(#r.failures==1 and r.failures[1].camera.focusPolicy~=nil,m..'_retains_policy_and_first_failure')
+end
 for _,m in ipairs({'avatar','pair','world','transient','near','camera','focus','type','angle'})do
  mode=m r=execute()check(not r.contractValid and not r.valid,m..'_cannot_pass_actual_separation_flow')
  check(#r.failures==1 and r.failures[1].avatarRect and #r.failures[1].pets==3 and r.failures[1].camera,m..'_retains_bounded_actual_rectangle_diagnostics')
@@ -282,6 +294,7 @@ print('PASS '..n)
 `;
 }
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'smash-pet-contract-')),files=[],results={},mutations=[];
+let focusBaselineControl;
 let compiledPrograms=0;
 function run(name,text){const file=path.join(temp,`${name}.luau`);files.push(file);fs.writeFileSync(file,text);const compiled=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});assert.equal(compiled.status,0,name+': '+compiled.stderr);compiledPrograms++;const r=spawnSync(luau,[file],{encoding:'utf8',timeout:15000});return {status:r.status,output:(r.stdout||'')+(r.stderr||'')};}
 try{
@@ -299,12 +312,25 @@ try{
    ['allow_pair_overlap','separationOracle','pairOverlap<=.08','true','pair_cannot_pass_actual_separation_flow'],
    ['allow_world_intersection','separationOracle','worldPair>=1.45','true','world_cannot_pass_actual_separation_flow'],
    ['check_only_final_separation_distance','separationOracle','allValid=allValid and valid','allValid=valid','later_distances_cannot_erase_earlier_separation_failure'],
-   ['allow_changed_focus','separationOracle','focusDelta<.001','true','focus_cannot_pass_actual_separation_flow'],
+   ['allow_changed_focus','separationOracle','focusDelta<.001','true','native20Drift_cannot_pass_qualified_focus_policy'],
    ['allow_changed_look_direction','separationOracle','lookDot>.999999','true','angle_cannot_pass_actual_separation_flow'],
    ['allow_changed_camera_owner','separationOracle','cam.CameraType==Enum.CameraType.Scriptable and positionDelta','true and positionDelta','type_cannot_pass_actual_separation_flow'],
-   ['unbound_first_camera_failure','separationOracle','not sampleValid and #failures<1','not sampleValid and #failures<6','avatar_retains_bounded_actual_rectangle_diagnostics'],
+   ['unbound_first_camera_failure','separationOracle','not sampleValid and #failures<1','not sampleValid and #failures<6','unexpected19_retains_policy_and_first_failure'],
   ]){
    const altered=fixtures[fixture].replace(from,to);assert.notEqual(altered,fixtures[fixture],name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
+  }
+  const arbitraryFocus=fixtures.separationOracle.replace("local acceptedFocus=focusPolicy=='ObservedStudio20StudPlane' and studioFocusPlane or focus",'local acceptedFocus=observedFocus').replace("local focusSetupValid=focusPolicy~='UnexpectedFocus'",'local focusSetupValid=true');
+  assert.notEqual(arbitraryFocus,fixtures.separationOracle);const arbitraryResult=run('accept_arbitrary_initial_focus',arbitraryFocus);assert.ok(arbitraryResult.status!==0&&arbitraryResult.output.includes('unexpected19_cannot_pass_qualified_focus_policy'),arbitraryResult.output);mutations.push('accept_arbitrary_initial_focus');
+  const movingBaseline=fixtures.separationOracle.replace('local focusDelta=(actualFocus-acceptedFocus).Magnitude','local focusDelta=(actualFocus-actualFocus).Magnitude');
+  assert.notEqual(movingBaseline,fixtures.separationOracle);const movingResult=run('refresh_focus_reference_every_sample',movingBaseline);assert.ok(movingResult.status!==0&&movingResult.output.includes('native20Drift_cannot_pass_qualified_focus_policy'),movingResult.output);mutations.push('refresh_focus_reference_every_sample');
+  if(focusBaseline){
+   const oldFlow=spawnSync('git',['show',focusBaseline+':work/automation/flows/pet-size-position-qc.json'],{cwd:root,encoding:'utf8'});assert.equal(oldFlow.status,0,oldFlow.stderr);
+   const oldCode=JSON.parse(oldFlow.stdout).steps.find(s=>s.saveAs==='premiumScreenSeparation').args.code;
+   const currentCode=JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows/pet-size-position-qc.json'))).steps.find(s=>s.saveAs==='premiumScreenSeparation').args.code;
+   const prefix=fixtures.separationOracle.slice(0,fixtures.separationOracle.indexOf('local r=execute()check('));
+   const oldFixture=prefix.replace(currentCode,oldCode)+"mode='native20'local r=execute()check(r.contractValid,'native_focus_plane_requires_supported_fixture_policy')";
+   assert.notEqual(oldFixture,prefix);const r=run('historical_focus_policy',oldFixture);assert.ok(r.status!==0&&r.output.includes('native_focus_plane_requires_supported_fixture_policy'),r.output);
+   focusBaselineControl={revision:focusBaseline,reproduced:'native_focus_plane_requires_supported_fixture_policy'};
   }
   for(const [name,from,to,expected]of [['only_last_distance_aggregate','allValid=allValid and valid','allValid=valid','exact_flow_rejects_failed_distance_even_when_later_distances_pass'],['omit_safe_aggregate','safe=allValid,','', 'exact_flow_accepts_all_eight_clear_corners'],['fabricate_safe_aggregate','safe=allValid','safe=true','exact_flow_rejects_transient_one_pixel_top_edge'],['allow_partial_front','front==8 and minX','front>0 and minX','exact_flow_rejects_partially_behind_camera_bounds'],['allow_top_edge','minY>=inset','minY>=0','exact_flow_rejects_transient_one_pixel_top_edge'],['skip_motion_window','for sample=1,20 do','for sample=1,1 do','exact_flow_samples_full_bob_window_at_all_three_distances']]){
    const altered=fixtures.frameOracle.replace(from,to);assert.notEqual(altered,fixtures.frameOracle,name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
@@ -314,5 +340,5 @@ try{
   const wrongNear=fixtures.safeFrame.replace('if point.Z <= nearDepth then','if point.Z <= 0.05 then');assert.notEqual(wrongNear,fixtures.safeFrame);const wrongNearResult=run('ignore_hardware_near_plane',wrongNear);assert.ok(wrongNearResult.status!==0&&wrongNearResult.output.includes('positive_depth_inside_hardware_near_plane_cannot_claim_safe_fit'),wrongNearResult.output);mutations.push('ignore_hardware_near_plane');
   for(const [name,code]of [['client',source],...['pet-size-position-qc','power-avatar-growth'].flatMap(name=>{const f=JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows',name+'.json')));return [...f.steps,...(f.cleanup||[])].flatMap((s,i)=>s.args?.code?[[`${name}-${i}`,s.args.code]]:[]);})]){const file=path.join(temp,name+'.luau');files.push(file);fs.writeFileSync(file,code);const r=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);}
  }
- console.log(JSON.stringify({ok:true,source:baseline||'current',results,mutations,compiledPrograms},null,2));
+ console.log(JSON.stringify({ok:true,source:baseline||'current',results,mutations,compiledPrograms,focusBaselineControl},null,2));
 }finally{for(const f of files)fs.unlinkSync(f);fs.rmdirSync(temp);}
