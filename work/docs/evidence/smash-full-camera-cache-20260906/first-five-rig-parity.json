@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "first-five-rig-parity",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start isolated rig parity playtest",
+        "wait for character and automation",
+        "purchase first five regular fists authoritatively",
+        "create and assign real R6 player character",
+        "measure first five on actual R6 idle punch recovery",
+        "LoadCharacterAsync restores normal character after R6",
+        "verify R6 fixture disposal and saved fist after normal respawn",
+        "create and assign real R15 player character",
+        "measure first five on actual R15 idle punch recovery",
+        "LoadCharacterAsync restores normal character after R15",
+        "verify R15 fixture disposal and saved fist after normal respawn",
+        "confirm both actual rig matrices and respawn checks completed",
+        "clear owned serialized rig fixture markers",
+        "capture rig parity console",
+        "rig parity console clean (identified Studio input warnings: 0)",
+        "stop isolated playtest"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "rig parity console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

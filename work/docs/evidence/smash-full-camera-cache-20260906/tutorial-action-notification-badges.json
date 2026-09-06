@@ -1,0 +1,101 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "tutorial-action-notification-badges",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start tutorial badge playtest",
+        "wait for tutorial badge bootstrap",
+        "capture tutorial badge boot console",
+        "tutorial badge boot console clean (identified Studio input warnings: 0)",
+        "fresh profile starts punch-first tutorial",
+        "wait for punch tutorial HUD",
+        "punch objective and initial action dots are exact",
+        "production punch action advances onboarding",
+        "wait for open-shop tutorial step",
+        "server accepts one successful punch outcome",
+        "shop-open route advances onboarding",
+        "wait for buy-fist tutorial step",
+        "authoritative tutorial waits for exact starter fist purchase",
+        "wait for affordable shop dot",
+        "affordable fist shows shop dot and production purchase completes tutorial",
+        "wait for tutorial completion persistence state",
+        "tutorial completion persists and legacy completion migrates once",
+        "seed one fuse action with other notifications inactive",
+        "wait for pet fuse notification dot",
+        "pet icon dot appears only when an unlocked fusion is possible",
+        "wait for fused pet notification clear",
+        "pet dot clears after the fusion action is exhausted",
+        "seed spin credit and claimable quest actions",
+        "wait for spin and daily notification dots",
+        "spin and claimable quest dots appear on their exact icons",
+        "exhaust every spin and daily claim action",
+        "wait for exhausted notification dots to clear",
+        "all dots and tutorial disappear when no action remains",
+        "capture tutorial badge runtime console",
+        "tutorial badge runtime console clean (identified Studio input warnings: 0)",
+        "stop tutorial badge playtest",
+        "capture tutorial badge post-stop console",
+        "tutorial badge post-stop console clean (identified Studio input warnings: 0)"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "tutorial badge boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "runtimeConsole",
+          "label": "tutorial badge runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "tutorial badge post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}
