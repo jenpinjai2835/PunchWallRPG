@@ -28,6 +28,7 @@ function evaluate(input){
  const all=input.map(codeOf).join('\n');
  const parity=codeAt(presentation,'firstFiveParity'),matrix=codeAt(catalog,'itemMatchedFistMatrix'),wrist=codeAt(alignment,'alignmentMatrix'),respawn=codeAt(alignment,'respawnLifecycle');
  const aura=codeAt(catalog,'tierProminenceAuraMatrix'),motion=codeAt(catalog,'auraReducedMotion');
+ const resize=codeAt(presentation,'narrowProjectionRefit');
  const seeds=input.map(flow=>flow.steps.find(step=>step.args?.datamodel_type==='Server')?.args?.code||'');
  const clients=input.flatMap(flow=>flow.steps.filter(step=>step.args?.datamodel_type==='Client'));
  const verifierCodes=clients.map(step=>step.args.code).filter(code=>code.includes('local function verifyGeometry'));
@@ -45,12 +46,15 @@ function evaluate(input){
  check('respawn_uses_tagged_serializable_identity_and_release',has(wrist,['SmashFistQALifecycleToken','SmashFistQALifecycleName','SmashFistQAOldCharacter','SmashFistQAOldModel'])&&has(respawn,['SmashFistQALifecycleToken','SmashFistQALifecycleName','SmashFistQAOldCharacter','SmashFistQAOldModel','workspace:GetDescendants()','EquippedFist.Value','copies==1'])&&!respawn.includes('shared.'),'Tag old objects with a serialized token, reacquire the new character, and prove tagged objects are absent and saved identity restored.');
  check('static_preview_and_resource_lifecycle_are_inspected',has(parity,['palm.CFrame==pose','viewport.CurrentCamera.CFrame==camera','invPalm.Parent','invPalm.CFrame==invPose'])&&has(codeAt(presentation,'previewLifecycle'),['current.models==baseline.models','current.parts==baseline.parts','offscreen first-five Shop models retained']),'Preview cameras/models must stay static and repeated menu cycles must not accumulate models or parts.');
  check('imported_fallback_and_aura_regression_are_preserved',has(matrix,["'SanitizedCreatorStoreMesh'","'CreatorStore_ArmoredClosedHeroFist'",'near(meshPart.Color,def.color)','meshPart.Material==def.material','parts<=28','anchored==0','collidable==0'])&&has(aura,['totalRate<=22','ok=#rows==#G.AllFists()'])&&has(motion,['fullBefore==2','reduced==0','restored==2','suppressed']),'Later normal/premium fists retain imported asset matching, noncollision/budget limits, and bounded motion-aware aura.');
+ check('authored_then_explicit_horizontal_fov_and_restoration',has(resize,["'DesktopReadableRowsV1'","'DesktopReadableFullWidthV1'",'verifyResizeState(viewport,model,camera,palm,pose,originalWidth)','math.abs(authored.width-76)<1','math.abs(authored.height-76)<1','viewport.Size=UDim2.fromScale(.72,1)','waitProjection(originalWidth*.72,.8)','viewport.Size=UDim2.fromScale(.52,1)','waitProjection(originalWidth*.52,.8)','resized.width<narrow.width-1','local restoreOk,restored=pcall(function()','viewport.Size=originalSize','assert(viewport.Size==originalSize','assert(restoreOk,restored)','viewport.CurrentCamera==camera','models[1]==model','palm.CFrame==pose','result.width/result.height<maxAspect']),'Actual square preview must be audited before two explicit horizontal-FOV resizes; original camera/model/pose and authored Size survive both success and failure.');
  return {checks,failures};
 }
 const result=evaluate(flows);
 const negativeControls=[];
 function mutate(name,target,change){const candidate=structuredClone(flows);change(candidate);const observed=evaluate(candidate);const rejected=result.checks[target]===true&&observed.checks[target]===false;negativeControls.push({name,target,status:rejected?'REJECTED':'BLOCKED',positiveBaseline:result.checks[target]===true});return rejected;}
 const mutationResults=[
+ mutate('drop_second_narrow_refit','authored_then_explicit_horizontal_fov_and_restoration',items=>{const s=stepOf(items[0],'narrowProjectionRefit');s.args.code=s.args.code.replace('waitProjection(originalWidth*.52,.8)','waitProjection(originalWidth*.52)');}),
+ mutate('drop_authored_size_restore','authored_then_explicit_horizontal_fov_and_restoration',items=>{const s=stepOf(items[0],'narrowProjectionRefit');s.args.code=s.args.code.replace('viewport.Size=originalSize','viewport.Size=viewport.Size');}),
  mutate('restart_after_console_gate','unique_studio_selection_and_clean_stop_gates',items=>items[0].steps.push({type:'call',tool:'start_stop_play',args:{is_start:true}})),
  mutate('remove_cleanup_stop','unique_studio_selection_and_clean_stop_gates',items=>items[0].cleanup=[]),
  mutate('truncate_catalog_to_eight','five_native_and_complete_catalog_counts_are_asserted',items=>{const s=stepOf(items[1],'itemMatchedFistMatrix');s.args.code=s.args.code.replace('#results==#definitions','#results==8');}),
@@ -123,8 +127,111 @@ print('HAZARD_HELPER_PASS safe='..passes..' rejected='..negative)
 }
 result.checks.actual_hazard_helpers_reject_unsafe_descendants=hazardEvidence.status==='PASS';
 if(hazardEvidence.status!=='PASS')result.failures.actual_hazard_helpers_reject_unsafe_descendants='Live flow hazard functions must pass safe cases and reject behavior, physics, effects, wrong endpoints, and disabled welds.';
+
+// Execute the actual projection/identity helpers and actual cleanup transaction.
+// These doubles model projective geometry and lifecycle, not native rasterization.
+const resizeCode=codeAt(flows[0],'narrowProjectionRefit');
+const projection=section(resizeCode,'local function verifyPreviewProjection','local function equipped');
+const resizeGuard=section(resizeCode,'local function verifyResizeState','local rows={}');
+const projectionDoubles=String.raw`
+local VM={} VM.__index=VM
+local function v(x,y,z)return setmetatable({X=x,Y=y,Z=z},VM)end
+function VM.__mul(a,b)if type(b)=='number'then return v(a.X*b,a.Y*b,a.Z*b)end return v(a.X*b.X,a.Y*b.Y,a.Z*b.Z)end
+local Vector3={new=v}
+local H={} function H:JSONEncode()return 'actual projected bounds'end
+local function parts(model)return model.parts end
+local function catalogModels(viewport)return viewport.models end
+`;
+const projectionCases=String.raw`
+local passed,rejected=0,0
+local function scenario(mode)
+ local originalCamera={FieldOfView=32,CFrame={}}
+ function originalCamera.CFrame:PointToObjectSpace(p)return p end
+ local camera=originalCamera
+ local model={Parent={},parts={}}
+ for i=1,(mode=='few-corners' and 11 or 12)do
+  local part={Size=v(1,1,1),CFrame={}}
+  function part.CFrame:PointToWorldSpace(p)return v(p.X+(mode=='horizontal-clip' and .35 or 0),p.Y,p.Z+(mode=='behind' and 1 or -5))end
+  model.parts[i]=part
+ end
+ local width=mode=='square' and 76 or mode=='first-narrow' and 76*.72 or 76*.52
+ local viewport={Parent={},AbsoluteSize={X=width,Y=76},CurrentCamera=camera,models={model}}
+ local pose={} local palm={Parent=model,CFrame=pose}
+ local expected=width local aspect=.8 if mode=='square' then aspect=nil end
+ if mode=='camera-replaced'then viewport.CurrentCamera={FieldOfView=32,CFrame=camera.CFrame}end
+ if mode=='model-replaced'then viewport.models={{Parent={}}}end
+ if mode=='model-detached'then model.Parent=nil end
+ if mode=='rotated'then palm.CFrame={}end
+ if mode=='width-not-settled'then expected=76 end
+ if mode=='aspect-not-narrow'then viewport.AbsoluteSize.X=76 expected=76 end
+ if mode=='no-area'then viewport.AbsoluteSize.X=0 expected=0 end
+ return pcall(verifyResizeState,viewport,model,camera,palm,pose,expected,aspect)
+end
+for _,mode in ipairs({'square','first-narrow','second-narrow'})do local ok,r=scenario(mode) assert(ok,'valid preview '..mode..':'..tostring(r))assert(r.samples==96 and r.insideViewport)passed+=1 end
+for _,mode in ipairs({'horizontal-clip','behind','few-corners','camera-replaced','model-replaced','model-detached','rotated','width-not-settled','aspect-not-narrow','no-area'})do local ok=scenario(mode)assert(not ok,'invalid preview accepted '..mode)rejected+=1 end
+print('PROJECTION_HELPER_PASS safe='..passed..' rejected='..rejected)
+`;
+const projectionCommand=process.env.LUAU_COMMAND||'C:/Users/Jennarong Pinjai/AppData/Local/Temp/codex-luau-smash-0.737/luau.exe';
+const runProjection=code=>{const run=spawnSync(projectionCommand,[],{input:'local f=assert(loadstring('+JSON.stringify(code)+')) print("PROJECTION_COMPILED") f()\n',encoding:'utf8',maxBuffer:4*1024*1024});run.compiled=(run.stdout||'').includes('PROJECTION_COMPILED');return run;};
+const projectionProgram=projectionDoubles+projection+resizeGuard+projectionCases;
+const projectionRun=runProjection(projectionProgram);
+const projectionPass=projectionRun.compiled&&projectionRun.status===0&&(projectionRun.stdout||'').includes('PROJECTION_HELPER_PASS safe=3 rejected=10');
+const projectionMutations=[
+ ['ignore-horizontal-clipping','maxX<=1+2/size.X and maxY<=1+2/size.Y','maxY<=1+2/size.Y'],
+ ['allow-camera-replacement','viewport.CurrentCamera==camera','true'],
+ ['allow-model-replacement','models[1]==model','true'],
+ ['drop-required-horizontal-aspect','result.width/result.height<maxAspect','true'],
+];
+const projectionMutationEvidence=[];
+for(const [name,before,after]of projectionMutations){const code=projectionProgram.replace(before,after);const r=runProjection(code);projectionMutationEvidence.push({name,rejected:projectionPass&&r.compiled&&code!==projectionProgram&&!(r.stdout||'').includes('PROJECTION_HELPER_PASS safe=3 rejected=10')});}
+const transaction=section(resizeCode,' local ok,result=pcall(function()',' rows[#rows+1]=');
+const cleanupProgram=String.raw`
+local UDim2={} function UDim2.fromScale(x,y)return {x=x,y=y}end
+local viewport={} local originalSize={x=1,y=1} local originalWidth=76
+local fault='none' local calls=0
+local function waitProjection(width)
+ calls+=1
+ if fault=='first' and width==originalWidth*.72 or fault=='second' and width==originalWidth*.52 then error('controlled projection failure')end
+ return {width=width}
+end
+local function transaction()
+`+transaction+String.raw`
+end
+for _,case in ipairs({'none','first','second'})do
+ fault=case calls=0 viewport.Size=originalSize
+ local ok=pcall(transaction)
+ assert(ok==(case=='none'),'unexpected resize transaction outcome '..case)
+ assert(viewport.Size==originalSize,'authored Size leaked after '..case)
+ assert(calls==(case=='first' and 2 or 3),'restore observation was skipped '..case)
+end
+print('RESIZE_CLEANUP_PASS safe=1 rejected=2 restored=3')
+`;
+const cleanupRun=runProjection(cleanupProgram);
+const cleanupPass=cleanupRun.status===0&&(cleanupRun.stdout||'').includes('RESIZE_CLEANUP_PASS safe=1 rejected=2 restored=3');
+const cleanupMutant=runProjection(cleanupProgram.replace('viewport.Size=originalSize\n  local observation','viewport.Size=viewport.Size\n  local observation'));
+const cleanupMutationPass=cleanupPass&&cleanupMutant.compiled&&!(cleanupMutant.stdout||'').includes('RESIZE_CLEANUP_PASS safe=1 rejected=2 restored=3');
+result.checks.actual_projection_identity_and_failure_cleanup_helpers=projectionPass&&projectionMutationEvidence.every(x=>x.rejected)&&cleanupPass&&cleanupMutationPass;
+if(!result.checks.actual_projection_identity_and_failure_cleanup_helpers)result.failures.actual_projection_identity_and_failure_cleanup_helpers={projection:projectionRun.stdout,cleanup:cleanupRun.stdout,mutations:projectionMutationEvidence,cleanupMutationPass};
+const longRun=JSON.parse(fs.readFileSync(path.join(repositoryRoot,'work/automation/flows/long-run-catalog-progression.json'),'utf8'));
+const scrollCode=longRun.steps.find(s=>s.label==='all fist offers are readable and scroll-accessible')?.args?.code||'';
+const modeCode=section(scrollCode,'local compact=','local result=');
+const modeCases=String.raw`
+for _,layout in ipairs({'MobileReadableRowsV1','DesktopReadableRowsV1','DesktopCatalogV2'})do
+ for _,actualMode in ipairs({'MobileReadableRowsV1','DesktopReadableRowsV1','FixedReadableCardsV1','Unknown'})do
+  local shop={} function shop:GetAttribute(key)return key=='ShopCompactLayout' and layout or actualMode end
+  MODE_PRODUCER
+  local expected=layout=='DesktopCatalogV2' and 'FixedReadableCardsV1' or layout
+  assert(modeValid==(actualMode==expected),'layout/scroll mode mismatch silently accepted')
+ end
+end
+print('SCROLL_MODE_PASS 12')
+`.replace('MODE_PRODUCER',modeCode);
+const modeRun=runProjection(modeCases);
+result.checks.long_run_exact_three_scroll_modes_preserve_original_authority=has(scrollCode,['cards==16','actions==16','locked==0','minHeight>=110','statesValid','action.Active==true','action:GetAttribute(\'ShopActionBound\')==true','scroll.AbsoluteCanvasSize.Y>scroll.AbsoluteSize.Y'])&&(modeRun.stdout||'').includes('SCROLL_MODE_PASS 12');
+if(!result.checks.long_run_exact_three_scroll_modes_preserve_original_authority)result.failures.long_run_exact_three_scroll_modes_preserve_original_authority=modeRun.stdout;
+const projectionEvidence={status:result.checks.actual_projection_identity_and_failure_cleanup_helpers?'PASS':'BLOCKED',positive:3,negative:10,cleanupRestored:3,mutations:projectionMutationEvidence,cleanupMutationPass,scrollModes:result.checks.long_run_exact_three_scroll_modes_preserve_original_authority?'PASS12':'BLOCKED'};
 const normalCount=(config.match(/GameConfig\.Fists = \{([\s\S]*?)\n\}/)?.[1].match(/name = "/g)||[]).length;
 const premiumCount=(config.match(/GameConfig\.PremiumFists = \{([\s\S]*?)\n\}/)?.[1].match(/name = "/g)||[]).length;
 const passed=Object.values(result.checks).filter(Boolean).length,total=Object.keys(result.checks).length;
-console.log(JSON.stringify({ok:passed===total,passed,total,firstFiveCount:5,normalCount,premiumCount,catalogCount:normalCount+premiumCount,sourceRoot:repositoryRoot,flowHashes:Object.fromEntries(flows.map(flow=>[flow.name,createHash('sha256').update(JSON.stringify(flow)).digest('hex')])),studioRuntimeStatus:'BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE',...result,negativeControls,hazardEvidence,files:flowNames.map(name=>'work/automation/flows/'+name+'.json')},null,2));
+console.log(JSON.stringify({ok:passed===total,passed,total,firstFiveCount:5,normalCount,premiumCount,catalogCount:normalCount+premiumCount,sourceRoot:repositoryRoot,flowHashes:Object.fromEntries(flows.map(flow=>[flow.name,createHash('sha256').update(JSON.stringify(flow)).digest('hex')])),studioRuntimeStatus:'BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE',...result,negativeControls,hazardEvidence,projectionEvidence,files:flowNames.map(name=>'work/automation/flows/'+name+'.json')},null,2));
 if(passed!==total)process.exitCode=1;
