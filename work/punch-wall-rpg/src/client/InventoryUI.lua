@@ -1619,6 +1619,9 @@ function InventoryUI:_build(parent)
 	self:_connect(self.Root:GetPropertyChangedSignal("Visible"), function()
 		self:_syncTimedRefresh()
 	end)
+	self:_connect(self.DetailPetPreview.viewport:GetPropertyChangedSignal("AbsoluteSize"), function()
+		self:_refitDetailPreview()
+	end)
 end
 
 function InventoryUI:_stopTimedRefresh()
@@ -2190,6 +2193,62 @@ function InventoryUI:_applyModelPreview(previewRef, item)
 	previewRef.viewport:SetAttribute("PreviewReady", true)
 	previewRef.viewport:SetAttribute("PreviewSource", "SharedCatalogFistModel")
 	return true, "SharedFistViewportV1"
+end
+
+function InventoryUI:_refitDetailPreview()
+	local preview = self.DetailPetPreview
+	if not preview then return end
+	local model = preview.world:FindFirstChildWhichIsA("Model")
+	if not model then
+		preview.detailFitModel = nil
+		preview.detailBaseCamera = nil
+		preview.detailFitSize = nil
+		preview.viewport:SetAttribute("PreviewFitMode", "Unavailable")
+		return
+	end
+	if not self._layout.tallDetail then
+		if model and preview.detailFitModel == model and preview.detailBaseCamera then
+			preview.camera.CFrame = preview.detailBaseCamera
+		end
+		preview.detailFitModel = nil
+		preview.detailBaseCamera = nil
+		preview.detailFitSize = nil
+		preview.viewport:SetAttribute("PreviewFitMode", "Original")
+		return
+	end
+	local size = preview.viewport.AbsoluteSize
+	if size.X < 1 or size.Y < 1 then return end
+	if preview.detailFitModel == model and preview.detailFitSize == size then return end
+	if preview.detailFitModel ~= model then
+		preview.detailFitModel = model
+		preview.detailBaseCamera = preview.camera.CFrame
+	end
+	local bounds, boundsSize = model:GetBoundingBox()
+	local center = bounds.Position
+	local base = preview.detailBaseCamera
+	local direction = base.Position - center
+	if direction.Magnitude < 0.001 then return end
+	direction = direction.Unit
+	local basis = CFrame.lookAt(center + direction, center, base.UpVector)
+	local tanY = math.tan(math.rad(preview.camera.FieldOfView * 0.5))
+	local tanX = tanY * size.X / size.Y
+	local distance = 2.6
+	-- Fit the existing clone, preserving its front/backhand direction. Only the
+	-- selected detail viewport is refitted, on layout/model changes, never a loop.
+	for x = -1, 1, 2 do
+		for y = -1, 1, 2 do
+			for z = -1, 1, 2 do
+				local world = bounds:PointToWorldSpace(Vector3.new(boundsSize.X * x, boundsSize.Y * y, boundsSize.Z * z) * 0.5)
+				local corner = basis:VectorToObjectSpace(world - center)
+				distance = math.max(distance, corner.Z + math.max(math.abs(corner.X) / tanX, math.abs(corner.Y) / tanY) * 1.12)
+			end
+		end
+	end
+	preview.camera.CFrame = CFrame.lookAt(center + direction * distance, center, base.UpVector)
+	preview.detailFitSize = size
+	preview.viewport:SetAttribute("PreviewFitMode", "TallDetailEightCornersV1")
+	preview.viewport:SetAttribute("PreviewFitWidth", size.X)
+	preview.viewport:SetAttribute("PreviewFitHeight", size.Y)
 end
 
 function InventoryUI:_applyItemArt(image, item)
@@ -3807,6 +3866,11 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	end
 	self.Empty.TextSize = secondaryTextSize
 	self.DetailMetaStrip.Visible = false
+	self._layout.tallDetail = false
+	self.DetailDescription.BackgroundTransparency = 0.12
+	self.DetailDescriptionStroke.Transparency = 0.28
+	self.Root:SetAttribute("InventoryCompactDetailLayout", "Original")
+	self.Root:SetAttribute("InventoryDetailHeroSize", 0)
 	if useCompact then
 		self.DetailArtFrame.AnchorPoint = Vector2.zero
 		self.Root:SetAttribute("InventoryWideActionColumns", 0)
@@ -3877,12 +3941,61 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 		self.DetailInternalName.Visible = false
 		self.DetailName.TextScaled = false
 		self.DetailName.TextSize = primaryTextSize
-		self.DetailNameTextLimit.MinTextSize = primaryTextSize
+		self.DetailNameTextLimit.MinTextSize = 1
 		self.DetailNameTextLimit.MaxTextSize = primaryTextSize
+		self.DetailNameTextLimit.MinTextSize = primaryTextSize
 		self.DetailRarity.TextSize = secondaryTextSize
 		self.DetailDescription.TextSize = secondaryTextSize
 		self.DetailStatus.TextSize = secondaryTextSize
-		if horizontalDrawer then
+		local physicalWidth, physicalHeight = detailPanelWidth * scale, drawerHeight * scale
+		local physicalActions = actionAreaHeight * scale
+		local informationHeight = 20 + 8 + 40 + 8 + 64 + 12 + physicalActions
+		local tallColumns = drawerOpen and physicalWidth >= 440 and physicalHeight >= math.max(360, informationHeight + 72)
+		local tallPortrait = drawerOpen and physicalWidth >= 280 and physicalWidth < 440 and physicalHeight >= 480
+		if tallColumns or tallPortrait then
+			local heroSize, heroX, heroY, infoX, infoY, infoWidth
+			if tallColumns then
+				heroSize = math.min(280, physicalWidth * 0.44, physicalHeight - 72)
+				infoWidth = math.min(320, physicalWidth - heroSize - 20 - 24)
+				local groupWidth = heroSize + 20 + infoWidth
+				local groupHeight = math.max(heroSize, informationHeight)
+				local top = math.max(60, (physicalHeight - groupHeight) * 0.5)
+				heroX = (physicalWidth - groupWidth) * 0.5
+				heroY = top + (groupHeight - heroSize) * 0.5
+				infoX = heroX + heroSize + 20
+				infoY = top + (groupHeight - informationHeight) * 0.5
+			else
+				-- Keep the top-right close target clear even in a narrow portrait.
+				heroSize = math.min(240, physicalWidth - 120, physicalHeight - informationHeight - 40)
+				infoWidth = math.min(320, physicalWidth - 24)
+				heroX = (physicalWidth - heroSize) * 0.5
+				heroY = (physicalHeight - heroSize - 16 - informationHeight) * 0.5
+				infoX = (physicalWidth - infoWidth) * 0.5
+				infoY = heroY + heroSize + 16
+			end
+			self._layout.tallDetail = true
+			self.Root:SetAttribute("InventoryCompactDetailLayout", tallColumns and "TallHeroColumnsV1" or "TallHeroPortraitV1")
+			self.Root:SetAttribute("InventoryDetailHeroSize", heroSize)
+			self.DetailArtFrame.Position = UDim2.fromOffset(heroX / scale, heroY / scale)
+			self.DetailArtFrame.Size = UDim2.fromOffset(heroSize / scale, heroSize / scale)
+			self.DetailRarity.Position = UDim2.fromOffset(infoX / scale, infoY / scale)
+			self.DetailRarity.Size = UDim2.fromOffset(math.min(infoWidth, 120) / scale, 20 / scale)
+			self.DetailName.Position = UDim2.fromOffset(infoX / scale, (infoY + 28) / scale)
+			self.DetailName.Size = UDim2.fromOffset(infoWidth / scale, 40 / scale)
+			local titleSize = math.ceil((infoWidth >= 220 and 18 or 16) / scale)
+			self.DetailName.TextSize = titleSize
+			self.DetailNameTextLimit.MinTextSize = 1
+			self.DetailNameTextLimit.MaxTextSize = titleSize
+			self.DetailNameTextLimit.MinTextSize = titleSize
+			self.DetailDescription.Visible = true
+			self.DetailDescription.BackgroundTransparency = 1
+			self.DetailDescriptionStroke.Transparency = 1
+			self.DetailDescription.Position = UDim2.fromOffset(infoX / scale, (infoY + 76) / scale)
+			self.DetailDescription.Size = UDim2.fromOffset(infoWidth / scale, 64 / scale)
+			self.DetailStatus.Size = UDim2.fromOffset(0, 0)
+			actionPanelWidth = infoWidth / scale
+			self.DetailActions.Position = UDim2.fromOffset(infoX / scale, (infoY + 152) / scale)
+		elseif horizontalDrawer then
 			-- Keep a separate close-button column so two action rows remain usable
 			-- even in a short landscape drawer.
 			local closeLane = touchTarget + 8 / scale
@@ -3936,8 +4049,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	else
 		self.DetailInternalName.Visible = true
 		self.DetailName.TextScaled = true
-		self.DetailNameTextLimit.MinTextSize = primaryTextSize
+		self.DetailNameTextLimit.MinTextSize = 1
 		self.DetailNameTextLimit.MaxTextSize = math.ceil(21 / scale)
+		self.DetailNameTextLimit.MinTextSize = primaryTextSize
 		self.DetailDescription.Visible = true
 		self.GridPane.Visible = true
 		self.Toolbar.Visible = true
@@ -4129,6 +4243,9 @@ function InventoryUI:ApplyResponsive(viewport, compact, uiScale)
 	self.Root:SetAttribute("InventorySearchReadable", toolbarWidths.readable)
 	self.Root:SetAttribute("InventorySearchExpectedWidth", searchWidth * scale)
 	self.Root:SetAttribute("InventorySearchMinimumWidth", toolbarWidths.minimumSearch * scale)
+	if typeof(self.DetailPetPreview.viewport) == "Instance" then
+		self:_refitDetailPreview()
+	end
 end
 
 function InventoryUI:_enabledActionNames(item)
