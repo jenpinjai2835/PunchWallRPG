@@ -227,6 +227,40 @@ async function runAction(client, action, context, checks, readinessTimeoutMs, co
   checks.push(action.label ?? action.tool);
 }
 
+export async function runFailureCleanup(client, actions, context, checks, readinessTimeoutMs, consoleClassifications, expectedPlace, selectedPlace) {
+  const cleanup = { attempted: actions.length > 0, actions: [], stopAcknowledged: false, editVerified: false, restored: false };
+  for (const action of actions) {
+    const entry = { label: action.label ?? action.tool ?? action.type, tool: action.tool, ok: false };
+    try {
+      // Optional diagnostics may fail without preventing the remaining cleanup.
+      // They must still be reported as failures, never as proof of restoration.
+      await runAction(client, { ...action, allowError: false }, context, checks, readinessTimeoutMs, consoleClassifications);
+      entry.ok = true;
+      if (action.tool === "start_stop_play" && action.args?.is_start === false) cleanup.stopAcknowledged = true;
+    } catch (error) {
+      entry.error = String(error.message ?? error).slice(0, 4000);
+    }
+    cleanup.actions.push(entry);
+  }
+  if (cleanup.stopAcknowledged) {
+    try {
+      // Read Edit only: Server's temporary name cannot prove the file returned.
+      const edit = await inspectSelectedPlace(client, { datamodelTypes: ["Edit"] });
+      cleanup.edit = edit;
+      assertPlaceIdentity(edit, expectedPlace);
+      if (selectedPlace?.datamodelType === "Edit") {
+        assertCondition(edit.name === selectedPlace.name && String(edit.placeId) === String(selectedPlace.placeId), "Cleanup Edit identity differs from the original selected place");
+      }
+      cleanup.editVerified = true;
+    } catch (error) {
+      cleanup.error = String(error.message ?? error).slice(0, 4000);
+    }
+  }
+  cleanup.restored = cleanup.attempted && cleanup.actions.every(action => action.ok)
+    && cleanup.stopAcknowledged && cleanup.editVerified;
+  return cleanup;
+}
+
 async function runFlow(file, studioMcp, commandLine) {
   const flow = JSON.parse(fs.readFileSync(file, "utf8"));
   const client = new McpClient(studioMcp, "punch-wall-flow-runner");
@@ -263,13 +297,7 @@ async function runFlow(file, studioMcp, commandLine) {
       consoleClassifications,
     };
   } catch (error) {
-    for (const action of flow.cleanup ?? []) {
-      try {
-        await runAction(client, action, context, checks, readinessTimeoutMs, consoleClassifications);
-      } catch {
-        // Preserve the original failure.
-      }
-    }
+    const cleanup = await runFailureCleanup(client, flow.cleanup ?? [], context, checks, readinessTimeoutMs, consoleClassifications, expectedPlace, selectedPlace);
     return {
       ok: false,
       flow: flow.name ?? path.basename(file),
@@ -278,6 +306,7 @@ async function runFlow(file, studioMcp, commandLine) {
       checks,
       consoleClassifications,
       error: error.message,
+      cleanup,
       context: summarizeContext(context),
     };
   } finally {
