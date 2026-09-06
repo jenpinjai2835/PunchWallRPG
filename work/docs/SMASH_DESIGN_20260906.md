@@ -1,242 +1,73 @@
-# Smash Wall: mobile quality and progression design
+# Smash Wall: ทิศทางเกมและงานที่ทำแล้ว
 
-Date: 2026-09-06. Agent HQ: `SMASH-20260906`, Agent 3 DESIGN.
-Baseline: `4094e51acdcaf7703986597ddd585eadfb4c37a1`.
-Owner: Coordinator integrates this handoff after review.
+อัปเดตวันที่ 6 กันยายน 2026 จาก source `1a97247e5c1cfe75f331275d9b97eb7f335065f4` เทียบจุดเริ่มต้น `4094e51` งานอยู่ภายใต้ Agent HQ `SMASH-20260906`; Coordinator เป็นผู้รวมงานและรับรองผลส่งมอบ
 
-Status at integrated source `e2dbc16`: the first five shared fist models,
-Shop/Inventory readability, tall selected details and camera repairs are now
-implemented and have targeted Studio evidence. The following baseline proposal
-is retained for context; new cooperative modes and a full economy rebalance
-remain proposals. Full 131-flow and final artifact acceptance are still pending.
+ทิศทางที่ตกลงกันคือ **ต่อยทำลายกำแพงให้สะใจ และช่วยกันเล่นกับเพื่อน** โดยมีหมัด สัตว์เลี้ยง การฝึก และความลึกเป็นเป้าหมายระยะต่อไป รอบนี้เน้นแก้สิ่งที่ขัดจังหวะการเล่น: เมนูอ่านยาก โมเดลไม่ชัด ปุ่มหรือหน้าต่างผิดตำแหน่ง และกล้องค้าง ไม่ได้เพิ่มโหมดร่วมมือใหม่หรือปรับเศรษฐกิจทั้งเกม
 
-## Decision and scope
+**สิ่งที่อยู่ใน source ปัจจุบันแล้ว**
 
-The accepted direction is satisfying wall destruction with friends, supported by
-fists, pets, and upgrades. The immediate work is usable mobile Shop/Inventory,
-complete item presentation, predictable camera behavior, and smoother gameplay.
-New modes, menus, currencies, and retention systems are deferred until those
-foundations pass. This document proposes changes; it does not claim they are
-implemented, measured in production, or capable of guaranteeing virality.
+| ส่วนของเกม | สิ่งที่ผู้เล่นจะพบ |
+| --- | --- |
+| Shop | มือถือและหน้าต่างคอมพิวเตอร์ที่แคบใช้รายการเต็มแถว ชื่อ ราคา เงื่อนไขและสถานะสวมใส่อยู่ร่วมกับภาพไอเท็ม โดยรักษาขนาดข้อความและปุ่มแทนการย่อทุกอย่างลง |
+| Inventory | รายการ คำค้น ตัวกรอง ของที่เลือกและตำแหน่งเลื่อนอยู่ต่อเนื่องระหว่างใช้งาน เปิดรายละเอียดเพื่อดูโมเดลและคำสั่งของชิ้นนั้น |
+| รายละเอียดบนจอแคบที่สูงพอ | โมเดลใหญ่ขึ้น มีชื่อ ความหายาก คำอธิบายสั้นและปุ่มอยู่ใกล้กัน จอที่กว้างพอวางโมเดลกับข้อมูลข้างกัน ส่วนจอแนวตั้งที่แคบกว่าวางโมเดลเหนือข้อมูล รูปแบบจอแนวนอนเตี้ยและจอกว้างยังคงอยู่ |
+| Settings / Rebirth / เมนูย่อย | จำกัดขนาดตามพื้นที่จอ จัดช่องข้อความและปุ่มไม่ให้ชนกัน Settings อัปเดตตัวเลือกเดิมแทนการทำลายปุ่มระหว่างคลิก |
+| หมัดและสัตว์เลี้ยง | หมัดห้ารุ่นแรกใช้รูปทรงร่วมกันในร้าน คลัง และตอนสวมจริง; Forest Pup มีรายละเอียดที่อ่านเป็นสัตว์ได้ชัดขึ้น และหันด้านหน้าเข้าหาภาพตัวอย่าง |
+| การต่อสู้ | เลือกบล็อกใกล้ตัวได้ครบขึ้น แสดง HP และจำนวนหมัดโดยประมาณ รวมถึงสถานะบอส แก้การยกเลิกพุ่งต่อยและการเกิดใหม่ ตลอดจนไข่ดรอปที่ขวางการพุ่ง |
+| กล้องและการเริ่มเกม | รักษามุมและระยะซูมของผู้เล่น ตรวจตำแหน่งที่จะแสดงหลังปรับกล้อง และแก้กรณีใช้ประวัติตำแหน่งเก่าจนคืนกล้องต่อไม่ได้ ขั้นรอชุดข้อมูลสื่อสารจากเซิร์ฟเวอร์มีเส้นตายและรายงานสาเหตุเมื่อไม่ครบ |
 
-The accompanying `smash-mobile-shop-inventory.html` is an interactive design
-preview. Its purchases and equipment changes affect local sample state only.
-Sample names, prices, and multipliers use the current configuration. Model stages
-are explicitly reserved spaces, not proposed finished fist or pet artwork.
+หมัดที่ทำรูปทรงร่วมครบห้ารุ่นคือ Starter Fist, Street Boxing Fist, Iron Crusher Fist, Thunder Core Fist และ Titan Siege Fist การยกระดับงานศิลป์ทุกตัวในแค็ตตาล็อก 16 รุ่นด้วยมาตรฐานเดียวกันยังเป็นงานต่อไป ไม่ควรตีความว่าทุกโมเดลถูกออกแบบใหม่ในรอบนี้
 
-## Evidence and current limitations
+ภาพจริงจาก Studio บนหน้าต่าง 637×654 แสดงรายละเอียดไอเท็มด้วยพื้นที่โมเดลประมาณ 259 พิกเซล พร้อมข้อมูลและปุ่มข้างกัน ไม่เหลือกล่องคำอธิบายว่างขนาดใหญ่ที่เคยเป็นปัญหา ตัวเลขนี้เป็นตัวอย่างของจอที่บันทึก ไม่ใช่ขนาดตายตัวทุกอุปกรณ์ ดู [หลักฐานภาพ UI รอบล่าสุด](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/manifest.json)
 
-- `src/shared/GameConfig.lua:540` defines a three-action tutorial: hit a wall,
-  open Shop, buy the 180-coin Street Boxing Fist. Training, pets, and cooperation
-  are not taught by this tutorial.
-- `src/server/PunchWallBootstrap.server.lua:2812` advances the first hit to the
-  Shop prompt without an affordability check or tutorial coin grant. Forest
-  blocks pay 11 coins each (`floor(45 / 4)`). Seventeen full solo block rewards
-  fund the first fist if no other income is claimed. Actual first-punch block
-  count needs runtime reproduction; this is an affordability risk, not a
-  measured first-session failure.
-- Material HP changes from 8 to 900 at the first transition, while the first
-  bought fist changes its multiplier from 1 to 1.8. This 112.5-times HP jump
-  needs a fresh-profile pacing check before changing values.
-- Contributor rewards already exist on the server: each actual contributor
-  receives `max(1, floor(baseReward * (0.5 + 0.5 * damageShare)))` coins.
-  Rounding can put a small contribution below 50% of the base reward: an
-  11-coin block can pay 5 coins. Solo full-share damage receives the base reward.
-  Cooperation should first become legible through this existing behavior.
-- The historical 874x402 emulated-phone inventory capture at
-  `work/docs/evidence/training-ui-pet-recovery-20260821/02_iphone17_inventory_pets.jpg`
-  shows five small columns and a largely clipped lower row. This supports
-  reviewing density and hierarchy; it is not current physical-phone evidence.
-- Historical Shop images repeat fist artwork across items. Later fixes exist;
-  the current build must be captured before reopening a particular art defect.
-- Canonical source has no matches for `AnalyticsService`,
-  `LogOnboardingFunnelStepEvent`, `LogFunnelStepEvent`, `LogCustomEvent`, or
-  `LogEconomyEvent`. Production dashboards were not accessed for this handoff.
+**กติกาที่มีอยู่และต้องรักษา**
 
-Paths above are repository-relative. Canonical source is under
-`work/punch-wall-rpg/`; historical evidence is under `work/docs/`.
+ผู้เล่นเริ่มจากลองต่อยกำแพง เปิด Shop และซื้อ Street Boxing Fist ซึ่งต้องมี Depth 1 และ 180 Coins การฝึกช่วยเพิ่ม Power; หมัด สัตว์เลี้ยง Mastery, Honor และ Rebirth ส่งผลต่อพลังรวมตามกติกาเดิม รางวัล การซื้อ และความก้าวหน้าตัดสินที่เซิร์ฟเวอร์
 
-## Independently verified economy calculation
+การช่วยกันทำลายกำแพงมีอยู่แล้ว สำหรับบล็อกที่มีรางวัลฐานเป็นบวก ผู้ร่วมทำดาเมจจริงได้รับ Coins ตามสัดส่วนด้วยสูตร `max(1, floor(baseReward × (0.5 + 0.5 × damageShare)))` ส่วนคะแนนคำนวณตามส่วนร่วม; XP และเครดิตความลึกของบล็อกให้ผู้ร่วมทำดาเมจตามกติกาเต็มของบล็อก การปัดเศษอาจทำให้ Coins ต่ำกว่าครึ่งเล็กน้อย เช่น บล็อกฐาน 11 Coins อาจจ่าย 5 Coins ให้ผู้มีส่วนร่วมน้อย จึงไม่ควรบอกว่าเพียงอยู่ใกล้เพื่อนก็ได้รางวัล หรือทุกคนได้เท่ากัน
 
-Agent 3 parsed `GameConfig.Walls` independently of Agent 1's calculation.
-The source creates 12 columns x 6 rows x 75 layers. Each of tiers 1-9 has
-8 layers; tier 10 has 3. Per-block coins are `floor(config.coins / 4)`.
+การสู้ Titan ต้องมี Wall Level 99 และผ่าน Depth 75 ส่วน Rebirth รีเซ็ต Power พื้นฐานเป็น 25, Coins เป็น 0, Wall Level เป็น 1, Wall XP เป็น 0 และเปลี่ยนหมัดที่สวมเป็น Starter Fist โดยยังเก็บความเป็นเจ้าของหมัด สัตว์เลี้ยง ความลึกที่บันทึก และ Honor ไว้ รายละเอียดสำหรับผู้เล่นอยู่ใน [คู่มือภาษาไทย](F:/Roblox/PuchWall-completion-20260906/work/docs/SMASH_GAME_GUIDE_TH_20260906.md)
 
-| Tier | Layers | Coins per block | Coins for all tier blocks |
-| --- | ---: | ---: | ---: |
-| Forest Stone | 8 | 11 | 6,336 |
-| Concrete | 8 | 45 | 25,920 |
-| Iron | 8 | 245 | 141,120 |
-| Crystal | 8 | 1,300 | 748,800 |
-| Lava | 8 | 7,000 | 4,032,000 |
-| Cyber | 8 | 40,000 | 23,040,000 |
-| Titan Alloy | 8 | 105,000 | 60,480,000 |
-| Meteor Core | 8 | 350,000 | 201,600,000 |
-| Void Crystal | 8 | 1,250,000 | 720,000,000 |
-| Omega | 3 | 4,500,000 | 972,000,000 |
-| Total | 75 | | 1,982,074,176 |
+**ขอบเขตเทคนิคของการแก้ล่าสุด**
 
-`WORLD_RESET_INTERVAL = 300` in the server. Titan rewards 60,000,000 coins
-for full solo contribution and respawns after 20 seconds. An optimistic model
-grants one full 5,400-block clear plus 15 instantaneous boss defeats per 300
-seconds, giving 2,882,074,176 coins per cycle. The final fist costs
-180,000,000,000,000 coins.
+- Inventory เลือกรูปแบบรายละเอียดจากขนาดพื้นที่ที่แสดงจริงหลังปรับ UI scale; รูปแบบวางข้างกันเริ่มเมื่อพื้นที่กว้างอย่างน้อย 440 และสูงอย่างน้อย 360 พิกเซล โดยต้องพอสำหรับข้อมูลและปุ่มด้วย ภาพตัวอย่างปรับมุมให้ครบแปดมุมของขอบโมเดลเมื่อขนาดหรือโมเดลเปลี่ยน ใช้โมเดลเดิมและไม่เพิ่มวงรอบอัปเดตทุกเฟรม ปุ่มสำคัญรักษาเป้าหมายสัมผัสอย่างน้อย 44 พิกเซล
+- การแก้กล้องล่าสุดบันทึกตำแหน่งและ Focus ที่แสดงอยู่จริงลงประวัติทั้งสี่ค่า เฉพาะเมื่อผ่านการตรวจการชนและแนวมองถึงตัวละครแล้ว ไม่เพิ่มการย้ายกล้องหรือผ่อนเกณฑ์การถึงเป้าหมาย ตัวตรวจยังแยกการอยู่ในวัตถุ การถูกบัง ความอ่านง่าย ระยะซูม และระยะเคลื่อนที่ต่อการตอบสนอง
+- ขั้นเริ่ม client รอ Folder และ RemoteEvent ทั้งสี่ตัวด้วยเส้นตายร่วม 20 วินาที แม้มีการเปลี่ยน Folder ระหว่างรอ ตรวจชนิดและ parent อีกครั้งก่อนใช้งาน แล้วรายงานสาเหตุหากไม่ครบ ข้อนี้เป็นขอบเขตของขั้นเชื่อมต่อ remotes ไม่ใช่คำรับรองว่าโหลดทั้งเกมเสร็จใน 20 วินาที
+- ตัวตรวจเริ่มเกมรอข้อมูล StatsChanged ที่เซิร์ฟเวอร์ส่งจริง เทียบค่ากับ HUD และตรวจ Snapshot หลักพร้อม viewport และตำแหน่งจริง Inventory ที่ยังไม่เปิดมี snapshot ของรายการเป็น `nil` ตามการสร้างแบบ lazy จึงบันทึกสถานะนี้เพื่อวินิจฉัย ไม่เปิดเมนูหรือสร้างข้อมูลเพื่อบังคับให้ผ่าน
+- เมื่อ flow ล้มเหลว จะเก็บข้อมูลที่มีและพยายาม cleanup ทุกขั้นต่อไป ต้องได้รับผล StopPlay และตรวจชื่อ/PlaceId ของ Edit ตรงเดิมก่อนรับรองการคืนสถานะ ข้อผิดพลาดเดิมและข้อผิดพลาด cleanup ไม่ถูกกลบด้วยผลผ่าน
 
-```text
-180,000,000,000,000 / 2,882,074,176 x 300 / 86,400
-= 216.8577079676 continuous days
-```
+อ้างอิง source: [InventoryUI](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/InventoryUI.lua:3953), [การเก็บประวัติกล้องที่แสดงจริง](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/PunchWallClient.client.lua:8781), [ขั้นรอ remotes](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/PunchWallClient.client.lua:617), [กติกา](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/shared/GameConfig.lua) และ [เซิร์ฟเวอร์](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua)
 
-This is a conditional calculation for unboosted repeated depth/boss income in
-one server, not measured playtime or a universal fastest-possible bound. It
-ignores acquisition and gate time, attack and travel time, previous purchases,
-other income, boosts, and alternative server/rejoin behavior. Realistic combat
-and the need to buy earlier equipment make that particular route slower; other
-income can change the result. The result is sufficient to flag a major mismatch
-between displayed final-tier prices and the existing main reward loop.
+**สถานะตรวจรับ: ยังไม่ใช่รุ่นปล่อยจริง**
 
-Do not apply a uniform price division without testing the complete curve.
-First specify intended active play time between purchases for early, middle,
-and late progression, then simulate reachable damage, wall gates, coin sources,
-and upgrade costs together. Preserve ownership and internal save keys. Existing
-players require an explicit migration review if prices or prerequisites change.
-Economy work is a separate server-authoritative change after the UI foundation.
+| รายการ | สถานะ ณ source `1a97247` |
+| --- | --- |
+| UI / รายละเอียดไอเท็ม / การเริ่มเกม | มีผลผ่านการทดสอบเฉพาะจุดและภาพจริงใน Studio ตามหลักฐานของ Coordinator |
+| กล้องหลังแก้ประวัติค้าง | Native targeted ผ่าน 4/4: 20 หมัดบนสามขนาดจอ อุโมงค์ยาว การรักษาซูม และ teleport/Scriptable พร้อมเทียบ source ทั้งเก้าก่อนและหลัง |
+| Full regression รอบเก่า | **ประวัติ:** รุ่น `e2dbc16` ผ่าน 127 / ไม่ผ่าน 4 จาก 131 รายการ ใช้เป็นหลักฐานหาจุดแก้ ไม่ใช่ผลผ่านสุดท้าย |
+| Full regression รอบปัจจุบัน 131 รายการ | **PENDING** — กำลังรันบน source และ automation ที่ตรึงไว้ ยังไม่ใช้ผลระหว่างทางสรุปว่าผ่านครบ |
+| ไฟล์ canonical ที่สร้างใหม่และเปิดกลับจริง | **PENDING** — ต้องผูก manifest/hash กับ source ทั้งเก้า เปิดไฟล์ใหม่โดยไม่ sync source แล้วทดสอบไฟล์นั้น |
+| Performance และภาพสุดท้าย | **PENDING** — ต้องวัดจากไฟล์สุดท้าย บันทึกบริบท และตรวจภาพต้นฉบับครบชุด; Studio ไม่แทนผลบนมือถือจริง |
 
-## Mobile Shop and Inventory contract
+ผลวัดอุโมงค์ใน full run รุ่น `e2dbc16` ใช้เวลาประมาณ 19.42 วินาที มี 287 ช่วงเฟรม: p50 **66.677 ms**, p95 **77.066 ms**, 285 ช่วงเกิน 50 ms และสองช่วงเกิน 100 ms ส่วนข้อมูลอุโมงค์ที่ได้ระหว่าง full run รุ่น `1a97247` มี p50 **66.7486 ms**, p95 **104.1008 ms** ทั้งสองรอบจึง **ไม่รับรองความลื่นไหล** และรอบใหม่ยังไม่จบครบ 131 รายการ การวัดรวมภาระงานและการเรียก MCP ไม่ใช่เวลา CPU ของโค้ดกล้องเพียงส่วนเดียว; สถานะโฟกัสเริ่มต้นของรอบเก่าไม่ทราบแน่ชัด และยังไม่มีหลักฐานระบุว่า RAM หรือ Studio เป็นสาเหตุ ผลที่เคยใกล้ 16.7 ms ไม่แทนการวัดซ้ำในบริบทเดียวกัน
 
-Use one visual language: opaque navy surfaces, cyan selection, gold currency,
-and small rarity markers. The preview explores a readable list plus a selected
-detail view. It deliberately avoids squeezing a five-column desktop catalog
-onto a phone. It is an alternative to evaluate, not a pixel-perfect Roblox spec.
+หลักฐาน: [full run เก่า](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-final-repaired-20260906/manifest.json), [เฟรมอุโมงค์รอบ `1a97247`](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-camera-cache-20260906/camera-tunnel-frame-profile.json), [startup ที่ผ่าน](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-lazy-startup-native-20260906.json), [กล้อง targeted หลังแก้](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-camera-cache-native-targeted-20260906/manifest.json) และ [สถานะส่งมอบล่าสุด](F:/Roblox/PuchWall-completion-20260906/work/docs/SMASH_COMPLETION_20260906.md) งานเอกสารนี้ตรวจ source และหลักฐานเดิม ไม่ได้รัน Studio ทดสอบใหม่ หรือสร้างไฟล์เกม
 
-- Shop items show a recognizable name, multiplier, price, and owned/equipped
-  state. A single selected-item action says `Buy & Equip`, `Equip`, or the
-  missing coin amount. Purchase failures remain understandable.
-- Inventory provides Fists and Pets, readable item names, equipped status, and
-  equipment capacity. Selecting an item opens its separate detail surface.
-  Buying an owned fist again never subtracts coins.
-- On narrow screens, opening item details replaces the list and provides a
-  visible Back action. On wider screens, the list and details sit side by side.
-  Short landscape screens keep readable rows and move through list/detail
-  states; implementation must retain proper scroll behavior and safe areas.
-- Selected item and scroll position survive a round trip into details.
-  Long names and numbers wrap or abbreviate predictably, without decreasing
-  primary labels to tiny text. Errors never require hovering.
-- Real implementation must also handle loading, empty results, stale purchase
-  responses, full inventory, maximum equipped pets, and request retries.
-  The preview demonstrates selection, affordability, buy/equip, and pet capacity;
-  it does not simulate server or persistence failures.
-- Proposed internal targets: 48-pixel primary touch targets, at least 44-pixel
-  secondary targets, and ordinary item text at least 14 rendered pixels. These
-  are project targets, not universal Roblox requirements.
-- Validate 320/360-pixel narrow widths, 740x360 and 844x390 landscape phones,
-  tablet, and desktop, including actual Roblox safe areas and touch controls.
+**จังหวะเติบโตและเศรษฐกิจ: ข้อเสนอที่ยังไม่ลงมือ**
 
-Roblox's current [UI positioning guidance](https://create.roblox.com/docs/ui/position-and-size)
-recommends keeping controls out of reserved zones, within comfortable thumb
-reach, and showing contextual information during active gameplay.
+บทสอนปัจจุบันพาไป Shop หลังการโจมตีแรก ยังไม่ได้ยืนยันว่าช่วงนั้นผู้เล่นมีเงินซื้อหมัดแรกพอดี ถ้าอาศัยเฉพาะรางวัลเดี่ยวเต็มจากบล็อก Forest Stone จะได้ 11 Coins ต่อบล็อก และต้อง 17 บล็อกจึงเกินราคา 180 Coins แต่จำนวนบล็อกที่แตกต่อหมัดและรายได้อื่นเปลี่ยนเวลาที่ใช้จริง จึงต้องวัดจากผู้เล่นใหม่ก่อนปรับบทสอนหรือให้เงินเพิ่ม
 
-## Item art and motion contract
+จุดเปลี่ยนวัสดุแรกมี HP จาก 8 เป็น 900 ขณะที่หมัดแรกเพิ่มตัวคูณจาก 1 เป็น 1.8 นี่เป็นจุดตรวจจังหวะการฝึกและความรู้สึกติดขัด ไม่ใช่หลักฐานว่าเปลี่ยน HP หรือราคาแล้วในรอบนี้
 
-Start with the first five fists before extending the same quality standard
-across all 16. Preserve the existing closed-fist, right-hand equipment contract
-and original avatar appearance. Suggested identities: compact leather Starter,
-rounded red Street Boxing, square steel Iron Crusher, blue Thunder core, and
-broad amber Titan cuff. These were baseline concepts; the first five shared
-catalog/preview/equipped models are now implemented in `e2dbc16`, with recorded
-R6/R15 and visual checks. Extending this art work across all 16 remains proposed.
+การคำนวณเดิมจากกติกาโดยไม่ใช้ boost หรือรายได้เสริมยังคงเป็นข้อสังเกตสำหรับช่วงท้ายเกม: กำแพง 12×6×75 มี 5,400 บล็อก ให้ Coins ฐานรวม 1,982,074,176 ต่อการเคลียร์ครบ โลกรีเซ็ตทุก 300 วินาที บอสให้ 60,000,000 สำหรับส่วนร่วมเต็มและกลับมาหลัง 20 วินาที หากสมมติอย่างเอื้อที่สุดว่าเคลียร์ทั้งหมดพร้อมชนะบอสทันที 15 ครั้งต่อรอบ จะได้ 2,882,074,176 Coins ต่อ 300 วินาที เทียบหมัดสุดท้ายราคา 180,000,000,000,000 จะใช้ประมาณ 216.86 วันต่อเนื่องในแบบจำลองนั้น
 
-Each item must read at phone thumbnail size and match across its catalog image,
-selected preview, and equipped form. Verify R6/R15 wrist alignment through idle,
-run, jump, punch, and respawn. Avoid using generic category icons as finished
-fist art. Imported content stays visual-only and follows the asset manifest and
-sanitation rules. A static thumbnail plus one selected 3D preview is an option
-to profile, not a claimed optimization before measurement.
+ตัวเลขนี้ไม่ใช่เวลาเล่นจริงหรือขอบเขตเร็วที่สุดของเกมทั้งหมด เพราะละเวลาต่อสู้ เดินทาง ปลดล็อก การซื้อก่อนหน้า และไม่รวมรายได้อื่นหรือ boost ใช้ชี้ให้ตรวจเส้นราคากับรางวัลร่วมกัน ห้ามหารราคาทุกชิ้นด้วยค่าคงที่แล้วถือว่าเศรษฐกิจสมดุล งานปรับค่าต้องกำหนดเวลาที่ตั้งใจให้ถึงหมัดถัดไปในช่วงต้น กลาง ท้าย และพิจารณาข้อมูลผู้เล่นเดิมก่อนเปลี่ยน
 
-Impact should communicate anticipation, contact, visible damage, and recovery.
-Put force into the fist, target, sound, and directional debris. Aggregate rewards
-per punch so a multi-block break does not bury the view. Camera feedback should
-be bounded and restore state when a menu opens, the character respawns, training
-starts, or motion settings change. Reduced motion retains useful hit feedback.
+**งานต่อไปที่ควรพิสูจน์กับผู้เล่น**
 
-## First ten minutes: testable proposal
+1. ให้ผู้เล่นใหม่รู้ว่าจะต่อยตรงไหน ไปฝึกเมื่อไร และกำลังเก็บอะไรเพื่อหมัดถัดไป โดยใช้คำแนะนำสั้นตามสถานการณ์
+2. วัดเวลาที่ซื้อหมัดแรก ฝึกครั้งแรก สวมสัตว์เลี้ยง และผ่านวัสดุถัดไป ทดลองปรับทีละส่วน ไม่มีบทสอนบังคับสิบนาทีที่เพิ่มขึ้นในรุ่นนี้
+3. ทำให้เห็นส่วนร่วมในการช่วยเพื่อนจากระบบรางวัลเดิมก่อนเสนอการต่อสู้ร่วมมือแบบใหม่ ผู้เล่นเดี่ยวควรมีทางก้าวหน้าต่อได้
+4. ตรวจความอ่านง่ายและ frame time บนมือถือจริง แล้วจึงวัดการกลับมาเล่นและการชวนเพื่อนด้วยข้อมูลผู้เล่นจริง ยังไม่มีตัวเลข retention หรือ uplift ให้ยืนยัน
 
-These times are hypotheses to test with fresh profiles, not current metrics.
-Do not add a ten-minute mandatory tutorial.
-
-| Time | Intended action | Acceptance |
-| --- | --- | --- |
-| 0:00-0:30 | Spawn facing the wall and punch | Visible damage without a large instruction panel |
-| 0:30-1:30 | Open a small route and fund the first fist | Shop prompt appears when purchase is affordable |
-| 1:30-3:00 | Buy/equip and return to punching | Improvement is visible on a comparable target |
-| 3:00-5:00 | Try training when a tougher material requires it | Player understands where Power comes from |
-| 5:00-8:00 | Equip an earned pet and continue with nearby players | Inventory is understandable; actual contributions are recognized |
-| 8:00-10:00 | Reach a material milestone and choose the next upgrade | Clear attainable goal, saved progress, natural stopping point |
-
-Keep the first-loop adjustment small: condition the Shop prompt, make the
-training explanation contextual, and ensure the existing item/equip flow is
-usable. First-pet timing and any new cooperative encounter require later
-economy/design review. Do not gate solo progression on server population.
-
-## Delivery order and validation
-
-1. **UI and stability:** fix current mobile layout, camera cancellation, and
-   confirmed frame-time hotspots. Run the affected flows and fresh real-view
-   captures before visual expansion.
-2. **Item presentation:** integrate accepted fist/pet art, alignment, fallbacks,
-   and catalog preview behavior. Compare all states on desktop and phones.
-3. **Pacing and economy:** reproduce affordability and material-gate paths;
-   simulate the entire price/reward curve; implement an approved bounded change
-   with server, save, boundary, failure, and regression evidence.
-4. **Cooperation and audience measurement:** improve feedback for existing
-   contributions first. Consider new encounters only after core fixes pass.
-   Evaluate retention using real cohorts instead of inventing success rates.
-
-Proposed reference budgets, subject to choosing a physical baseline device:
-p95 frame time <=33.3 ms and p99 <=50 ms on the mobile scenario after warm-up;
-desktop p95 <=16.7 ms; no reproducible game-caused >100 ms stall in the recorded
-route. Attach device, build, graphics level, population, and network conditions.
-These are proposed budgets and have not passed. Studio emulation cannot prove
-physical-phone performance or memory behavior.
-
-Roblox explains why [frame-time consistency](https://create.roblox.com/docs/performance-optimization/microprofiler)
-matters even at a high average FPS. Its [performance design guidance](https://create.roblox.com/docs/performance-optimization/design)
-distinguishes emulator layout checks from actual device memory measurement.
-Streaming is already enabled in `default.project.json`; identify actual
-hotspots before treating an existing setting as a new fix.
-
-## Measurement after the core fixes
-
-Use confirmed server milestones for onboarding and economy measurements.
-Suggested milestones are first break, first fist affordability, first purchase,
-first training gain, first equipped pet, first shared break, and first material
-milestone. Optional actions need separate events or funnels: Roblox fills
-earlier skipped funnel steps, so treating branches as one strict sequence can
-overstate completion. [Funnel events](https://create.roblox.com/docs/production/analytics/funnel-events)
-are emitted by servers in published experiences; Studio cannot verify arrival
-in the live analytics dashboard.
-
-Compare first-loop completion and time, material-gate exits, cooperative
-participation, D1/D7/D30 cohorts, and [performance by platform and place version](https://create.roblox.com/docs/production/analytics/performance).
-Report cohort sizes and wait for retention windows to mature. No dashboard
-benchmark, retention percentage, or uplift is available for this handoff.
-Roblox recommends focusing on the [core loop, onboarding, and performance](https://create.roblox.com/docs/production/analytics/retention)
-when improving early retention.
-
-The [June 15, 2026 discovery update](https://about.roblox.com/newsroom/2026/06/optimizing-discovery-great-games-reach-millions-players-roblox)
-expanded recommendation evaluation to a 28-day view and separated the former
-qualified-play-through signal into more granular measures. Build lasting player
-value and enjoyable co-play; do not promise global virality or add pressured
-spending, forced invitations, or punishment for taking breaks.
-
-## Handoff checks
-
-- PASS: current configuration parsed independently; arithmetic above reproduced.
-- PASS: source paths and historical evidence inspected against the stated base.
-- PASS: current official Roblox sources reviewed on 2026-09-06.
-- Pending Coordinator: interactive preview runtime and 360/736-pixel visual QA.
-- Not performed by this documentation task: gameplay implementation, Roblox
-  Studio tests, physical-device profiling, production analytics, or publishing.
-
-The Coordinator records final preview validation and combined game checks in
-the parent task. This design handoff does not close gameplay quality gates.
+ไฟล์ `smash-mobile-shop-inventory.html` เป็นภาพร่างเชิงโต้ตอบเดิม ใช้ข้อมูลตัวอย่างในเครื่อง ไม่ใช่หลักฐานการซื้อจริงหรือภาพของ Roblox รุ่นส่งมอบ ความเป็นไวรัลทั่วโลกรับประกันไม่ได้ งานที่ตรวจได้คือการต่อยสนุก เมนูใช้ง่าย เป้าหมายสมเหตุผล และเล่นกับเพื่อนแล้วเข้าใจว่าตนช่วยอะไรได้
