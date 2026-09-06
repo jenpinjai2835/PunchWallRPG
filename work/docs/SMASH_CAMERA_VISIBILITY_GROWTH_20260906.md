@@ -29,3 +29,11 @@ All observation code is inside the existing Studio-only camera automation region
 Run the two exact revised flows after source sync: `camera-long-tunnel-regression` (18 punches) and `power-avatar-growth` (six camera punches within the complete growth sequence). Preserve the old evidence. If either fails, its primary result should expose exact failing ratios and its `cameraVisibilityDetail1`–`4` contexts should distinguish current LOS from the last guard response. A production camera change will be proposed only after that evidence is read.
 
 For API interpretation, Roblox documents [Camera:GetPartsObscuringTarget](https://create.roblox.com/docs/reference/engine/classes/Camera#GetPartsObscuringTarget) as a camera LOS query with arbitrary result order, and documents [raycasting](https://create.roblox.com/docs/workspace/raycasting) as excluding parts with CanQuery disabled. The diagnostic records both mechanisms rather than assuming identical eligibility. No third-party claim or hypothetical engine issue is treated as the actual root cause.
+
+## Follow-up: retain non-LOS growth failures
+
+The next actual growth run had clear/readable ratios 1, no transient obstruction or physical intersection, and no settle timeout. Its underlying `valid` remained false. Consequently there were no obstruction records to recover, while its inline assertion caused Studio's error serialization to truncate the only scalar summary before the runner could save it.
+
+The growth camera payload now returns that same bounded summary before the runner validates it. Its original combined validity expression and every original regex gate remain unchanged. An additional required `growthCameraContractValid=true` marker carries the actual combined decision. This unique marker is necessary because the old generic `"valid":true` regex could otherwise match a successful nested sampler result when overall growth framing failed. Executed regex controls accept a complete valid result, reject false overall validity despite true nested metrics, and reject a missing marker; the old regex-only false pass is reproduced as a control.
+
+This follow-up changes only the growth flow, its contract, and this document. It does not change source, camera behavior, or acceptance thresholds. Actual complete scalar evidence is still required before a gameplay fix can be selected.
