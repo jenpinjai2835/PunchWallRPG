@@ -371,6 +371,7 @@ $additionalStaticContracts = @(
     @{ file = "camera-device-diagnostics-contract.mjs"; key = "cameraDeviceDiagnosticsContract" },
     @{ file = "radial-fixture-contract.mjs"; key = "radialFixtureContract" },
     @{ file = "camera-published-cache-contract.mjs"; key = "cameraPublishedCacheContract" },
+    @{ file = "world-reset-emote-readiness-contract.mjs"; key = "worldResetEmoteReadinessContract" },
     @{ file = "narrow-shop-readability-contract.mjs"; key = "narrowShopReadabilityContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
     @{ file = "quiet-visual-oracle-contract.mjs"; key = "quietVisualOracleContract" },
