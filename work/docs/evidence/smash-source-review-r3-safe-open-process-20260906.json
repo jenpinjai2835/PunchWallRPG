@@ -1,0 +1,15 @@
+{
+  "processId": 22472,
+  "processStartTimeUtc": "2026-09-06T08:14:11.6836440Z",
+  "executablePath": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+  "placePath": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R3_20260906\\PunchWallRPGPlayable_v1_final.rbxlx",
+  "placeSHA256": "6D15D52110FCAAD7E13A46129A7D4116EC995D8AD400DE8C0A2293FBD96A9B4D",
+  "existingStudiosLeftOpen": [
+    22388,
+    22788
+  ],
+  "requestedWindowStyle": "Maximized",
+  "nativeBoundsVerified": false,
+  "recoveryFilesTouched": false,
+  "recordedAt": "2026-09-06T08:14:11.7393280Z"
+}

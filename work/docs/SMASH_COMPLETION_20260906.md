@@ -1,6 +1,16 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
-**Current status, September 6 at 15:00 ICT:** the targeted native batch at
+**Current status, September 6 at 15:30 ICT:** the latest two-case native run at
+`63eeb8f` passes the explicit637px menus/details and the three-viewport pet flow,
+with frozen inputs and exact live source verification before and after. All four
+new637x654 source-only screenshots were captured and viewed. Settings/Rebirth
+fit; the selected Inventory drawer still has an undersized preview and excessive
+empty framed space. That visual gap fails the user's polished, non-hollow UI
+brief despite passing functional geometry. Agent3 owns a bounded tall compact
+detail layout in InventoryUI; Agent2 reviews its visuals and responsive behavior.
+The full131 run and final artifact gates remain pending this final visual repair.
+
+The earlier targeted native batch at
 `59ad454` completed **18 PASS / 2 FAIL** across20 cases, with exact live source
 verification before and after. All targeted camera cases, phone HUD, Shop,
 Inventory categories/fusion, Honor, ambient motion and Jump pass. Static R3
@@ -1104,3 +1114,100 @@ Agent3 also checked the Thai guide against59ad454; root clarified contribution
 rewards versus full block XP/depth credit and the actual Rebirth reset of
 Power25/Coins0/WallLevel1/WallXP0 (fresh players start at Power15). New co-op
 encounters and a whole-economy rebalance remain explicitly proposed work.
+
+### September 6, 15:19 ICT — narrow modal repairs and bounded pet observation
+
+Agent2's adjacent narrow-desktop review additionally proved Rebirth's720px host
+and Close button exceed a637px viewport, and the old Inventory reference host
+compresses the selected-item drawer until its name and actions overlap. Agent3
+fixed these together with Settings in4cd4d9f: at637x654 the Settings, Rebirth and
+Inventory hosts are613x420,613x468 and613x630 respectively. Narrow Rebirth button
+and text lanes remain separated at520px, and Settings helper text stays clear
+of fixed option buttons. The actual Inventory responsive producer receives its
+new safe-fill size; wide reference geometry, compact/mobile branches, state
+and callback builders remain unchanged. No InventoryUI source change was needed.
+
+Final peer review caught a new fixture's mixed-case comparison against the
+actual uppercase DetailName producer. Root also caught a stale-alias identity
+assertion that did not re-read the live tree. Agent3 corrected both ina837231
+and added wrong-case and live-replacement negative controls. Source and QA are
+integrated as98574c0/aa362aa after Agent2 acceptance. The focused integrated
+contract passes506 geometry assertions, two naming scenarios, four instance
+scenarios,14 mutations and38 compiles; eleven related contracts passed in the
+worker. Existing six native routes/guards/cleanup are preserved, with added
+Rebirth bounds and selected Starter Fist/Forest Pup detail geometry checks.
+Native acceptance of these changes remains pending.
+
+Agent1 proved the original pet observation races the unchanged20Hz Heartbeat
+producer, then changed only its observation chunk in8bab5dd. The nominal50ms
+observation remains diagnostic. The required early sample is the second
+Heartbeat at or after50ms, regardless of movement; each capture freezes its
+own bounded frame allowance (early at most200ms extra, late at most100ms).
+Nonfinite/nonpositive/oversized frame deltas, missed timing bounds and changed
+fixture identities fail. The original early>0.01/<7.5, late>early+0.8/<11 and
+850ms late gap remain unchanged. This is an explicit timing-policy correction,
+not a claim that the original50ms assertion passed.
+
+Root's final review required successful cleanup to participate in valid, not
+only diagnostic output. Agent1's eeb6f4 adds that single conjunction plus executed
+post-late root-removal and blocked-anchor-restoration controls. Agent2 accepted
+both pet commits; integrated asdf09a4f/54b2bfc. The contract passes880 actual
+producer phase cases,27 compiling mutations and53 compiles, including complete
+normal/error/watchdog lifecycle cases. All other pet flow content normalizes
+exactly to06b0e9f. Production pet cadence/smoothing code is unchanged.
+
+Both new contracts are registered in63eeb8f. Combined static R4 passes54/55
+contracts,85 JavaScript files,21 PowerShell files,131 JSON flows and all nine
+sources at three optimization levels; only the declared runtime inventory
+benchmark is excluded. The R3 staging build initially stopped before mutation
+because its new destination directory did not exist. After creating that
+directory, the same reviewed build passes with nine exact code objects, source
+aa362aa,6,483,330bytes and SHA256
+6D15D52110FCAAD7E13A46129A7D4116EC995D8AD400DE8C0A2293FBD96A9B4D.
+Both preflight failure and successful build evidence are retained.
+
+The safer file-open-only operation starts Studio22472 at08:14:11.683644UTC,
+UUID1cb6d64a-f1c3-4c7a-90c4-bff91af224f8. Exact live comparison confirms all
+nine current sources without a sync. The R3 native-open proof binds process,
+start time, executable, staged file SHA, title and source comparison. Earlier
+Studio processes and all recovery originals remain intact; native window bounds
+and popup dismissal remain unverified. The frozen two-case narrow/pet native
+batch at63eeb8f is now running before the full131 gate. Canonical605A4F70 remains
+unchanged. Latest origin/develop fetch at15:06 still resolves4094e51.
+
+### September 6, 15:30 ICT — native bounds pass; visual detail refinement required
+
+The R3 targeted run at63eeb8f completes both cases from15:19:05 to15:21:56:
+narrow desktop27.92s and three-viewport pet139.25s. All source/automation hashes
+remain frozen and all nine live sources match before and after. Native narrow
+checks now include the six actual menu clicks, Rebirth bounds/Close and selected
+Starter Fist/Forest Pup name, model and44px action separation, plus Settings and
+Tasks safe-area/scroll gates and clean console. Evidence is
+`smash-narrow-pet-native-r3-20260906/`.
+
+The successful runner response omits saved context, so successful pet sample
+values were not durable. Agent1's output-only9b148f adds one tagged print of the
+already-bounded final JSON after its3500-byte check. Exact payload/one-print
+controls cover success and failure;880 phase cases,30 mutations and56 compiles
+pass. Agent2 accepted the change, integrated as9463904. No timing, motion,
+cleanup or return-value rule changed; the full run must retain those console
+records. The earlier native pass remains behavior evidence, not proof of that
+new output path.
+
+The Coordinator used a one-off, source-only capture helper in ignored work/tools,
+reusing the recorded narrow fixture, actual selected-detail verifier, cleanup
+and reviewed image decoder. All four original JPEGs are637x654, with state
+checks before/after and exact nine-file source checks; they remain in
+`smash-narrow-modal-source-visual-20260906/`. Root and Agent2 viewed all four.
+Settings/Rebirth are bounded and readable. Both selected Inventory images expose
+a real presentation gap: a98px model, a very tall nearly empty description box
+and unused space around the action group. Geometry passing alone is insufficient
+for the user's explicitly requested visual quality.
+
+Agent3 now owns only InventoryUI.lua, a unique actual-producer contract and
+additive narrow-flow observations in a fresh isolated worktree based on63eeb8f.
+The goal is a larger real model preview, concise information and coherent44px
+action placement for tall compact drawers, preserving short mobile and wide
+layouts, cached state, callbacks and server authority. Agent2 owns read-only
+visual/geometry review. Root owns integration, the next native capture and the
+full/artifact gates; no simultaneous source editing or Studio testing occurs.

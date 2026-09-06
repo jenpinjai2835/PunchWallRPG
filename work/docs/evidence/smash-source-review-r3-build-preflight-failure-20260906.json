@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "phase": "staging-build-preflight",
+  "sourceCommit": "aa362aa",
+  "error": "Build destination directory does not exist: outputs/SmashWall_SourceReview_R3_20260906",
+  "canonicalChanged": false,
+  "recovery": "Create the new intended output directory, then rerun identical reviewed build",
+  "recordedAt": "2026-09-06T08:13:32.6130478Z"
+}
