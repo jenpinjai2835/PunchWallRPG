@@ -5,6 +5,7 @@ import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'../../..');
 const relative='work/punch-wall-rpg/src/client/PunchWallClient.client.lua';
+const packingAt=process.argv.indexOf('--packing-baseline'),packingBaseline=packingAt<0?null:process.argv[packingAt+1]||'3906ea9';
 const focusAt=process.argv.indexOf('--focus-baseline'),focusBaseline=focusAt<0?null:process.argv[focusAt+1]||'a49221b';
 const narrowAt=process.argv.indexOf('--narrow-baseline'),narrowBaseline=narrowAt<0?null:process.argv[narrowAt+1]||'39d3c40';
 const projectionAt=process.argv.indexOf('--projection-baseline'),projectionBaseline=projectionAt<0?null:process.argv[projectionAt+1]||'521711b';
@@ -17,6 +18,8 @@ const candidates=[process.env.LUAU_COMMAND,...fs.readdirSync(os.tmpdir()).filter
 const luau=candidates.find(p=>p&&spawnSync(p,['--help']).status===0);assert.ok(luau,'BLOCKED: Luau CLI required');
 const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),process.platform==='win32'?'luau-compile.exe':'luau-compile');
 const geometry=source.includes('function companionRuntime.BoundsCorners')?block('function companionRuntime.BoundsCorners','function companionRuntime.ApplyVisualScale'):'';
+const packingPublication=source.includes('\tif formationBlocked then')?block('\tif formationBlocked then','\tcompanionRuntime.telemetryAccumulator ='):'';
+const screenArea=block('function companionRuntime.ScreenArea','function companionRuntime.ResolveVisualPolicy');
 const publication=block('\t\t\t\tlocal distance = (state.currentBoundsCFrame.Position - targetBounds.Position).Magnitude','\n\t\t\t\tstate.motionFrames += 1');
 const refresh=block('\nrefreshCharacterVisuals = function()','\n-- Heartbeat drives normal gameplay;');
 const vector=`
@@ -33,10 +36,12 @@ F.__mul=function(a,b)return a end
 F.__index={PointToWorldSpace=function(a,v)local c,s=math.cos(a.roll),math.sin(a.roll)return a.Position+Vector3.new(v.X*c-v.Y*s,v.X*s+v.Y*c,v.Z)end,
  Lerp=function(a,b,t)return frame(a.Position.X+(b.Position.X-a.Position.X)*t,a.Position.Y+(b.Position.Y-a.Position.Y)*t,a.Position.Z+(b.Position.Z-a.Position.Z)*t,a.roll+(b.roll-a.roll)*t)end,
  Inverse=function(a)return a end}
+function F.__index:GetComponents()local c,s=math.cos(self.roll),math.sin(self.roll)return self.Position.X,self.Position.Y,self.Position.Z,c,-s,0,s,c,0,0,0,1 end
 local camera={ViewportSize={X=1277,Y=780},FieldOfView=70,CFrame={Position=Vector3.new(0,0,0),LookVector=Vector3.new(0,0,1),RightVector=Vector3.new(1,0,0),UpVector=Vector3.new(0,1,0)}}
 function camera:WorldToViewportPoint(p)local f=(self.projectionHeight or self.ViewportSize.Y)/(2*math.tan(math.rad(self.FieldOfView/2)))return Vector3.new(self.ViewportSize.X/2+p.X*f/p.Z,self.ViewportSize.Y/2-p.Y*f/p.Z,p.Z)end
 local workspace={CurrentCamera=camera} local companionRuntime={}
 ${geometry}
+${screenArea}
 local function rect(cf,size)
  local r={minX=math.huge,minY=math.huge,maxX=-math.huge,maxY=-math.huge,front=0}
  for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do
@@ -167,6 +172,69 @@ check(not state.safeFrameValid and (out.Position-untouched.Position).Magnitude==
 print('PASS '..n)
 `;
 }
+if(!baseline){
+ fixtures.recordedPacking=`${vector}
+local look=Vector3.new(0,-.7,-6)local length=look.Magnitude look=look*(1/length)
+local right=Vector3.new(1,0,0)local up=Vector3.new(0,-look.Z,look.Y)
+camera.CFrame={Position=Vector3.new(-2,6.039999008178711,-12),LookVector=look,RightVector=right,UpVector=up}
+camera.ViewportSize={X=636,Y=654}camera.FieldOfView=70 camera.NearPlaneZ=-.5
+function camera:WorldToViewportPoint(p)local d=p-self.CFrame.Position local z=d:Dot(look)local f=self.ViewportSize.Y/(2*math.tan(math.rad(self.FieldOfView/2)))return Vector3.new(self.ViewportSize.X/2+d:Dot(right)*f/z,self.ViewportSize.Y/2-d:Dot(up)*f/z,z)end
+local avatar={minX=130.18658447265625,maxX=464.48028564453125,minY=232.784912109375,maxY=655.6751708984375}
+local entries={
+ {bounds=frame(-4.457067489624023,7.083057880401611,-17.562124252319336),size=Vector3.new(1.799999713897705,1.040138840675354,.629237174987793)},
+ {bounds=frame(.289500892162323,6.760936260223389,-17.503293991088867),size=Vector3.new(1.800000548362732,.3379168212413788,1.153076171875)},
+ {bounds=frame(-5.18082857131958,7.107113361358643,-16.85000228881836),size=Vector3.new(1.1518959999084473,1.6505308151245117,1.799999475479126)}
+}
+for _,entry in ipairs(entries)do entry.corners=companionRuntime.BoundsCorners(entry.size)end
+local blockers={avatar}local greedyValid=true
+for _,entry in ipairs(entries)do local b,valid=companionRuntime.KeepBoundsInSafeFrame(entry.bounds,entry.corners,blockers)greedyValid=greedyValid and valid local r=companionRuntime.ProjectedBoundsRect(b,entry.corners)r.worldPosition=b.Position r.minimumCenterDistance=1.45 table.insert(blockers,r)end
+check(not greedyValid,'recorded_positions_sizes_and_avatar_reproduce_slot_order_dead_end')
+local packed,order,attempts=companionRuntime.PackFormationBounds(entries,avatar)
+check(packed and attempts<=6 and type(order)=='string','bounded_reorder_fits_recorded_narrow_near_scene')
+local function overlap(a,b)local area=math.max(0,math.min(a.maxX,b.maxX)-math.max(a.minX,b.minX))*math.max(0,math.min(a.maxY,b.maxY)-math.max(a.minY,b.minY))return area/math.max(1,math.min((a.maxX-a.minX)*(a.maxY-a.minY),(b.maxX-b.minX)*(b.maxY-b.minY)))end
+for i,result in ipairs(packed)do local r=rect(result.bounds,entries[i].size)check(safe(r)and overlap(r,avatar)<=.08,'recorded_joint_fit_keeps_original_safe_frame_and_avatar_gate')
+ check(math.abs((result.bounds.Position-entries[i].bounds.Position):Dot(look))<.00001 and result.bounds.roll==entries[i].bounds.roll,'recorded_joint_fit_preserves_camera_depth_and_model_rotation')
+ for j=1,i-1 do check(overlap(r,rect(packed[j].bounds,entries[j].size))<=.08 and(result.bounds.Position-packed[j].bounds.Position).Magnitude>=1.45,'recorded_joint_fit_preserves_pair_and_world_separation')end
+end
+local calls=0
+companionRuntime.perPetScreenAreaBudget=.18 companionRuntime.combinedScreenAreaBudget=.35
+for _,e in ipairs(entries)do local model={PivotTo=function(_,cf)calls+=1 end}e.state={model=model,boundsSize=e.size,currentBoundsCFrame=e.bounds,pivotToBounds=frame(0,0,0),budgetPolicy='Normal',safeFrameValid=false}end
+local formationEntries=entries local formationAvatarRect=avatar local formationBlocked=true local combinedScreenArea=0
+local function publishJoint()
+${packingPublication}
+end
+publishJoint()check(calls==3 and combinedScreenArea>0 and combinedScreenArea<=.35,'production_fallback_publishes_complete_fitted_formation')
+for _,e in ipairs(entries)do check(e.state.safeFrameValid and e.state.boundsSize==e.size and safe(rect(e.state.currentBoundsCFrame,e.size)),'production_fallback_updates_real_state_without_resizing')end
+calls=0 formationBlocked=false publishJoint()check(calls==0,'ordinary_clear_update_skips_joint_fallback')
+formationBlocked=true companionRuntime.perPetScreenAreaBudget=.000001 publishJoint()check(calls==0,'joint_fit_does_not_bypass_individual_area_budget')
+companionRuntime.perPetScreenAreaBudget=.18 companionRuntime.combinedScreenAreaBudget=.000001 publishJoint()check(calls==0,'joint_fit_does_not_bypass_combined_area_budget')
+companionRuntime.combinedScreenAreaBudget=.35 entries[2].state.budgetPolicy='CulledAfterBudgetLOD'publishJoint()check(calls==0,'joint_fit_does_not_claim_culled_geometry_is_visible')entries[2].state.budgetPolicy='Normal'
+formationAvatarRect={minX=0,minY=0,maxX=636,maxY=654}publishJoint()check(calls==0,'impossible_joint_fit_has_no_partial_publication')formationAvatarRect=avatar
+local absent,_,tries=companionRuntime.PackFormationBounds(entries,{minX=0,minY=0,maxX=636,maxY=654})
+check(absent==nil and tries==6,'impossible_three_pet_fit_exhausts_only_six_orders')
+absent,_,tries=companionRuntime.PackFormationBounds({entries[1],entries[2],entries[3],entries[1]},avatar)
+check(absent==nil and tries==0,'unsupported_companion_count_does_not_expand_search')
+local cached,cachedOrder,cachedTries=companionRuntime.PackFormationBounds(entries,avatar,order)
+check(cached and cachedOrder==order and cachedTries==1,'cached_order_is_stable_and_avoids_repeated_permutations')
+local originals={}for i,e in ipairs(entries)do originals[i]=e.bounds end
+for step=0,31 do
+ for i,e in ipairs(entries)do local p=originals[i].Position e.bounds=frame(p.X,p.Y+math.sin(step*.4+i)*.12,p.Z,math.rad(math.sin(step*.3+i)*1.7))end
+ local fitted=companionRuntime.PackFormationBounds(entries,avatar,order)
+ check(fitted~=nil,'recorded_near_scene_remains_packable_during_bob_and_tilt_'..step)
+ for i,e in ipairs(entries)do local r=rect(fitted[i].bounds,e.size)check(safe(r)and overlap(r,avatar)<=.08,'bobbing_recorded_joint_fit_keeps_frame_and_avatar')for j=1,i-1 do check(overlap(r,rect(fitted[j].bounds,entries[j].size))<=.08 and(fitted[i].bounds.Position-fitted[j].bounds.Position).Magnitude>=1.45,'bobbing_recorded_joint_fit_keeps_pair_and_world')end end
+end
+look=Vector3.new(0,0,1)right=Vector3.new(1,0,0)up=Vector3.new(0,1,0)
+camera.CFrame={Position=Vector3.new(0,0,0),LookVector=look,RightVector=right,UpVector=up}camera.ViewportSize={X=640,Y=480}
+local blocker={minX=180,minY=160,maxX=440,maxY=430}local count=0
+for x=-4,4 do for y=-2,2,2 do for _,depth in ipairs({2.5,4,6})do for _,width in ipairs({1.1,2.1})do for _,deep in ipairs({.4,2})do
+ local size=Vector3.new(width,1.2,deep)local pose=frame(x,y,depth,.2)
+ local fitted,valid=companionRuntime.KeepBoundsInSafeFrame(pose,companionRuntime.BoundsCorners(size),{blocker},1)
+ if valid then count+=1 local r=rect(fitted,size)check(safe(r)and overlap(r,blocker)<=.08,'actual_candidate_endpoint_obeys_eight_percent_when_perspective_changes_area')end
+end end end end end
+check(count>100,'perspective_overlap_controls_include_many_actual_valid_endpoints')
+print('PASS '..n)
+`;
+}
 if(!baseline||projectionBaseline){
  fixtures.croppedProjection=`${vector}
 camera.ViewportSize={X=390,Y=750}camera.projectionHeight=844 camera.FieldOfView=70
@@ -235,6 +303,7 @@ end
 for _,m in ipairs({'avatar','pair','world','transient','near','camera','focus','type','angle'})do
  mode=m r=execute()check(not r.contractValid and not r.valid,m..'_cannot_pass_actual_separation_flow')
  check(#r.failures==1 and r.failures[1].avatarRect and #r.failures[1].pets==3 and r.failures[1].camera,m..'_retains_bounded_actual_rectangle_diagnostics')
+ check(#r.failures[1].avatarRotation==9 and #r.failures[1].pets[1].rotation==9,m..'_retains_original_box_orientation_for_reconstruction')
  local c=r.failures[1].camera
  if m=='camera'then check(c.positionDelta==1 and c.focusDelta==0 and c.angleDegrees==0 and c.scriptable,'translation_diagnostic_identifies_failed_camera_gate')end
  if m=='focus'then check(c.positionDelta==0 and c.focusDelta==1 and c.angleDegrees==0 and c.scriptable,'focus_diagnostic_identifies_failed_camera_gate')end
@@ -329,7 +398,7 @@ print('PASS '..n)
 `;
 }
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'smash-pet-contract-')),files=[],results={},mutations=[];
-let focusBaselineControl;
+let focusBaselineControl,packingBaselineControl;
 let compiledPrograms=0;
 function run(name,text){const file=path.join(temp,`${name}.luau`);files.push(file);fs.writeFileSync(file,text);const compiled=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});assert.equal(compiled.status,0,name+': '+compiled.stderr);compiledPrograms++;const r=spawnSync(luau,[file],{encoding:'utf8',timeout:15000});return {status:r.status,output:(r.stdout||'')+(r.stderr||'')};}
 try{
@@ -362,10 +431,33 @@ try{
    ['matrix_hide_combined_area_failure','combined<=0.35','combined<=.4','combinedArea_fails_without_throwing_away_full_matrix']]){
    const altered=fixtures.cameraMatrixOracle.replace(from,to);assert.notEqual(altered,fixtures.cameraMatrixOracle,name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
   }
+  for(const [name,from,to,expected]of [
+   ['retain_zero_overlap_in_joint_fallback','entry.corners, blockers, 0.075','entry.corners, blockers, 0','bounded_reorder_fits_recorded_narrow_near_scene'],
+   ['skip_actual_endpoint_overlap','if overlap / smaller > 0.08 then return end','if false then return end','actual_candidate_endpoint_obeys_eight_percent_when_perspective_changes_area'],
+   ['drop_joint_individual_area_gate','area <= companionRuntime.perPetScreenAreaBudget','true','joint_fit_does_not_bypass_individual_area_budget'],
+   ['drop_joint_combined_area_gate','packedArea <= companionRuntime.combinedScreenAreaBudget','true','joint_fit_does_not_bypass_combined_area_budget'],
+   ['claim_culled_joint_models_visible','entry.state.budgetPolicy ~= "CulledAfterBudgetLOD"','true','joint_fit_does_not_claim_culled_geometry_is_visible'],
+   ['run_joint_solver_on_clear_update','if formationBlocked then','if true then','ordinary_clear_update_skips_joint_fallback'],
+   ['omit_joint_model_publication','state.model:PivotTo(fitted.bounds * state.pivotToBounds:Inverse())','-- omitted publication','production_fallback_publishes_complete_fitted_formation'],
+  ]){
+   const altered=fixtures.recordedPacking.replace(from,to);assert.notEqual(altered,fixtures.recordedPacking,name);const r=run(name,altered);assert.ok(r.status!==0&&r.output.includes(expected),name+': '+r.output);mutations.push(name);
+  }
   const arbitraryFocus=fixtures.separationOracle.replace("local acceptedFocus=focusPolicy=='ObservedStudio20StudPlane' and studioFocusPlane or focus",'local acceptedFocus=observedFocus').replace("local focusSetupValid=focusPolicy~='UnexpectedFocus'",'local focusSetupValid=true');
   assert.notEqual(arbitraryFocus,fixtures.separationOracle);const arbitraryResult=run('accept_arbitrary_initial_focus',arbitraryFocus);assert.ok(arbitraryResult.status!==0&&arbitraryResult.output.includes('unexpected19_cannot_pass_qualified_focus_policy'),arbitraryResult.output);mutations.push('accept_arbitrary_initial_focus');
   const movingBaseline=fixtures.separationOracle.replace('local focusDelta=(actualFocus-acceptedFocus).Magnitude','local focusDelta=(actualFocus-actualFocus).Magnitude');
   assert.notEqual(movingBaseline,fixtures.separationOracle);const movingResult=run('refresh_focus_reference_every_sample',movingBaseline);assert.ok(movingResult.status!==0&&movingResult.output.includes('native20Drift_cannot_pass_qualified_focus_policy'),movingResult.output);mutations.push('refresh_focus_reference_every_sample');
+  if(packingBaseline){
+   const old=spawnSync('git',['show',packingBaseline+':'+relative],{cwd:root,encoding:'utf8'});assert.equal(old.status,0,old.stderr);const oldSource=old.stdout.replace(/\r\n?/g,'\n');
+   const start=oldSource.indexOf('function companionRuntime.BoundsCorners'),end=oldSource.indexOf('function companionRuntime.ApplyVisualScale',start);assert.ok(start>=0&&end>start);
+   const oldGeometry=oldSource.slice(start,end);
+   const oldStart=oldSource.indexOf('\t\t\t\tlocal distance = (state.currentBoundsCFrame.Position - targetBounds.Position).Magnitude'),oldEnd=oldSource.indexOf('\n\t\t\t\tstate.motionFrames += 1',oldStart);assert.ok(oldStart>=0&&oldEnd>oldStart);
+   let control=fixtures.recordedPacking.slice(0,fixtures.recordedPacking.indexOf('local packed,order,attempts='));
+   control=control.replace(geometry,oldGeometry).replace(publication,oldSource.slice(oldStart,oldEnd));
+   control=control.replace('local b,valid=companionRuntime.KeepBoundsInSafeFrame(entry.bounds,entry.corners,blockers)','local b,state=publish(entry.bounds,entry.size,blockers)local valid=state.safeFrameValid ');
+   control+="check(greedyValid,'historical_slot_order_cannot_publish_complete_recorded_formation')";
+   const r=run('historical_packing',control);assert.ok(r.status!==0&&r.output.includes('historical_slot_order_cannot_publish_complete_recorded_formation'),r.output);
+   packingBaselineControl={revision:packingBaseline,reproduced:'historical_slot_order_cannot_publish_complete_recorded_formation'};
+  }
   if(focusBaseline){
    const oldFlow=spawnSync('git',['show',focusBaseline+':work/automation/flows/pet-size-position-qc.json'],{cwd:root,encoding:'utf8'});assert.equal(oldFlow.status,0,oldFlow.stderr);
    const oldCode=JSON.parse(oldFlow.stdout).steps.find(s=>s.saveAs==='premiumScreenSeparation').args.code;
@@ -383,5 +475,5 @@ try{
   const wrongNear=fixtures.safeFrame.replace('if point.Z <= nearDepth then','if point.Z <= 0.05 then');assert.notEqual(wrongNear,fixtures.safeFrame);const wrongNearResult=run('ignore_hardware_near_plane',wrongNear);assert.ok(wrongNearResult.status!==0&&wrongNearResult.output.includes('positive_depth_inside_hardware_near_plane_cannot_claim_safe_fit'),wrongNearResult.output);mutations.push('ignore_hardware_near_plane');
   for(const [name,code]of [['client',source],...['pet-size-position-qc','power-avatar-growth'].flatMap(name=>{const f=JSON.parse(fs.readFileSync(path.join(root,'work/automation/flows',name+'.json')));return [...f.steps,...(f.cleanup||[])].flatMap((s,i)=>s.args?.code?[[`${name}-${i}`,s.args.code]]:[]);})]){const file=path.join(temp,name+'.luau');files.push(file);fs.writeFileSync(file,code);const r=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);}
  }
- console.log(JSON.stringify({ok:true,source:baseline||'current',results,mutations,compiledPrograms,focusBaselineControl},null,2));
+ console.log(JSON.stringify({ok:true,source:baseline||'current',results,mutations,compiledPrograms,focusBaselineControl,packingBaselineControl},null,2));
 }finally{for(const f of files)fs.unlinkSync(f);fs.rmdirSync(temp);}
