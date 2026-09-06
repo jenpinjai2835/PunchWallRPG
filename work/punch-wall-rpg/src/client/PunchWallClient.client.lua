@@ -10606,6 +10606,22 @@ function shared.PunchWallResolveNarrowDirectionalPair(viewport)
 	}
 end
 
+function shared.PunchWallResolveStandaloneDesktopSize(viewport, authoredWidth, authoredHeight)
+	local width = viewport.X >= 0 and viewport.X < math.huge and viewport.X or 0
+	local height = viewport.Y >= 0 and viewport.Y < math.huge and viewport.Y or 0
+	return { width = math.min(authoredWidth, math.max(1, width - 24)), height = math.min(authoredHeight, math.max(1, height - 24)) }
+end
+
+function shared.PunchWallResolveRebirthActionLanes(bodyWidth)
+	if bodyWidth >= 592 then return nil end
+	local cancelRight = math.max(0, math.min(bodyWidth * 0.75, bodyWidth - 148))
+	return {
+		cancelRight = cancelRight,
+		questionWidth = math.max(1, math.min(bodyWidth * 0.48, cancelRight - 120)),
+		readyWidth = math.max(1, math.min(bodyWidth * 0.63, bodyWidth - 188)),
+	}
+end
+
 function shared.PunchWallResolveNarrowMenuGrid(viewport)
 	if not (viewport.X > 0 and viewport.X < math.huge and viewport.Y > 0 and viewport.Y < math.huge) then return nil end
 	local authoredScale = math.min(viewport.X / 1672, viewport.Y / 941)
@@ -14191,8 +14207,10 @@ applyResponsiveLayout = function()
 		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
 		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
 	else
-		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(720, 468)
-		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(640, 420)
+		local rebirthLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 720, 468)
+		local settingsLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 640, 420)
+		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(rebirthLayout.width, rebirthLayout.height)
+		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(settingsLayout.width, settingsLayout.height)
 		for _, panel in ipairs({ shared.PunchWallStandaloneWindows.RebirthPanel, shared.PunchWallStandaloneWindows.SettingsPanel }) do
 			local header = panel:FindFirstChild("Header")
 			local headerIcon = header and header:FindFirstChild("HeaderIcon")
@@ -14244,7 +14262,9 @@ applyResponsiveLayout = function()
 				end
 				if helper then
 					helper.Position = UDim2.fromOffset(70, 31)
-					helper.Size = UDim2.fromOffset(170, 28)
+					local options = row:FindFirstChild("Options")
+					local optionWidth = options and options.Size.X.Offset or 258
+					helper.Size = UDim2.fromOffset(math.min(170, math.max(1, settingsLayout.width - 24 - 70 - optionWidth - 18)), 28)
 				end
 				row:SetAttribute("ResponsiveRowProfile", "Desktop72V1")
 			end
@@ -14256,6 +14276,19 @@ applyResponsiveLayout = function()
 		end
 		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
 		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
+	end
+	-- Bound the fixed-width confirmation controls without rebuilding their handlers.
+	-- Restore the original relative lanes when returning to compact or wide layouts.
+	local rebirthActions = shared.PunchWallStandaloneWindows.RebirthBody:FindFirstChild("Actions")
+	if rebirthActions then
+		local bodyWidth = shared.PunchWallStandaloneWindows.RebirthPanel.Size.X.Offset - 24
+		local lanes = not compact and shared.PunchWallResolveRebirthActionLanes(bodyWidth)
+		local cancel = rebirthActions:FindFirstChild("CancelRebirth")
+		local question = rebirthActions:FindFirstChild("ConfirmQuestion")
+		local readyHint = rebirthActions:FindFirstChild("ReadyHint")
+		if cancel then cancel.Position = lanes and UDim2.new(0, lanes.cancelRight, 0.5, 0) or UDim2.fromScale(0.75, 0.5) end
+		if question then question.Size = lanes and UDim2.new(0, lanes.questionWidth, 1, 0) or UDim2.fromScale(0.48, 1) end
+		if readyHint then readyHint.Size = lanes and UDim2.new(0, lanes.readyWidth, 1, 0) or UDim2.fromScale(0.63, 1) end
 	end
 	local shopOpen = mainPanel.Visible and activeTab == "Fists"
 	local inventoryOpen = mainPanel.Visible and activeTab == "Inventory"
@@ -14606,15 +14639,22 @@ applyResponsiveLayout = function()
 		menuButton.Size = UDim2.fromOffset(92, 42)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 		if inventoryOpen then
-			local referenceAspect = 1.5
-			local availableWidth = math.max(1, viewport.X - 48)
-			local availableHeight = math.max(1, viewport.Y - 36)
-			local modalWidth = math.min(viewport.X * 0.72, viewport.Y * 0.84 * referenceAspect, availableWidth)
-			local modalHeight = math.min(modalWidth / referenceAspect, availableHeight)
-			modalWidth = modalHeight * referenceAspect
-			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
-			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
-			mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
+			if viewport.X < 900 then
+				local inventoryLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 876, math.huge)
+				mainPanel.Size = UDim2.fromOffset(inventoryLayout.width, inventoryLayout.height)
+				mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+				mainPanel:SetAttribute("InventoryModalSizing", "NarrowDesktopSafeFill12V1")
+			else
+				local referenceAspect = 1.5
+				local availableWidth = math.max(1, viewport.X - 48)
+				local availableHeight = math.max(1, viewport.Y - 36)
+				local modalWidth = math.min(viewport.X * 0.72, viewport.Y * 0.84 * referenceAspect, availableWidth)
+				local modalHeight = math.min(modalWidth / referenceAspect, availableHeight)
+				modalWidth = modalHeight * referenceAspect
+				mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
+				mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+				mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
+			end
 		elseif shopOpen then
 			local shopLayout = shared.PunchWallResolveShopLayout(viewport)
 			mainPanel.Size = UDim2.fromOffset(shopLayout.width, shopLayout.height)

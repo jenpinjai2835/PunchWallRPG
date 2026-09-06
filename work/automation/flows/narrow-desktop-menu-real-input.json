@@ -508,11 +508,13 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.rebirthVisible==true and s.activeWindow=='Rebirth' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='RebirthButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='RebirthButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) a:Invoke('CloseMenus') return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local deadline=os.clock()+4 local s,routeOk repeat task.wait(.05) s=a:Invoke('Snapshot') routeOk=s.rebirthVisible==true and s.activeWindow=='Rebirth' until routeOk or os.clock()>=deadline local activated=g:GetAttribute('RightMenuNativeActivated')=='RebirthButton' and g:GetAttribute('RightMenuNativeActivationCount')==1 local result={ok=routeOk and activated,target='RebirthButton',routeOk=routeOk,activated=activated,activeTab=s.activeTab,activeWindow=s.activeWindow,inventoryCategory=s.inventory and s.inventory.category or ''} assert(result.ok,'actual native menu route failed: '..H:JSONEncode(result)) \n-- BEGIN NARROW REBIRTH GEOMETRY\nlocal safe=g.PixelPerfectHeroCityHUD local host=g.RebirthWindow\nlocal function inside(x,area)\n local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize\n return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1\nend\nassert(host.Visible and inside(host,safe),'actual Rebirth window outside narrow safe host')\nlocal close=host:FindFirstChild('Close')assert(close and close.Visible and close.Active and close.Selectable and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,host),'actual Rebirth Close is clipped or small')\nlocal hp,hs,sp,ss=host.AbsolutePosition,host.AbsoluteSize,safe.AbsolutePosition,safe.AbsoluteSize\nassert(hp.X>=sp.X+11 and hp.Y>=sp.Y+11 and hp.X+hs.X<=sp.X+ss.X-11 and hp.Y+hs.Y<=sp.Y+ss.Y-11,'Rebirth12px margin missing')\nlocal actions=assert(host.Body:FindFirstChild('Actions'))local count=0\nfor _,button in ipairs(actions:GetChildren())do if button:IsA('TextButton')and button.Visible then\n assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,host),'Rebirth action clipped or small')count+=1\nend end assert(count>=1,'no visible Rebirth state/action')\nresult.rebirthSafeBounds=true result.rebirthClose44=true result.rebirthActions=count\n-- END NARROW REBIRTH GEOMETRY\na:Invoke('CloseMenus') return H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"activated\"\\s*:\\s*true"
+        "\"activated\"\\s*:\\s*true",
+        "\"rebirthSafeBounds\"\\s*:\\s*true",
+        "\"rebirthClose44\"\\s*:\\s*true"
       ],
       "saveAs": "nativeRebirthButton",
       "label": "verify actual RebirthButton route"
@@ -602,6 +604,34 @@
       ],
       "saveAs": "nativeMoreTool",
       "label": "verify actual MoreTool route"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')local p=game.Players:GetPlayers()[1]local world=assert(workspace:FindFirstChild('PunchWallRPG'))\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio'and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'strict ephemeral fixture required')\nassert(game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true and p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio'and p:GetAttribute('ProfileWritable')==false,'ephemeral player required')\nlocal a=game.ServerStorage:WaitForChild('PunchWallAutomation')local result=a:Invoke('GrantPet',{name='Forest Pup',stars=1})assert(result.ok==true and result.petName=='Forest Pup'and result.stars==1,'normal pet grant failed')\nlocal snapshot=a:Invoke('Snapshot')local pets=H:JSONDecode(snapshot.PetInventoryJSON)assert(table.find(pets,'Forest Pup'),'granted normal pet absent from authoritative inventory')\nreturn H:JSONEncode({ok=true,pet='Forest Pup',stars=1})"
+      },
+      "label": "seed one normal pet for narrow selected-detail geometry",
+      "timeoutMs": 15000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "saveAs": "narrowNormalPet"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local opened=a:Invoke('OpenInventory')assert(type(opened)=='table'and opened.ok==true) a:Invoke('SelectInventoryCategory',category) a:Invoke('SetInventorySearch','')a:Invoke('SetInventoryRarity','All')task.wait(.4)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n if not key then\n  local deadline=os.clock()+5 repeat\n   for _,card in ipairs(body.InventoryGridPane.InventoryGrid:GetChildren())do local k=card:GetAttribute('InventoryKey')local label=card:FindFirstChild('ItemName')if type(k)=='string'and string.sub(k,1,9)=='pet:slot:'and label and label.Text==expectedName then key=k break end end\n   if not key then task.wait(.1)end\n  until key or os.clock()>=deadline\n end\n assert(key,'actual owned pet card missing')a:Invoke('SelectInventoryItem',key)task.wait(.3)\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==expectedName and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n local original=name a:Invoke('SelectInventoryItem',key)task.wait(.15)assert(name==original and name.Parent==detail and root:GetAttribute('InventorySelectedKey')==key,'repeat selection replaced detail identity')\n return {category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal fist=verify('Fists','fist:Starter Glove','Starter Fist',1)\nlocal pet=verify('Pets',nil,'Forest Pup',4)\na:Invoke('CloseMenus')return H:JSONEncode({ok=true,fist=fist,pet=pet})"
+      },
+      "label": "verify selected fist and pet detail lanes at explicit narrow desktop",
+      "timeoutMs": 15000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "saveAs": "narrowSelectedDetails"
     },
     {
       "type": "call",
