@@ -26,6 +26,7 @@ do
 
   local connections = {}
   local pendingProbes = {}
+  local pendingArrivals = {}
   local delayedTasks = {}
   local disposed = false
   local animate, canonicalHook, fallback, holdingFolder
@@ -50,6 +51,8 @@ do
    table.clear(connections)
    for thread in pairs(pendingProbes) do cancelThread(thread) end
    table.clear(pendingProbes)
+   for _, thread in pairs(pendingArrivals) do cancelThread(thread) end
+   table.clear(pendingArrivals)
    cancelThread(reconcileThread)
    for _, thread in ipairs(delayedTasks) do cancelThread(thread) end
    if character.Parent then
@@ -171,7 +174,13 @@ do
    animate = candidate
    if discoveryConnection then discoveryConnection:Disconnect() discoveryConnection = nil end
    table.insert(connections, animate.ChildAdded:Connect(function(child)
-    if child.Name == "PlayEmote" then acceptHook(child) end
+    if child.Name ~= "PlayEmote" or pendingArrivals[child] then return end
+    -- ChildAdded can run inside the engine's Parent assignment. Reparenting
+    -- that same hook there is rejected; preserve its callback after arrival.
+    pendingArrivals[child] = task.defer(function()
+     pendingArrivals[child] = nil
+     if isCurrent() and animate.Parent == character then acceptHook(child) end
+    end)
    end))
    table.insert(connections, animate.AncestryChanged:Connect(function()
     if isCurrent() and animate.Parent ~= character then stop("AnimateRemoved") end
@@ -10435,6 +10444,22 @@ local function designRect(x, y, width, height)
 	return UDim2.fromScale(x / 1672, y / 941), UDim2.fromScale(width / 1672, height / 941)
 end
 
+function shared.PunchWallResolveNarrowDirectionalPair(viewport)
+	local width = math.max(44, viewport.X * 76 / 1672)
+	local spacing = viewport.X * 90 / 1672
+	if spacing >= width + 4 or viewport.X < width * 2 + 20 then return nil end
+	-- Keep the authored pair center while respecting the real minimum hitbox.
+	-- Normal desktop proportions and the separate compact layout stay intact.
+	local pairWidth = width * 2 + 4
+	local center = viewport.X * 1273 / 1672
+	local left = math.clamp(center - pairWidth * 0.5, 8, viewport.X - pairWidth - 8)
+	return {
+		upX = left, downX = left + width + 4,
+		y = viewport.Y * 590 / 941,
+		width = width, height = math.max(44, viewport.Y * 76 / 941),
+	}
+end
+
 local rankWidgets = (function()
 	local widgets = {}
 	local rankHUD = Instance.new("Frame")
@@ -14263,6 +14288,15 @@ applyResponsiveLayout = function()
 		punchDownButton.Position, punchDownButton.Size = designRect(1280, 590, 76, 76)
 		punchUpButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
 		punchDownButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
+		local narrowPair = shared.PunchWallResolveNarrowDirectionalPair(viewport)
+		if narrowPair then
+			punchUpButton.Position = UDim2.fromOffset(narrowPair.upX, narrowPair.y)
+			punchDownButton.Position = UDim2.fromOffset(narrowPair.downX, narrowPair.y)
+			punchUpButton.Size = UDim2.fromOffset(narrowPair.width, narrowPair.height)
+			punchDownButton.Size = punchUpButton.Size
+			punchUpButton:SetAttribute("ResponsiveProfile", "NarrowDesktopDirectionalGap4V1")
+			punchDownButton:SetAttribute("ResponsiveProfile", "NarrowDesktopDirectionalGap4V1")
+		end
 		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
