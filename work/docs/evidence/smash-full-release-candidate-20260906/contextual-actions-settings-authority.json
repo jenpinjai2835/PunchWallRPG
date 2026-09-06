@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "contextual-actions-settings-authority",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start contextual action session",
+        "wait for profile-ready runtime",
+        "place player away from contextual Use targets",
+        "single real out-of-range Use returns authoritative failure",
+        "place player beside current training station",
+        "send real Train request",
+        "settle training lock and gain state",
+        "training becomes authoritative and movement-locked",
+        "send real StopTraining request",
+        "settle training release",
+        "StopTraining releases authoritative movement state",
+        "place player beside Pet Lab interaction",
+        "send real in-range contextual Use request",
+        "settle server-opened contextual menu",
+        "in-range Use opens the correct player menu",
+        "send valid settings with out-of-range scale",
+        "settle normalized settings save",
+        "settings clamp high scale and preserve valid booleans",
+        "clear action throttle before malformed settings probe",
+        "send malformed settings payload",
+        "settle fail-safe settings normalization",
+        "malformed setting types fail closed to safe values",
+        "capture contextual-action console",
+        "contextual-action console clean (identified Studio input warnings: 0)",
+        "return contextual action session to Edit"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "contextual-action console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

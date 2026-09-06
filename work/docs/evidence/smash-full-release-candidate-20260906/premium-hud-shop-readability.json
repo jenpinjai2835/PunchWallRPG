@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "premium-hud-shop-readability",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "create owned visual fixture device",
+        "start play",
+        "wait for UI",
+        "seed owned and equipped action states",
+        "cleanup play",
+        "cleanup owned device"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:24: actual device/scale did not settle: AssistantCommand:13: full UI dimensions differ beyond native boundary rounding",
+      "context": {
+        "readabilitySeed": "{\"ok\":true,\"entitlementsReconciled\":true,\"seedReadback\":{\"EquippedFist\":\"Starter Glove\",\"OwnedPremiumFistsJSON\":\"[]\",\"Power\":15,\"Coins\":1000,\"FistMultiplier\":1,\"PetMultiplier\":0,\"EquippedPetsJSON\":\"[]\",\"PetInventoryJSON\":\"[]\",\"Depth\":1,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\",\\\"Boxing Glove\\\"]\",\"OwnedPremiumPetsJSON\":\"[]\"},\"pendingGrants\":0}"
+      }
+    }
+  ]
+}

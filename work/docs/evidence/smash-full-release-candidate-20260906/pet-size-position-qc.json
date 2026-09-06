@@ -1,0 +1,45 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "cleanup stop play",
+        "cleanup pet framing simulator presets"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium pet follow failed {\"valid\":false,\"late\":7.895767688751221,\"smoothing\":\"ExponentialCFrame\",\"early\":0,\"ready\":true}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.3432199954986574,\"screen\":0.009342198080502859,\"largest\":1.599104881286621,\"x\":-3.0115742683410646,\"count\":1,\"z\":1.0855903625488282,\"policy\":\"Normal\",\"y\":0.9638636112213135,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.392141342163086,\"rows\":[{\"y\":0.9798462390899658,\"x\":-3.031792640686035,\"z\":1.085561752319336,\"screen\":0.009375568156352266,\"largest\":1.599105954170227},{\"y\":0.8681943416595459,\"x\":2.8307807445526125,\"z\":1.0855484008789063,\"screen\":0.009959998695034053,\"largest\":1.6500309705734254},{\"y\":1.7277987003326417,\"x\":-4.92928409576416,\"z\":2.3355350494384767,\"screen\":0.011129550552764711,\"largest\":1.649999737739563}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\",\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000011444091797,\"combined\":0.03745474068598182,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.013013305078699583,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000013828277588,\"combined\":0.0166163240206007,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.005713663223136369,\"viewportY\":654,\"minAvatarSeparation\":80.04782104492188,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":637,\"maxLargest\":1.8000009059906006,\"combined\":0.15855092759149329,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.06733126327086107,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3}},\"contractValid\":true}",
+        "premiumScreenSeparation": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,4.875312328338623,-25.966060638427736],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":7.979602336883545,\"maxCameraPositionDelta\":0,\"viewportX\":637,\"minWorldPair\":1.5741541385650635,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,5.262808799743652,-19.984895706176759],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":1.986396074295044,\"maxCameraPositionDelta\":0,\"viewportX\":637,\"minWorldPair\":1.5513005256652833,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"6\":{\"valid\":true,\"maxPairOverlap\":0.06543748005938262,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"samples\":20,\"maxAvatarOverlap\":0.07493637230050472,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":13.959304809570313,\"maxCameraPositionDelta\":0,\"viewportX\":637,\"minWorldPair\":2.0380499362945558,\"focusPolicy\":\"ObservedStudio20StudPlane\"}},\"formation\":\"BoundsAwarePremiumFormationV2\",\"failures\":[],\"contractValid\":true}",
+        "premiumSafeFrame": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":6.37},\"18\":{\"valid\":true,\"samples\":20,\"inset\":6.37},\"6\":{\"valid\":true,\"samples\":20,\"inset\":6.37}},\"safe\":true,\"failures\":[],\"contractValid\":true}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "fist-pet-legacy-slot-safety",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play and wait for both runtime DataModels",
+        "wait for gameplay bootstrap",
+        "seed duplicate pet occurrences with only slot one equipped",
+        "open legacy Pets and expose duplicate slot two action",
+        "real click equips duplicate occurrence two",
+        "slot two real click reached fresh Equip callback exactly once",
+        "allow slot two exact-index equip replication",
+        "slot two became the second equipped occurrence",
+        "expose occurrence one invalid out-of-order unequip",
+        "real click occurrence one is rejected by exact-index order",
+        "slot one real click reached fresh Unequip callback exactly once",
+        "allow rejected exact-index unequip result replication",
+        "out-of-order duplicate did not mutate equipped state",
+        "expose last equipped duplicate occurrence",
+        "real click unequips exact last occurrence",
+        "slot two real click reached fresh Unequip callback exactly once",
+        "allow slot two exact-index unequip replication",
+        "exact duplicate unequip left one occurrence equipped",
+        "reset duplicates with slot one locked for Delete safety",
+        "wait for locked inventory rerender",
+        "locked Delete is visibly inert",
+        "expose unlocked duplicate slot two Delete",
+        "first real Delete click arms exact slot two",
+        "wait for legacy confirmation rerender",
+        "first click caused no authoritative mutation",
+        "legacy confirmation survives row rerender with exact key",
+        "wait past Delete confirmation timeout",
+        "expired confirmation safely disarms",
+        "re-expose slot two for confirmed Delete",
+        "real click re-arms slot two Delete",
+        "wait for confirmation button",
+        "reacquire fresh armed Delete2 immediately before confirm click",
+        "second real click confirms exact slot two Delete",
+        "second click reached confirmed client callback exactly once",
+        "bounded authority poll proves only duplicate slot two deleted",
+        "capture fist and pet safety console",
+        "fist and pet safety console clean (identified Studio input warnings: 0)",
+        "stop play and wait for Edit"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "fist and pet safety console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

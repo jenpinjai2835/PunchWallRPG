@@ -1,5 +1,19 @@
 # Smash Wall quality and cooperative play improvement — 2026-09-06
 
+**Current status, September 6 at 13:28 ICT:** the 129-flow native run completed
+at `85c51e5` with **115 PASS / 14 FAIL**. Final static contracts
+passed 51/52 with one explicit runtime-only benchmark. The full run has already
+recorded fourteen failures across all 129 flows. These include real
+camera LOS and narrow desktop menu sizing defects, obsolete UI oracles and
+three paths needing better native diagnostics. Isolated repairs are authored
+and are now undergoing focused tests with native Play stopped. Canonical output has
+not been rebuilt; artifact validation and reviewed merge remain required.
+Earlier sections below are dated progress history, not current acceptance.
+One authorized usage reset was redeemed at 06:36 ICT; two credits remain and
+the latest account reading shows 72% quota remaining. Current Studio PID 22788
+is windowed with an Auto-Recovery notice: MCP remains usable, while native
+Ignore/maximize actions are unavailable. Original recovery files are preserved.
+
 ## User outcome and accepted direction
 
 Improve game design, legacy defects, and overall polish. The user selected satisfying destruction and cooperation with friends. They specifically identified crude/incomplete Shop and Inventory presentation, incorrect phone layouts, unattractive/incomplete item and fist models, uneven performance, and camera stutter/bugs. Worldwide popularity is an aspiration to measure with real players, not a deliverable that can be guaranteed.
@@ -815,3 +829,79 @@ The final aggregate `smash-complete-static-release-candidate-20260906.json`
 passed all 51 non-Studio contracts out of 52 discovered, retaining the explicit
 runtime-only inventory performance exclusion. This does not replace the full
 129 native flows or final rebuilt-artifact gates, which remain required.
+
+### September 6, 13:24 ICT — frozen full run findings and isolated repairs
+
+The new full run is bound to `85c51e58eb0fda1c5d4230828f18f4fb5bfd173c`
+and native Studio `450e00ec-0d7d-4d1b-858b-f11fabd13295`. Its nine-source
+read-only preflight passed. All integration source/automation remains frozen;
+only these documents have uncommitted changes there. The run is preserved in
+`evidence/smash-full-release-candidate-20260906/`, not treated as release-ready.
+
+Confirmed source defects: long-tunnel and phone camera checks encountered
+actual solid blocks across the avatar sightline. The camera is physically
+outside geometry but can remain stuck when the fixed candidate search finds
+no clear pose and its bounded limiter rejects every still-obscured intermediate
+step. On the 637px desktop, Shop is actually 33.1453px wide, and its gap to the
+44px Inventory button is negative. The visible Tasks host remains 677px wide,
+so it extends beyond that window. These gates are retained for the repairs.
+
+Other native failures exposed old assumptions: Honor's eighth card correctly
+scrolls to canvas449 and is fully visible, while its flow demands canvas0;
+compact category icons intentionally hide at logical20px but the flow demands
+visible40px bounds; Fusion uses a measured two-column action grid while the
+compact wide-only metadata is0; the phone objective is now280x36 but the old
+flow caps it at220x30. The ambient beacon uses a clamped sine, so two samples
+0.45s apart can both land in its zero half-cycle. Replacement tests must prove
+actual geometry, visibility, action bounds and a complete observed pulse cycle.
+
+Jump, pet follow and the Premium device rectangle require further native data.
+Jump reports only false after one0.16s sample. Pet follow reports early0 after
+0.05s and late7.8958 after another0.85s; production uses up to20Hz LOD, making
+the first sample timing important. The Premium flow rejects a configured vs
+rendered size mismatch without retaining those rectangles. No source defect or
+pass is inferred from those incomplete observations. Product availability also
+uses an unopened Shop selector and nonrecursive lookups for now-nested cards;
+the test route/lookup correction retains all paid metadata and authority gates.
+
+| Owner | Isolated worktree suffix, base85c51e5 | Exact owned deliverable | Status |
+| --- | --- | --- | --- |
+| Agent2 | `PuchWall-camera-recovery-final-20260906` | Client camera guard, long-tunnel flow, geometry contract | Authored; tests pending |
+| Agent1 | `PuchWall-inventory-flow-final-20260906` | Honor/category/Fusion flows, Honor and Inventory visual contracts | Authored; tests pending |
+| Agent3 | `PuchWall-remaining-oracles-final-20260906` | Ambient/phone-objective flows, reduced-scene and mobile contracts | Authored; tests pending |
+| Agent3 | `PuchWall-narrow-menu-final-20260906` | Diagnostic-only Jump commit88240e8 | Clean but untested; source changes wait for Agent2 |
+| Coordinator | `PuchWall-runtime-probes-final-20260906` | Pet/Premium diagnostics and product route flow correction; ignored authoring helper under work/tools | Authored; tests pending |
+
+The Coordinator reviewed the camera draft and caught an accidentally displaced
+limiter block before validation; the worker corrected it and restored unrelated
+UTF-8 draft changes. Agent2 reviewed the new diagnostic flows: watchdog timeout
+must reject pet validity, JSON must stay below the runner's4000-character limit,
+and optional native queries must not mask or interleave rectangle observations.
+Root applied these corrections with a3500-character cap. Agent1 reviewed the
+purchase-flow change without weakened predicates and caught a duplicate saveAs;
+root removed it, retaining the original clientAvailability evidence key.
+
+Focused compiler/contract tests were deliberately deferred until this frozen
+native run finishes. No worker handoff is currently validated or integrated.
+After focused checks, source ownership must pass serially from Agent2 to Agent3
+for right-menu and generic modal repairs. Required targeted native reruns, a
+fresh full run, combined static gate and rebuilt-artifact gates all remain.
+
+Independent Agent1 read-only final server/shared review of85c51e5 vs4094e51
+found no actionable introduced authority/persistence defect. ProfilePersistence,
+GameConfig and PolishConfig still match baseline byte-for-byte; UI snapshots
+remain separate from authoritative damage, save and durable grants. This is a
+bounded source review, not live multi-client or paid transaction evidence.
+Agent3's guide audit was integrated into the working Thai guide: first-fist
+requirements now include Depth1 and180Coins, Shop detail is on its cards, and
+the current source reference is85c51e5. New team modes/economy changes remain
+design proposals; existing shared-wall contribution rewards are preserved.
+
+The run completed at13:27:52 ICT with115PASS/14FAIL, no interruption, unchanged
+source/automation fingerprints and successful read-only nine-source comparison
+both before and after. All129 results and the terminal manifest are retained.
+The remaining failures added after the interim table were pet follow, Premium
+native-area matching, product availability lookup, phone camera settled LOS and
+the same narrow right-menu uniformity defect. All three workers were then given
+offline test slots; native tests stay stopped during these CPU checks. This is
+a completed failed regression, not a passing release run.
