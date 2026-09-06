@@ -8,10 +8,12 @@ const root=path.resolve(import.meta.dirname,'../../..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/\r/g,'');
 const clientPath='work/punch-wall-rpg/src/client/PunchWallClient.client.lua';
 const client=read(clientPath);
-function historical(p){const r=spawnSync('git',['show','85c51e5:'+p],{cwd:root,encoding:'utf8'});assert.equal(r.status,0,r.stderr);return r.stdout.replace(/\r/g,'');}
+function historical(p,ref='85c51e5'){const r=spawnSync('git',['show',ref+':'+p],{cwd:root,encoding:'utf8'});assert.equal(r.status,0,r.stderr);return r.stdout.replace(/\r/g,'');}
 function between(s,a,b,from=0){const start=s.indexOf(a,from),end=s.indexOf(b,start+a.length);assert(start>=0&&end>start,a);return s.slice(start,end);}
 const oldClient=historical(clientPath);
 const helpers=between(client,'function shared.PunchWallResolveNarrowMenuGrid','\nlocal rankWidgets = (function()');
+const beforeClampFix=between(historical(clientPath,'e290faba'),'function shared.PunchWallResolveNarrowMenuGrid','\nlocal rankWidgets = (function()');
+const classify=between(client,'shared.PunchWallClassifyResponsiveViewport = function(size)','\nshared.PunchWallGetResponsiveViewport = function()');
 const enforce=between(client,'local function enforceReferenceTouchTarget','\nlocal function setPhoneOpticalScale');
 const authorStart='\t\treferenceInventory.Position, referenceInventory.Size = designRect(';
 const authorEnd='\n\t\tshared.PunchWallSoundToolButton.AnchorPoint';
@@ -143,6 +145,72 @@ assert(modal.AbsolutePosition.X==12 and modal.AbsoluteSize.X==613,'recorded narr
 assert(math.abs(modal.AbsolutePosition.Y-(-58+654*.52-408*.5))<.00001,'modal origin-offset centering changed')
 print('NARROW_LAYOUT_PASS='..count)
 `;
+const collapsedViewports=String.raw`
+local count=0
+local function check(value,message)assert(value,message)count+=1 end
+local function finite(value)return value==value and value>-math.huge and value<math.huge end
+local function grid(width,height)return shared.PunchWallResolveNarrowMenuGrid({X=width,Y=height})end
+local function modal(width,height)return shared.PunchWallResolveGenericDesktopModal({X=width,Y=height})end
+-- These dimensions enter the real desktop caller: the long side prevents
+-- CompactDesktop classification, and a transient 0x0 uses Desktop as well.
+for _,size in ipairs({{X=1920,Y=180},{X=0,Y=0}})do
+ local profile,compact=shared.PunchWallClassifyResponsiveViewport(size)
+ check(profile=='Desktop'and not compact,'collapsed desktop path must be reachable')
+end
+for _,size in ipairs({{1920,180},{0,0},{1,1},{24,24},{175.99,654},{637,215.7},{-1,654},{637,-1},{math.huge,654},{637,math.huge},{0/0,654},{637,0/0}})do
+ check(grid(size[1],size[2])==nil,'unfittable or invalid grid must decline layout')
+end
+local minimumHeight=48*111/87*3+8+24
+for _,size in ipairs({{176,minimumHeight},{637,minimumHeight},{1920,minimumHeight}})do
+ local layout=grid(size[1],size[2])
+ check(layout~=nil,'exact grid envelope must remain supported')
+ for _,target in pairs(layout.targets)do
+  check(finite(target.x)and finite(target.y)and target.width>=44 and target.height>=44,'fitted grid must stay finite and tappable')
+  check(target.x>=12-.00001 and target.y>=12-.00001 and target.x+target.width<=size[1]-12+.00001 and target.y+target.height<=size[2]-12+.00001,'fitted grid escaped envelope')
+ end
+end
+check(grid(637,minimumHeight-.00001)==nil,'below exact three-row envelope must decline layout')
+for _,case in ipairs({
+ {0,0,1,1,0,false},{1,1,1,1,.5,false},{10,24,1,1,12,false},
+ {25,25,1,1,12.5,true},{1920,180,677,156,90,true},
+ {1920,1,677,1,.5,false},{math.huge,0,1,1,0,false},
+ {0/0,0/0,1,1,0,false},{-12,-5,1,1,0,false},
+})do
+ local result=modal(case[1],case[2])
+ check(finite(result.width)and finite(result.height)and finite(result.centerY),'collapsed modal must stay finite')
+ check(result.width==case[3]and result.height==case[4]and result.centerY==case[5],'collapsed modal must use bounded minimal centered geometry')
+ check(result.safeMarginFits==case[6],'impossible safe margin must not be claimed')
+end
+-- Compare exact outputs of both real producer versions wherever the old
+-- fixed envelope is feasible. No sizing or centering formula may drift.
+for _,size in ipairs({{25,25},{637,654},{1920,180},{1672,941},{520,520}})do
+ local viewport={X=size[1],Y=size[2]}
+ local current=modal(size[1],size[2])
+ local old=previous.PunchWallResolveGenericDesktopModal(viewport)
+ check(current.width==old.width and current.height==old.height and current.centerY==old.centerY,'feasible modal formula changed')
+end
+for _,size in ipairs({{176,minimumHeight},{637,654},{845,520},{1000,654},{1672,941}})do
+ local viewport={X=size[1],Y=size[2]}
+ local current=grid(size[1],size[2])
+ local old=previous.PunchWallResolveNarrowMenuGrid(viewport)
+ check((current==nil)==(old==nil),'feasible grid selection changed')
+ if current then
+  for key,value in pairs(current)do if key~='targets'then check(value==old[key],'feasible grid metric changed')end end
+  for name,target in pairs(current.targets)do
+   for key,value in pairs(target)do check(value==old.targets[name][key],'feasible target placement changed')end
+  end
+ end
+end
+local hud,renderedModal=scene(1920,180,0,-58)
+check(hud:GetAttribute('RightMenuLayoutMode')=='UniformIconGridV1','unfittable grid must preserve authored fallback')
+check(renderedModal.AbsoluteSize.Y==156 and renderedModal.AbsolutePosition.Y==-46,'actual shallow desktop modal caller must remain bounded')
+local ok,err=pcall(previous.PunchWallResolveNarrowMenuGrid,{X=1920,Y=180})
+check(not ok and string.find(tostring(err),'max must be greater than or equal to min',1,true)~=nil,'old actual narrow producer must reproduce the clamp throw')
+ok,err=pcall(previous.PunchWallResolveGenericDesktopModal,{X=0,Y=0})
+check(not ok and string.find(tostring(err),'max must be greater than or equal to min',1,true)~=nil,'old actual modal producer must reproduce the clamp throw')
+print('COLLAPSED_VIEWPORT_PASS='..count)
+`;
+const edgeProducer=producer=>producer+'\nlocal previous={}\n'+beforeClampFix.replaceAll('function shared.','function previous.')+'\nlocal UserInputService={TouchEnabled=false}\nlocal typeof=function()return "Vector2"end\n'+classify;
 const candidates=[process.env.LUAU_COMMAND,...fs.readdirSync(os.tmpdir()).filter(n=>n.startsWith('codex-luau-')).sort().reverse().map(n=>path.join(os.tmpdir(),n,'luau.exe')),'luau'];
 const luau=candidates.find(c=>c&&spawnSync(c,['--help'],{encoding:'utf8'}).status===0);assert(luau,'Luau required');
 const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),'luau-compile.exe');
@@ -158,6 +226,15 @@ function run(name,text,expected){
 }
 try{
  const checks=Number(run('production',program({tail:positive})).match(/NARROW_LAYOUT_PASS=(\d+)/)?.[1]);assert.equal(checks,440);
+ const collapsedChecks=Number(run('collapsed-viewports',program({producer:edgeProducer(helpers),tail:collapsedViewports})).match(/COLLAPSED_VIEWPORT_PASS=(\d+)/)?.[1]);assert(collapsedChecks>=100,'collapsed viewport scenarios did not execute');
+ const edgeMutations=[
+  ['missing_grid_envelope',helpers.replace(/\tif viewport.X < width \* 3[\s\S]*?then return nil end/,''),'max must be greater than or equal to min'],
+  ['missing_grid_finite_guard',helpers.replace(/\tif not \(viewport.X > 0[^\n]*\n/,''),'unfittable or invalid grid must decline layout'],
+  ['unconditional_modal_clamp',helpers.replace('if viewportHeight >= height + 24 then','if true then'),'max must be greater than or equal to min'],
+  ['false_safe_margin_claim',helpers.replace('safeMarginFits = viewportWidth >= width + 24 and viewportHeight >= height + 24','safeMarginFits = true'),'impossible safe margin must not be claimed'],
+  ['uncentered_collapsed_modal',helpers.replace('local centerY = viewportHeight * 0.5','local centerY = viewportHeight * 0.52'),'collapsed modal must use bounded minimal centered geometry'],
+ ];
+ for(const [name,producer,expected]of edgeMutations){assert.notEqual(producer,helpers);run(name,program({producer:edgeProducer(producer),tail:collapsedViewports}),expected);mutations.push(name);}
  const old=run('historical85',program({caller:oldAuthored,modalCaller:oldModal,tail:String.raw`
 local hud,modal,buttons=scene(637,654,0,-58)
 local inventory,shop=buttons[1],buttons[2]
@@ -215,8 +292,8 @@ print('PASS')
   const file=path.join(temp,'flow-'+fi+'-'+index+'.luau');fs.writeFileSync(file,step.args.code);
   const c=spawnSync(compiler,['--null',file],{encoding:'utf8'});assert.equal(c.status,0,c.stderr);compiled++;
  }
- const sourceCompile=spawnSync(compiler,['--null',path.join(root,clientPath)],{encoding:'utf8'});assert.equal(sourceCompile.status,0,sourceCompile.stderr);compiled++;
- console.log(JSON.stringify({ok:true,checks,negativeScenarios:8,mutations,compiled,executed,historical85FailBefore:true,nativeRuntime:'pending'},null,2));
+ for(const optimization of ['-O0','-O1','-O2']){const sourceCompile=spawnSync(compiler,[optimization,'--null',path.join(root,clientPath)],{encoding:'utf8'});assert.equal(sourceCompile.status,0,sourceCompile.stderr);compiled++;}
+ console.log(JSON.stringify({ok:true,checks,collapsedChecks,negativeScenarios:8,mutations,compiled,executed,historical85FailBefore:true,historicalE290ClampThrows:2,clientCompile:['O0','O1','O2'],nativeRuntime:'pending'},null,2));
 }finally{
  const resolved=fs.realpathSync(temp);
  assert.equal(path.dirname(resolved),fs.realpathSync(os.tmpdir()));assert(path.basename(resolved).startsWith('smash-narrow-menu-'));

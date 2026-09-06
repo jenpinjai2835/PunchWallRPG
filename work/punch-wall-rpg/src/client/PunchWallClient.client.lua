@@ -10607,11 +10607,16 @@ function shared.PunchWallResolveNarrowDirectionalPair(viewport)
 end
 
 function shared.PunchWallResolveNarrowMenuGrid(viewport)
+	if not (viewport.X > 0 and viewport.X < math.huge and viewport.Y > 0 and viewport.Y < math.huge) then return nil end
 	local authoredScale = math.min(viewport.X / 1672, viewport.Y / 941)
 	if 82 * authoredScale >= 44 then return nil end
 	local width, gap, margin = 48, 4, 12
 	local height = width * 111 / 87
 	local rebirthHeight = width * 111 / 82
+	-- A collapsed or very shallow desktop viewport cannot fit this grid.
+	-- Keep the authored fallback instead of clamping against reversed bounds.
+	if viewport.X < width * 3 + gap * 2 + margin * 2
+		or viewport.Y < height * 3 + gap * 2 + margin * 2 then return nil end
 	local right = viewport.X - margin - width
 	local left = right - width - gap
 	local top = math.clamp(viewport.Y * 296 / 941, margin, viewport.Y - margin - height * 3 - gap * 2)
@@ -10632,10 +10637,15 @@ function shared.PunchWallResolveNarrowMenuGrid(viewport)
 end
 
 function shared.PunchWallResolveGenericDesktopModal(viewport)
-	local width = math.min(677, math.max(1, viewport.X - 24))
-	local height = math.min(408, math.max(1, viewport.Y - 24))
-	local centerY = math.clamp(viewport.Y * 0.52, height * 0.5 + 12, viewport.Y - height * 0.5 - 12)
-	return { width = width, height = height, centerY = centerY }
+	local viewportWidth = viewport.X >= 0 and viewport.X < math.huge and viewport.X or 0
+	local viewportHeight = viewport.Y >= 0 and viewport.Y < math.huge and viewport.Y or 0
+	local width = math.min(677, math.max(1, viewportWidth - 24))
+	local height = math.min(408, math.max(1, viewportHeight - 24))
+	local centerY = viewportHeight * 0.5
+	if viewportHeight >= height + 24 then
+		centerY = math.clamp(viewportHeight * 0.52, height * 0.5 + 12, viewportHeight - height * 0.5 - 12)
+	end
+	return { width = width, height = height, centerY = centerY, safeMarginFits = viewportWidth >= width + 24 and viewportHeight >= height + 24 }
 end
 
 local rankWidgets = (function()
