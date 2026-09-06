@@ -127,7 +127,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction local altered=0 for _,d in ipairs(p.Character:GetDescendants()) do if d:IsA('Motor6D') or d:IsA('AnimationConstraint') then local connected=d:IsA('Motor6D') and d.Part1 or (d:IsA('AnimationConstraint') and d.Attachment1 and d.Attachment1.Parent) if d.Name=='RightShoulder' or d.Name=='Right Shoulder' or (connected and (connected.Name=='RightUpperArm' or connected.Name=='Right Arm')) then d.Name='QC Unsupported Shoulder' if d:IsA('Motor6D') then d.Part1=nil else d.Attachment1=nil end altered+=1 end end end local result={eligible=g:GetAttribute('ContextualTrainingEligible'),target=g:GetAttribute('ContextualActionTarget'),title=b.ActionTitle.Text,detail=b.ActionDetail.Text,altered=altered,invoked=a:Invoke('InvokeContextualAction')} assert(result.eligible and result.target=='Iron Impact Dummy' and result.title=='TRAIN' and result.detail:find('+40/s',1,true) and result.altered>=1 and result.invoked,'eligible context '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction\nassert(not g:FindFirstChild('TrainingUnsupportedRigCleanup'),'previous unsupported-rig fixture must be cleaned')\nlocal records={} local cleanup=Instance.new('BindableFunction') cleanup.Name='TrainingUnsupportedRigCleanup' cleanup.Parent=g\ncleanup.OnInvoke=function()\n local restored=0\n for _,r in ipairs(records)do\n  local joint=r.joint\n  if joint.Parent and joint:IsDescendantOf(p.Character) and r.endpoint.Parent then\n   joint.Name=r.name\n   if r.motor then joint.Part1=r.endpoint else joint.Attachment1=r.endpoint end\n   if joint.Name==r.name and (r.motor and joint.Part1==r.endpoint or not r.motor and joint.Attachment1==r.endpoint)then restored+=1 end\n  end\n end\n local result={ok=#records>0 and restored==#records,restored=restored,expected=#records}cleanup:Destroy()return result\nend\nfor _,d in ipairs(p.Character:GetDescendants())do\n if d:IsA('Motor6D')or d:IsA('AnimationConstraint')then\n  local motor=d:IsA('Motor6D')local endpoint if motor then endpoint=d.Part1 else endpoint=d.Attachment1 end local connected=motor and endpoint or endpoint and endpoint.Parent\n  if d.Name=='RightShoulder'or d.Name=='Right Shoulder'or(connected and(connected.Name=='RightUpperArm'or connected.Name=='Right Arm'))then\n   assert(endpoint,'original shoulder endpoint must be captured')table.insert(records,{joint=d,endpoint=endpoint,name=d.Name,motor=motor})\n   d.Name='QC Unsupported Shoulder'if motor then d.Part1=nil else d.Attachment1=nil end\n  end\n end\nend\nlocal result={eligible=g:GetAttribute('ContextualTrainingEligible'),target=g:GetAttribute('ContextualActionTarget'),title=b.ActionTitle.Text,detail=b.ActionDetail.Text,altered=#records,invoked=a:Invoke('InvokeContextualAction')}\nassert(result.eligible and result.target=='Iron Impact Dummy'and result.title=='TRAIN'and result.detail:find('+40/s',1,true)and result.altered>=1 and result.invoked,'eligible context '..H:JSONEncode(result))return H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"eligible\"\\s*:\\s*true",
@@ -148,27 +148,30 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.active==true and s.stationId=='iron_dummy' and s.gainPerSecond==40 and s.Power>=1540,active=s.active,stationId=s.stationId,gain=s.gainPerSecond,Power=s.Power})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation\nlocal deadline=os.clock()+6 local s local ready=false\nrepeat\n s=a:Invoke('TrainingSnapshot')\n ready=s.active==true and s.stationId=='iron_dummy' and s.gainPerSecond==40 and s.Power>=1579 and (s.sessionTickCount or 0)>=2\n if ready then break end\n task.wait(.1)\nuntil os.clock()>=deadline\nreturn H:JSONEncode({ok=ready,active=s.active,stationId=s.stationId,gain=s.gainPerSecond,Power=s.Power,tickCount=s.sessionTickCount,twoTicks=(s.sessionTickCount or 0)>=2})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"active\"\\s*:\\s*true",
         "\"stationId\"\\s*:\\s*\"iron_dummy\"",
-        "\"gain\"\\s*:\\s*40"
+        "\"gain\"\\s*:\\s*40",
+        "\"twoTicks\"\\s*:\\s*true"
       ],
-      "label": "qualified player trains at the exact Iron rate"
+      "label": "qualified player trains at the exact Iron rate",
+      "timeoutMs": 12000
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local count=g:GetAttribute('TrainingFistFallbackCount') or 0 local echoes=0 for _,x in ipairs(workspace:GetChildren()) do if x:GetAttribute('VisualRole')=='TrainingFistStrikeFallback' then echoes+=1 end end local result={ok=count>=1 and g:GetAttribute('TrainingCharacterAnimationApplied')==false and g:GetAttribute('TrainingFistFallbackEquippedFist')=='Starter Glove' and echoes<=1,count=count,characterAnimated=g:GetAttribute('TrainingCharacterAnimationApplied'),equipped=g:GetAttribute('TrainingFistFallbackEquippedFist'),echoes=echoes} assert(result.ok,'fist fallback '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local count=g:GetAttribute('TrainingFistFallbackCount') or 0 local echoes=0 for _,x in ipairs(workspace:GetChildren()) do if x:GetAttribute('VisualRole')=='TrainingFistStrikeFallback' then echoes+=1 end end local result={ok=count>=1 and g:GetAttribute('TrainingCharacterAnimationApplied')==false and g:GetAttribute('TrainingFistFallbackEquippedFist')=='Starter Glove' and echoes<=1,count=count,characterAnimated=g:GetAttribute('TrainingCharacterAnimationApplied'),equipped=g:GetAttribute('TrainingFistFallbackEquippedFist'),echoes=echoes} assert(result.ok,'fist fallback '..H:JSONEncode(result)) local cleanup=g:FindFirstChild('TrainingUnsupportedRigCleanup')local restored=cleanup and cleanup:Invoke()assert(restored and restored.ok and restored.restored>=1,'restore exact original shoulder after visual proof')result.fixtureRestored=true result.restored=restored.restored return H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"characterAnimated\"\\s*:\\s*false",
-        "\"count\"\\s*:\\s*[1-9]"
+        "\"count\"\\s*:\\s*[1-9]",
+        "\"fixtureRestored\"\\s*:\\s*true"
       ],
       "label": "unsupported avatar visibly strikes with the equipped fist"
     },
@@ -177,14 +180,18 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('StopTraining') local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} local s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),LockedPetsJSON='[]',EquippedPetsJSON='[]'}) local p=game.Players:GetPlayers()[1] local target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction') local root=p and p.Character and p.Character:FindFirstChild('HumanoidRootPart') assert(root and target,'Armory runtime target') root.Anchored=true root.CFrame=CFrame.new(target.Position+Vector3.new(-6,0,0)) root.AssemblyLinearVelocity=Vector3.zero task.wait(.25) root.Anchored=false return H:JSONEncode({ok=s.ok==true,inventory=s.PetInventoryJSON,targetPosition={target.Position.X,target.Position.Y,target.Position.Z}})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation\nlocal stopped=a:Invoke('StopTraining')assert(stopped.ok==true,'training stop failed')\nlocal names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'}\nlocal s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),LockedPetsJSON='[]',EquippedPetsJSON='[]'})assert(s.ok==true,'pet preview seed failed')\nlocal p=game.Players:GetPlayers()[1]local character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart')\nlocal target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction')assert(root and target and not root.Anchored,'unanchored Armory fixture character required')\n-- BEGIN ARMORY PLACEMENT GEOMETRY\nlocal coreNames={HumanoidRootPart=true,Head=true,Torso=true,UpperTorso=true,LowerTorso=true,['Left Leg']=true,['Right Leg']=true,LeftUpperLeg=true,LeftLowerLeg=true,LeftFoot=true,RightUpperLeg=true,RightLowerLeg=true,RightFoot=true}\nlocal core={} local bottom=math.huge\nfor _,part in ipairs(character:GetChildren())do if part:IsA('BasePart')and coreNames[part.Name]then\n local relative=root.CFrame:ToObjectSpace(part.CFrame)table.insert(core,{part=part,relative=relative})\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local corner=relative:PointToWorldSpace(Vector3.new(part.Size.X*x*.5,part.Size.Y*y*.5,part.Size.Z*z*.5))bottom=math.min(bottom,corner.Y)end end end\nend end\nassert(#core>=4 and bottom<0,'actual core body/feet bounds required; detached test arm is excluded')\nlocal candidate=target.Position+Vector3.new(-6,0,6)\nlocal ray=RaycastParams.new()ray.FilterType=Enum.RaycastFilterType.Exclude ray.FilterDescendantsInstances={character}ray.RespectCanCollide=true\nlocal floor=workspace:Raycast(candidate+Vector3.new(0,24,0),Vector3.new(0,-64,0),ray)\nassert(floor and floor.Instance.CanCollide and floor.Normal.Y>.8,'walk-up requires a real collidable floor')\nlocal desiredPosition=Vector3.new(candidate.X,floor.Position.Y-bottom+.12,candidate.Z)\nlocal desiredRoot=CFrame.lookAt(desiredPosition,Vector3.new(target.Position.X,desiredPosition.Y,target.Position.Z))\nlocal overlap=OverlapParams.new()overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character}overlap.MaxParts=0 overlap.RespectCanCollide=true\nlocal function coreClear(proposed)\n local hits={}\n for _,item in ipairs(core)do local part=item.part local cf=proposed and proposed*item.relative or part.CFrame\n  local size=Vector3.new(math.max(.05,part.Size.X-.1),math.max(.05,part.Size.Y-.1),math.max(.05,part.Size.Z-.1))\n  for _,hit in ipairs(workspace:GetPartBoundsInBox(cf,size,overlap))do if hit.CanCollide then table.insert(hits,hit.Name)end end\n end\n return #hits==0,hits\nend\nlocal clear,hits=coreClear(desiredRoot)assert(clear,'walk-up body overlaps '..H:JSONEncode(hits))\n-- END ARMORY PLACEMENT GEOMETRY\nlocal pivotOffset=root.CFrame:ToObjectSpace(character:GetPivot())character:PivotTo(desiredRoot*pivotOffset)\nroot.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero\nlocal deadline=os.clock()+4 local stableSince local result\nrepeat\n task.wait(.05)local actual=root.Position local targetDistance=(actual-target.Position).Magnitude local otherDistance=math.huge\n for _,part in ipairs(workspace.PunchWallRPG.Interactables:GetChildren())do if part:IsA('BasePart')and part~=target then\n  local use=part:GetAttribute('PremiumOnly')==true and part:GetAttribute('PurchaseConfigured')==true or part:GetAttribute('PremiumOnly')~=true and(part.Name=='Pet Egg Machine'or part.Name=='Rebirth Shrine'or part:GetAttribute('InteractionMenu')~=nil)\n  if use then otherDistance=math.min(otherDistance,(actual-part.Position).Magnitude)end\n end end\n local clear,overlaps=coreClear(nil)local drift=(actual-desiredPosition).Magnitude local margin=otherDistance-targetDistance\n local ready=not root.Anchored and clear and drift<.6 and root.AssemblyLinearVelocity.Magnitude<.5 and targetDistance<=18 and margin>=2\n if ready then stableSince=stableSince or os.clock()else stableSince=nil end\n result={position={actual.X,actual.Y,actual.Z},requested={desiredPosition.X,desiredPosition.Y,desiredPosition.Z},floor=floor.Instance.Name,coreParts=#core,coreClear=clear,overlaps=overlaps,drift=drift,margin=margin,targetDistance=targetDistance,anchored=root.Anchored,stable=stableSince~=nil and os.clock()-stableSince>=.3}\n if result.stable then break end\nuntil os.clock()>=deadline\nassert(result.stable,'unanchored discriminatory Armory placement '..H:JSONEncode(result))\nreturn H:JSONEncode({ok=true,inventory=s.PetInventoryJSON,placement=result})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "Celestial Guardian",
-        "Forest Pup"
+        "Forest Pup",
+        "\"coreClear\"\\s*:\\s*true",
+        "\"stable\"\\s*:\\s*true",
+        "\"anchored\"\\s*:\\s*false"
       ],
-      "label": "stop training and seed exact pet preview catalog"
+      "label": "stop training and seed exact pet preview catalog",
+      "timeoutMs": 15000
     },
     {
       "type": "wait",
@@ -196,16 +203,21 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction local result={action=g:GetAttribute('ContextualActionName'),target=g:GetAttribute('ContextualActionTarget'),active=b.Active,title=b.ActionTitle.Text,detail=b.ActionDetail.Text,invoked=a:Invoke('InvokeContextualAction')} assert(result.action=='Use' and result.target=='Hero Armory Merchant Interaction' and result.active and result.title=='USE' and result.detail==string.upper(result.target) and result.invoked,'use context '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction\nlocal target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction')\nlocal deadline=os.clock()+4 local stableSince local result local previousPosition\nrepeat\n local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart')\n result={action=g:GetAttribute('ContextualActionName'),target=g:GetAttribute('ContextualActionTarget'),active=b.Active,title=b.ActionTitle.Text,detail=b.ActionDetail.Text,rootPosition=root and tostring(root.Position),targetDistance=root and target and (root.Position-target.Position).Magnitude,anchored=root and root.Anchored,speed=root and root.AssemblyLinearVelocity.Magnitude}\n local exact=result.action=='Use' and result.target=='Hero Armory Merchant Interaction' and result.active and result.title=='USE' and result.detail==string.upper(result.target)\n local settled=root and target and not root.Anchored and result.targetDistance<=18 and result.speed<.5 and (not previousPosition or (root.Position-previousPosition).Magnitude<.1)\n if exact and settled then stableSince=stableSince or os.clock()else stableSince=nil end\n previousPosition=root and root.Position\n if stableSince and os.clock()-stableSince>=.3 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nresult.ready=stableSince~=nil and os.clock()-stableSince>=.3\nassert(result.ready,'exact Armory must be naturally selected and physically settled before Use '..H:JSONEncode(result))\nlocal reply local replies=0\nlocal watcher=game:GetService('ReplicatedStorage').PunchWallEvents.Feedback.OnClientEvent:Connect(function(payload)\n if type(payload)=='table' and payload.type=='OpenMenu' then reply={target=payload.target,tab=payload.tab}replies+=1 end\nend)\nlocal invokedOk,invoked=pcall(function()return a:Invoke('InvokeContextualAction')end)\nresult.invoked=invokedOk and invoked==true\nlocal opened=false local snapshot\nlocal finish=os.clock()+3\nlocal pollOk,pollError=pcall(function()\nrepeat\n snapshot=a:Invoke('Snapshot')\n opened=reply~=nil and reply.target=='Fists' and reply.tab=='Fists' and snapshot.shopVisible==true and snapshot.shopPage=='Fists'\n if opened or not result.invoked then break end\n task.wait(.05)\nuntil os.clock()>=finish\nend)\nwatcher:Disconnect()\nresult.serverReply=reply result.serverReplies=replies result.serverOpened=opened result.shopPage=snapshot and snapshot.shopPage result.observerCleaned=watcher.Connected==false result.pollOk=pollOk result.pollError=not pollOk and tostring(pollError) or nil\nassert(result.invoked and result.serverOpened and replies==1 and result.observerCleaned and pollOk,'Armory Use server/menu path '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"action\"\\s*:\\s*\"Use\"",
         "\"active\"\\s*:\\s*true",
-        "\"target\"\\s*:\\s*\"[^\"]+\"",
         "\"title\"\\s*:\\s*\"USE\"",
-        "\"invoked\"\\s*:\\s*true"
+        "\"invoked\"\\s*:\\s*true",
+        "\"target\"\\s*:\\s*\"Hero Armory Merchant Interaction\"",
+        "\"ready\"\\s*:\\s*true",
+        "\"serverOpened\"\\s*:\\s*true",
+        "\"serverReplies\"\\s*:\\s*1",
+        "\"observerCleaned\"\\s*:\\s*true"
       ],
-      "label": "nearest real non-training contextual Use stays active and follows the production path"
+      "label": "nearest real non-training contextual Use stays active and follows the production path",
+      "timeoutMs": 12000
     },
     {
       "type": "call",
@@ -352,6 +364,16 @@
     }
   ],
   "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD') local cleanup=g and g:FindFirstChild('TrainingUnsupportedRigCleanup') if cleanup then local r=cleanup:Invoke() assert(r.ok,'failed to restore unsupported-rig fixture') return r end return {ok=true,alreadyClean=true}"
+      },
+      "allowError": true,
+      "label": "cleanup exact original unsupported shoulder before stopping play"
+    },
     {
       "type": "call",
       "tool": "start_stop_play",
