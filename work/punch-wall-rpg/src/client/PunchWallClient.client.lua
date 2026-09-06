@@ -7878,6 +7878,38 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		local minimum = math.clamp(tonumber(player.CameraMinZoomDistance) or 2, 2, maximum)
 		return math.clamp(distance, minimum, maximum)
 	end
+	local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)
+		if not recordCameraDiagnostics then return end
+		local camera = workspace.CurrentCamera
+		local character = player.Character
+		local remaining = (requested - camera.CFrame.Position).Magnitude
+		local sample = {
+			at = os.clock(), phase = guardPhase, reason = reason,
+			raw = tostring(raw.Position), cache = cached and tostring(cached.Position),
+			origin = origin and tostring(origin), requested = tostring(requested),
+			candidate = candidate and tostring(candidate.Position), published = tostring(camera.CFrame.Position),
+			remaining = remaining, rootDelta = tostring(rootDelta),
+			rawPhysical = shared.PunchWallCameraPositionBlocked(raw.Position, character),
+			rawBlocked = cameraPoseBlocked(raw, character),
+			cachePhysical = cached and shared.PunchWallCameraPositionBlocked(cached.Position, character),
+			cacheBlocked = cached and cameraPoseBlocked(cached, character),
+			publishedPhysical = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character),
+			publishedBlocked = cameraPoseBlocked(camera.CFrame, character),
+			activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true,
+			geometryRecovery = recoveringFromGeometryClamp, handoffRecovery = recoveringFromFollowHandoff,
+			handoffAttribute = gui:GetAttribute("PunchCameraHandoffActive") == true,
+			teleportRebaseCount = gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0,
+		}
+		shared.PunchWallCameraLastRecovery = sample
+		if (recoveringFromGeometryClamp or recoveringFromFollowHandoff) and remaining > 0.001 then
+			if origin and (not candidate or (camera.CFrame.Position - origin).Magnitude <= 0.001) then
+				shared.PunchWallCameraFirstStalledRecovery = shared.PunchWallCameraFirstStalledRecovery or sample
+			end
+			if not shared.PunchWallCameraMaxRemainingRecovery or remaining > shared.PunchWallCameraMaxRemainingRecovery.remaining then
+				shared.PunchWallCameraMaxRemainingRecovery = sample
+			end
+		end
+	end
 	shared.PunchWallResetCameraGeometryGuard = function(character)
 		lastClearCameraCFrame = nil
 		lastClearCameraFocus = nil
@@ -7907,6 +7939,9 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		shared.PunchWallCameraMaxEscape = nil
 		shared.PunchWallCameraLastPublication = nil
 		shared.PunchWallCameraMaxCyclePublication = nil
+		shared.PunchWallCameraLastRecovery = nil
+		shared.PunchWallCameraFirstStalledRecovery = nil
+		shared.PunchWallCameraMaxRemainingRecovery = nil
 		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
 		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
 		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
@@ -8043,21 +8078,25 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		local direct = displacement.Magnitude > maxStep and displacement.Unit * maxStep or displacement
 		local vertical = Vector3.new(0, displacement.Y, 0)
 		local horizontal = Vector3.new(displacement.X, 0, displacement.Z)
-		for _, step in ipairs({ direct, vertical, horizontal }) do
+		-- A diagonal can cross the LOS edge although its sideways segment is
+		-- clear. Axis waypoints make bounded progress around that edge.
+		local stepKinds = { "direct", "vertical", "horizontal", "x-waypoint", "z-waypoint" }
+		for index, step in ipairs({ direct, vertical, horizontal,
+			Vector3.new(displacement.X, 0, 0), Vector3.new(0, 0, displacement.Z) }) do
 			if step.Magnitude > maxStep then step = step.Unit * maxStep end
 			if step.Magnitude > 0.001 and clearTranslationStep(origin, step, character) then
 				local translation = origin + step - desiredCFrame.Position
 				local candidateCFrame = desiredCFrame + translation
 				if not cameraPoseBlocked(candidateCFrame, character) then
-					return candidateCFrame, desiredFocus + translation
+					return candidateCFrame, desiredFocus + translation, false, stepKinds[index]
 				end
 			end
 		end
 		local translation = origin - desiredCFrame.Position
 		if not cameraPoseBlocked(desiredCFrame + translation, character) then
-			return desiredCFrame + translation, desiredFocus + translation
+			return desiredCFrame + translation, desiredFocus + translation, false, "origin-hold"
 		end
-		return nil, nil
+		return nil, nil, false, "no-safe-step"
 	end
 	UserInputService.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseWheel then
@@ -8095,6 +8134,9 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraLastGuardAt", os.clock())
 		local safetyEscape = false
 		local publishedOrigin = camera.CFrame.Position
+		local rawCFrame = camera.CFrame
+		local cachedCFrame = lastClearCameraCFrame
+		local recoveryOrigin, recoveryCandidate, recoveryRequested, recoveryReason
 		local desiredCFrame = camera.CFrame
 		local desiredFocus = camera.Focus
 		local desiredPosition = desiredCFrame.Position
@@ -8165,6 +8207,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 					shared.PunchWallHeartbeatLastClearFocus = safeFocus
 					recoveringFromGeometryClamp = false
 					recoveringFromFollowHandoff = false
+					gui:SetAttribute("PunchCameraHandoffActive", false)
 					gui:SetAttribute("PunchCameraRebasedAfterTeleport", true)
 					gui:SetAttribute(
 						"PunchCameraTeleportRebaseCount",
@@ -8174,6 +8217,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 					gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
 					lastRootPosition = rootPart.Position
 					recordPublishedPose(publishedOrigin, rootPart, "teleport-rebase")
+					recordRecoveryState(rawCFrame, cachedCFrame, safeCFrame.Position, nil, safeCFrame, rootDisplacement, "teleport-rebase")
 					return
 				end
 				lastClearCameraCFrame = nil
@@ -8226,6 +8270,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		end
 		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
 			local requestedPosition = desiredPosition
+			recoveryRequested = requestedPosition
 			local maxStep = 24 * math.min(deltaTime, 0.1)
 			-- The character's ordinary movement must not spend the correction
 			-- budget. Otherwise low-FPS punches move the target faster than this
@@ -8240,9 +8285,25 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				followOrigin += rootDisplacement
 				inheritedRootStep = rootDisplacement.Magnitude
 			end
-			local limitedCFrame, limitedFocus, escapedOverlap = limitClearCameraStep(
-				followOrigin, desiredCFrame, desiredFocus, character, maxStep
+			local carriedCFrame = lastClearCameraCFrame + (followOrigin - lastClearCameraCFrame.Position)
+			local correctionOrigin = followOrigin
+			local correctionBudget = maxStep
+			local rawOffset = rawCFrame.Position - followOrigin
+			local adoptedRawOrigin = not activeFollow
+				and cameraPoseBlocked(carriedCFrame, character)
+				and not cameraPoseBlocked(rawCFrame, character)
+				and rawOffset.Magnitude <= maxStep
+				and clearTranslationStep(followOrigin, rawOffset, character)
+			if adoptedRawOrigin then
+				followOrigin = rawCFrame.Position
+				correctionBudget = math.max(0, maxStep - rawOffset.Magnitude)
+			end
+			recoveryOrigin = followOrigin
+			local limitedCFrame, limitedFocus, escapedOverlap, limitReason = limitClearCameraStep(
+				followOrigin, desiredCFrame, desiredFocus, character, correctionBudget
 			)
+			recoveryCandidate = limitedCFrame
+			recoveryReason = (adoptedRawOrigin and "raw-recovery/" or "cached-recovery/") .. (limitReason or "physical-escape")
 			gui:SetAttribute("PunchCameraInheritedRootStep", inheritedRootStep)
 			gui:SetAttribute("PunchCameraMaxInheritedRootStep", math.max(
 				gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0, inheritedRootStep
@@ -8256,7 +8317,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				desiredPosition = limitedCFrame.Position
 				gui:SetAttribute("PunchCameraMaxCorrectionStep", math.max(
 					gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0,
-					(desiredPosition - followOrigin).Magnitude
+					(desiredPosition - correctionOrigin).Magnitude
 				))
 			else
 				resolvedCFrame = nil
@@ -8334,6 +8395,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			gui:SetAttribute("PunchCameraGeometryClamped", true)
 			gui:SetAttribute("PunchCameraGeometryClampFrames", cameraGeometryClampFrames)
 			recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "clear-fallback")
+			recordRecoveryState(rawCFrame, cachedCFrame, recoveryRequested or desiredPosition, recoveryOrigin, recoveryCandidate, rootDisplacement, recoveryReason or "clear-fallback")
 			return
 		end
 		camera.CFrame = desiredCFrame
@@ -8348,6 +8410,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraLineOfSightUnresolved", cameraPoseBlocked(desiredCFrame, character))
 		gui:SetAttribute("PunchCameraRebasedAfterTeleport", false)
 		recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "orbit-follow")
+		recordRecoveryState(rawCFrame, cachedCFrame, recoveryRequested or desiredPosition, recoveryOrigin, recoveryCandidate, rootDisplacement, recoveryReason or "orbit-follow")
 	end
 	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
 		beginPublicationCycle()
@@ -8458,6 +8521,9 @@ if RunService:IsStudio() then
 		shared.PunchWallCameraFirstEscape = nil
 		shared.PunchWallCameraMaxEscape = nil
 		shared.PunchWallCameraMaxCyclePublication = nil
+		shared.PunchWallCameraLastRecovery = nil
+		shared.PunchWallCameraFirstStalledRecovery = nil
+		shared.PunchWallCameraMaxRemainingRecovery = nil
 		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
 		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
 		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
@@ -8654,6 +8720,10 @@ if RunService:IsStudio() then
 			maxGuardEscapeTravelPerCycle = gui:GetAttribute("PunchCameraMaxEscapeTravelPerCycle") or 0,
 			maxGuardPublishedWritesPerCycle = gui:GetAttribute("PunchCameraMaxPublishedWritesPerCycle") or 0,
 			maxGuardCyclePublication = shared.PunchWallCameraMaxCyclePublication,
+			lastRecovery = shared.PunchWallCameraLastRecovery,
+			firstStalledRecovery = shared.PunchWallCameraFirstStalledRecovery,
+			maxRemainingRecovery = shared.PunchWallCameraMaxRemainingRecovery,
+			teleportRebaseCount = gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0,
 			maxBack = maxBackwardStep,
 			maxBackFrom = tostring(maxBackFrom),
 			maxBackTo = tostring(maxBackTo),
