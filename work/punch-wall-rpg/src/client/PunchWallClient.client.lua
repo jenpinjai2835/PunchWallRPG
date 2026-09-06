@@ -5331,7 +5331,7 @@ function companionRuntime.ProjectedBoundsRect(boundsCFrame, boundsCorners)
 	return rect
 end
 
-function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, forbiddenRects)
+function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, forbiddenRects, overlapFraction)
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize
 	if not viewport or viewport.X <= 1 or viewport.Y <= 1 then return boundsCFrame, false, 0 end
@@ -5372,14 +5372,24 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, for
 		-- Intersect them with the eight-corner safe-frame intervals, then choose
 		-- the closest feasible camera-plane translation. Three pets need at most
 		-- three blockers (avatar plus earlier slots), hence 4^3 candidate regions.
+		local overlapLimit = math.clamp(tonumber(overlapFraction) or 0, 0, 0.08)
+		-- Candidate strips reserve 0.5 percentage points below the existing 8%
+		-- limit; perspective can change rectangle area, so validate the actual
+		-- projected endpoint before accepting any interval candidate.
+		local initialRect = overlapLimit > 0 and companionRuntime.ProjectedBoundsRect(boundsCFrame, boundsCorners) or nil
 		local limits = {}
 		for _, rect in ipairs(forbiddenRects) do
+			local gapX, gapY = 2, 2
+			if initialRect then
+				gapX = -math.min(rect.maxX - rect.minX, initialRect.maxX - initialRect.minX) * overlapLimit
+				gapY = -math.min(rect.maxY - rect.minY, initialRect.maxY - initialRect.minY) * overlapLimit
+			end
 			local left, right, above, below = math.huge, -math.huge, -math.huge, math.huge
 			for _, corner in ipairs(projected) do
-				left = math.min(left, (rect.minX - 2 - corner.point.X) * corner.x)
-				right = math.max(right, (rect.maxX + 2 - corner.point.X) * corner.x)
-				above = math.max(above, (corner.point.Y - rect.minY + 2) * corner.y)
-				below = math.min(below, (corner.point.Y - rect.maxY - 2) * corner.y)
+				left = math.min(left, (rect.minX - gapX - corner.point.X) * corner.x)
+				right = math.max(right, (rect.maxX + gapX - corner.point.X) * corner.x)
+				above = math.max(above, (corner.point.Y - rect.minY + gapY) * corner.y)
+				below = math.min(below, (corner.point.Y - rect.maxY - gapY) * corner.y)
 			end
 			if rect.minimumCenterDistance and rect.worldPosition then
 				local delta = rect.worldPosition - boundsCFrame.Position
@@ -5403,6 +5413,20 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, for
 			if distance >= bestDistance then return end
 			local limit = limits[index]
 			if not limit then
+				if overlapLimit > 0 then
+					local candidate = boundsCFrame + camera.CFrame.RightVector * x + camera.CFrame.UpVector * y
+					local candidateRect = companionRuntime.ProjectedBoundsRect(candidate, boundsCorners)
+					if not candidateRect then return end
+					local area = (candidateRect.maxX - candidateRect.minX) * (candidateRect.maxY - candidateRect.minY)
+					for _, rect in ipairs(forbiddenRects) do
+						local overlap = math.max(0, math.min(candidateRect.maxX, rect.maxX) - math.max(candidateRect.minX, rect.minX))
+							* math.max(0, math.min(candidateRect.maxY, rect.maxY) - math.max(candidateRect.minY, rect.minY))
+						local smaller = math.max(1, math.min(area, (rect.maxX - rect.minX) * (rect.maxY - rect.minY)))
+						if overlap / smaller > 0.08 then return end
+						if rect.minimumCenterDistance and rect.worldPosition
+							and (candidate.Position - rect.worldPosition).Magnitude < rect.minimumCenterDistance then return end
+					end
+				end
 				offsetX, offsetY, bestDistance = x, y, distance
 				return
 			end
@@ -5416,6 +5440,49 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, for
 	end
 	local offset = camera.CFrame.RightVector * offsetX + camera.CFrame.UpVector * offsetY
 	return boundsCFrame + offset, true, offset.Magnitude
+end
+
+-- A nearest placement for an early slot can consume the only rectangle that
+-- fits a larger later pet. Try the finite orders of at most three unchanged
+-- boxes; each attempt retains the same eight-corner and separation solver.
+function companionRuntime.PackFormationBounds(entries, avatarRect, preferredOrder)
+	if #entries == 0 or #entries > 3 then return nil, nil, 0 end
+	local attempts = 0
+	local function attempt(order)
+		attempts += 1
+		local blockers = avatarRect and { avatarRect } or {}
+		local result = {}
+		for _, index in ipairs(order) do
+			local entry = entries[index]
+			local bounds, valid, shift = companionRuntime.KeepBoundsInSafeFrame(entry.bounds, entry.corners, blockers, 0.075)
+			if not valid then return nil end
+			local rect = companionRuntime.ProjectedBoundsRect(bounds, entry.corners)
+			if not rect then return nil end
+			rect.worldPosition = bounds.Position
+			rect.minimumCenterDistance = 1.45
+			table.insert(blockers, rect)
+			result[index] = { bounds = bounds, shift = shift }
+		end
+		return result
+	end
+	local orders = #entries == 1 and { { 1 } }
+		or #entries == 2 and { { 1, 2 }, { 2, 1 } }
+		or { { 1, 2, 3 }, { 3, 1, 2 }, { 3, 2, 1 }, { 1, 3, 2 }, { 2, 3, 1 }, { 2, 1, 3 } }
+	-- Prefer the last successful order to avoid swapping lanes as bob changes.
+	if preferredOrder then
+		for index, order in ipairs(orders) do
+			if table.concat(order, ",") == preferredOrder then
+				table.remove(orders, index)
+				table.insert(orders, 1, order)
+				break
+			end
+		end
+	end
+	for _, order in ipairs(orders) do
+		local result = attempt(order)
+		if result then return result, table.concat(order, ","), attempts end
+	end
+	return nil, nil, attempts
 end
 
 function companionRuntime.ApplyVisualScale(state, visualScale)
@@ -9444,6 +9511,9 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		or (1 / 20)
 	local combinedScreenArea = 0
 	local formationRects = {}
+	local formationEntries = {}
+	local formationAvatarRect
+	local formationBlocked = false
 	local formationNeedsUpdate = false
 	for _, state in ipairs(companionModels) do
 		if state.model and state.model.Parent and state.model.PrimaryPart
@@ -9462,11 +9532,13 @@ RunService.Heartbeat:Connect(function(deltaTime)
 			companionRuntime.avatarBoundsCorners = companionRuntime.BoundsCorners(avatarSize)
 		end
 		local avatarRect = companionRuntime.ProjectedBoundsRect(avatarBounds, companionRuntime.avatarBoundsCorners)
+		formationAvatarRect = avatarRect
 		if avatarRect then table.insert(formationRects, avatarRect) end
 	end
 	for index, state in ipairs(companionModels) do
 		local model = state.model
 		if model and model.Parent and model.PrimaryPart then
+			local formationOrigin = state.currentBoundsCFrame
 			state.updateAccumulator += deltaTime
 			if updateInterval == 0 or state.updateAccumulator >= updateInterval then
 				local effectiveDelta = math.min(state.updateAccumulator, 0.1)
@@ -9510,11 +9582,13 @@ RunService.Heartbeat:Connect(function(deltaTime)
 					state.safeFrameBoundsSize = state.boundsSize
 					state.safeFrameCorners = companionRuntime.BoundsCorners(state.boundsSize)
 				end
+				formationOrigin = state.currentBoundsCFrame
 				local safeBounds, safeFrameValid, safeFrameShift = companionRuntime.KeepBoundsInSafeFrame(
 					state.currentBoundsCFrame, state.safeFrameCorners, formationRects
 				)
 				state.currentBoundsCFrame = safeBounds
 				state.safeFrameValid = safeFrameValid
+				formationBlocked = formationBlocked or not safeFrameValid
 				state.safeFrameShift = safeFrameShift
 				model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
 				state.motionFrames += 1
@@ -9539,6 +9613,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 				end
 			end
 			if formationNeedsUpdate and state.safeFrameCorners then
+				table.insert(formationEntries, { state = state, bounds = formationOrigin, corners = state.safeFrameCorners })
 				local rect = companionRuntime.ProjectedBoundsRect(state.currentBoundsCFrame, state.safeFrameCorners)
 				if rect then
 					rect.worldPosition = state.currentBoundsCFrame.Position
@@ -9547,6 +9622,37 @@ RunService.Heartbeat:Connect(function(deltaTime)
 				end
 			end
 			combinedScreenArea += state.lastScreenArea or 0
+		end
+	end
+	if formationBlocked then
+		local packed, order, attempts = companionRuntime.PackFormationBounds(
+			formationEntries, formationAvatarRect, companionRuntime.packingOrder
+		)
+		companionRuntime.packingAttempts = attempts
+		-- A complete fit must retain the existing visible geometry and screen
+		-- budgets. Never publish only part of a reordered formation.
+		local packedArea, withinBudget = 0, packed ~= nil
+		if packed then
+			for index, entry in ipairs(formationEntries) do
+				local area = companionRuntime.ScreenArea(entry.state.boundsSize, packed[index].bounds.Position)
+				packed[index].area = area
+				packedArea += area
+				withinBudget = withinBudget and area <= companionRuntime.perPetScreenAreaBudget
+					and entry.state.budgetPolicy ~= "CulledAfterBudgetLOD"
+			end
+			withinBudget = withinBudget and packedArea <= companionRuntime.combinedScreenAreaBudget
+		end
+		if withinBudget then
+			companionRuntime.packingOrder = order
+			for index, entry in ipairs(formationEntries) do
+				local state, fitted = entry.state, packed[index]
+				state.currentBoundsCFrame = fitted.bounds
+				state.safeFrameValid = true
+				state.safeFrameShift = fitted.shift
+				state.lastScreenArea = fitted.area
+				state.model:PivotTo(fitted.bounds * state.pivotToBounds:Inverse())
+			end
+			combinedScreenArea = packedArea
 		end
 	end
 	companionRuntime.telemetryAccumulator = (companionRuntime.telemetryAccumulator or 0) + deltaTime
