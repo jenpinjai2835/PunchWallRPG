@@ -9,6 +9,25 @@ const gameConfig = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "sha
 const server = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "server", "PunchWallBootstrap.server.lua"), "utf8");
 const client = fs.readFileSync(path.join(root, "punch-wall-rpg", "src", "client", "PunchWallClient.client.lua"), "utf8");
 const flow = JSON.parse(fs.readFileSync(path.join(root, "automation", "flows", "power-avatar-growth.json"), "utf8"));
+const repositoryRoot = path.resolve(root, '..');
+const originalFlowResult = spawnSync('git', ['show', '532e03c:work/automation/flows/power-avatar-growth.json'], {cwd:repositoryRoot,encoding:'utf8'});
+assert.equal(originalFlowResult.status,0,originalFlowResult.stderr);
+const originalFlow = JSON.parse(originalFlowResult.stdout);
+const cameraLabel = 'maximum-size hero remains fully framed by the live camera';
+const cameraStep = flow.steps.find(step=>step.label===cameraLabel);
+const originalCameraStep = originalFlow.steps.find(step=>step.label===cameraLabel);
+assert.deepEqual(cameraStep.expectRegex,originalCameraStep.expectRegex,'Retain all actual growth camera gates');
+const validity = text=>text.slice(text.indexOf('local valid=type(metrics)'),text.indexOf(' local result={valid=valid,'));
+assert(validity(cameraStep.args.code).length>100,'Missing actual growth camera validity producer');
+assert.equal(validity(cameraStep.args.code),validity(originalCameraStep.args.code),'Do not change any visual/subject/settle/geometry requirement');
+assert.equal(flow.steps.length,originalFlow.steps.length,'Keep original growth sequence');
+for(let i=0;i<flow.steps.length;i++)if(flow.steps[i].label!==cameraLabel)assert.deepEqual(flow.steps[i],originalFlow.steps[i]);
+assert.deepEqual(flow.cleanup.slice(-originalFlow.cleanup.length),originalFlow.cleanup,'Keep original stop cleanup');
+assert.equal(flow.cleanup.length-originalFlow.cleanup.length,4,'Four bounded diagnostic pages precede stop');
+const longFlow = JSON.parse(fs.readFileSync(path.join(root,'automation/flows/camera-long-tunnel-regression.json'),'utf8'));
+const longCameraCode=longFlow.steps.find(step=>step.label==='sample and freshly verify eighteen high-power tunnel punches').args.code;
+assert.equal(cameraStep.args.code.slice(0,cameraStep.args.code.indexOf('\nlocal H=')),longCameraCode.slice(0,longCameraCode.indexOf('\nlocal H=')),'Growth uses the independently executed compact evidence producer');
+for(const item of flow.cleanup.slice(0,4))assert(item.saveAs&&item.allowError===true&&item.args.datamodel_type==='Client'&&item.args.code.includes('#encoded<3900'),'Diagnostic retrieval must remain bounded and non-blocking for stop cleanup');
 
 const checks = [
   ["shared_logarithmic_power_curve", gameConfig.includes('Version = "PowerLogWallCappedV1"') && gameConfig.includes("FullGrowthPower = 1.5e9") && gameConfig.includes("math.log(safePower / baseline)") && gameConfig.includes("function GameConfig.PlayerGrowthMultiplier(power)")],
@@ -40,6 +59,7 @@ const verify = flow.steps.find(s => s.label === "pets do not grow when hero Powe
 const candidates = [process.env.LUAU_COMMAND, ...fs.readdirSync(os.tmpdir()).filter(n => n.startsWith("codex-luau-")).sort().reverse().map(n => path.join(os.tmpdir(), n, process.platform === "win32" ? "luau.exe" : "luau")), "luau"];
 const luau = candidates.find(p => p && spawnSync(p, ["--help"]).status === 0);
 assert.ok(luau, "BLOCKED: Luau CLI required for actual growth-flow oracle controls");
+const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),process.platform==='win32'?'luau-compile.exe':'luau-compile');
 const setup = `
 local assertions=0 local function check(v,label)assert(v,label)assertions+=1 end
 local now=0 local models={}local bindable local attributes={}local active=0 local serial=0 local encoded={}
@@ -97,6 +117,7 @@ print('PASS '..assertions)
 `;
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), "smash-growth-flow-contract-")), files = [];
 let executedAssertions = 0;
+let compiledFlowSnippets=0;
 const rejectedMutations = [];
 function run(name, code) {
   const file = path.join(temp, name + ".luau"); files.push(file); fs.writeFileSync(file, code);
@@ -118,6 +139,11 @@ try {
     assert.ok(result.status !== 0 && result.output.includes(expected), name + ": " + result.output);
     rejectedMutations.push(name);
   }
+  for(const [index,step] of [...flow.steps,...flow.cleanup].entries())if(step.tool==='execute_luau'){
+    const file=path.join(temp,`growth-flow-${index}.luau`);files.push(file);fs.writeFileSync(file,step.args.code);
+    const result=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});
+    assert.equal(result.status,0,`${step.label}: ${result.stdout}${result.stderr}`);compiledFlowSnippets++;
+  }
 } finally { for (const file of files) fs.unlinkSync(file); fs.rmdirSync(temp); }
 
 console.log(JSON.stringify({
@@ -129,5 +155,6 @@ console.log(JSON.stringify({
   fullGrowthPower: 1.5e9,
   checks: Object.fromEntries(checks),
   actualFlowAssertions: executedAssertions,
+  compiledFlowSnippets,
   rejectedMutations,
 }, null, 2));

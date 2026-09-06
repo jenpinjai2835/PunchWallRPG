@@ -762,6 +762,68 @@ const settleFailures = {
  settleEdge:'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout',
  teleportHandoffMarker:'successful_rebase_synchronizes_public_handoff_marker',
 };
+if (!baseline) {
+  const visibilityObserver = block('\t\tlocal visibilityDiagnostics = ', '\n\t\tgui:SetAttribute("PunchCameraMaxAppliedStep", 0)');
+  fixtures.visibilityObservation = `${common}
+local punchCount=18 local currentPunch=1 local head={Position=Vector3.new(0,2,0)}
+local freshRayBlocked=true local rayCalls=0
+local part={Name='OpaqueBlock',CanQuery=true,CanCollide=true,CFrame=CFrame.new(0,1,3),Size=Vector3.new(4,4,4),AssemblyLinearVelocity=Vector3.new(0,-8,0),
+ GetFullName=function()return 'Workspace.PunchWallRPG.Depth Blocks.OpaqueBlock'end,GetAttribute=function(_,key)return key=='StructuralFalling'end}
+local function cameraLineOfSightBlocked()rayCalls+=1 return freshRayBlocked,freshRayBlocked and part or nil end
+${visibilityObserver}
+attrs.PunchCameraFollowActive=true attrs.PunchCameraLastGuardAt=99.95 attrs.PunchCameraLastGuardPhase='render'
+shared.PunchWallCameraLastRecovery={publishedBlocked=false,reason='cached-recovery/direct',requested='0,0,12',published='0,0,12',rootDelta='0,0,-10'}
+local original=camera.CFrame
+recordVisibilityObservation(true,part,true,true)
+local first=visibilityDiagnostics.stages[1]
+check(first.headRayBlocked and first.bodyRayBlocked and first.guardPublishedBlocked==false,'fresh_sample_LOS_is_distinguished_from_prior_guard_clearance')
+check(first.part==part:GetFullName() and first.canQuery and first.canCollide and first.falling and not first.detached,'actual_obscurer_properties_are_retained')
+check(first.phase=='follow' and math.abs(first.guardAge-.05)<.00001 and first.guardRootDelta=='0,0,-10','sample_keeps_actual_phase_age_and_root_motion')
+check(rayCalls==2 and camera.CFrame==original,'diagnostic_queries_do_not_move_camera')
+freshRayBlocked=false part.CanQuery=false
+recordVisibilityObservation(true,part,true,true)
+check(visibilityDiagnostics.phases.follow.rayMismatch==1,'query_ineligible_visual_obstruction_is_counted_without_reclassifying_clear')
+recordVisibilityObservation(false,nil,true,true)
+check(rayCalls==4 and obscuredRun==0,'clear_sample_does_not_add_unneeded_diagnostic_rays')
+for punch=1,18 do currentPunch=punch recordVisibilityObservation(true,part,true,true) end
+check(#visibilityDiagnostics.stages==3 and visibilityDiagnostics.stages[1]==first,'three_stage_records_are_bounded_and_first_record_is_stable')
+check(visibilityDiagnostics.stages[2].punch==7 and visibilityDiagnostics.stages[3].punch==13 and visibilityDiagnostics.last.punch==18,'stage_and_last_records_show_actual_run_progression')
+check(visibilityDiagnostics.longestObscuredRun==18 and visibilityDiagnostics.phases.follow.samples==21 and visibilityDiagnostics.phases.follow.obscured==20,'diagnostic_storage_cap_never_caps_failure_counters')
+attrs.PunchCameraFollowActive=false attrs.PunchCameraHandoffActive=true recordVisibilityObservation(false,nil,true,true)
+attrs.PunchCameraHandoffActive=false attrs.PunchCameraGeometryClamped=true recordVisibilityObservation(false,nil,true,true)
+attrs.PunchCameraGeometryClamped=false recordVisibilityObservation(false,nil,true,true)
+check(visibilityDiagnostics.phases.handoff.samples==1 and visibilityDiagnostics.phases.geometry.samples==1 and visibilityDiagnostics.phases.native.samples==1,'all_four_actual_camera_states_are_counted')
+print('PASS '..count)
+`;
+  const compact = flowCode.slice(0, flowCode.indexOf('\nlocal H='));
+  assert(compact.includes('local function compactCameraResult(result)'), 'Missing bounded flow result producer');
+  fixtures.compactVisibilityResult = `${common}${compact}
+local huge={sample=string.rep('large diagnostics',1000)}
+local result={valid=false,visualValid=false,clearRatio=.49390243902439026,inside=0,selectedDistance=23.26280403137207,
+ configuredOrbit=23.26280403137207,settledSamples=5,settledClearRatio=1,settledReadableRatio=1,
+ largestEscape=huge,maxRemainingRecovery=huge,visualFailureReasons={'clear_visibility'},visibilityPhases={follow={samples=10,obscured=8}}}
+local compact=compactCameraResult(result)
+check(compact.valid==false and compact.visualValid==false and compact.clearRatio==result.clearRatio,'compact_evidence_retains_failed_acceptance_and_exact_measurements')
+check(compact.selectedDistance==result.selectedDistance and compact.configuredOrbit==result.configuredOrbit and compact.inside==0,'compact_evidence_never_replaces_selected_zoom_or_safety')
+check(compact.largestEscape==nil and compact.maxRemainingRecovery==nil,'bulky_nested_diagnostics_are_paged_out_of_primary_result')
+check(compact.visualFailureReasons==result.visualFailureReasons and compact.visibilityPhases==result.visibilityPhases,'compact_evidence_keeps_failure_reason_and_phase_counts')
+check(compactCameraResult(nil).valid==false,'missing_metrics_fail_closed')
+print('PASS '..count)
+`;
+  const originalFlow = JSON.parse(spawnSync('git', ['show', '532e03c:work/automation/flows/camera-long-tunnel-regression.json'], {cwd: root, encoding: 'utf8'}).stdout);
+  const originalStep = originalFlow.steps.find(item => item.label === 'sample and freshly verify eighteen high-power tunnel punches');
+  const currentStep = flow.steps.find(item => item.label === originalStep.label);
+  assert.deepEqual(currentStep.expectRegex, originalStep.expectRegex, 'Preserve every original long-tunnel acceptance expression');
+  assert.equal(flow.steps.length, originalFlow.steps.length, 'Preserve ordinary long-tunnel sequence');
+  for (let index=0; index<flow.steps.length; index++) {
+    if (flow.steps[index].label!==originalStep.label) assert.deepEqual(flow.steps[index],originalFlow.steps[index]);
+  }
+  assert.deepEqual(flow.cleanup.slice(-originalFlow.cleanup.length),originalFlow.cleanup,'Keep original stop cleanup after diagnostic reads');
+  assert.equal(flow.cleanup.length-originalFlow.cleanup.length,4,'Exactly four bounded failure-detail pages');
+  for(const item of flow.cleanup.slice(0,4)) {
+    assert(item.saveAs && item.allowError===true && item.args.datamodel_type==='Client' && item.args.code.includes("#encoded<3900"),'Failure details must be bounded and must not prevent stop cleanup');
+  }
+}
 const expectedFailures = {
   limiter: "limited_pose_physically_clear", sweep: "clear_endpoint_does_not_cross_thin_wall",
   fallback: "blocked_baseline_is_never_published", final: "final_physical_check_precedes_publish",
@@ -825,6 +887,9 @@ try {
   }
   if (!baseline) {
     const mutationsToCheck = [
+      ['conflate_prior_guard_and_current_LOS','visibilityObservation',text=>text.replace('headRayBlocked = headBlocked, bodyRayBlocked = bodyBlocked','headRayBlocked = recovery and recovery.publishedBlocked, bodyRayBlocked = bodyBlocked'),'fresh_sample_LOS_is_distinguished_from_prior_guard_clearance'],
+      ['unbound_visibility_stage_records','visibilityObservation',text=>text.replace('visibilityDiagnostics.stages[stage] = visibilityDiagnostics.stages[stage] or sample','visibilityDiagnostics.stages[currentPunch] = visibilityDiagnostics.stages[currentPunch] or sample'),'three_stage_records_are_bounded_and_first_record_is_stable'],
+      ['mask_visibility_failure_in_summary','compactVisibilityResult',text=>text.replace('summary[key]=value','summary[key]=key=="visualValid" and true or value'),'compact_evidence_retains_failed_acceptance_and_exact_measurements'],
       ['ignore_valid_native_recovery_origin','settleEdge',text=>text.replace('local adoptedRawOrigin = not activeFollow','local adoptedRawOrigin = false'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
       ['omit_axis_waypoints','settleEdge',text=>text.replace('Vector3.new(displacement.X, 0, 0), Vector3.new(0, 0, displacement.Z)','Vector3.zero, Vector3.zero'),'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout'],
       ['ignore_origin_adoption_budget','settleEdge',text=>text.replace('correctionBudget = math.max(0, maxStep - rawOffset.Magnitude)','correctionBudget = maxStep'),'actual_recovery_publications_keep_original_correction_bound'],
@@ -861,7 +926,8 @@ try {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `Mutation survived or failed for wrong reason: ${name}: ${output}`);
       mutations[name] = expectedFailure;
     }
-    const chunks = [['complete-client', source], ...flow.steps.flatMap((step, index) => step.tool === 'execute_luau' ? [[`long-tunnel-${index}`, step.args.code]] : [])];
+    const chunks = [['complete-client', source], ...flow.steps.flatMap((step, index) => step.tool === 'execute_luau' ? [[`long-tunnel-${index}`, step.args.code]] : []),
+      ...flow.cleanup.flatMap((step,index)=>step.tool==='execute_luau'?[[`long-tunnel-cleanup-${index}`,step.args.code]]:[])];
     for (const [name, code] of chunks) {
       const file = path.join(temp, `${name}.luau`);
       fs.writeFileSync(file, code);

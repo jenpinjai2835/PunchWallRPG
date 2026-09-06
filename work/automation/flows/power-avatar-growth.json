@@ -168,7 +168,7 @@
       "saveAs": "cameraGrowth",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local humanoid=character:FindFirstChildOfClass('Humanoid') local gui=p.PlayerGui.PunchWallHUD local automation=gui.PunchWallClientAutomation automation:Invoke('ResetCamera') task.wait(.2) local metrics=automation:Invoke('__RunCamera',6) local camera=workspace.CurrentCamera local cf,size=character:GetBoundingBox() local visible=0 local total=0 for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do for _,sz in ipairs({-1,1}) do total+=1 local world=cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5)) local point,onScreen=camera:WorldToViewportPoint(world) if onScreen and point.Z>0 and point.X>=0 and point.X<=camera.ViewportSize.X and point.Y>=0 and point.Y<=camera.ViewportSize.Y then visible+=1 end end end end local valid=type(metrics)=='table' and metrics.valid==true and metrics.visualValid==true and metrics.initialOrbitSettled==true and metrics.settleTimedOut~=true and metrics.inside==0 and metrics.type=='Custom' and camera.CameraSubject==humanoid and visible==total and (character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18 local result={valid=valid,visibleCorners=visible,totalCorners=total,cameraType=tostring(camera.CameraType),subjectCurrent=camera.CameraSubject==humanoid,inside=type(metrics)=='table' and metrics.inside or -1,visualValid=type(metrics)=='table' and metrics.visualValid or false,settled=type(metrics)=='table' and metrics.initialOrbitSettled or false,heroMultiplier=character:GetAttribute('PowerGrowthAppliedMultiplier')} assert(valid,'Power growth camera framing failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local function compactCameraResult(result)\n local summary={}\n if type(result)~='table' then return {valid=false,reason='missing_camera_result'} end\n for key,value in pairs(result) do\n  local kind=type(value) if kind=='boolean' or kind=='number' or kind=='string' then summary[key]=value end\n end\n summary.visualFailureReasons=result.visualFailureReasons\n summary.visibilityPhases=result.visibilityPhases\n return summary\nend\nlocal H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local humanoid=character:FindFirstChildOfClass('Humanoid') local gui=p.PlayerGui.PunchWallHUD local automation=gui.PunchWallClientAutomation automation:Invoke('ResetCamera') task.wait(.2) local metrics=automation:Invoke('__RunCamera',6) local camera=workspace.CurrentCamera local cf,size=character:GetBoundingBox() local visible=0 local total=0 for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do for _,sz in ipairs({-1,1}) do total+=1 local world=cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5)) local point,onScreen=camera:WorldToViewportPoint(world) if onScreen and point.Z>0 and point.X>=0 and point.X<=camera.ViewportSize.X and point.Y>=0 and point.Y<=camera.ViewportSize.Y then visible+=1 end end end end local valid=type(metrics)=='table' and metrics.valid==true and metrics.visualValid==true and metrics.initialOrbitSettled==true and metrics.settleTimedOut~=true and metrics.inside==0 and metrics.type=='Custom' and camera.CameraSubject==humanoid and visible==total and (character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18 local result={valid=valid,sampledResult=compactCameraResult(metrics),visibleCorners=visible,totalCorners=total,cameraType=tostring(camera.CameraType),subjectCurrent=camera.CameraSubject==humanoid,inside=type(metrics)=='table' and metrics.inside or -1,visualValid=type(metrics)=='table' and metrics.visualValid or false,settled=type(metrics)=='table' and metrics.initialOrbitSettled or false,heroMultiplier=character:GetAttribute('PowerGrowthAppliedMultiplier')} assert(valid,'Power growth camera framing failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"valid\"\\s*:\\s*true",
@@ -256,6 +256,50 @@
     }
   ],
   "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=1,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[1] local encoded=H:JSONEncode({page=1,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail1",
+      "allowError": true,
+      "label": "preserve camera visibility detail 1 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=2,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[2] local encoded=H:JSONEncode({page=2,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail2",
+      "allowError": true,
+      "label": "preserve camera visibility detail 2 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=3,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[3] local encoded=H:JSONEncode({page=3,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail3",
+      "allowError": true,
+      "label": "preserve camera visibility detail 3 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=4,available=false}) end local d=H:JSONDecode(text) local sample=d.last local encoded=H:JSONEncode({page=4,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail4",
+      "allowError": true,
+      "label": "preserve camera visibility detail 4 before cleanup"
+    },
     {
       "type": "call",
       "tool": "start_stop_play",

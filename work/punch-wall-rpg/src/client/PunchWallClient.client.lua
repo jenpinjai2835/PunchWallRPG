@@ -8448,6 +8448,7 @@ if RunService:IsStudio() then
 		local head = character and character:FindFirstChild("Head")
 		local camera = workspace.CurrentCamera
 		local automation = gui:FindFirstChild("PunchWallClientAutomation")
+		gui:SetAttribute("CameraAutomationVisibilityJSON", nil)
 		if not character or not rootPart or not humanoid or not head or not camera or not automation then
 			return { valid = false, reason = "runtime_not_ready" }
 		end
@@ -8513,6 +8514,64 @@ if RunService:IsStudio() then
 		local maximumLead = 0
 		local currentPunch = 0
 		local obscurerNames = {}
+		-- Studio-only observation: preserve the full acceptance counters while
+		-- retaining at most three stage samples and the last obstructed sample.
+		-- Flow cleanup reads these separately to avoid the runner's 4000-char
+		-- context truncation hiding the cause of a failed visibility gate.
+		local visibilityDiagnostics = { phases = {}, stages = {}, longestObscuredRun = 0 }
+		local obscuredRun = 0
+		local diagnosticStartedAt = os.clock()
+		local diagnosticPunchCount = math.max(1, math.floor(tonumber(punchCount) or 1))
+		local function diagnosticVector(value)
+			return ("%.3f,%.3f,%.3f"):format(value.X, value.Y, value.Z)
+		end
+		local function recordVisibilityObservation(obscured, obscurer, onScreen, readable)
+			local phase = gui:GetAttribute("PunchCameraFollowActive") == true and "follow"
+				or gui:GetAttribute("PunchCameraHandoffActive") == true and "handoff"
+				or gui:GetAttribute("PunchCameraGeometryClamped") == true and "geometry" or "native"
+			local counts = visibilityDiagnostics.phases[phase]
+			if not counts then
+				counts = { samples = 0, obscured = 0, rayMismatch = 0, maxGuardAge = 0 }
+				visibilityDiagnostics.phases[phase] = counts
+			end
+			counts.samples += 1
+			local guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock())
+			counts.maxGuardAge = math.max(counts.maxGuardAge, guardAge)
+			if not obscured then obscuredRun = 0 return end
+			counts.obscured += 1
+			obscuredRun += 1
+			visibilityDiagnostics.longestObscuredRun = math.max(visibilityDiagnostics.longestObscuredRun, obscuredRun)
+			local headBlocked, headBlocker = cameraLineOfSightBlocked(camera.CFrame.Position, head.Position, character)
+			local bodyBlocked, bodyBlocker = cameraLineOfSightBlocked(camera.CFrame.Position, rootPart.Position + Vector3.new(0, 1.15, 0), character)
+			if not headBlocked and not bodyBlocked then counts.rayMismatch += 1 end
+			local recovery = shared.PunchWallCameraLastRecovery
+			local sample = {
+				punch = currentPunch, phase = phase, at = os.clock() - diagnosticStartedAt,
+				camera = diagnosticVector(camera.CFrame.Position), look = diagnosticVector(camera.CFrame.LookVector),
+				root = diagnosticVector(rootPart.Position), head = diagnosticVector(head.Position),
+				radius = (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude,
+				onScreen = onScreen, readable = readable, headRayBlocked = headBlocked, bodyRayBlocked = bodyBlocked,
+				headRayPart = headBlocker and headBlocker.Name, bodyRayPart = bodyBlocker and bodyBlocker.Name,
+				guardAge = guardAge, guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+				renderAge = os.clock() - lastPunchCameraRenderAt,
+				guardPublishedBlocked = recovery and recovery.publishedBlocked,
+				guardReason = recovery and recovery.reason, guardRequested = recovery and recovery.requested,
+				guardPublished = recovery and recovery.published, guardRootDelta = recovery and recovery.rootDelta,
+			}
+			if obscurer then
+				sample.part = obscurer:GetFullName()
+				sample.canQuery = obscurer.CanQuery
+				sample.canCollide = obscurer.CanCollide
+				sample.partFrame = tostring(obscurer.CFrame)
+				sample.partSize = diagnosticVector(obscurer.Size)
+				sample.velocity = diagnosticVector(obscurer.AssemblyLinearVelocity)
+				sample.falling = obscurer:GetAttribute("StructuralFalling") == true
+				sample.detached = obscurer:GetAttribute("StructuralDetached") == true
+			end
+			local stage = math.clamp(math.floor((currentPunch - 1) / math.max(1, math.ceil(diagnosticPunchCount / 3))) + 1, 1, 3)
+			visibilityDiagnostics.stages[stage] = visibilityDiagnostics.stages[stage] or sample
+			visibilityDiagnostics.last = sample
+		end
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
 		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
 		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
@@ -8582,6 +8641,7 @@ if RunService:IsStudio() then
 			local readable = onScreen and math.abs(headPoint.Y - feetPoint.Y) >= 18
 			if readable then readableCharacterFrames += 1 end
 			local obscured = false
+			local firstObscurer
 			local gameRoot = workspace:FindFirstChild("PunchWallRPG")
 			local physicsDebris = gameRoot and gameRoot:FindFirstChild("Depth Physics Debris")
 			for _, part in ipairs(camera:GetPartsObscuringTarget(
@@ -8590,12 +8650,14 @@ if RunService:IsStudio() then
 			)) do
 				if part:IsA("BasePart") and part.Transparency < 0.95 then
 					obscured = true
+					firstObscurer = part
 					if #obscurerNames < 8 and not table.find(obscurerNames, part:GetFullName()) then
 						table.insert(obscurerNames, part:GetFullName())
 					end
 					break
 				end
 			end
+			recordVisibilityObservation(obscured, firstObscurer, onScreen, readable)
 			local clear = onScreen and not obscured
 			if obscured then transientLineOfSightFrames += 1 end
 			if clear then clearCharacterFrames += 1 end
@@ -8694,9 +8756,18 @@ if RunService:IsStudio() then
 			and readableVisibility >= 0.65
 			and settledClearVisibility >= 0.9
 			and settledReadableVisibility >= 0.9
+		local visualFailureReasons = {}
+		if not valid then table.insert(visualFailureReasons, "motion_geometry_or_native_contract") end
+		if clearVisibility < 0.55 then table.insert(visualFailureReasons, "clear_visibility") end
+		if readableVisibility < 0.65 then table.insert(visualFailureReasons, "readable_visibility") end
+		if settledClearVisibility < 0.9 then table.insert(visualFailureReasons, "settled_clear_visibility") end
+		if settledReadableVisibility < 0.9 then table.insert(visualFailureReasons, "settled_readable_visibility") end
 		local result = {
 			valid = valid,
 			visualValid = visualValid,
+			visualFailureReasons = visualFailureReasons,
+			visibilityPhases = visibilityDiagnostics.phases,
+			longestObscuredRun = visibilityDiagnostics.longestObscuredRun,
 			actions = actions,
 			maxStep = appliedStep,
 			maxCorrectionStep = correctionStep,
@@ -8755,6 +8826,7 @@ if RunService:IsStudio() then
 		gui:SetAttribute("CameraAutomationLastValid", valid)
 		gui:SetAttribute("CameraAutomationVisualLastValid", visualValid)
 		gui:SetAttribute("CameraAutomationLastPunches", actions)
+		gui:SetAttribute("CameraAutomationVisibilityJSON", HttpService:JSONEncode(visibilityDiagnostics))
 		player.CameraMaxZoomDistance = originalMaxZoom
 		player.CameraMinZoomDistance = originalMinZoom
 		return result
