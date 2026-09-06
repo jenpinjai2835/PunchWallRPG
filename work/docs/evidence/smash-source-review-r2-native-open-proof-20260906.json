@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "mode": "native-disk-open-without-source-sync",
+  "sourceCommit": "5342399ec32629085ceb751071b058c55effaf82",
+  "studioInstanceId": "be1067b9-90ed-414f-8f5c-12f467f114bc",
+  "processId": 22388,
+  "processStartTimeUtc": "2026-09-06T07:17:36.7479823Z",
+  "executablePath": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+  "placePath": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx",
+  "placeSHA256": "683D09398A87FB6359327A4D00C5E1029BCFFD69F54B928F1257F11BA6E58470",
+  "sourceVerification": "work/docs/evidence/smash-source-review-r2-live-source-20260906.json",
+  "sourceVerificationSHA256": "6955884BCEF8854FD390870046D4C2DF18CAEB8975BEA924572FBCAD8E574B95",
+  "sourceCount": 9,
+  "windowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio",
+  "windowBoundsVerified": false,
+  "existingStudioLeftOpen": true,
+  "recoveryFilesTouched": false,
+  "rejectedOperation": "Combined task-owned Studio termination and staged reopening was rejected before execution; safer file-open only succeeded",
+  "verifiedAt": "2026-09-06T07:20:56.8481374Z"
+}

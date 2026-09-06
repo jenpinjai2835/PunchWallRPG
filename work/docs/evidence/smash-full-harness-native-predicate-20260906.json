@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "scope": "Extracted production native-process predicate on live22388",
+  "harnessSHA256": "7665631BA52F41E5B6612A465CCF3087D5F5C9EBBA93F3D1784476934CA4915A",
+  "checks": [
+    "PowerShell AST parse",
+    "Actual parsed DateTime/start/executable/file hash accepted",
+    "One UTC tick mismatch rejected",
+    "Stale staged disk hash rejected",
+    "Original proof restored and accepted"
+  ],
+  "earlierFailure": "ConvertFrom-Json parsed the ISO field to DateTime; comparing it to a string produced a false mismatch. Exact UTC ticks now preserve precision."
+}

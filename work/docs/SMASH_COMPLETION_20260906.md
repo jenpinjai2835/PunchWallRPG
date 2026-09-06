@@ -997,3 +997,52 @@ new-schema native-open proof remain pending. Details are recorded in
 `smash-full-harness-review-20260906.json`. Old Studio source85 still matches its
 nine durable source files (`smash-before-source-review-r2-open-20260906.json`).
 Canonical output remains605A4F70; no recovery files have been moved or deleted.
+
+### September 6, 14:31 ICT — native source-review open and combined static pass
+
+Source5342399 was built from the reviewed raw visual template into a new,
+noncanonical `outputs/SmashWall_SourceReview_R2_20260906/` file, SHA256
+683D09398A87FB6359327A4D00C5E1029BCFFD69F54B928F1257F11BA6E58470.
+The attempted combined termination/reopen command was rejected before execution
+with only "blocked by policy" reported. No process or file changed from that
+command. Root then used the safer operation of opening the new file alone,
+leaving the existing Studio and all recovery originals intact. This succeeded.
+
+The new native process22388, started07:17:36.7479823UTC, registered Studio
+be1067b9-90ed-414f-8f5c-12f467f114bc. Its command line and window title point
+to the R2 file. Without any source sync, all nine source files matched exactly.
+`smash-source-review-r2-native-open-proof-20260906.json` binds its UUID, PID,
+start time, executable, staged SHA and read-only source evidence. Its Edit
+viewport reports1277x801 and the default device. Window bounds/fullscreen and
+native popup dismissal were not verified.
+
+The first process-proof check incorrectly compared an ISO string to the
+DateTime object automatically parsed by PowerShell. Diagnostic output confirmed
+identical actual UTC ticks and the correct executable/file/UUID/source. Root
+changed the reviewed harness predicate to exact UTC ticks; the extracted live
+predicate accepts the original proof and rejects a one-tick mismatch and a stale
+disk hash. Agent1 accepted this correction; evidence is in
+`smash-full-harness-native-predicate-20260906.json`. The original failed check
+and its diagnostic are retained, not represented as a native identity failure.
+
+Agent1's frame-profile flow9b38a5b was integrated as8e88255 after Agent2 review.
+It preserves the exact18-punch tunnel fixture, assertions and cleanup, adding
+bounded whole-observer-window RenderStepped statistics and durable console
+output on success. Eleven Lua chunks,23 observer controls and seven weakening
+mutations passed. It includes MCP call gaps and unknown window foreground; no
+isolated camera CPU-time or arbitrary FPS guarantee is inferred.
+
+The first combined static run failed because final-feedback-consumer-contract
+still pinned the old safe-modal step. Agent2 changed only that exact step to
+the reachable approved81219f version, preserving all other historical gates
+and adding nine negative copies. Agent1 accepted7007695, integrated ascf1d4cd.
+Both the failed aggregate and the successful R2 are retained. R2 passes52 of53
+discovered contracts, with only the explicitly runtime-only inventory benchmark
+excluded,83 JavaScript files,21 PowerShell files and all9 source files at three
+Luau optimization levels. Its flow inventory is130.
+
+The wider new Studio would let default menu tests miss the original637px bug.
+Agent3 therefore owns one additional explicit637x654 native-input flow, preserving
+the original six menu routes and approved Tasks end-scroll check. This pending
+QA-only addition must be compiled/reviewed and included in final flow coverage.
+No final native acceptance run has started yet; canonical output is unchanged.
