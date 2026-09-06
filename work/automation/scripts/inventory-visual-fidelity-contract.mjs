@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -464,6 +466,163 @@ check(
   "Visual fidelity state changes must remain event-driven and bounded.",
 );
 
+// Execute the exact responsive category/Fusion flow predicates with finite geometry.
+const categoryFlow=JSON.parse(fs.readFileSync(path.join(repositoryRoot,'work/automation/flows/inventory-category-icon-cohesion.json'),'utf8'));
+const fusionFlow=JSON.parse(fs.readFileSync(path.join(repositoryRoot,'work/automation/flows/inventory-pet-icons-fusion.json'),'utf8'));
+const categoryStep=categoryFlow.steps.find(step=>step.label==='five category icons share equal text-free procedural tiles');
+const fusionStep=fusionFlow.steps.find(step=>step.label==='all cards and detail use distinct model-matched previews with balanced Fusion action');
+const categoryHelper=block(categoryStep.args.code,'local function verifyCategoryIconRow','local function visible');
+const fusionHelper=block(fusionStep.args.code,'local function verifyFusionActionGeometry','local function visible');
+const luauCandidates=[process.env.LUAU_COMMAND,...fs.readdirSync(os.tmpdir()).filter(name=>name.startsWith('codex-luau-')).sort().reverse().map(name=>path.join(os.tmpdir(),name,process.platform==='win32'?'luau.exe':'luau'))];
+const luau=luauCandidates.find(candidate=>candidate&&fs.existsSync(candidate))||'luau';
+function executeVisualOracle(code){
+ const r=spawnSync(luau,[],{input:'local f=assert(loadstring('+JSON.stringify(code)+')) print("VISUAL_ORACLE_COMPILED") f()\n',encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024});
+ const output=(r.stdout||'')+'\n'+(r.stderr||'');
+ return {ok:!r.error&&r.status===0&&!r.stderr&&output.includes('VISUAL_ORACLE_PASS'),compiled:output.includes('VISUAL_ORACLE_COMPILED'),output};
+}
+const categoryFixtures=String.raw`
+local function iconRow(compact,scale,width)
+ local visible=not compact or width>=90
+ local height=(compact and math.ceil(44/scale) or math.max(56,math.ceil(44/scale)))*scale
+ local left=compact and (visible and 3*scale or 2-21*scale) or 9*scale
+ local size=(compact and 20 or 40)*scale
+ return {button=true,icon=true,frame=true,style=true,embeddedText=false,glyph=true,noRaster=true,
+  iconVisible=visible,buttonVisible=true,buttonTextFits=true,buttonSelectable=true,buttonActive=true,
+  buttonBounds={x=100,y=200,w=width,h=height},iconBounds={x=100+left,y=200+(compact and 10 or 8)*scale,w=size,h=size}}
+end
+`;
+const categoryCases=String.raw`
+local positive,negative=0,0
+for _,scale in ipairs({.8,1,1.2})do
+ for _,spec in ipairs({{compact=true,width=89},{compact=true,width=90},{compact=false,width=160}})do
+  local r=verifyCategoryIconRow(iconRow(spec.compact,scale,spec.width),spec.compact,scale)
+  assert(r.valid,'source-responsive icon must pass')
+  assert(r.expectedVisible==(not spec.compact or spec.width>=90),'visibility policy')
+  if spec.compact and spec.width==89 then assert(r.inside==false and r.visibleBoundsValid,'expected hidden bounds must not be relabelled inside')end
+  positive+=1
+ end
+end
+local function reject(name,change,compact,width)
+ compact=compact~=false width=width or 100
+ local row=iconRow(compact,1,width) change(row)
+ assert(not verifyCategoryIconRow(row,compact,1).valid,name)negative+=1
+end
+reject('visible_icon_overflow',function(r)r.iconBounds.x=r.buttonBounds.x-2 end)
+reject('unexpected_icon_hiding',function(r)r.iconVisible=false end)
+reject('unexpected_narrow_icon_display',function(r)r.iconVisible=true end,true,89)
+reject('wrong_responsive_size',function(r)r.iconBounds.w=18 r.iconBounds.h=18 end)
+reject('nonsquare_tile',function(r)r.iconBounds.h+=2 end)
+reject('missing_semantic_glyph',function(r)r.glyph=false end)
+reject('raster_substitution',function(r)r.noRaster=false end)
+reject('embedded_text',function(r)r.embeddedText=true end)
+reject('hidden_category_button',function(r)r.buttonVisible=false end)
+reject('unreadable_category_text',function(r)r.buttonTextFits=false end)
+reject('undersized_category_target',function(r)r.buttonBounds.h=43 end)
+reject('unselectable_category',function(r)r.buttonSelectable=false end)
+reject('inactive_category',function(r)r.buttonActive=false end)
+print('VISUAL_ORACLE_PASS categoryPositive='..positive..' categoryNegative='..negative)
+`;
+const categoryProgram=categoryHelper+categoryFixtures+categoryCases;
+const categoryResult=executeVisualOracle(categoryProgram);
+check('actual_responsive_category_oracle_keeps_visible_bounds_and_hidden_policy',categoryResult.ok,categoryResult.output);
+const fusionFixtures=String.raw`
+local function fusionObservation(compact)
+ local buttons={}
+ for i,name in ipairs({'Equip','Fuse','Lock','Delete'})do
+  buttons[i]={action=name,key='pet:slot:1',visible=true,textFits=true,x=((i-1)%2)*128,y=math.floor((i-1)/2)*50,w=122,h=44}
+ end
+ return {layoutClass='UIGridLayout',columns=2,wideColumns=compact and 0 or 2,compact=compact,detailMode=compact and 'Drawer' or 'Pane',
+  detailVisible=true,windowVisible=true,panel={x=0,y=0,w=250,h=94},detail={x=-10,y=-10,w=270,h=114},window={x=-20,y=-20,w=290,h=134},buttons=buttons}
+end
+`;
+const fusionCases=String.raw`
+local positive,negative=0,0
+for _,compact in ipairs({true,false})do local r=verifyFusionActionGeometry(fusionObservation(compact))assert(r.valid and r.columns==2 and r.rows==2,'actual two by two layout')positive+=1 end
+local function reject(name,change)
+ local observation=fusionObservation(true)change(observation)
+ assert(not verifyFusionActionGeometry(observation).valid,name)negative+=1
+end
+reject('wrong_layout_class',function(o)o.layoutClass='UIListLayout' end)
+reject('wrong_actual_columns',function(o)o.columns=3 end)
+reject('wrong_wide_metadata',function(o)o.wideColumns=2 end)
+reject('wrong_detail_mode',function(o)o.detailMode='Pane' end)
+reject('hidden_detail',function(o)o.detailVisible=false end)
+reject('missing_fourth_action',function(o)table.remove(o.buttons)end)
+reject('duplicate_action_identity',function(o)o.buttons[4].action='Fuse' end)
+reject('missing_action_identity',function(o)o.buttons[4].action=nil end)
+reject('wrong_selected_action_key',function(o)o.buttons[2].key='pet:slot:2' end)
+reject('unreadable_action',function(o)o.buttons[2].textFits=false end)
+reject('undersized_action',function(o)o.buttons[2].h=43 end)
+reject('outside_actions_panel',function(o)o.panel.w=249 end)
+reject('outside_detail_panel',function(o)o.detail.w=259 end)
+reject('outside_window',function(o)o.window.w=269 end)
+reject('overlapping_actions',function(o)o.panel.w=258 o.detail.w=278 o.window.w=298 for _,b in ipairs(o.buttons)do b.w=130 end end)
+reject('actual_single_column_despite_metadata',function(o)
+ o.panel.h=194 o.detail.h=214 o.window.h=234
+ for i,b in ipairs(o.buttons)do b.x=0 b.y=(i-1)*50 end
+end)
+print('VISUAL_ORACLE_PASS fusionPositive='..positive..' fusionNegative='..negative)
+`;
+const fusionProgram=fusionHelper+fusionFixtures+fusionCases;
+const fusionResult=executeVisualOracle(fusionProgram);
+check('actual_fusion_drawer_and_pane_require_four_bounded_grid_actions',fusionResult.ok,fusionResult.output);
+const visualMutations=[
+ ['category_visible_overflow',categoryProgram,'not expectedVisible or inside','true','visible_icon_overflow'],
+ ['category_visibility_policy',categoryProgram,'local visibilityValid=row.iconVisible==expectedVisible','local visibilityValid=true','unexpected_icon_hiding'],
+ ['category_size_floor',categoryProgram,'semantic and sameSize and visibleBoundsValid','semantic and visibleBoundsValid','wrong_responsive_size'],
+ ['category_touch_floor',categoryProgram,'b.w>=43.99 and b.h>=43.99','true','undersized_category_target'],
+ ['fusion_actual_columns',fusionProgram,"observation.layoutClass=='UIGridLayout' and observation.columns==2","observation.layoutClass=='UIGridLayout'",'wrong_actual_columns'],
+ ['fusion_bounds',fusionProgram,'contains(observation.panel,button) and contains(observation.detail,button) and contains(observation.window,button)','true','outside_actions_panel'],
+ ['fusion_touch_floor',fusionProgram,'button.w>=43.99 and button.h>=43.99','true','undersized_action'],
+ ['fusion_overlap',fusionProgram,'overlapX<=.5 or overlapY<=.5','true','overlapping_actions'],
+ ['fusion_two_by_two',fusionProgram,'#xs==2 and #ys==2','true','actual_single_column_despite_metadata'],
+ ['fusion_selected_key',fusionProgram,"button.key=='pet:slot:1'",'true','wrong_selected_action_key'],
+];
+const rejectedVisualMutations=[];
+for(const [name,program,before,after,expected]of visualMutations){
+ assert(program.includes(before),name);
+ const r=executeVisualOracle(program.replace(before,after));
+ check('visual_mutation_'+name,r.compiled&&!r.ok&&r.output.includes(expected),r.output);
+ rejectedVisualMutations.push(name);
+}
+const oldFlow=name=>{
+ const r=spawnSync('git',['show','85c51e5:work/automation/flows/'+name+'.json'],{cwd:repositoryRoot,encoding:'utf8',timeout:15000});
+ assert.equal(r.status,0,r.stderr);return JSON.parse(r.stdout);
+};
+const oldCategory=oldFlow('inventory-category-icon-cohesion');
+const oldCategoryStep=oldCategory.steps.find(step=>step.label===categoryStep.label);
+const oldIconPredicate=block(oldCategoryStep.args.code,'local sameSize=',' local row=');
+const historicalIcon=executeVisualOracle(categoryFixtures+String.raw`
+local row=iconRow(true,1,89)
+local icon={AbsoluteSize={X=row.iconBounds.w,Y=row.iconBounds.h},AbsolutePosition={X=row.iconBounds.x,Y=row.iconBounds.y}}
+local button={AbsoluteSize={X=row.buttonBounds.w,Y=row.buttonBounds.h},AbsolutePosition={X=row.buttonBounds.x,Y=row.buttonBounds.y}}
+`+oldIconPredicate+` assert(sameSize==false and inside==false,'old fixed40/hidden bounds no longer reproduce') print('VISUAL_ORACLE_PASS historicalIcons=1')`);
+check('historical_category_oracle_rejects_source_valid_hidden20_geometry',historicalIcon.ok,historicalIcon.output);
+const oldFusion=oldFlow('inventory-pet-icons-fusion');
+const oldFusionStep=oldFusion.steps.find(step=>step.label===fusionStep.label);
+const oldColumns=oldFusionStep.args.code.match(/r:GetAttribute\('InventoryWideActionColumns'\)==2/)?.[0];
+assert(oldColumns,'Missing historical desktop-only Fusion predicate');
+const historicalFusion=executeVisualOracle('local r={} function r:GetAttribute()return 0 end local accepted='+oldColumns+" assert(accepted==false,'old desktop-only columns unexpectedly accepted compact') print('VISUAL_ORACLE_PASS historicalFusion=1')");
+check('historical_fusion_oracle_rejects_actual_compact_wide_metadata_zero',historicalFusion.ok,historicalFusion.output);
+// Preserve the original mutation/preview gates and every unrelated flow step.
+for(const [current,old,label]of [[categoryFlow,oldCategory,categoryStep.label],[fusionFlow,oldFusion,fusionStep.label]]){
+ assert.equal(current.steps.length,old.steps.length);assert.deepEqual(current.cleanup,old.cleanup);
+ for(let i=0;i<current.steps.length;i++)if(current.steps[i].label!==label)assert.deepEqual(current.steps[i],old.steps[i]);
+}
+check('fusion_preview_and_authoritative_duplicate_star_gates_preserved',[
+ 'cards==6','ready==6','unique==5',"names['Forest Pup']","names['Miner Cat']","names['Crystal Fox']","names['Lava Dragon']","names['Secret Titan Golem']",
+ "r:GetAttribute('InventoryActiveActionCount')==4",'fuse.Visible and fuse.Active',"fuse:GetAttribute('InventoryAction')=='Fuse'","fuse:GetAttribute('InventoryActionStyle')=='Fusion'",
+ "detailVp:GetAttribute('PreviewPetName')=='Forest Pup'",'actionGeometry.valid',"layout.FillDirectionMaxCells",'button.AbsolutePosition.X','button.AbsoluteSize.X',
+].every(token=>fusionStep.args.code.includes(token)||token==='button.AbsolutePosition.X'&&fusionStep.args.code.includes('object.AbsolutePosition.X')||token==='button.AbsoluteSize.X'&&fusionStep.args.code.includes('object.AbsoluteSize.X')),'Keep every original species/action/authority gate and observe the actual action layout.');
+const accepts=(patterns,payload)=>patterns.every(pattern=>new RegExp(pattern).test(JSON.stringify(payload)));
+const categoryPayload={ok:true,count:5,rows:[{frame:true,style:true,embeddedText:false,glyph:true,noRaster:true,sameSize:true,inside:false,visibleBoundsValid:true}]};
+check('outer_category_oracle_accepts_expected_hidden_bounds_and_rejects_failure',accepts(categoryStep.expectRegex,categoryPayload)&&!accepts(oldCategoryStep.expectRegex,categoryPayload)&&!accepts(categoryStep.expectRegex,{...categoryPayload,ok:false}),'Outer result must not restore an unconditional inside=true requirement.');
+const fusionPayload={ok:true,cards:6,ready:6,unique:5,actions:4,columns:2,actionGeometryValid:true,fuseActive:true,fuseStyle:'Fusion'};
+check('outer_fusion_oracle_retains_two_actual_columns_and_all_semantics',accepts(fusionStep.expectRegex,fusionPayload)&&!accepts(fusionStep.expectRegex,{...fusionPayload,columns:0})&&!accepts(fusionStep.expectRegex,{...fusionPayload,actionGeometryValid:false})&&!accepts(fusionStep.expectRegex,{...fusionPayload,ok:false}),'Publish actual measured columns and preserve all original response gates.');
+const chunks=[categoryFlow,fusionFlow].flatMap(flow=>[...flow.steps,...flow.cleanup].filter(step=>typeof step.args?.code==='string').map(step=>step.args.code));
+const compilation=executeVisualOracle(chunks.map(code=>'assert(loadstring('+JSON.stringify(code)+'))').join('\n')+'\nprint("VISUAL_ORACLE_PASS compiled='+chunks.length+'")');
+check('all_category_and_fusion_flow_chunks_compile',compilation.ok,compilation.output);
+const responsiveOracleEvidence={categoryPositive:9,categoryNegative:13,fusionPositive:2,fusionNegative:16,rejectedMutations:rejectedVisualMutations,historicalRef:'85c51e5',historicalFailures:2,compiledChunks:chunks.length};
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -474,6 +633,7 @@ console.log(
       checks,
       actionContrastMatrix,
       textControlContrastMatrix,
+      responsiveOracleEvidence,
       files: [inventoryPath, viewModelPath, shopPath, gameConfigPath].map((filePath) =>
         path.relative(repositoryRoot, filePath)
       ),
