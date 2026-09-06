@@ -72,3 +72,47 @@ Offline validation passes:
 - Node syntax and complete server compilation at O0/O2 pass.
 
 The updated-source native flow and complete growth replay remain **pending** Coordinator integration and Studio verification. Run those first, followed by the existing power-scaled penetration and hybrid lunge/collision regression. The new contract requires registration by the Coordinator; no shared registry was edited here. The prior growth-camera acceptance expression and six-punch count remain unchanged.
+
+## Native lunge verification and showcase preflight follow-up
+
+The Coordinator subsequently recorded all four relevant native flows as passing: `punch-lunge-collision-filter`, `power-avatar-growth`, and `power-scaled-penetration` in `work/docs/evidence/smash-lunge-solid-filter-runtime-20260906`, followed by `punchwall-hybrid-physics-lunge` in `smash-lunge-solid-filter-hybrid-20260906`. The worker reviewed those saved manifest results without operating Studio. This supersedes the preceding pending status for these four targeted checks; it does not claim a rebuilt artifact or full final suite has passed.
+
+The next assignment changes only `studio-final-visual-capture.mjs` and this document. The profiler, its latest phase guards, gameplay code, existing evidence, image decoder, artifact manifest checks, exact nine-source checks, native reopen identity/proof, and cleanup ownership remain intact.
+
+### A starter fixture must follow entitlement reconciliation
+
+The genuine `desktop-fresh-hud.jpg` from `smash-current-source-visual-review-r2-20260906` shows approximately **22.8K** effective power and premium companions. Its old preflight checked only base Power 15 and Coins 0. The same client evidence records six premium feedback events ending with Celestial Titan. That image is an entitlement-bearing startup, not a verified starter profile.
+
+The server sets `ProfileReady` before its asynchronous ownership reconciliation finishes. `reconcileOwnedGamePasses` calls the real configured GamePass ownership route even in ephemeral Studio. That route restores legitimately owned fists and pets; `StudioTestGrantPremium=false` does not disable it. The configured last fist multiplier 60 and all three premium pet multipliers totaling 24.3 produce `15 * 60 * (1 + 24.3) * 1.001 = 22792.77`. This explains the real HUD without a stale image or base-Power mutation.
+
+The capture tool now waits at most 25 seconds for `GamePassOwnershipReconciled=true`, `GamePassOwnershipReconciliationFailed=false`, and an empty pending queue **before** calling Reset. A nil pending-count attribute is accepted only with those completion flags: the producer never creates a queue attribute when no grants were queued. Failed, still-pending, or timed-out reconciliation aborts without Reset. Strict non-writable `EphemeralStudio` and both live-data opt-out guards run first.
+
+It then invokes the existing ephemeral Reset and verifies server readback: base Power/Coins, mastery and all power multipliers, exact Starter Glove ownership/equipment, empty premium/pet/honor lists, no training, and initial tutorial state. EffectivePower comes from the actual loaded `GameConfig.EffectivePower(15,1,0,0,1,0)`, currently **15.015**, while the displayed starter HUD rounds to **15**. Setting mastery to zero merely to obtain an exact numeric 15 would be the wrong fixture and is rejected.
+
+The client waits at most eight seconds for replicated stats, the actual shared Starter Glove model, zero companion models, visible Power/Coins text, and initial onboarding. Once settled, it records old entitlement feedback, clears existing toasts/markers exactly once through the existing client controller, waits another half second, and requires no later feedback or stale toast. Both authoritative server state and actual client/HUD state are checked again before and after the original image. The manifest explicitly labels this a **reset starter fixture after entitlement reconciliation**, preserving the account's legitimate production entitlement behavior.
+
+### Device resolution, safe UI area, and image raster are different measurements
+
+The Coordinator's native `smash-phone-native-area-20260906.json` and unmodified JPEG establish this exact built-in iPhone 17 Pro landscape session:
+
+| Measurement | Native value |
+| --- | --- |
+| Built-in device ID / configured resolution | `iphone_17_pro` / 874 × 402 |
+| Preset resolution scale / preset DPI / active DPI | 3 / 460 / approximately 153.3333 |
+| Full UI area from `GetInsetArea(None)` | 873 × 401, minimum (-62, -78) |
+| Device-safe area from `GetInsetArea(DeviceSafeInsets)` | 749 × 361, minimum (0, -58) |
+| `Camera.ViewportSize` | 749 × 361, exactly matching the native device-safe area |
+| Core-safe area | 749 × 303, minimum (0, 0) |
+| Original MCP JPEG raster | 1204 × 553 |
+
+All observed native rectangles and configuration values remain identical before and after the image. The JPEG aspect matches the full UI area scaled by FitToWindow. Roblox documents [Camera.ViewportSize](https://create.roblox.com/docs/reference/engine/classes/Camera#ViewportSize) as device-safe dimensions in UI offset units, which may differ from display pixels; the full rendering area includes the notch/cutout region. [GuiService:GetInsetArea](https://create.roblox.com/docs/reference/engine/classes/GuiService#GetInsetArea) exposes the corresponding rectangles, and [StudioDeviceSimulatorService](https://create.roblox.com/docs/reference/engine/classes/StudioDeviceSimulatorService) exposes the selected preset and scaling configuration.
+
+The corrected tool configures and verifies the same built-in preset in both Edit and Client. Every phone capture requires its exact ID/name, non-custom status, 874 × 402 configuration, LandscapeLeft, and FitToWindow. It independently reads all three native rectangles, checks containment, requires camera dimensions **exactly** equal the device-safe area, and checks that the production HUD root and inset settings match that same area. The full UI dimensions may differ from the configured resolution by at most the measured one-unit integer-boundary rounding. No hardcoded 749 × 361 camera size is substituted, and no phone layout or touch gate is relaxed.
+
+Every original image retains its actual encoded dimensions, bytes, MIME type, and SHA-256. Before/after device configuration and rectangles must remain identical, and its raster aspect must match the independently read full area within one raster-edge rounding unit. The manifest records full UI units, safe UI units, configured device resolution, and actual raster separately. Image bytes are written before post-capture verification, so a later check failure preserves the original failed image with `verified=false`. Any incomplete capture, failed guard, changed artifact/source/binding, or cleanup error leaves the run nonzero and not passed.
+
+### Offline verification and remaining runtime gate
+
+`node work/automation/scripts/studio-final-visual-capture.mjs --self-test` passes **67 checks**, compiles all **16** production Luau snippets, and executes **147** native-state/fixture guard controls in the Luau CLI. These include pending/failed/never-completing reconciliation with zero Reset calls, nil empty queues, actual premium state reset, corrupt authoritative lists/power, stale HUD/companions/equipped fist, missing onboarding, late feedback/grants, wrong device/resolution/orientation, inconsistent safe rectangles, native rounding bounds, and original raster mismatch. Four intentionally weakened production guards demonstrably admit the corresponding bad inputs, confirming the controls distinguish missing safeguards. The unchanged shared profiler contract also passes 66 checks, eight compiled snippets, 53 executed Luau assertions, and seven rejected mutations. Node syntax and `git diff --check` pass.
+
+No Studio session was operated by this worker. The Coordinator must run the updated fresh and five-screen desktop/phone capture against the current verified source, then repeat its normal rebuilt-and-reopened artifact verification and capture. Those new tool/runtime and final artifact outcomes are **pending**, not inferred from these offline controls or the earlier source-only images.
