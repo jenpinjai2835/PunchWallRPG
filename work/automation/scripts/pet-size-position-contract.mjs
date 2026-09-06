@@ -253,6 +253,7 @@ print('PASS '..n)
   assert.ok(!step.args.code.includes('assert('),'return complete matrix before runner assertion');
  }
  fixtures.cameraMatrixOracle=`${vector}
+function F.__index:GetComponents()return self.Position.X,self.Position.Y,self.Position.Z,1,0,0,0,1,0,0,0,1 end
 local Vector2={new=function(x,y)return Vector3.new(x,y,0)end}
 local CFrame={new=function(p)return frame(p.X,p.Y,p.Z)end,lookAt=function(p)return frame(p.X,p.Y,p.Z)end}
 local Enum={CameraType={Scriptable='Scriptable'}}
@@ -273,6 +274,7 @@ end
 local r=execute()check(r.contractValid and r.valid and r.matrix['6'].gates.rootOn,'matrix_keeps_original_positive_gates')
 for _,m in ipairs({'count','visible','unculled','size','individualArea','combinedArea','separation','rootOn'})do
  mode=m r=execute()check(not r.contractValid and not r.valid and r.matrix['6'].gates[m]==false,m..'_fails_without_throwing_away_full_matrix')
+ check(r.firstFailure.distance==6 and #r.firstFailure.pets==(m=='count'and 2 or 3)and #r.firstFailure.pets[1].box==12 and #r.firstFailure.pets[1].rect==4 and r.firstFailure.pets[1].front==8,m..'_retains_exact_first_failure_geometry')
  check(r.matrix['6']and r.matrix['12']and r.matrix['18']and r.matrix['6'].viewportX==1277,m..'_retains_all_three_distance_metrics')
 end
 mode='firstDistance'r=execute()check(not r.contractValid and not r.matrix['6'].valid and r.matrix['12'].valid and r.matrix['18'].valid,'matrix_preserves_failed_first_distance_when_later_pass')
@@ -354,6 +356,7 @@ try{
   }
   for(const [name,from,to,expected]of [
    ['matrix_accept_failed_first_distance','allValid=allValid and valid','allValid=valid','matrix_preserves_failed_first_distance_when_later_pass'],
+   ['matrix_overwrite_first_failure','not valid and not firstFailure','not valid','count_retains_exact_first_failure_geometry'],
    ['matrix_allow_oversize','maxLargest<=1.81','maxLargest<=2','size_fails_without_throwing_away_full_matrix'],
    ['matrix_allow_overlapping_avatar_center','minAvatarSeparation>=24','minAvatarSeparation>=23','separation_fails_without_throwing_away_full_matrix'],
    ['matrix_hide_combined_area_failure','combined<=0.35','combined<=.4','combinedArea_fails_without_throwing_away_full_matrix']]){
