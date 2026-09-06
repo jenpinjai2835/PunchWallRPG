@@ -1,6 +1,6 @@
 # Smash Wall: ทิศทางเกมและงานที่ทำแล้ว
 
-อัปเดตวันที่ 6 กันยายน 2026 จาก source `1a97247e5c1cfe75f331275d9b97eb7f335065f4` เทียบจุดเริ่มต้น `4094e51` งานอยู่ภายใต้ Agent HQ `SMASH-20260906`; Coordinator เป็นผู้รวมงานและรับรองผลส่งมอบ
+อัปเดตวันที่ 6 กันยายน 2026 จาก source `de8ffeb6a8a4c7084fa6596a139f64ceb09a1072` เทียบจุดเริ่มต้น `4094e51` งานอยู่ภายใต้ Agent HQ `SMASH-20260906`; Coordinator เป็นผู้รวมงานและรับรองผลส่งมอบ
 
 ทิศทางที่ตกลงกันคือ **ต่อยทำลายกำแพงให้สะใจ และช่วยกันเล่นกับเพื่อน** โดยมีหมัด สัตว์เลี้ยง การฝึก และความลึกเป็นเป้าหมายระยะต่อไป รอบนี้เน้นแก้สิ่งที่ขัดจังหวะการเล่น: เมนูอ่านยาก โมเดลไม่ชัด ปุ่มหรือหน้าต่างผิดตำแหน่ง และกล้องค้าง ไม่ได้เพิ่มโหมดร่วมมือใหม่หรือปรับเศรษฐกิจทั้งเกม
 
@@ -18,7 +18,7 @@
 
 หมัดที่ทำรูปทรงร่วมครบห้ารุ่นคือ Starter Fist, Street Boxing Fist, Iron Crusher Fist, Thunder Core Fist และ Titan Siege Fist การยกระดับงานศิลป์ทุกตัวในแค็ตตาล็อก 16 รุ่นด้วยมาตรฐานเดียวกันยังเป็นงานต่อไป ไม่ควรตีความว่าทุกโมเดลถูกออกแบบใหม่ในรอบนี้
 
-ภาพจริงจาก Studio บนหน้าต่าง 637×654 แสดงรายละเอียดไอเท็มด้วยพื้นที่โมเดลประมาณ 259 พิกเซล พร้อมข้อมูลและปุ่มข้างกัน ไม่เหลือกล่องคำอธิบายว่างขนาดใหญ่ที่เคยเป็นปัญหา ตัวเลขนี้เป็นตัวอย่างของจอที่บันทึก ไม่ใช่ขนาดตายตัวทุกอุปกรณ์ ดู [หลักฐานภาพ UI รอบล่าสุด](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/manifest.json)
+ภาพจากไฟล์เกมสุดท้ายที่เปิดจริงใน Studio บนหน้าต่าง 637×654 แสดงรายละเอียดไอเท็มด้วยพื้นที่โมเดลประมาณ 259 พิกเซล พร้อมข้อมูลและปุ่มข้างกัน ไม่เหลือกล่องคำอธิบายว่างขนาดใหญ่ที่เคยเป็นปัญหา ตัวเลขนี้เป็นตัวอย่างของจอที่บันทึก ไม่ใช่ขนาดตายตัวทุกอุปกรณ์ ดู [หลักฐานภาพ UI จากไฟล์สุดท้าย](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/manifest.json)
 
 **กติกาที่มีอยู่และต้องรักษา**
 
@@ -38,20 +38,31 @@
 
 อ้างอิง source: [InventoryUI](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/InventoryUI.lua:3953), [การเก็บประวัติกล้องที่แสดงจริง](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/PunchWallClient.client.lua:8781), [ขั้นรอ remotes](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/client/PunchWallClient.client.lua:617), [กติกา](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/shared/GameConfig.lua) และ [เซิร์ฟเวอร์](F:/Roblox/PuchWall-completion-20260906/work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua)
 
-**สถานะตรวจรับ: ยังไม่ใช่รุ่นปล่อยจริง**
+**สถานะตรวจรับ: การทำงานผ่าน แต่ performance ยัง BLOCKED**
 
-| รายการ | สถานะ ณ source `1a97247` |
+| รายการ | สถานะ ณ source `de8ffeb` |
 | --- | --- |
-| UI / รายละเอียดไอเท็ม / การเริ่มเกม | มีผลผ่านการทดสอบเฉพาะจุดและภาพจริงใน Studio ตามหลักฐานของ Coordinator |
-| กล้องหลังแก้ประวัติค้าง | Native targeted ผ่าน 4/4: 20 หมัดบนสามขนาดจอ อุโมงค์ยาว การรักษาซูม และ teleport/Scriptable พร้อมเทียบ source ทั้งเก้าก่อนและหลัง |
-| Full regression รอบเก่า | **ประวัติ:** รุ่น `e2dbc16` ผ่าน 127 / ไม่ผ่าน 4 จาก 131 รายการ ใช้เป็นหลักฐานหาจุดแก้ ไม่ใช่ผลผ่านสุดท้าย |
-| Full regression รอบปัจจุบัน 131 รายการ | **BLOCKED** — ผ่าน 130 / ไม่ผ่าน 1 ขั้นตรวจท่าโบกมือก่อนเริ่มรีเซ็ตด่าน การลองซ้ำเฉพาะจุดผ่าน แต่ยังไม่ทราบสาเหตุของรอบที่ล้มเหลวและไม่ใช้แทนผลทั้งชุด |
-| ไฟล์ canonical ที่สร้างใหม่และเปิดกลับจริง | **PENDING** — ต้องผูก manifest/hash กับ source ทั้งเก้า เปิดไฟล์ใหม่โดยไม่ sync source แล้วทดสอบไฟล์นั้น |
-| Performance และภาพสุดท้าย | **PENDING** — ต้องวัดจากไฟล์สุดท้าย บันทึกบริบท และตรวจภาพต้นฉบับครบชุด; Studio ไม่แทนผลบนมือถือจริง |
+| Full regression | **PASS 131/131** ใน 57.69 นาที ไม่มีรายการข้ามหรือหยุดกลางทาง ตรวจไฟล์ source/automation ที่ตรึงไว้ 258 ไฟล์และ source ทั้งเก้าใน Studio ตรงกันก่อน–หลัง |
+| การตรวจโค้ดโดยไม่เปิด Studio | **PASS 61 ชุดที่รัน / 62 ชุดที่ค้นพบ** ยกเว้น `inventory-performance-contract.mjs` ซึ่งเป็น benchmark ที่ต้องใช้ Studio จึงไม่นับเป็น static pass; JSON 131 flows และการ compile source ทั้งเก้าผ่าน |
+| ไฟล์ canonical และสำเนาตรวจสอบ | **PASS** — สร้างใหม่จาก source ที่ผ่าน เปิดสำเนาจากดิสก์ใน Studio ใหม่โดยไม่ sync source ผ่าน native artifact 11 ข้อและเทียบ source ทั้งเก้า |
+| ภาพจากไฟล์สุดท้าย | **PASS ตามภาพที่บันทึก** — Coordinator และ Agent 2 ดูต้นฉบับครบ 14 ภาพ ไม่พบ P1/P2 ด้านการตัด ทับ ความอ่านง่าย หรือกรอบโมเดลในชุดนี้ |
+| Performance | **BLOCKED** — การเก็บข้อมูลสี่ช่วงสำเร็จ แต่ค่ากลางประมาณ 66.7 ms และโฟกัสหน้าต่างเริ่มต้นไม่ทราบ; การเปรียบเทียบภาระงานต่อย 18 ครั้งแบบเดียวกันยังรอผล |
+
+ไฟล์หลัก `outputs/PunchWallRPGPlayable_v1_final.rbxlx` และสำเนา `outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx` มีขนาด **6,492,145 ไบต์** และ SHA256 เดียวกัน: `F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781` การตรวจไฟล์จริงใช้ Studio UUID `656ac8ed-1afe-488d-a5f9-adc196517b71`, PID 7716 พร้อมหลักฐานเปิดไฟล์และ source ก่อน–หลัง ไม่ใช้การ sync source แทนหลักฐานไฟล์ที่สร้าง
+
+ภาพสิบภาพครอบคลุม HUD, Shop, Inventory หมัด/สัตว์เลี้ยง และ Settings บน desktop กับตัวจำลอง iPhone แนวนอน อีกสี่ภาพเป็น Settings, Rebirth และรายละเอียดหมัด/สัตว์เลี้ยงบนหน้าต่าง 637×654 ภาพโทรศัพท์ต้นฉบับมี raster 1204×553 ขณะที่พื้นที่ UI ปลอดภัยเป็นพิกัด 749×361 จึงไม่ใช้ขนาดรูปแทนขนาดจอจริง ทั้งสองชุดมี hash รายภาพ การตรวจสถานะก่อน–หลังและ cleanup ผ่าน ชุดหน้าต่างแคบยังตรวจว่าภาพตัวอย่าง โมเดล และกล้องเป็นตัวเดิมระหว่างจับภาพ
+
+หลักฐานตรวจรับ: [full 131/131](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-emote-readiness-r4-20260906/manifest.json), [static 61/62](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-world-emote-combined-static-20260906.json), [การสร้างไฟล์](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-final-artifact-build-20260906.json), [native artifact 11 ข้อ](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-artifact-runtime-20260906.json), [ภาพต้นฉบับ 10 ภาพ](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-final-artifact-visuals-20260906/manifest.json) และ [ภาพหน้าต่างแคบ 4 ภาพ](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/manifest.json)
+
+ผลเก็บเฟรมจากไฟล์สุดท้ายใน [สี่ช่วงรอบ final-r2](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-frame-profile-final-r2-20260906.json) มี p50 **66.702 ms** ขณะยืนกับสัตว์เลี้ยงสองตัว, **66.670 ms** เมื่อเปิด Shop, **66.776 ms** ระหว่างสลับ Inventory ด้วย automation และ **66.706 ms** ในงาน stress ที่รีเซ็ตโลกสี่ครั้งและเรียกหมัดตรงที่เซิร์ฟเวอร์ 20 ครั้ง การเก็บข้อมูลผ่านและ source ไม่เปลี่ยน แต่ทุกช่วงมีโฟกัสเริ่มต้นเป็น unknown; ภาระ MCP และคำสั่งทดสอบรวมอยู่ด้วย จึงไม่ใช่ FPS จากการกดต่อยปกติหรือผลว่าเกมลื่นแล้ว งานเปรียบเทียบ 18 หมัดยัง PENDING
+
+ประวัติ full run ยังคงไว้: `e2dbc16` ผ่าน 127 / ไม่ผ่าน 4 และ `1a97247` ผ่าน 130 / ไม่ผ่าน 1 จาก 131 รายการ รอบหลังล้มเหลวที่ท่าโบกมือก่อนเริ่มรีเซ็ตด่าน สาเหตุเดิมยังไม่ทราบ ขั้นตรวจใหม่เพียงสังเกตความพร้อมโดยไม่ย้ายหรือบังคับท่าตัวละคร รักษาเกณฑ์เรียกท่า Wave สำเร็จจริง การผ่านทั้งชุดรอบใหม่ไม่พิสูจน์สาเหตุย้อนหลัง
 
 ผลวัดอุโมงค์ใน full run รุ่น `e2dbc16` ใช้เวลาประมาณ 19.42 วินาที มี 287 ช่วงเฟรม: p50 **66.677 ms**, p95 **77.066 ms**, 285 ช่วงเกิน 50 ms และสองช่วงเกิน 100 ms ส่วน full run รุ่น `1a97247` มี p50 **66.7486 ms**, p95 **104.1008 ms** การลองงานเดียวกันบน source เดิมในเซสชัน R4 ใหม่ได้ p50 **16.710 ms**, p95 **19.316 ms** จาก 1,143 เฟรม โดยมีสองเฟรมเกิน 50 ms แต่ยังไม่ระบุสาเหตุของความต่างและยังไม่ใช้รับรองไฟล์สุดท้าย การวัดรวมภาระงานและการเรียก MCP ไม่ใช่เวลา CPU ของโค้ดกล้องเพียงส่วนเดียว; observer อุโมงค์ไม่ยืนยันสถานะโฟกัสเริ่มต้นหรือการเปลี่ยนขนาดจอทุกขณะ จึงไม่อ้างว่า RAM หรือ Studio เป็นสาเหตุ
 
-หลักฐาน: [full run เก่า](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-final-repaired-20260906/manifest.json), [เฟรมอุโมงค์รอบ `1a97247`](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-camera-cache-20260906/camera-tunnel-frame-profile.json), [startup ที่ผ่าน](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-lazy-startup-native-20260906.json), [กล้อง targeted หลังแก้](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-camera-cache-native-targeted-20260906/manifest.json) และ [สถานะส่งมอบล่าสุด](F:/Roblox/PuchWall-completion-20260906/work/docs/SMASH_COMPLETION_20260906.md) งานเอกสารนี้ตรวจ source และหลักฐานเดิม ไม่ได้รัน Studio ทดสอบใหม่ หรือสร้างไฟล์เกม
+หลักฐานย้อนหลัง: [full run เก่า 127/4](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-final-repaired-20260906/manifest.json), [full run 130/1](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-camera-cache-20260906/manifest.json), [เฟรมอุโมงค์รอบ `1a97247`](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-full-camera-cache-20260906/camera-tunnel-frame-profile.json), [startup ที่ผ่าน](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-lazy-startup-native-20260906.json) และ [กล้อง targeted หลังแก้](F:/Roblox/PuchWall-completion-20260906/work/docs/evidence/smash-camera-cache-native-targeted-20260906/manifest.json)
+
+การตรวจใน Studio ยังไม่แทนมือถือจริง การเล่นพร้อมกันของผู้เล่นจริงสองคน ธุรกรรม Robux ที่ชำระจริง หรือการบันทึก/โหลดบัญชีจริงในระบบ production ผลจำลองและโหมด ephemeral ต้องระบุแยกจากสิ่งเหล่านี้ การส่งมอบโดยรวมยังไม่ใช่ READY จน Coordinator ปิดเกณฑ์ที่เหลือ ดู [สถานะส่งมอบล่าสุด](F:/Roblox/PuchWall-completion-20260906/work/docs/SMASH_COMPLETION_20260906.md) งานเอกสารนี้อ่าน source และหลักฐานที่มี ไม่ได้รัน Studio ทดสอบใหม่หรือสร้างไฟล์เกม
 
 **จังหวะเติบโตและเศรษฐกิจ: ข้อเสนอที่ยังไม่ลงมือ**
 
