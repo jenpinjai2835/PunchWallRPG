@@ -177,13 +177,53 @@ assert(closed.ok==true and not closed.menuVisible and not closed.shopVisible and
 return H:JSONEncode({ok=true,companions=models,inventory=s.inventory,closed=closed})`,
   profiler: `local p=game.Players.LocalPlayer local g=assert(p.PlayerGui:FindFirstChild('PunchWallHUD'))
 local R=game:GetService('RunService') local Stats=game:GetService('Stats') local H=game:GetService('HttpService')
+local U=game:GetService('UserInputService')
 assert(R:IsStudio() and not g:FindFirstChild('SmashFramePacingQA'),'isolated profiler required')
 local f=Instance.new('BindableFunction') f.Name='SmashFramePacingQA' f.Parent=g
 local phase=nil local frames={} local before=0 local began=0 local total=0 local dropped=0 local invalid=0 local limit=36000
-local connection local destroying local stopped=false
+local connection local destroying local stopped=false local contextConnections={} local viewportConnection
+local focus='unknown' local context local currentCamera=workspace.CurrentCamera local traceLimit=12
+local function viewport()
+ local camera=workspace.CurrentCamera local v=camera and camera.ViewportSize
+ local x,y=v and v.X or 0,v and v.Y or 0
+ local valid=type(x)=='number' and type(y)=='number' and x==x and y==y and x>1 and y>1 and x<math.huge and y<math.huge
+ local function finite(v)return type(v)=='number' and v==v and v>-math.huge and v<math.huge end
+ return {x=finite(x) and x or 0,y=finite(y) and y or 0,valid=valid}
+end
+local function recordViewport(kind)
+ if not phase then return end
+ local v=viewport() local camera=workspace.CurrentCamera
+ context.viewportValid=context.viewportValid and v.valid
+ -- Property events prove a change even if deferred delivery sees the already-restored value.
+ if kind~='Finish' or camera~=context.lastCamera or v.x~=context.lastViewport.x or v.y~=context.lastViewport.y then
+  context.viewportChanges+=1
+  if #context.viewportTrace<traceLimit then table.insert(context.viewportTrace,{kind=kind,at=os.clock()-began,viewport=v}) end
+ end
+ context.lastCamera=camera context.lastViewport=v
+end
+local function bindCamera()
+ if viewportConnection then viewportConnection:Disconnect() viewportConnection=nil end
+ currentCamera=workspace.CurrentCamera
+ if currentCamera then viewportConnection=currentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()recordViewport('ViewportSize')end) end
+ recordViewport('CurrentCamera')
+end
+local function observeFocus(value)
+ if value==focus then return end
+ if phase then
+  context.focusTransitions+=1
+  if #context.focusTrace<traceLimit then table.insert(context.focusTrace,{from=focus,to=value,at=os.clock()-began}) end
+ end
+ focus=value
+end
 local function stop() if stopped then return end stopped=true phase=nil
  if connection then connection:Disconnect() end if destroying then destroying:Disconnect() end
+ if viewportConnection then viewportConnection:Disconnect() end
+ for _,c in ipairs(contextConnections) do c:Disconnect() end
 end
+table.insert(contextConnections,workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(bindCamera))
+table.insert(contextConnections,U.WindowFocused:Connect(function()observeFocus('focused')end))
+table.insert(contextConnections,U.WindowFocusReleased:Connect(function()observeFocus('unfocused')end))
+bindCamera()
 destroying=f.Destroying:Connect(stop)
 connection=R.RenderStepped:Connect(function(dt)
  if phase then total+=1
@@ -195,11 +235,20 @@ f.OnInvoke=function(action,value)
  if action=='Destroy' then stop() f:Destroy() return {ok=true,disconnected=true} end
  assert(not stopped,'profiler expired')
  if action=='Begin' then assert(not phase,'phase already active') assert(type(value)=='string','phase name required')
-  phase=value frames={} total=0 dropped=0 invalid=0 before=Stats:GetTotalMemoryUsageMb() began=os.clock() return {ok=true,name=phase,sampleCap=limit}
+  frames={} total=0 dropped=0 invalid=0 before=Stats:GetTotalMemoryUsageMb() began=os.clock()
+  local v=viewport() context={viewportStart=v,lastViewport=v,lastCamera=workspace.CurrentCamera,viewportValid=v.valid,
+   viewportChanges=0,viewportTrace={},focusStart=focus,focusTransitions=0,focusTrace={}}
+  phase=value return {ok=true,name=phase,sampleCap=limit,viewportStart=v,focusStart=focus}
  end
- if action=='Finish' then assert(phase==value,'phase boundary mismatch') local ended=os.clock() phase=nil
+ if action=='Finish' then assert(phase==value,'phase boundary mismatch') recordViewport('Finish') local ended=os.clock() phase=nil
   local out={ok=true,name=value,seconds=ended-began,samples=#frames,totalIntervals=total,sampleCap=limit,
-   droppedSamples=dropped,invalidSamples=invalid,saturated=dropped>0,memoryStartMB=before,memoryEndMB=Stats:GetTotalMemoryUsageMb()}
+   droppedSamples=dropped,invalidSamples=invalid,saturated=dropped>0,memoryStartMB=before,memoryEndMB=Stats:GetTotalMemoryUsageMb(),
+   viewportStart=context.viewportStart,viewportEnd=context.lastViewport,viewportChanges=context.viewportChanges,
+   viewportTrace=context.viewportTrace,viewportTraceTruncated=context.viewportChanges>#context.viewportTrace,
+   focusStart=context.focusStart,focusEnd=focus,focusTransitions=context.focusTransitions,focusTrace=context.focusTrace,
+   focusTraceTruncated=context.focusTransitions>#context.focusTrace,contextTraceLimit=traceLimit,
+   focusKnownWholePhase=context.focusStart~='unknown',
+   contextValid=context.viewportValid and context.viewportChanges==0 and context.focusTransitions==0}
   assert(#frames>=30,'insufficient frame samples') assert(invalid==0,'invalid frame intervals')
   table.sort(frames) local function percentile(q) return frames[math.clamp(math.ceil(#frames*q),1,#frames)] end
   out.p50MS=percentile(.5) out.p95MS=percentile(.95) out.p99MS=percentile(.99) out.maxMS=frames[#frames]
@@ -212,7 +261,7 @@ end
 task.delay(300,function() if f.Parent then stop() f:Destroy() end end)
 local quality='unavailable' pcall(function() quality=tostring(settings().Rendering.QualityLevel) end)
 return H:JSONEncode({ok=true,viewport=tostring(workspace.CurrentCamera.ViewportSize),graphics=quality,
- device='Studio desktop window',sampleCap=limit,maximumLifetimeSeconds=300})`,
+ device='Studio desktop window',sampleCap=limit,maximumLifetimeSeconds=300,focusState=focus,focusSource='ObservedWindowEvents',contextTraceLimit=traceLimit})`,
   stress: `local result=a:Invoke('StressPunchCase',{name='frame-profile-four-reset-server-stress',x=-2,power=1500000000,cycles=4,attempts=5,resetTotal=true,expectedTotal=20})
 assert(type(result)=='table' and result.valid==true and result.punches==20 and result.total==20 and result.overlaps==0 and result.stuck==0,'server stress route failed')
 return H:JSONEncode(result)`,
@@ -247,7 +296,9 @@ async function run(options) {
   const record = {ok: false, startedAt: new Date().toISOString(), kind: 'Studio RenderStepped intervals including MCP/harness work',
     limitations: ['Not physical-phone performance or ordinary client-input FPS.', 'Separate MCP Begin/Finish include command boundaries and transport scheduling.',
       'Inventory automation computes diagnostic snapshots in addition to navigation.', 'Last target scan values are neither phase totals nor maxima.',
-      'Memory is total client-reported MB at boundaries, not game allocations or leak proof.'], phases: [], commands: []};
+      'Memory is total client-reported MB at boundaries, not game allocations or leak proof.',
+      'Initial focus remains unknown until an observed window event; native foreground identity/activation is separate execution evidence.',
+      'Viewport/camera or focus transitions invalidate phase context even when restored; raw interval metrics are retained.'], phases: [], commands: []};
   let c, before, playAttempted = false, profilerAttempted = false, primaryError;
   const call = async (type, code, timeout = 35000) => {
     const result = await c.callTool('execute_luau', {datamodel_type: type, code}, timeout);
@@ -286,6 +337,7 @@ async function run(options) {
       await action(); const finishRequestedAt = new Date().toISOString(); const result = await prof('Finish', name);
       assert.equal(result.ok, true); assert.equal(result.name, name);
       record.phases.push({...result, workload, beginRequestedAt, finishRequestedAt, finishReceivedAt: new Date().toISOString()});
+      assert.equal(result.contextValid, true, 'Viewport/camera or focus changed during phase; preserve metrics as invalid context');
       assert.equal(result.droppedSamples, 0, 'Sample cap reached; partial phase cannot pass');
       assert.equal(result.invalidSamples, 0, 'Invalid samples cannot pass');
     };
@@ -388,7 +440,7 @@ export async function selfTest() {
   const temp = fs.mkdtempSync(path.join(tempRoot, 'smash-frame-profile-'));
   const snippets = [LUA.guard + LUA.seed, LUA.clientReady, LUA.profiler, LUA.guard + LUA.stress,
     navigationCode('closed'), navigationCode('shop'), navigationCode('inventory', 'All'), navigationCode('inventory', 'Honor')];
-  let executedLuauAssertions = 0;
+  let executedLuauAssertions = 0; const mutationsRejected = [];
   try {
     for (const [index, snippet] of snippets.entries()) {
       const file = path.join(temp, `${index}.luau`); fs.writeFileSync(file, snippet);
@@ -436,9 +488,24 @@ local created=nil local delays={} local R={RenderStepped=signal(),IsStudio=funct
 local g={GetAttribute=function(_,key) return ({TargetDepthQueryCount=2,TargetDepthCandidateCount=12,TargetDepthUniqueCandidates=9})[key] end}
 function g:FindFirstChild() return created and created.Parent==self and created or nil end
 local player={PlayerGui={FindFirstChild=function() return g end}}
-local services={RunService=R,Stats={GetTotalMemoryUsageMb=function() return 100 end},HttpService={JSONEncode=function(_,v) return v end}}
+local U={WindowFocused=signal(),WindowFocusReleased=signal()}
+local services={RunService=R,UserInputService=U,Stats={GetTotalMemoryUsageMb=function() return 100 end},HttpService={JSONEncode=function(_,v) return v end}}
 local game={Players={LocalPlayer=player},GetService=function(_,name) return services[name] end}
-local workspace={CurrentCamera={ViewportSize='test viewport'}}
+local cameras={} local function camera(x,y)
+ local c={ViewportSize={X=x,Y=y},changed=signal()}
+ function c:GetPropertyChangedSignal(key)assert(key=='ViewportSize')return self.changed end
+ function c:Resize(x,y)self.ViewportSize={X=x,Y=y}self.changed:Fire()end
+ table.insert(cameras,c)return c
+end
+local cameraChanged=signal() local workspace={CurrentCamera=camera(1277,780)}
+function workspace:GetPropertyChangedSignal(key)assert(key=='CurrentCamera')return cameraChanged end
+function workspace:ReplaceCamera(c)self.CurrentCamera=c cameraChanged:Fire()end
+local function contextListeners()
+ local n=0 local signals={cameraChanged,U.WindowFocused,U.WindowFocusReleased}
+ for _,c in ipairs(cameras)do table.insert(signals,c.changed)end
+ for _,s in ipairs(signals)do for _,c in ipairs(s.connections)do if c.Connected then n+=1 end end end return n
+end
+local function frames()for i=1,40 do R.RenderStepped:Fire(.016)end end
 local task={delay=function(_,fn) table.insert(delays,fn) end}
 local settings=function() return {Rendering={QualityLevel='test'}} end
 local Instance={new=function()
@@ -446,6 +513,8 @@ local Instance={new=function()
 end}
 local create=function() ${LUA.profiler} end
 local setup=create() check(setup.sampleCap==36000,'sample_limit_reported')
+check(setup.focusState=='unknown' and setup.focusSource=='ObservedWindowEvents','initial_focus_is_unknown_not_fabricated')
+check(contextListeners()==4,'bounded_camera_and_focus_listeners')
 local f=created
 check(f.OnInvoke('Begin','timing').name=='timing','phase_begin')
 check(not pcall(function() f.OnInvoke('Begin','duplicate') end),'double_begin_rejected')
@@ -456,6 +525,39 @@ check(out.samples==40 and out.totalIntervals==40 and out.droppedSamples==0,'comp
 check(out.p50MS==16 and out.p95MS==16 and out.p99MS==120 and out.maxMS==120,'nearest_rank_millisecond_percentiles')
 check(out.over50MS==2 and out.over100MS==1,'long_frame_counts')
 check(out.lastTargetScan.queries==2 and out.lastTargetScan.candidates==12 and out.lastTargetScan.unique==9,'last_scan_is_snapshot_only')
+check(out.contextValid and out.viewportStart.x==1277 and out.viewportEnd.y==780 and out.viewportChanges==0,'stable_actual_viewport_is_valid')
+check(out.focusStart=='unknown' and out.focusEnd=='unknown' and not out.focusKnownWholePhase,'no_focus_event_never_implies_foreground')
+f.OnInvoke('Begin','resize')workspace.CurrentCamera:Resize(900,600)frames()out=f.OnInvoke('Finish','resize')
+check(not out.contextValid and out.viewportChanges==1 and out.viewportStart.x==1277 and out.viewportEnd.x==900 and out.samples==40,'resize_invalidates_context_but_retains_raw_metrics')
+f.OnInvoke('Begin','resize-back')workspace.CurrentCamera:Resize(700,500)workspace.CurrentCamera:Resize(900,600)frames()out=f.OnInvoke('Finish','resize-back')
+check(not out.contextValid and out.viewportChanges==2 and out.viewportStart.x==out.viewportEnd.x,'resize_back_cannot_mask_changed_phase')
+f.OnInvoke('Begin','deferred-resize-back')frames()workspace.CurrentCamera.changed:Fire()workspace.CurrentCamera.changed:Fire()out=f.OnInvoke('Finish','deferred-resize-back')
+check(not out.contextValid and out.viewportChanges==2 and out.viewportStart.x==out.viewportEnd.x,'deferred_resize_events_reject_even_when_values_already_restored')
+f.OnInvoke('Begin','unannounced-resize')workspace.CurrentCamera.ViewportSize={X=800,Y=600}frames()out=f.OnInvoke('Finish','unannounced-resize')
+check(not out.contextValid and out.viewportChanges==1 and out.viewportTrace[1].kind=='Finish','finish_rechecks_actual_dimensions')
+local oldCamera=workspace.CurrentCamera
+f.OnInvoke('Begin','camera-replaced')workspace:ReplaceCamera(camera(800,600))frames()out=f.OnInvoke('Finish','camera-replaced')
+check(not out.contextValid and out.viewportChanges==1,'same_size_camera_replacement_is_context_change')
+check(not oldCamera.changed.connections[1].Connected and contextListeners()==4,'camera_replacement_disconnects_old_listener_without_growth')
+f.OnInvoke('Begin','camera-back')local held=workspace.CurrentCamera workspace:ReplaceCamera(oldCamera)workspace:ReplaceCamera(held)frames()out=f.OnInvoke('Finish','camera-back')
+check(not out.contextValid and out.viewportChanges==2,'camera_changed_back_is_still_rejected')
+f.OnInvoke('Begin','deferred-camera-back')frames()cameraChanged:Fire()cameraChanged:Fire()out=f.OnInvoke('Finish','deferred-camera-back')
+check(not out.contextValid and out.viewportChanges==2,'deferred_camera_replacement_events_remain_invalid')
+workspace.CurrentCamera:Resize(0,0)f.OnInvoke('Begin','invalid-viewport')frames()out=f.OnInvoke('Finish','invalid-viewport')
+check(not out.contextValid and not out.viewportStart.valid,'invalid_initial_viewport_cannot_pass')
+workspace.CurrentCamera:Resize(0/0,600)f.OnInvoke('Begin','nonfinite-viewport')frames()out=f.OnInvoke('Finish','nonfinite-viewport')
+check(not out.contextValid and out.viewportStart.x==0,'invalid_viewport_diagnostics_remain_finite')
+workspace.CurrentCamera:Resize(800,600)
+U.WindowFocused:Fire()f.OnInvoke('Begin','known-focus')frames()out=f.OnInvoke('Finish','known-focus')
+check(out.contextValid and out.focusKnownWholePhase and out.focusStart=='focused' and out.focusEnd=='focused','observed_focus_persists_until_another_event')
+f.OnInvoke('Begin','lost-restored-focus')U.WindowFocusReleased:Fire()U.WindowFocused:Fire()frames()out=f.OnInvoke('Finish','lost-restored-focus')
+check(not out.contextValid and out.focusTransitions==2 and out.focusStart==out.focusEnd,'lost_and_restored_focus_invalidates_phase')
+f.OnInvoke('Begin','bounded-transitions')
+for i=1,20 do workspace.CurrentCamera:Resize(800+i,600)if i%2==1 then U.WindowFocusReleased:Fire()else U.WindowFocused:Fire()end end
+frames()out=f.OnInvoke('Finish','bounded-transitions')
+check(not out.contextValid and out.viewportChanges==20 and #out.viewportTrace==12 and out.viewportTraceTruncated,'resize_trace_is_bounded_without_losing_total')
+check(out.focusTransitions==20 and #out.focusTrace==12 and out.focusTraceTruncated,'focus_trace_is_bounded_without_losing_total')
+
 f.OnInvoke('Begin','cap') for i=1,36010 do R.RenderStepped:Fire(.016) end
 out=f.OnInvoke('Finish','cap')
 check(out.samples==36000 and out.totalIntervals==36010 and out.droppedSamples==10 and out.saturated,'cap_and_drop_accounting')
@@ -465,13 +567,19 @@ f.OnInvoke('Begin','invalid') for i=1,30 do R.RenderStepped:Fire(.016) end R.Ren
 check(not pcall(function() f.OnInvoke('Finish','invalid') end),'invalid_interval_rejected')
 check(f.OnInvoke('Destroy').disconnected and not f.Parent,'explicit_cleanup_destroys_profiler')
 check(not R.RenderStepped.connections[1].Connected,'explicit_cleanup_disconnects_render_listener')
-create() local second=created second:Destroy()
+check(contextListeners()==0,'explicit_cleanup_disconnects_all_context_listeners')
+create() local second=created
+second.OnInvoke('Begin','initial-focus-event')frames()U.WindowFocused:Fire()out=second.OnInvoke('Finish','initial-focus-event')
+check(not out.contextValid and out.focusStart=='unknown' and out.focusEnd=='focused' and out.focusTransitions==1,'first_actual_focus_event_is_recorded_without_retroactive_foreground')
+second:Destroy()
 check(not R.RenderStepped.connections[2].Connected,'external_instance_destruction_disconnects_listener')
+check(contextListeners()==0,'external_destruction_disconnects_all_context_listeners')
 create() local third=created delays[#delays]()
 check(not third.Parent and not R.RenderStepped.connections[3].Connected,'maximum_lifetime_cleans_up')
+check(contextListeners()==0,'deadline_disconnects_all_context_listeners')
 print('PASS '..count)
 `;
-    for (const [name, code, expected] of [['ephemeral', guardTest, 16], ['collector', collectorTest, 15]]) {
+    for (const [name, code, expected] of [['ephemeral', guardTest, 16], ['collector', collectorTest, 37]]) {
       const file = path.join(temp, `${name}.luau`); fs.writeFileSync(file, code);
       const compiled = spawnSync(compiler, ['--null', file], {encoding: 'utf8', timeout: 15000});
       check(compiled.status === 0, `${name} mock compile: ${compiled.stderr || compiled.stdout}`);
@@ -479,8 +587,27 @@ print('PASS '..count)
       check(result.status === 0 && result.stdout.trim() === `PASS ${expected}`, `${name} exact execution: ${result.stderr || result.stdout}`);
       executedLuauAssertions += expected;
     }
+    const mutations = [
+      ['trust_only_current_property_value', "kind~='Finish' or camera~=context.lastCamera", 'camera~=context.lastCamera', 'deferred_resize_events_reject_even_when_values_already_restored'],
+      ['ignore_resize_events', "recordViewport('ViewportSize')", "-- resize event ignored\n", 'resize_back_cannot_mask_changed_phase'],
+      ['fabricate_initial_foreground', "local focus='unknown'", "local focus='focused'", 'initial_focus_is_unknown_not_fabricated'],
+      ['waive_viewport_context', 'context.viewportChanges==0', 'true', 'resize_invalidates_context_but_retains_raw_metrics'],
+      ['waive_focus_context', 'context.focusTransitions==0', 'true', 'lost_and_restored_focus_invalidates_phase'],
+      ['leak_context_listeners', 'for _,c in ipairs(contextConnections) do c:Disconnect() end', '-- context cleanup removed', 'explicit_cleanup_disconnects_all_context_listeners'],
+      ['unbounded_resize_trace', '#context.viewportTrace<traceLimit', 'true', 'resize_trace_is_bounded_without_losing_total'],
+    ];
+    for (const [name, from, to, expected] of mutations) {
+      assert.equal(LUA.profiler.split(from).length, 2, `Unique collector mutation ${name}`);
+      const text=collectorTest.replace(LUA.profiler,()=>LUA.profiler.replace(from,()=>to));
+      const file=path.join(temp,name+'.luau'); fs.writeFileSync(file,text);
+      const compiled=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});
+      check(compiled.status===0, `${name} mutation must compile: ${compiled.stderr || compiled.stdout}`);
+      const result=spawnSync(runtime,[file],{encoding:'utf8',timeout:15000});
+      check(result.status!==0 && (result.stderr+result.stdout).includes(expected), `${name} mutation survived or failed for another reason: ${result.stderr || result.stdout}`);
+      mutationsRejected.push(name);
+    }
   } finally { for (const file of fs.readdirSync(temp)) fs.unlinkSync(path.join(temp, file)); fs.rmdirSync(temp); }
-  return {ok: true, checks, compiledSnippets: snippets.length, executedLuauAssertions, studioUsed: false};
+  return {ok: true, checks, compiledSnippets: snippets.length, executedLuauAssertions, mutationsRejected, studioUsed: false};
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === filename) {
