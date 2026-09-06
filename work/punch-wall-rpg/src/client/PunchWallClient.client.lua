@@ -5320,6 +5320,7 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize
 	if not viewport or viewport.X <= 1 or viewport.Y <= 1 then return boundsCFrame, false, 0 end
+	local nearDepth = math.max(0.05, math.abs(tonumber(camera.NearPlaneZ) or 0))
 	-- Translate the entire oriented box in the camera plane; preserve model
 	-- size and depth. Intersect each corner's allowable translation interval
 	-- so bob, tilt and smoothing cannot push an edge beyond the 1% safe frame.
@@ -5339,7 +5340,7 @@ function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners)
 	for _, localCorner in ipairs(boundsCorners) do
 		local corner = boundsCFrame:PointToWorldSpace(localCorner)
 		local point = camera:WorldToViewportPoint(corner)
-		if point.Z <= 0.05 then return boundsCFrame, false, 0 end
+		if point.Z <= nearDepth then return boundsCFrame, false, 0 end
 		local worldPerPixelX = point.Z / pixelsAtUnitDepthX
 		local worldPerPixelY = point.Z / pixelsAtUnitDepthY
 		minX = math.max(minX, (inset - point.X) * worldPerPixelX)
