@@ -117,14 +117,14 @@ check(
 check(
   "long_catalog_names_and_prices_scale_inside_every_card",
   client.includes("productNameLabel.TextScaled = true")
-    && client.includes("productNameSize.MinTextSize = compactCards and 14 or 10")
+    && client.includes("productNameSize.MinTextSize = 14")
     && client.includes("productNameSize.MaxTextSize = compactCards and 16 or 17")
     && client.includes("priceLabel.TextScaled = true")
     && client.includes("priceTextSize.MaxTextSize = compactCards and 16 or 14")
     && client.includes('"MobileReadableRowsV1"')
     && client.includes('"ShopMinimumPrimaryTextSize"')
     && !client.includes("if #productName > 18 then"),
-  "Compact names and prices must retain a 14px font floor inside full-width rows; source checks complement the measured mobile runtime flow.",
+  "Catalog names keep a 14px floor on desktop and compact rows; price and measured mobile runtime checks remain required.",
 );
 
 check(

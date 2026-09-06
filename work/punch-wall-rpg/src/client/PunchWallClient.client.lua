@@ -11235,8 +11235,8 @@ shared.PunchWallBuildDynamicReferenceHUD = function()
 	widgets.ObjectiveCard.ZIndex = 34
 	widgets.ObjectiveCard.Parent = referenceHUD
 	local objectiveStroke = Instance.new("UIStroke")
-	objectiveStroke.Color = Color3.fromRGB(37, 191, 239)
-	objectiveStroke.Thickness = 2
+	objectiveStroke.Color = Color3.fromRGB(61, 88, 101)
+	objectiveStroke.Thickness = 1
 	objectiveStroke.Parent = widgets.ObjectiveCard
 	widgets.ObjectiveIcon = createThemeIcon(widgets.ObjectiveCard, "Train", UDim2.fromScale(5 / 340, 4 / 48), UDim2.fromScale(40 / 340, 40 / 48), "ObjectiveIcon")
 	widgets.ObjectiveIcon.ZIndex = 35
@@ -11254,8 +11254,8 @@ shared.PunchWallBuildDynamicReferenceHUD = function()
 	widgets.ObjectiveText.ZIndex = 35
 	widgets.ObjectiveText.Parent = widgets.ObjectiveCard
 	local objectiveTextConstraint = Instance.new("UITextSizeConstraint")
-	objectiveTextConstraint.MinTextSize = 7
-	objectiveTextConstraint.MaxTextSize = 13
+	objectiveTextConstraint.MinTextSize = 14
+	objectiveTextConstraint.MaxTextSize = 16
 	objectiveTextConstraint.Parent = widgets.ObjectiveText
 end
 shared.PunchWallBuildDynamicReferenceHUD()
@@ -11771,7 +11771,7 @@ shared.PunchWallBuildShopUI = function()
 	mainPanel.ZIndex = 1
 	local shopReference = Instance.new("Frame")
 	shopReference.Name = "FunctionalHeroShop"
-	shopReference.BackgroundColor3 = Color3.fromRGB(5, 11, 15)
+	shopReference.BackgroundColor3 = Color3.fromRGB(14, 20, 29)
 	shopReference.BackgroundTransparency = 0
 	shopReference.BorderSizePixel = 0
 	shopReference.ClipsDescendants = false
@@ -11787,16 +11787,16 @@ shared.PunchWallBuildShopUI = function()
 	shopCorner:SetAttribute("ShopRootDecoration", true)
 	shopCorner.Parent = shopReference
 	local shopStroke = Instance.new("UIStroke")
-	shopStroke.Color = Color3.fromRGB(7, 18, 25)
-	shopStroke.Thickness = 7
+	shopStroke.Color = Color3.fromRGB(61, 88, 101)
+	shopStroke.Thickness = 1
 	shopStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	shopStroke:SetAttribute("ShopRootDecoration", true)
 	shopStroke.Parent = shopReference
 	local shopGradient = Instance.new("UIGradient")
 	shopGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 25, 31)),
-		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(4, 10, 14)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 17, 22)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(247, 250, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(238, 244, 250)),
 	})
 	shopGradient.Rotation = 90
 	shopGradient:SetAttribute("ShopRootDecoration", true)
@@ -12399,6 +12399,7 @@ shared.PunchWallBuildShopUI = function()
 		local innerBevel = Instance.new("Frame")
 		innerBevel.Name = "ShopInnerBevel"
 		innerBevel.BackgroundTransparency = 1
+		innerBevel.Visible = false
 		innerBevel.Position = UDim2.fromOffset(7, 7)
 		innerBevel.Size = UDim2.new(1, -14, 1, -14)
 		innerBevel.ZIndex = 101
@@ -12408,7 +12409,7 @@ shared.PunchWallBuildShopUI = function()
 
 		local header = Instance.new("Frame")
 		header.Name = "ShopHeader"
-		header.BackgroundColor3 = Color3.fromRGB(11, 15, 19)
+		header.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
 		header.BorderSizePixel = 0
 		header.ClipsDescendants = true
 		header.Position = UDim2.fromScale(0.018, 0.025)
@@ -12416,17 +12417,16 @@ shared.PunchWallBuildShopUI = function()
 		header.ZIndex = 102
 		header.Parent = shopReference
 		addCorner(header, 7)
-		addStroke(header, Color3.fromRGB(49, 122, 154), 2)
+		addStroke(header, Color3.fromRGB(61, 88, 101), 1).Transparency = 0.55
 		local headerGradient = Instance.new("UIGradient")
 		headerGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(132, 13, 22)),
-			ColorSequenceKeypoint.new(0.54, Color3.fromRGB(84, 8, 19)),
-			ColorSequenceKeypoint.new(0.56, Color3.fromRGB(12, 44, 66)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 25, 43)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(238, 244, 250)),
 		})
 		headerGradient.Parent = header
 		local redRail = Instance.new("Frame")
 		redRail.Name = "HeaderRedRail"
+		redRail.Visible = false
 		redRail.BackgroundColor3 = Color3.fromRGB(255, 50, 47)
 		redRail.BorderSizePixel = 0
 		redRail.Position = UDim2.fromScale(0.018, 0.84)
@@ -12442,7 +12442,7 @@ shared.PunchWallBuildShopUI = function()
 		cyanRail.Parent = header
 		local eyebrow = label(header, "Eyebrow", "SMASH WALL ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
-		title.TextStrokeTransparency = 0.08
+		title.TextStrokeTransparency = 1
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 		local shopViewport = shared.PunchWallGetResponsiveViewport()
 		local _, compactHeader = shared.PunchWallClassifyResponsiveViewport(shopViewport)
@@ -12460,7 +12460,7 @@ shared.PunchWallBuildShopUI = function()
 
 		local close = Instance.new("TextButton")
 		close.Name = "CloseShop"
-		close.BackgroundColor3 = Color3.fromRGB(157, 19, 22)
+		close.BackgroundColor3 = Color3.fromRGB(32, 44, 54)
 		close.BorderSizePixel = 0
 		close.AnchorPoint = Vector2.new(1, 0.5)
 		close.Position = UDim2.fromScale(0.975, 0.5)
@@ -12469,11 +12469,11 @@ shared.PunchWallBuildShopUI = function()
 		close.Text = "X"
 		close.TextColor3 = Color3.fromRGB(255, 247, 238)
 		close.TextSize = 25
-		close.TextStrokeTransparency = 0.15
+		close.TextStrokeTransparency = 1
 		close.ZIndex = 106
 		close.Parent = header
 		addCorner(close, 7)
-		addStroke(close, Color3.fromRGB(255, 102, 93), 2)
+		addStroke(close, Color3.fromRGB(61, 88, 101), 1)
 		local closeSize = Instance.new("UISizeConstraint")
 		closeSize.MinSize = Vector2.new(44, 44)
 		closeSize.Parent = close
@@ -12483,7 +12483,7 @@ shared.PunchWallBuildShopUI = function()
 			eyebrow.Visible = false
 			header.Position = UDim2.fromOffset(8, 6)
 			header.Size = UDim2.new(1, -16, 0, 52)
-			headerGradient.Color = ColorSequence.new(Color3.fromRGB(16, 38, 57), Color3.fromRGB(8, 24, 39))
+			headerGradient.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(238, 244, 250))
 			title.Position = UDim2.fromOffset(132, 0)
 			title.Size = UDim2.new(1, -196, 1, 0)
 			title.TextSize = 20
@@ -12716,7 +12716,7 @@ shared.PunchWallBuildShopUI = function()
 			local featuredCard = not compactCards and index == #products and #products % 2 == 1
 			local card = Instance.new("Frame")
 			card.Name = item.name .. "ShopCard"
-			card.BackgroundColor3 = Color3.fromRGB(10, 18, 23)
+			card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
 			card.BorderSizePixel = 0
 			if catalogScrollable then
 				card.Position = UDim2.new(
@@ -12789,17 +12789,17 @@ shared.PunchWallBuildShopUI = function()
 				"OfferKind",
 				item.isPremiumPet and "GamePass" or item.isRobuxProduct and "DeveloperProduct" or "GameCurrency"
 			)
-			addStroke(card, item.accent, equippedCard and 3 or 1.5)
+			addStroke(card, Color3.fromRGB(61, 88, 101), 1).Transparency = 0.45
 			local cardGradient = Instance.new("UIGradient")
 			cardGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, item.accent:Lerp(Color3.fromRGB(6, 12, 16), 0.72)),
-				ColorSequenceKeypoint.new(0.32, Color3.fromRGB(13, 23, 29)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(4, 9, 12)),
+				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(242, 247, 252)),
 			})
 			cardGradient.Rotation = 10
 			cardGradient.Parent = card
 			local accentRail = Instance.new("Frame")
 			accentRail.Name = "AccentRail"
+			accentRail.Visible = false
 			accentRail.BackgroundColor3 = item.accent
 			accentRail.BorderSizePixel = 0
 			accentRail.Position = UDim2.fromOffset(0, 4)
@@ -12841,7 +12841,7 @@ shared.PunchWallBuildShopUI = function()
 			artPlate.Parent = card
 			addCorner(artPlate, 6)
 			local artPlateStroke = addStroke(artPlate, item.accent, 1)
-			artPlateStroke.Transparency = 0.48
+			artPlateStroke.Transparency = 0.82
 			local icon = Instance.new("ImageLabel")
 			icon.Name = "ProductArt"
 			icon.BackgroundTransparency = 1
@@ -12912,10 +12912,13 @@ shared.PunchWallBuildShopUI = function()
 			-- on a name-length heuristic that still clipped narrow glyph runs.
 			productNameLabel.TextScaled = true
 			local productNameSize = Instance.new("UITextSizeConstraint")
-			productNameSize.MinTextSize = compactCards and 14 or 10
+			productNameSize.MinTextSize = 14
 			productNameSize.MaxTextSize = compactCards and 16 or 17
 			productNameSize.Parent = productNameLabel
-			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, compactCards and 7 or 11, Enum.Font.GothamBlack)
+			local rarityColor = PolishConfig.RarityColors[item.rarity]
+				or (item.isPremiumPet or item.rarity == "Premium") and Color3.fromRGB(255, 211, 50)
+				or palette.MutedText
+			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), rarityColor, compactCards and 7 or 12, Enum.Font.GothamBold)
 			if compactCards and item.isHonorProduct then
 				rarityLabel.TextScaled = true
 				local raritySize = Instance.new("UITextSizeConstraint")
@@ -12934,8 +12937,8 @@ shared.PunchWallBuildShopUI = function()
 			card:SetAttribute("RequiredDepth", requiredDepth)
 			card:SetAttribute("DepthLocked", depthLocked)
 			local detailText = purchaseUnavailable
-				and (item.isHonorProduct and (("+%s Honor • Temporarily unavailable until Roblox product setup is verified."):format(formatNumber(item.honor)))
-					or "This offer is unavailable until its purchase ID is configured.")
+				and (item.isHonorProduct and (("+%s Honor • Currently unavailable"):format(formatNumber(item.honor)))
+					or "Currently unavailable")
 				or depthLocked and ("Reach Depth %d to unlock this fist."):format(requiredDepth)
 				or item.detail
 				or ("Built for deeper walls.  " .. compactStat(item.mult) .. "x Power.")
@@ -12959,14 +12962,14 @@ shared.PunchWallBuildShopUI = function()
 				detailSize.Y.Offset
 			)
 			detailBackdrop.ZIndex = card.ZIndex + 1
-			detailBackdrop.Visible = not compactCards
+			detailBackdrop.Visible = false
 			detailBackdrop.Parent = card
 			addCorner(detailBackdrop, 4)
 			local detailStroke = addStroke(detailBackdrop, item.accent, 1)
 			detailStroke.Transparency = 0.72
 			local detail = label(card, "Detail", detailText, detailPosition, detailSize, Color3.fromRGB(236, 242, 244), 12, Enum.Font.GothamMedium, Enum.TextXAlignment.Left, true)
 			detail.TextYAlignment = Enum.TextYAlignment.Top
-			detail.TextStrokeTransparency = 0.35
+			detail.TextStrokeTransparency = 1
 			detail.LineHeight = 1.08
 			detail.Visible = not compactCards
 			detail:SetAttribute("DescriptionReadabilityMode", "HighContrastPanelV1")
@@ -13051,7 +13054,7 @@ shared.PunchWallBuildShopUI = function()
 					or isOwned and "EQUIP"
 					or depthLocked and ("DEPTH " .. tostring(requiredDepth))
 					or "BUY"
-				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+				actionColor = equipped and Color3.fromRGB(32, 44, 54)
 					or isOwned and Color3.fromRGB(53, 159, 63)
 					or depthLocked and Color3.fromRGB(61, 68, 73)
 					or actionColor
@@ -13068,7 +13071,7 @@ shared.PunchWallBuildShopUI = function()
 					or isOwned and "EQUIP"
 					or purchaseConfigured and "BUY"
 					or "UNAVAILABLE"
-				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+				actionColor = equipped and Color3.fromRGB(32, 44, 54)
 					or isOwned and Color3.fromRGB(53, 159, 63)
 					or purchaseConfigured and Color3.fromRGB(31, 174, 102)
 					or Color3.fromRGB(61, 68, 73)
@@ -13130,9 +13133,9 @@ shared.PunchWallBuildShopUI = function()
 			action.Size = compactCards and UDim2.new(actionWidth, 0, 0, 44) or UDim2.fromScale(actionWidth, 0.32)
 			action.Font = Enum.Font.GothamBlack
 			action.Text = actionText
-			action.TextColor3 = Color3.fromRGB(255, 255, 255)
+			action.TextColor3 = actionEnabled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(181, 204, 216)
 			action.TextSize = compactCards and 8 or 14
-			action.TextStrokeTransparency = 0.2
+			action.TextStrokeTransparency = 1
 			action.ZIndex = 106
 			action.Parent = card
 			if page == "Boosts" then
@@ -13183,7 +13186,7 @@ shared.PunchWallBuildShopUI = function()
 				-- One readable offer per row. Names and power are the decision;
 				-- art, rarity, price, and one action each receive a separate lane.
 				local narrowRow = shopViewport.X < 520
-				card.BackgroundColor3 = Color3.fromRGB(13, 30, 46)
+				card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
 				artPlate.Position = UDim2.fromOffset(12, narrowRow and 8 or 18)
 				artPlate.Size = UDim2.fromOffset(narrowRow and 64 or 76, narrowRow and 64 or 76)
 				icon.Position = artPlate.Position
@@ -13444,7 +13447,7 @@ applyReferenceHUDState = function(force)
 
 	local shopWasVisible = shared.PunchWallShopReference.Visible
 	setVisibleIfChanged(shared.PunchWallShopReference, shopVisible)
-	setVisibleIfChanged(shared.PunchWallShopDimmer, shopVisible)
+	setVisibleIfChanged(shared.PunchWallShopDimmer, shopVisible or inventoryVisible)
 	if shopVisible and not shopWasVisible and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()
 	end
@@ -13520,7 +13523,7 @@ statRemote.OnClientEvent:Connect(function(payload)
 	widgets.WorldProgress.Text = ("%d%%  |  D%d/%d"):format(math.floor(worldRatio * 100 + 0.5), math.min(depth, worldTarget), worldTarget)
 	local tutorial = payload.Tutorial
 	if type(tutorial) == "table" then
-		widgets.ObjectiveText.Text = ("OBJECTIVE  |  %s\n%s"):format(string.upper(tostring(tutorial.title or "KEEP SMASHING")), tostring(tutorial.detail or ""))
+		widgets.ObjectiveText.Text = string.upper(tostring(tutorial.title or "KEEP SMASHING"))
 		if widgets.ObjectiveIcon then applyThemeIcon(widgets.ObjectiveIcon, tostring(tutorial.icon or "Quest")) end
 		widgets.ObjectiveCard.Visible = payload.TutorialCompleted ~= true
 			and (tonumber(payload.TutorialCompleted) or 0) < 1
@@ -13915,9 +13918,9 @@ applyResponsiveLayout = function()
 		referenceWallCard.Size = UDim2.fromOffset(98, topCardHeight)
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.new(0.5, 0)
 		shared.PunchWallHUDWidgets.ObjectiveCard.Position = UDim2.new(0.5, 0, 0, topCardHeight + 10)
-		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(220, viewport.X * 0.27), 30)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(280, viewport.X - 136), 36)
 		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
-		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 10 end
+		if objectiveTextConstraint then objectiveTextConstraint.MinTextSize, objectiveTextConstraint.MaxTextSize = 14, 14 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.new(0.5, 0)
@@ -14062,7 +14065,7 @@ applyResponsiveLayout = function()
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.zero
 		shared.PunchWallHUDWidgets.ObjectiveCard.Position, shared.PunchWallHUDWidgets.ObjectiveCard.Size = designRect(682, 132, 340, 48)
 		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
-		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 13 end
+		if objectiveTextConstraint then objectiveTextConstraint.MinTextSize, objectiveTextConstraint.MaxTextSize = 14, 16 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.zero
