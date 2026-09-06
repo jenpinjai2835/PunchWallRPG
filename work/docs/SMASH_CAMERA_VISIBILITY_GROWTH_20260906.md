@@ -116,3 +116,39 @@ Every original image retains its actual encoded dimensions, bytes, MIME type, an
 `node work/automation/scripts/studio-final-visual-capture.mjs --self-test` passes **67 checks**, compiles all **16** production Luau snippets, and executes **147** native-state/fixture guard controls in the Luau CLI. These include pending/failed/never-completing reconciliation with zero Reset calls, nil empty queues, actual premium state reset, corrupt authoritative lists/power, stale HUD/companions/equipped fist, missing onboarding, late feedback/grants, wrong device/resolution/orientation, inconsistent safe rectangles, native rounding bounds, and original raster mismatch. Four intentionally weakened production guards demonstrably admit the corresponding bad inputs, confirming the controls distinguish missing safeguards. The unchanged shared profiler contract also passes 66 checks, eight compiled snippets, 53 executed Luau assertions, and seven rejected mutations. Node syntax and `git diff --check` pass.
 
 No Studio session was operated by this worker. The Coordinator must run the updated fresh and five-screen desktop/phone capture against the current verified source, then repeat its normal rebuilt-and-reopened artifact verification and capture. Those new tool/runtime and final artifact outcomes are **pending**, not inferred from these offline controls or the earlier source-only images.
+
+## Focused three-premium-pet frame profile
+
+The Coordinator's `smash-packed-pets-premium-hud-runtime-20260906/pet-size-position-qc.json` passes the unchanged pet geometry gates on desktop, the narrow custom viewport, and landscape at near/mid/far camera distances after source `a5e492c`. Independent offline review also passes 3,630 assertions and 40 weakening controls. This establishes the tested layouts; it does not measure fallback rendering cost. The ordinary final profiler seeds two normal pets and therefore does not exercise the formerly failing three-premium arrangement.
+
+`work/automation/scripts/studio-premium-pet-profile.mjs` is a separate **current-source-only** diagnostic, authored from base `0262ad6`. It accepts an explicit Studio ID, exact local project place name, and unused evidence leaf. It does not read a build manifest, verify a reopened artifact, or claim artifact fidelity. It records HEAD and freezes the exact nine local source files plus its tool dependencies and pet flow. The existing read-only `verify-studio-source.mjs` checks actual global nine-object identity/metadata and normalized byte equality before and after the owned Play session; any changed HEAD or frozen input fails the run.
+
+The tool refuses an existing or unverified Client/Server session before changing the simulator. It creates one uniquely named custom desktop preset at 637 × 654, configures the same ID in Edit and Client, and verifies actual device configuration. During observation, `Camera.ViewportSize` must exactly equal `GuiService:GetInsetArea(DeviceSafeInsets)`; its dimensions and the full UI rectangle must remain within the existing one-unit native rounding allowance. The actual measured dimensions are recorded, rather than asserting that preset resolution is a raster measurement. The prior simulator selection, orientation and scaling are restored, and only this run's unique preset is removed.
+
+The existing capture tool's strict ephemeral guard and entitlement-settled starter Reset are reused unchanged. Only after reconciliation succeeds with an empty queue does the tool grant the three existing catalog pets through `GrantPremiumPet`: Crimson Phoenix, Storm Wyvern and Celestial Guardian. It checks exact owned/inventory/equipped lists on the server and their authoritative Snapshot, then waits for the exact three client companions. Default motion and UI scale are required. It uses the same six-stud camera placement as the accepted pet flow, with the same qualified requested-or-observed-20-stud initial Focus policy. The camera's type, transform, Focus, subject and FOV are saved and restored inside protected native cleanup. No player movement, camera zoom adjustment, pet scaling or production source instrumentation is introduced.
+
+One Client invocation observes **six native seconds** of `RenderStepped` intervals, capped at 7,200 samples. It reports elapsed seconds, sample/drop/invalid counts, p50/p95/p99/max interval milliseconds, and counts over 50/100 ms. There is no FPS pass threshold. It includes its own bounded observer work and concurrent Studio/MCP scheduling, so it is not a physical-device or ordinary client-only FPS result. Initial focus is explicitly unknown; observed focus or viewport/current-camera changes invalidate the result.
+
+Approximately every 0.15 seconds, the same interval records real bounding-box corners and checks all three exact pet identities; visible/unculled state; normal Near60 motion; unchanged camera; actual full-box safe frame; maximum largest dimension 1.81; existing per/combined screen-area estimates ≤0.18/0.35; avatar-center spacing ≥24; avatar/pet and pet/pet projected overlap ≤8%; and pet world-center spacing ≥1.45. The first and final observations, extrema, and first failure are retained. At least 30 frame intervals and 30 geometry observations are required, with no dropped/invalid samples or failed geometry observations. This is sampled geometry evidence, not a claim that every render interval receives a geometry audit.
+
+Packing attempts/order remain unpublished local production state. The result explicitly records their frequency as unavailable. The peer review's temporary canonical-orientation mock counted 105 projection calls per successful fallback and 114 across the tested six-order no-fit case; those operation counts are not native timing measurements or a worst-case global solver guarantee.
+
+Cleanup runs before evidence writing and attempts remaining stages independently after a failure. It disconnects native observers and restores the camera, stops only the Play session it attempted to start, verifies Server/Client absence, restores simulator options, removes the unique preset, and closes MCP. A failed guard, cleanup, postflight, or evidence write produces a nonzero exit. Existing evidence is never overwritten.
+
+Offline verification:
+
+```powershell
+node work/automation/scripts/studio-premium-pet-profile.mjs --self-test
+node --check work/automation/scripts/studio-premium-pet-profile.mjs
+git diff --check
+```
+
+Result: **28 Node guards, eight compiled production Luau snippets, 23 executed metric/geometry predicate controls, 11 executed actual seed controls, and five detected weakening controls**. Controls reject pending/failed entitlement reconciliation before any grants, writable/live-data profiles, invalid catalog items, failed grants, corrupt readback/order, calm motion, geometric violations, sample loss, insufficient duration, changed context, fabricated packing frequency and cleanup short-circuiting. Existing sessions and ambiguous execution-bridge failures cannot be mistaken for an absent Play session. No Studio session was used by this worker.
+
+Coordinator command from the integrated checkout (replace the two explicit Studio values with the verified live target):
+
+```powershell
+node work/automation/scripts/studio-premium-pet-profile.mjs --studio-id ACTUAL_ID --studio-name PunchWallRPGPlayable_v1_final.rbxlx --evidence-leaf smash-premium-pet-narrow-profile-20260906
+```
+
+The native measurement is **pending**. Its result should be reported as the measured distribution with actual viewport, geometry validity and source binding, without adding an unsupported performance threshold or final-artifact claim.
