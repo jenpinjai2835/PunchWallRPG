@@ -962,3 +962,38 @@ exactly (`smash-premium-exact-resolution-check-20260906.json`). Agent2 accepted
 the read-only review of34d2b691; root integrated it. The official enum page
 establishes API availability; the native comparison supports this fixture
 correction. Agent3's focused CPU test slot is now open with native Play stopped.
+
+### September 6, 14:13 ICT — narrow menus reviewed and integrated
+
+Agent3's e290faba implements48px-wide menu targets, authored icon ratios,
+four-pixel spacing and twelve-pixel safe margins on narrow desktops. Generic
+Tasks/More windows now cap their dimensions to the actual viewport minus24px,
+preserving their scrollable content and44px actions. Existing full-game native
+input gates remain unchanged; the right-menu flow additionally checks six
+actual open routes and the modal flow verifies scrolling to the last action.
+
+Root and Agent2 review caught a newly introduced reversed clamp on the reachable
+Desktop1920x180 viewport and on transient zero-size modal layout. Agent3 fixed
+only the two helpers in2b26796: infeasible grids use the prior authored fallback;
+collapsed modal geometry stays finite and explicitly reports that twelve-pixel
+margins cannot fit. Accepted feasible formulas are unchanged. The actual-source
+contract passed440 normal and161 edge checks,14 weakening mutations and47
+compilations including client O0/O1/O2. The old e290 clamp failures are reproduced
+as historical negative controls. Agent2 accepted the final bounded correction.
+
+Root merged the worker history to retain reachable e290faba for those controls,
+then registered narrow-menu-layout-contract in the combined static gate. The
+merge introduces exactly the four owned narrow-UI files; previous camera and
+Jump changes already match the integrated copies. Native tests and the fresh
+combined gate are pending. Agent1 is preparing an additional recorded observation
+of whole-workload frame intervals around the unchanged18-punch tunnel checks;
+this will not claim an isolated timing for the camera algorithm.
+
+The fresh full-run orchestration helper also received independent Agent1 review.
+Root corrected live process/start-time/staged-disk binding, durable attempted
+rows on invocation failure and rejection of untracked source/automation files.
+The reviewed helper passes PowerShell AST parsing; actual execution and its
+new-schema native-open proof remain pending. Details are recorded in
+`smash-full-harness-review-20260906.json`. Old Studio source85 still matches its
+nine durable source files (`smash-before-source-review-r2-open-20260906.json`).
+Canonical output remains605A4F70; no recovery files have been moved or deleted.

@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "scope": "Read-only orchestration review plus PowerShell AST parse; native execution pending",
+  "file": "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-frozen-full-suite-r2.ps1",
+  "sha256": "74743EABC3261FE012AE2D57EEFC4757C52F7FD95652977258597F91CF20A8E0",
+  "reviewer": "Agent1",
+  "reviewedAt": "2026-09-06T07:09:18.7257543Z",
+  "correctedFindings": [
+    "Require live RobloxStudioBeta PID/start time/executable and unchanged staged disk hash at preflight, each flow and completion",
+    "Retain attempted flow row/error/log before explicit infrastructure abort; continue ordinary recorded test failures",
+    "Check Git exit codes and reject tracked/untracked including ignored source and automation changes"
+  ],
+  "requiredRuntime": [
+    "Fresh native-open proof matching live UUID/PID/start/executable/staged SHA",
+    "All discovered recorded flows with no exclusions",
+    "Frozen source/automation inventory and exact read-only nine-source comparison before and after"
+  ]
+}
