@@ -369,6 +369,7 @@ $additionalStaticContracts = @(
     @{ file = "client-startup-deadline-contract.mjs"; key = "clientStartupDeadlineContract" },
     @{ file = "profile-flow-isolation-contract.mjs"; key = "profileFlowIsolationContract" },
     @{ file = "camera-device-diagnostics-contract.mjs"; key = "cameraDeviceDiagnosticsContract" },
+    @{ file = "radial-fixture-contract.mjs"; key = "radialFixtureContract" },
     @{ file = "narrow-shop-readability-contract.mjs"; key = "narrowShopReadabilityContract" },
     @{ file = "product-completeness-contract.mjs"; key = "productCompletenessContract" },
     @{ file = "quiet-visual-oracle-contract.mjs"; key = "quietVisualOracleContract" },
