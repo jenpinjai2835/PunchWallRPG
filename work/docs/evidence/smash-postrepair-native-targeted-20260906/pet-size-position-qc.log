@@ -1,0 +1,46 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "be1067b9-90ed-414f-8f5c-12f467f114bc",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "cleanup stop play",
+        "cleanup pet framing simulator presets"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"valid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"totalSamples\":55,\"lateObservation\":{\"move\":8.10512924194336,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.9296471999987261,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"late\",\"ready\":true},\"samples\":[{\"at\":0.012882399998488836,\"move\":0,\"motionHz\":20},{\"at\":0.031016100001579617,\"move\":0,\"motionHz\":20},{\"at\":0.04573990000062622,\"move\":0,\"motionHz\":20},{\"at\":0.06280839999817545,\"move\":0,\"motionHz\":20},{\"at\":0.07982330000231741,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.09678949999943143,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.11269819999870379,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.12954030000400963,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.14758440000150586,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.16300910000427394,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.17989769999985584,\"move\":5.679381370544434,\"motionHz\":20},{\"at\":0.9126439000028768,\"move\":8.10512924194336,\"motionHz\":20}],\"smoothing\":\"ExponentialCFrame\",\"earlyObservation\":{\"move\":0,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.06277540000155568,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"early\",\"ready\":true},\"cleanupRestored\":true,\"watchdogTimedOut\":false,\"droppedSamples\":43,\"late\":8.10512924194336,\"initial\":{\"move\":0,\"rootMove\":0,\"anchored\":false,\"cameraDistance\":18.13394546508789,\"at\":0.000007200003892648965,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"before\",\"ready\":true},\"early\":0,\"ready\":true}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.443556785583496,\"screen\":0.005793626644727954,\"largest\":1.5991053581237794,\"x\":-3.019773006439209,\"count\":1,\"z\":1.0855712890625,\"policy\":\"Normal\",\"y\":1.2492358684539796,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.2043371200561525,\"rows\":[{\"y\":0.9569575786590576,\"x\":-3.0725364685058595,\"z\":1.085561752319336,\"screen\":0.005662910563090238,\"largest\":1.599105954170227},{\"y\":1.2481911182403565,\"x\":3.01505708694458,\"z\":1.0855445861816407,\"screen\":0.006153893005834383,\"largest\":1.6500000953674317},{\"y\":1.630202054977417,\"x\":-4.7587738037109379,\"z\":2.335540771484375,\"screen\":0.006911710163673845,\"largest\":1.6499998569488526}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\",\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.800001859664917,\"combined\":0.022879247031348569,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.007989058246144631,\"viewportY\":801,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.7999999523162842,\"combined\":0.0101453385493587,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.003499681626525373,\"viewportY\":801,\"minAvatarSeparation\":99,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.800001859664917,\"combined\":0.08339454282556883,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.02950368440388316,\"viewportY\":801,\"minAvatarSeparation\":99,\"visible\":3}},\"contractValid\":true}",
+        "premiumScreenSeparation": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,4.875312328338623,-25.966060638427736],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":801,\"requestedFocusDelta\":7.979602336883545,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.5935550928115845,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,5.262808799743652,-19.984895706176759],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":801,\"requestedFocusDelta\":1.986396074295044,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.6064302921295167,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"6\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":801,\"requestedFocusDelta\":13.959304809570313,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.5616616010665894,\"focusPolicy\":\"ObservedStudio20StudPlane\"}},\"formation\":\"BoundsAwarePremiumFormationV2\",\"failures\":[],\"contractValid\":true}",
+        "premiumSafeFrame": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":8.01},\"18\":{\"valid\":true,\"samples\":20,\"inset\":8.01},\"6\":{\"valid\":true,\"samples\":20,\"inset\":8.01}},\"safe\":true,\"failures\":[],\"contractValid\":true}",
+        "premiumFollowMotion": "{\"valid\":false,\"totalSamples\":55,\"lateObservation\":{\"move\":8.10512924194336,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.9296471999987261,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"late\",\"ready\":true},\"samples\":[{\"at\":0.012882399998488836,\"move\":0,\"motionHz\":20},{\"at\":0.031016100001579617,\"move\":0,\"motionHz\":20},{\"at\":0.04573990000062622,\"move\":0,\"motionHz\":20},{\"at\":0.06280839999817545,\"move\":0,\"motionHz\":20},{\"at\":0.07982330000231741,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.09678949999943143,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.11269819999870379,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.12954030000400963,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.14758440000150586,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.16300910000427394,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.17989769999985584,\"move\":5.679381370544434,\"motionHz\":20},{\"at\":0.9126439000028768,\"move\":8.10512924194336,\"motionHz\":20}],\"smoothing\":\"ExponentialCFrame\",\"earlyObservation\":{\"move\":0,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.06277540000155568,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"early\",\"ready\":true},\"cleanupRestored\":true,\"watchdogTimedOut\":false,\"droppedSamples\":43,\"late\":8.10512924194336,\"initial\":{\"move\":0,\"rootMove\":0,\"anchored\":false,\"cameraDistance\":18.13394546508789,\"at\":0.000007200003892648965,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"before\",\"ready\":true},\"early\":0,\"ready\":true}"
+      }
+    }
+  ]
+}

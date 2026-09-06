@@ -1,0 +1,61 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "narrow-desktop-menu-real-input",
+      "selectedStudio": {
+        "id": "be1067b9-90ed-414f-8f5c-12f467f114bc",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "create owned 637x654 ActualResolution desktop",
+        "start play",
+        "wait for right HUD",
+        "verify explicit narrow desktop before menu assertions",
+        "right HUD actions share one uniform icon grid",
+        "right HUD art uses equal optical bounds without stretching",
+        "precheck actual InventoryButton hitbox",
+        "native click InventoryButton",
+        "verify actual InventoryButton route",
+        "precheck actual ShopButton hitbox",
+        "native click ShopButton",
+        "verify actual ShopButton route",
+        "precheck actual PetsButton hitbox",
+        "native click PetsButton",
+        "verify actual PetsButton route",
+        "precheck actual QuestsButton hitbox",
+        "native click QuestsButton",
+        "verify actual QuestsButton route",
+        "precheck actual RebirthButton hitbox",
+        "native click RebirthButton",
+        "verify actual RebirthButton route",
+        "precheck actual MoreTool hitbox",
+        "native click MoreTool",
+        "verify actual MoreTool route",
+        "cleanup stop play",
+        "restore previous simulator and remove owned narrow device"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:5: rendered bounds outside safe host: {\"visible\":true,\"safe\":[0,-58,637,654],\"name\":\"SettingsWindow\",\"actual\":[-1.5,59,640,420]}",
+      "context": {
+        "narrowDesktopSetup": "{\"ok\":true,\"previous\":{\"id\":\"default\",\"active\":false},\"name\":\"Smash Narrow Menu 7e1c3fbc-3609-4525-8273-d54a9533273f\",\"id\":\"Smash Narrow Menu 7e1c3fbc-3609-4525-8273-d54a9533273f\"}",
+        "narrowDesktopEnvironment": "{\"ok\":true,\"actualViewport\":[637,654],\"uiScale\":1,\"owned\":true,\"layout\":\"NarrowDesktopUniformIconGridV1\",\"full\":[637,654],\"resolution\":[637,654],\"profile\":\"Desktop\",\"deviceName\":\"Smash Narrow Menu 7e1c3fbc-3609-4525-8273-d54a9533273f\",\"safe\":[0,-58,637,654],\"device\":\"Smash Narrow Menu 7e1c3fbc-3609-4525-8273-d54a9533273f\"}",
+        "rightMenuGeometry": "{\"declaredSize\":\"48x61.241379\",\"safeBounds\":true,\"horizontalGap\":4.189189910888672,\"allFiveTargets\":true,\"sameSize\":true,\"ok\":true,\"sameTop\":true,\"layout\":\"NarrowDesktopUniformIconGridV1\",\"sameRenderedSize\":true,\"evenGaps\":true,\"viewportHeight\":654,\"petsQuestsGap\":5,\"minTarget\":47.27927780151367,\"viewportWidth\":637,\"shopPetsGap\":4,\"declaredGap\":4,\"sameColumn\":true}",
+        "nativeInventoryButton": "{\"ok\":true,\"activeWindow\":\"\",\"activeTab\":\"Inventory\",\"target\":\"InventoryButton\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"All\"}",
+        "nativeShopButton": "{\"ok\":true,\"activeWindow\":\"\",\"activeTab\":\"Fists\",\"target\":\"ShopButton\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"All\"}",
+        "nativePetsButton": "{\"ok\":true,\"activeWindow\":\"\",\"activeTab\":\"Inventory\",\"target\":\"PetsButton\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"Pets\"}",
+        "nativeQuestsButton": "{\"ok\":true,\"activeWindow\":\"\",\"activeTab\":\"Tasks\",\"target\":\"QuestsButton\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"Pets\"}",
+        "nativeRebirthButton": "{\"ok\":true,\"activeWindow\":\"Rebirth\",\"activeTab\":\"Tasks\",\"target\":\"RebirthButton\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"Pets\"}",
+        "nativeMoreTool": "{\"ok\":true,\"activeWindow\":\"\",\"activeTab\":\"Tasks\",\"target\":\"MoreTool\",\"routeOk\":true,\"activated\":true,\"inventoryCategory\":\"Pets\"}",
+        "narrowDesktopFailureRestore": "{\"ok\":true,\"removed\":1,\"restored\":\"default\"}"
+      }
+    }
+  ]
+}

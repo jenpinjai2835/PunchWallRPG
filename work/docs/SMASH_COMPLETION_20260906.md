@@ -1046,3 +1046,53 @@ Agent3 therefore owns one additional explicit637x654 native-input flow, preservi
 the original six menu routes and approved Tasks end-scroll check. This pending
 QA-only addition must be compiled/reviewed and included in final flow coverage.
 No final native acceptance run has started yet; canonical output is unchanged.
+
+### September 6, 14:54 ICT — targeted native results and remaining defects
+
+The explicit637x654 ActualResolution flow be1ec995 was integrated as59ad454.
+Combined static R3 passes52/53 contracts (only the declared runtime inventory
+benchmark excluded),83 JavaScript files,21 PowerShell files,9 source files at
+three optimization levels, and131 flow definitions. The native targeted batch
+at59ad454 ran all20 cases from14:38:17 to14:47:54:18PASS,2FAIL, no interruption,
+with all nine live source files equal before and after. It is preserved in
+`smash-postrepair-native-targeted-20260906/`; this is not a full-suite pass.
+
+All camera cases in that batch pass, including the previously failing tunnel
+and phone-depth20 cases. The additional tunnel observer records1161 intervals
+over19.45 sampled seconds: p50=16.701ms, p95=18.846ms, p99=27.911ms,
+max=42.150ms, zero over50/100ms. The observer completes and disconnects without
+overflow or timeout. These are whole-workload Studio frame intervals, including
+MCP gaps, with unknown foreground state; they do not measure isolated camera
+CPU time or establish physical-phone performance. The other passing cases
+include real UI routes, menu layout, safe-modal checks at the default viewport,
+Honor, Inventory category/fusion, ambient motion, phone objective, product
+availability, Premium exact-resolution fixtures, and the original Jump gate.
+
+The new narrow flow initially stopped at a test-fixture defect: its client guard
+read persistence flags on Workspace, while Bootstrap creates them on
+Workspace.PunchWallRPG. Agent3 corrected only the actual owner in8df352c,
+preserving all strict values, player guards, ownership cleanup, geometry and
+native clicks. Nine actual-producer controls and compilation passed; Agent2
+accepted the correction. Both original implementation and peer reviews missed
+that owner; the failed native result remains recorded. Integrated asb7b6663.
+
+The second narrow run now proves actual637x654 geometry, the uniform minimum
+47.28px hitboxes and all six real Activated routes. Its final preserved safe-area
+step then finds a real remaining defect: SettingsWindow is640px wide with
+left=-1.5 in a637px safe host. Agent3 owns a bounded Settings source correction;
+the failure and successful earlier gates are retained in
+`smash-narrow-desktop-native-r2-20260906.json`.
+
+The pet flow still fails intermittently at the original early-follow gate.
+New bounded evidence has no movement at62.775ms, first observed movement at
+79.823ms and8.105stud movement at929.647ms, with a20Hz update policy, the same
+character and the expected8stud root shift. Bounds, visibility, avatar/pet
+separation and cleanup pass. Agent1 is examining actual update cadence versus
+the unsynchronized50ms observation before any remedy is selected. Prior
+isolated passes do not supersede this repeated failure. Full regression and
+canonical artifact gates remain blocked pending these corrections.
+
+Agent3 also checked the Thai guide against59ad454; root clarified contribution
+rewards versus full block XP/depth credit and the actual Rebirth reset of
+Power25/Coins0/WallLevel1/WallXP0 (fresh players start at Power15). New co-op
+encounters and a whole-economy rebalance remain explicitly proposed work.
