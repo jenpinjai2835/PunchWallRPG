@@ -164,11 +164,17 @@ edge=deterministic('normal')edge.late.move=11 check(not followMotionValid(edge,i
 print('PASS '..n)
 `;
 const lifecycle=`
-local function runFlow(mode,originalAnchored)
+local function runFlow(mode,originalAnchored,injectionAt)
  local clock=0 local os={clock=function()return clock end}local conn,watchdog,lastResult local disconnects,cancels=0,0
- local character={}local rootPart=setmetatable({_cf=frame(0),Anchored=originalAnchored,Parent=character},{
-  __index=function(t,k)if k=='CFrame'then return rawget(t,'_cf')elseif k=='Position'then return rawget(t,'_cf').Position end end,
-  __newindex=function(t,k,v)if k=='CFrame'then rawset(t,'_cf',v)else rawset(t,k,v)end end})
+ local injected=false local restorationAttempts=0
+ local character={}local rootPart=setmetatable({_cf=frame(0),_anchored=originalAnchored,Parent=character},{
+  __index=function(t,k)if k=='CFrame'then return rawget(t,'_cf')elseif k=='Position'then return rawget(t,'_cf').Position elseif k=='Anchored'then return rawget(t,'_anchored')end end,
+  __newindex=function(t,k,v)
+   if k=='CFrame'then rawset(t,'_cf',v)
+   elseif k=='Anchored'then
+    if mode=='failed-restoration' and injected and v==originalAnchored then restorationAttempts+=1 else rawset(t,'_anchored',v)end
+   else rawset(t,k,v)end
+  end})
  function character:FindFirstChild(name)return name=='HumanoidRootPart' and rootPart end
  local p={Character=character,Name='Fixture'}local m=model(0)local folder={}local pet={Parent=folder}
  function pet:GetAttribute(k)if k=='PetDefinitionName'then return 'Celestial Guardian' elseif k=='SmoothFollowReady'then return true elseif k=='CompanionMotionHz'then return 20 elseif k=='FollowSmoothing'then return 'ExponentialCFrame'end end
@@ -198,13 +204,27 @@ local function runFlow(mode,originalAnchored)
   end
   if mode~='frozen' then producer(m,1/60,frame(rootPart.Position.X),20)end
   if mode~='watchdog' and conn and conn.Connected then conn.callback(1/60)end
+  -- Inject only after the actual normal control's final capture, while its
+  -- waiting task has not resumed cleanup; the character object stays alive.
+  if injectionAt and not injected and clock>=injectionAt then
+   injected=true
+   if mode=='post-late-root-removal'then rootPart.Parent=nil end
+  end
   if coroutine.status(co)=='dead'then break end
  end
  check(coroutine.status(co)=='dead','flow has bounded completion')
  check(lastResult~=nil,'flow exports durable result')
- check(rootPart.Anchored==originalAnchored and conn and not conn.Connected and disconnects==1,'success/failure/watchdog restore original anchor and disconnect exactly once')
+ check(conn and not conn.Connected and disconnects==1,'success/failure/watchdog disconnect exactly once')
  check(cancels==1 and watchdog.cancelled,'watchdog cancelled after completion')
- check(lastResult.cleanupRestored==true,'actual cleanup attested')
+ if injectionAt then
+  check(injected and p.Character==character and lastResult.lateObservation.at==injectionAt,'failure injected strictly after the captured late sample, without replacing character')
+  check(lastResult.lateObservation.sameRoot==true and lastResult.lateObservation.anchored==true,'all captured identity and root gates passed before cleanup failure')
+  check(lastResult.valid==false and lastResult.cleanupRestored==false and not lastResult.watchdogTimedOut,'cleanup failure must invalidate an otherwise completed motion result')
+  if mode=='failed-restoration'then check(restorationAttempts==1 and rootPart.Parent==character and rootPart.Anchored~=originalAnchored,'failed restoration readback is actual, not a removed root proxy')end
+ else
+  check(rootPart.Anchored==originalAnchored,'success/failure/watchdog restore original anchor')
+  check(lastResult.cleanupRestored==true,'actual cleanup attested')
+ end
  check(#lastResult.samples<=12 and (lastResult.droppedSamples==nil or lastResult.droppedSamples>=0),'bounded retained diagnostics')
  if mode=='normal'then
   check(lastResult.valid==true and not lastResult.watchdogTimedOut,'normal complete flow passes')
@@ -213,7 +233,10 @@ local function runFlow(mode,originalAnchored)
  else check(lastResult.valid==false and not lastResult.watchdogTimedOut,'frozen producer or observation error cannot pass')end
  return lastResult
 end
-runFlow('normal',false)runFlow('normal',true)runFlow('frozen',false)runFlow('error',false)runFlow('watchdog',false)
+local completed=runFlow('normal',false)
+runFlow('normal',true)runFlow('frozen',false)runFlow('error',false)runFlow('watchdog',false)
+runFlow('post-late-root-removal',false,completed.lateObservation.at)
+runFlow('failed-restoration',false,completed.lateObservation.at)
 print('PASS '..n)
 `;
 try{
@@ -253,6 +276,7 @@ try{
   ['wrong-anchor-restore','root.Anchored=originalAnchored','root.Anchored=true'],
   ['no-watchdog-cancel','pcall(task.cancel,watchdog)','do end'],
   ['late-watchdog','task.delay(2,','task.delay(20,'],
+  ['old-cleanup-diagnostic-only','result.valid=result.valid and result.cleanupRestored','do end'],
  ]){assert.ok(code.includes(from),label);run(`mutation-${label}`,setup+lifecycle.replace('FLOW_CODE',code.replace(from,to)),true);}
  console.log(JSON.stringify({ok:true,baseline,unchangedFlowOutsideObserver:true,compiled,executedAssertions:executed,compilingMutationsRejected:mutations,phaseCases:880,scope:'Exact production cadence/smoothing plus extracted observer and full flow lifecycle; no native runtime claim.'},null,2));
 }finally{
