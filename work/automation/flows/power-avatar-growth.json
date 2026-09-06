@@ -165,6 +165,26 @@
     {
       "type": "call",
       "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerBefore",
+      "label": "observe server punch state before growth camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientBefore",
+      "label": "observe client punch state before growth camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
       "saveAs": "cameraGrowth",
       "args": {
         "datamodel_type": "Client",
@@ -180,6 +200,26 @@
         "\"visualValid\"\\s*:\\s*true"
       ],
       "label": "maximum-size hero remains fully framed by the live camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerAfter",
+      "label": "observe server punch state after growth camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientAfter",
+      "label": "observe client punch state after growth camera"
     },
     {
       "type": "call",
@@ -257,6 +297,28 @@
     }
   ],
   "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerCleanup",
+      "allowError": true,
+      "label": "observe server punch state before growth cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientCleanup",
+      "allowError": true,
+      "label": "observe client punch state before growth cleanup"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
