@@ -29,6 +29,13 @@ const previousCatch=between(oldRunner,'    for (const action of flow.cleanup ?? 
 const newCatch=between(runner,'    const cleanup = await runFailureCleanup(', '    return {\n      ok: false');
 assert.equal(runner.replace(cleanupSource,'').replace(newCatch,previousCatch).replace('      cleanup,\n',''),oldRunner,'Runner changed outside failure cleanup reporting');
 const source=read('work/punch-wall-rpg/src/client/PunchWallClient.client.lua');
+const inventorySource=read('work/punch-wall-rpg/src/client/InventoryUI.lua');
+const inventorySnapshotSource=between(inventorySource,'function InventoryUI:GetSnapshot()', 'function InventoryUI:Destroy()');
+const clientSnapshotSource=between(source,'local function clientSnapshot()', '\t\tfunction purchaseTestRuntime.ResolveCatalog(');
+const sparseLimit=inventorySource.match(/^local MAX_SPARSE_SLOT_PLACEHOLDERS = (\d+)$/m)?.[1];
+assert(sparseLimit && inventorySource.includes('self._snapshot = nil'));
+assert(between(inventorySource,'function InventoryUI:SetVisible(', 'function InventoryUI:IsVisible(').includes('if visible then\n\t\tself:Refresh(true, false)'));
+assert(clientSnapshotSource.includes('inventory = inventory and inventory:GetSnapshot() or nil'));
 assert(source.includes('latestStats = payload') && source.includes('widgets.PowerValue.Text = formatNumber(payload.EffectivePower or payload.Power or 0)'));
 assert(source.includes('widgets.CoinsValue.Text = formatNumber(payload.Coins or 0)') && source.includes('gui:SetAttribute("OnboardingTutorialVersion", tonumber(payload.TutorialVersion) or 0)'));
 assert(source.includes('if action == "Snapshot" then return clientSnapshot() end'));
@@ -140,6 +147,9 @@ for(const [label,from,to]of [
 
 const program=startup.args.code;
 const mocks=String.raw`
+local InventoryUI={}
+local MAX_SPARSE_SLOT_PLACEHOLDERS=__SPARSE_LIMIT__
+__INVENTORY_SNAPSHOT__
 local count=0
 local function check(ok,message)assert(ok,message)count+=1 end
 local function scenario(kind)
@@ -165,10 +175,43 @@ local function scenario(kind)
  local power=add(hud,node('PowerValue','TextLabel'))power.Text='15'
  local coins=add(hud,node('CoinsValue','TextLabel'))coins.Text='0'
  local a=add(gui,node('PunchWallClientAutomation','BindableFunction'))
+ -- Exact GetSnapshot and clientSnapshot producers, with unrelated GUI geometry readers stubbed.
+ -- Cold inventory retains the constructor's nil snapshot and empty item/action collections.
+ local inventory=setmetatable({Root=node('InventoryRoot','Frame'),Capacity=node('Capacity','TextLabel'),RarityMenu=node('RarityMenu','Frame'),
+  _diagnosticSnapshotCount=0,_diagnosticSnapshotSkipCount=0,_visibleItems={},_activeActionButtons={},_cards={},_cardConnections={},_actionConnections={},
+  _snapshot=nil,_selectedItem=nil,_layout={},GameConfig={MaxPetInventory=50},_activeCardCount=0,_activeSparseSlotCount=0,_actionCreateCount=0,
+  _minimumTouchTarget=function()return 44 end,_textFits=function()return true end,_insideSafeArea=function()return true end,_layoutHasNoOverlap=function()return true end,
+  IsVisible=function(self)return self.Root.Visible end,Refresh=function()error('Startup must not initialize or open Inventory')end}, {__index=InventoryUI})
+ inventory.Root.Visible=false
+ if kind=='warm_inventory'then inventory._snapshot={capacity={used=0,total=50}}end
+ local player=p
+ local rootPart=node('HumanoidRootPart','Part')rootPart.Position={X=0,Y=3,Z=0}
+ p.Character=node('Character','Model')add(p.Character,rootPart)
+ local workspace={CurrentCamera={ViewportSize={X=637,Y=654},CameraType={Name='Custom'}}}
+ local mainPanel={Visible=false}
+ local activeTab='Shop'
+ local clientSettings={sound=true,motion=true,uiScale=1}
+ local shared={PunchWallInventoryController=kind~='missing_inventory' and inventory or nil,
+  PunchWallStandaloneWindows={RebirthPanel={Visible=false},SettingsPanel={Visible=false}}}
+ __CLIENT_SNAPSHOT__
  function a:Invoke(command)
   check(command=='Snapshot','observer issued mutating command')snapshotCalls+=1
   if kind=='snapshot_error'then error('injected snapshot failure')end
-  return {ok=kind~='snapshot_not_ready',inventory={ok=true},viewport={x=637,y=654},position={x=0,y=3,z=0}}
+  local result=clientSnapshot()
+  if result.inventory then
+   check(result.inventory.ok==(kind=='warm_inventory') and result.inventory.visible==false,'actual lazy Inventory result must be unchanged')
+   check(#result.inventory.visibleKeys==0 and #result.inventory.visibleNames==0 and result.inventory.selected==nil,'empty Inventory result is unsafe')
+   check(result.inventory.capacity.used==0 and result.inventory.capacity.max==50,'safe empty capacity defaults changed')
+  end
+  if kind=='snapshot_missing'then return nil end
+  if kind=='snapshot_not_ready'then result.ok=false end
+  if kind=='viewport_missing'then result.viewport=nil end
+  if kind=='viewport_one'then result.viewport.x=1 end
+  if kind=='viewport_nonfinite'then result.viewport.y=0/0 end
+  if kind=='position_missing'then result.position=nil end
+  if kind=='position_empty'then result.position={} end
+  if kind=='position_nonfinite'then result.position.z=math.huge end
+  return result
  end
  local stats=add(p,node('RPGStats','Folder'))
  for name,value in pairs({Power=15,Coins=0,Depth=0,WallLevel=1})do local stat=add(stats,node(name,'NumberValue'))stat.Value=value end
@@ -225,7 +268,7 @@ local function scenario(kind)
  end
  local called,result=pcall(run)
  check(called,'actual startup flow raised instead of returning bounded diagnostics')
- local expected=kind=='ready' or kind=='delayed'
+ local expected=kind=='ready' or kind=='delayed' or kind=='warm_inventory' or kind=='missing_inventory'
  check(result.ok==expected,'startup readiness verdict differs: '..kind)
  check(time<=25.1,'startup wait exceeded its fixed bound')
  if kind~='disconnect_failure'then
@@ -234,6 +277,9 @@ local function scenario(kind)
  else check(result.observerDisconnected==false,'failed disconnect accepted')end
  if expected then
   check(result.authoritativeSnapshotReceived and result.authoritativeValuesMatch and result.hudReflectsSnapshot and result.clientSnapshotReady and snapshotCalls>0,'missing actual authoritative/UI proof')
+  check(result.snapshotExists==true and result.snapshotOk==true and result.viewportReady==true and result.positionReady==true,'positive Snapshot component diagnostic missing')
+  check(result.inventoryExists==(kind~='missing_inventory') and result.inventoryInitialized==(kind=='warm_inventory') and result.inventoryVisible==false,'lazy state diagnostic is incorrect')
+  check(result.snapshotViewport.x==637 and result.snapshotViewport.y==654 and result.snapshotPosition.x==0 and result.snapshotPosition.y==3 and result.snapshotPosition.z==0,'actual viewport/position diagnostics lost')
   check(not result.timedOut,'positive startup marked timed out')
  else
   check(result.ok==false,'invalid startup accepted')
@@ -242,11 +288,18 @@ local function scenario(kind)
  end
  if kind=='replace_stale'then check(#connections==2 and result.observedSnapshots>0 and result.authoritativeValuesMatch==false,'old folder callback or payload reused')end
  if kind=='no_payload'then check(snapshotCalls==0,'readiness manufactured without real StatsChanged')end
+ if kind=='snapshot_missing'then check(result.snapshotExists==false and result.snapshotOk==false and result.inventoryExists==false,'missing Snapshot diagnostics wrong')end
+ if kind=='snapshot_not_ready'then check(result.snapshotExists==true and result.snapshotOk==false and result.viewportReady==true and result.positionReady==true,'top-level Snapshot failure was not isolated')end
+ if kind:find('viewport_',1,true)==1 then check(result.viewportReady==false and result.positionReady==true and result.snapshotOk==true,'viewport failure was not isolated')end
+ if kind:find('position_',1,true)==1 then check(result.positionReady==false and result.viewportReady==true and result.snapshotOk==true,'position failure was not isolated')end
+ if kind=='viewport_nonfinite'then check(result.snapshotViewport.y==nil,'nonfinite viewport leaked into JSON diagnostics')end
+ if kind=='position_nonfinite'then check(result.snapshotPosition.z==nil,'nonfinite position leaked into JSON diagnostics')end
+ check((inventory._snapshot~=nil)==(kind=='warm_inventory') and inventory.Root.Visible==false,'observer initialized or opened Inventory')
  return result
 end
-for _,kind in ipairs({'ready','delayed','missing_feedback','wrong_remote_class','no_payload','stale_power','missing_tutorial_version','bad_authority','invalid_payload','profile_not_ready','snapshot_not_ready','snapshot_error','read_error','disconnect_failure','replace_stale','replaced_player'})do scenario(kind)end
+for _,kind in ipairs({'ready','delayed','warm_inventory','missing_inventory','missing_feedback','wrong_remote_class','no_payload','stale_power','missing_tutorial_version','bad_authority','invalid_payload','profile_not_ready','snapshot_not_ready','snapshot_missing','viewport_missing','viewport_one','viewport_nonfinite','position_missing','position_empty','position_nonfinite','snapshot_error','read_error','disconnect_failure','replace_stale','replaced_player'})do scenario(kind)end
 print('CLIENT_STARTUP_OBSERVATION_PASS='..count)
-`;
+`.replace('__SPARSE_LIMIT__',()=>sparseLimit).replace('__INVENTORY_SNAPSHOT__',()=>inventorySnapshotSource).replace('__CLIENT_SNAPSHOT__',()=>clientSnapshotSource);
 const wrapped=program.replace('local encoded=H:JSONEncode(result)\nassert(#encoded<3500,\'client startup diagnostic exceeds evidence bound\')\nreturn encoded','return H:JSONEncode(result)');
 assert.notEqual(wrapped,program,'Only JSON encoding boundary may be adapted for Luau mocks');
 const luau=process.env.LUAU_COMMAND || fs.readdirSync(os.tmpdir()).filter(n=>n.startsWith('codex-luau-')).sort().reverse().map(n=>path.join(os.tmpdir(),n,'luau.exe')).find(p=>fs.existsSync(p));
@@ -257,15 +310,33 @@ function execute(label,text,expectedFailure=false){
  const file=path.join(temp,label+'.luau');fs.writeFileSync(file,text);
  const compile=spawnSync(compiler,['--null',file],{encoding:'utf8',timeout:15000});assert.equal(compile.status,0,compile.stderr);compiled++;
  const run=spawnSync(luau,[file],{encoding:'utf8',timeout:15000});
- if(expectedFailure)assert.notEqual(run.status,0,label+' mutation survived');else assert.equal(run.status,0,run.stderr+run.stdout);
+ if(expectedFailure){
+  assert.notEqual(run.status,0,label+' mutation survived');
+  if(typeof expectedFailure==='string')assert((run.stderr+run.stdout).includes(expectedFailure),label+' failed for the wrong reason: '+run.stderr+run.stdout);
+ }else assert.equal(run.status,0,run.stderr+run.stdout);
  return run.stdout;
 }
 try{
  const productionOutput=execute('client-startup',mocks.replace('__PROGRAM__',()=>wrapped));
+ const historicalRun=spawnSync('git',['show','4adf4fda3e503acdbe20e52316e05c89851a5e62:'+flowPath],{cwd:root,encoding:'utf8'});
+ assert.equal(historicalRun.status,0,historicalRun.stderr);
+ const historicalStartup=JSON.parse(historicalRun.stdout).steps.find(s=>s.saveAs==='clientStartupReady');
+ const currentMetadata=structuredClone(startup),historicalMetadata=structuredClone(historicalStartup);
+ delete currentMetadata.args.code;delete historicalMetadata.args.code;
+ assert.deepEqual(currentMetadata,historicalMetadata,'Startup timeout, Client mode or acceptance assertions changed');
+ const historicalProgram=historicalStartup.args.code;
+ const historicalWrapped=historicalProgram.replace("local encoded=H:JSONEncode(result)\nassert(#encoded<3500,'client startup diagnostic exceeds evidence bound')\nreturn encoded",'return H:JSONEncode(result)');
+ execute('historical-cold-inventory',mocks.replace('__PROGRAM__',()=>historicalWrapped),'startup readiness verdict differs: ready');
  for(const [label,from,to]of [
   ['waive_snapshot_payload','valuesMatch and finite(payload.EffectivePower)','true and finite(payload.EffectivePower)'],
   ['waive_hud_power','power.Text==formatNumber(payload.EffectivePower)','true'],
   ['waive_snapshot_readiness','snapshot.ok==true','true'],
+  ['require_lazy_inventory_initialization','local snapshotReady=snapshotOk and viewportReady and positionReady','local snapshotReady=snapshotOk and inventoryInitialized and viewportReady and positionReady'],
+  ['waive_viewport_readiness','local snapshotReady=snapshotOk and viewportReady and positionReady','local snapshotReady=snapshotOk and positionReady'],
+  ['waive_position_readiness','local snapshotReady=snapshotOk and viewportReady and positionReady','local snapshotReady=snapshotOk and viewportReady'],
+  ['weaken_viewport_minimum','viewport.x>1','viewport.x>=1'],
+  ['accept_nonfinite_position',"local positionReady=finite(position.x) and finite(position.y) and finite(position.z)","local positionReady=type(position.x)=='number' and type(position.y)=='number' and type(position.z)=='number'"],
+  ['invent_inventory_diagnostic','inventoryInitialized=inventoryInitialized,inventoryVisible=inventoryVisible','inventoryInitialized=true,inventoryVisible=inventoryVisible'],
   ['waive_profile_readiness','and snapshotReady and profileReady','and snapshotReady'],
   ['waive_tutorial_version','finite(payload.TutorialVersion) and payload.TutorialVersion>=1','true'],
   ['reuse_replaced_folder_payload','connection=nil observedRemote=stat payload=nil','connection=nil observedRemote=stat'],
@@ -277,7 +348,7 @@ try{
   const target=path.join(temp,'flow-'+index+'.luau');fs.writeFileSync(target,step.args.code);
   const result=spawnSync(compiler,['--null',target],{encoding:'utf8',timeout:15000});assert.equal(result.status,0,result.stderr);compiled++;
  }
- console.log(JSON.stringify({ok:true,checks,mutations,compiled,productionOutput,studioUsed:false,sourceChanged:false,nativeRegression:'pending'},null,2));
+ console.log(JSON.stringify({ok:true,checks,mutations,compiled,productionOutput,historicalColdInventoryRejected:true,studioUsed:false,sourceChanged:false,nativeRegression:'pending'},null,2));
 }finally{
  assert.equal(path.dirname(fs.realpathSync(temp)),fs.realpathSync(os.tmpdir()));
  fs.rmSync(temp,{recursive:true,force:true});
