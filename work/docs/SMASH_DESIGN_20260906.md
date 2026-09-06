@@ -4,6 +4,12 @@ Date: 2026-09-06. Agent HQ: `SMASH-20260906`, Agent 3 DESIGN.
 Baseline: `4094e51acdcaf7703986597ddd585eadfb4c37a1`.
 Owner: Coordinator integrates this handoff after review.
 
+Status at integrated source `e2dbc16`: the first five shared fist models,
+Shop/Inventory readability, tall selected details and camera repairs are now
+implemented and have targeted Studio evidence. The following baseline proposal
+is retained for context; new cooperative modes and a full economy rebalance
+remain proposals. Full 131-flow and final artifact acceptance are still pending.
+
 ## Decision and scope
 
 The accepted direction is satisfying wall destruction with friends, supported by
@@ -33,7 +39,9 @@ are explicitly reserved spaces, not proposed finished fist or pet artwork.
   bought fist changes its multiplier from 1 to 1.8. This 112.5-times HP jump
   needs a fresh-profile pacing check before changing values.
 - Contributor rewards already exist on the server: each actual contributor
-  receives 50-100% of the base wall coin reward according to damage share.
+  receives `max(1, floor(baseReward * (0.5 + 0.5 * damageShare)))` coins.
+  Rounding can put a small contribution below 50% of the base reward: an
+  11-coin block can pay 5 coins. Solo full-share damage receives the base reward.
   Cooperation should first become legible through this existing behavior.
 - The historical 874x402 emulated-phone inventory capture at
   `work/docs/evidence/training-ui-pet-recovery-20260821/02_iphone17_inventory_pets.jpg`
@@ -134,7 +142,9 @@ Start with the first five fists before extending the same quality standard
 across all 16. Preserve the existing closed-fist, right-hand equipment contract
 and original avatar appearance. Suggested identities: compact leather Starter,
 rounded red Street Boxing, square steel Iron Crusher, blue Thunder core, and
-broad amber Titan cuff. These are concepts, not completed assets.
+broad amber Titan cuff. These were baseline concepts; the first five shared
+catalog/preview/equipped models are now implemented in `e2dbc16`, with recorded
+R6/R15 and visual checks. Extending this art work across all 16 remains proposed.
 
 Each item must read at phone thumbnail size and match across its catalog image,
 selected preview, and equipped form. Verify R6/R15 wrist alignment through idle,
