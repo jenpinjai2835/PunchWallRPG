@@ -154,3 +154,44 @@ Checklist งานย่อย: ตรวจ source/ภาพก่อนแล
 ได้รับภาพจริงหลัง source หลักจาก Coordinator ที่ `work/docs/evidence/smash-premium-source-visual-review-20260906/desktop-inventory-fists.jpg` และ `desktop-inventory-pets.jpg` แล้ว (1277×780; ก่อน Empty follow-up) ผู้ตรวจเห็นว่าหัว/กรอบ navy และแถวตัวอักษรใหม่จัดสายตาได้สงบขึ้นจริง และเห็นหน้า OWO ของ Forest Pup ทั้ง card/detail จึงไม่ใช่ภาพ texture ว่างเหมือนเดิม แต่ **ยังไม่รับคุณภาพรูปทรงสัตว์**: แทบทั้ง silhouette เป็นบล็อกเทาหน้าแบน ไม่มีหู/ปาก/ลำตัวที่อ่านเป็นลูกสุนัข Source `GameConfig.Pets` จับชื่อ Forest Pup กับ packModel `Dowodle`; `StyleNormalCatalogPet` เพียง tint และไม่มี silhouette เสริมสำหรับ Pup จึงมี P2 ด้านคุณภาพ art ตามคำขอผู้ใช้ค้างอยู่ โดยไม่ได้พบหลักฐานว่ากล้องใหม่ลบ/เปลี่ยน geometry
 
 ภาพนี้ยังไม่แยกได้ว่ารายละเอียด body mesh เดิมถูกบัง/โหลดไม่ขึ้นหรือเป็น art เดิม ต้องเทียบ Dowodle ต้นฉบับที่ framing เดียวกันกับ geometry/สถานะโหลดจริงก่อนเลือกแก้ pose หรืองาน model ส่วนภาพประวัติ `pet-pack-candidates-1.jpg` ถูก loading UI บัง จึงไม่ใช่หลักฐานต้นฉบับที่ใช้ตัดสินได้ Coordinator รับเรื่องนี้ไปจัด scope ต่อแล้ว; รอบนี้ยังไม่มีการปรับ silhouette/texture นอกขอบเขต Inventory
+
+
+## Forest Pup: ปิดช่องว่างเรื่องรูปทรงด้วยงานที่ได้รับอนุมัติเพิ่ม
+
+Coordinator จัด isolated scope ใหม่ที่ `F:/Roblox/PuchWall-forest-pup-silhouette-20260906`, base `a431a06e1f191d4e14d067f02c2917484be7314b` ให้แก้เฉพาะ Forest Pup ใน `StyleNormalCatalogPet` และ flow/contract/doc ของงานนี้ Source ส่งเป็น immutable commit `18ddcc6f44839a3f6c3f6e0f244febca6f173b0c` แล้ว Coordinator รวมเป็น `d0bc7a3a43c19c3bcfeb60af0bb62fa14384959e` ค่า main client SHA256 แบบ LF คือ `6d92c8e35b544ea4c6f6e6e812d93544c90db52e37070f5c0803a0119ca61a31` คืน ownership หลัง source handoff ไม่มีการแก้ source เพิ่มใน test/doc commit
+
+### หลักฐานรูปทรงเดิมและสิ่งที่ทำ
+
+ตรวจ XML ของ retained `Sanitized_ForestPupPet` ใน output ที่มีอยู่เพื่ออ่านทรัพย์สินต้นฉบับเท่านั้น (ไม่ได้ถือ output เป็น source ปัจจุบันหรือยืนยัน release): มี BaseParts สี่ชิ้น ได้แก่ Root โปร่งใส, MeshPart `Decore/Stone` URI 1461040253 ขนาดประมาณ 1.483³, MeshPart `Decore/Stone` อีกชิ้น URI 1461041563 ขนาด 1.128×.356×1.112 และ `AnimatedFace` carrier โปร่งใสขนาด 1.35×1.41×1.11 พร้อม Decal Front OWO เดิม URI 2759037468 ไม่มี subpart หู/ปาก/เท้าอยู่ในรายการนี้ ภาพจริงหลังแก้กล้องสอดคล้องกับรูปทรงก้อนหินมนของ Dowodle จึงเพิ่ม silhouette ให้ชื่อ Forest Pup อ่านออก โดยรักษาของเดิม
+
+เพิ่ม **แปด native Parts** เท่านั้น: หูตกสองชิ้นสีน้ำตาล, ปากล่างสีครีมสองชิ้น, อุ้งเท้าสองชิ้น, ปลอกคอเขียวป่าและป้ายสีทองหม่น ทุกชิ้นเป็นทรงรี `Ball` ยืดสัดส่วน วัสดุ SmoothPlastic ไม่เรืองแสง มี `Anchored=true`, collision/touch/query/shadow ปิด และไม่มีลูกประเภท joint, constraint, light, particle หรือ behavior ใหม่ ตัวโมเดลรวมเป็นสี่ชิ้นเดิม + แปดชิ้นใหม่ = 12 BaseParts
+
+สร้างตำแหน่งจาก CFrame/ขนาดของ `AnimatedFace` โดยตรง จึงไม่ผูกกับแกนโลกเมื่อสัตว์หมุนหรือย่อ/ขยาย หูขยายขอบซ้ายขวา ปากอยู่ด้านหน้าต่ำกว่าพื้นที่ OWO เท้ายื่นใต้ลำตัว ปลอกคอ/ป้ายอยู่ต่ำกว่าหน้า ไม่แก้ MeshId, Decal URI, CFrame, Size หรือ transparency ของชิ้นต้นฉบับ สีของต้นฉบับยังใช้ bounded tint ที่มีอยู่แล้ว ไม่มีไฟล์ภาพ/texture ใหม่ ไม่มี module เพิ่ม
+
+ใช้ `StyleNormalCatalogPet` เส้นทางเดิมร่วมกันสำหรับ `BuildInventoryPetPreview` และ companion ที่ติดตามผู้เล่น จึงไม่ทำภาพสินค้าเป็นคนละโมเดลกับตัวจริง Marker `AuthoredPupV1` ป้องกันการเพิ่มชิ้น/ย้อมสีซ้ำใน clone ที่แต่งแล้ว ถ้าไม่พบ Front decal ที่ยังมองเห็นของ AnimatedFace จะรักษาโมเดลเดิม ไม่เพิ่มชิ้นผิดทิศ ไม่มีการเปลี่ยนสัตว์อื่น, GameConfig, กล้อง, formation, normalization, UI หรือ server economy ใน source commit นี้
+
+### ตรวจ source และ flow ที่ส่งมอบ
+
+| Gate | ผล |
+| --- | --- |
+| `node work/automation/scripts/forest-pup-silhouette-contract.mjs --self-test --baseline a431a06` | 782 assertions ของ producer และ actual runtime verifier ที่สกัดจากไฟล์จริง; 11 compiling mutations ถูกปฏิเสธ; source ก่อนแก้ fail-before ตรง eight-part source budget |
+| Geometry cases | scale .5/1/2 × authored pose และ pose ที่หมุน, original geometry/mesh/decal คงเดิม, จำนวน 12 รวมชิ้นไม่ติด label, role ครบ/ไม่ซ้ำ, ไม่มี physics/effect ใหม่, หู/ปาก/เท้าตรง authored basis, เว้นพื้นที่กลางหน้า และ preview fit ครบแปดมุม |
+| Lifecycle / negative cases | เรียก style ซ้ำคง Instance/สีเดิม, face หาย/ซ่อน/ผิดด้านปลอดภัย, สัตว์อื่นไม่ติด Pup geometry; runtime verifier ปฏิเสธ metadata ปลอมที่ไม่มีรูปทรงจริง, decal เปลี่ยน, feature queryable, role ซ้ำ, carrier ทึบ, effect เพิ่ม, geometry parity เพี้ยน และ Part เพิ่มไม่มี label |
+| `node work/automation/scripts/pet-size-position-contract.mjs` | 3,202 assertions ในแปดกลุ่ม ผ่าน; 33 mutations, 41 programs compiled |
+| `node work/automation/scripts/creator-store-pet-pack-contract.mjs` | 12/12 ผ่าน |
+| `node work/automation/scripts/inventory-model-preview-contract.mjs` | 159 assertions ผ่าน |
+| Official Luau 0.737 full main client `-O0/-O1/-O2` | ทั้งสามระดับผ่าน; snippet ทั้งสองของ flow ใหม่ compile ผ่าน; `git diff --check` ผ่าน |
+
+ตรวจ `fist-pet-safety-contract.mjs` ฉบับใน worker พบ 52/53 เพราะ assertion Shop เดิมยังผูกสี 3/9/13 และ text stroke .35 ซึ่งถูกยกเลิกใน scope Shop ก่อนหน้างาน Pup แล้ว ไม่แก้/ยกเว้นไฟล์ที่ไม่ได้เป็นเจ้าของ Coordinator แก้ checker นี้ใน `0262ad6`; รันฉบับ integration แบบอ่านอย่างเดียวพร้อม `--source-root F:/Roblox/PuchWall-forest-pup-silhouette-20260906` ยืนยัน **56/56 ผ่าน** กับ source Pup นี้ (รวม actual contrast และ negative controls ของ Shop ใหม่)
+
+ให้ Coordinator ลงทะเบียนไฟล์ใหม่ทั้งสอง: `work/automation/flows/forest-pup-silhouette.json` และ `work/automation/scripts/forest-pup-silhouette-contract.mjs` Flow รอ GamePass ownership สำเร็จจริงและ pending nil/0 ก่อน reset/seed ใน EphemeralStudio เท่านั้น ตรวจสัตว์ที่สวมจริง, card และ detail จริง, normalized feature/mesh geometry ตรงกัน, ขอบ preview/ด้านหน้า, Instance เดิมหลังเลือกซ้ำ และ 20 follower samples โดยไม่เก็บ Instance ข้าม execute_luau ตรวจ count จริงรวมชิ้นไม่มี label ป้องกัน metadata ปลอม ไม่เพิ่ม gesture/reset ระหว่าง verification; คืน motion setting และปิดเมนูก่อนจบ จากนั้นหยุด Play ค่า motion ที่สังเกตเป็นข้อมูลประกอบ ไม่อ้างว่า static geometry test แทนการทดสอบเดิน/กล้องทั้งเกมได้
+
+### ภาพจริงหลังเพิ่มรูปทรง
+
+อ่าน manifest และภาพของ Coordinator ที่ `work/docs/evidence/smash-pup-silhouette-source-visual-review-20260906/` แล้ว: `ok=true`, exact source ทั้งเก้าก่อน/หลังผ่าน, cleanup=true, commit d0bc ตามข้างต้น ภาพ desktop `desktop-inventory-pets.jpg` 1277×780 และ phone `iphone17pro-landscape-inventory-pets.jpg` 1204×553 เป็น actual source captures ภาพ phone เป็น preset iPhone 17 Pro 874×402 ที่ FitToWindow แต่ Camera/safe HUD ที่บันทึกจริงคือ **749×361** จึงไม่ใช้ขนาดไฟล์ภาพหรือ nominal preset แทน viewport ที่เกมรับ
+
+ผู้ตรวจเห็นหูตกและเท้าทั้งใน card/detail ทำให้อ่านเป็นสัตว์เลี้ยงลักษณะสุนัขมากกว่าก้อนเทาเดิม ปาก/ปลอกคอ/ป้ายไม่แย่งหน้า OWO ซึ่งยังชัด และไม่พบการตัดขอบรูปในภาพสองชุดนี้ เป็นการปรับดีขึ้นภายในภาษา block-pet ที่รักษาทรัพย์สินเดิม ไม่ใช่การรับรอง art ของสัตว์ทั้งหมดหรือการรับรองระดับ premium โดยไม่มีผู้เล่นทดลอง
+
+Coordinator รายงาน actual `inventory-premium-readability` ทั้ง desktop และ built-in phone ที่ 80/100/120% ผ่านกับ Pup source แล้ว หลักฐานอยู่ `work/docs/evidence/smash-inventory-premium-two-devices-r2-20260906/` ส่วน flow `forest-pup-silhouette` ใหม่ยังต้องรันหลังรับไฟล์นี้และรวม registry; regression รวม/physical phone/performance/release artifact ยังเป็น gate ของ Coordinator ไม่ได้ผ่านโดยอัตโนมัติจากภาพหรือการ compile
+
+Checklist scope นี้: ตรวจ asset/source/ภาพเดิมและออกแบบ bounded silhouette แล้ว; source compile/exact producer/negative controls ผ่านและส่ง immutable คืน ownership แล้ว; ตรวจ actual desktop/phone captures แล้ว; flow/contract/doc พร้อมส่งรวม Runtime flow ใหม่และ regression รวมยัง **PENDING Coordinator** ไม่มีการเรียก Studio/HQ จาก Agent 1 ในงานนี้
