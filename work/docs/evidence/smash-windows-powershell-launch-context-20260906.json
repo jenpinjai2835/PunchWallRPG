@@ -1,0 +1,7 @@
+﻿{
+    "version":  "5.1.19041.6456",
+    "modulePath":  "C:\\Users\\Jennarong Pinjai\\OneDrive\\เอกสาร\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules",
+    "hashCommand":  "Get-FileHash",
+    "hashModule":  "C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\Microsoft.PowerShell.Utility\\Microsoft.PowerShell.Utility.psd1",
+    "scope":  "Windows PowerShell launcher process only; no persisted environment change"
+}

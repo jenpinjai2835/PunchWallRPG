@@ -24,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
       },
       "expectRegex": [
         "\"Power\"\\s*:\\s*15",
@@ -40,35 +40,35 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Train\", \"Power Bag\"))"
+        "code": "local function verifyTrainingPayout(before, immediate, after, rate, tickSeconds)\n assert(immediate.Power==before.Power and immediate.payoutSerial==before.payoutSerial and immediate.sessionTickCount==0,'training paid before a scheduled tick')\n assert(immediate.sessionGeneration==before.sessionGeneration+1 and immediate.active and immediate.movementLocked,'training did not start one locked session')\n local ticks=after.sessionTickCount local delta=after.Power-before.Power\n assert(ticks>=1 and ticks<=2 and ticks==math.floor(ticks),'missing or excessive first scheduled tick batch')\n assert(after.payoutSerial==immediate.payoutSerial+1 and after.lastTickBatch==ticks,'duplicate or unaccounted payout batch')\n assert(delta==rate*ticks and after.lastGrant==delta and after.gainPerSecond==rate,'training rate differs from the server station configuration')\n assert(math.abs(after.tickAnchor-immediate.tickAnchor-ticks*tickSeconds)<1e-5,'payout did not consume exactly its scheduled intervals')\n assert(after.active and after.movementLocked,'training unlocked before its payout was observed')\n return true\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1]\np:SetAttribute('TrainingBoostExpiresAt',0) local station=G.TrainingStation('rookie_bag') assert(station.gain==4 and G.Training.TickSeconds==1,'rookie rate contract')\nlocal before=c:Invoke('TrainingSnapshot') local result=c:Invoke('Train',station.name) local immediate=c:Invoke('TrainingSnapshot')\nassert(result.ok and result.active and result.gain==0 and result.value==before.Power,'start must not give free Power')\nlocal after=immediate local deadline=os.clock()+2.6\nrepeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=deadline\nlocal exactPayout=verifyTrainingPayout(before,immediate,after,station.gain,G.Training.TickSeconds)\nlocal stopped=c:Invoke('StopTraining') local atStop=c:Invoke('TrainingSnapshot') task.wait(1.2) local quiet=c:Invoke('TrainingSnapshot')\nlocal stoppedWithoutLeak=stopped.ok and not quiet.active and not quiet.movementLocked and quiet.walkSpeed>0 and quiet.Power==atStop.Power and quiet.payoutSerial==atStop.payoutSerial and quiet.tickAnchor==nil\nassert(stoppedWithoutLeak,'stopped training leaked a payout or movement lock')\nreturn H:JSONEncode({ok=result.ok,stat=result.stat,gain=result.gain,value=after.Power,rate=station.gain,ticks=after.sessionTickCount,exactPayout=exactPayout,stoppedWithoutLeak=stoppedWithoutLeak})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"stat\"\\s*:\\s*\"Power\"",
-        "\"gain\"\\s*:\\s*4",
-        "\"value\"\\s*:\\s*19"
+        "\"gain\"\\s*:\\s*0",
+        "\"exactPayout\"\\s*:\\s*true",
+        "\"stoppedWithoutLeak\"\\s*:\\s*true"
       ],
-      "label": "power bag increases power"
+      "label": "power bag pays only scheduled ticks and stops without a late payout"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"SetStats\", { TrainingActive = 0 }))"
+        "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('TrainingSnapshot') assert(s.TrainingActive==0 and not s.active and not s.movementLocked,'training must stay stopped before combat') return H:JSONEncode(s)"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"TrainingActive\"\\s*:\\s*0"
       ],
-      "label": "pause continuous training before wall reward assertion"
+      "label": "verify continuous training remains paused before wall rewards"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal before = command:Invoke(\"SetStats\", { TrainingActive = 0 }).Power\nlocal result = command:Invoke(\"BreakWall\", \"Brick Wall\", 8)\nreturn HttpService:JSONEncode({ ok = result.ok, outcome = result.outcome, before = before, after = result.Power, unchanged = result.Power == before, Coins = result.Coins, WallLevel = result.WallLevel, BrickWallBroken = result.BrickWallBroken })"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal before = command:Invoke(\"Snapshot\").Power\nlocal result = command:Invoke(\"BreakWall\", \"Brick Wall\", 8)\nreturn HttpService:JSONEncode({ ok = result.ok, outcome = result.outcome, before = before, after = result.Power, unchanged = result.Power == before, Coins = result.Coins, WallLevel = result.WallLevel, BrickWallBroken = result.BrickWallBroken })"
       },
       "saveAs": "afterBreak",
       "expectRegex": [

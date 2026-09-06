@@ -1,0 +1,8 @@
+{
+  "errors": [
+    "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.800001859664917,\"combined\":0.03762752518159911,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.013166708463971939,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000003099441529,\"combined\":0.016622480474621644,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.005736632214452826,\"viewportY\":654,\"minAvatarSeparation\":85.36639404296875,\"visible\":3},\"6\":{\"valid\":false,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000013828277588,\"combined\":0.1387687761043501,\"gates\":{\"visible\":false,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.04758928195917349,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":2}},\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\",\"contractValid\":false}"
+  ],
+  "flow": "pet-size-position-qc",
+  "ok": false,
+  "flowSHA256": "8E9EABE6967694B0A3E1813D71B37655A9BF748D7A0F9EF86FD3B1E88DB3D60A"
+}

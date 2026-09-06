@@ -1,0 +1,64 @@
+[
+  {
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 9.41454792022705, -190.0887908935547\",\"contractValid\":false,\"cleanupRestored\":true,\"freshObscurers\":[],\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.9795961380004883, 4.674182415008545, -212.85247802734375\",\"valid\":false,\"type\":\"Custom\",\"selectedOrbitPreserved\":true,\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":1.1715738773345948,\"largestEscape\":{\"raw\":\"-2.000030517578125, 9.41454792022705, -180.03887939453125\",\"origin\":\"-2.000030517578125, 9.41454792022705, -180.03887939453125\",\"phase\":\"render\",\"distance\":1.171575665473938,\"step\":\"0.6059393286705017, 0.4902363121509552, -0.8746973872184753\",\"originKind\":\"current\",\"losRejected\":29,\"losClear\":false,\"kind\":\"face\",\"overlapCount\":1,\"parts\":[{\"falling\":true,\"name\":\"DepthBlock_L039_C06_R06\",\"frame\":\"-2.77738619, 9.10791111, -179.006622, 0.768769503, 0.376161247, -0.517200351, -0.610532522, 0.672425807, -0.418441862, 0.190377221, 0.63745296, 0.746599138\",\"velocity\":\"0, -8.003849029541016, 0\",\"size\":\"4, 4, 4\"}]},\"clearRatio\":0.49390243902439026,\"maxInheritedRootStep\":20.63665008544922,\"configuredOrbit\":23.26280403137207,\"maxEscapeStep\":1.171575665473938,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Interactables.Pet Egg Drops.Mystery Pet Egg 9158952231.Mystery Pet Egg\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L006_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L017_C07_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L021_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L024_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L029_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L033_C06_R04\"],\"maxBackPunch\":12,\"visualValid\":false,\"angle\":0,\"actions\":18,\"firstEscape\":{\"raw\":\"-2.00003051757\n... <truncated 3413 chars> ...\naining\":11.85110092163086,\"requested\":\"-2.000030517578125, 13.231977462768555, -89.25120544433594\",\"publishedPhysical\":false,\"rootDelta\":\"0, 0, -14.589057922363281\",\"handoffRecovery\":false,\"phase\":\"render\",\"published\":\"-2.000030517578125, 9.426624298095703, -100.47474670410156\",\"rawBlocked\":true,\"cachePhysical\":false,\"at\":21146.608966399996,\"rawPhysical\":false,\"candidate\":\"-2.000030517578125, 9.426624298095703, -100.47474670410156\",\"activeFollow\":true,\"teleportRebaseCount\":0,\"geometryRecovery\":true,\"cacheBlocked\":true,\"cache\":\"-2.000030517578125, 7.026623725891113, -85.88568878173828\"},\"maxBackTo\":\"-2.000030517578125, 3.2001428604125977, -192.8544921875\",\"maxGuardCyclePublication\":{\"cycleEscapeTravel\":0,\"origin\":\"-2.000030517578125, 10.254548072814941, 0.37401390075683594\",\"phase\":\"render\",\"distance\":15.836650848388672,\"cycleWrites\":1,\"published\":\"-2.000030517578125, 10.254546165466309, -15.462636947631836\",\"at\":21142.1368478,\"kind\":\"orbit-follow\",\"root\":\"-2.000030517578125, 4.042497634887695, -40.63646697998047\",\"cycleTravel\":15.836650848388672},\"maxStepFrom\":\"-2.000030517578125, 9.408562660217285, -42.76982879638672\",\"settledSamples\":5,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"settledClearRatio\":1,\"type\":\"Custom\",\"readableRatio\":1,\"unresolvedSafetyFrames\":0,\"maxStepTo\":\"-2.000030517578125, 9.41373348236084, -69.4988021850586\",\"sampledFrames\":164,\"lastGuardAge\":0.031773400005477018,\"lead\":20.629924774169923,\"insideSamples\":[],\"geometryClamped\":false,\"finishDistance\":23.256202697753908,\"transientLineOfSightFrames\":83,\"maxCorrectionStep\":2.4000015258789064,\"maxBackFrom\":\"-2.000030517578125, 3.2024991512298584, -192.85450744628906\",\"valid\":true,\"visibleRatio\":1},\"visibilityMeasured\":false,\"freshValid\":true,\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"safetyBounded\":true,\"settleTimedOut\":false,\"inside\":0}"
+    ],
+    "flowSHA256": "1A84A9D21DE001C68C65A7A20340561293D40D30E65C81E0AE0414AF104A4BF7",
+    "flow": "camera-long-tunnel-regression"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "0340E7C4FBBE1E7996621A61106CB173754D4242DCDFEF46AAAB82656B884AB3",
+    "flow": "camera-teleport-scriptable-visibility"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "489BD76D2CF66ED0B31543F28ADDFAD60A797B8940880F7B651D5AE332CA32DD",
+    "flow": "punch-camera-smooth-follow"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"safe\"\\s*:\\s*true\nReceived: {\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"18\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"6\":{\"valid\":true,\"samples\":20,\"inset\":7.8}},\"failures\":[],\"contractValid\":true}"
+    ],
+    "flowSHA256": "30DB65AE9FEE059BADC8C5F302510E59CA8B10252B3FF0C5D901B72839155F2F",
+    "flow": "pet-size-position-qc"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Power growth camera framing failed {\"valid\":false,\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"visualValid\":false,\"visibleCorners\":8,\"heroMultiplier\":1.25,\"settled\":true}"
+    ],
+    "flowSHA256": "2BEDAFEE6DE77581F1A1968A7C909CC2DBA8E58DE5810FD1EC7426AA0F5C1E7F",
+    "flow": "power-avatar-growth"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "7ACB51CC9A0D3FA13EA1A83492C425B702CCE6EBC92F2A9A4726A67E2D1FD355",
+    "flow": "onboarding-waypoint"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "Expected regex not found: \"broken\"\\s*:\\s*4[0-8]\nReceived: {\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"scale\":1,\"observation\":{\"observedFragments\":120,\"sampleCapReached\":false,\"elapsed\":0.8930669000037597,\"postSimulationMaxSpeed\":218.36085510253907,\"immediateMaxSpeed\":0,\"ownershipFailures\":0,\"deferredMaxSpeed\":0,\"postSimulationSteps\":7,\"trace\":[{\"moved\":13.487739562988282,\"parts\":120,\"t\":0.409272000004421,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4582418999998481,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4930026000001817,\"peak\":218.36085510253907,\"dt\":0.05000000447034836},{\"moved\":26.41138458251953,\"parts\":120,\"t\":0.6841663000013796,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":28.81826400756836,\"parts\":120,\"t\":0.7647784000000684,\"peak\":218.36085510253907,\"dt\":0.06666667014360428}],\"lastStep\":{\"moved\":32.8326301574707,\"parts\":120,\"t\":0.8841138000061619,\"peak\":218.36085510253907,\"dt\":0.0625},\"firstFragmentAt\":0.2053520000044955,\"fragments\":120,\"returnToReadSeconds\":0.18414569999731612,\"anchoredFailures\":0,\"peakAt\":0.40915099999983797,\"timedOut\":false,\"fastMaxDisplacement\":32.8326301574707,\"fastFragmentsMoved\":120,\"minPostReads\":7,\"maxSpeed\":218.36085510253907,\"postSimulationReads\":840,\"maxInitial\":137.36000061035157,\"serverOwned\":120,\"peakFragment\":\"DepthBlock_L002_C06_R02 Server Physics Chunk 6\",\"observationError\":\"\"},\"travel\":48,\"maxSpeed\":218.36085510253907,\"maxInitial\":137.36000061035157,\"observedPhysicalLaunch\":true,\"outcome\":\"penetration\",\"requested\":48,\"broken\":50,\"force\":3.4,\"hit\":44,\"limit\":48}"
+    ],
+    "flowSHA256": "DACC9CCCBC3006B4D5161381399D313E9D3B0316BE4DC29EB0CF8786D9CA7499",
+    "flow": "power-scaled-penetration"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959",
+    "flow": "camera-shop-stability"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "C966AF20A4F347D4C95AAA1C66B8D497066D6FBD816B6F2688BBDB34242E545C",
+    "flow": "camera-tunnel-zoom-preservation"
+  }
+]

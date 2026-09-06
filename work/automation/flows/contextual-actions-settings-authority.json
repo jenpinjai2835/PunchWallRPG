@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 60000,
       "label": "start contextual action session"
     },
@@ -22,36 +24,30 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('Teleport','Spawn') c:Invoke('ClearCooldowns') return true"
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1])\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nassert(c:Invoke('Reset').ok==true,'reset failed')\nlocal maximumDistance=38 -- Current authoritative MOBILE_ACTION_DISTANCE; checked against production source offline.\nlocal G=require(game.ReplicatedStorage.GameConfig)\nlocal interactions=assert(world:FindFirstChild('Interactables'))\nlocal targets={}\nfor _,def in ipairs(G.PremiumFists) do table.insert(targets,(assert(interactions:FindFirstChild(def.name..' Stand'),'configured fist stand missing '..def.name))) end\nfor _,name in ipairs({'Pet Egg Machine','Rebirth Shrine','Hero Armory Merchant Interaction','Hero Sidekick Scientist Interaction','Honor Keeper Interaction'}) do table.insert(targets,(assert(interactions:FindFirstChild(name),'contextual target missing '..name))) end\nlocal function assertOutsideUseRange(position,parts,range)\n assert(#parts>0 and range>0,'Use target set/range is empty')\n local minimum=math.huge\n for _,part in ipairs(parts) do\n  assert(part and part:IsA('BasePart') and part.Parent,'invalid Use target')\n  minimum=math.min(minimum,(position-part.Position).Magnitude)\n end\n assert(minimum>range+2,'fixture is inside an authoritative Use range')\n return minimum\nend\n-- This grounded point is away from every Use target; Spawn is near a configured Premium stand.\nlocal destination=Vector3.new(0,3,70)\nassertOutsideUseRange(destination,targets,maximumDistance)\nassert(c:Invoke('Teleport',{position={x=destination.X,y=destination.Y,z=destination.Z}}).ok==true,'out-of-range teleport failed')\nlocal actual=assert(p.Character and p.Character:FindFirstChild('HumanoidRootPart')).Position\nlocal minimum=assertOutsideUseRange(actual,targets,maximumDistance)\nc:Invoke('ClearCooldowns')\nreturn H:JSONEncode({ok=true,range=maximumDistance,minimumDistance=minimum,targets=#targets,outsideUseRange=true})"
       },
-      "label": "place player away from contextual Use targets"
+      "label": "place player away from contextual Use targets",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outsideUseRange\"\\s*:\\s*true"
+      ],
+      "saveAs": "outOfRangeFixture"
     },
     {
       "type": "call",
       "tool": "execute_luau",
+      "timeoutMs": 12000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute('LastFeedbackType','') g:SetAttribute('LastFeedbackTarget','') game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Use'}) return true"
-      },
-      "label": "send real contextual Use request while out of range"
-    },
-    {
-      "type": "wait",
-      "ms": 450,
-      "label": "settle out-of-range Use feedback"
-    },
-    {
-      "type": "call",
-      "tool": "execute_luau",
-      "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({kind=g:GetAttribute('LastFeedbackType'),target=g:GetAttribute('LastFeedbackTarget')})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal events=game.ReplicatedStorage.PunchWallEvents\ng.PunchWallClientAutomation:Invoke('CloseMenus')\nlocal response\nlocal connection=events.Feedback.OnClientEvent:Connect(function(payload)\n if typeof(payload)=='table' and payload.target=='Use' then response={kind=tostring(payload.type or ''),target=tostring(payload.target or '')} end\nend)\nlocal ok,err=pcall(function()\n events.ActionRequest:FireServer({action='Use'})\n local deadline=os.clock()+4\n repeat task.wait(.05) until response or os.clock()>=deadline\n assert(response,'no authoritative Use feedback arrived')\n assert(response.kind=='Fail' and response.target=='Use','out-of-range Use was not rejected')\nend)\nconnection:Disconnect()\nassert(ok,err)\nreturn H:JSONEncode({ok=true,kind=response.kind,target=response.target,actualRemoteFeedback=true})"
       },
       "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
         "\"kind\"\\s*:\\s*\"Fail\"",
         "\"target\"\\s*:\\s*\"Use\""
       ],
-      "label": "server rejects out-of-range contextual Use visibly"
+      "saveAs": "outOfRangeUseFeedback",
+      "label": "single real out-of-range Use returns authoritative failure"
     },
     {
       "type": "call",
@@ -147,11 +143,13 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') return H:JSONEncode({menu=s.menuVisible,tab=s.activeTab})"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local inv=a:Invoke('InventorySnapshot') local root=g.GameMenu:FindFirstChild('FunctionalInventory') return H:JSONEncode({menu=s.menuVisible,tab=s.activeTab,category=inv.category,inventoryVisible=inv.visible==true and root~=nil and root.Visible==true and g.GameMenu.Visible==true})"
       },
       "expectRegex": [
         "\"menu\"\\s*:\\s*true",
-        "\"tab\"\\s*:\\s*\"Pets\""
+        "\"tab\"\\s*:\\s*\"Inventory\"",
+        "\"category\"\\s*:\\s*\"Pets\"",
+        "\"inventoryVisible\"\\s*:\\s*true"
       ],
       "label": "in-range Use opens the correct player menu"
     },
@@ -234,7 +232,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 60000,
       "label": "return contextual action session to Edit"
     }
@@ -243,7 +243,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 60000,
       "allowError": true,
       "label": "cleanup contextual action session"

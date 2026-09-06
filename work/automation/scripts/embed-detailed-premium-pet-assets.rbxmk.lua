@@ -2,6 +2,25 @@ local inputPlace, outputPlace, phoenixFile, wyvernFile, guardianFile = ...
 
 assert(type(inputPlace) == "string" and inputPlace ~= "", "input place is required")
 assert(type(outputPlace) == "string" and outputPlace ~= "", "output place is required")
+assert(inputPlace ~= outputPlace, "input and output place must differ")
+-- rbxmk 0.9.1 silently drops modern Content<uri> values during whole-place
+-- serialization. Refuse every XML input that would lose a URI, including newly
+-- imported assets, before reading a DataModel or writing any output.
+for _, inputPath in ipairs({inputPlace, phoenixFile, wyvernFile, guardianFile}) do
+	assert(type(inputPath) == "string" and inputPath ~= "", "every asset path is required")
+	local raw = fs.read(inputPath, "txt")
+	if raw:find("<roblox", 1, true) then
+		for content in raw:gmatch("<Content[^>]*>(.-)</Content>") do
+			for uri in content:gmatch("<uri[^>]*>(.-)</uri>") do
+				assert(not uri:find("%S"), "Legacy rbxmk importer cannot preserve Content URI in " .. inputPath .. "; use native Studio import or the preserving premium-template repair pipeline")
+			end
+		end
+	end
+end
+local strictBuilder = rbxmk.runFile(
+	path.join(path.expand('$sd'), 'load-production-visual-sanitizer.rbxmk.lua'),
+	path.join(path.expand('$sd'), '../../punch-wall-rpg/src/shared/FistVisualBuilder.lua')
+)
 
 local place = fs.read(inputPlace, "rbxlx")
 local replicatedStorage = assert(place:FindFirstChild("ReplicatedStorage"), "ReplicatedStorage missing")
@@ -52,6 +71,8 @@ local lightClasses = {
 }
 
 local function sanitize(model)
+	strictBuilder.PrepareAttributesForRbxmk(model)
+	strictBuilder.SanitizeVisual(model)
 	local descendants = model:GetDescendants()
 	for index = #descendants, 1, -1 do
 		local descendant = descendants[index]
@@ -97,6 +118,7 @@ local function sanitize(model)
 	end
 	assert(parts >= 1, "detailed Premium model has no BasePart")
 	assert(unsafe == 0, "unsafe descendant survived sanitization")
+	assert(strictBuilder.IsSanitizedVisual(model), "strict production visual attestation failed")
 	return parts, effects
 end
 

@@ -1,0 +1,104 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "inventory-menu-ui",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set deterministic desktop viewport",
+        "start desktop play",
+        "wait for desktop runtime",
+        "seed authoritative owned inventory",
+        "wait for seeded inventory sync",
+        "desktop Inventory button contract and public action path open the modal",
+        "automation actions stay distinct and desktop modal uses the centered reference envelope",
+        "desktop inventory shows owned items plus the complete Honor catalog",
+        "capture desktop inventory",
+        "search selects an authoritative fist detail",
+        "equip selected fist through inventory",
+        "wait for server-confirmed fist equip",
+        "server owns equipped fist result",
+        "Honor and active Boost categories filter accurately",
+        "selected timed boost detail updates only countdown text on desktop",
+        "non-timed pet detail avoids per-second rebuilds while Coin Boost remains active",
+        "seed staggered authoritative boost expiries",
+        "earliest boost expiry rebuilds once and reschedules without churn",
+        "restore authoritative Coin Boost fixture",
+        "confirm restored Coin Boost client fixture",
+        "duplicate slots expose only the deterministic equip boundary actions",
+        "invalid explicit item key fails closed without changing selection",
+        "invalid client key leaves authoritative pet state unchanged",
+        "single direct delete action arms visible confirmation without dispatch",
+        "wait for delete confirmation timeout",
+        "delete confirmation expires and authoritative duplicate lock is restored",
+        "unlock relock then delete the exact unequipped duplicate slot",
+        "wait for duplicate deletion sync",
+        "server preserves equipped duplicate and rejects the now-stale old index",
+        "wait for reset sync",
+        "closing inventory restores gameplay HUD",
+        "capture desktop console",
+        "desktop console clean (identified Studio input warnings: 0)",
+        "stop desktop play",
+        "set restrictive compact phone viewport",
+        "start compact play",
+        "wait for compact runtime",
+        "seed compact inventory",
+        "wait for compact seed sync",
+        "compact Inventory button contract and public action path preserve placement and visibility",
+        "compact Inventory modal fills the safe phone viewport",
+        "compact timed detail refresh matches its actual rendered description without rebuilding cards",
+        "compact detail mode hides the grid and contains all four visible pet actions",
+        "capture compact inventory",
+        "closing compact detail restores a positive in-bounds inventory grid",
+        "compact rarity menu stays bounded scrollable and touch safe",
+        "close compact inventory",
+        "capture compact console",
+        "compact console clean (identified Studio input warnings: 0)",
+        "stop compact play",
+        "restore default viewport"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "desktopConsole",
+          "label": "desktop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "compactConsole",
+          "label": "compact console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

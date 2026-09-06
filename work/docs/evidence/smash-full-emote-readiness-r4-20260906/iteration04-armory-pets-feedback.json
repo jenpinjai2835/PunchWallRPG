@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "iteration04-armory-pets-feedback",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for iteration runtime",
+        "current PremiumFist catalog has stands, showcases, graphics, and both-face labels",
+        "Armory and current Forest training guidance are separated",
+        "prepare duplicate pets and combat profile",
+        "wait for profile sync",
+        "actual Inventory equipment and visible power HUD match server profile",
+        "lock only duplicate slot two",
+        "wait for slot lock sync",
+        "duplicate cards expose independent actual slot lock states",
+        "delete unlocked duplicate slot one",
+        "wait for lock index shift",
+        "deletion selects row and shifts later slot lock",
+        "prepare isolated wall-drop-only pet economy",
+        "paid Hatch x3 is rejected with real wall-drop guidance",
+        "wait for paid hatch rejection sync",
+        "observe each real Pet event and visible presentation before pickups",
+        "three actual hidden-egg pickups grant one companion each",
+        "all three real pickup events have matching visible feedback in one non-overlapping channel",
+        "move to actual qualified training station",
+        "one real training start acknowledges continuous TrainingState",
+        "wait for training feedback",
+        "continuous training presents authoritative rate and exit action",
+        "leave training and observe the actual Iron top face without intervening blocks",
+        "wait for regular target HUD",
+        "Iron display name, HP and hits suppress idle boss HUD",
+        "approach actual Titan encounter",
+        "wait for boss target HUD",
+        "idle Titan actual HP and weak-point guidance own boss HUD exclusively",
+        "restore owned HUD observation pose",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -41,25 +41,25 @@
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Lighting.Hero City Bloom"
+        "datamodel_type": "Server",
+        "code": "local x=game.Lighting['Hero City Bloom'] return game.HttpService:JSONEncode({ok=math.abs(x.Intensity-0.08)<.00001,value=x.Intensity,class=x.ClassName})"
       },
       "expectRegex": [
-        "BloomEffect",
-        "\"Intensity\"\\s*:\\s*0\\.1"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "kaiju bloom configured"
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Lighting.Hero City Color"
+        "datamodel_type": "Server",
+        "code": "local x=game.Lighting['Hero City Color'] return game.HttpService:JSONEncode({ok=math.abs(x.Contrast-0.16)<.00001,value=x.Contrast,class=x.ClassName})"
       },
       "expectRegex": [
-        "ColorCorrectionEffect",
-        "\"Contrast\"\\s*:\\s*0\\.2"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "kaiju color correction configured"
     },
@@ -68,7 +68,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal root = workspace:WaitForChild(\"PunchWallRPG\", 10)\nlocal polish = root:WaitForChild(\"Polish\", 10)\nlocal city = polish:WaitForChild(\"City Decor\", 10)\nlocal tier = polish:WaitForChild(\"Wall Tier Frames\", 10)\nlocal guide = polish:WaitForChild(\"Guide Path\", 10)\nlocal vfx = polish:WaitForChild(\"VFX Anchors\", 10)\nlocal forest = polish:WaitForChild(\"World 1 Forest\", 10)\nlocal landmarks = root:WaitForChild(\"Depth Tier Landmarks\", 10)\nlocal facadeCount = 0\nfor _, inst in ipairs(root:GetDescendants()) do if inst.Name == \"WindowFacade\" then facadeCount += 1 end end\nreturn HttpService:JSONEncode({ hasGuide = guide ~= nil, hasTier = tier ~= nil, hasCity = city ~= nil, hasVfx = vfx ~= nil, cityReady = #city:GetChildren() > 0, tierReady = #tier:GetChildren() > 0, depthBlocks = #root[\"Depth Blocks\"]:GetChildren(), landmarks = #landmarks:GetChildren(), forestBudget = forest:GetAttribute(\"ForestVisualBudgetValidated\"), forestParts = forest:GetAttribute(\"ForestVisualBasePartCount\"), facadeReady = facadeCount >= 20 })"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal root = workspace:WaitForChild(\"PunchWallRPG\", 10)\nlocal polish = root:WaitForChild(\"Polish\", 10)\nlocal city = polish:WaitForChild(\"City Decor\", 10)\nlocal tier = polish:WaitForChild(\"Wall Tier Frames\", 10)\nlocal guide = polish:WaitForChild(\"Guide Path\", 10)\nlocal vfx = polish:WaitForChild(\"VFX Anchors\", 10)\nlocal forest = polish:WaitForChild(\"World 1 Forest\", 10)\nlocal landmarks = root:WaitForChild(\"Depth Tier Landmarks\", 10)\nlocal boss=root.Walls[\"Titan Server Wall\"] local facadeCount = 0\nfor _, inst in ipairs(boss:GetChildren()) do if inst.Name == \"WindowFacade\" and inst:IsA(\"SurfaceGui\") then local backing=inst:FindFirstChild(\"FacadeBacking\") local tiles=0 for _,tile in ipairs(backing and backing:GetChildren() or {}) do if tile.Name==\"WindowTile\" and tile:IsA(\"Frame\") then tiles+=1 end end assert(tiles==30,\"boss facade window grid missing\") facadeCount += 1 end end\nreturn HttpService:JSONEncode({ hasGuide = guide ~= nil, hasTier = tier ~= nil, hasCity = city ~= nil, hasVfx = vfx ~= nil, cityReady = #city:GetChildren() > 0, tierReady = #tier:GetChildren() > 0, depthBlocks = #root[\"Depth Blocks\"]:GetChildren(), landmarks = #landmarks:GetChildren(), forestBudget = forest:GetAttribute(\"ForestVisualBudgetValidated\"), forestParts = forest:GetAttribute(\"ForestVisualBasePartCount\"), facadeReady = facadeCount == 2 and boss:GetAttribute(\"FacadeDetailCount\")==177 and boss:GetAttribute(\"TextureStyle\")==\"TitanContainmentWall\" })"
       },
       "expectRegex": [
         "\"hasGuide\"\\s*:\\s*true",
@@ -87,15 +87,15 @@
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG.Downtown Smash Block"
+        "datamodel_type": "Server",
+        "code": "local p=workspace.PunchWallRPG['World 1 Forest Ground'] return game.HttpService:JSONEncode({groundContractValid=p:IsA('BasePart') and p.Material==Enum.Material.Grass and p.Size==Vector3.new(190,3,150) and p.Anchored and p.CanCollide,material=p.Material.Name,size=tostring(p.Size)})"
       },
       "expectRegex": [
-        "Asphalt",
-        "\"Size\""
+        "\"groundContractValid\"\\s*:\\s*true"
       ],
-      "label": "asphalt city base exists"
+      "label": "forest ground has current material and full playable collision footprint"
     },
     {
       "type": "call",

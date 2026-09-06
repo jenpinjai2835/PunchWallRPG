@@ -1,0 +1,30 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "camera-long-tunnel-regression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for gameplay runtime",
+        "prepare long high-power tunnel run",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.0873730182647705, 7.214125633239746, -91.6467514038086\",\"contractValid\":false,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.986548662185669, 4.678402900695801, -212.872802734375\",\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.07423580786026202,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L015_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L023_C07_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L016_C06_R05\"],\"maxBackPunch\":18,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":108.76742649078369,\"finishDistance\":121.2419204711914,\"readableRatio\":0.9694323144104804,\"sampleMaxStep\":16.60483741760254,\"selectedDistance\":12.474493980407715,\"settledSamples\":0,\"settledReadableRatio\":0,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.424670219421387, -28.257205963134766\",\"sampledFrames\":229,\"userOrbitDistance\":12.474493980407715,\"lead\":20.571725845336915,\"insideSamples\":[],\"maxBackTo\":\"-2.000030517578125, 3.1892192363739014, -212.86260986328125\",\"settledClearRatio\":0,\"handoffActive\":true,\"mode\":\"CustomPreserved\",\"maxBackFrom\":\"-2.000030517578125, 3.2024452686309814, -212.8626251220703\",\"maxStepTo\":\"-2.000030517578125, 6.334606170654297, -44.82622528076172\",\"visibleRatio\":1},\"cleanupRestored\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshReadable\":true,\"freshValid\":false,\"settleTimedOut\":true,\"inside\":0}",
+      "context": {
+        "cameraDiagnostics": "{\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.0873730182647705, 7.214125633239746, -91.6467514038086\",\"contractValid\":false,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.986548662185669, 4.678402900695801, -212.872802734375\",\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.07423580786026202,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L015_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L023_C07_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L016_C06_R05\"],\"maxBackPunch\":18,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":108.76742649078369,\"finishDistance\":121.2419204711914,\"readableRatio\":0.9694323144104804,\"sampleMaxStep\":16.60483741760254,\"selectedDistance\":12.474493980407715,\"settledSamples\":0,\"settledReadableRatio\":0,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.424670219421387, -28.257205963134766\",\"sampledFrames\":229,\"userOrbitDistance\":12.474493980407715,\"lead\":20.571725845336915,\"insideSamples\":[],\"maxBackTo\":\"-2.000030517578125, 3.1892192363739014, -212.86260986328125\",\"settledClearRatio\":0,\"handoffActive\":true,\"mode\":\"CustomPreserved\",\"maxBackFrom\":\"-2.000030517578125, 3.2024452686309814, -212.8626251220703\",\"maxStepTo\":\"-2.000030517578125, 6.334606170654297, -44.82622528076172\",\"visibleRatio\":1},\"cleanupRestored\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshReadable\":true,\"freshValid\":false,\"settleTimedOut\":true,\"inside\":0}"
+      }
+    }
+  ]
+}

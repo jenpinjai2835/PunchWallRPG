@@ -1,0 +1,42 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium safe-frame failed {\"failures\":[{\"viewportX\":1277,\"distance\":6,\"maxY\":281,\"name\":\"Celestial Guardian\",\"maxX\":382,\"minY\":1,\"viewportY\":780,\"inset\":7.8,\"minX\":63}]}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.742314577102661,\"screen\":0.00133451065184124,\"largest\":1.449999213218689,\"x\":-3.2210025787353517,\"count\":1,\"z\":1.5500011444091797,\"policy\":\"Normal\",\"y\":1.1079518795013428,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.664949893951416,\"rows\":[{\"y\":1.1390845775604249,\"x\":-3.0632028579711916,\"z\":1.5500011444091797,\"screen\":0.0013329105053370193,\"largest\":1.4499998092651368},{\"y\":1.221421480178833,\"x\":3.230539321899414,\"z\":1.5500011444091797,\"screen\":0.0017312672832247693,\"largest\":1.6500319242477418},{\"y\":1.45656418800354,\"x\":-5.395298957824707,\"z\":2.7999982833862306,\"screen\":0.0018694898133416317,\"largest\":1.649999737739563}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.800000548362732,\"combined\":0.022242356789829638,\"maxScreen\":0.00779534957575923,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000006675720215,\"combined\":0.009890671563228171,\"maxScreen\":0.0033984410831547214,\"viewportY\":780,\"minAvatarSeparation\":95.48360443115235,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000011444091797,\"combined\":0.08106011261124703,\"maxScreen\":0.029871701285015839,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3}},\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\"}",
+        "premiumScreenSeparation": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.888986587524414},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.01727919763872025,\"minWorldPair\":1.7804713249206544},\"6\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.07492301566090612,\"minWorldPair\":2.4426376819610597}},\"formation\":\"BoundsAwarePremiumFormationV2\"}"
+      }
+    }
+  ]
+}

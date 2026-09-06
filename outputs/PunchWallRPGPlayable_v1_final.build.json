@@ -1,122 +1,56 @@
 {
-    "ok":  true,
-    "game":  "Smash Wall",
-    "branch":  "codex/fix/qc-release",
-    "sourceCommit":  "6dc441334f957d0fe6d9b086b5bb5cc3a65b1cd1",
-    "sourcePlace":  "F:\\Roblox\\PuchWall-qc-release\\outputs\\.codex-qc-release-source-template.rbxlx",
-    "outputPlace":  "F:\\Roblox\\PuchWall-qc-release\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
-    "sourceRoot":  "F:\\Roblox\\PuchWall-qc-release\\work\\punch-wall-rpg\\src",
-    "bytes":  5593417,
-    "sha256":  "9EB3133E347D5632C3A844AE5627FD3511F7E1B8105B8C1C31641C46E390574E",
-    "templateSha256":  "1A772E92646C8E35B6EBB852DA92ABAD35851E5A97EC5116C5D3A869FF3643B8",
-    "sourceMapVersion":  1,
-    "codeAllowlistVersion":  1,
-    "embeddedModuleCount":  9,
-    "codeObjectCount":  9,
-    "removedCodeObjectCount":  13,
-    "removedCodeObjects":  [
-                               {
-                                   "name":  "Script",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/Script"
-                               },
-                               {
-                                   "name":  "Animate",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/R6/Animate"
-                               },
-                               {
-                                   "name":  "LocalScript",
-                                   "class":  "LocalScript",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/TextLabel/LocalScript"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 1-/Main"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 2-/Main"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 3-/Main"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 4-/Main"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Item 5-/Main"
-                               },
-                               {
-                                   "name":  "Main",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/GuiNameHere/Frame/Special Grade/Main"
-                               },
-                               {
-                                   "name":  "Material",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Coin Shopkeeper NPC Candidate/normal Shop Npc/DO NOT DELETE/Material"
-                               },
-                               {
-                                   "name":  "LocalScript",
-                                   "class":  "LocalScript",
-                                   "path":  "Material/Credits/TextBox/LocalScript"
-                               },
-                               {
-                                   "name":  "Animate",
-                                   "class":  "LocalScript",
-                                   "path":  "ServerStorage/CreatorStoreQC/Premium Robot Merchant NPC Candidate/Soldier/Animate"
-                               },
-                               {
-                                   "name":  "Health",
-                                   "class":  "Script",
-                                   "path":  "ServerStorage/CreatorStoreQC/Premium Robot Merchant NPC Candidate/Soldier/Health"
-                               }
-                           ],
-    "embeddedScripts":  [
-                            "GameConfig",
-                            "PolishConfig",
-                            "ForestVisualBuilder",
-                            "FistVisualBuilder",
-                            "InventoryViewModel",
-                            "ProfilePersistence",
-                            "PunchWallBootstrap",
-                            "InventoryUI",
-                            "PunchWallClient"
-                        ],
-    "exactSourceSha256":  {
-                              "GameConfig":  "A971D7923AD064D070679EDC10EC3428EBE3161A4D46A47576B308B94F4CDC73",
-                              "PolishConfig":  "5B32709854867B3820252AC6EBC23EE0CF4E8589C7D8ADBBDF4D10D250BD974D",
-                              "ForestVisualBuilder":  "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
-                              "FistVisualBuilder":  "C37886B22E2FDF174E23E51B8275CEB0B04F2EDBBF5454CBCB119CD118ECE3A3",
-                              "InventoryViewModel":  "C805F8814FFA9FA8543B529092B6534B76227445AF7FFF4617A085797B871E56",
-                              "ProfilePersistence":  "DAF08CFAF0BB3BFB3A913203896FDA4924BB72FE2C28342DF8614471EF323AAB",
-                              "PunchWallBootstrap":  "27AC72522F42A568A19E5D3A367F1940DBA2922EE9F042C29C18C03CB10EDFD5",
-                              "InventoryUI":  "A46D3101A7FA23151C3DF47409410B48373A014B254D54DA4CFF156BCC2F3885",
-                              "PunchWallClient":  "27773FBA88B71519A755F24D80E968CE39FC67B8985692E9F6496BA960972470"
-                          },
-    "sourceFileSha256":  {
-                             "GameConfig":  "A30C96C3E8A26981434E309A33E030CFBDBEF1B8CEB13BFC0DF6C27AD2A9DE59",
-                             "PolishConfig":  "4A4B862B640B36136595E1841B025443946AD230EFDD5C2035E0293FBBF1C927",
-                             "ForestVisualBuilder":  "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
-                             "FistVisualBuilder":  "6C1C10E918D1506644976CC30E61E21FA837AE76BEE66AD539AFB6581EBF0EF5",
-                             "InventoryViewModel":  "554C6080874942E0B5D388EF330D70B41423B55087B1819424045385E6122436",
-                             "ProfilePersistence":  "155296B3DE325F28265B5E401FACD009FCD58BFDC94E7756E9E8D05C446969F8",
-                             "PunchWallBootstrap":  "38409C8839FFA48242BE9E0EF98F6FAD9AD87EDEC639AE66B42CC27917C9F45B",
-                             "InventoryUI":  "B59619E355C06BD605F2C399BD6A90BB7347BC2023B94B3478EBD52D55F7357C",
-                             "PunchWallClient":  "370B47DB43A521917C5504D31CEEB294C7B93EFAA2E6B41F4D496D6751E13155"
-                         },
-    "cdataPreserved":  true,
-    "configuredGamePasses":  3,
-    "configuredDeveloperProducts":  8,
-    "studioHarnessGuarded":  true,
-    "generatedAtUtc":  "2026-08-19T10:35:42.6256750Z"
+  "ok": true,
+  "game": "Smash Wall",
+  "branch": "codex/feature/smash-completion-20260906",
+  "sourceCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+  "sourcePlace": "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-asset-template.rbxlx",
+  "outputPlace": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+  "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src",
+  "bytes": 6492145,
+  "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+  "templateSha256": "22406EFE5CFFCE2B6A4FC6669D99E1AC094BFDB8EAE7CDC59B760B86EC00191E",
+  "sourceMapVersion": 1,
+  "codeAllowlistVersion": 1,
+  "embeddedModuleCount": 9,
+  "codeObjectCount": 9,
+  "removedCodeObjectCount": 0,
+  "removedCodeObjects": [],
+  "embeddedScripts": [
+    "GameConfig",
+    "PolishConfig",
+    "ForestVisualBuilder",
+    "FistVisualBuilder",
+    "InventoryViewModel",
+    "ProfilePersistence",
+    "PunchWallBootstrap",
+    "InventoryUI",
+    "PunchWallClient"
+  ],
+  "exactSourceSha256": {
+    "GameConfig": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+    "PolishConfig": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+    "ForestVisualBuilder": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+    "FistVisualBuilder": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+    "InventoryViewModel": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+    "ProfilePersistence": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+    "PunchWallBootstrap": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+    "InventoryUI": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+    "PunchWallClient": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B"
+  },
+  "sourceFileSha256": {
+    "GameConfig": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+    "PolishConfig": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+    "ForestVisualBuilder": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+    "FistVisualBuilder": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+    "InventoryViewModel": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+    "ProfilePersistence": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+    "PunchWallBootstrap": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+    "InventoryUI": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+    "PunchWallClient": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E"
+  },
+  "cdataPreserved": true,
+  "configuredGamePasses": 6,
+  "configuredDeveloperProducts": 8,
+  "studioHarnessGuarded": true,
+  "generatedAtUtc": "2026-09-06T13:40:02.3388880Z"
 }

@@ -99,6 +99,11 @@ const targetHeartbeat = block(
   "local targetTimer = 0",
   'gui:SetAttribute("CombatCameraActive", false)',
 );
+const targetDepthSelection = block(
+  client,
+  "function clientRuntime.SelectNearestDepthTarget(",
+  "function clientRuntime.BindGameRoot(",
+);
 check(
   "target_responsiveness_is_unchanged",
   targetHeartbeat.includes("if targetTimer < 0.15 then return end"),
@@ -107,12 +112,35 @@ check(
 check(
   "target_overlap_params_are_stable",
   ambientRegistry.includes("TargetDepthOverlap = OverlapParams.new()")
-    && ambientRegistry.includes("clientRuntime.TargetDepthOverlap.MaxParts = 400")
+    && ambientRegistry.includes("clientRuntime.TargetDepthOverlap.MaxParts = 0")
     && !targetHeartbeat.includes("OverlapParams.new()")
+    && !targetDepthSelection.includes("OverlapParams.new()")
     && targetHeartbeat.includes(
-      "workspace:GetPartBoundsInRadius(rootPart.Position, 38, clientRuntime.TargetDepthOverlap)",
+      "clientRuntime.SelectNearestDepthTarget(rootPart, nearestWall, nearestWallDistance)",
+    )
+    && targetDepthSelection.includes(
+      "workspace:GetPartBoundsInRadius(rootPart.Position, radius, clientRuntime.TargetDepthOverlap)",
     ),
-  "The Heartbeat path must reuse one equivalent OverlapParams instance.",
+  "The Heartbeat path must reuse one uncapped OverlapParams instance; unordered capped hits can omit the nearest target.",
+);
+check(
+  "target_complete_search_is_progressive",
+  targetDepthSelection.includes("ipairs({ 8, 16, 24, 38 })")
+    && targetDepthSelection.includes("if nearestWall and nearestWallDistance <= radius then break end")
+    && targetDepthSelection.includes("if not seen[block] then")
+    && !targetDepthSelection.includes("GetChildren()")
+    && !targetDepthSelection.includes("GetDescendants()")
+    && targetDepthSelection.includes("facing > -0.1"),
+  "Complete local queries must stop only after all potentially nearer centers were searched, retain facing and the 38-stud final horizon, and deduplicate repeated hits.",
+);
+check(
+  "target_progressive_workload_is_observable",
+  ambientRegistry.includes('gui:SetAttribute("TargetDepthQueryMode", "ProgressiveCompleteV1")')
+    && targetDepthSelection.includes('gui:SetAttribute("TargetDepthQueryCount"')
+    && targetDepthSelection.includes('gui:SetAttribute("TargetDepthCandidateCount"')
+    && targetDepthSelection.includes('gui:SetAttribute("TargetDepthUniqueCandidates"')
+    && targetDepthSelection.includes('gui:SetAttribute("TargetDepthSearchRadius"'),
+  "Each target scan must report actual query, raw/unique result and searched-radius workload.",
 );
 check(
   "target_folders_are_event_driven",

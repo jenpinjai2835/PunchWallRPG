@@ -1,0 +1,146 @@
+{
+  "ok": true,
+  "passed": 43,
+  "total": 43,
+  "realClickGestures": 25,
+  "mouseDownActions": 25,
+  "mouseUpActions": 25,
+  "legacyClickActions": 0,
+  "moveActions": 50,
+  "settleWaitActions": 25,
+  "holdWaitActions": 25,
+  "freshPrechecks": 25,
+  "callbackAttestations": 25,
+  "requestAttestations": 9,
+  "coordinateCopies": 25,
+  "coordinateCasesPerCopy": 22,
+  "coordinateAssertions": 2450,
+  "coordinateNegativeControls": [
+    {
+      "name": "omit_inset",
+      "status": "REJECTED"
+    },
+    {
+      "name": "subtract_inset",
+      "status": "REJECTED"
+    },
+    {
+      "name": "apply_inset_twice",
+      "status": "REJECTED"
+    },
+    {
+      "name": "include_outside_right_edge",
+      "status": "REJECTED"
+    },
+    {
+      "name": "include_outside_bottom_edge",
+      "status": "REJECTED"
+    },
+    {
+      "name": "transform_native_hit_coordinates",
+      "status": "REJECTED"
+    }
+  ],
+  "compiledFlowChunks": 34,
+  "checks": {
+    "all_25_prechecks_share_inset_aware_viewport_geometry": true,
+    "prechecks_report_both_coordinate_spaces": true,
+    "actual_all_25_coordinate_prechecks_execute_correctly": true,
+    "coordinate_negative_omit_inset": true,
+    "coordinate_negative_subtract_inset": true,
+    "coordinate_negative_apply_inset_twice": true,
+    "coordinate_negative_include_outside_right_edge": true,
+    "coordinate_negative_include_outside_bottom_edge": true,
+    "coordinate_negative_transform_native_hit_coordinates": true,
+    "flow_identity_version_and_cleanup": true,
+    "exactly_25_coupled_balanced_left_gestures": true,
+    "all_gesture_actions_share_one_segmented_coordinate_cache_key": true,
+    "required_real_control_paths_are_covered": true,
+    "every_click_has_fresh_complete_hit_precheck": true,
+    "telemetry_listeners_are_observation_only": true,
+    "every_click_has_exact_callback_attestation": true,
+    "inventory_close_to_shop_precheck_preserves_exact_failure_state": true,
+    "no_cross_call_executable_state_or_hidden_input_retry": true,
+    "server_request_spy_is_bounded_to_nine_mutations": true,
+    "mutating_clicks_have_bounded_exact_authority_assertions": true,
+    "request_sequence_and_payload_contract_is_exact": true,
+    "rerender_sensitive_paths_use_bounded_observation": true,
+    "inventory_safe_action_is_server_verified": true,
+    "tasks_claims_are_exact_and_authoritative": true,
+    "settings_rebuilds_use_current_standalone_controls": true,
+    "current_source_hierarchy_matches_flow": true,
+    "scope_excludes_other_real_input_profiles": true,
+    "every_click_has_post_state_or_authority_evidence": true,
+    "console_and_edit_cleanup_are_terminal": true,
+    "rare_fixture_matches_current_catalog_and_excludes_owned_common_items": true,
+    "rare_negative_common_item_in_rare_fixture": true,
+    "rare_negative_drop_common_exclusion": true,
+    "rare_negative_wrong_authoritative_item": true,
+    "rare_negative_changed_catalog_rarity": true,
+    "real_ui_seed_refuses_live_persistence": true,
+    "standalone_settings_gestures_keep_exact_action_identity": true,
+    "settings_negative_obsolete_settings_host": true,
+    "settings_negative_wrong_scale_option": true,
+    "tasks_claim_precheck_reacquires_after_idle_snapshot_and_scroll": true,
+    "idle_observer_copies_preserve_native_selection_settle": true,
+    "tasks_idle_negative_drop_identity_equality": true,
+    "tasks_idle_negative_force_hittable": true,
+    "tasks_idle_negative_remove_stats_listener_cleanup": true
+  },
+  "fixtureNegativeControls": [
+    {
+      "name": "common_item_in_rare_fixture",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "drop_common_exclusion",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "wrong_authoritative_item",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "changed_catalog_rarity",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "obsolete_settings_host",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "wrong_scale_option",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    }
+  ],
+  "idleObservationNegativeControls": [
+    {
+      "name": "drop_identity_equality",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "force_hittable",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "remove_stats_listener_cleanup",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    }
+  ],
+  "studioRuntimeStatus": "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
+  "files": [
+    "work\\automation\\flows\\full-game-real-ui-controls.json",
+    "work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+    "work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+    "work\\punch-wall-rpg\\src\\shared\\GameConfig.lua"
+  ]
+}

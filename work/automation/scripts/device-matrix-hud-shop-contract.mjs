@@ -53,8 +53,8 @@ check(
       const source = step.args?.code || "";
       return step.expectRegex?.some((pattern) =>
         pattern.includes("cards") && pattern.endsWith("16"))
-        && source.includes("local function shown(d)")
-        && source.includes("notFitNames=notFitNames")
+        && source.includes("local function shown(x)")
+        && source.includes("notFitNames")
         && source.includes("assert(result.visible")
         && !source.includes("d.Visible and not d.TextFits");
     }),
@@ -117,14 +117,25 @@ check(
 check(
   "long_catalog_names_and_prices_scale_inside_every_card",
   client.includes("productNameLabel.TextScaled = true")
-    && client.includes("productNameSize.MinTextSize = compactCards and 6 or 10")
-    && client.includes("productNameSize.MaxTextSize = compactCards and 8 or 17")
+    && client.includes("productNameSize.MinTextSize = 14")
+    && client.includes("productNameSize.MaxTextSize = compactCards and 16 or 17")
     && client.includes("priceLabel.TextScaled = true")
-    && client.includes("priceTextSize.MaxTextSize = compactCards and 8 or 14")
-    && client.includes('"MobileCatalogDenseV3"')
-    && client.includes('"ShopCompactTextScale"')
+    && client.includes("priceTextSize.MaxTextSize = compactCards and 16 or 14")
+    && client.includes('"MobileReadableRowsV1"')
+    && client.includes('"ShopMinimumPrimaryTextSize"')
     && !client.includes("if #productName > 18 then"),
-  "Every visible long-play product name and price must use bounded scaling; short strings can still clip in narrow half-width cards.",
+  "Catalog names keep a 14px floor on desktop and compact rows; price and measured mobile runtime checks remain required.",
+);
+
+check(
+  "matrix_uses_real_navigation_and_measured_safe_area",
+  shopSteps.every(step => {
+    const source = step.args?.code || "";
+    return source.includes("a:Invoke('OpenTab','Fists')") && source.includes("safe.AbsoluteSize")
+      && source.includes("inside(g.GameMenu,safe)") && source.includes("CanvasPosition")
+      && !source.includes("AutomationTab") && !source.includes("GameMenu.Visible=true");
+  }),
+  "Each matrix viewport must open through the production path and measure bounds and scroll in the rendered safe viewport.",
 );
 
 const passed = Object.values(checks).filter(Boolean).length;

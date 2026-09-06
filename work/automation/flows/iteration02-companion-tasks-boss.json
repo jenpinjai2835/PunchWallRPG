@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,14 +24,10 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal root=workspace.PunchWallRPG\nlocal decor=root.Polish[\"City Decor\"]\nlocal dna=decor[\"DNA Lab Compact Sign\"]\nlocal boss=root.Walls[\"Titan Server Wall\"]\nlocal parts,images,decals=0,0,0\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 end end\nfor _,d in ipairs(dna:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://80764015986038\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://80764015986038\" then decals+=1 end end\nreturn H:JSONEncode({parts=parts,images=images,decals=decals,nextAttack=boss:GetAttribute(\"NextAttackAt\"),hasNextAttribute=boss:GetAttribute(\"NextAttackAt\")~=nil})"
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local root=workspace.PunchWallRPG local function verifyArtworkFace(part,face,asset)\n assert(part and part:IsA('BasePart') and part.Transparency<1,'art host missing or hidden')\n assert(type(asset)=='string' and asset~='','configured art missing')\n local images,decals=0,0\n for _,d in ipairs(part:GetChildren()) do\n  if d:IsA('SurfaceGui') and d.Face==face and d.Enabled then\n   for _,image in ipairs(d:GetDescendants()) do\n    if image:IsA('ImageLabel') and image.Visible and image.ImageTransparency<1 and image.Image==asset then images+=1 end\n   end\n  elseif d:IsA('Decal') and d.Face==face and d.Texture==asset and d.Transparency<1 then decals+=1 end\n end\n assert(images==1 and decals==1,'expected one visible image and decal on '..tostring(face)..' for '..asset)\n return true\nend\n\nfor _,face in ipairs({Enum.NormalId.Front,Enum.NormalId.Back}) do verifyArtworkFace(root.Polish['City Decor']['DNA Lab Compact Sign'],face,G.GeneratedGraphics.Iteration02DNABanner) end\nassert(root.Walls['Titan Server Wall']:GetAttribute('NextAttackAt')==0,'idle Titan countdown armed') return H:JSONEncode({ok=true,dnaBothFaces=true,idleCountdown=0}) "
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
-        "\"images\"\\s*:\\s*1",
-        "\"decals\"\\s*:\\s*1",
-        "\"nextAttack\"\\s*:\\s*0",
-        "\"hasNextAttribute\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "DNA graphic and boss countdown contract exist"
     },
@@ -38,7 +36,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Coins=10000,Power=60,WallLevel=25,FistMastery=10,DailyBreaks=0,DailyQuestClaimed=0,PlaytimeSeconds=5,PlaytimeClaimed=0})\nlocal hatch=c:Invoke(\"HatchPet\")\nif hatch.pet then c:Invoke(\"EquipPet\",hatch.pet) end\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn H:JSONEncode({pet=hatch.pet,ok=hatch.ok})"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Coins=10000,Power=60,WallLevel=25,FistMastery=10,DailyBreaks=0,DailyQuestClaimed=0,PlaytimeSeconds=5,PlaytimeClaimed=0})\nlocal hatch=c:Invoke(\"HatchPet\")\nif hatch.pet then c:Invoke(\"EquipPet\",hatch.pet) end\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn H:JSONEncode({pet=hatch.pet,ok=hatch.ok})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -56,48 +54,36 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\ng:SetAttribute(\"AutomationTab\",\"Pets\")\ntask.wait(.45)\nlocal c=g.GameMenu.Content\nlocal banner=c:FindFirstChild(\"Hero City Generated Banner\")\nlocal folder=workspace:FindFirstChild(p.Name..\" Client Companions\")\nlocal model=folder and folder:FindFirstChildWhichIsA(\"Model\")\nlocal maxSize,eyes,feet,tails=0,0,0,0\nif model then for _,d in ipairs(model:GetDescendants()) do if d:IsA(\"BasePart\") then maxSize=math.max(maxSize,d.Size.X,d.Size.Y,d.Size.Z) end if d.Name==\"Eye\" then eyes+=1 elseif d.Name==\"Foot\" then feet+=1 elseif d.Name==\"Tail\" then tails+=1 end end end\nlocal row,thumb\nfor _,d in ipairs(c:GetChildren()) do if d:IsA(\"Frame\") and string.match(d.Name,\"^#%d+\") then row=d thumb=d:FindFirstChild(\"Pet Rarity Thumbnail\") break end end\nlocal actions=row and row:FindFirstChild(\"Actions\")\nlocal buttons,layoutOK=0,true\nif actions then for _,b in ipairs(actions:GetChildren()) do if b:IsA(\"TextButton\") then buttons+=1 layoutOK=layoutOK and b.AbsoluteSize.Y>=44 and b.AbsolutePosition.X>=actions.AbsolutePosition.X-1 and b.AbsolutePosition.X+b.AbsoluteSize.X<=actions.AbsolutePosition.X+actions.AbsoluteSize.X+1 end end end\nlocal char=p.Character\nlocal gauntlet=char and char:FindFirstChild(\"Equipped Kaiju Gauntlet\")\nlocal mutation,tailSegments,knuckles,wedges=0,0,0,0\nif gauntlet then for _,d in ipairs(gauntlet:GetDescendants()) do if string.find(d.Name,\"Starter Mutation\",1,true) then mutation+=1 elseif string.find(d.Name,\"Kaiju Tail Segment\",1,true) then tailSegments+=1 elseif string.find(d.Name,\"Closed Knuckle\",1,true) then knuckles+=1 elseif d:IsA(\"WedgePart\") then wedges+=1 end end end\nlocal distance=(model and model.PrimaryPart and char and char:FindFirstChild(\"HumanoidRootPart\")) and (model.PrimaryPart.Position-char.HumanoidRootPart.Position).Magnitude or 0\nreturn H:JSONEncode({banner=banner and banner.Image or \"\",companion=model~=nil,sizeOK=maxSize<=1.91,eyes=eyes,feet=feet,tails=tails,distanceOK=distance>=2 and distance<=6,thumb=thumb and thumb.Image or \"\",buttons=buttons,layoutOK=layoutOK,mutation=mutation,tailSegments=tailSegments,knuckles=knuckles,wedges=wedges,closed=gauntlet and gauntlet:GetAttribute(\"ClosedFist\"),cuff=gauntlet and gauntlet:FindFirstChild(\"Gauntlet Tapered Cuff\")~=nil})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function assertContained(container,object)\n assert(object and object:IsA('GuiObject') and object.AbsoluteSize.X>0 and object.AbsoluteSize.Y>0,'missing rendered rectangle')\n local a,b=container.AbsolutePosition,container.AbsoluteSize local p,s=object.AbsolutePosition,object.AbsoluteSize\n assert(p.X>=a.X-1 and p.Y>=a.Y-1 and p.X+s.X<=a.X+b.X+1 and p.Y+s.Y<=a.Y+b.Y+1,'rendered bounds outside safe host: '..object.Name)\nend\nlocal function effectivelyVisible(object)\n local node=object while node do if node:IsA('GuiObject') and not node.Visible then return false end node=node.Parent end return true\nend\na:Invoke('OpenTab','Pets') task.wait(.5) local inv=a:Invoke('InventorySnapshot') assert(inv.ok and inv.visible and inv.category=='Pets' and #inv.visibleKeys>=1,'Pets does not open real Inventory')\nlocal folder=assert(workspace:FindFirstChild(p.Name..' Client Companions')) local model=assert(folder:FindFirstChildWhichIsA('Model')) local G=require(game.ReplicatedStorage.GameConfig) local def\nfor _,item in ipairs(G.Pets) do if item.name==model:GetAttribute('PetDefinitionName') then def=item break end end assert(def,'unknown companion definition')\nassert(model:GetAttribute('PetVisualIdentity')==def.templateName and model:GetAttribute('PetTemplate')==def.templateName,'equipped pet lost actual imported identity')\nlocal parts=0 for _,d in ipairs(model:GetDescendants()) do if d:IsA('BasePart') then parts+=1 assert(d.Anchored and not d.CanCollide and not d.CanTouch and not d.CanQuery and d.Massless,'companion physics flags unsafe') elseif d:IsA('LuaSourceContainer') or d:IsA('JointInstance') or d:IsA('Constraint') or d:IsA('BodyMover') or d:IsA('Animator') then error('companion behavior hazard '..d.ClassName) end end assert(parts>0,'empty companion')\nlocal distance=(model:GetPivot().Position-p.Character.HumanoidRootPart.Position).Magnitude assert(distance>=2 and distance<=8,'companion spacing outside follow band')\na:Invoke('SelectInventoryItem',inv.visibleKeys[1]) task.wait(.2) local selected=a:Invoke('InventorySnapshot') assert(selected.selected and selected.selected.previewPet==def.name and selected.selected.equipped,'selected inventory identity/equipment mismatch')\nlocal window=g.GameMenu.FunctionalInventory assert(effectivelyVisible(window),'actual Inventory invisible')\nreturn H:JSONEncode({ok=true,companion=def.name,template=def.templateName,parts=parts,distance=distance,inventory=true}) "
       },
       "expectRegex": [
-        "rbxassetid://80764015986038",
-        "\"companion\"\\s*:\\s*true",
-        "\"sizeOK\"\\s*:\\s*true",
-        "\"eyes\"\\s*:\\s*2",
-        "\"feet\"\\s*:\\s*4",
-        "\"tails\"\\s*:\\s*1",
-        "\"distanceOK\"\\s*:\\s*true",
-        "rbxassetid://114585325653299",
-        "\"buttons\"\\s*:\\s*3",
-        "\"layoutOK\"\\s*:\\s*true",
-        "\"mutation\"\\s*:\\s*0",
-        "\"tailSegments\"\\s*:\\s*0",
-        "\"knuckles\"\\s*:\\s*4",
-        "\"wedges\"\\s*:\\s*0",
-        "\"closed\"\\s*:\\s*true",
-        "\"cuff\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "companion, pet menu, and closed fist preserve the avatar"
+      "label": "imported companion identity and real pet inventory"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local ordered={}\nlocal menu=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.GameMenu\nlocal tabBar=menu:FindFirstChild(\"Tabs\")\nassert(tabBar,\"Tabs missing\")\nfor _,d in ipairs(tabBar:GetChildren()) do if d:IsA(\"TextButton\") then table.insert(ordered,{x=d.AbsolutePosition.X,name=d.Name}) end end\ntable.sort(ordered,function(a,b) return a.x<b.x end)\nlocal names={} for _,item in ipairs(ordered) do table.insert(names,item.name) end\nreturn table.concat(names,\"|\")"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nfor _,tab in ipairs({'Fists','Pets','Tasks','Settings'}) do a:Invoke('OpenTab',tab) task.wait(.25) local s=a:Invoke('Snapshot')\n if tab=='Fists' then assert(s.shopVisible and not s.inventoryVisible and not s.settingsVisible,'Shop route wrong') elseif tab=='Pets' then assert(s.inventoryVisible and not s.shopVisible and s.inventory.category=='Pets','Pets route wrong') elseif tab=='Settings' then assert(s.settingsVisible and not s.shopVisible and not s.inventoryVisible,'Settings route wrong') else assert(s.activeTab=='Tasks' and g.GameMenu.Content.Visible,'Tasks route wrong') end end\na:Invoke('CloseMenus') return H:JSONEncode({ok=true,routes=4}) "
       },
       "expectRegex": [
-        "^FistsTab\\|PetsTab\\|TasksTab\\|SettingsTab$"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "menu tabs keep intentional left-to-right order"
+      "label": "four menu actions route to their actual current surfaces"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"SetStats\",{Power=15,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.new(-2,7,-13)\nc:Invoke(\"HitWall\",\"Brick Wall\")\nreturn true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('Reset') c:Invoke('ResetWorld') c:Invoke('SetStats',{Power=2,WallLevel=25,FistMultiplier=1,PetMultiplier=0,FistMastery=1,CritChance=0}) local block=root['Depth Blocks'].DepthBlock_L001_C06_R02\nlocal hrp=p.Character.HumanoidRootPart\nif hrp:GetAttribute('SmashHUDConsumerOriginalAnchored')==nil then hrp:SetAttribute('SmashHUDConsumerOriginalAnchored',hrp.Anchored) end\nhrp.Anchored=true hrp.AssemblyLinearVelocity=Vector3.zero hrp.AssemblyAngularVelocity=Vector3.zero\nhrp.CFrame=CFrame.lookAt(block.Position+Vector3.new(0,0,8),block.Position)\n assert(c:Invoke('HitWall','Brick Wall').ok) local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
-      "label": "refresh deterministic wall target state"
+      "label": "refresh deterministic wall target state",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
@@ -109,14 +95,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.GameMenu.Visible=false\ntask.wait(.6)\nlocal hud=g.TargetWallHUD\nreturn H:JSONEncode({visible=hud.Visible,detail=hud.TargetDetail.Text,hasHits=string.find(string.lower(hud.TargetDetail.Text),\"hits\",1,true)~=nil})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local G=require(game.ReplicatedStorage.GameConfig)\nlocal function combatNumber(value)\n value=tonumber(value) or 0\n for _,unit in ipairs({{1e12,'T'},{1e9,'B'},{1e6,'M'},{1e3,'K'}}) do if math.abs(value)>=unit[1] then return string.format('%.1f%s',value/unit[1],unit[2]) end end\n return tostring(math.floor(value+.5))\nend\nlocal function verifyCombatPresentation(actual,expected)\n assert(actual.kind==expected.kind and actual.target==expected.target and actual.canonical==expected.canonical,'HUD target/canonical identity disagrees with actual target')\n assert(actual.wallVisible==(expected.kind=='Wall') and actual.bossVisible==(expected.kind=='Boss'),'wall/boss presentation is not exclusive')\n assert(actual.title==expected.title,'HUD display title/phase/weak-point guidance incorrect')\n assert(math.abs(actual.fill-expected.fill)<.001,'HUD fill disagrees with actual HP')\n assert(actual.detail:find(expected.hpText,1,true)==1,'HUD HP numbers disagree with actual target')\n assert(actual.outlineCount==1,'owned target outline duplicated or missing')\n if expected.kind=='Wall' then\n  assert(actual.hits==expected.hits and actual.detail==expected.hpText..'  |  ~'..combatNumber(expected.hits)..' hits','HUD hit estimate disagrees with authoritative effective power')\n  assert(actual.outlineEnabled and actual.outlineTarget==expected.target,'outline lost actual live target')\n else\n  assert(not actual.outlineEnabled and actual.outlineTarget=='','boss retains stale wall outline')\n  if expected.countdown then\n   local seconds=tonumber(actual.detail:match('  |  SHOCKWAVE (%d+)s$'))\n   assert(seconds and seconds>=0 and math.abs(seconds-expected.countdown)<=1 and actual.detail==expected.hpText..'  |  SHOCKWAVE '..seconds..'s','HUD countdown disagrees with replicated attack deadline')\n  else assert(actual.detail==expected.hpText..'  |  TARGET RED CORES','idle boss weak-point guidance incorrect') end\n end\n assert(actual.distance<= (expected.kind=='Wall' and 24 or 55),'target outside presentation range')\n assert(actual.textFits and actual.safeBounds,'actual HUD text/bounds clipped')\n return true\nend\nlocal function replicatedPower(p,G)\n local function read(name,fallback) local value=p.RPGStats:FindFirstChild(name) or p.leaderstats:FindFirstChild(name) return value and value.Value or fallback end\n return G.EffectivePower(read('Power',0),read('FistMultiplier',1),read('PetMultiplier',0),read('Rebirths',0),read('FistMastery',1),read('HonorPowerBonus',0))\nend\nlocal function observeCombatHUD(g,p,target,kind)\n local frame=kind=='Wall' and g.TargetWallHUD or g.BossHUD\n local title=kind=='Wall' and frame.TargetTitle or frame.BossTitle\n local detail=kind=='Wall' and frame.TargetDetail or frame.BossSubtitle\n local track=kind=='Wall' and frame.HealthTrack or frame.BossHealthTrack\n local fill=kind=='Wall' and track.HealthFill or track.BossHealthFill\n local outline,count=nil,0\n for _,item in ipairs(workspace:GetChildren()) do if item.Name=='Local Target Highlight' and item:IsA('Highlight') then outline=item count+=1 end end\n local safe=g.PixelPerfectHeroCityHUD local a,s=safe.AbsolutePosition,safe.AbsoluteSize local b,z=frame.AbsolutePosition,frame.AbsoluteSize\n return {kind=g:GetAttribute('CombatHUDKind'),target=g:GetAttribute('CombatHUDTarget'),canonical=g:GetAttribute('CombatHUDCanonicalTarget'),hits=g:GetAttribute('CombatHUDHitEstimate'),wallVisible=g.TargetWallHUD.Visible,bossVisible=g.BossHUD.Visible,title=title.Text,detail=detail.Text,fill=fill.Size.X.Scale,outlineCount=count,outlineEnabled=outline and outline.Enabled==true,outlineTarget=outline and outline.Adornee and outline.Adornee.Name or '',distance=(target.Position-p.Character.HumanoidRootPart.Position).Magnitude,textFits=title.AbsoluteSize.X>0 and detail.AbsoluteSize.X>0 and title.TextBounds.X<=title.AbsoluteSize.X+1 and title.TextBounds.Y<=title.AbsoluteSize.Y+1 and detail.TextBounds.X<=detail.AbsoluteSize.X+1 and detail.TextBounds.Y<=detail.AbsoluteSize.Y+1,safeBounds=z.X>0 and z.Y>0 and b.X>=a.X-1 and b.Y>=a.Y-1 and b.X+z.X<=a.X+s.X+1 and b.Y+z.Y<=a.Y+s.Y+1}\nend\nlocal function awaitCombatTarget(g,kind,name)\n g.PunchWallClientAutomation:Invoke('CloseMenus')\n local deadline=os.clock()+4\n repeat task.wait(.05) until (g:GetAttribute('CombatHUDKind')==kind and g:GetAttribute('CombatHUDTarget')==name) or os.clock()>deadline\n assert(g:GetAttribute('CombatHUDKind')==kind and g:GetAttribute('CombatHUDTarget')==name,'bounded HUD target observation timed out')\nend\n\nlocal b=assert(workspace.PunchWallRPG['Depth Blocks']:FindFirstChild('DepthBlock_L001_C06_R02'),'fixture block missing')\nawaitCombatTarget(g,'Wall',b.Name)\nlocal def=assert(G.Walls[b:GetAttribute('MaterialTier')]) local hp,maxHP=b:GetAttribute('HP'),b:GetAttribute('MaxHP')\nassert(not b:GetAttribute('Broken') and b.CanQuery and b.Transparency<1 and hp>0 and maxHP>0,'target is not actual live geometry')\nassert(hp<maxHP,'partial damage fixture no longer present')\nlocal level=p.leaderstats.WallLevel.Value assert(level>=b:GetAttribute('RequiredLevel'),'hit estimate fixture below level gate')\nlocal damage=replicatedPower(p,G) if (p:GetAttribute('DamageBoostExpiresAt') or 0)>workspace:GetServerTimeNow() then damage*=2 end assert(damage>0,'fixture has no effective power')\nlocal expected={kind='Wall',target=b.Name,canonical=def.name,title=string.upper(def.displayName or def.name),fill=hp/maxHP,hpText='HP '..combatNumber(hp)..'/'..combatNumber(maxHP),hits=math.ceil(hp/damage)}\nlocal actual=observeCombatHUD(g,p,b,'Wall') verifyCombatPresentation(actual,expected)\nassert(not g.ContextTarget.Visible,'generic context overlaps wall target')\n\nreturn H:JSONEncode({ok=true,title=actual.title,canonical=actual.canonical,detail=actual.detail,actualFill=actual.fill,expectedFill=expected.fill,hits=actual.hits,target=actual.target})"
       },
       "expectRegex": [
-        "\"visible\"\\s*:\\s*true",
-        "\"hasHits\"\\s*:\\s*true",
-        "~[0-9]+ hits"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "wall HUD estimates current hits remaining"
+      "label": "wall HUD estimates actual effective-power hits remaining"
     },
     {
       "type": "call",
@@ -139,14 +123,13 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
-        "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal r=game.ServerStorage.PunchWallAutomation:Invoke(\"ClaimQuest\")\nreturn H:JSONEncode({ok=r.ok,reason=r.reason})"
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal events=game.ReplicatedStorage.PunchWallEvents local response local connection=events.Feedback.OnClientEvent:Connect(function(v) if v.target=='Quest' then response=v end end)\nlocal good,err=pcall(function() events.ActionRequest:FireServer({action='ClaimQuest'}) local deadline=os.clock()+4 repeat task.wait(.04) until response or os.clock()>deadline assert(response and response.type=='Fail','early Quest did not reject') end) connection:Disconnect() assert(good,err) return H:JSONEncode({ok=true,kind=response.type,target=response.target}) "
       },
       "expectRegex": [
-        "\"ok\"\\s*:\\s*false",
-        "\"reason\"\\s*:\\s*\"not_ready\""
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "early quest claim rejected authoritatively"
+      "label": "early quest claim rejects through real remote feedback"
     },
     {
       "type": "wait",
@@ -157,21 +140,20 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nreturn H:JSONEncode({type=g:GetAttribute(\"LastFeedbackType\"),target=g:GetAttribute(\"LastFeedbackTarget\")})"
+        "datamodel_type": "Server",
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal r=c:Invoke('ClaimQuest') assert(r.ok==false and r.reason=='not_ready','early quest authority changed') local H=game:GetService('HttpService') return H:JSONEncode({ok=true,reason=r.reason}) "
       },
       "expectRegex": [
-        "\"type\"\\s*:\\s*\"Fail\"",
-        "\"target\"\\s*:\\s*\"Quest\""
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "failed claim gives explicit local feedback"
+      "label": "early quest reward remains authoritatively unavailable"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"ResetWorld\")\nc:Invoke(\"SetStats\",{Power=200000000,WallLevel=99,Depth=75,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\np.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,7,-320),Vector3.new(-2,9,-340))\nlocal hit=c:Invoke(\"HitBoss\")\nreturn H:JSONEncode({ok=hit.ok,broken=hit.TitanBroken,hp=hit.TitanHP,phase=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"]:GetAttribute(\"BossPhase\")})"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nlocal H=game:GetService(\"HttpService\")\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke(\"Reset\")\nc:Invoke(\"ResetWorld\")\nc:Invoke(\"SetStats\",{Power=200000000,WallLevel=99,Depth=75,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1})\nlocal p=game.Players:GetPlayers()[1]\nlocal boss=workspace.PunchWallRPG.Walls['Titan Server Wall'] local hrp=p.Character.HumanoidRootPart\nif hrp:GetAttribute('SmashHUDConsumerOriginalAnchored')==nil then hrp:SetAttribute('SmashHUDConsumerOriginalAnchored',hrp.Anchored) end\nhrp.Anchored=true hrp.AssemblyLinearVelocity=Vector3.zero hrp.AssemblyAngularVelocity=Vector3.zero\nhrp.CFrame=CFrame.lookAt(Vector3.new(boss.Position.X,7,boss.Position.Z-boss.Size.Z*.5-16),Vector3.new(boss.Position.X,9,boss.Position.Z))\nlocal minWallDistance=math.huge for _,block in ipairs(workspace.PunchWallRPG['Depth Blocks']:GetChildren()) do if block:IsA('BasePart') and not block:GetAttribute('Broken') and block.CanQuery and block.Transparency<1 then minWallDistance=math.min(minWallDistance,(block.Position-hrp.Position).Magnitude) end end\nassert(minWallDistance>24 and (boss.Position-hrp.Position).Magnitude<=55,'boss fixture overlaps a closer valid wall target')\n\nlocal hit=c:Invoke(\"HitBoss\")\nreturn H:JSONEncode({ok=hit.ok,broken=hit.TitanBroken,hp=hit.TitanHP,phase=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"]:GetAttribute(\"BossPhase\")})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
@@ -204,15 +186,12 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\")\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\ng.GameMenu.Visible=false\ntask.wait(.3)\nreturn H:JSONEncode({visible=g.BossHUD.Visible,title=g.BossHUD.BossTitle.Text,subtitle=g.BossHUD.BossSubtitle.Text,weak=string.find(g.BossHUD.BossTitle.Text,\"x1.5\",1,true)~=nil,countdown=string.find(g.BossHUD.BossSubtitle.Text,\"SHOCKWAVE\",1,true)~=nil})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local G=require(game.ReplicatedStorage.GameConfig)\nlocal function combatNumber(value)\n value=tonumber(value) or 0\n for _,unit in ipairs({{1e12,'T'},{1e9,'B'},{1e6,'M'},{1e3,'K'}}) do if math.abs(value)>=unit[1] then return string.format('%.1f%s',value/unit[1],unit[2]) end end\n return tostring(math.floor(value+.5))\nend\nlocal function verifyCombatPresentation(actual,expected)\n assert(actual.kind==expected.kind and actual.target==expected.target and actual.canonical==expected.canonical,'HUD target/canonical identity disagrees with actual target')\n assert(actual.wallVisible==(expected.kind=='Wall') and actual.bossVisible==(expected.kind=='Boss'),'wall/boss presentation is not exclusive')\n assert(actual.title==expected.title,'HUD display title/phase/weak-point guidance incorrect')\n assert(math.abs(actual.fill-expected.fill)<.001,'HUD fill disagrees with actual HP')\n assert(actual.detail:find(expected.hpText,1,true)==1,'HUD HP numbers disagree with actual target')\n assert(actual.outlineCount==1,'owned target outline duplicated or missing')\n if expected.kind=='Wall' then\n  assert(actual.hits==expected.hits and actual.detail==expected.hpText..'  |  ~'..combatNumber(expected.hits)..' hits','HUD hit estimate disagrees with authoritative effective power')\n  assert(actual.outlineEnabled and actual.outlineTarget==expected.target,'outline lost actual live target')\n else\n  assert(not actual.outlineEnabled and actual.outlineTarget=='','boss retains stale wall outline')\n  if expected.countdown then\n   local seconds=tonumber(actual.detail:match('  |  SHOCKWAVE (%d+)s$'))\n   assert(seconds and seconds>=0 and math.abs(seconds-expected.countdown)<=1 and actual.detail==expected.hpText..'  |  SHOCKWAVE '..seconds..'s','HUD countdown disagrees with replicated attack deadline')\n  else assert(actual.detail==expected.hpText..'  |  TARGET RED CORES','idle boss weak-point guidance incorrect') end\n end\n assert(actual.distance<= (expected.kind=='Wall' and 24 or 55),'target outside presentation range')\n assert(actual.textFits and actual.safeBounds,'actual HUD text/bounds clipped')\n return true\nend\nlocal function observeCombatHUD(g,p,target,kind)\n local frame=kind=='Wall' and g.TargetWallHUD or g.BossHUD\n local title=kind=='Wall' and frame.TargetTitle or frame.BossTitle\n local detail=kind=='Wall' and frame.TargetDetail or frame.BossSubtitle\n local track=kind=='Wall' and frame.HealthTrack or frame.BossHealthTrack\n local fill=kind=='Wall' and track.HealthFill or track.BossHealthFill\n local outline,count=nil,0\n for _,item in ipairs(workspace:GetChildren()) do if item.Name=='Local Target Highlight' and item:IsA('Highlight') then outline=item count+=1 end end\n local safe=g.PixelPerfectHeroCityHUD local a,s=safe.AbsolutePosition,safe.AbsoluteSize local b,z=frame.AbsolutePosition,frame.AbsoluteSize\n return {kind=g:GetAttribute('CombatHUDKind'),target=g:GetAttribute('CombatHUDTarget'),canonical=g:GetAttribute('CombatHUDCanonicalTarget'),hits=g:GetAttribute('CombatHUDHitEstimate'),wallVisible=g.TargetWallHUD.Visible,bossVisible=g.BossHUD.Visible,title=title.Text,detail=detail.Text,fill=fill.Size.X.Scale,outlineCount=count,outlineEnabled=outline and outline.Enabled==true,outlineTarget=outline and outline.Adornee and outline.Adornee.Name or '',distance=(target.Position-p.Character.HumanoidRootPart.Position).Magnitude,textFits=title.AbsoluteSize.X>0 and detail.AbsoluteSize.X>0 and title.TextBounds.X<=title.AbsoluteSize.X+1 and title.TextBounds.Y<=title.AbsoluteSize.Y+1 and detail.TextBounds.X<=detail.AbsoluteSize.X+1 and detail.TextBounds.Y<=detail.AbsoluteSize.Y+1,safeBounds=z.X>0 and z.Y>0 and b.X>=a.X-1 and b.Y>=a.Y-1 and b.X+z.X<=a.X+s.X+1 and b.Y+z.Y<=a.Y+s.Y+1}\nend\nlocal function awaitCombatTarget(g,kind,name)\n g.PunchWallClientAutomation:Invoke('CloseMenus')\n local deadline=os.clock()+4\n repeat task.wait(.05) until (g:GetAttribute('CombatHUDKind')==kind and g:GetAttribute('CombatHUDTarget')==name) or os.clock()>deadline\n assert(g:GetAttribute('CombatHUDKind')==kind and g:GetAttribute('CombatHUDTarget')==name,'bounded HUD target observation timed out')\nend\n\nlocal b=workspace.PunchWallRPG.Walls['Titan Server Wall'] awaitCombatTarget(g,'Boss',b.Name)\n-- Replication may publish NextAttackAt before the 0.15s HUD scan consumes it.\nlocal deadline=os.clock()+4 local nextAt,now,seconds\nrepeat\n nextAt=b:GetAttribute('NextAttackAt') or 0 now=workspace:GetServerTimeNow()\n seconds=tonumber(g.BossHUD.BossSubtitle.Text:match('SHOCKWAVE (%d+)s'))\n if nextAt>now+.5 and seconds and math.abs(seconds-math.ceil(nextAt-now))<=1 then break end\n task.wait(.03)\nuntil os.clock()>deadline\nassert(nextAt>now+.5 and seconds and math.abs(seconds-math.ceil(nextAt-now))<=1,'bounded countdown presentation did not consume replicated deadline: '..g.BossHUD.BossSubtitle.Text)\nlocal hp,maxHP=b:GetAttribute('HP'),b:GetAttribute('MaxHP') local phase=b:GetAttribute('BossPhase') local nextAt=b:GetAttribute('NextAttackAt')\nassert(phase==2 and not b:GetAttribute('Broken') and hp>0 and maxHP>0,'actual encounter phase changed')\nassert(nextAt>0 and hp<maxHP,'phase-two damage/countdown missing')\nlocal expected={kind='Boss',target=b.Name,canonical=b.Name,title=('TITAN P%d  |  WEAK x1.5'):format(phase),fill=hp/maxHP,hpText='HP '..combatNumber(hp)..'/'..combatNumber(maxHP),countdown=nextAt>0 and math.max(0,math.ceil(nextAt-workspace:GetServerTimeNow())) or nil}\nlocal actual=observeCombatHUD(g,p,b,'Boss') verifyCombatPresentation(actual,expected)\nreturn H:JSONEncode({ok=true,title=actual.title,subtitle=actual.detail,phase=phase,actualFill=actual.fill,expectedFill=expected.fill,actualBoundsSafe=actual.safeBounds})"
       },
       "expectRegex": [
-        "\"visible\"\\s*:\\s*true",
-        "\"weak\"\\s*:\\s*true",
-        "\"countdown\"\\s*:\\s*true",
-        "SHOCKWAVE [1-9]"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "boss HUD explains weak point and incoming shockwave"
+      "label": "phase-two boss HP, weak point and actual attack deadline agree"
     },
     {
       "type": "call",
@@ -247,6 +226,15 @@
     },
     {
       "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] local hrp=p and p.Character and p.Character:FindFirstChild('HumanoidRootPart')\nif hrp then local original=hrp:GetAttribute('SmashHUDConsumerOriginalAnchored') if original~=nil then hrp.Anchored=original hrp:SetAttribute('SmashHUDConsumerOriginalAnchored',nil) end end\nif p then p:SetAttribute('SmashHUDConsumerIronTarget',nil) end\nreturn true"
+      },
+      "label": "restore owned HUD observation pose"
+    },
+    {
+      "type": "call",
       "tool": "get_console_output",
       "saveAs": "console",
       "label": "capture console"
@@ -259,7 +247,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -268,7 +258,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

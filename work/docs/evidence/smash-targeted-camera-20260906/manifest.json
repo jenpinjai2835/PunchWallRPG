@@ -1,0 +1,74 @@
+[
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: AssistantCommand:1: self-contained long-tunnel camera contract failed: {\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"freshValid\":false,\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.05752212389380531,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L001_C07_R06\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C06_R06\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C06_R05\"],\"maxBackPunch\":1,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"sett\nAssistantCommand:1\nAssistantCommand:1\n"
+    ],
+    "flow": "camera-long-tunnel-regression",
+    "flowSHA256": "76582A64D1D638F507DC7DAD7A46794F99B5B660823378DDA0132E5783D230CB"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flow": "camera-tunnel-zoom-preservation",
+    "flowSHA256": "C966AF20A4F347D4C95AAA1C66B8D497066D6FBD816B6F2688BBDB34242E545C"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flow": "camera-shop-stability",
+    "flowSHA256": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flow": "camera-teleport-scriptable-visibility",
+    "flowSHA256": "0340E7C4FBBE1E7996621A61106CB173754D4242DCDFEF46AAAB82656B884AB3"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:118: fist scale differs from hand width"
+    ],
+    "flow": "first-five-rig-parity",
+    "flowSHA256": "341E910195A4BEA19874C0F9F1686C6AE0963C03C2DED76F177B3DBCFFDA9807"
+  },
+  {
+    "ok": true,
+    "errors": [],
+    "flow": "creator-store-pet-pack-visuals",
+    "flowSHA256": "741D940E300DED9FE6AB97688734CD2966F772700D71391F65D73604ACE3D92B"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:154: idle native preview rotates/rebuilds"
+    ],
+    "flow": "fist-items-icon-ui",
+    "flowSHA256": "ABED6EDBDC53967729781EE00E862E4BBFE2FB1FC17609459BCC2845CAAAC118"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:14: equip did not reach ready state Stormbreaker Fist"
+    ],
+    "flow": "creator-store-fist-visuals",
+    "flowSHA256": "36560BEC2CA2F9063DF80D44528D408D68F00C149A2E2DCAA5E8954558C9A2F1"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:154: idle native preview rotates/rebuilds"
+    ],
+    "flow": "hero-city-reference-ui",
+    "flowSHA256": "F5D9DE592D9E924EF8C158ED2301EF73599028855CA5FF799C36D8CE327A67EE"
+  },
+  {
+    "ok": false,
+    "errors": [
+      "Expected regex not found: 740x339\nReceived: {\"ok\":true,\"viewport\":\"740, 339\",\"rows\":[{\"state\":\"Opening\",\"exact\":true,\"text\":\"OPEN\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"CheckoutOpen\",\"exact\":true,\"text\":\"ROBLOX\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"Verifying\",\"exact\":true,\"text\":\"VERIFY\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"Granted\",\"exact\":true,\"text\":\"ADDED\",\"fits\":true,\"size\":\"112, 48\"}],\"canceled\":true,\"canceledText\":\"BUY\"}"
+    ],
+    "flow": "honor-product-receipts",
+    "flowSHA256": "BC02C9C87F12C9CE4B07B2EEEDAAEBA2EAFF67C41770B1D3B7578918CADFA24D"
+  }
+]

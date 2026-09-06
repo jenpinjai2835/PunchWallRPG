@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "runKind": "source-in-Studio diagnostic batch; not final artifact",
+  "startedAt": "2026-09-06T06:45:17.7016563Z",
+  "completedAt": "2026-09-06T06:49:09.0034313Z",
+  "sourceCommit": "85c51e58eb0fda1c5d4230828f18f4fb5bfd173c",
+  "probeCommit": "7ce148a",
+  "jumpProbeIntegrationCommit": "6872633",
+  "sourceAfterExitCode": 0,
+  "results": [
+    {
+      "flow": "product-completeness-purchase-availability",
+      "exitCode": 0,
+      "seconds": 26.72
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "exitCode": 1,
+      "seconds": 25.86
+    },
+    {
+      "flow": "full-game-tester-critical-ui-and-models",
+      "exitCode": 0,
+      "seconds": 22.09
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "exitCode": 0,
+      "seconds": 153.55
+    }
+  ]
+}

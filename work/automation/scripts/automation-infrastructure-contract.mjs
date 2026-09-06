@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -215,7 +216,7 @@ const iteration04 = read(path.join(flowsRoot, "iteration04-armory-pets-feedback.
 check(
   "iteration04_uses_current_catalog_selector",
   !iteration04.includes("Gauntlet Palm")
-    && iteration04.includes("cfg.PremiumFists")
+    && /ipairs\([A-Za-z_]\w*\.PremiumFists\)/.test(iteration04)
     && iteration04.includes("PremiumFistShowcase"),
   "Iteration 04 must validate the current PremiumFist catalog, not removed fixtures.",
 );
@@ -249,11 +250,108 @@ check(
   runnerSelfTest.stderr || runnerSelfTest.stdout || "runner self-test returned no output",
 );
 
+// Run copies of the actual PowerShell wrappers against an inert local mock runner.
+// The fixture never loads studio_mcp_client or discovers any Studio process.
+const shellCandidates = process.env.POWERSHELL_COMMAND
+  ? [process.env.POWERSHELL_COMMAND]
+  : process.platform === "win32" ? ["pwsh", "powershell"] : ["pwsh"];
+const testShells = shellCandidates.filter(command => {
+  const probe = spawnSync(command, ["-NoProfile", "-NonInteractive", "-Command", "exit 0"], { encoding: "utf8", timeout: 10000 });
+  return !probe.error && probe.status === 0;
+});
+check("powershell_available_for_wrapper_execution", testShells.length > 0,
+  "BLOCKED: wrapper forwarding tests require PowerShell; set POWERSHELL_COMMAND or install pwsh.");
+const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "smash-flow-forwarding-"));
+let forwardingCases = 0;
+try {
+  const suitePath = path.join(fixtureRoot, "run-existing-flows.ps1");
+  const helperPath = path.join(fixtureRoot, "invoke-recorded-flow.ps1");
+  const fixtureFlows = path.join(fixtureRoot, "flows");
+  const fixtureScripts = path.join(fixtureRoot, "scripts");
+  const logPath = path.join(fixtureRoot, "calls.jsonl");
+  const mockRunner = path.join(fixtureScripts, "flow_runner.mjs");
+  fs.mkdirSync(fixtureFlows);
+  fs.mkdirSync(fixtureScripts);
+  fs.copyFileSync(path.join(automationRoot, "run-existing-flows.ps1"), suitePath);
+  fs.copyFileSync(path.join(automationRoot, "invoke-recorded-flow.ps1"), helperPath);
+  fs.writeFileSync(mockRunner, `import fs from "node:fs";
+const argv = process.argv.slice(2), args = {};
+for (let index = 0; index < argv.length; index += 2) args[argv[index]] = argv[index + 1];
+fs.appendFileSync(process.env.SMASH_FORWARDING_LOG, JSON.stringify({ argv, args }) + "\\n");
+const flow = JSON.parse(fs.readFileSync(args["--flow"], "utf8"));
+fs.writeFileSync(args["--result-file"], JSON.stringify({ ok: true, results: [{ ok: true,
+ selectedStudio: { id: flow.mockId ?? "caller-studio-id", name: flow.mockStudio ?? "Review [QA] Final.rbxlx" },
+ selectedPlace: { name: flow.mockPlace ?? "Review Place [QA]" }, checks: [] }] }));
+console.log("mock runner completed without Studio");
+`);
+  const studioPattern = "^Review \\[QA\\] Final[.]rbxlx$";
+  const placePattern = "^Review Place \\[QA\\]$";
+  const defaultFlow = { name: "a", studioInstanceId: "flow-studio-id", studioName: "^Stale Studio$", placeName: "^Stale Place$", steps: [] };
+  function invoke(shell, name, { suite = false, flow = defaultFlow, flags = [], succeeds = true, failure = "", expectedCalls = 1, verify = () => {} } = {}) {
+    const flowPath = path.join(fixtureFlows, "a flow.json");
+    fs.writeFileSync(flowPath, JSON.stringify(flow));
+    if (suite) fs.writeFileSync(path.join(fixtureFlows, "b flow.json"), JSON.stringify({ ...flow, name: "b" }));
+    else if (fs.existsSync(path.join(fixtureFlows, "b flow.json"))) fs.unlinkSync(path.join(fixtureFlows, "b flow.json"));
+    fs.writeFileSync(logPath, "");
+    const args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", suite ? suitePath : helperPath];
+    if (!suite) args.push("-FlowPath", flowPath, "-Runner", mockRunner, "-MaxAttempts", "1", "-RetryDelaySeconds", "0");
+    args.push(...flags);
+    const result = spawnSync(shell, args, { encoding: "utf8", timeout: 15000, env: { ...process.env, SMASH_FORWARDING_LOG: logPath } });
+    const detail = `${shell} ${name}: ${result.error || ""}\n${result.stdout || ""}\n${result.stderr || ""}`;
+    assert.equal(result.status === 0, succeeds, detail);
+    if (failure) assert.match(`${result.stdout}\n${result.stderr}`, new RegExp(failure), detail);
+    const calls = fs.readFileSync(logPath, "utf8").trim().split("\n").filter(Boolean).map(line => JSON.parse(line));
+    assert.equal(calls.length, expectedCalls, `${name}: unexpected mock runner invocation count`);
+    for (const call of calls) verify(call.args, call.argv);
+    forwardingCases += 1;
+  }
+  for (const shell of testShells) {
+    const bothNames = ["-ExpectedStudioName", studioPattern, "-ExpectedPlaceName", placePattern];
+    const verifyBoth = args => {
+      assert.equal(args["--studio-name"], studioPattern, "explicit Studio regex was not forwarded intact");
+      assert.equal(args["--place-name"], placePattern, "explicit Place regex was not forwarded intact");
+      assert.equal(args["--studio-instance-id"], "caller-studio-id", "explicit Studio UUID override was lost");
+    };
+    invoke(shell, "helper forwards both names and UUID", { flags: ["-StudioInstanceId", "caller-studio-id", ...bothNames], verify: verifyBoth });
+    invoke(shell, "suite forwards both names to every flow", { suite: true, expectedCalls: 2, flags: ["-StudioInstanceId", "caller-studio-id", ...bothNames], verify: verifyBoth });
+    const ownDefaults = { ...defaultFlow, studioName: "^Flow Studio$", placeName: "^Flow Place$", mockStudio: "Flow Studio", mockPlace: "Flow Place", mockId: "flow-studio-id" };
+    const verifyDefaults = args => {
+      assert.equal(args["--studio-name"], ownDefaults.studioName, "default Studio selector must remain the flow's selector");
+      assert.equal(args["--place-name"], undefined, "omitted Place override must retain the runner's flow default");
+      assert.equal(args["--studio-instance-id"], undefined, "omitted UUID must retain the runner's flow UUID default");
+    };
+    invoke(shell, "helper preserves defaults", { flow: ownDefaults, verify: verifyDefaults });
+    invoke(shell, "suite preserves defaults", { suite: true, expectedCalls: 2, flow: ownDefaults, verify: verifyDefaults });
+    invoke(shell, "explicit Studio name is a selector", { flow: { name: "name-only", steps: [] }, flags: ["-ExpectedStudioName", studioPattern], verify: args => {
+      assert.equal(args["--studio-name"], studioPattern); assert.equal(args["--studio-instance-id"], undefined);
+    } });
+    invoke(shell, "selectorless flow fails before runner", { flow: { name: "missing", steps: [] }, succeeds: false, expectedCalls: 0, failure: "Flow must declare" });
+    invoke(shell, "Place name cannot select a Studio", { flow: { name: "place-only", steps: [] }, flags: ["-ExpectedPlaceName", placePattern], succeeds: false, expectedCalls: 0, failure: "Flow must declare" });
+    invoke(shell, "wrong returned UUID fails", { flow: { ...defaultFlow, mockId: "wrong-id" }, flags: ["-StudioInstanceId", "caller-studio-id", ...bothNames], succeeds: false, failure: "expected caller-studio-id" });
+    invoke(shell, "wrong returned Studio name fails", { flow: { ...defaultFlow, mockStudio: "Wrong Studio" }, flags: bothNames, succeeds: false, failure: "expected match" });
+    invoke(shell, "wrong returned Place name fails", { flow: { ...defaultFlow, mockPlace: "Wrong Place" }, flags: bothNames, succeeds: false, failure: "expected match" });
+    invoke(shell, "Place override does not become Studio selector", { flow: ownDefaults, flags: ["-ExpectedPlaceName", "^Flow Place$"], verify: args => {
+      assert.equal(args["--studio-name"], ownDefaults.studioName); assert.equal(args["--place-name"], "^Flow Place$");
+    } });
+    invoke(shell, "blank Studio name preserves flow default", { flow: ownDefaults, flags: ["-ExpectedStudioName", "   "], verify: verifyDefaults });
+    invoke(shell, "missing returned identity fails", { flow: { ...ownDefaults, mockId: "" }, succeeds: false, failure: "did not prove the selected Studio identity" });
+  }
+  check("wrapper_identity_forwarding_executes_without_studio", forwardingCases === testShells.length * 13,
+    "Production suite/helper copies must preserve both name overrides, defaults, UUID identity and fail-closed verification.");
+} finally {
+  const resolvedFixture = fs.realpathSync(fixtureRoot);
+  assert.equal(path.dirname(resolvedFixture), fs.realpathSync(os.tmpdir()), "temporary cleanup escaped temp parent");
+  assert.ok(path.basename(resolvedFixture).startsWith("smash-flow-forwarding-"), "unexpected temporary cleanup target");
+  fs.rmSync(resolvedFixture, { recursive: true, force: true });
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(JSON.stringify({
   ok: passed === Object.keys(checks).length,
   passed,
   total: Object.keys(checks).length,
   flowCount: flowFiles.length,
+  forwardingCases,
+  forwardingShells: testShells,
   checks,
 }, null, 2));

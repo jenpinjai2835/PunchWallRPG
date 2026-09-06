@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -243,8 +245,8 @@ check(
     && flowText.includes("card:GetAttribute('HonorUnlocked')==true")
     && flowText.includes("card:GetAttribute('HonorCost')==1100")
     && flowText.includes("card:GetAttribute('HonorMissing')==1100")
-    && flowText.includes("grid.CanvasPosition.Y==0")
-    && flowText.includes("rootCanvas==grid.CanvasPosition.Y")
+    && flowText.includes("local canvasExact=placement.valid")
+    && flowText.includes("rootCanvas==canvas")
     && flowText.includes("screenCanvas==rootCanvas")
     && flowText.includes("PunchWall Honor Flow Desktop 1366x768")
     && flowText.includes("Static Trail Badge")
@@ -263,6 +265,94 @@ check(
   "Honor certification requires runtime and post-stop console checks plus cleanup.",
 );
 
+// Execute the exact live-flow scroll oracle; dimensions are observed GUI pixels.
+const honorStep=flow.steps.find(step=>step.label==='world preview opens Inventory Honor and keeps the exact eighth unaffordable relic in view');
+const placementHelper=block(honorStep.args.code,'local function verifyHonorScrollPlacement','local H=');
+const candidates=[process.env.LUAU_COMMAND,...fs.readdirSync(os.tmpdir()).filter(name=>name.startsWith('codex-luau-')).sort().reverse().map(name=>path.join(os.tmpdir(),name,process.platform==='win32'?'luau.exe':'luau'))];
+const luau=candidates.find(candidate=>candidate&&fs.existsSync(candidate))||'luau';
+function executeOracle(code){
+ const result=spawnSync(luau,[],{input:'local f=assert(loadstring('+JSON.stringify(code)+')) print("HONOR_ORACLE_COMPILED") f()\n',encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024});
+ const output=(result.stdout||'')+'\n'+(result.stderr||'');
+ return {ok:!result.error&&result.status===0&&!result.stderr&&output.includes('HONOR_ORACLE_PASS'),compiled:output.includes('HONOR_ORACLE_COMPILED'),output};
+}
+const scrollCases=String.raw`
+local passed=0
+local function test(label,allowed,...)
+ local result=verifyHonorScrollPlacement(...)
+ assert(result.valid==allowed,label) passed+=1
+end
+test('authored_old_grid_zero_is_valid_when_fitted',true,50,150,0,200,0,200,0,0)
+test('centered_interior',true,80,120,0,200,220,800,220,220)
+test('top_boundary_clamped',true,0,50,0,200,0,800,0,0)
+test('recorded_eighth_relic_bottom_clamped',true,500.5,604.5,161.5,612.5,449,900,449,449)
+test('stale_root_diagnostic',false,500.5,604.5,161.5,612.5,449,900,0,449)
+test('stale_screen_diagnostic',false,500.5,604.5,161.5,612.5,449,900,449,0)
+test('unsettled_visible_but_not_centered',false,80,120,0,300,220,800,220,220)
+test('selected_relic_is_clipped',false,602,706,161.5,612.5,449,900,449,449)
+test('negative_scroll',false,50,150,0,200,-1,200,-1,-1)
+test('beyond_canvas',false,50,150,0,200,601.5,800,601.5,601.5)
+test('zero_height_viewport',false,50,150,0,0,0,800,0,0)
+test('empty_card',false,50,50,0,200,0,200,0,0)
+test('nonfinite_scroll',false,50,150,0,200,0/0,200,0,0)
+print('HONOR_ORACLE_PASS cases='..passed)
+`;
+const scrollProgram=placementHelper+scrollCases;
+const scrollResult=executeOracle(scrollProgram);
+check('actual_honor_scroll_geometry_rejects_stale_or_clipped_selection',scrollResult.ok,scrollResult.output);
+const mutations=[
+ ['omit_center_or_clamp','and math.abs(canvas-expectedY)<=1','','unsettled_visible_but_not_centered'],
+ ['ignore_diagnostic_coherence','local coherent=rootCanvas==canvas and screenCanvas==rootCanvas','local coherent=true','stale_root_diagnostic'],
+ ['ignore_actual_card_containment','and cardTop>=viewTop-2 and cardBottom<=viewBottom+2','','selected_relic_is_clipped'],
+ ['restore_obsolete_zero_scroll','local centeredOrClamped=canvas>=0 and canvas<=maxY+1 and math.abs(canvas-expectedY)<=1','local centeredOrClamped=canvas==0','centered_interior'],
+ ['omit_scroll_clamp','math.clamp(canvas+(cardTop+cardBottom-viewTop-viewBottom)*.5,0,maxY)','canvas+(cardTop+cardBottom-viewTop-viewBottom)*.5','top_boundary_clamped'],
+];
+const rejectedMutations=[];
+for(const [name,before,after,expected]of mutations){
+ assert(scrollProgram.includes(before),name);
+ const result=executeOracle(scrollProgram.replace(before,after));
+ check('scroll_mutation_'+name,result.compiled&&!result.ok&&result.output.includes(expected),result.output);
+ rejectedMutations.push(name);
+}
+const focusProducer=block(inventoryUi,'\t\tlocal lastInput = UserInputService:GetLastInputType()','\t\tself.Root:SetAttribute("InventoryHonorSelectedId", selectedId)');
+const focusProgram=String.raw`
+local Enum={UserInputType={Keyboard={Name='Keyboard'},MouseButton1={Name='MouseButton1'},Touch={Name='Touch'},Gamepad1={Name='Gamepad1'}}}
+local GuiService={} local UserInputService={} local lastInput
+function UserInputService:GetLastInputType()return lastInput end
+local card={Selectable=true} local inView=true
+local function apply()
+`+focusProducer+String.raw`
+end
+local count=0
+for _,name in ipairs({'Keyboard','Gamepad1','MouseButton1','Touch'})do
+ for _,shown in ipairs({true,false})do for _,selectable in ipairs({true,false})do
+  lastInput=Enum.UserInputType[name] inView=shown card.Selectable=selectable GuiService.SelectedObject=nil
+  apply()
+  local expected=shown and selectable and (name=='Keyboard' or name=='Gamepad1')
+  assert((GuiService.SelectedObject==card)==expected,'focus ownership '..name)count+=1
+ end end
+end
+print('HONOR_ORACLE_PASS focus='..count)
+`;
+const focusResult=executeOracle(focusProgram);
+check('actual_inventory_focus_preserves_mouse_keyboard_and_gamepad_semantics',focusResult.ok,focusResult.output);
+const focusMutant=executeOracle(focusProgram.replace('if selectionInput and inView and card.Selectable then','if inView and card.Selectable then'));
+check('focus_mutation_rejects_mouse_focus_theft',focusMutant.compiled&&!focusMutant.ok&&focusMutant.output.includes('focus ownership MouseButton1'),focusMutant.output);
+const historical=spawnSync('git',['show','85c51e5:work/automation/flows/honor-progression.json'],{cwd:path.resolve(root,'..'),encoding:'utf8',timeout:15000});
+assert.equal(historical.status,0,historical.stderr);
+const oldFlow=JSON.parse(historical.stdout);
+const oldStep=oldFlow.steps.find(step=>step.label===honorStep.label);
+assert.equal(flow.steps.length,oldFlow.steps.length);assert.deepEqual(flow.cleanup,oldFlow.cleanup);
+for(let i=0;i<flow.steps.length;i++)if(flow.steps[i].label!==honorStep.label)assert.deepEqual(flow.steps[i],oldFlow.steps[i]);
+const oldPredicate=block(oldStep.args.code,'local canvasExact=',' local ok=');
+const oldResult=executeOracle('local grid={CanvasPosition={Y=449}} local rootCanvas=449 local screenCanvas=449 '+oldPredicate+' assert(canvasExact==false,"old zero-scroll predicate unexpectedly accepted recorded449") print("HONOR_ORACLE_PASS historical=1")');
+check('recorded_449_scroll_reproduces_historical_zero_only_failure',oldResult.ok,oldResult.output);
+const payload={ok:true,version:'HonorInventoryWorldSelectionV1',item:'eternal_crown_of_honor',key:'honor:eternal_crown_of_honor',canvas:449,scrollPlacementValid:true,state:'Insufficient',focused:false,catalog:8,visible:8};
+const accepts=(patterns,value)=>patterns.every(pattern=>new RegExp(pattern).test(JSON.stringify(value)));
+check('outer_honor_oracle_accepts_actual_nonzero_and_rejects_invalid_placement',accepts(honorStep.expectRegex,payload)&&!accepts(oldStep.expectRegex,payload)&&!accepts(honorStep.expectRegex,{...payload,scrollPlacementValid:false})&&!accepts(honorStep.expectRegex,{...payload,ok:false}),'Outer response predicates must follow the actual placement aggregate.');
+const chunks=flow.steps.filter(step=>typeof step.args?.code==='string').map(step=>step.args.code).concat(flow.cleanup.filter(step=>typeof step.args?.code==='string').map(step=>step.args.code));
+const compileResult=executeOracle(chunks.map(code=>'assert(loadstring('+JSON.stringify(code)+'))').join('\n')+'\nprint("HONOR_ORACLE_PASS compiled='+chunks.length+'")');
+check('all_honor_flow_chunks_compile',compileResult.ok,compileResult.output);
+const oracleEvidence={scrollCases:13,focusCases:16,rejectedMutations:[...rejectedMutations,'mouse_focus_theft'],historicalRef:'85c51e5',compiledChunks:chunks.length};
 console.log(JSON.stringify({
   ok: true,
   passed: Object.values(results).filter(Boolean).length,
@@ -271,4 +361,5 @@ console.log(JSON.stringify({
   rebirthMilestones: expectedRebirth.length,
   relics: expectedItems.length,
   checks: results,
+  oracleEvidence,
 }, null, 2));

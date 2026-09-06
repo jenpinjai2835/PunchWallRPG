@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "hero-shop-reference-polish",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime shop assets and regional prices",
+        "prepare affordable UI purchase",
+        "Fists use sixteen readable cards in a scrollable catalog",
+        "Premium companions use exact previews and configured Game Pass actions",
+        "two current coin-purchased Boosts use readable rows and truthful footer",
+        "Robux cards are equal and wired to configured products",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: {\"ok\":false,\"tabs\":5,\"chrome\":true,\"allTextFits\":false,\"tabNames\":true}",
+      "context": {
+        "fistsLayout": "true"
+      }
+    }
+  ]
+}

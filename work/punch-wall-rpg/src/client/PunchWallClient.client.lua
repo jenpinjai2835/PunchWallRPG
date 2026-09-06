@@ -14,108 +14,235 @@ local GuiService = game:GetService("GuiService")
 
 local player = Players.LocalPlayer
 do
-	local repairGeneration = 0
-	local activeConnections = {}
+ local repairGeneration = 0
+ local activeRepair
+ local probeName = "__PunchWall_PlayEmote_Readiness_V1__"
 
-	local function disconnectAnimateRepair()
-		for _, connection in ipairs(activeConnections) do
-			connection:Disconnect()
-		end
-		table.clear(activeConnections)
-	end
+ local function scheduleDefaultAnimateRepair(character)
+  if activeRepair then activeRepair.stop("Superseded") end
+  repairGeneration += 1
+  local generation = repairGeneration
+  if not character or not character.Parent then return end
 
-	local function scheduleDefaultAnimateRepair(character)
-		repairGeneration += 1
-		local generation = repairGeneration
-		disconnectAnimateRepair()
-		if not character then return end
+  local connections = {}
+  local pendingProbes = {}
+  local pendingArrivals = {}
+  local delayedTasks = {}
+  local disposed = false
+  local animate, canonicalHook, fallback, holdingFolder
+  local discoveryConnection, reconcileThread
+  local reconciling = false
+  local canonicalReady = false
+  local heldCount = 0
+  local pendingSentinel = "PunchWallPending:" .. HttpService:GenerateGUID(false)
+  local function isCurrent()
+   return not disposed and generation == repairGeneration
+    and player.Character == character and character.Parent ~= nil
+  end
+  local function cancelThread(thread)
+   if thread and thread ~= coroutine.running() and coroutine.status(thread) ~= "dead" then
+    pcall(task.cancel, thread)
+   end
+  end
+  local function stop(reason)
+   if disposed then return end
+   disposed = true
+   for _, connection in ipairs(connections) do connection:Disconnect() end
+   table.clear(connections)
+   for thread in pairs(pendingProbes) do cancelThread(thread) end
+   table.clear(pendingProbes)
+   for _, thread in pairs(pendingArrivals) do cancelThread(thread) end
+   table.clear(pendingArrivals)
+   cancelThread(reconcileThread)
+   for _, thread in ipairs(delayedTasks) do cancelThread(thread) end
+   if character.Parent then
+    character:SetAttribute("PunchWallAnimateHookGuardActive", false)
+    character:SetAttribute("PunchWallAnimateRepairState", reason)
+   end
+   if activeRepair and activeRepair.stop == stop then activeRepair = nil end
+  end
+  activeRepair = { character = character, stop = stop }
+  local function finishDiscovery()
+   if discoveryConnection then discoveryConnection:Disconnect() discoveryConnection = nil end
+   character:SetAttribute("PunchWallAnimateDiscoveryComplete", true)
+  end
+  local function holding()
+   if not holdingFolder then
+    holdingFolder = Instance.new("Folder")
+    holdingFolder.Name = "PunchWallLatePlayEmoteHooks"
+    holdingFolder:SetAttribute("PunchWallOwnedHookHolding", true)
+    holdingFolder.Parent = animate
+   end
+   return holdingFolder
+  end
+  local function holdHook(hook)
+   if hook.Parent == animate then
+    hook.Parent = holding()
+    heldCount += 1
+    character:SetAttribute("PunchWallHeldLatePlayEmoteHookCount", heldCount)
+   end
+  end
+  -- The captured default Animate assigns OnInvoke once. Parent/arrival order
+  -- does not establish which sibling received it, especially with deferred
+  -- signals. Probe only an unknown emote; never read/copy an OnInvoke callback.
+  local function probeHook(hook)
+   if not isCurrent() or not hook or not hook.Parent then return false end
+   local result = { completed = false }
+   character:SetAttribute("PunchWallAnimateProbeAttempts", (character:GetAttribute("PunchWallAnimateProbeAttempts") or 0) + 1)
+   local thread = task.spawn(function()
+    local ok, value, marker = pcall(function() return hook:Invoke(probeName) end)
+    if isCurrent() then
+     result.ok, result.value, result.marker = ok, value, marker
+     result.completed = true
+    end
+   end)
+   if not result.completed then pendingProbes[thread] = true end
+   local deadline = os.clock() + 0.12
+   while isCurrent() and not result.completed and os.clock() < deadline do task.wait(0.02) end
+   pendingProbes[thread] = nil
+   if not result.completed then
+    cancelThread(thread)
+    if isCurrent() then
+     character:SetAttribute("PunchWallAnimateProbeTimeouts", (character:GetAttribute("PunchWallAnimateProbeTimeouts") or 0) + 1)
+    end
+    return false
+   end
+   return isCurrent() and result.ok and result.marker ~= pendingSentinel
+    and (result.value == false or result.value == nil)
+  end
+  local function reconcileHooks()
+   if not isCurrent() or reconciling or canonicalReady then return end
+   reconciling = true
+   reconcileThread = task.spawn(function()
+    local deadline = os.clock() + 2
+    repeat
+     if probeHook(canonicalHook) then
+      canonicalReady = true
+     elseif isCurrent() and holdingFolder then
+      for _, candidate in ipairs(holdingFolder:GetChildren()) do
+       if candidate:IsA("BindableFunction") and probeHook(candidate) then
+        if not isCurrent() then break end
+        local previous = canonicalHook
+        canonicalHook = candidate
+        -- Keep both instances and their callbacks. A pending owned shim must
+        -- not hide the native producer if it bound a transient late sibling.
+        if previous and previous.Parent == animate then holdHook(previous) end
+        candidate.Parent = animate
+        canonicalReady = true
+        character:SetAttribute("PunchWallPromotedReadyPlayEmoteHook", true)
+        break
+       end
+       if not isCurrent() or os.clock() >= deadline then break end
+      end
+     end
+     if not isCurrent() or canonicalReady then break end
+     task.wait(0.1)
+    until os.clock() >= deadline
+    if isCurrent() then
+     character:SetAttribute("PunchWallAnimateNativeHookReady", canonicalReady)
+     character:SetAttribute("PunchWallAnimateReconcileActive", false)
+    end
+    reconciling = false
+   end)
+   character:SetAttribute("PunchWallAnimateReconcileActive", reconciling)
+  end
+  local function acceptHook(hook)
+   if not isCurrent() or hook.Parent ~= animate or hook.Name ~= "PlayEmote" then return end
+   if not hook:IsA("BindableFunction") then
+    character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", hook.ClassName)
+    stop("ClassMismatch")
+    return
+   end
+   if canonicalHook == hook then return end
+   if not canonicalHook then
+    canonicalHook = hook
+    character:SetAttribute("PunchWallAnimateRepairState", "EngineHookReady")
+    finishDiscovery()
+   else
+    holdHook(hook)
+    character:SetAttribute("PunchWallPreservedPlayEmoteEndpoint", true)
+   end
+   reconcileHooks()
+  end
+  local function bindAnimate(candidate)
+   if not isCurrent() or animate then return end
+   if not candidate:IsA("LocalScript") then
+    character:SetAttribute("PunchWallAnimateClassMismatch", candidate.ClassName)
+    stop("AnimateClassMismatch")
+    return
+   end
+   animate = candidate
+   if discoveryConnection then discoveryConnection:Disconnect() discoveryConnection = nil end
+   table.insert(connections, animate.ChildAdded:Connect(function(child)
+    if child.Name ~= "PlayEmote" or pendingArrivals[child] then return end
+    -- ChildAdded can run inside the engine's Parent assignment. Reparenting
+    -- that same hook there is rejected; preserve its callback after arrival.
+    pendingArrivals[child] = task.defer(function()
+     pendingArrivals[child] = nil
+     if isCurrent() and animate.Parent == character then acceptHook(child) end
+    end)
+   end))
+   table.insert(connections, animate.AncestryChanged:Connect(function()
+    if isCurrent() and animate.Parent ~= character then stop("AnimateRemoved") end
+   end))
+   character:SetAttribute("PunchWallAnimateHookGuardActive", true)
+   local existing = animate:FindFirstChild("PlayEmote")
+   if existing then
+    acceptHook(existing)
+    for _, child in ipairs(animate:GetChildren()) do
+     if child ~= existing and child.Name == "PlayEmote" then acceptHook(child) end
+    end
+    return
+   end
+   table.insert(delayedTasks, task.delay(0.35, function()
+    if not isCurrent() or animate.Parent ~= character or canonicalHook then return end
+    local arrived = animate:FindFirstChild("PlayEmote")
+    if arrived then acceptHook(arrived) return end
+    fallback = Instance.new("BindableFunction")
+    fallback.Name = "PlayEmote"
+    fallback.OnInvoke = function(emote)
+     if emote == probeName then return false, pendingSentinel end
+     return false
+    end
+    fallback:SetAttribute("PunchWallOwnedFallback", true)
+    canonicalHook = fallback
+    fallback.Parent = animate
+    character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
+    character:SetAttribute("PunchWallAnimateRepairState", "FallbackInstalled")
+    finishDiscovery()
+    reconcileHooks()
+   end))
+  end
 
-		local animate
-		local fallback
-		local fallbackCallback = function()
-			return false
-		end
-		local finished = false
-		local function isCurrent()
-			return not finished
-				and generation == repairGeneration
-				and player.Character == character
-				and character.Parent ~= nil
-		end
-		local function finish(reason)
-			if finished then return end
-			finished = true
-			disconnectAnimateRepair()
-			if character.Parent then
-				character:SetAttribute("PunchWallAnimateRepairState", reason)
-			end
-		end
-		local function acceptPlayEmote(playEmote, reason)
-			if not isCurrent() or not playEmote then return end
-			if not playEmote:IsA("BindableFunction") then
-				character:SetAttribute("PunchWallPlayEmoteHookClassMismatch", playEmote.ClassName)
-				finish("ClassMismatch")
-				return
-			end
-			if fallback and playEmote ~= fallback and fallback.Parent == animate then
-				-- Prefer the late engine-owned hook and remove only the fallback
-				-- we own. BindableFunction.OnInvoke is write-only to game scripts,
-				-- so its callback must never be read or copied here.
-				fallback:Destroy()
-				character:SetAttribute("PunchWallAdoptedLatePlayEmoteHook", true)
-			end
-			finish(reason)
-		end
-		local function bindAnimate(candidate)
-			if not isCurrent() or animate then return end
-			if not candidate:IsA("LocalScript") then
-				character:SetAttribute("PunchWallAnimateClassMismatch", candidate.ClassName)
-				finish("AnimateClassMismatch")
-				return
-			end
-			animate = candidate
-			local existing = animate:FindFirstChild("PlayEmote")
-			if existing then
-				acceptPlayEmote(existing, "EngineHookReady")
-				return
-			end
-			table.insert(activeConnections, animate.ChildAdded:Connect(function(child)
-				if child.Name == "PlayEmote" and child:GetAttribute("PunchWallOwnedFallback") ~= true then
-					acceptPlayEmote(child, fallback and "LateEngineHookAdopted" or "EngineHookReady")
-				end
-			end))
-			-- One short, bounded grace window lets the default Animate hierarchy
-			-- finish parenting before we repair a partial character bootstrap.
-			task.delay(0.35, function()
-				if not isCurrent() or animate.Parent ~= character or animate:FindFirstChild("PlayEmote") then return end
-				fallback = Instance.new("BindableFunction")
-				fallback.Name = "PlayEmote"
-				fallback.OnInvoke = fallbackCallback
-				fallback:SetAttribute("PunchWallOwnedFallback", true)
-				fallback.Parent = animate
-				character:SetAttribute("PunchWallRepairedPlayEmoteHook", true)
-				character:SetAttribute("PunchWallAnimateRepairState", "FallbackInstalled")
-			end)
-		end
-
-		local existingAnimate = character:FindFirstChild("Animate")
-		if existingAnimate then
-			bindAnimate(existingAnimate)
-		else
-			table.insert(activeConnections, character.ChildAdded:Connect(function(child)
-				if child.Name == "Animate" then bindAnimate(child) end
-			end))
-		end
-		-- The listener is never allowed to survive the bootstrap window. A future
-		-- respawn increments the generation and disconnects it immediately.
-		task.delay(6, function()
-			if isCurrent() then
-				finish(animate and (fallback and "FallbackBoundedComplete" or "HookMissing") or "AnimateMissing")
-			end
-		end)
-	end
-	player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
-	scheduleDefaultAnimateRepair(player.Character)
+  table.insert(connections, character.AncestryChanged:Connect(function()
+   if not character.Parent then stop("CharacterRemoved") end
+  end))
+  local existingAnimate = character:FindFirstChild("Animate")
+  if existingAnimate then
+   bindAnimate(existingAnimate)
+  else
+   discoveryConnection = character.ChildAdded:Connect(function(child)
+    if child.Name == "Animate" then bindAnimate(child) end
+   end)
+   table.insert(connections, discoveryConnection)
+  end
+  -- Only discovery expires. One hook listener remains until character removal
+  -- so a late replicated child cannot silently replace the bound endpoint.
+  table.insert(delayedTasks, task.delay(6, function()
+   if not isCurrent() then return end
+   finishDiscovery()
+   if not animate then stop("AnimateMissing")
+   elseif not canonicalHook then stop("HookMissing")
+   elseif canonicalHook == fallback then
+    character:SetAttribute("PunchWallAnimateRepairState", "FallbackBoundedComplete")
+   end
+  end))
+ end
+ player.CharacterAdded:Connect(scheduleDefaultAnimateRepair)
+ player.CharacterRemoving:Connect(function(character)
+  if activeRepair and activeRepair.character == character then activeRepair.stop("CharacterRemoving") end
+ end)
+ scheduleDefaultAnimateRepair(player.Character)
 end
 local PolishConfig = require(ReplicatedStorage:WaitForChild("PolishConfig"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
@@ -487,11 +614,67 @@ shared.PunchWallPurchaseRuntime.MarkControlConfigured = function(button)
 	button:SetAttribute("PurchaseUnavailable", false)
 end
 
-local remotes = ReplicatedStorage:WaitForChild("PunchWallEvents")
-local notifyRemote = remotes:WaitForChild("Notify")
-local statRemote = remotes:WaitForChild("StatsChanged")
-local actionRemote = remotes:WaitForChild("ActionRequest")
-local feedbackRemote = remotes:WaitForChild("Feedback")
+-- Complete remote discovery shares one deadline, including folder replacements.
+local remotes, notifyRemote, statRemote, actionRemote, feedbackRemote
+do
+	local requiredNames = { "Notify", "StatsChanged", "ActionRequest", "Feedback" }
+	local startedAt = os.clock()
+	local deadline = startedAt + 20
+	local problem = "PunchWallEvents missing"
+	while os.clock() < deadline do
+		local candidate = ReplicatedStorage:FindFirstChild("PunchWallEvents")
+		if not candidate then
+			problem = "PunchWallEvents missing"
+		elseif not candidate:IsA("Folder") then
+			problem = "PunchWallEvents expected Folder, got " .. candidate.ClassName
+		elseif candidate.Parent ~= ReplicatedStorage then
+			problem = "PunchWallEvents parent changed"
+		else
+			local found, problems = {}, {}
+			for index, name in ipairs(requiredNames) do
+				local remote = candidate:FindFirstChild(name)
+				if not remote then
+					table.insert(problems, name .. " missing")
+				elseif not remote:IsA("RemoteEvent") then
+					table.insert(problems, name .. " expected RemoteEvent, got " .. remote.ClassName)
+				elseif remote.Parent ~= candidate then
+					table.insert(problems, name .. " parent changed")
+				else
+					found[index] = remote
+				end
+			end
+			-- Recheck the entire captured set before exposing any handle.
+			if candidate.Parent ~= ReplicatedStorage or ReplicatedStorage:FindFirstChild("PunchWallEvents") ~= candidate then
+				table.insert(problems, "PunchWallEvents replaced during discovery")
+			else
+				for index, remote in pairs(found) do
+					if remote.Parent ~= candidate or candidate:FindFirstChild(requiredNames[index]) ~= remote then
+						table.insert(problems, requiredNames[index] .. " replaced during discovery")
+					end
+				end
+			end
+			if candidate.Parent ~= ReplicatedStorage or ReplicatedStorage:FindFirstChild("PunchWallEvents") ~= candidate then
+				table.insert(problems, "PunchWallEvents replaced before binding")
+			end
+			if #problems == 0 then
+				if os.clock() < deadline then
+					remotes = candidate
+					notifyRemote, statRemote, actionRemote, feedbackRemote = found[1], found[2], found[3], found[4]
+					break
+				end
+				problem = "complete remote set arrived after deadline"
+			else
+				problem = table.concat(problems, ", ")
+			end
+		end
+		local remaining = deadline - os.clock()
+		if remaining > 0 then task.wait(math.min(0.05, remaining)) end
+	end
+	if not remotes then
+		error(("[PunchWallRPG] Client startup timed out after %.2fs awaiting server remotes; last observation: %s")
+			:format(os.clock() - startedAt, problem), 0)
+	end
+end
 
 local latestStats = {}
 local clientSettings = { motion = true, sound = true, uiScale = 1 }
@@ -515,6 +698,22 @@ shared.PunchWallClassifyResponsiveViewport = function(size)
 		return "CompactDesktop", true
 	end
 	return "Desktop", false
+end
+
+shared.PunchWallGetResponsiveViewport = function()
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize or Vector2.zero
+	local hud = player.PlayerGui:FindFirstChild("PunchWallHUD")
+	local reference = hud and hud:FindFirstChild("PixelPerfectHeroCityHUD")
+	local size = reference and reference.AbsoluteSize
+	-- Device simulation can render the safe ScreenGui at a different size from
+	-- Camera.ViewportSize. HUD, modal host, and catalog must use the same pixels.
+	if size and size.X >= 240 and size.Y >= 200
+		and (viewport.X < 240 or viewport.Y < 200
+			or math.abs(size.X - viewport.X) > 2 or math.abs(size.Y - viewport.Y) > 2) then
+		return size, "ReferenceHUD"
+	end
+	return viewport, "Camera"
 end
 
 shared.PunchWallOpenRebirthPanel = function() end
@@ -1761,6 +1960,52 @@ bossSubtitle.TextSize = 10
 bossSubtitle.TextXAlignment = Enum.TextXAlignment.Right
 bossSubtitle.Parent = bossHUD
 
+-- One display owner for the wall and Titan information in the reference HUD.
+shared.PunchWallCombatHUD = { layoutReady = false, renderCount = 0, layoutGeneration = 0 }
+do
+ local outline = Instance.new("Highlight")
+ outline.Name = "Local Target Highlight"
+ outline.FillTransparency = 1
+ outline.OutlineTransparency = 0.25
+ outline.OutlineColor = palette.Use
+ outline.DepthMode = Enum.HighlightDepthMode.Occluded
+ outline.Enabled = false
+ outline.Parent = workspace
+ shared.PunchWallCombatHUD.Outline = outline
+ for _,frame in ipairs({ targetHUD, bossHUD }) do
+  frame.BackgroundColor3 = Color3.fromRGB(10, 20, 28)
+  frame.BackgroundTransparency = 0.04
+  frame.ZIndex = 40
+  frame.Active = false
+  local stroke = Instance.new("UIStroke")
+  stroke.Color = frame == bossHUD and palette.Punch or Color3.fromRGB(61, 88, 101)
+  stroke.Thickness = frame == bossHUD and 2 or 1
+  stroke.Transparency = 0.12
+  stroke.Parent = frame
+  for _,object in ipairs(frame:GetDescendants()) do
+   if object:IsA("GuiObject") then object.ZIndex = object:IsA("TextLabel") and 43 or 41 end
+   if object.Name == "SegmentNotch" then object.Size = UDim2.new(0, 2, 1, 0) end
+  end
+ end
+ bossTrack.Name = "BossHealthTrack"
+ bossArt.Visible = false
+ bossHUD.HeroAccent.Visible = false
+ targetTitle.BackgroundTransparency = 1
+ targetDetail.TextStrokeTransparency = 1
+ bossSubtitle.TextColor3 = Color3.fromRGB(235, 244, 250)
+ for _,label in ipairs({ targetTitle, targetDetail, bossTitle, bossSubtitle }) do
+  label.TextScaled = true
+  label.TextWrapped = true
+  label.TextXAlignment = Enum.TextXAlignment.Center
+  label.TextYAlignment = Enum.TextYAlignment.Center
+  local limit = Instance.new("UITextSizeConstraint")
+  limit.Name = "CombatReadability"
+  limit.MinTextSize = (label == targetTitle or label == bossTitle) and 14 or 12
+  limit.MaxTextSize = (label == targetTitle or label == bossTitle) and 18 or 14
+  limit.Parent = label
+ end
+end
+
 local toastHolder = Instance.new("Frame")
 toastHolder.Name = "Toasts"
 toastHolder.AnchorPoint = Vector2.new(0.5, 0)
@@ -2811,6 +3056,7 @@ local legacyPetMenuRuntime = {
 	deleteGeneration = 0,
 	deleteConfirmationSeconds = 3,
 }
+shared.PunchWallGenericPanelRuntime = { generation = 0 }
 
 local function setRounded(instance, radius)
 	local corner = Instance.new("UICorner")
@@ -2937,6 +3183,12 @@ closeButton.Selectable = true
 closeButton.NextSelectionLeft = orderedTabButtons[#orderedTabButtons]
 
 local function clearContent()
+	local runtime = shared.PunchWallGenericPanelRuntime
+	runtime.generation += 1
+	runtime.signature = nil
+	runtime.anchor = nil
+	runtime.playtimeLabel = nil
+	runtime.spinLabel = nil
 	for _, child in ipairs(content:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
@@ -3016,6 +3268,69 @@ local function genericMenuIsCompact()
 	local camera = workspace.CurrentCamera
 	local viewport = camera and camera.ViewportSize or Vector2.new(800, 600)
 	return UserInputService.TouchEnabled or viewport.Y < 520
+end
+
+-- Keep native buttons alive across unrelated stat snapshots. A timer update
+-- must not destroy the button between the player's press and release.
+function shared.PunchWallGenericPanelRuntime.Signature(tabName)
+	if tabName ~= "Pets" and tabName ~= "Tasks" then return nil end
+	local fields = { tabName, tostring(genericMenuIsCompact()), tostring(clientSettings.uiScale or 1) }
+	if tabName == "Pets" then
+		legacyPetMenuRuntime.ValidateDelete(decodeJSON(latestStats.PetInventoryJSON, {}))
+		for _, key in ipairs({ "PetInventoryJSON", "EquippedPetsJSON", "LockedPetsJSON",
+			"DiscoveredPetsJSON", "OwnedPremiumPetsJSON", "PetDropPity" }) do
+			table.insert(fields, tostring(latestStats[key] or ""))
+		end
+		table.insert(fields, tostring(legacyPetMenuRuntime.deleteGeneration))
+		for _, pet in ipairs(GameConfig.PremiumPets) do
+			local passId = tonumber(pet.gamePassId) or 0
+			local cached = shared.PunchWallPurchaseRuntime.GamePassPriceCache[passId]
+			table.insert(fields, tostring(passId))
+			table.insert(fields, tostring(pet.robux))
+			table.insert(fields, tostring(shared.PunchWallPurchaseRuntime.HasConfiguredGamePass(pet)))
+			table.insert(fields, cached and tostring(cached.price) or "Loading")
+			table.insert(fields, cached and tostring(cached.resolved) or "false")
+			table.insert(fields, cached and tostring(cached.state) or "Loading")
+		end
+	else
+		local tutorial = latestStats.Tutorial or {}
+		table.insert(fields, tostring(tutorial.title or "Complete"))
+		table.insert(fields, tostring(tutorial.detail or ""))
+		table.insert(fields, tostring(latestStats.LastDailyDate == os.date("!%Y-%m-%d")))
+		table.insert(fields, tostring(latestStats.DailyBreaks or 0))
+		table.insert(fields, tostring((latestStats.DailyQuestClaimed or 0) >= 1))
+		table.insert(fields, tostring((latestStats.PlaytimeClaimed or 0) >= 1))
+		table.insert(fields, tostring((latestStats.PlaytimeSeconds or 0) >= GameConfig.Rewards.PlaytimeSeconds))
+		table.insert(fields, tostring(tonumber(latestStats.SpinCredits) or 0))
+		table.insert(fields, tostring(os.time() >= (tonumber(latestStats.SpinReadyAt) or 0)))
+	end
+	return HttpService:JSONEncode(fields)
+end
+
+function shared.PunchWallGenericPanelRuntime.PlaytimeText()
+	return ("Playtime %d/%d sec  |  Reward %s coins"):format(
+		math.min(latestStats.PlaytimeSeconds or 0, GameConfig.Rewards.PlaytimeSeconds),
+		GameConfig.Rewards.PlaytimeSeconds, formatNumber(GameConfig.Rewards.PlaytimeCoins)
+	)
+end
+
+function shared.PunchWallGenericPanelRuntime.SpinText()
+	local credits = tonumber(latestStats.SpinCredits) or 0
+	local remaining = math.max(0, (tonumber(latestStats.SpinReadyAt) or 0) - os.time())
+	if credits > 0 then return ("%d bonus spin%s ready"):format(credits, credits == 1 and "" or "s") end
+	if remaining == 0 then return "Free Hero Spin ready now" end
+	return ("Next free spin in %dh %02dm"):format(math.floor(remaining / 3600), math.floor(remaining % 3600 / 60))
+end
+
+function shared.PunchWallGenericPanelRuntime.UpdateClocks()
+	local runtime = shared.PunchWallGenericPanelRuntime
+	if not runtime.playtimeLabel or not runtime.playtimeLabel:IsDescendantOf(content)
+		or not runtime.spinLabel or not runtime.spinLabel:IsDescendantOf(content) then return false end
+	local playtimeText = runtime.PlaytimeText()
+	local spinText = runtime.SpinText()
+	if runtime.playtimeLabel.Text ~= playtimeText then runtime.playtimeLabel.Text = playtimeText end
+	if runtime.spinLabel.Text ~= spinText then runtime.spinLabel.Text = spinText end
+	return true
 end
 
 local function addSection(textValue, color)
@@ -3544,16 +3859,16 @@ local function renderTasks()
 	local played = latestStats.PlaytimeSeconds or 0
 	local playtimeClaimed = (latestStats.PlaytimeClaimed or 0) >= 1
 	local playtimeReady = played >= GameConfig.Rewards.PlaytimeSeconds
-	local _, playActions = addRow("Five Minute Supply", ("Playtime %d/%d sec  |  Reward %s coins"):format(math.min(played, GameConfig.Rewards.PlaytimeSeconds), GameConfig.Rewards.PlaytimeSeconds, formatNumber(GameConfig.Rewards.PlaytimeCoins)), palette.Use, "Success")
+	local _, playActions, _, playtimeDescription = addRow("Five Minute Supply", shared.PunchWallGenericPanelRuntime.PlaytimeText(), palette.Use, "Success")
+	playtimeDescription.Name = "TaskClockPlaytime"
+	shared.PunchWallGenericPanelRuntime.playtimeLabel = playtimeDescription
 	local playButton = makeMenuCommand(playActions, "ClaimPlaytime", playtimeClaimed and "CLAIMED" or playtimeReady and "CLAIM" or "WAIT", playtimeReady and not playtimeClaimed and palette.Reward or palette.PanelSoft, function() actionRemote:FireServer({ action = "ClaimPlaytime" }) end)
 	playButton.Active = playtimeReady and not playtimeClaimed
 	playButton.Size = UDim2.fromOffset(100, 44)
 	local spinReady = (tonumber(latestStats.SpinCredits) or 0) > 0 or os.time() >= (tonumber(latestStats.SpinReadyAt) or 0)
-	local spinDescription = (tonumber(latestStats.SpinCredits) or 0) > 0
-		and (("%d bonus spin%s ready"):format(latestStats.SpinCredits, latestStats.SpinCredits == 1 and "" or "s"))
-		or spinReady and "Free Hero Spin ready now"
-		or ("Next free spin in %dh %02dm"):format(math.floor(math.max(0, latestStats.SpinReadyAt - os.time()) / 3600), math.floor(math.max(0, latestStats.SpinReadyAt - os.time()) % 3600 / 60))
-	local _, spinActions = addRow("Hero Prize Spin", spinDescription, palette.Use, "Success")
+	local _, spinActions, _, spinDescription = addRow("Hero Prize Spin", shared.PunchWallGenericPanelRuntime.SpinText(), palette.Use, "Success")
+	spinDescription.Name = "TaskClockSpin"
+	shared.PunchWallGenericPanelRuntime.spinLabel = spinDescription
 	makeMenuCommand(spinActions, "OpenSpin", spinReady and "SPIN" or "VIEW", spinReady and palette.Reward or palette.PanelSoft, function()
 		if shared.PunchWallOpenSpin then shared.PunchWallOpenSpin() end
 	end).Size = UDim2.fromOffset(100, 44)
@@ -4127,16 +4442,66 @@ renderStandaloneRebirth = function()
 	task.defer(applyResponsiveLayout)
 end
 
-renderStandaloneSettings = function()
-	if not settingsPanel.Visible then return end
-	clearStandaloneBody(settingsBody)
+local settingsRuntime = { generation = 0, controls = {}, builds = 0, refreshes = 0, reuses = 0 }
+function settingsRuntime.ControlsCurrent()
+	if settingsBody.Parent ~= settingsPanel or #settingsRuntime.controls ~= 7
+		or not settingsRuntime.footer or settingsRuntime.footer.Parent ~= settingsBody
+		or not settingsRuntime.done or settingsRuntime.done.Parent ~= settingsRuntime.footer then return false end
+	for _, control in ipairs(settingsRuntime.controls) do
+		if control.row.Parent ~= settingsBody or control.options.Parent ~= control.row
+			or control.button.Parent ~= control.options then return false end
+	end
+	return true
+end
+function settingsRuntime.UpdateSelection()
+	for _, control in ipairs(settingsRuntime.controls) do
+		local value = control.key == "uiScale" and (tonumber(clientSettings.uiScale) or 1)
+			or clientSettings[control.key] == true
+		local selected = control.value == value
+		control.button.BackgroundColor3 = selected and palette.Reward or palette.PanelSoft
+		control.button:SetAttribute("SettingSelected", selected)
+	end
+end
+function settingsRuntime.FocusOnOpen()
+	local generation = settingsRuntime.generation
+	task.defer(function()
+		if not settingsPanel.Visible or settingsPanel.Parent ~= gui
+			or generation ~= settingsRuntime.generation or not settingsRuntime.ControlsCurrent() then return end
+		local selected = GuiService.SelectedObject
+		if selected and selected:IsDescendantOf(settingsBody) and selected.Active and selected.Selectable then return end
+		local lastInput = UserInputService:GetLastInputType()
+		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
+		GuiService.SelectedObject = selectionInput and settingsRuntime.controls[1].button or nil
+	end)
+end
+renderStandaloneSettings = function(focusOnOpen)
+	if not settingsPanel.Visible or settingsPanel.Parent ~= gui then return end
+	settingsRuntime.refreshes += 1
+	settingsPanel:SetAttribute("SettingsRefreshCount", settingsRuntime.refreshes)
 	settingsSubtitle.Text = "SOUND • MOTION • UI SIZE"
 	settingsPanel:SetAttribute("SoundEnabled", clientSettings.sound == true)
 	settingsPanel:SetAttribute("MotionEnabled", clientSettings.motion == true)
 	settingsPanel:SetAttribute("UiScale", tonumber(clientSettings.uiScale) or 1)
 	settingsPanel:SetAttribute("LegacyCombinedTabsVisible", false)
-	local firstControl
-	local function makeSettingRow(rowIndex, iconName, titleText, helperText, options, selectedValue, onSelect)
+	settingsPanel:SetAttribute("SettingsControlsVersion", "StableNativeControlsV1")
+	if settingsRuntime.ControlsCurrent() then
+		settingsRuntime.reuses += 1
+		settingsPanel:SetAttribute("SettingsReuseCount", settingsRuntime.reuses)
+		settingsRuntime.UpdateSelection()
+		if focusOnOpen then settingsRuntime.FocusOnOpen() end
+		if settingsRuntime.lastScale ~= clientSettings.uiScale then
+			settingsRuntime.lastScale = clientSettings.uiScale
+			task.defer(applyResponsiveLayout)
+		end
+		return
+	end
+	settingsRuntime.generation += 1
+	local generation = settingsRuntime.generation
+	settingsRuntime.controls = {}
+	clearStandaloneBody(settingsBody)
+	settingsRuntime.builds += 1
+	settingsPanel:SetAttribute("SettingsBuildCount", settingsRuntime.builds)
+	local function makeSettingRow(rowIndex, iconName, titleText, helperText, key, options, selectedValue, onSelect)
 		local row = standaloneCard(settingsBody, titleText .. "Setting", UDim2.new(0, 0, 0, (rowIndex - 1) * 82), UDim2.new(1, 0, 0, 72), Color3.fromRGB(46, 205, 255))
 		createThemeIcon(row, iconName, UDim2.fromOffset(12, 12), UDim2.fromOffset(48, 48), "SettingIcon")
 		standaloneLabel(row, "SettingTitle", titleText, UDim2.fromOffset(70, 7), UDim2.fromOffset(130, 25), palette.Text, 14, Enum.Font.GothamBlack)
@@ -4158,7 +4523,11 @@ renderStandaloneSettings = function()
 		local previous
 		for _, option in ipairs(options) do
 			local selected = option.value == selectedValue
-			local button = makeMenuCommand(optionArea, option.name, option.label, selected and palette.Reward or palette.PanelSoft, function()
+			local button
+			button = makeMenuCommand(optionArea, option.name, option.label, selected and palette.Reward or palette.PanelSoft, function()
+				if generation ~= settingsRuntime.generation or not settingsPanel.Visible or settingsPanel.Parent ~= gui
+					or button.Parent ~= optionArea or optionArea.Parent ~= row or row.Parent ~= settingsBody
+					or settingsBody.Parent ~= settingsPanel then return end
 				onSelect(option.value)
 				renderStandaloneSettings()
 			end)
@@ -4169,18 +4538,18 @@ renderStandaloneSettings = function()
 			button.Size = UDim2.fromOffset(option.width or 78, 44)
 			button:SetAttribute("MinimumTouchTarget", 44)
 			button:SetAttribute("SettingValue", tostring(option.value))
-			if not firstControl then firstControl = button end
+			table.insert(settingsRuntime.controls, { button = button, options = optionArea, row = row, key = key, value = option.value })
 			if previous then previous.NextSelectionRight = button button.NextSelectionLeft = previous end
 			previous = button
 		end
 	end
-	makeSettingRow(1, "SoundTool", "SOUND", "MUSIC + SFX", {
+	makeSettingRow(1, "SoundTool", "SOUND", "MUSIC + SFX", "sound", {
 		{ name = "SoundOn", label = "ON", value = true },
 		{ name = "SoundOff", label = "OFF", value = false },
 	}, clientSettings.sound == true, function(value)
 		shared.PunchWallApplySoundSetting(value, true)
 	end)
-	makeSettingRow(2, "Punch", "MOTION", "CAMERA + PUNCH FX", {
+	makeSettingRow(2, "Punch", "MOTION", "CAMERA + PUNCH FX", "motion", {
 		{ name = "MotionOn", label = "ON", value = true },
 		{ name = "MotionCalm", label = "CALM", value = false },
 	}, clientSettings.motion == true, function(value)
@@ -4189,14 +4558,13 @@ renderStandaloneSettings = function()
 		if shared.PunchWallRefreshHonorMotion then shared.PunchWallRefreshHonorMotion() end
 		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
 	end)
-	makeSettingRow(3, "Menu", "UI SIZE", "TEXT + BUTTONS", {
+	makeSettingRow(3, "Menu", "UI SIZE", "TEXT + BUTTONS", "uiScale", {
 		{ name = "Scale80", label = "80%", value = 0.8, width = 72 },
 		{ name = "Scale100", label = "100%", value = 1, width = 72 },
 		{ name = "Scale120", label = "120%", value = 1.2, width = 72 },
 	}, tonumber(clientSettings.uiScale) or 1, function(value)
 		clientSettings.uiScale = value
 		actionRemote:FireServer({ action = "UpdateSettings", value = clientSettings })
-		task.defer(applyResponsiveLayout)
 	end)
 	local footer = Instance.new("Frame")
 	footer.Name = "Footer"
@@ -4206,18 +4574,22 @@ renderStandaloneSettings = function()
 	footer.ZIndex = 73
 	footer.Parent = settingsBody
 	standaloneLabel(footer, "ApplyHint", "CHANGES APPLY NOW", UDim2.fromScale(0, 0), UDim2.fromScale(0.62, 1), palette.MutedText, 11, Enum.Font.GothamBold)
-	local done = makeMenuCommand(footer, "Done", "DONE", Color3.fromRGB(31, 148, 206), function() closeStandaloneWindows("SettingsDone") end)
+	local done
+	done = makeMenuCommand(footer, "Done", "DONE", Color3.fromRGB(31, 148, 206), function()
+		if generation ~= settingsRuntime.generation or not settingsPanel.Visible or settingsPanel.Parent ~= gui
+			or done.Parent ~= footer or footer.Parent ~= settingsBody or settingsBody.Parent ~= settingsPanel then return end
+		closeStandaloneWindows("SettingsDone")
+	end)
 	done.AnchorPoint = Vector2.new(1, 0.5)
 	done.Position = UDim2.fromScale(1, 0.5)
 	done.Size = UDim2.fromOffset(130, 48)
 	done:SetAttribute("MinimumTouchTarget", 44)
+	settingsRuntime.footer = footer
+	settingsRuntime.done = done
+	settingsRuntime.lastScale = clientSettings.uiScale
+	settingsRuntime.UpdateSelection()
 	setDescendantZIndex(settingsPanel, 72)
-	task.defer(function()
-		if not settingsPanel.Visible then return end
-		local lastInput = UserInputService:GetLastInputType()
-		local selectionInput = lastInput == Enum.UserInputType.Keyboard or string.find(lastInput.Name, "Gamepad", 1, true) == 1
-		GuiService.SelectedObject = selectionInput and firstControl or nil
-	end)
+	settingsRuntime.FocusOnOpen()
 	task.defer(applyResponsiveLayout)
 end
 
@@ -4249,7 +4621,7 @@ local function openStandaloneWindow(windowName, origin)
 	shared.PunchWallSetModalCoreGuiHidden(true, "StandaloneWindow")
 	applyReferenceHUDState(true)
 	task.defer(applyResponsiveLayout)
-	if windowName == "Rebirth" then renderStandaloneRebirth() else renderStandaloneSettings() end
+	if windowName == "Rebirth" then renderStandaloneRebirth() else renderStandaloneSettings(true) end
 end
 
 shared.PunchWallOpenSettingsPanel = function(origin)
@@ -4305,6 +4677,13 @@ renderOpenPanel = function()
 		gui:SetAttribute("ReferenceShopLegacyRenderSuppressed", true)
 		return
 	end
+	local runtime = shared.PunchWallGenericPanelRuntime
+	local signature = runtime.Signature(activeTab)
+	if signature and runtime.signature == signature and runtime.anchor and runtime.anchor.Parent == content
+		and (activeTab ~= "Tasks" or runtime.UpdateClocks()) then
+		gui:SetAttribute("GenericPanelRetainedRefreshCount", (gui:GetAttribute("GenericPanelRetainedRefreshCount") or 0) + 1)
+		return
+	end
 	clearContent()
 	addGeneratedBanner()
 	for name, button in pairs(tabButtons) do
@@ -4316,12 +4695,16 @@ renderOpenPanel = function()
 	elseif activeTab == "Tasks" then renderTasks()
 	else renderSettings() end
 	gui:SetAttribute("RenderedGenericTab", activeTab)
+	runtime.signature = signature
+	runtime.anchor = content:FindFirstChild("Hero City Generated Banner")
+	local generation = runtime.generation
+	gui:SetAttribute("GenericPanelStructuralRenderCount", (gui:GetAttribute("GenericPanelStructuralRenderCount") or 0) + 1)
 	if preserveCanvasY > 0 then
 		task.defer(function()
 			local deadline = os.clock() + 1.25
 			repeat RunService.Heartbeat:Wait()
 			until content.AbsoluteCanvasSize.Y > content.AbsoluteSize.Y or os.clock() >= deadline
-			if not mainPanel.Visible or activeTab ~= previouslyRenderedTab then return end
+			if not mainPanel.Visible or activeTab ~= previouslyRenderedTab or runtime.generation ~= generation then return end
 			local maxY = math.max(0, content.AbsoluteCanvasSize.Y - content.AbsoluteSize.Y)
 			content.CanvasPosition = Vector2.new(0, math.clamp(preserveCanvasY, 0, maxY))
 			if preserveHonorFocusId ~= "" then
@@ -4719,6 +5102,9 @@ end
 
 function companionRuntime.StyleNormalCatalogPet(model, definition)
 	if not model or definition.rarity == "Premium" then return model end
+	if definition.name == "Forest Pup" and model:GetAttribute("ForestPupSilhouetteVersion") == "AuthoredPupV1" then
+		return model
+	end
 	local primary = definition.color or Color3.fromRGB(120, 170, 210)
 	local accent = primary:Lerp(Color3.new(1, 1, 1), 0.38)
 	local shadow = primary:Lerp(Color3.fromRGB(20, 27, 34), 0.48)
@@ -4769,7 +5155,55 @@ function companionRuntime.StyleNormalCatalogPet(model, definition)
 		return part
 	end
 
-	if definition.name == "Miner Cat" then
+	if definition.name == "Forest Pup" then
+		local facePart
+		for _, descendant in ipairs(model:GetDescendants()) do
+			local parent = descendant.Parent
+			if descendant:IsA("Decal") and descendant.Face == Enum.NormalId.Front
+				and descendant.Transparency < 1 and parent and parent:IsA("BasePart")
+				and parent.Name == "AnimatedFace" then
+				facePart = parent
+				break
+			end
+		end
+		if facePart then
+			-- The retained Dowodle meshes and OWO face stay intact. Add a small dog
+			-- silhouette in the authored face basis, shared by previews and followers.
+			local faceSize = facePart.Size
+			local featureCount = 0
+			local function pupPart(role, sizeScale, offsetScale, color, roll)
+				local part = Instance.new("Part")
+				part.Name = "Forest Pup " .. role
+				part.Shape = Enum.PartType.Ball
+				part.Size = Vector3.new(faceSize.X * sizeScale.X, faceSize.Y * sizeScale.Y, faceSize.Z * sizeScale.Z)
+				part.CFrame = facePart.CFrame * CFrame.new(
+					faceSize.X * offsetScale.X,
+					faceSize.Y * offsetScale.Y,
+					-faceSize.Z * (0.5 + offsetScale.Z)
+				) * CFrame.Angles(0, 0, math.rad(roll or 0))
+				part.Color = color
+				part.Material = Enum.Material.SmoothPlastic
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanTouch = false
+				part.CanQuery = false
+				part.CastShadow = false
+				part:SetAttribute("ForestPupFeature", role)
+				part.Parent = model
+				featureCount += 1
+			end
+			for side = -1, 1, 2 do
+				local suffix = side < 0 and "Left" or "Right"
+				pupPart("Ear" .. suffix, Vector3.new(0.26, 0.58, 0.24), Vector3.new(side * 0.60, 0.25, -0.12), Color3.fromRGB(91, 66, 48), side * 12)
+				pupPart("Muzzle" .. suffix, Vector3.new(0.26, 0.16, 0.15), Vector3.new(side * 0.12, -0.35, 0.055), Color3.fromRGB(221, 208, 174))
+				pupPart("Paw" .. suffix, Vector3.new(0.27, 0.15, 0.30), Vector3.new(side * 0.25, -0.67, -0.12), Color3.fromRGB(139, 108, 76))
+			end
+			pupPart("Collar", Vector3.new(0.86, 0.12, 0.22), Vector3.new(0, -0.51, 0.01), Color3.fromRGB(40, 86, 63))
+			pupPart("Tag", Vector3.new(0.12, 0.14, 0.08), Vector3.new(0, -0.57, 0.14), Color3.fromRGB(201, 166, 73))
+			model:SetAttribute("ForestPupSilhouetteVersion", "AuthoredPupV1")
+			model:SetAttribute("ForestPupSilhouettePartCount", featureCount)
+		end
+	elseif definition.name == "Miner Cat" then
 		styledPart("Miner Helmet", Vector3.new(0.42, 0.2, 0.72), Vector3.new(-0.26, 0.46, 0), shadow, Enum.Material.Metal, Enum.PartType.Ball)
 		local lamp = styledPart("Miner Lamp", Vector3.new(0.13, 0.24, 0.32), Vector3.new(-0.44, 0.5, -0.3), Color3.fromRGB(255, 214, 62), Enum.Material.Neon, Enum.PartType.Ball)
 		local light = Instance.new("PointLight")
@@ -4984,6 +5418,187 @@ function companionRuntime.ResolveVisualPolicy(state, rootPart, cameraDistance, a
 	-- is culled. Geometry still exceeds the hard bound at minimum scale, so
 	-- keeping it visible would only report the budget rather than enforce it.
 	return repositionedTarget, 0.58, "CulledAfterBudgetLOD", 0
+end
+
+function companionRuntime.BoundsCorners(boundsSize)
+	local corners = {}
+	for x = -1, 1, 2 do
+		for y = -1, 1, 2 do
+			for z = -1, 1, 2 do
+				table.insert(corners, Vector3.new(boundsSize.X * x * 0.5, boundsSize.Y * y * 0.5, boundsSize.Z * z * 0.5))
+			end
+		end
+	end
+	return corners
+end
+
+function companionRuntime.ProjectedBoundsRect(boundsCFrame, boundsCorners)
+	local camera = workspace.CurrentCamera
+	if not camera then return nil end
+	local rect = { minX = math.huge, minY = math.huge, maxX = -math.huge, maxY = -math.huge }
+	for _, corner in ipairs(boundsCorners) do
+		local point = camera:WorldToViewportPoint(boundsCFrame:PointToWorldSpace(corner))
+		if point.Z <= math.max(0.05, math.abs(tonumber(camera.NearPlaneZ) or 0)) then return nil end
+		rect.minX = math.min(rect.minX, point.X)
+		rect.minY = math.min(rect.minY, point.Y)
+		rect.maxX = math.max(rect.maxX, point.X)
+		rect.maxY = math.max(rect.maxY, point.Y)
+	end
+	return rect
+end
+
+function companionRuntime.KeepBoundsInSafeFrame(boundsCFrame, boundsCorners, forbiddenRects, overlapFraction)
+	local camera = workspace.CurrentCamera
+	local viewport = camera and camera.ViewportSize
+	if not viewport or viewport.X <= 1 or viewport.Y <= 1 then return boundsCFrame, false, 0 end
+	local nearDepth = math.max(0.05, math.abs(tonumber(camera.NearPlaneZ) or 0))
+	-- Translate the entire oriented box in the camera plane; preserve model
+	-- size and depth. Intersect each corner's allowable translation interval
+	-- so bob, tilt and smoothing cannot push an edge beyond the 1% safe frame.
+	local inset = math.min(viewport.X, viewport.Y) * 0.01 + 0.5
+	-- Calibrate against the same projection as the corners: FOV can use the
+	-- full render area while ViewportSize excludes a device cutout.
+	local reference = camera.CFrame.Position + camera.CFrame.LookVector * 10
+	local center = camera:WorldToViewportPoint(reference)
+	local right = camera:WorldToViewportPoint(reference + camera.CFrame.RightVector)
+	local up = camera:WorldToViewportPoint(reference + camera.CFrame.UpVector)
+	local pixelsAtUnitDepthX = (right.X - center.X) * center.Z
+	local pixelsAtUnitDepthY = (center.Y - up.Y) * center.Z
+	if center.Z <= 0.05 or pixelsAtUnitDepthX <= 0.0001 or pixelsAtUnitDepthY <= 0.0001 then
+		return boundsCFrame, false, 0
+	end
+	local minX, maxX, minY, maxY = -math.huge, math.huge, -math.huge, math.huge
+	local projected = forbiddenRects and #forbiddenRects > 0 and {} or nil
+	for _, localCorner in ipairs(boundsCorners) do
+		local corner = boundsCFrame:PointToWorldSpace(localCorner)
+		local point = camera:WorldToViewportPoint(corner)
+		if point.Z <= nearDepth then return boundsCFrame, false, 0 end
+		local worldPerPixelX = point.Z / pixelsAtUnitDepthX
+		local worldPerPixelY = point.Z / pixelsAtUnitDepthY
+		minX = math.max(minX, (inset - point.X) * worldPerPixelX)
+		maxX = math.min(maxX, (viewport.X - inset - point.X) * worldPerPixelX)
+		minY = math.max(minY, (point.Y - viewport.Y + inset) * worldPerPixelY)
+		maxY = math.min(maxY, (point.Y - inset) * worldPerPixelY)
+		if projected then table.insert(projected, { point = point, x = worldPerPixelX, y = worldPerPixelY }) end
+	end
+	if minX > maxX or minY > maxY then return boundsCFrame, false, 0 end
+	local offsetX, offsetY = math.clamp(0, minX, maxX), math.clamp(0, minY, maxY)
+	if projected then
+		-- Every forbidden rectangle contributes four separating half-planes.
+		-- Intersect them with the eight-corner safe-frame intervals, then choose
+		-- the closest feasible camera-plane translation. Three pets need at most
+		-- three blockers (avatar plus earlier slots), hence 4^3 candidate regions.
+		local overlapLimit = math.clamp(tonumber(overlapFraction) or 0, 0, 0.08)
+		-- Candidate strips reserve 0.5 percentage points below the existing 8%
+		-- limit; perspective can change rectangle area, so validate the actual
+		-- projected endpoint before accepting any interval candidate.
+		local initialRect = overlapLimit > 0 and companionRuntime.ProjectedBoundsRect(boundsCFrame, boundsCorners) or nil
+		local limits = {}
+		for _, rect in ipairs(forbiddenRects) do
+			local gapX, gapY = 2, 2
+			if initialRect then
+				gapX = -math.min(rect.maxX - rect.minX, initialRect.maxX - initialRect.minX) * overlapLimit
+				gapY = -math.min(rect.maxY - rect.minY, initialRect.maxY - initialRect.minY) * overlapLimit
+			end
+			local left, right, above, below = math.huge, -math.huge, -math.huge, math.huge
+			for _, corner in ipairs(projected) do
+				left = math.min(left, (rect.minX - gapX - corner.point.X) * corner.x)
+				right = math.max(right, (rect.maxX + gapX - corner.point.X) * corner.x)
+				above = math.max(above, (corner.point.Y - rect.minY + gapY) * corner.y)
+				below = math.min(below, (corner.point.Y - rect.maxY - gapY) * corner.y)
+			end
+			if rect.minimumCenterDistance and rect.worldPosition then
+				local delta = rect.worldPosition - boundsCFrame.Position
+				local depth = delta:Dot(camera.CFrame.LookVector)
+				local separation = math.sqrt(math.max(0, rect.minimumCenterDistance ^ 2 - depth * depth))
+				if separation > 0 then
+					local x, y = delta:Dot(camera.CFrame.RightVector), delta:Dot(camera.CFrame.UpVector)
+					left = math.min(left, x - separation)
+					right = math.max(right, x + separation)
+					above = math.max(above, y + separation)
+					below = math.min(below, y - separation)
+				end
+			end
+			table.insert(limits, { left, right, above, below })
+		end
+		local bestDistance = math.huge
+		local function visit(index, loX, hiX, loY, hiY)
+			if loX > hiX or loY > hiY then return end
+			local x, y = math.clamp(0, loX, hiX), math.clamp(0, loY, hiY)
+			local distance = x * x + y * y
+			if distance >= bestDistance then return end
+			local limit = limits[index]
+			if not limit then
+				if overlapLimit > 0 then
+					local candidate = boundsCFrame + camera.CFrame.RightVector * x + camera.CFrame.UpVector * y
+					local candidateRect = companionRuntime.ProjectedBoundsRect(candidate, boundsCorners)
+					if not candidateRect then return end
+					local area = (candidateRect.maxX - candidateRect.minX) * (candidateRect.maxY - candidateRect.minY)
+					for _, rect in ipairs(forbiddenRects) do
+						local overlap = math.max(0, math.min(candidateRect.maxX, rect.maxX) - math.max(candidateRect.minX, rect.minX))
+							* math.max(0, math.min(candidateRect.maxY, rect.maxY) - math.max(candidateRect.minY, rect.minY))
+						local smaller = math.max(1, math.min(area, (rect.maxX - rect.minX) * (rect.maxY - rect.minY)))
+						if overlap / smaller > 0.08 then return end
+						if rect.minimumCenterDistance and rect.worldPosition
+							and (candidate.Position - rect.worldPosition).Magnitude < rect.minimumCenterDistance then return end
+					end
+				end
+				offsetX, offsetY, bestDistance = x, y, distance
+				return
+			end
+			visit(index + 1, loX, math.min(hiX, limit[1]), loY, hiY)
+			visit(index + 1, math.max(loX, limit[2]), hiX, loY, hiY)
+			visit(index + 1, loX, hiX, math.max(loY, limit[3]), hiY)
+			visit(index + 1, loX, hiX, loY, math.min(hiY, limit[4]))
+		end
+		visit(1, minX, maxX, minY, maxY)
+		if bestDistance == math.huge then return boundsCFrame, false, 0 end
+	end
+	local offset = camera.CFrame.RightVector * offsetX + camera.CFrame.UpVector * offsetY
+	return boundsCFrame + offset, true, offset.Magnitude
+end
+
+-- A nearest placement for an early slot can consume the only rectangle that
+-- fits a larger later pet. Try the finite orders of at most three unchanged
+-- boxes; each attempt retains the same eight-corner and separation solver.
+function companionRuntime.PackFormationBounds(entries, avatarRect, preferredOrder)
+	if #entries == 0 or #entries > 3 then return nil, nil, 0 end
+	local attempts = 0
+	local function attempt(order)
+		attempts += 1
+		local blockers = avatarRect and { avatarRect } or {}
+		local result = {}
+		for _, index in ipairs(order) do
+			local entry = entries[index]
+			local bounds, valid, shift = companionRuntime.KeepBoundsInSafeFrame(entry.bounds, entry.corners, blockers, 0.075)
+			if not valid then return nil end
+			local rect = companionRuntime.ProjectedBoundsRect(bounds, entry.corners)
+			if not rect then return nil end
+			rect.worldPosition = bounds.Position
+			rect.minimumCenterDistance = 1.45
+			table.insert(blockers, rect)
+			result[index] = { bounds = bounds, shift = shift }
+		end
+		return result
+	end
+	local orders = #entries == 1 and { { 1 } }
+		or #entries == 2 and { { 1, 2 }, { 2, 1 } }
+		or { { 1, 2, 3 }, { 3, 1, 2 }, { 3, 2, 1 }, { 1, 3, 2 }, { 2, 3, 1 }, { 2, 1, 3 } }
+	-- Prefer the last successful order to avoid swapping lanes as bob changes.
+	if preferredOrder then
+		for index, order in ipairs(orders) do
+			if table.concat(order, ",") == preferredOrder then
+				table.remove(orders, index)
+				table.insert(orders, 1, order)
+				break
+			end
+		end
+	end
+	for _, order in ipairs(orders) do
+		local result = attempt(order)
+		if result then return result, table.concat(order, ","), attempts end
+	end
+	return nil, nil, attempts
 end
 
 function companionRuntime.ApplyVisualScale(state, visualScale)
@@ -5444,6 +6059,10 @@ function companionRuntime.ApplyFistAuraMotionSetting()
 end
 shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting
 
+function companionRuntime.BuildInventoryFistPreview(fistName)
+	return FistVisualBuilder.BuildCatalogModel(GameConfig.FistDefinition(fistName))
+end
+
 function companionRuntime.BuildItemMatchedGauntlet(fistName)
 	if shared.PunchWallHiddenFistHand and shared.PunchWallHiddenFistHand.Parent then
 		shared.PunchWallHiddenFistHand.LocalTransparencyModifier = 0
@@ -5592,6 +6211,56 @@ function companionRuntime.BuildItemMatchedGauntlet(fistName)
 
 	-- Use sanitized Creator Store visuals when available. The gameplay punch, input,
 	-- animation, and damage remain owned by this client/server code.
+	local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)
+	if catalogModel then
+		local rigProfile = FistVisualBuilder.GetRigProfile(hand)
+		catalogModel:ScaleTo(math.max(0.1, hand.Size.X) / catalogSpec.referenceHandWidth)
+		local wrist = hand.CFrame * CFrame.new(0, hand.Size.Y * rigProfile.cuffYScale, 0)
+			* CFrame.Angles(0, 0, math.rad(180))
+		catalogModel:PivotTo(wrist)
+		catalogModel.Parent = model
+		for key, value in pairs(catalogModel:GetAttributes()) do model:SetAttribute(key, value) end
+		model:SetAttribute("VisualSource", "SharedCatalogGeometry")
+		model:SetAttribute("GripAxis", "LocalYToDistalForearm")
+		model:SetAttribute("GripProfile", "CatalogWristOriginV1")
+		model:SetAttribute("AlignmentStandard", rigProfile.name)
+		model:SetAttribute("ImportedRuntimeSilhouette", false)
+		local palm = catalogModel:FindFirstChild("Catalog Closed Palm")
+		for _, part in ipairs(catalogModel:GetChildren()) do
+			if part:IsA("BasePart") then
+				part.Anchored = false
+				local weld = Instance.new("WeldConstraint")
+				weld.Part0, weld.Part1 = part, hand
+				weld.Parent = part
+			end
+		end
+		local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+		a0.Position, a1.Position = Vector3.new(-palm.Size.X * 0.4, 0, 0), Vector3.new(palm.Size.X * 0.4, 0, 0)
+		a0.Parent, a1.Parent = palm, palm
+		local trail = Instance.new("Trail")
+		trail.Attachment0, trail.Attachment1 = a0, a1
+		trail.Color = ColorSequence.new(accent, primary)
+		trail.Lifetime, trail.Enabled, trail.Parent = 0.16, false, palm
+		addTierAura(palm)
+		local bounds, size = catalogModel:GetBoundingBox()
+		local handLargest = math.max(hand.Size.X, hand.Size.Y, hand.Size.Z, 0.01)
+		local ratio = math.max(size.X, size.Y, size.Z) / handLargest
+		local offset = (bounds.Position - hand.Position).Magnitude
+		model:SetAttribute("VisualToHandRatio", ratio)
+		model:SetAttribute("WristCenterOffset", offset)
+		model:SetAttribute("WristAttachmentBounded", offset <= rigProfile.maxCenterOffset * math.max(1, hand.Size.X))
+		model:SetAttribute("FaceOcclusionSafe", ratio <= rigProfile.maxTargetRatio)
+		model:SetAttribute("VisualBoundsX", size.X)
+		model:SetAttribute("VisualBoundsY", size.Y)
+		model:SetAttribute("VisualBoundsZ", size.Z)
+		model:SetAttribute("EffectiveVisualBoundsX", size.X)
+		model:SetAttribute("EffectiveVisualBoundsY", size.Y)
+		model:SetAttribute("EffectiveVisualBoundsZ", size.Z)
+		model:SetAttribute("ItemVisualReady", true)
+		model.Parent = character
+		currentGauntlet, currentTrail = model, trail
+		return true
+	end
 	local importedSource
 	local assetFolder = ReplicatedStorage:FindFirstChild("PunchWallFistAssets")
 	local externalAssetFolder = ReplicatedStorage:FindFirstChild("PunchWallExternalAssets")
@@ -6531,12 +7200,86 @@ shared.PunchWallRefreshHonorMotion = function()
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
 end
 
+function companionRuntime.CharacterHandSizeSignature(character)
+	local state = companionRuntime.handSizeObserver
+	local fields = {
+		tostring(state and state.character == character and state.generation or 0),
+		tostring(state and state.character == character and state.handRevision or 0),
+	}
+	for _, names in ipairs({ { "RightHand", "Right Arm" }, { "LeftHand", "Left Arm" } }) do
+		local hand = character and (character:FindFirstChild(names[1]) or character:FindFirstChild(names[2]))
+		if hand and hand:IsA("BasePart") then
+			table.insert(fields, hand.Name)
+			table.insert(fields, ("%.5f,%.5f,%.5f"):format(hand.Size.X, hand.Size.Y, hand.Size.Z))
+		else
+			table.insert(fields, names[1] .. ":Missing")
+		end
+	end
+	return table.concat(fields, "|")
+end
+
+function companionRuntime.ObserveCharacterHandSizes(character)
+	local previous = companionRuntime.handSizeObserver
+	if previous and previous.character == character and not previous.cancelled then return end
+	if previous then
+		previous.cancelled = true
+		for _, connection in ipairs(previous.connections) do connection:Disconnect() end
+		for _, connection in pairs(previous.hands) do connection:Disconnect() end
+	end
+	companionRuntime.handSizeObserverGeneration = (companionRuntime.handSizeObserverGeneration or 0) + 1
+	companionRuntime.handSizeObserver = nil
+	if not character then return end
+	local state = {
+		character = character,
+		generation = companionRuntime.handSizeObserverGeneration,
+		connections = {},
+		hands = {},
+		handRevision = 0,
+		pending = false,
+		cancelled = false,
+	}
+	companionRuntime.handSizeObserver = state
+	local function current()
+		return not state.cancelled and companionRuntime.handSizeObserver == state and player.Character == character
+	end
+	local function scheduleRefresh()
+		if not current() or state.pending then return end
+		state.pending = true
+		-- ScaleTo/appearance replication can resize both hands in one burst.
+		-- Coalesce that burst and let the signature skip unchanged dimensions.
+		task.delay(0.05, function()
+			if not current() then return end
+			state.pending = false
+			refreshCharacterVisuals()
+		end)
+	end
+	local function observeHand(hand)
+		if not current() or state.hands[hand] or not hand:IsA("BasePart") then return end
+		if hand.Name ~= "RightHand" and hand.Name ~= "Right Arm"
+			and hand.Name ~= "LeftHand" and hand.Name ~= "Left Arm" then return end
+		state.hands[hand] = hand:GetPropertyChangedSignal("Size"):Connect(scheduleRefresh)
+		state.handRevision += 1
+		scheduleRefresh()
+	end
+	table.insert(state.connections, character.ChildAdded:Connect(observeHand))
+	table.insert(state.connections, character.ChildRemoved:Connect(function(hand)
+		local connection = state.hands[hand]
+		if not connection then return end
+		connection:Disconnect()
+		state.hands[hand] = nil
+		state.handRevision += 1
+		scheduleRefresh()
+	end))
+	for _, child in ipairs(character:GetChildren()) do observeHand(child) end
+end
+
 refreshCharacterVisuals = function()
 	local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
 	local signature = tostring(latestStats.EquippedFist or "Starter Glove")
 		.. "|" .. table.concat(equippedPets, ",")
 		.. "|" .. tostring(latestStats.EquippedHonorItem or "None")
 		.. "|" .. tostring(player.Character)
+		.. "|" .. companionRuntime.CharacterHandSizeSignature(player.Character)
 	if signature == visualSignature and currentGauntlet and currentGauntlet.Parent then return end
 	if not companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove") then
 		visualSignature = ""
@@ -6546,6 +7289,24 @@ refreshCharacterVisuals = function()
 	companionRuntime.CancelVisualRetry("BuildSucceeded")
 	visualSignature = signature
 	buildHonorCosmetic(latestStats.EquippedHonorItem)
+	-- Hand geometry changes require new gloves and attached Honor cosmetics,
+	-- but pets have independent normalized sizes and motion state. Retain their
+	-- actual instances unless their character, tokens, templates or lifetime change.
+	local petTokens = table.concat(equippedPets, ",")
+	local petSources = {}
+	local petsCurrent = companionRuntime.petCharacter == player.Character
+		and companionRuntime.petTokens == petTokens and #companionModels == #equippedPets
+	for index, token in ipairs(equippedPets) do
+		local definition = GameConfig.PetDefinition(GameConfig.ParsePetToken(token))
+		petSources[index] = definition and catalogCompanionTemplate(definition) or nil
+		local state = companionModels[index]
+		petsCurrent = petsCurrent and state ~= nil and state.model.Parent == companionsFolder
+			and companionRuntime.petSources[index] == petSources[index]
+	end
+	if petsCurrent then return end
+	companionRuntime.petCharacter = player.Character
+	companionRuntime.petTokens = petTokens
+	companionRuntime.petSources = petSources
 	companionsFolder:ClearAllChildren()
 	companionModels = {}
 	local premiumCount = 0
@@ -6819,7 +7580,7 @@ local function beginPunchCamera(now)
 	local motionState = punchMotionState
 	if not motionState then return false end
 	local originalType = camera.CameraType
-	if originalType == Enum.CameraType.Scriptable then originalType = Enum.CameraType.Custom end
+	if originalType == Enum.CameraType.Scriptable then return false end
 	activePunchCamera = {
 		startedAt = now,
 		-- Let the avatar lead for a readable beat, then catch up quickly enough
@@ -7002,16 +7763,21 @@ RunService.PreSimulation:Connect(updatePunchMotion)
 gui:SetAttribute("CharacterPunchRenderOverride", true)
 gui:SetAttribute("CharacterPunchSimulationOverride", true)
 
-shared.PunchWallCameraPositionBlocked = function(position, character)
+shared.PunchWallCameraPositionBlocked = function(position, character, collectParts)
 	local overlap = OverlapParams.new()
 	overlap.FilterType = Enum.RaycastFilterType.Exclude
 	-- Debris is ignored for line-of-sight readability, but not here: an opaque
 	-- chunk intersecting the camera still fills the whole screen.
 	overlap.FilterDescendantsInstances = { character, localDebrisFolder, companionsFolder }
 	overlap.MaxParts = 32
+	local parts = collectParts and {} or nil
 	for _, part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(position), Vector3.new(0.55, 0.55, 0.55), overlap)) do
-		if part:IsA("BasePart") and part.CanCollide and part.Transparency < 0.95 then return true end
+		if part:IsA("BasePart") and part.CanCollide and part.Transparency < 0.95 then
+			if not collectParts then return true end
+			table.insert(parts, part)
+		end
 	end
+	if parts then return #parts > 0, parts end
 	return false
 end
 
@@ -7156,12 +7922,19 @@ shared.PunchWallCameraLineOfSightBlocked = cameraLineOfSightBlocked
 shared.PunchWallResolveClearCameraPose = resolveClearCameraPose
 
 local lastPunchCameraRenderAt = 0
-local function updatePunchCameraFollow(deltaTime)
+local function updatePunchCameraFollow(deltaTime, renderSuspended)
 	local state = activePunchCamera
 	if not state then return end
 	local camera = workspace.CurrentCamera
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if camera and camera.CameraType == Enum.CameraType.Scriptable then
+		-- A cinematic or another explicit camera owner supersedes punch feedback.
+		activePunchCamera = nil
+		gui:SetAttribute("PunchCameraFollowActive", false)
+		gui:SetAttribute("PunchCameraScriptableActive", false)
+		return
+	end
 	if not camera or not root then
 		if camera then
 			camera.CameraType = state.cameraType
@@ -7187,16 +7960,30 @@ local function updatePunchCameraFollow(deltaTime)
 		if step.Magnitude > maxStep then step = step.Unit * maxStep end
 		state.translation += step
 	end
-	local candidateCFrame = state.baseCFrame + state.translation
-	local candidateFocus = state.baseFocus + state.translation
+	-- Roblox has already applied the player's orbit and zoom this frame. Offset
+	-- only its translation by the remaining follow lag; replaying the punch's
+	-- original CFrame would swallow camera input until the follow completes.
+	local liveCFrame, liveFocus = camera.CFrame, camera.Focus
+	if renderSuspended then
+		-- The default camera does not run while Studio's viewport is suspended.
+		-- Advance its last unmodified pose once by root displacement; applying
+		-- the follow lag to our previous output would accumulate a camera drift.
+		local rootStep = rootDelta - (state.lastRootDelta or Vector3.zero)
+		liveCFrame = (state.lastLiveCFrame or state.baseCFrame) + rootStep
+		liveFocus = (state.lastLiveFocus or state.baseFocus) + rootStep
+	end
+	state.lastLiveCFrame, state.lastLiveFocus = liveCFrame, liveFocus
+	state.lastRootDelta = rootDelta
+	local followOffset = state.translation - rootDelta
+	local candidateCFrame = liveCFrame + followOffset
+	local candidateFocus = liveFocus + followOffset
 	local cameraBlocked = shared.PunchWallCameraPositionBlocked(candidateCFrame.Position, character)
 	if cameraBlocked then
 		state.translation = previousTranslation
 		gui:SetAttribute("PunchCameraGeometryClamped", true)
 		gui:SetAttribute("PunchCameraGeometryClampFrames", (gui:GetAttribute("PunchCameraGeometryClampFrames") or 0) + 1)
 	else
-		local previousCameraPosition = (state.baseCFrame + previousTranslation).Position
-		local appliedStep = (candidateCFrame.Position - previousCameraPosition).Magnitude
+		local appliedStep = (state.translation - previousTranslation).Magnitude
 		gui:SetAttribute("PunchCameraMaxAppliedStep", math.max(gui:GetAttribute("PunchCameraMaxAppliedStep") or 0, appliedStep))
 		camera.CFrame = candidateCFrame
 		camera.Focus = candidateFocus
@@ -7205,8 +7992,8 @@ local function updatePunchCameraFollow(deltaTime)
 	local lag = (rootDelta - state.translation).Magnitude
 	gui:SetAttribute("PunchCameraFollowPeakStuds", math.max(gui:GetAttribute("PunchCameraFollowPeakStuds") or 0, lag))
 	if elapsed >= 0.72 and lag <= state.settleDistance and not cameraBlocked then
-		camera.CFrame = state.baseCFrame + rootDelta
-		camera.Focus = state.baseFocus + rootDelta
+		camera.CFrame = liveCFrame
+		camera.Focus = liveFocus
 		camera.CameraSubject = state.cameraSubject
 		camera.CameraType = state.cameraType
 		activePunchCamera = nil
@@ -7248,7 +8035,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	-- never advances the same follow state a second time between slow frames.
 	local renderSuspended = os.clock() - lastPunchCameraRenderAt > 0.35
 	if activePunchCamera and renderSuspended then
-		updatePunchCameraFollow(math.min(deltaTime, 1 / 30))
+		updatePunchCameraFollow(math.min(deltaTime, 1 / 30), true)
 	end
 	if renderSuspended then
 		local camera = workspace.CurrentCamera
@@ -7301,6 +8088,373 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 	local orbitCharacter
 	local pendingOrbitDelta = 0
 	local previousPinchScale
+	local recoveryRoute
+	local nextRecoverySearchAt = 0
+	local recoverySearches, recoveryCacheHits = 0, 0
+	local recoveryCandidates, recoverySweeps = 0, 0
+	local recoverySearchReason = "idle"
+	local guardPhase = "render"
+	local recordCameraDiagnostics = RunService:IsStudio()
+	local cyclePublishedTravel, cycleEscapeTravel, cyclePublishedWrites = 0, 0, 0
+	local function beginPublicationCycle()
+		cyclePublishedTravel, cycleEscapeTravel, cyclePublishedWrites = 0, 0, 0
+	end
+	local function recordPublishedPose(origin, rootPart, kind)
+		if not recordCameraDiagnostics then return end
+		local camera = workspace.CurrentCamera
+		local distance = (camera.CFrame.Position - origin).Magnitude
+		if distance <= 0.001 then return end
+		cyclePublishedTravel += distance
+		cyclePublishedWrites += 1
+		if kind == "escape" then cycleEscapeTravel += distance end
+		local sample = {
+			phase = guardPhase, kind = kind, at = os.clock(), distance = distance,
+			origin = tostring(origin), published = tostring(camera.CFrame.Position),
+			root = rootPart and tostring(rootPart.Position),
+			cycleTravel = cyclePublishedTravel, cycleEscapeTravel = cycleEscapeTravel,
+			cycleWrites = cyclePublishedWrites,
+		}
+		shared.PunchWallCameraLastPublication = sample
+		if not shared.PunchWallCameraMaxCyclePublication
+			or cyclePublishedTravel > shared.PunchWallCameraMaxCyclePublication.cycleTravel then
+			shared.PunchWallCameraMaxCyclePublication = sample
+		end
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", math.max(gui:GetAttribute("PunchCameraMaxPublishedTravelPerCycle") or 0, cyclePublishedTravel))
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", math.max(gui:GetAttribute("PunchCameraMaxEscapeTravelPerCycle") or 0, cycleEscapeTravel))
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", math.max(gui:GetAttribute("PunchCameraMaxPublishedWritesPerCycle") or 0, cyclePublishedWrites))
+	end
+	local function clampUserOrbit(distance)
+		-- Camera bounds can change while another camera owns Scriptable mode.
+		-- Preserve the selected radius only within the current player bounds.
+		local maximum = math.clamp(tonumber(player.CameraMaxZoomDistance) or 80, 2, 80)
+		local minimum = math.clamp(tonumber(player.CameraMinZoomDistance) or 2, 2, maximum)
+		return math.clamp(distance, minimum, maximum)
+	end
+	local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)
+		if not recordCameraDiagnostics then return end
+		local camera = workspace.CurrentCamera
+		local character = player.Character
+		local remaining = (requested - camera.CFrame.Position).Magnitude
+		local sample = {
+			at = os.clock(), phase = guardPhase, reason = reason,
+			raw = tostring(raw.Position), cache = cached and tostring(cached.Position),
+			origin = origin and tostring(origin), requested = tostring(requested),
+			candidate = candidate and tostring(candidate.Position), published = tostring(camera.CFrame.Position),
+			remaining = remaining, rootDelta = tostring(rootDelta),
+			rawPhysical = shared.PunchWallCameraPositionBlocked(raw.Position, character),
+			rawBlocked = cameraPoseBlocked(raw, character),
+			cachePhysical = cached and shared.PunchWallCameraPositionBlocked(cached.Position, character),
+			cacheBlocked = cached and cameraPoseBlocked(cached, character),
+			publishedPhysical = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character),
+			publishedBlocked = cameraPoseBlocked(camera.CFrame, character),
+			activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true,
+			geometryRecovery = recoveringFromGeometryClamp, handoffRecovery = recoveringFromFollowHandoff,
+			handoffAttribute = gui:GetAttribute("PunchCameraHandoffActive") == true,
+			recoveryTarget = recoveryRoute and tostring(recoveryRoute.position),
+			recoverySearches = recoverySearches, recoveryCacheHits = recoveryCacheHits,
+			recoveryCandidates = recoveryCandidates, recoverySweeps = recoverySweeps,
+			recoverySearchReason = recoverySearchReason,
+			teleportRebaseCount = gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0,
+		}
+		shared.PunchWallCameraLastRecovery = sample
+		if (recoveringFromGeometryClamp or recoveringFromFollowHandoff) and remaining > 0.001 then
+			if origin and (not candidate or (camera.CFrame.Position - origin).Magnitude <= 0.001) then
+				shared.PunchWallCameraFirstStalledRecovery = shared.PunchWallCameraFirstStalledRecovery or sample
+			end
+			if not shared.PunchWallCameraMaxRemainingRecovery or remaining > shared.PunchWallCameraMaxRemainingRecovery.remaining then
+				shared.PunchWallCameraMaxRemainingRecovery = sample
+			end
+		end
+	end
+	shared.PunchWallResetCameraGeometryGuard = function(character)
+		lastClearCameraCFrame = nil
+		lastClearCameraFocus = nil
+		cameraGeometryClampFrames = 0
+		recoveringFromGeometryClamp = false
+		recoveringFromFollowHandoff = false
+		wasActiveFollow = false
+		lastRootPosition = nil
+		userOrbitDistance = nil
+		orbitCharacter = character
+		pendingOrbitDelta = 0
+		previousPinchScale = nil
+		recoveryRoute = nil
+		nextRecoverySearchAt = 0
+		recoverySearches, recoveryCacheHits = 0, 0
+		recoveryCandidates, recoverySweeps = 0, 0
+		recoverySearchReason = "reset"
+		beginPublicationCycle()
+		gui:SetAttribute("PunchCameraUserOrbitDistance", nil)
+		gui:SetAttribute("PunchCameraHandoffActive", false)
+		gui:SetAttribute("PunchCameraGeometryClamped", false)
+		gui:SetAttribute("PunchCameraInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
+		gui:SetAttribute("PunchCameraOverlapEscapes", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeStep", 0)
+		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
+		gui:SetAttribute("PunchCameraLineOfSightUnresolved", false)
+		gui:SetAttribute("PunchCameraLastGuardPhase", nil)
+		gui:SetAttribute("PunchCameraLastGuardAt", nil)
+		shared.PunchWallCameraFirstEscape = nil
+		shared.PunchWallCameraMaxEscape = nil
+		shared.PunchWallCameraLastPublication = nil
+		shared.PunchWallCameraMaxCyclePublication = nil
+		shared.PunchWallCameraLastRecovery = nil
+		shared.PunchWallCameraFirstStalledRecovery = nil
+		shared.PunchWallCameraMaxRemainingRecovery = nil
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
+	end
+	local function clearTranslationStep(origin, translation, character, allowOverlapExit)
+		-- A clear destination does not imply a clear route to it. Overlapping
+		-- probes cover both ordinary root movement and the smaller correction.
+		local leftOverlap = not shared.PunchWallCameraPositionBlocked(origin, character)
+		if not leftOverlap and not allowOverlapExit then return false end
+		local samples = math.max(1, math.ceil(translation.Magnitude / 0.25))
+		for index = 1, samples do
+			if shared.PunchWallCameraPositionBlocked(origin + translation * (index / samples), character) then
+				if leftOverlap then return false end
+			else
+				leftOverlap = true
+			end
+		end
+		return leftOverlap
+	end
+	local function readableRecoveryPose(cframe, character)
+		local camera = workspace.CurrentCamera
+		local viewport = camera and camera.ViewportSize
+		local head = character:FindFirstChild("Head")
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if not viewport or viewport.X < 1 or viewport.Y < 1 or not head or not root then return false end
+		-- Project through the live camera's native viewport transform, including
+		-- its cutouts/FOV, without assigning or rotating the actual camera.
+		local function project(point)
+			return camera:WorldToViewportPoint(camera.CFrame:PointToWorldSpace(cframe:PointToObjectSpace(point)))
+		end
+		local headPoint, onScreen = project(head.Position)
+		local feetPoint = project(root.Position - Vector3.new(0, 2.5, 0))
+		return onScreen and headPoint.Z > 0 and feetPoint.Z > 0 and math.abs(headPoint.Y - feetPoint.Y) >= 18
+	end
+	local function resolveOccludedRecovery(origin, desiredCFrame, desiredFocus, character, radius)
+		local target = cameraCharacterTarget(character)
+		if not target or radius < 2 or radius > 80 then recoveryRoute = nil return nil, nil end
+		local originReadable = readableRecoveryPose(desiredCFrame + (origin - desiredCFrame.Position), character)
+		local function candidateAt(position)
+			local shift = position - desiredCFrame.Position
+			return desiredCFrame + shift, desiredFocus + shift
+		end
+		if recoveryRoute then
+			local position = target + recoveryRoute.offset
+			local candidate, focus = candidateAt(position)
+			if originReadable and recoveryRoute.character == character
+				and recoveryRoute.camera == workspace.CurrentCamera
+				and math.abs(recoveryRoute.radius - radius) < 0.001
+				and math.abs((recoveryRoute.userOrbit or radius) - (userOrbitDistance or radius)) < 0.001
+				and recoveryRoute.look:Dot(desiredCFrame.LookVector) > 0.99999
+				and not cameraPoseBlocked(candidate, character)
+				and readableRecoveryPose(candidate, character) then
+				recoveryRoute.position = position
+				recoveryCacheHits += 1
+				return candidate, focus
+			end
+			recoveryRoute = nil
+			recoverySearchReason = "invalidated"
+		end
+		if not originReadable then return nil, nil end
+		if os.clock() < nextRecoverySearchAt then return nil, nil end
+		nextRecoverySearchAt = os.clock() + 0.25
+		recoverySearches += 1
+		recoveryCandidates, recoverySweeps = 0, 0
+		recoverySearchReason = "no-readable-clear-route"
+		local offset = origin - target
+		if offset.Magnitude < 0.1 then return nil, nil end
+		local radial = offset.Unit
+		local right = desiredCFrame.RightVector - radial * desiredCFrame.RightVector:Dot(radial)
+		if right.Magnitude < 0.01 then return nil, nil end
+		right = right.Unit
+		local up = radial:Cross(right).Unit
+		-- At most 48 endpoints and 6 full physical sweeps per search, at most
+		-- four searches/second. Each route is <=24 studs (<=96 .25-stud probes).
+		-- Unlike the fixed hints, diagonal angular rings can find a clear view
+		-- around compound falling blocks while retaining the chosen radius.
+		for _, degrees in ipairs({ 10, 20, 30, 40, 50, 60 }) do
+			local angle = math.rad(degrees)
+			for index = 0, 7 do
+				local bearing = math.pi * index / 4
+				local tangent = right * math.cos(bearing) + up * math.sin(bearing)
+				local position = target + (radial * math.cos(angle) + tangent * math.sin(angle)) * radius
+				local travel = position - origin
+				recoveryCandidates += 1
+				local candidate, focus = candidateAt(position)
+				if travel.Magnitude > 0.001 and travel.Magnitude <= 24
+					and not cameraPoseBlocked(candidate, character)
+					and readableRecoveryPose(candidate, character) then
+					if recoverySweeps >= 6 then recoverySearchReason = "route-budget" return nil, nil end
+					recoverySweeps += 1
+					if clearTranslationStep(origin, travel, character) then
+						recoveryRoute = { character = character, camera = workspace.CurrentCamera,
+							offset = position - target, position = position, radius = radius,
+							userOrbit = userOrbitDistance, look = desiredCFrame.LookVector }
+						recoverySearchReason = "clear-route"
+						return candidate, focus
+					end
+				end
+			end
+		end
+		return nil, nil
+	end
+	local function escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, maximumDistance, originKind)
+		-- Falling geometry can enclose a pose which was clear last frame. The
+		-- ordinary sweep correctly rejects that origin, but recovery must permit
+		-- leaving its initial overlap once, never entering a second obstruction.
+		local _, overlappingParts = shared.PunchWallCameraPositionBlocked(origin, character, true)
+		overlappingParts = overlappingParts or {}
+		local candidates = {}
+		local function addCandidate(step, kind)
+			if step.Magnitude > 0.001 and step.Magnitude <= maximumDistance + 0.0001 then
+				table.insert(candidates, { step = step, kind = kind })
+			end
+		end
+		-- Exit the actual oriented face, including the support of our world-axis
+		-- camera box. A rotated 4-stud block can need 2.47 studs: a coarse 2.4 ->
+		-- 3.6 search would unnecessarily overshoot the existing 2.65 safety gate.
+		for _, part in ipairs(overlappingParts) do
+			local offset = origin - part.Position
+			for index, axis in ipairs({ part.CFrame.RightVector, part.CFrame.UpVector, part.CFrame.LookVector }) do
+				local halfSize = ({ part.Size.X, part.Size.Y, part.Size.Z })[index] * 0.5
+				for _, sign in ipairs({ -1, 1 }) do
+					local normal = axis * sign
+					local support = 0.275 * (math.abs(normal.X) + math.abs(normal.Y) + math.abs(normal.Z))
+					local distance = halfSize + support - offset:Dot(normal) + 0.01
+					if distance > 0 then addCandidate(normal * distance, "face") end
+				end
+			end
+		end
+		local directions = {}
+		local target = cameraCharacterTarget(character)
+		for _, destination in ipairs({ desiredCFrame.Position, target or origin }) do
+			local offset = destination - origin
+			if offset.Magnitude > 0.001 then table.insert(directions, offset.Unit) end
+		end
+		for x = -1, 1 do
+			for y = -1, 1 do
+				for z = -1, 1 do
+					local offset = Vector3.new(x, y, z)
+					if offset.Magnitude > 0 then table.insert(directions, offset.Unit) end
+				end
+			end
+		end
+		local distances = { 0.35, 0.7, 1.2, 1.8, 2.4, 2.64 }
+		if maximumDistance > 2.65 then
+			local distance = 3.6
+			while distance < maximumDistance do
+				table.insert(distances, distance)
+				distance *= 1.5
+			end
+			table.insert(distances, maximumDistance)
+		end
+		for _, distance in ipairs(distances) do
+			for _, direction in ipairs(directions) do
+				addCandidate(direction * distance, "grid")
+			end
+		end
+		table.sort(candidates, function(a, b) return a.step.Magnitude < b.step.Magnitude end)
+		local nearestPhysical
+		local selected
+		local losRejected = 0
+		for _, candidate in ipairs(candidates) do
+			local translation = origin + candidate.step - desiredCFrame.Position
+			candidate.cframe = desiredCFrame + translation
+			candidate.focus = desiredFocus + translation
+			-- Every endpoint and exit path is checked against the whole overlap
+			-- set, so leaving one face cannot publish inside a neighboring block.
+			if not shared.PunchWallCameraPositionBlocked(candidate.cframe.Position, character)
+				and clearTranslationStep(origin, candidate.step, character, true) then
+				nearestPhysical = nearestPhysical or candidate
+				if not cameraPoseBlocked(candidate.cframe, character) then
+					selected = candidate
+					break
+				end
+				losRejected += 1
+				if maximumDistance > 2.65 then
+					selected = candidate
+					break
+				end
+			end
+		end
+		-- An opaque non-collidable drop or falling block may pass through the
+		-- avatar. Do not make a larger camera jump solely to clear that transient
+		-- ray; publish the nearest physical exit and recover LOS within its normal
+		-- bounded budget. Sampled, settled and fresh LOS gates still measure it.
+		selected = selected or nearestPhysical
+		if selected then
+			local distance = selected.step.Magnitude
+			gui:SetAttribute("PunchCameraOverlapEscapes", (gui:GetAttribute("PunchCameraOverlapEscapes") or 0) + 1)
+			gui:SetAttribute("PunchCameraMaxEscapeStep", math.max(gui:GetAttribute("PunchCameraMaxEscapeStep") or 0, distance))
+			local sample = {
+				phase = guardPhase, originKind = originKind, origin = tostring(origin),
+				raw = tostring(workspace.CurrentCamera.CFrame.Position), step = tostring(selected.step),
+				distance = distance, kind = selected.kind, overlapCount = #overlappingParts,
+				losRejected = losRejected, losClear = not cameraPoseBlocked(selected.cframe, character), parts = {},
+			}
+			for index = 1, math.min(2, #overlappingParts) do
+				local part = overlappingParts[index]
+				table.insert(sample.parts, {
+					name = part.Name, size = tostring(part.Size), frame = tostring(part.CFrame),
+					velocity = tostring(part.AssemblyLinearVelocity), falling = part:GetAttribute("StructuralFalling") == true,
+				})
+			end
+			shared.PunchWallCameraFirstEscape = shared.PunchWallCameraFirstEscape or sample
+			if not shared.PunchWallCameraMaxEscape or distance > shared.PunchWallCameraMaxEscape.distance then
+				shared.PunchWallCameraMaxEscape = sample
+			end
+			return selected.cframe, selected.focus, true
+		end
+		return nil, nil
+	end
+	local function limitClearCameraStep(origin, desiredCFrame, desiredFocus, character, maxStep, allowOccludedTransit)
+		if shared.PunchWallCameraPositionBlocked(origin, character) then
+			return escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, 2.65, "cached")
+		end
+		local displacement = desiredCFrame.Position - origin
+		local direct = displacement.Magnitude > maxStep and displacement.Unit * maxStep or displacement
+		local vertical = Vector3.new(0, displacement.Y, 0)
+		local horizontal = Vector3.new(displacement.X, 0, displacement.Z)
+		-- A diagonal can cross the LOS edge although its sideways segment is
+		-- clear. Axis waypoints make bounded progress around that edge.
+		local stepKinds = { "direct", "vertical", "horizontal", "x-waypoint", "z-waypoint" }
+		for index, step in ipairs({ direct, vertical, horizontal,
+			Vector3.new(displacement.X, 0, 0), Vector3.new(0, 0, displacement.Z) }) do
+			if step.Magnitude > maxStep then step = step.Unit * maxStep end
+			if step.Magnitude > 0.001 and clearTranslationStep(origin, step, character) then
+				local translation = origin + step - desiredCFrame.Position
+				local candidateCFrame = desiredCFrame + translation
+				if not cameraPoseBlocked(candidateCFrame, character) then
+					return candidateCFrame, desiredFocus + translation, false, stepKinds[index]
+				end
+			end
+		end
+		if allowOccludedTransit and displacement.Magnitude > 0.001
+			and not cameraPoseBlocked(desiredCFrame, character)
+			and clearTranslationStep(origin, direct, character) then
+			local shift = origin + direct - desiredCFrame.Position
+			local candidate = desiredCFrame + shift
+			if readableRecoveryPose(candidate, character)
+				and (desiredCFrame.Position - candidate.Position).Magnitude < displacement.Magnitude - 0.001 then
+				-- This route began at an occluded origin. Requiring every intermediate
+				-- LOS to clear would deadlock beyond one step, or at a brief clear gap.
+				-- This remains a reported LOS-unresolved transit, never a clear pose.
+				return candidate, desiredFocus + shift, false, "occluded-transit", true
+			end
+		end
+		local translation = origin - desiredCFrame.Position
+		if not cameraPoseBlocked(desiredCFrame + translation, character) then
+			return desiredCFrame + translation, desiredFocus + translation, false, "origin-hold"
+		end
+		return nil, nil, false, "no-safe-step"
+	end
 	UserInputService.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseWheel then
 			pendingOrbitDelta -= input.Position.Z * 2
@@ -7311,36 +8465,56 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			previousPinchScale = scale
 		elseif state == Enum.UserInputState.Change and userOrbitDistance and previousPinchScale then
 			local ratio = math.max(0.1, scale / math.max(0.1, previousPinchScale))
-			userOrbitDistance = math.clamp(userOrbitDistance / ratio, 2, 80)
+			userOrbitDistance = clampUserOrbit(userOrbitDistance / ratio)
 			previousPinchScale = scale
 			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 		elseif state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then
 			previousPinchScale = nil
 		end
 	end)
-	local function updateCameraGeometryGuard(deltaTime)
+	local function updateCameraGeometryGuard(deltaTime, phase)
+		guardPhase = phase or "render"
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if not camera or not character then return end
 		if orbitCharacter ~= character then
-			orbitCharacter = character
-			userOrbitDistance = nil
-			lastRootPosition = nil
+			shared.PunchWallResetCameraGeometryGuard(character)
 		end
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
-		if camera.CameraType == Enum.CameraType.Scriptable and not activePunchCamera then
+		if camera.CameraType == Enum.CameraType.Scriptable then
 			lastRootPosition = rootPart and rootPart.Position or lastRootPosition
+			recoveryRoute = nil
 			gui:SetAttribute("PunchCameraScriptableBypass", true)
 			return
 		end
 		gui:SetAttribute("PunchCameraScriptableBypass", false)
+		gui:SetAttribute("PunchCameraLastGuardPhase", guardPhase)
+		gui:SetAttribute("PunchCameraLastGuardAt", os.clock())
+		local safetyEscape = false
+		local occludedTransit = false
+		local publishedOrigin = camera.CFrame.Position
+		local rawCFrame = camera.CFrame
+		local rawTarget = recoveryRoute and cameraCharacterTarget(character)
+		if rawTarget and not cameraPoseBlocked(rawCFrame, character)
+			and math.abs((rawCFrame.Position - rawTarget).Magnitude - (userOrbitDistance or recoveryRoute.radius)) < 0.001 then
+			recoveryRoute = nil
+		end
+		local cachedCFrame = lastClearCameraCFrame
+		local recoveryOrigin, recoveryCandidate, recoveryRequested, recoveryReason
 		local desiredCFrame = camera.CFrame
 		local desiredFocus = camera.Focus
 		local desiredPosition = desiredCFrame.Position
 		local activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true
 		local targetPosition = cameraCharacterTarget(character)
+		if userOrbitDistance then
+			local boundedOrbit = clampUserOrbit(userOrbitDistance)
+			if boundedOrbit ~= userOrbitDistance then
+				userOrbitDistance = boundedOrbit
+				gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
+			end
+		end
 		if userOrbitDistance and math.abs(pendingOrbitDelta) > 0.001 then
-			userOrbitDistance = math.clamp(userOrbitDistance + pendingOrbitDelta, 2, 80)
+			userOrbitDistance = clampUserOrbit(userOrbitDistance + pendingOrbitDelta)
 			pendingOrbitDelta = 0
 			gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 		end
@@ -7354,8 +8528,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			and not cameraPoseBlocked(desiredCFrame, character) then
 			local requestedOrbit = (desiredPosition - targetPosition).Magnitude
 			if requestedOrbit >= 2 and requestedOrbit <= 80 then
-				userOrbitDistance = requestedOrbit
-				gui:SetAttribute("PunchCameraUserOrbitDistance", requestedOrbit)
+				userOrbitDistance = clampUserOrbit(requestedOrbit)
+				gui:SetAttribute("PunchCameraUserOrbitDistance", userOrbitDistance)
 			end
 		end
 		if targetPosition
@@ -7382,13 +8556,15 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				gui:SetAttribute("PunchCameraOcclusionZoomPrevented", false)
 			end
 		end
+		local rootDisplacement = rootPart and lastRootPosition and rootPart.Position - lastRootPosition or Vector3.zero
 		if rootPart and lastRootPosition then
-			local rootDisplacement = rootPart.Position - lastRootPosition
 			if rootDisplacement.Magnitude > 30 then
+				recoveryRoute = nil
+				nextRecoverySearchAt = 0
 				local rebasedCFrame = lastClearCameraCFrame and (lastClearCameraCFrame + rootDisplacement) or desiredCFrame
 				local rebasedFocus = lastClearCameraFocus and (lastClearCameraFocus + rootDisplacement) or desiredFocus
 				local safeCFrame, safeFocus, clearance = resolveClearCameraPose(rebasedCFrame, rebasedFocus, character)
-				if safeCFrame and safeFocus then
+				if safeCFrame and safeFocus and not cameraPoseBlocked(safeCFrame, character) then
 					camera.CFrame = safeCFrame
 					camera.Focus = safeFocus
 					lastClearCameraCFrame = safeCFrame
@@ -7397,6 +8573,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 					shared.PunchWallHeartbeatLastClearFocus = safeFocus
 					recoveringFromGeometryClamp = false
 					recoveringFromFollowHandoff = false
+					gui:SetAttribute("PunchCameraHandoffActive", false)
 					gui:SetAttribute("PunchCameraRebasedAfterTeleport", true)
 					gui:SetAttribute(
 						"PunchCameraTeleportRebaseCount",
@@ -7405,6 +8582,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 					gui:SetAttribute("PunchCameraLineOfSightAdjusted", clearance.Magnitude > 0.01)
 					gui:SetAttribute("PunchCameraClearanceY", clearance.Y)
 					lastRootPosition = rootPart.Position
+					recordPublishedPose(publishedOrigin, rootPart, "teleport-rebase")
+					recordRecoveryState(rawCFrame, cachedCFrame, safeCFrame.Position, nil, safeCFrame, rootDisplacement, "teleport-rebase")
 					return
 				end
 				lastClearCameraCFrame = nil
@@ -7455,22 +8634,101 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				end
 			end
 		end
-		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
-			local displacement = desiredPosition - lastClearCameraCFrame.Position
+		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff or recoveryRoute) and lastClearCameraCFrame then
+			local requestedPosition = desiredPosition
+			recoveryRequested = requestedPosition
 			local maxStep = 24 * math.min(deltaTime, 0.1)
-			if displacement.Magnitude > maxStep then
-				local limitedPosition = lastClearCameraCFrame.Position + displacement.Unit * maxStep
-				local translation = limitedPosition - desiredPosition
-				desiredCFrame = desiredCFrame + translation
-				desiredFocus = desiredFocus + translation
-				desiredPosition = limitedPosition
-			elseif recoveringFromGeometryClamp and not activeFollow then
+			-- The character's ordinary movement must not spend the correction
+			-- budget. Otherwise low-FPS punches move the target faster than this
+			-- guard can follow, accumulating an ever longer camera orbit. Carry
+			-- the previous pose with the root only along a physically clear path,
+			-- then bound and validate the remaining camera correction separately.
+			local followOrigin = lastClearCameraCFrame.Position
+			local inheritedRootStep = 0
+			if rootDisplacement.Magnitude > 0.001
+				and rootDisplacement.Magnitude <= 30
+				and clearTranslationStep(followOrigin, rootDisplacement, character) then
+				followOrigin += rootDisplacement
+				inheritedRootStep = rootDisplacement.Magnitude
+			end
+			local carriedCFrame = lastClearCameraCFrame + (followOrigin - lastClearCameraCFrame.Position)
+			local correctionOrigin = followOrigin
+			local correctionBudget = maxStep
+			local rawOffset = rawCFrame.Position - followOrigin
+			local adoptedRawOrigin = not activeFollow
+				and cameraPoseBlocked(carriedCFrame, character)
+				and not cameraPoseBlocked(rawCFrame, character)
+				and rawOffset.Magnitude <= maxStep
+				and clearTranslationStep(followOrigin, rawOffset, character)
+			if adoptedRawOrigin then
+				followOrigin = rawCFrame.Position
+				correctionBudget = math.max(0, maxStep - rawOffset.Magnitude)
+			end
+			recoveryOrigin = followOrigin
+			local limitedCFrame, limitedFocus, escapedOverlap, limitReason = limitClearCameraStep(
+				followOrigin, desiredCFrame, desiredFocus, character, correctionBudget
+			)
+			local originCFrame = desiredCFrame + (followOrigin - desiredCFrame.Position)
+			if targetPosition and (not limitedCFrame or recoveryRoute) and not shared.PunchWallCameraPositionBlocked(followOrigin, character)
+				and (recoveryRoute or cameraPoseBlocked(originCFrame, character)) then
+				local recoveryRadius = userOrbitDistance or (followOrigin - targetPosition).Magnitude
+				if activeFollow and (not recoveryRoute or math.abs((recoveryRoute.userOrbit or recoveryRadius) - recoveryRadius) < 0.001) then
+					-- A straight bounded transit can temporarily shorten its chord.
+					-- Keep its goal radius stable instead of replanning that shortening.
+					recoveryRadius = recoveryRoute and recoveryRoute.radius or (followOrigin - targetPosition).Magnitude
+				end
+				local targetCFrame, targetFocus = resolveOccludedRecovery(
+					followOrigin, desiredCFrame, desiredFocus, character, recoveryRadius
+				)
+				if targetCFrame and targetFocus then
+					requestedPosition = targetCFrame.Position
+					recoveryRequested = requestedPosition
+					limitedCFrame, limitedFocus, escapedOverlap, limitReason, occludedTransit = limitClearCameraStep(
+						followOrigin, targetCFrame, targetFocus, character, correctionBudget,
+						recoveryRoute ~= nil
+					)
+					if not limitedCFrame or (limitReason == "origin-hold" and (requestedPosition - followOrigin).Magnitude > 0.001) then
+						recoveryRoute = nil
+						recoverySearchReason = "next-segment-blocked"
+					end
+				end
+			end
+			recoveryCandidate = limitedCFrame
+			recoveryReason = (adoptedRawOrigin and "raw-recovery/" or "cached-recovery/") .. (limitReason or "physical-escape")
+			gui:SetAttribute("PunchCameraInheritedRootStep", inheritedRootStep)
+			gui:SetAttribute("PunchCameraMaxInheritedRootStep", math.max(
+				gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0, inheritedRootStep
+			))
+			if limitedCFrame and limitedFocus then
+				safetyEscape = escapedOverlap == true
+				resolvedCFrame = limitedCFrame
+				resolvedFocus = limitedFocus
+				desiredCFrame = limitedCFrame
+				desiredFocus = limitedFocus
+				desiredPosition = limitedCFrame.Position
+				gui:SetAttribute("PunchCameraMaxCorrectionStep", math.max(
+					gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0,
+					(desiredPosition - correctionOrigin).Magnitude
+				))
+			else
+				resolvedCFrame = nil
+				resolvedFocus = nil
+			end
+			local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.001
+			if recoveringFromGeometryClamp and not activeFollow and arrived then
 				recoveringFromGeometryClamp = false
 			end
-			if recoveringFromFollowHandoff and not activeFollow and displacement.Magnitude <= maxStep then
+			if recoveringFromFollowHandoff and not activeFollow and arrived then
 				recoveringFromFollowHandoff = false
 				gui:SetAttribute("PunchCameraHandoffActive", false)
 			end
+		end
+		-- Validate the pose we will actually publish, after all smoothing and
+		-- orbit correction, before marking it as a future safety fallback.
+		if shared.PunchWallCameraPositionBlocked(desiredCFrame.Position, character)
+			or (not safetyEscape and not occludedTransit and cameraPoseBlocked(desiredCFrame, character)) then
+			resolvedCFrame = nil
+			resolvedFocus = nil
 		end
 		if not resolvedCFrame then
 			cameraGeometryClampFrames += 1
@@ -7480,9 +8738,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			local maximumFallbackDistance = math.max(24, (userOrbitDistance or 12) * 2.5)
 			if clearCFrame
 				and (clearCFrame.Position - desiredPosition).Magnitude > maximumFallbackDistance then
-				-- Never correct a blocked frame by teleporting to a stale camera
-				-- pose. Holding the current frame is less disruptive and the guard
-				-- will resume once the tunnel path becomes physically clear.
+				-- A previous character/tunnel pose is not a useful local fallback.
 				clearCFrame = nil
 				clearFocus = nil
 			end
@@ -7495,13 +8751,52 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				clearCFrame = nil
 				clearFocus = nil
 			end
-			if clearCFrame and clearFocus then
+			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+				local escapeCFrame, escapeFocus = escapeCameraOverlap(
+					camera.CFrame.Position, desiredCFrame, desiredFocus, character, 2.65, "current"
+				)
+				if not escapeCFrame then
+					-- A larger enclosing object can make a small correction impossible.
+					-- Try a measured, clear egress rather than freezing an inside pose;
+					-- this exceptional distance remains visible to runtime assertions.
+					escapeCFrame, escapeFocus = escapeCameraOverlap(
+						camera.CFrame.Position, desiredCFrame, desiredFocus, character,
+						math.min(80, maximumFallbackDistance), "current-emergency"
+					)
+				end
+				clearCFrame = escapeCFrame
+				clearFocus = escapeFocus
+				safetyEscape = escapeCFrame ~= nil
+			end
+			if clearCFrame and clearFocus
+				and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character)
+				and (safetyEscape or not cameraPoseBlocked(clearCFrame, character)) then
 				local focusDistance = math.max(0.5, (desiredPosition - desiredFocus.Position).Magnitude)
 				camera.CFrame = CFrame.new(clearCFrame.Position) * desiredCFrame.Rotation
 				camera.Focus = CFrame.new(clearCFrame.Position + desiredCFrame.LookVector * focusDistance)
+				lastClearCameraCFrame = camera.CFrame
+				lastClearCameraFocus = camera.Focus
+				shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
+				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
 			end
+			local physicallyBlocked = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character)
+			local lineOfSightBlocked = not physicallyBlocked and cameraPoseBlocked(camera.CFrame, character)
+			if not physicallyBlocked and not lineOfSightBlocked then
+				-- A fallback can leave the native camera untouched when old cached
+				-- poses are obstructed. Track that actually published clear pose so
+				-- the next bounded correction does not restart from stale history.
+				lastClearCameraCFrame = camera.CFrame
+				lastClearCameraFocus = camera.Focus
+				shared.PunchWallHeartbeatLastClearCFrame = camera.CFrame
+				shared.PunchWallHeartbeatLastClearFocus = camera.Focus
+			end
+			gui:SetAttribute("PunchCameraSafetyUnresolved", physicallyBlocked)
+			gui:SetAttribute("PunchCameraLineOfSightUnresolved", lineOfSightBlocked)
+			gui:SetAttribute("LastCameraInsideGeometry", physicallyBlocked)
 			gui:SetAttribute("PunchCameraGeometryClamped", true)
 			gui:SetAttribute("PunchCameraGeometryClampFrames", cameraGeometryClampFrames)
+			recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "clear-fallback")
+			recordRecoveryState(rawCFrame, cachedCFrame, recoveryRequested or desiredPosition, recoveryOrigin, recoveryCandidate, rootDisplacement, recoveryReason or "clear-fallback")
 			return
 		end
 		camera.CFrame = desiredCFrame
@@ -7510,17 +8805,38 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		lastClearCameraFocus = desiredFocus
 		shared.PunchWallHeartbeatLastClearCFrame = desiredCFrame
 		shared.PunchWallHeartbeatLastClearFocus = desiredFocus
-		gui:SetAttribute("PunchCameraGeometryClamped", false)
+		if occludedTransit then recoveringFromGeometryClamp = true end
+		gui:SetAttribute("PunchCameraGeometryClamped", occludedTransit == true)
 		gui:SetAttribute("LastCameraInsideGeometry", false)
+		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
+		gui:SetAttribute("PunchCameraLineOfSightUnresolved", cameraPoseBlocked(desiredCFrame, character))
 		gui:SetAttribute("PunchCameraRebasedAfterTeleport", false)
+		recordPublishedPose(publishedOrigin, rootPart, safetyEscape and "escape" or "orbit-follow")
+		recordRecoveryState(rawCFrame, cachedCFrame, recoveryRequested or desiredPosition, recoveryOrigin, recoveryCandidate, rootDisplacement, recoveryReason or "orbit-follow")
 	end
 	RunService:BindToRenderStep("PunchWallCameraGeometryGuard", Enum.RenderPriority.Camera.Value + 2, function(deltaTime)
+		beginPublicationCycle()
 		lastPunchCameraRenderAt = os.clock()
-		updateCameraGeometryGuard(deltaTime)
+		updateCameraGeometryGuard(deltaTime, "render")
+	end)
+	RunService.PostSimulation:Connect(function(deltaTime)
+		if os.clock() - lastPunchCameraRenderAt > 0.35 then beginPublicationCycle() end
+		local camera = workspace.CurrentCamera
+		local character = player.Character
+		-- Deferred task.wait continuations resume before Heartbeat callbacks.
+		-- Repair newly simulated overlap before those observers can see the old
+		-- rendered pose inside a falling block. Ordinary follow still advances
+		-- only on RenderStep (or its existing suspended-render fallback).
+		if camera and character and camera.CameraType == Enum.CameraType.Custom
+			and shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
+			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30), "postsimulation-overlap")
+		end
 	end)
 	RunService.Heartbeat:Connect(function(deltaTime)
+		-- PostSimulation owns fresh physical overlap. Keep Heartbeat solely for
+		-- the existing suspended-render follow/fallback handoff.
 		if os.clock() - lastPunchCameraRenderAt > 0.35 then
-			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30))
+			updateCameraGeometryGuard(math.min(deltaTime, 1 / 30), "heartbeat-suspended")
 		end
 	end)
 end
@@ -7534,6 +8850,7 @@ if RunService:IsStudio() then
 		local head = character and character:FindFirstChild("Head")
 		local camera = workspace.CurrentCamera
 		local automation = gui:FindFirstChild("PunchWallClientAutomation")
+		gui:SetAttribute("CameraAutomationVisibilityJSON", nil)
 		if not character or not rootPart or not humanoid or not head or not camera or not automation then
 			return { valid = false, reason = "runtime_not_ready" }
 		end
@@ -7546,12 +8863,18 @@ if RunService:IsStudio() then
 		local direction = horizontal.Unit
 		local originalMinZoom = player.CameraMinZoomDistance
 		local originalMaxZoom = player.CameraMaxZoomDistance
-		player.CameraMinZoomDistance = 12
-		player.CameraMaxZoomDistance = 12
+		local selectedOrbit = tonumber(gui:GetAttribute("PunchCameraUserOrbitDistance"))
+			or (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
+		selectedOrbit = math.clamp(selectedOrbit, 2, 80)
+		player.CameraMinZoomDistance = math.min(originalMinZoom, selectedOrbit)
+		player.CameraMaxZoomDistance = selectedOrbit
+		player.CameraMinZoomDistance = selectedOrbit
 		camera.CameraType = Enum.CameraType.Scriptable
 		camera.CameraSubject = humanoid
-		camera.CFrame = CFrame.lookAt(rootPart.Position - direction * 12 + Vector3.new(0, 4, 0), rootPart.Position + Vector3.new(0, 1.5, 0))
-		camera.Focus = CFrame.new(rootPart.Position + Vector3.new(0, 1.5, 0))
+		local orbitTarget = rootPart.Position + Vector3.new(0, 1.5, 0)
+		local orbitOffset = (direction * -12 + Vector3.new(0, 2.5, 0)).Unit * selectedOrbit
+		camera.CFrame = CFrame.lookAt(orbitTarget + orbitOffset, orbitTarget)
+		camera.Focus = CFrame.new(orbitTarget)
 		task.wait(0.1)
 		camera.CameraType = Enum.CameraType.Custom
 		local initialOrbitSettled = false
@@ -7575,6 +8898,7 @@ if RunService:IsStudio() then
 		local maxBackFrom = lastRootPosition
 		local maxBackTo = lastRootPosition
 		local maxBackPunch = 0
+		local maxStepSample
 		local visibleFrames = 0
 		local clearCharacterFrames = 0
 		local readableCharacterFrames = 0
@@ -7582,25 +8906,112 @@ if RunService:IsStudio() then
 		local settledClearFrames = 0
 		local settledReadableFrames = 0
 		local insideFrames = 0
+		local unresolvedSafetyFrames = 0
+		local unresolvedSafetySamples = {}
+		local transientLineOfSightFrames = 0
 		local sampledFrames = 0
 		local actions = 0
 		local insideNames = {}
+		local insideSamples = {}
 		local maximumLead = 0
 		local currentPunch = 0
 		local obscurerNames = {}
+		-- Studio-only observation: preserve the full acceptance counters while
+		-- retaining at most three stage samples and the last obstructed sample.
+		-- Flow cleanup reads these separately to avoid the runner's 4000-char
+		-- context truncation hiding the cause of a failed visibility gate.
+		local visibilityDiagnostics = { phases = {}, stages = {}, longestObscuredRun = 0 }
+		local obscuredRun = 0
+		local diagnosticStartedAt = os.clock()
+		local diagnosticPunchCount = math.max(1, math.floor(tonumber(punchCount) or 1))
+		local function diagnosticVector(value)
+			return ("%.3f,%.3f,%.3f"):format(value.X, value.Y, value.Z)
+		end
+		local function recordVisibilityObservation(obscured, obscurer, onScreen, readable)
+			local phase = gui:GetAttribute("PunchCameraFollowActive") == true and "follow"
+				or gui:GetAttribute("PunchCameraHandoffActive") == true and "handoff"
+				or gui:GetAttribute("PunchCameraGeometryClamped") == true and "geometry" or "native"
+			local counts = visibilityDiagnostics.phases[phase]
+			if not counts then
+				counts = { samples = 0, obscured = 0, rayMismatch = 0, maxGuardAge = 0 }
+				visibilityDiagnostics.phases[phase] = counts
+			end
+			counts.samples += 1
+			local guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock())
+			counts.maxGuardAge = math.max(counts.maxGuardAge, guardAge)
+			if not obscured then obscuredRun = 0 return end
+			counts.obscured += 1
+			obscuredRun += 1
+			visibilityDiagnostics.longestObscuredRun = math.max(visibilityDiagnostics.longestObscuredRun, obscuredRun)
+			local headBlocked, headBlocker = cameraLineOfSightBlocked(camera.CFrame.Position, head.Position, character)
+			local bodyBlocked, bodyBlocker = cameraLineOfSightBlocked(camera.CFrame.Position, rootPart.Position + Vector3.new(0, 1.15, 0), character)
+			if not headBlocked and not bodyBlocked then counts.rayMismatch += 1 end
+			local recovery = shared.PunchWallCameraLastRecovery
+			local sample = {
+				punch = currentPunch, phase = phase, at = os.clock() - diagnosticStartedAt,
+				camera = diagnosticVector(camera.CFrame.Position), look = diagnosticVector(camera.CFrame.LookVector),
+				root = diagnosticVector(rootPart.Position), head = diagnosticVector(head.Position),
+				radius = (camera.CFrame.Position - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude,
+				onScreen = onScreen, readable = readable, headRayBlocked = headBlocked, bodyRayBlocked = bodyBlocked,
+				headRayPart = headBlocker and headBlocker.Name, bodyRayPart = bodyBlocker and bodyBlocker.Name,
+				guardAge = guardAge, guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+				renderAge = os.clock() - lastPunchCameraRenderAt,
+				guardPublishedBlocked = recovery and recovery.publishedBlocked,
+				guardReason = recovery and recovery.reason, guardRequested = recovery and recovery.requested,
+				guardPublished = recovery and recovery.published, guardRootDelta = recovery and recovery.rootDelta,
+			}
+			if obscurer then
+				sample.part = obscurer:GetFullName()
+				sample.canQuery = obscurer.CanQuery
+				sample.canCollide = obscurer.CanCollide
+				sample.partFrame = tostring(obscurer.CFrame)
+				sample.partSize = diagnosticVector(obscurer.Size)
+				sample.velocity = diagnosticVector(obscurer.AssemblyLinearVelocity)
+				sample.falling = obscurer:GetAttribute("StructuralFalling") == true
+				sample.detached = obscurer:GetAttribute("StructuralDetached") == true
+			end
+			local stage = math.clamp(math.floor((currentPunch - 1) / math.max(1, math.ceil(diagnosticPunchCount / 3))) + 1, 1, 3)
+			visibilityDiagnostics.stages[stage] = visibilityDiagnostics.stages[stage] or sample
+			visibilityDiagnostics.last = sample
+		end
 		gui:SetAttribute("PunchCameraMaxAppliedStep", 0)
+		gui:SetAttribute("PunchCameraMaxCorrectionStep", 0)
+		gui:SetAttribute("PunchCameraMaxInheritedRootStep", 0)
+		gui:SetAttribute("PunchCameraOverlapEscapes", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeStep", 0)
+		shared.PunchWallCameraFirstEscape = nil
+		shared.PunchWallCameraMaxEscape = nil
+		shared.PunchWallCameraMaxCyclePublication = nil
+		shared.PunchWallCameraLastRecovery = nil
+		shared.PunchWallCameraFirstStalledRecovery = nil
+		shared.PunchWallCameraMaxRemainingRecovery = nil
+		gui:SetAttribute("PunchCameraMaxPublishedTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxEscapeTravelPerCycle", 0)
+		gui:SetAttribute("PunchCameraMaxPublishedWritesPerCycle", 0)
 		local function sampleCamera(settledSample)
+			-- Sample the current physical pose, rather than a previous guard flag
+			-- whose LOS rays may have been temporarily blocked before physics ran.
 			if shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character) then
-				local clearCFrame = shared.PunchWallHeartbeatLastClearCFrame
-				local clearFocus = shared.PunchWallHeartbeatLastClearFocus
-				if clearCFrame and shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-					clearCFrame = shared.PunchWallCameraBaselineCFrame
-					clearFocus = shared.PunchWallCameraBaselineFocus
-				end
-				if clearCFrame and clearFocus
-					and not shared.PunchWallCameraPositionBlocked(clearCFrame.Position, character) then
-					camera.CFrame = clearCFrame
-					camera.Focus = clearFocus
+				unresolvedSafetyFrames += 1
+				if #unresolvedSafetySamples < 4 then
+					local _, parts = shared.PunchWallCameraPositionBlocked(camera.CFrame.Position, character, true)
+					local sample = {
+						camera = tostring(camera.CFrame.Position), root = tostring(rootPart.Position),
+						punch = currentPunch, samplePhase = "task-resume", physicalBoxSize = 0.55,
+						guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+						guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock()),
+						renderAge = os.clock() - lastPunchCameraRenderAt,
+						guardUnresolved = gui:GetAttribute("PunchCameraSafetyUnresolved") == true,
+						parts = {}, overlapCount = #(parts or {}),
+					}
+					for index = 1, math.min(2, #(parts or {})) do
+						local part = parts[index]
+						table.insert(sample.parts, {
+							name = part:GetFullName(), size = tostring(part.Size), frame = tostring(part.CFrame),
+							velocity = tostring(part.AssemblyLinearVelocity), falling = part:GetAttribute("StructuralFalling") == true,
+						})
+					end
+					table.insert(unresolvedSafetySamples, sample)
 				end
 			end
 			local cameraPosition = camera.CFrame.Position
@@ -7609,6 +9020,13 @@ if RunService:IsStudio() then
 				maxCameraStep = cameraStep
 				maxStepFrom = lastCameraPosition
 				maxStepTo = cameraPosition
+				maxStepSample = {
+					punch = currentPunch, cameraFrom = tostring(lastCameraPosition), cameraTo = tostring(cameraPosition),
+					rootFrom = tostring(lastRootPosition), rootTo = tostring(rootPart.Position),
+					guardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+					guardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock()),
+					lastPublication = shared.PunchWallCameraLastPublication,
+				}
 			end
 			lastCameraPosition = cameraPosition
 			local rootStep = (rootPart.Position - lastRootPosition):Dot(direction)
@@ -7625,6 +9043,7 @@ if RunService:IsStudio() then
 			local readable = onScreen and math.abs(headPoint.Y - feetPoint.Y) >= 18
 			if readable then readableCharacterFrames += 1 end
 			local obscured = false
+			local firstObscurer
 			local gameRoot = workspace:FindFirstChild("PunchWallRPG")
 			local physicsDebris = gameRoot and gameRoot:FindFirstChild("Depth Physics Debris")
 			for _, part in ipairs(camera:GetPartsObscuringTarget(
@@ -7633,13 +9052,16 @@ if RunService:IsStudio() then
 			)) do
 				if part:IsA("BasePart") and part.Transparency < 0.95 then
 					obscured = true
+					firstObscurer = part
 					if #obscurerNames < 8 and not table.find(obscurerNames, part:GetFullName()) then
 						table.insert(obscurerNames, part:GetFullName())
 					end
 					break
 				end
 			end
+			recordVisibilityObservation(obscured, firstObscurer, onScreen, readable)
 			local clear = onScreen and not obscured
+			if obscured then transientLineOfSightFrames += 1 end
 			if clear then clearCharacterFrames += 1 end
 			local orbitDistance = (cameraPosition - (rootPart.Position + Vector3.new(0, 1.5, 0))).Magnitude
 			local settledNow = settledSample
@@ -7655,7 +9077,19 @@ if RunService:IsStudio() then
 			for _, part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cameraPosition), Vector3.new(0.3, 0.3, 0.3))) do
 				if part:IsA("BasePart") and part.CanCollide and part.Transparency < 0.95 and not part:IsDescendantOf(character) then
 					blocked = true
-					if #insideNames < 8 then table.insert(insideNames, part:GetFullName()) end
+					if #insideNames < 8 then
+						table.insert(insideNames, part:GetFullName())
+						table.insert(insideSamples, {
+							part = part:GetFullName(),
+							punch = currentPunch,
+							camera = tostring(cameraPosition),
+							root = tostring(rootPart.Position),
+							renderAge = os.clock() - lastPunchCameraRenderAt,
+							follow = gui:GetAttribute("PunchCameraFollowActive") == true,
+							handoff = gui:GetAttribute("PunchCameraHandoffActive") == true,
+							clamped = gui:GetAttribute("PunchCameraGeometryClamped") == true,
+						})
+					end
 					break
 				end
 			end
@@ -7702,10 +9136,15 @@ if RunService:IsStudio() then
 		local settledReadableVisibility = settledReadableFrames / math.max(1, settledSamples)
 		local lead = maximumLead
 		local appliedStep = gui:GetAttribute("PunchCameraMaxAppliedStep") or 0
+		local correctionStep = gui:GetAttribute("PunchCameraMaxCorrectionStep") or 0
+		local escapeStep = gui:GetAttribute("PunchCameraMaxEscapeStep") or 0
 		local requested = math.max(1, math.floor(tonumber(punchCount) or 1))
 		local valid = actions == requested
 			and initialOrbitSettled
 			and appliedStep <= 2.65
+			and correctionStep <= 2.65
+			and escapeStep <= 2.65
+			and unresolvedSafetyFrames == 0
 			and math.abs(finishDistance - selectedDistance) < 0.08
 			and angle < 0.25
 			and visibility >= 0.9
@@ -7719,14 +9158,45 @@ if RunService:IsStudio() then
 			and readableVisibility >= 0.65
 			and settledClearVisibility >= 0.9
 			and settledReadableVisibility >= 0.9
+		local visualFailureReasons = {}
+		if not valid then table.insert(visualFailureReasons, "motion_geometry_or_native_contract") end
+		if clearVisibility < 0.55 then table.insert(visualFailureReasons, "clear_visibility") end
+		if readableVisibility < 0.65 then table.insert(visualFailureReasons, "readable_visibility") end
+		if settledClearVisibility < 0.9 then table.insert(visualFailureReasons, "settled_clear_visibility") end
+		if settledReadableVisibility < 0.9 then table.insert(visualFailureReasons, "settled_readable_visibility") end
 		local result = {
 			valid = valid,
 			visualValid = visualValid,
+			visualFailureReasons = visualFailureReasons,
+			visibilityPhases = visibilityDiagnostics.phases,
+			longestObscuredRun = visibilityDiagnostics.longestObscuredRun,
 			actions = actions,
 			maxStep = appliedStep,
+			maxCorrectionStep = correctionStep,
+			maxEscapeStep = escapeStep,
+			overlapEscapes = gui:GetAttribute("PunchCameraOverlapEscapes") or 0,
+			unresolvedSafetyFrames = unresolvedSafetyFrames,
+			physicalUnresolvedFrames = unresolvedSafetyFrames,
+			unresolvedSafetySamples = unresolvedSafetySamples,
+			transientLineOfSightFrames = transientLineOfSightFrames,
+			firstEscape = shared.PunchWallCameraFirstEscape,
+			largestEscape = shared.PunchWallCameraMaxEscape,
+			lastGuardPhase = gui:GetAttribute("PunchCameraLastGuardPhase"),
+			lastGuardAge = os.clock() - (gui:GetAttribute("PunchCameraLastGuardAt") or os.clock()),
+			configuredOrbit = selectedOrbit,
+			maxInheritedRootStep = gui:GetAttribute("PunchCameraMaxInheritedRootStep") or 0,
 			sampleMaxStep = maxCameraStep,
 			maxStepFrom = tostring(maxStepFrom),
 			maxStepTo = tostring(maxStepTo),
+			maxStepSample = maxStepSample,
+			maxGuardPublishedTravelPerCycle = gui:GetAttribute("PunchCameraMaxPublishedTravelPerCycle") or 0,
+			maxGuardEscapeTravelPerCycle = gui:GetAttribute("PunchCameraMaxEscapeTravelPerCycle") or 0,
+			maxGuardPublishedWritesPerCycle = gui:GetAttribute("PunchCameraMaxPublishedWritesPerCycle") or 0,
+			maxGuardCyclePublication = shared.PunchWallCameraMaxCyclePublication,
+			lastRecovery = shared.PunchWallCameraLastRecovery,
+			firstStalledRecovery = shared.PunchWallCameraFirstStalledRecovery,
+			maxRemainingRecovery = shared.PunchWallCameraMaxRemainingRecovery,
+			teleportRebaseCount = gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0,
 			maxBack = maxBackwardStep,
 			maxBackFrom = tostring(maxBackFrom),
 			maxBackTo = tostring(maxBackTo),
@@ -7743,6 +9213,8 @@ if RunService:IsStudio() then
 			obscurerNames = obscurerNames,
 			inside = insideFrames,
 			insideNames = insideNames,
+			insideSamples = insideSamples,
+			sampledFrames = sampledFrames,
 			lead = lead,
 			selectedDistance = selectedDistance,
 			finishDistance = finishDistance,
@@ -7756,6 +9228,8 @@ if RunService:IsStudio() then
 		gui:SetAttribute("CameraAutomationLastValid", valid)
 		gui:SetAttribute("CameraAutomationVisualLastValid", visualValid)
 		gui:SetAttribute("CameraAutomationLastPunches", actions)
+		gui:SetAttribute("CameraAutomationVisibilityJSON", HttpService:JSONEncode(visibilityDiagnostics))
+		gui:SetAttribute("CameraAutomationRecoveryJSON", HttpService:JSONEncode({last = shared.PunchWallCameraLastRecovery, first = shared.PunchWallCameraFirstStalledRecovery}))
 		player.CameraMaxZoomDistance = originalMaxZoom
 		player.CameraMinZoomDistance = originalMinZoom
 		return result
@@ -8260,17 +9734,32 @@ if RunService:IsStudio() then
 	end)()
 end
 
-player.CharacterAdded:Connect(function()
+player.CharacterAdded:Connect(function(character)
 	punchMotionState = nil
 	activePunchCamera = nil
 	shared.PunchWallCameraBaselineCFrame = nil
 	shared.PunchWallCameraBaselineFocus = nil
+	shared.PunchWallHeartbeatLastClearCFrame = nil
+	shared.PunchWallHeartbeatLastClearFocus = nil
+	gui:SetAttribute("PunchCameraFollowActive", false)
+	gui:SetAttribute("PunchCameraScriptableActive", false)
+	gui:SetAttribute("PunchCameraGeometryHoldSettled", false)
+	gui:SetAttribute("CharacterPunchMotionActive", false)
+	gui:SetAttribute("PunchMotionPhase", "Idle")
+	shared.PunchWallResetCameraGeometryGuard(character)
 	companionRuntime.CancelVisualRetry("CharacterAdded")
+	companionRuntime.ObserveCharacterHandSizes(character)
 	visualSignature = ""
 	task.defer(refreshCharacterVisuals)
 end)
 
+player.CharacterRemoving:Connect(function(character)
+	local state = companionRuntime.handSizeObserver
+	if state and state.character == character then companionRuntime.ObserveCharacterHandSizes(nil) end
+end)
+
 task.defer(function()
+	companionRuntime.ObserveCharacterHandSizes(player.Character)
 	requestAction("RequestSync")
 	task.wait(0.2)
 	refreshCharacterVisuals()
@@ -8293,9 +9782,35 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		and (lod == "Near60" and 0 or lod == "Mid30" and (1 / 30) or (1 / 20))
 		or (1 / 20)
 	local combinedScreenArea = 0
+	local formationRects = {}
+	local formationEntries = {}
+	local formationAvatarRect
+	local formationBlocked = false
+	local formationNeedsUpdate = false
+	for _, state in ipairs(companionModels) do
+		if state.model and state.model.Parent and state.model.PrimaryPart
+			and (updateInterval == 0 or state.updateAccumulator + deltaTime >= updateInterval) then
+			formationNeedsUpdate = true
+			break
+		end
+	end
+	if formationNeedsUpdate then
+		-- One native animated-character bounds query; pet boxes and all corner
+		-- arrays remain cached. Independent edge clamps can otherwise push a
+		-- companion onto the avatar when the viewport becomes narrow.
+		local avatarBounds, avatarSize = character:GetBoundingBox()
+		if companionRuntime.avatarBoundsSize ~= avatarSize then
+			companionRuntime.avatarBoundsSize = avatarSize
+			companionRuntime.avatarBoundsCorners = companionRuntime.BoundsCorners(avatarSize)
+		end
+		local avatarRect = companionRuntime.ProjectedBoundsRect(avatarBounds, companionRuntime.avatarBoundsCorners)
+		formationAvatarRect = avatarRect
+		if avatarRect then table.insert(formationRects, avatarRect) end
+	end
 	for index, state in ipairs(companionModels) do
 		local model = state.model
 		if model and model.Parent and model.PrimaryPart then
+			local formationOrigin = state.currentBoundsCFrame
 			state.updateAccumulator += deltaTime
 			if updateInterval == 0 or state.updateAccumulator >= updateInterval then
 				local effectiveDelta = math.min(state.updateAccumulator, 0.1)
@@ -8335,6 +9850,18 @@ RunService.Heartbeat:Connect(function(deltaTime)
 					local alpha = 1 - math.exp(-state.followResponsiveness * effectiveDelta)
 					state.currentBoundsCFrame = state.currentBoundsCFrame:Lerp(targetBounds, alpha)
 				end
+				if state.safeFrameBoundsSize ~= state.boundsSize then
+					state.safeFrameBoundsSize = state.boundsSize
+					state.safeFrameCorners = companionRuntime.BoundsCorners(state.boundsSize)
+				end
+				formationOrigin = state.currentBoundsCFrame
+				local safeBounds, safeFrameValid, safeFrameShift = companionRuntime.KeepBoundsInSafeFrame(
+					state.currentBoundsCFrame, state.safeFrameCorners, formationRects
+				)
+				state.currentBoundsCFrame = safeBounds
+				state.safeFrameValid = safeFrameValid
+				formationBlocked = formationBlocked or not safeFrameValid
+				state.safeFrameShift = safeFrameShift
 				model:PivotTo(state.currentBoundsCFrame * state.pivotToBounds:Inverse())
 				state.motionFrames += 1
 				local actualScreenArea = companionRuntime.ScreenArea(state.boundsSize, state.currentBoundsCFrame.Position)
@@ -8357,7 +9884,47 @@ RunService.Heartbeat:Connect(function(deltaTime)
 					model:SetAttribute("SmoothFollowReady", true)
 				end
 			end
+			if formationNeedsUpdate and state.safeFrameCorners then
+				table.insert(formationEntries, { state = state, bounds = formationOrigin, corners = state.safeFrameCorners })
+				local rect = companionRuntime.ProjectedBoundsRect(state.currentBoundsCFrame, state.safeFrameCorners)
+				if rect then
+					rect.worldPosition = state.currentBoundsCFrame.Position
+					rect.minimumCenterDistance = 1.45
+					table.insert(formationRects, rect)
+				end
+			end
 			combinedScreenArea += state.lastScreenArea or 0
+		end
+	end
+	if formationBlocked then
+		local packed, order, attempts = companionRuntime.PackFormationBounds(
+			formationEntries, formationAvatarRect, companionRuntime.packingOrder
+		)
+		companionRuntime.packingAttempts = attempts
+		-- A complete fit must retain the existing visible geometry and screen
+		-- budgets. Never publish only part of a reordered formation.
+		local packedArea, withinBudget = 0, packed ~= nil
+		if packed then
+			for index, entry in ipairs(formationEntries) do
+				local area = companionRuntime.ScreenArea(entry.state.boundsSize, packed[index].bounds.Position)
+				packed[index].area = area
+				packedArea += area
+				withinBudget = withinBudget and area <= companionRuntime.perPetScreenAreaBudget
+					and entry.state.budgetPolicy ~= "CulledAfterBudgetLOD"
+			end
+			withinBudget = withinBudget and packedArea <= companionRuntime.combinedScreenAreaBudget
+		end
+		if withinBudget then
+			companionRuntime.packingOrder = order
+			for index, entry in ipairs(formationEntries) do
+				local state, fitted = entry.state, packed[index]
+				state.currentBoundsCFrame = fitted.bounds
+				state.safeFrameValid = true
+				state.safeFrameShift = fitted.shift
+				state.lastScreenArea = fitted.area
+				state.model:PivotTo(fitted.bounds * state.pivotToBounds:Inverse())
+			end
+			combinedScreenArea = packedArea
 		end
 	end
 	companionRuntime.telemetryAccumulator = (companionRuntime.telemetryAccumulator or 0) + deltaTime
@@ -8365,6 +9932,8 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		companionRuntime.telemetryAccumulator = 0
 		for _, state in ipairs(companionModels) do
 			if state.model and state.model.Parent then
+				state.model:SetAttribute("CompanionSafeFrameValid", state.safeFrameValid == true)
+				state.model:SetAttribute("CompanionSafeFrameShift", state.safeFrameShift or 0)
 				state.model:SetAttribute("EstimatedScreenArea", state.lastScreenArea or 0)
 				state.model:SetAttribute(
 					"ScreenAreaWithinBudget",
@@ -8401,12 +9970,13 @@ local clientRuntime = {
 }
 clientRuntime.TargetDepthOverlap.FilterType = Enum.RaycastFilterType.Include
 clientRuntime.TargetDepthOverlap.FilterDescendantsInstances = {}
-clientRuntime.TargetDepthOverlap.MaxParts = 400
+clientRuntime.TargetDepthOverlap.MaxParts = 0
 
 gui:SetAttribute("AmbientPulseRegistryMode", "EventDrivenV1")
 gui:SetAttribute("AmbientPulseCount", 0)
 gui:SetAttribute("TargetHeartbeatCacheMode", "EventDrivenFoldersV1")
 gui:SetAttribute("TargetOverlapParamsCreateCount", 1)
+gui:SetAttribute("TargetDepthQueryMode", "ProgressiveCompleteV1")
 
 function clientRuntime.UpdateAmbientPulseAttributes()
 	gui:SetAttribute("AmbientPulseCount", #clientRuntime.AmbientPulseParts)
@@ -8469,6 +10039,46 @@ function clientRuntime.RefreshTargetFolderCache()
 	gui:SetAttribute("TargetInteractablesCached", interactables ~= nil)
 	gui:SetAttribute("TargetDepthBlocksCached", depthBlocks ~= nil)
 	return true
+end
+
+function clientRuntime.SelectNearestDepthTarget(rootPart, nearestWall, nearestWallDistance)
+	local depthBlocks = clientRuntime.DepthBlocksFolder
+	local queryCount, candidateCount, uniqueCount, searchedRadius = 0, 0, 0, 0
+	if rootPart and depthBlocks and depthBlocks.Parent == clientRuntime.GameRoot and depthBlocks.Name == "Depth Blocks" then
+		local seen = {}
+		for _, radius in ipairs({ 8, 16, 24, 38 }) do
+			searchedRadius = radius
+			queryCount += 1
+			local candidates = workspace:GetPartBoundsInRadius(rootPart.Position, radius, clientRuntime.TargetDepthOverlap)
+			candidateCount += #candidates
+			for _, block in ipairs(candidates) do
+				if not seen[block] then
+					seen[block] = true
+					uniqueCount += 1
+					if block:IsA("BasePart") and block:IsDescendantOf(depthBlocks)
+						and block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
+						local offset = block.Position - rootPart.Position
+						local distance = offset.Magnitude
+						local facing = distance > 0 and rootPart.CFrame.LookVector:Dot(offset.Unit) or 1
+						if facing > -0.1 and distance < nearestWallDistance then
+							nearestWall, nearestWallDistance = block, distance
+						end
+					end
+				end
+			end
+			-- Bounds can touch this sphere while their centers remain outside it.
+			-- Only stop when every potentially nearer center has been searched.
+			-- An uncapped result is essential: Roblox does not order spatial hits
+			-- by distance, so a part cap can omit the nearest block entirely.
+			if nearestWall and nearestWallDistance <= radius then break end
+		end
+	end
+	gui:SetAttribute("TargetDepthQueryCount", queryCount)
+	gui:SetAttribute("TargetDepthCandidateCount", candidateCount)
+	gui:SetAttribute("TargetDepthUniqueCandidates", uniqueCount)
+	gui:SetAttribute("TargetDepthSearchRadius", searchedRadius)
+	gui:SetAttribute("TargetDepthSelectedDistance", nearestWall and nearestWallDistance or -1)
+	return nearestWall, nearestWallDistance
 end
 
 function clientRuntime.BindGameRoot(root)
@@ -8682,6 +10292,186 @@ function clientRuntime.SetContextualAction(actionName, target)
 	gui:SetAttribute("ContextualActionUsesExistingTargetScan", true)
 end
 
+-- Pure presentation and placement helpers are exercised directly by the offline contract.
+function shared.PunchWallCombatHUD.Resolve(state)
+ if not state.ready or state.blocked then return nil end
+ local wall = state.wall
+ if wall and wall.valid and not wall.broken and wall.hp > 0 and wall.maxHP > 0
+  and wall.distance <= 24 and wall.facing > -0.1 then
+  local power = math.max(0, tonumber(state.power) or 0)
+  if state.damageBoostExpiresAt > state.now then power *= 2 end
+  local hits = power > 0 and math.ceil(wall.hp / power) or nil
+  local detail = ("HP %s/%s"):format(formatNumber(wall.hp), formatNumber(wall.maxHP))
+  if state.level < wall.requiredLevel then detail ..= ("  |  NEED LV %d"):format(wall.requiredLevel)
+  elseif hits then detail ..= ("  |  ~%s hits"):format(formatNumber(hits))
+  else detail ..= "  |  TRAIN FOR POWER" end
+  return { kind = "Wall", title = string.upper(wall.title), detail = detail,
+   ratio = math.clamp(wall.hp / wall.maxHP, 0, 1), target = wall.name,
+   canonical = wall.canonical, hits = hits or 0 }
+ end
+ local boss = state.boss
+ if boss and boss.valid and not boss.broken and boss.hp > 0 and boss.maxHP > 0 and boss.distance <= 55 then
+  local title = ("TITAN P%d  |  WEAK x1.5"):format(boss.phase)
+  local detail = ("HP %s/%s"):format(formatNumber(boss.hp), formatNumber(boss.maxHP))
+  if boss.nextAttackAt > 0 then
+   detail ..= ("  |  SHOCKWAVE %ds"):format(math.max(0, math.ceil(boss.nextAttackAt - state.now)))
+  else detail ..= "  |  TARGET RED CORES" end
+  return { kind = "Boss", title = title, detail = detail,
+   ratio = math.clamp(boss.hp / boss.maxHP, 0, 1), target = boss.name,
+   canonical = boss.name, hits = 0 }
+ end
+ return nil
+end
+
+function shared.PunchWallCombatHUD.FindLayout(width, height, compact, userScale, obstacles)
+ if width < 240 or height < 200 then return nil end
+ local scale = math.clamp(tonumber(userScale) or 1, 0.8, 1.2)
+ local panelHeight = math.ceil((compact and 64 or 72) * math.max(1, scale))
+ local maximumWidth = math.min(width - 24, (compact and 300 or 420) * math.max(1, scale))
+ local preferredTop = compact and 86 or math.max(86, math.ceil(height * 0.202) + 8)
+ local tops = { preferredTop }
+ for _,obstacle in ipairs(obstacles) do
+  table.insert(tops, obstacle.y + obstacle.height + 8)
+  table.insert(tops, obstacle.y - panelHeight - 8)
+ end
+ table.insert(tops, 8)
+ local widths = { maximumWidth, math.min(maximumWidth, 300), math.min(maximumWidth, 240) }
+ for _,panelWidth in ipairs(widths) do
+  local x = math.floor((width - panelWidth) / 2)
+  local best, bestScore
+  for _,top in ipairs(tops) do
+   local y = math.floor(top)
+   local clear = y >= 8 and y + panelHeight <= height - 8
+   for _,obstacle in ipairs(obstacles) do
+    if x < obstacle.x + obstacle.width + 6 and x + panelWidth > obstacle.x - 6
+     and y < obstacle.y + obstacle.height + 6 and y + panelHeight > obstacle.y - 6 then clear = false break end
+   end
+   local score = math.abs(y - preferredTop)
+   if clear and (not best or score < bestScore) then
+    best = { x = x, y = y, width = math.floor(panelWidth), height = panelHeight,
+     titleSize = math.max(14, math.floor((compact and 16 or 18) * scale)),
+     detailSize = math.max(12, math.floor(14 * scale)) }
+    bestScore = score
+   end
+  end
+  if best then return best end
+ end
+ return nil
+end
+
+function shared.PunchWallCombatHUD.Apply(presentation)
+ local runtime = shared.PunchWallCombatHUD
+ local function write(object, property, value)
+  if object[property] ~= value then object[property] = value end
+ end
+ local kind = presentation and presentation.kind or "Hidden"
+ local key = presentation and table.concat({ kind, presentation.title, presentation.detail,
+  tostring(presentation.ratio), presentation.target }, ":") or "Hidden"
+ write(targetHUD, "Visible", kind == "Wall")
+ write(bossHUD, "Visible", kind == "Boss")
+ local adornee = kind == "Wall" and runtime.wall or nil
+ write(runtime.Outline, "Adornee", adornee)
+ write(runtime.Outline, "Enabled", adornee ~= nil)
+ if key == runtime.renderKey then return false end
+ runtime.renderKey = key
+ runtime.renderCount += 1
+ if presentation then
+  local title = kind == "Wall" and targetTitle or bossTitle
+  local detail = kind == "Wall" and targetDetail or bossSubtitle
+  local fill = kind == "Wall" and targetFill or bossFill
+  write(title, "Text", presentation.title)
+  write(detail, "Text", presentation.detail)
+  write(fill, "Size", UDim2.fromScale(presentation.ratio, 1))
+ end
+ gui:SetAttribute("CombatHUDKind", kind)
+ gui:SetAttribute("CombatHUDTarget", presentation and presentation.target or "")
+ gui:SetAttribute("CombatHUDCanonicalTarget", presentation and presentation.canonical or "")
+ gui:SetAttribute("CombatHUDHitEstimate", presentation and presentation.hits or 0)
+ gui:SetAttribute("CombatHUDRenderCount", runtime.renderCount)
+ return true
+end
+
+function shared.PunchWallCombatHUD.Refresh()
+ local runtime = shared.PunchWallCombatHUD
+ local character = player.Character
+ local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+ local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+ local world = workspace:FindFirstChild("PunchWallRPG")
+ local function read(part, isBoss)
+  if not rootPart or not world or not part or not part:IsDescendantOf(world) or not part:IsA("BasePart") then return nil end
+  local delta = part.Position - rootPart.Position
+  local tier = tonumber(part:GetAttribute("MaterialTier") or part:GetAttribute("Tier")) or 1
+  local definition = GameConfig.Walls[math.clamp(tier, 1, #GameConfig.Walls)]
+  return { valid = part.Transparency < 1 and part.CanQuery, broken = part:GetAttribute("Broken") == true,
+   name = part.Name, title = tostring(part:GetAttribute("TierName") or definition.displayName or definition.name),
+   canonical = isBoss and part.Name or definition.name, hp = tonumber(part:GetAttribute("HP")) or 0,
+   maxHP = tonumber(part:GetAttribute("MaxHP")) or 0, distance = delta.Magnitude,
+   facing = delta.Magnitude > 0 and rootPart.CFrame.LookVector:Dot(delta.Unit) or 1,
+   requiredLevel = tonumber(part:GetAttribute("RequiredLevel")) or 1,
+   phase = tonumber(part:GetAttribute("BossPhase")) or 1, nextAttackAt = tonumber(part:GetAttribute("NextAttackAt")) or 0 }
+ end
+ local spin = gui:FindFirstChild("HeroSpinModal")
+ local state = { ready = runtime.layoutReady and rootPart ~= nil and humanoid ~= nil and humanoid.Health > 0,
+  blocked = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
+   or (spin and spin.Visible) or (tonumber(latestStats.TrainingActive) or 0) >= 1,
+  wall = read(runtime.wall, false), boss = read(runtime.boss, true),
+  power = latestStats.EffectivePower or latestStats.Power or 0, level = tonumber(latestStats.WallLevel) or 1,
+  now = workspace:GetServerTimeNow(), damageBoostExpiresAt = tonumber(player:GetAttribute("DamageBoostExpiresAt")) or 0 }
+ runtime.Apply(runtime.Resolve(state))
+end
+
+function shared.PunchWallCombatHUD.ScheduleLayout(viewport, compact, userScale, safeHost, controls)
+ local runtime = shared.PunchWallCombatHUD
+ runtime.layoutGeneration += 1
+ local generation = runtime.layoutGeneration
+ task.defer(function()
+  -- Wait for the responsive assignments above to acquire their actual rendered rectangles.
+  RunService.Heartbeat:Wait()
+  if generation ~= runtime.layoutGeneration or not safeHost.Parent then return end
+  local obstacles = {}
+  local origin = safeHost.AbsolutePosition
+  for _,control in ipairs(controls) do
+   if control and control.Parent and control.Visible and control.AbsoluteSize.X > 0 and control.AbsoluteSize.Y > 0 then
+    local position, size = control.AbsolutePosition - origin, control.AbsoluteSize
+    table.insert(obstacles, { x = position.X, y = position.Y, width = size.X, height = size.Y })
+   end
+  end
+  local layout = runtime.FindLayout(viewport.X, viewport.Y, compact, userScale, obstacles)
+  runtime.layoutReady = layout ~= nil
+  gui:SetAttribute("CombatHUDLayoutReady", runtime.layoutReady)
+  gui:SetAttribute("CombatHUDLayoutReason", layout and "VisibleControlSafeLaneV1" or "NoClearLane")
+  if layout then
+   for _,frame in ipairs({ targetHUD, bossHUD }) do
+    frame.AnchorPoint = Vector2.zero
+    frame.Position = UDim2.fromOffset(layout.x, layout.y)
+    frame.Size = UDim2.fromOffset(layout.width, layout.height)
+   end
+   for _,title in ipairs({ targetTitle, bossTitle }) do
+    title.Position = UDim2.fromOffset(12, compact and 5 or 8)
+    title.Size = UDim2.new(1, -24, 0, compact and 20 or 24)
+    title.TextSize = layout.titleSize
+    title.CombatReadability.MaxTextSize = layout.titleSize
+   end
+   for _,track in ipairs({ targetTrack, bossTrack }) do
+    track.Position = UDim2.fromOffset(12, compact and 29 or 36)
+    track.Size = UDim2.new(1, -24, 0, compact and 7 or 10)
+   end
+   for _,detail in ipairs({ targetDetail, bossSubtitle }) do
+    detail.Position = UDim2.fromOffset(12, compact and 40 or 50)
+    detail.Size = UDim2.new(1, -24, 1, compact and -46 or -56)
+    detail.TextSize = layout.detailSize
+    detail.CombatReadability.MaxTextSize = layout.detailSize
+   end
+  end
+  runtime.Refresh()
+ end)
+end
+
+gui:SetAttribute("CombatHUDScanInterval", 0.15)
+gui:GetAttributeChangedSignal("ModalCoreGuiHidden"):Connect(function()
+ shared.PunchWallCombatHUD.Refresh()
+end)
+
 local targetTimer = 0
 RunService.Heartbeat:Connect(function(delta)
 	targetTimer += delta
@@ -8696,6 +10486,9 @@ RunService.Heartbeat:Connect(function(delta)
 	end
 	if not rootPart or not gameRoot then
 		clientRuntime.SetContextualAction(nil, nil)
+		shared.PunchWallCombatHUD.wall = nil
+		shared.PunchWallCombatHUD.boss = nil
+		shared.PunchWallCombatHUD.Refresh()
 		return
 	end
 	if (clientRuntime.WallsFolder and (clientRuntime.WallsFolder.Parent ~= gameRoot or clientRuntime.WallsFolder.Name ~= "Walls"))
@@ -8732,19 +10525,7 @@ RunService.Heartbeat:Connect(function(delta)
 			end
 		end
 	end
-	local depthBlocks = clientRuntime.DepthBlocksFolder
-	if depthBlocks then
-		for _, block in ipairs(workspace:GetPartBoundsInRadius(rootPart.Position, 38, clientRuntime.TargetDepthOverlap)) do
-			if block:GetAttribute("IsDepthBlock") and not block:GetAttribute("Broken") then
-				local offset = block.Position - rootPart.Position
-				local distance = offset.Magnitude
-				local facing = distance > 0 and rootPart.CFrame.LookVector:Dot(offset.Unit) or 1
-				if facing > -0.1 and distance < nearestWallDistance then
-					nearestWall, nearestWallDistance = block, distance
-				end
-			end
-		end
-	end
+	nearestWall, nearestWallDistance = clientRuntime.SelectNearestDepthTarget(rootPart, nearestWall, nearestWallDistance)
 	-- The invisible station hit volume is behind its visible model. Give training
 	-- a small intent margin so a nearby shop stand cannot steal the affordance.
 	if nearestTraining and nearestTrainingDistance <= 18
@@ -8794,7 +10575,9 @@ RunService.Heartbeat:Connect(function(delta)
 		contextualAction = "Use"
 	end
 	clientRuntime.SetContextualAction(contextualAction, contextualAction and nearestAction or nil)
-	targetHUD.Visible = false
+	shared.PunchWallCombatHUD.wall = focusedWall and nearestWall or nil
+	shared.PunchWallCombatHUD.boss = clientRuntime.WallsFolder and clientRuntime.WallsFolder:FindFirstChild("Titan Server Wall") or nil
+	shared.PunchWallCombatHUD.Refresh()
 end)
 end
 
@@ -8802,17 +10585,23 @@ gui:SetAttribute("CombatCameraActive", false)
 if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable then
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 end
-local cameraOcclusionApplied = player.DevCameraOcclusionMode == Enum.DevCameraOcclusionMode.Invisicam
-gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "OpaqueInvisicam" or "Unavailable")
-gui:SetAttribute("CameraOcclusionOpaque", cameraOcclusionApplied)
-gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
+local cameraOcclusionApplied = false
+local function refreshCameraOcclusionMode()
+	cameraOcclusionApplied = player.DevCameraOcclusionMode == Enum.DevCameraOcclusionMode.Invisicam
+	gui:SetAttribute("CameraOcclusionMode", cameraOcclusionApplied and "OpaqueInvisicam" or "Unavailable")
+	gui:SetAttribute("CameraOcclusionOpaque", cameraOcclusionApplied)
+	gui:SetAttribute("PreservePlayerZoomInTunnels", cameraOcclusionApplied)
+end
+player:GetPropertyChangedSignal("DevCameraOcclusionMode"):Connect(refreshCameraOcclusionMode)
+refreshCameraOcclusionMode()
 
 -- Roblox Invisicam normally fades parts between the camera and the character.
 -- Keep the zoom-preserving occlusion mode, but restore the obscuring parts to
 -- full local opacity after the camera update so the world stays visually solid.
-if cameraOcclusionApplied then
+do
 	shared.PunchWallForcedOpaqueParts = setmetatable({}, { __mode = "k" })
 	RunService:BindToRenderStep("PunchWallOpaqueOcclusion", Enum.RenderPriority.Last.Value, function()
+		if not cameraOcclusionApplied then return end
 		local camera = workspace.CurrentCamera
 		local character = player.Character
 		if not camera or not character then return end
@@ -8836,49 +10625,7 @@ if cameraOcclusionApplied then
 	end)
 end
 
-local bossHudTimer = 0
-RunService.Heartbeat:Connect(function(delta)
-	bossHudTimer += delta
-	if bossHudTimer < 0.2 then return end
-	bossHudTimer = 0
-	if gui:GetAttribute("PixelReferenceHUDActive") == true then
-		bossHUD.Visible = false
-		help.Visible = false
-		return
-	end
-	local gameRoot = workspace:FindFirstChild("PunchWallRPG")
-	local walls = gameRoot and gameRoot:FindFirstChild("Walls")
-	local boss = walls and walls:FindFirstChild("Titan Server Wall")
-	local character = player.Character
-	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local modalVisible = mainPanel.Visible or gui:GetAttribute("StandaloneModalVisible") == true
-	if not boss or not rootPart then bossHUD.Visible = false help.Visible = latestStats.Tutorial ~= nil and not modalVisible return end
-	local hp = boss:GetAttribute("HP") or 0
-	local maxHP = math.max(1, boss:GetAttribute("MaxHP") or 1)
-	local broken = boss:GetAttribute("Broken") == true
-	local nearby = (boss.Position - rootPart.Position).Magnitude <= 55
-	bossHUD.Visible = (broken or nearby or hp < maxHP) and not targetHUD.Visible and not modalVisible
-	help.Visible = latestStats.Tutorial ~= nil and not modalVisible
-	if not bossHUD.Visible then return end
-	local phase = boss:GetAttribute("BossPhase") or 1
-	bossTitle.Text = UserInputService.TouchEnabled and ("TITAN P%d  |  WEAK x1.5"):format(phase)
-		or ("TITAN HQ  |  PHASE %d  |  WEAK POINT x1.5"):format(phase)
-	bossFill.Size = UDim2.fromScale(math.clamp(hp / maxHP, 0, 1), 1)
-	if broken then
-		local remaining = math.max(0, math.ceil((boss:GetAttribute("RespawnAt") or 0) - workspace:GetServerTimeNow()))
-		bossSubtitle.Text = ("RECONSTRUCTING IN %ds"):format(remaining)
-	else
-		local nextAttackAt = boss:GetAttribute("NextAttackAt") or 0
-		local remaining = math.max(0, math.ceil(nextAttackAt - workspace:GetServerTimeNow()))
-		if UserInputService.TouchEnabled then
-			bossSubtitle.Text = nextAttackAt > 0 and ("HP %s/%s  |  SHOCKWAVE %ds"):format(formatNumber(hp), formatNumber(maxHP), remaining)
-				or ("HP %s/%s  |  TARGET RED CORES"):format(formatNumber(hp), formatNumber(maxHP))
-		else
-			local attackText = nextAttackAt > 0 and ("  |  SHOCKWAVE %ds"):format(remaining) or ""
-			bossSubtitle.Text = ("HP %s / %s  |  %d participant(s)%s"):format(formatNumber(hp), formatNumber(maxHP), boss:GetAttribute("ParticipantCount") or 0, attackText)
-		end
-	end
-end)
+-- Boss HP and countdown share the existing 0.15-second target scan above.
 
 local punchHeld = false
 local function setPunchHeld(value)
@@ -8907,6 +10654,80 @@ gui:SetAttribute("PixelReferenceHUDActive", true)
 
 local function designRect(x, y, width, height)
 	return UDim2.fromScale(x / 1672, y / 941), UDim2.fromScale(width / 1672, height / 941)
+end
+
+function shared.PunchWallResolveNarrowDirectionalPair(viewport)
+	local width = math.max(44, viewport.X * 76 / 1672)
+	local spacing = viewport.X * 90 / 1672
+	if spacing >= width + 4 or viewport.X < width * 2 + 20 then return nil end
+	-- Keep the authored pair center while respecting the real minimum hitbox.
+	-- Normal desktop proportions and the separate compact layout stay intact.
+	local pairWidth = width * 2 + 4
+	local center = viewport.X * 1273 / 1672
+	local left = math.clamp(center - pairWidth * 0.5, 8, viewport.X - pairWidth - 8)
+	return {
+		upX = left, downX = left + width + 4,
+		y = viewport.Y * 590 / 941,
+		width = width, height = math.max(44, viewport.Y * 76 / 941),
+	}
+end
+
+function shared.PunchWallResolveStandaloneDesktopSize(viewport, authoredWidth, authoredHeight)
+	local width = viewport.X >= 0 and viewport.X < math.huge and viewport.X or 0
+	local height = viewport.Y >= 0 and viewport.Y < math.huge and viewport.Y or 0
+	return { width = math.min(authoredWidth, math.max(1, width - 24)), height = math.min(authoredHeight, math.max(1, height - 24)) }
+end
+
+function shared.PunchWallResolveRebirthActionLanes(bodyWidth)
+	if bodyWidth >= 592 then return nil end
+	local cancelRight = math.max(0, math.min(bodyWidth * 0.75, bodyWidth - 148))
+	return {
+		cancelRight = cancelRight,
+		questionWidth = math.max(1, math.min(bodyWidth * 0.48, cancelRight - 120)),
+		readyWidth = math.max(1, math.min(bodyWidth * 0.63, bodyWidth - 188)),
+	}
+end
+
+function shared.PunchWallResolveNarrowMenuGrid(viewport)
+	if not (viewport.X > 0 and viewport.X < math.huge and viewport.Y > 0 and viewport.Y < math.huge) then return nil end
+	local authoredScale = math.min(viewport.X / 1672, viewport.Y / 941)
+	if 82 * authoredScale >= 44 then return nil end
+	local width, gap, margin = 48, 4, 12
+	local height = width * 111 / 87
+	local rebirthHeight = width * 111 / 82
+	-- A collapsed or very shallow desktop viewport cannot fit this grid.
+	-- Keep the authored fallback instead of clamping against reversed bounds.
+	if viewport.X < width * 3 + gap * 2 + margin * 2
+		or viewport.Y < height * 3 + gap * 2 + margin * 2 then return nil end
+	local right = viewport.X - margin - width
+	local left = right - width - gap
+	local top = math.clamp(viewport.Y * 296 / 941, margin, viewport.Y - margin - height * 3 - gap * 2)
+	return {
+		width = width, height = height, gap = gap, margin = margin,
+		targets = {
+			InventoryButton = { x = left, y = top, width = width, height = height },
+			ShopButton = { x = right, y = top, width = width, height = height },
+			PetsButton = { x = right, y = top + height + gap, width = width, height = height },
+			QuestsButton = { x = right, y = top + (height + gap) * 2, width = width, height = height },
+			RebirthButton = {
+				x = math.max(margin, viewport.X * 16 / 1672),
+				y = math.clamp(viewport.Y * 429 / 941, margin, viewport.Y - margin - rebirthHeight),
+				width = width, height = rebirthHeight,
+			},
+		},
+	}
+end
+
+function shared.PunchWallResolveGenericDesktopModal(viewport)
+	local viewportWidth = viewport.X >= 0 and viewport.X < math.huge and viewport.X or 0
+	local viewportHeight = viewport.Y >= 0 and viewport.Y < math.huge and viewport.Y or 0
+	local width = math.min(677, math.max(1, viewportWidth - 24))
+	local height = math.min(408, math.max(1, viewportHeight - 24))
+	local centerY = viewportHeight * 0.5
+	if viewportHeight >= height + 24 then
+		centerY = math.clamp(viewportHeight * 0.52, height * 0.5 + 12, viewportHeight - height * 0.5 - 12)
+	end
+	return { width = width, height = height, centerY = centerY, safeMarginFits = viewportWidth >= width + 24 and viewportHeight >= height + 24 }
 end
 
 local rankWidgets = (function()
@@ -9866,8 +11687,8 @@ shared.PunchWallBuildDynamicReferenceHUD = function()
 	widgets.ObjectiveCard.ZIndex = 34
 	widgets.ObjectiveCard.Parent = referenceHUD
 	local objectiveStroke = Instance.new("UIStroke")
-	objectiveStroke.Color = Color3.fromRGB(37, 191, 239)
-	objectiveStroke.Thickness = 2
+	objectiveStroke.Color = Color3.fromRGB(61, 88, 101)
+	objectiveStroke.Thickness = 1
 	objectiveStroke.Parent = widgets.ObjectiveCard
 	widgets.ObjectiveIcon = createThemeIcon(widgets.ObjectiveCard, "Train", UDim2.fromScale(5 / 340, 4 / 48), UDim2.fromScale(40 / 340, 40 / 48), "ObjectiveIcon")
 	widgets.ObjectiveIcon.ZIndex = 35
@@ -9885,8 +11706,8 @@ shared.PunchWallBuildDynamicReferenceHUD = function()
 	widgets.ObjectiveText.ZIndex = 35
 	widgets.ObjectiveText.Parent = widgets.ObjectiveCard
 	local objectiveTextConstraint = Instance.new("UITextSizeConstraint")
-	objectiveTextConstraint.MinTextSize = 7
-	objectiveTextConstraint.MaxTextSize = 13
+	objectiveTextConstraint.MinTextSize = 14
+	objectiveTextConstraint.MaxTextSize = 16
 	objectiveTextConstraint.Parent = widgets.ObjectiveText
 end
 shared.PunchWallBuildDynamicReferenceHUD()
@@ -10377,6 +12198,19 @@ end
 shared.PunchWallBuildSpinUI()
 shared.PunchWallBuildSpinUI = nil
 
+-- Resolve the Shop from the available modal width, independent of input device.
+-- A desktop window can be narrower than a phone in landscape.
+shared.PunchWallResolveShopLayout = function(viewport)
+	local _, compact = shared.PunchWallClassifyResponsiveViewport(viewport)
+	local height = math.max(1, math.min(viewport.Y - 64, 820, (viewport.X - 64) / 1.52))
+	local width = height * 1.52
+	local desktopRows = not compact and width < 900
+	if compact or desktopRows then
+		width, height = math.max(1, viewport.X - 24), math.max(1, viewport.Y - 24)
+	end
+	return { compactCards = compact, desktopRows = desktopRows, width = width, height = height }
+end
+
 -- Functional Hero City shop assembled from the supplied transparent product art.
 -- The checkerboard-backed exports in C:\Temp\Shop are used as layout references only.
 shared.PunchWallBuildShopUI = function()
@@ -10402,7 +12236,7 @@ shared.PunchWallBuildShopUI = function()
 	mainPanel.ZIndex = 1
 	local shopReference = Instance.new("Frame")
 	shopReference.Name = "FunctionalHeroShop"
-	shopReference.BackgroundColor3 = Color3.fromRGB(5, 11, 15)
+	shopReference.BackgroundColor3 = Color3.fromRGB(14, 20, 29)
 	shopReference.BackgroundTransparency = 0
 	shopReference.BorderSizePixel = 0
 	shopReference.ClipsDescendants = false
@@ -10418,16 +12252,16 @@ shared.PunchWallBuildShopUI = function()
 	shopCorner:SetAttribute("ShopRootDecoration", true)
 	shopCorner.Parent = shopReference
 	local shopStroke = Instance.new("UIStroke")
-	shopStroke.Color = Color3.fromRGB(7, 18, 25)
-	shopStroke.Thickness = 7
+	shopStroke.Color = Color3.fromRGB(61, 88, 101)
+	shopStroke.Thickness = 1
 	shopStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	shopStroke:SetAttribute("ShopRootDecoration", true)
 	shopStroke.Parent = shopReference
 	local shopGradient = Instance.new("UIGradient")
 	shopGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 25, 31)),
-		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(4, 10, 14)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 17, 22)),
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(247, 250, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(238, 244, 250)),
 	})
 	shopGradient.Rotation = 90
 	shopGradient:SetAttribute("ShopRootDecoration", true)
@@ -10445,6 +12279,8 @@ shared.PunchWallBuildShopUI = function()
 		BoostTickGeneration = 0,
 		BoostTickCount = 0,
 		BoostTickScheduled = false,
+		BoostButtons = {},
+		RenderedPage = nil,
 	}
 
 	function shopRuntime.ResolvePage()
@@ -10467,8 +12303,7 @@ shared.PunchWallBuildShopUI = function()
 	end
 
 	function shopRuntime.StateSignature(now)
-		local camera = workspace.CurrentCamera
-		local viewport = camera and camera.ViewportSize or Vector2.zero
+		local viewport = shared.PunchWallGetResponsiveViewport()
 		local page = shopRuntime.ResolvePage()
 		local fields = {
 			"HeroShopStateV1",
@@ -10481,14 +12316,17 @@ shared.PunchWallBuildShopUI = function()
 		if page == "Fists" then
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedFistsJSON, { "Starter Glove" }))
 			table.insert(fields, tostring(latestStats.EquippedFist or ""))
+			table.insert(fields, math.max(0, math.floor(tonumber(latestStats.Depth) or 0)))
 		elseif page == "Premium" then
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.OwnedPremiumPetsJSON, {}))
 			table.insert(fields, shopRuntime.CanonicalOwnedList(latestStats.EquippedPetsJSON, {}))
 		elseif page == "Boosts" then
 			local boostInfo = latestStats.ShopBoosts or {}
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now))
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now))
-			table.insert(fields, shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now))
+			-- Endpoints change on authoritative purchases/resync. Remaining seconds
+			-- belong to the existing button labels, not the catalog structure.
+			table.insert(fields, tonumber(boostInfo.CoinEndsAt) or 0)
+			table.insert(fields, tonumber(boostInfo.SpeedEndsAt) or 0)
+			table.insert(fields, tonumber(boostInfo.DamageEndsAt) or 0)
 		elseif page == "Honor" then
 			table.insert(fields, math.max(0, math.floor(tonumber(latestStats.Honor) or 0)))
 		end
@@ -10503,6 +12341,82 @@ shared.PunchWallBuildShopUI = function()
 			end
 		end
 		return HttpService:JSONEncode(fields), page
+	end
+
+	function shopRuntime.AddCatalogFistPreview(card, icon, item)
+		local viewport = Instance.new("ViewportFrame")
+		viewport.Name = "FistCatalogPreview"
+		viewport.BackgroundTransparency = 1
+		viewport.Size = UDim2.fromScale(1, 1)
+		viewport.ZIndex = icon.ZIndex + 1
+		viewport.Ambient = Color3.fromRGB(180, 190, 205)
+		viewport.LightColor = Color3.fromRGB(255, 244, 221)
+		viewport.LightDirection = Vector3.new(-1, -1, -1)
+		viewport:SetAttribute("RenderLoop", false)
+		viewport:SetAttribute("FistVisualKey", item.name)
+		viewport.Parent = icon
+		local camera = Instance.new("Camera")
+		camera.FieldOfView = 32
+		camera.Parent = viewport
+		viewport.CurrentCamera = camera
+		local world = Instance.new("WorldModel")
+		world.Parent = viewport
+		local scroll = card.Parent
+		local connections = {}
+		local model
+		local previewDirection
+		local fittedSize
+		local function refresh()
+			if not viewport.Parent then return end
+			local point, size = card.AbsolutePosition, card.AbsoluteSize
+			local clip, clipSize = scroll.AbsolutePosition, scroll.AbsoluteSize
+			local visible = shopReference.Visible and mainPanel.Visible and card.Visible
+				and size.X > 0 and size.Y > 0 and clipSize.Y > 0
+				and point.Y + size.Y > clip.Y and point.Y < clip.Y + clipSize.Y
+			viewport.Visible = visible
+			card:SetAttribute("FistPreviewVisible", visible)
+			if visible and not model then
+				local spec
+				model, spec = FistVisualBuilder.BuildCatalogModel(item)
+				if model then
+					model.Parent = world
+					previewDirection = spec.previewDirection.Unit
+					fittedSize = nil
+					icon.ImageTransparency = 1
+					card:SetAttribute("CatalogGeometryVersion", spec.version)
+				end
+			elseif not visible and model then
+				model:Destroy()
+				model = nil
+				icon.ImageTransparency = 0
+			end
+			local viewportSize = viewport.AbsoluteSize
+			if model and viewportSize.X > 0 and viewportSize.Y > 0 and fittedSize ~= viewportSize then
+				local bounds, boundsSize = model:GetBoundingBox()
+				local orientation = CFrame.lookAt(bounds.Position + previewDirection, bounds.Position)
+				local verticalTangent = math.tan(math.rad(camera.FieldOfView * 0.5))
+				local horizontalTangent = verticalTangent * viewportSize.X / viewportSize.Y
+				local distance = 0
+				for x = -1, 1, 2 do for y = -1, 1, 2 do for z = -1, 1, 2 do
+					local corner = bounds:VectorToWorldSpace(boundsSize * Vector3.new(x, y, z) * 0.5)
+					local point = orientation:VectorToObjectSpace(corner)
+					distance = math.max(distance, point.Z + math.abs(point.X) / horizontalTangent,
+						point.Z + math.abs(point.Y) / verticalTangent)
+				end end end
+				camera.CFrame = CFrame.lookAt(bounds.Position + previewDirection * distance * 1.12, bounds.Position)
+				fittedSize = viewportSize
+			end
+			card:SetAttribute("FistPreviewReady", model ~= nil)
+		end
+		for _, signal in ipairs({scroll:GetPropertyChangedSignal("CanvasPosition"), scroll:GetPropertyChangedSignal("AbsoluteSize"),
+			card:GetPropertyChangedSignal("AbsolutePosition"), viewport:GetPropertyChangedSignal("AbsoluteSize"), shopReference:GetPropertyChangedSignal("Visible"),
+			mainPanel:GetPropertyChangedSignal("Visible")}) do
+			table.insert(connections, signal:Connect(refresh))
+		end
+		viewport.Destroying:Once(function()
+			for _, connection in ipairs(connections) do connection:Disconnect() end
+		end)
+		task.defer(refresh)
 	end
 
 	function shopRuntime.AddStaticFistPresentation(card, icon, item)
@@ -10674,6 +12588,24 @@ shared.PunchWallBuildShopUI = function()
 		card:SetAttribute("StaticPreviewIdentityVersion", "UniqueFistPerimeterV2")
 	end
 
+	function shopRuntime.UpdateBoostCountdown(now)
+		local boostInfo = latestStats.ShopBoosts or {}
+		local secondsByName = {
+			CoinBoost = shopRuntime.BoostSecond(boostInfo.CoinEndsAt, now),
+			SpeedBoost = shopRuntime.BoostSecond(boostInfo.SpeedEndsAt, now),
+			DamageBoost = shopRuntime.BoostSecond(boostInfo.DamageEndsAt, now),
+		}
+		for name, entry in pairs(shopRuntime.BoostButtons) do
+			if entry.button.Parent then
+				local seconds = secondsByName[name] or 0
+				entry.button.Text = seconds > 0 and ("ACTIVE %02d:%02d"):format(math.floor(seconds / 60), seconds % 60) or "BUY"
+				local idleColor = seconds > 0 and Color3.fromRGB(45, 145, 60) or entry.idleColor
+				entry.button.BackgroundColor3 = idleColor
+				entry.button:SetAttribute("ShopIdleColor", idleColor)
+			end
+		end
+	end
+
 	function shopRuntime.ScheduleBoostTick(page, now)
 		shopRuntime.BoostTickGeneration += 1
 		local generation = shopRuntime.BoostTickGeneration
@@ -10704,7 +12636,9 @@ shared.PunchWallBuildShopUI = function()
 			end
 			shopRuntime.BoostTickCount += 1
 			shopReference:SetAttribute("BoostTickCount", shopRuntime.BoostTickCount)
-			shared.PunchWallHeroShopRefresh()
+			local tickNow = workspace:GetServerTimeNow()
+			shopRuntime.UpdateBoostCountdown(tickNow)
+			shopRuntime.ScheduleBoostTick(page, tickNow)
 		end)
 	end
 
@@ -10718,8 +12652,11 @@ shared.PunchWallBuildShopUI = function()
 		if not force and signature == shopRuntime.LastSignature then
 			shopRuntime.RefreshSkipCount += 1
 			shopReference:SetAttribute("RefreshSkipCount", shopRuntime.RefreshSkipCount)
-			if page == "Boosts" and shopReference.Visible and not shopRuntime.BoostTickScheduled then
-				shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+			if page == "Boosts" and shopReference.Visible then
+				shopRuntime.UpdateBoostCountdown(shopRefreshNow)
+				if not shopRuntime.BoostTickScheduled then
+					shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
+				end
 			end
 			return false
 		end
@@ -10734,6 +12671,11 @@ shared.PunchWallBuildShopUI = function()
 		shopReference:SetAttribute("RefreshSignature", signature)
 		shopReference:SetAttribute("RefreshReason", reason)
 		shopReference:SetAttribute("RefreshMode", "RelevantStateSignatureV1")
+		local previousScroll = shopReference:FindFirstChild("ShopCatalogScroll")
+		local previousScrollPosition = shopRuntime.RenderedPage == page and previousScroll
+			and previousScroll.CanvasPosition or Vector2.zero
+		shopRuntime.RenderedPage = page
+		shopRuntime.BoostButtons = {}
 		shared.PunchWallShopActions = {}
 		for _, child in ipairs(shopReference:GetChildren()) do
 			if not child:GetAttribute("ShopRootDecoration") then child:Destroy() end
@@ -10777,10 +12719,11 @@ shared.PunchWallBuildShopUI = function()
 			local scale = Instance.new("UIScale")
 			scale.Parent = button
 			button.MouseEnter:Connect(function()
-				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = idleColor:Lerp(Color3.new(1, 1, 1), 0.12) }):Play()
+				local currentIdle = button:GetAttribute("ShopIdleColor") or idleColor
+				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = currentIdle:Lerp(Color3.new(1, 1, 1), 0.12) }):Play()
 			end)
 			button.MouseLeave:Connect(function()
-				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = idleColor }):Play()
+				TweenService:Create(button, TweenInfo.new(0.1), { BackgroundColor3 = button:GetAttribute("ShopIdleColor") or idleColor }):Play()
 				TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1 }):Play()
 			end)
 			button.MouseButton1Down:Connect(function()
@@ -10921,6 +12864,7 @@ shared.PunchWallBuildShopUI = function()
 		local innerBevel = Instance.new("Frame")
 		innerBevel.Name = "ShopInnerBevel"
 		innerBevel.BackgroundTransparency = 1
+		innerBevel.Visible = false
 		innerBevel.Position = UDim2.fromOffset(7, 7)
 		innerBevel.Size = UDim2.new(1, -14, 1, -14)
 		innerBevel.ZIndex = 101
@@ -10930,7 +12874,7 @@ shared.PunchWallBuildShopUI = function()
 
 		local header = Instance.new("Frame")
 		header.Name = "ShopHeader"
-		header.BackgroundColor3 = Color3.fromRGB(11, 15, 19)
+		header.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
 		header.BorderSizePixel = 0
 		header.ClipsDescendants = true
 		header.Position = UDim2.fromScale(0.018, 0.025)
@@ -10938,17 +12882,16 @@ shared.PunchWallBuildShopUI = function()
 		header.ZIndex = 102
 		header.Parent = shopReference
 		addCorner(header, 7)
-		addStroke(header, Color3.fromRGB(49, 122, 154), 2)
+		addStroke(header, Color3.fromRGB(61, 88, 101), 1).Transparency = 0.55
 		local headerGradient = Instance.new("UIGradient")
 		headerGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(132, 13, 22)),
-			ColorSequenceKeypoint.new(0.54, Color3.fromRGB(84, 8, 19)),
-			ColorSequenceKeypoint.new(0.56, Color3.fromRGB(12, 44, 66)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 25, 43)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(238, 244, 250)),
 		})
 		headerGradient.Parent = header
 		local redRail = Instance.new("Frame")
 		redRail.Name = "HeaderRedRail"
+		redRail.Visible = false
 		redRail.BackgroundColor3 = Color3.fromRGB(255, 50, 47)
 		redRail.BorderSizePixel = 0
 		redRail.Position = UDim2.fromScale(0.018, 0.84)
@@ -10962,13 +12905,13 @@ shared.PunchWallBuildShopUI = function()
 		cyanRail.Position = UDim2.fromScale(0.445, 0.84)
 		cyanRail.Size = UDim2.fromScale(0.42, 0.055)
 		cyanRail.Parent = header
-		local eyebrow = label(header, "Eyebrow", "HERO CITY ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
+		local eyebrow = label(header, "Eyebrow", "SMASH WALL ARMORY", UDim2.fromScale(0.035, 0.18), UDim2.fromScale(0.3, 0.18), Color3.fromRGB(255, 196, 64), 11, Enum.Font.GothamBlack)
 		local title = label(header, "Title", "SHOP", UDim2.fromScale(0.035, 0.34), UDim2.fromScale(0.38, 0.42), Color3.fromRGB(255, 249, 237), 32, Enum.Font.GothamBlack)
-		title.TextStrokeTransparency = 0.08
+		title.TextStrokeTransparency = 1
 		title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-		local _, compactHeader = shared.PunchWallClassifyResponsiveViewport(
-			workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.zero
-		)
+		local shopViewport = shared.PunchWallGetResponsiveViewport()
+		local shopLayout = shared.PunchWallResolveShopLayout(shopViewport)
+		local compactHeader = shopLayout.compactCards or shopLayout.desktopRows
 		local honorBalanceText = formatNumber(math.max(0, tonumber(latestStats.Honor) or 0))
 		local headerSubtitle = page == "Honor"
 			and ((compactHeader and "HONOR %s  •  CURRENCY ONLY  •  GATES APPLY"
@@ -10983,7 +12926,7 @@ shared.PunchWallBuildShopUI = function()
 
 		local close = Instance.new("TextButton")
 		close.Name = "CloseShop"
-		close.BackgroundColor3 = Color3.fromRGB(157, 19, 22)
+		close.BackgroundColor3 = Color3.fromRGB(32, 44, 54)
 		close.BorderSizePixel = 0
 		close.AnchorPoint = Vector2.new(1, 0.5)
 		close.Position = UDim2.fromScale(0.975, 0.5)
@@ -10992,11 +12935,11 @@ shared.PunchWallBuildShopUI = function()
 		close.Text = "X"
 		close.TextColor3 = Color3.fromRGB(255, 247, 238)
 		close.TextSize = 25
-		close.TextStrokeTransparency = 0.15
+		close.TextStrokeTransparency = 1
 		close.ZIndex = 106
 		close.Parent = header
 		addCorner(close, 7)
-		addStroke(close, Color3.fromRGB(255, 102, 93), 2)
+		addStroke(close, Color3.fromRGB(61, 88, 101), 1)
 		local closeSize = Instance.new("UISizeConstraint")
 		closeSize.MinSize = Vector2.new(44, 44)
 		closeSize.Parent = close
@@ -11004,30 +12947,46 @@ shared.PunchWallBuildShopUI = function()
 		close.Activated:Connect(function() setMenuVisible(false) end)
 		if compactHeader then
 			eyebrow.Visible = false
-			title.Position = UDim2.fromScale(0.19, 0.16)
-			title.Size = UDim2.fromScale(0.22, 0.66)
-			title.TextSize = 16
-			headerSubtitleLabel.Position = UDim2.fromScale(0.43, 0.2)
-			headerSubtitleLabel.Size = UDim2.fromScale(0.39, 0.58)
-			headerSubtitleSize.MinTextSize = 6
-			headerSubtitleSize.MaxTextSize = 8
-			close.Size = UDim2.fromOffset(44, 44)
-			close.TextSize = 18
-			header:SetAttribute("ResponsiveProfile", "PhoneCompactArmoryV3")
+			header.Position = UDim2.fromOffset(8, 6)
+			header.Size = UDim2.new(1, -16, 0, 52)
+			headerGradient.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(238, 244, 250))
+			title.Position = UDim2.fromOffset(132, 0)
+			title.Size = UDim2.new(1, -196, 1, 0)
+			title.TextSize = 20
+			headerSubtitleLabel.Visible = false
+			redRail.Visible = false
+			cyanRail.Visible = false
+			close.Position = UDim2.new(1, -2, 0.5, 0)
+			close.Size = UDim2.fromOffset(48, 48)
+			close.TextSize = 22
+			header:SetAttribute("ResponsiveProfile", "PhoneReadableArmoryV1")
 		end
 
 		local owned = decodeJSON(latestStats.OwnedFistsJSON, { "Starter Glove" })
 		local ownedPremium = decodeJSON(latestStats.OwnedPremiumPetsJSON, {})
 		local equippedPets = decodeJSON(latestStats.EquippedPetsJSON, {})
-		local tabBand = Instance.new("Frame")
+		local tabBand = Instance.new("ScrollingFrame")
 		tabBand.Name = "ShopTabs"
 		tabBand.BackgroundTransparency = 1
+		tabBand.BorderSizePixel = 0
+		tabBand.CanvasSize = UDim2.new()
+		tabBand.ScrollBarThickness = 0
+		tabBand.ScrollingDirection = Enum.ScrollingDirection.X
+		tabBand.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 		tabBand.Position = UDim2.fromScale(0.025, 0.162)
 		tabBand.Size = UDim2.fromScale(0.95, 0.085)
 		tabBand.ZIndex = 102
-		tabBand.Parent = shopReference
+		 tabBand.Parent = shopReference
 		local tabGap = 0.012
 		local tabWidth = (1 - tabGap * (#shopRuntime.Pages - 1)) / #shopRuntime.Pages
+		local compactTabWidth = math.max(96, math.floor((shopViewport.X - 48 - 24) / #shopRuntime.Pages))
+		if compactHeader then
+			tabBand.Position = UDim2.fromOffset(12, 64)
+			tabBand.Size = UDim2.new(1, -24, 0, 48)
+			tabBand.CanvasSize = UDim2.fromOffset(#shopRuntime.Pages * (compactTabWidth + 6) - 6, 0)
+			local selectedIndex = table.find(shopRuntime.Pages, page) or 1
+			tabBand.CanvasPosition = Vector2.new(math.max(0, selectedIndex * (compactTabWidth + 6) - (shopViewport.X - 48)), 0)
+		end
 		for index, pageName in ipairs(shopRuntime.Pages) do
 			local selected = page == pageName
 			local tab = Instance.new("TextButton")
@@ -11039,7 +12998,11 @@ shared.PunchWallBuildShopUI = function()
 			tab.Font = Enum.Font.GothamBlack
 			tab.Text = string.upper(pageName)
 			tab.TextColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(191, 205, 212)
-			tab.TextSize = compactHeader and 8 or 14
+			tab.TextSize = 14
+			if compactHeader then
+				tab.Position = UDim2.fromOffset((index - 1) * (compactTabWidth + 6), 0)
+				tab.Size = UDim2.fromOffset(compactTabWidth, 48)
+			end
 			tab.TextStrokeTransparency = selected and 0.45 or 0.8
 			tab.ZIndex = 104
 			tab.Parent = tabBand
@@ -11147,22 +13110,19 @@ shared.PunchWallBuildShopUI = function()
 			end
 		end
 
-		local camera = workspace.CurrentCamera
-		local _, compactCards = shared.PunchWallClassifyResponsiveViewport(camera and camera.ViewportSize or Vector2.zero)
-		if compactCards then
-			tabBand.Position = UDim2.fromScale(0.025, 0.15)
-			tabBand.Size = UDim2.new(0.95, 0, 0, 44)
-		end
-		local rowCount = math.max(1, math.ceil(#products / 2))
+		local compactCards = shopLayout.compactCards
+		local desktopRows = shopLayout.desktopRows
+		local catalogColumns = (compactCards or desktopRows) and 1 or 2
+		local rowCount = math.max(1, math.ceil(#products / catalogColumns))
 		-- Compact tabs have a fixed 44 px touch target, so proportional card
 		-- placement must reserve enough room even on 270-336 px tall phones.
 		local cardsTop = compactCards and 0.31 or 0.265
 		local cardsBottom = compactCards and 0.90 or 0.89
 		local rowGap = compactCards and 0.008 or 0.014
 		local cardHeight = (cardsBottom - cardsTop - rowGap * (rowCount - 1)) / rowCount
-		local catalogScrollable = compactCards or (page == "Fists" and #products > 6)
-		local scrollCardHeight = compactCards and 86 or 154
-		local scrollRowGap = compactCards and 5 or 9
+		local catalogScrollable = compactCards or desktopRows or (page == "Fists" and #products > 6)
+		local scrollCardHeight = compactCards and 112 or 154
+		local scrollRowGap = compactCards and 8 or 9
 		local cardsHost = shopReference
 		if catalogScrollable then
 			local catalogScroll = Instance.new("ScrollingFrame")
@@ -11171,6 +13131,10 @@ shared.PunchWallBuildShopUI = function()
 			catalogScroll.BorderSizePixel = 0
 			catalogScroll.Position = UDim2.fromScale(0, cardsTop)
 			catalogScroll.Size = UDim2.fromScale(1, cardsBottom - cardsTop)
+			if compactHeader then
+				catalogScroll.Position = UDim2.fromOffset(0, 120)
+				catalogScroll.Size = UDim2.new(1, 0, 1, -156)
+			end
 			catalogScroll.CanvasSize = UDim2.fromOffset(
 				0,
 				rowCount * scrollCardHeight + math.max(0, rowCount - 1) * scrollRowGap
@@ -11183,11 +13147,12 @@ shared.PunchWallBuildShopUI = function()
 			catalogScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 			catalogScroll.ZIndex = 102
 			catalogScroll.Parent = shopReference
+			catalogScroll.CanvasPosition = previousScrollPosition
 			cardsHost = catalogScroll
 			shopReference:SetAttribute("ShopCatalogScrollable", true)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
 			shopReference:SetAttribute("ShopCatalogRowCount", rowCount)
-			shopReference:SetAttribute("ShopCatalogScrollMode", compactCards and "MobileDenseCatalogV3" or "FixedReadableCardsV1")
+			shopReference:SetAttribute("ShopCatalogScrollMode", compactCards and "MobileReadableRowsV1" or desktopRows and "DesktopReadableRowsV1" or "FixedReadableCardsV1")
 		else
 			shopReference:SetAttribute("ShopCatalogScrollable", false)
 			shopReference:SetAttribute("ShopCatalogItemCount", #products)
@@ -11213,12 +13178,12 @@ shared.PunchWallBuildShopUI = function()
 			HonorTreasury850 = "850 HONOR",
 		}
 		for index, item in ipairs(products) do
-			local column = (index - 1) % 2
-			local row = math.floor((index - 1) / 2)
-			local featuredCard = not compactCards and index == #products and #products % 2 == 1
+			local column = (index - 1) % catalogColumns
+			local row = math.floor((index - 1) / catalogColumns)
+			local featuredCard = desktopRows or (not compactCards and index == #products and #products % 2 == 1)
 			local card = Instance.new("Frame")
 			card.Name = item.name .. "ShopCard"
-			card.BackgroundColor3 = Color3.fromRGB(10, 18, 23)
+			card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
 			card.BorderSizePixel = 0
 			if catalogScrollable then
 				card.Position = UDim2.new(
@@ -11228,6 +13193,10 @@ shared.PunchWallBuildShopUI = function()
 					row * (scrollCardHeight + scrollRowGap)
 				)
 				card.Size = UDim2.new(featuredCard and 0.94 or 0.455, 0, 0, scrollCardHeight)
+				if compactCards or desktopRows then
+					card.Position = UDim2.fromOffset(12, row * (scrollCardHeight + scrollRowGap))
+					card.Size = UDim2.new(1, -30, 0, scrollCardHeight)
+				end
 			else
 				card.Position = UDim2.fromScale(
 					featuredCard and 0.03 or 0.03 + column * 0.485,
@@ -11235,7 +13204,7 @@ shared.PunchWallBuildShopUI = function()
 				)
 				card.Size = UDim2.fromScale(featuredCard and 0.94 or 0.455, cardHeight)
 			end
-			card:SetAttribute("ShopCardLayout", featuredCard and "FeaturedFullWidthV2" or "StandardHalfWidthV2")
+			card:SetAttribute("ShopCardLayout", compactCards and "ReadableFullWidthRowV1" or desktopRows and "DesktopReadableFullWidthV1" or featuredCard and "FeaturedFullWidthV2" or "StandardHalfWidthV2")
 			card:SetAttribute("CatalogScrollable", catalogScrollable)
 			card.ZIndex = 102
 			card.ClipsDescendants = true
@@ -11287,17 +13256,17 @@ shared.PunchWallBuildShopUI = function()
 				"OfferKind",
 				item.isPremiumPet and "GamePass" or item.isRobuxProduct and "DeveloperProduct" or "GameCurrency"
 			)
-			addStroke(card, item.accent, equippedCard and 3 or 1.5)
+			addStroke(card, Color3.fromRGB(61, 88, 101), 1).Transparency = 0.45
 			local cardGradient = Instance.new("UIGradient")
 			cardGradient.Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, item.accent:Lerp(Color3.fromRGB(6, 12, 16), 0.72)),
-				ColorSequenceKeypoint.new(0.32, Color3.fromRGB(13, 23, 29)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(4, 9, 12)),
+				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(242, 247, 252)),
 			})
 			cardGradient.Rotation = 10
 			cardGradient.Parent = card
 			local accentRail = Instance.new("Frame")
 			accentRail.Name = "AccentRail"
+			accentRail.Visible = false
 			accentRail.BackgroundColor3 = item.accent
 			accentRail.BorderSizePixel = 0
 			accentRail.Position = UDim2.fromOffset(0, 4)
@@ -11339,7 +13308,7 @@ shared.PunchWallBuildShopUI = function()
 			artPlate.Parent = card
 			addCorner(artPlate, 6)
 			local artPlateStroke = addStroke(artPlate, item.accent, 1)
-			artPlateStroke.Transparency = 0.48
+			artPlateStroke.Transparency = 0.82
 			local icon = Instance.new("ImageLabel")
 			icon.Name = "ProductArt"
 			icon.BackgroundTransparency = 1
@@ -11362,7 +13331,12 @@ shared.PunchWallBuildShopUI = function()
 			-- A visible atlas placeholder bleeds old labels through transparent product art.
 			fallback.Visible = art == "" and not item.isPremiumPet
 			if fistPresentation then
-				shopRuntime.AddStaticFistPresentation(card, icon, item)
+				if FistVisualBuilder.GetCatalogSpec(item) then
+					shopRuntime.AddCatalogFistPreview(card, icon, item)
+					fallback.Visible = false
+				else
+					shopRuntime.AddStaticFistPresentation(card, icon, item)
+				end
 			end
 			if item.isHonorProduct then
 				local pipHolder = Instance.new("Frame")
@@ -11405,10 +13379,13 @@ shared.PunchWallBuildShopUI = function()
 			-- on a name-length heuristic that still clipped narrow glyph runs.
 			productNameLabel.TextScaled = true
 			local productNameSize = Instance.new("UITextSizeConstraint")
-			productNameSize.MinTextSize = compactCards and 6 or 10
-			productNameSize.MaxTextSize = compactCards and 8 or 17
+			productNameSize.MinTextSize = 14
+			productNameSize.MaxTextSize = compactCards and 16 or 17
 			productNameSize.Parent = productNameLabel
-			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), item.accent, compactCards and 7 or 11, Enum.Font.GothamBlack)
+			local rarityColor = PolishConfig.RarityColors[item.rarity]
+				or (item.isPremiumPet or item.rarity == "Premium") and Color3.fromRGB(255, 211, 50)
+				or palette.MutedText
+			local rarityLabel = label(card, "Rarity", rarity, UDim2.fromScale(textX, 0.27), UDim2.fromScale(featuredCard and 0.3 or 0.35, 0.14), rarityColor, compactCards and 7 or 12, Enum.Font.GothamBold)
 			if compactCards and item.isHonorProduct then
 				rarityLabel.TextScaled = true
 				local raritySize = Instance.new("UITextSizeConstraint")
@@ -11427,8 +13404,8 @@ shared.PunchWallBuildShopUI = function()
 			card:SetAttribute("RequiredDepth", requiredDepth)
 			card:SetAttribute("DepthLocked", depthLocked)
 			local detailText = purchaseUnavailable
-				and (item.isHonorProduct and (("+%s Honor • Temporarily unavailable until Roblox product setup is verified."):format(formatNumber(item.honor)))
-					or "This offer is unavailable until its purchase ID is configured.")
+				and (item.isHonorProduct and (("+%s Honor • Currently unavailable"):format(formatNumber(item.honor)))
+					or "Currently unavailable")
 				or depthLocked and ("Reach Depth %d to unlock this fist."):format(requiredDepth)
 				or item.detail
 				or ("Built for deeper walls.  " .. compactStat(item.mult) .. "x Power.")
@@ -11452,14 +13429,14 @@ shared.PunchWallBuildShopUI = function()
 				detailSize.Y.Offset
 			)
 			detailBackdrop.ZIndex = card.ZIndex + 1
-			detailBackdrop.Visible = not compactCards
+			detailBackdrop.Visible = false
 			detailBackdrop.Parent = card
 			addCorner(detailBackdrop, 4)
 			local detailStroke = addStroke(detailBackdrop, item.accent, 1)
 			detailStroke.Transparency = 0.72
 			local detail = label(card, "Detail", detailText, detailPosition, detailSize, Color3.fromRGB(236, 242, 244), 12, Enum.Font.GothamMedium, Enum.TextXAlignment.Left, true)
 			detail.TextYAlignment = Enum.TextYAlignment.Top
-			detail.TextStrokeTransparency = 0.35
+			detail.TextStrokeTransparency = 1
 			detail.LineHeight = 1.08
 			detail.Visible = not compactCards
 			detail:SetAttribute("DescriptionReadabilityMode", "HighContrastPanelV1")
@@ -11513,8 +13490,8 @@ shared.PunchWallBuildShopUI = function()
 			priceLabel:SetAttribute("CurrencyPalette", item.robux and "RobuxGreen" or "CoinGold")
 			priceLabel.TextScaled = true
 			local priceTextSize = Instance.new("UITextSizeConstraint")
-			priceTextSize.MinTextSize = compactCards and 6 or 7
-			priceTextSize.MaxTextSize = compactCards and 8 or 14
+			priceTextSize.MinTextSize = compactCards and 14 or 7
+			priceTextSize.MaxTextSize = compactCards and 16 or 14
 			priceTextSize.Parent = priceLabel
 			if purchaseUnavailable then
 				if priceIcon:IsA("ImageLabel") then
@@ -11544,7 +13521,7 @@ shared.PunchWallBuildShopUI = function()
 					or isOwned and "EQUIP"
 					or depthLocked and ("DEPTH " .. tostring(requiredDepth))
 					or "BUY"
-				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+				actionColor = equipped and Color3.fromRGB(32, 44, 54)
 					or isOwned and Color3.fromRGB(53, 159, 63)
 					or depthLocked and Color3.fromRGB(61, 68, 73)
 					or actionColor
@@ -11561,7 +13538,7 @@ shared.PunchWallBuildShopUI = function()
 					or isOwned and "EQUIP"
 					or purchaseConfigured and "BUY"
 					or "UNAVAILABLE"
-				actionColor = equipped and Color3.fromRGB(45, 145, 60)
+				actionColor = equipped and Color3.fromRGB(32, 44, 54)
 					or isOwned and Color3.fromRGB(53, 159, 63)
 					or purchaseConfigured and Color3.fromRGB(31, 174, 102)
 					or Color3.fromRGB(61, 68, 73)
@@ -11623,11 +13600,17 @@ shared.PunchWallBuildShopUI = function()
 			action.Size = compactCards and UDim2.new(actionWidth, 0, 0, 44) or UDim2.fromScale(actionWidth, 0.32)
 			action.Font = Enum.Font.GothamBlack
 			action.Text = actionText
-			action.TextColor3 = Color3.fromRGB(255, 255, 255)
+			action.TextColor3 = actionEnabled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(181, 204, 216)
 			action.TextSize = compactCards and 8 or 14
-			action.TextStrokeTransparency = 0.2
+			action.TextStrokeTransparency = 1
 			action.ZIndex = 106
 			action.Parent = card
+			if page == "Boosts" then
+				shopRuntime.BoostButtons[item.name] = {
+					button = action,
+					idleColor = Color3.fromRGB(232, 157, 22),
+				}
+			end
 			if item.isRobuxProduct and compactCards then
 				-- Compact purchase-state labels must remain legible inside the 44px touch
 				-- target while the card moves through opening/checkout/receipt states.
@@ -11666,9 +13649,132 @@ shared.PunchWallBuildShopUI = function()
 				action:SetAttribute("RegionalPriceResolved", item.regionalPriceResolved)
 				action:SetAttribute("RegionalPriceState", item.regionalPriceState)
 			end
+			if compactCards then
+				-- One readable offer per row. Names and power are the decision;
+				-- art, rarity, price, and one action each receive a separate lane.
+				local narrowRow = shopViewport.X < 520
+				card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)
+				artPlate.Position = UDim2.fromOffset(12, narrowRow and 8 or 18)
+				artPlate.Size = UDim2.fromOffset(narrowRow and 64 or 76, narrowRow and 64 or 76)
+				icon.Position = artPlate.Position
+				icon.Size = artPlate.Size
+				fallback.Position, fallback.Size = icon.Position, icon.Size
+				local petPlate = card:FindFirstChild("PremiumPetPreviewPlate")
+				if petPlate then petPlate.Position, petPlate.Size = icon.Position, icon.Size end
+				local tierChrome = card:FindFirstChild("HeroGauntletTierChrome")
+				if tierChrome then tierChrome.Visible = false end
+				local packPips = card:FindFirstChild("HonorPackTierPips")
+				if packPips then packPips.Visible = false end
+				productNameLabel.Text = item.isHonorProduct
+					and ("%s HONOR"):format(formatNumber(item.honor))
+					or string.upper(item.displayName)
+				productNameLabel.Position = UDim2.fromOffset(narrowRow and 88 or 100, 8)
+				productNameLabel.Size = UDim2.new(1, narrowRow and -100 or -254, 0, narrowRow and 32 or 40)
+				productNameLabel.TextWrapped = true
+				productNameLabel.TextTruncate = Enum.TextTruncate.None
+				productNameLabel:SetAttribute("ReadableTextRole", "Primary")
+				local summary = item.tier and (compactStat(item.mult) .. "x Power")
+					or item.isPremiumPet and (("+%d%% Power"):format(math.floor(item.mult * 100 + 0.5)))
+					or item.isHonorProduct and "Relic gates still apply"
+					or item.coins and ("+" .. formatNumber(item.coins) .. " Coins")
+					or item.spins and ("+" .. tostring(item.spins) .. " Spins")
+					or item.name == "SpeedBoost" and "Speed boost • 15 min"
+					or item.name == "DamageBoost" and "2x Damage • 15 min"
+					or item.boost == "TrainingBoostExpiresAt" and "2x Training • 15 min"
+					or "2x Coins • 15 min"
+				detail.Text = summary
+				detail.Position = UDim2.fromOffset(narrowRow and 88 or 100, narrowRow and 42 or 54)
+				detail.Size = UDim2.new(1, narrowRow and -100 or -254, 0, 18)
+				detail.TextSize = 14
+				detail.TextWrapped = false
+				detail.TextYAlignment = Enum.TextYAlignment.Center
+				detail.Visible = true
+				detail:SetAttribute("ReadableTextRole", "Primary")
+				detailBackdrop.Visible = false
+				rarityLabel.TextScaled = false
+				rarityLabel.TextSize = 12
+				rarityLabel.Text = item.isPremiumPet and "PREMIUM" or item.isHonorProduct and "HONOR"
+					or item.isRobuxProduct and "OFFER" or string.upper(item.rarity or rarity)
+				if not narrowRow and item.tier then rarityLabel.Text = ("T%02d  •  %s"):format(item.tier, rarityLabel.Text) end
+				rarityLabel.Position = UDim2.fromOffset(narrowRow and 12 or 100, narrowRow and 74 or 82)
+				rarityLabel.Size = narrowRow and UDim2.fromOffset(76, 16) or UDim2.new(1, -254, 0, 18)
+				local rarityLimit = rarityLabel:FindFirstChildOfClass("UITextSizeConstraint")
+				if rarityLimit then rarityLimit.MinTextSize, rarityLimit.MaxTextSize = 12, 12 end
+				priceLabel.Text = purchaseUnavailable and "Unavailable" or purchaseLoading and "Checking..."
+					or item.regionalPriceState == "CheckoutOnly" and "At checkout" or priceText
+				priceLabel.TextWrapped = false
+				priceLabel.TextSize = 14
+				priceLabel.TextScaled = false
+				priceLabel:SetAttribute("ReadableTextRole", "Primary")
+				priceIcon.AnchorPoint = Vector2.zero
+				priceIcon.Position = narrowRow and UDim2.fromOffset(12, 92) or UDim2.new(1, -150, 0, 18)
+				priceIcon.Size = UDim2.fromOffset(18, 18)
+				if priceIcon:IsA("TextLabel") then priceIcon.TextSize = 12 end
+				priceLabel.AnchorPoint = narrowRow and Vector2.zero or Vector2.new(1, 0)
+				priceLabel.Position = narrowRow and UDim2.fromOffset(34, 91) or UDim2.new(1, -12, 0, 13)
+				priceLabel.Size = UDim2.fromOffset(narrowRow and 104 or 116, narrowRow and 20 or 24)
+				priceLabel.TextXAlignment = narrowRow and Enum.TextXAlignment.Left or Enum.TextXAlignment.Right
+				action.Position = UDim2.new(1, -12, 1, -4)
+				action.Size = UDim2.fromOffset(112, 48)
+				action.TextSize = 14
+				action.TextScaled = false
+				action.TextWrapped = true
+				action.TextTruncate = Enum.TextTruncate.None
+				action:SetAttribute("ReadableTextRole", "Primary")
+				local actionLimit = action:FindFirstChildOfClass("UITextSizeConstraint")
+				if actionLimit then actionLimit.MinTextSize, actionLimit.MaxTextSize = 14, 14 end
+				actionShadow.Position = UDim2.new(1, -10, 1, -2)
+				actionShadow.Size = action.Size
+				card:SetAttribute("ShopPrimaryTextFloor", 14)
+				card:SetAttribute("ShopSecondaryTextFloor", 12)
+			end
+			if desktopRows then
+				-- Keep the full desktop offer copy. Fixed lanes provide room for
+				-- two title lines, rarity, and four description lines at their floors.
+				artPlate.Position = UDim2.fromOffset(12, 14)
+				artPlate.Size = UDim2.fromOffset(76, 76)
+				icon.Position, icon.Size = artPlate.Position, artPlate.Size
+				fallback.Position, fallback.Size = icon.Position, icon.Size
+				local petPlate = card:FindFirstChild("PremiumPetPreviewPlate")
+				if petPlate then petPlate.Position, petPlate.Size = icon.Position, icon.Size end
+				local tierChrome = card:FindFirstChild("HeroGauntletTierChrome")
+				if tierChrome then tierChrome.Visible = false end
+				productNameLabel.Position = UDim2.fromOffset(100, 8)
+				productNameLabel.Size = UDim2.new(1, -254, 0, 40)
+				productNameLabel.TextWrapped = true
+				productNameLabel.TextTruncate = Enum.TextTruncate.None
+				productNameLabel:SetAttribute("ReadableTextRole", "Primary")
+				rarityLabel.Position = UDim2.fromOffset(100, 50)
+				rarityLabel.Size = UDim2.new(1, -254, 0, 18)
+				rarityLabel.TextSize = 12
+				rarityLabel.TextTruncate = Enum.TextTruncate.None
+				detail.Position = UDim2.fromOffset(100, 74)
+				detail.Size = UDim2.new(1, -254, 0, 64)
+				detail.TextSize = 12
+				detail.TextWrapped = true
+				detail.TextTruncate = Enum.TextTruncate.None
+				priceIcon.Position = UDim2.new(1, -150, 0, 16)
+				priceIcon.Size = UDim2.fromOffset(18, 18)
+				priceLabel.AnchorPoint = Vector2.new(1, 0)
+				priceLabel.Position = UDim2.new(1, -12, 0, 10)
+				priceLabel.Size = UDim2.fromOffset(116, 48)
+				priceLabel.TextWrapped = true
+				priceLabel.TextTruncate = Enum.TextTruncate.None
+				priceTextSize.MinTextSize = 14
+				action.Position = UDim2.new(1, -12, 1, -8)
+				action.Size = UDim2.fromOffset(128, 48)
+				action.TextSize = 14
+				action.TextScaled = false
+				action.TextWrapped = true
+				action.TextTruncate = Enum.TextTruncate.None
+				actionShadow.Position = UDim2.new(1, -10, 1, -6)
+				actionShadow.Size = action.Size
+				card:SetAttribute("ShopPrimaryTextFloor", 14)
+				card:SetAttribute("ShopSecondaryTextFloor", 12)
+			end
 			local actionSize = Instance.new("UISizeConstraint")
 			actionSize.Name = "MinimumTouchTarget"
-			actionSize.MinSize = Vector2.new(44, 44)
+			actionSize.MinSize = compactCards and Vector2.new(48, 48) or Vector2.new(44, 44)
 			actionSize.Parent = action
 			addCorner(action, 4)
 			addStroke(action, Color3.fromRGB(5, 9, 11), 2)
@@ -11731,11 +13837,26 @@ shared.PunchWallBuildShopUI = function()
 			or page == "Robux" and "ROBUX OFFERS"
 			or page == "Boosts" and "BOOSTS"
 			or "HERO FISTS"
-		label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 7 or 11, Enum.Font.GothamBold)
-		label(footerBand, "ServerLabel", "SECURE • SERVER VERIFIED", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 7 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
-		shopReference:SetAttribute("ShopCompactLayout", compactCards and "MobileCatalogDenseV3" or "DesktopCatalogV2")
+		local catalogSummary = label(footerBand, "SecureLabel", ("%s  •  %d ITEMS"):format(pageSummary, #products), UDim2.fromScale(0.025, 0), UDim2.fromScale(0.47, 1), Color3.fromRGB(184, 201, 209), compactCards and 12 or 11, Enum.Font.GothamBold)
+		local footerHint = label(footerBand, "ServerLabel", compactCards and "SCROLL FOR MORE" or "EQUIP • POWER UP • BREAK THROUGH", UDim2.fromScale(0.51, 0), UDim2.fromScale(0.465, 1), Color3.fromRGB(81, 190, 235), compactCards and 12 or 11, Enum.Font.GothamBold, Enum.TextXAlignment.Right)
+		if desktopRows then
+			footerBand.Position = UDim2.new(0, 12, 1, -30)
+			footerBand.Size = UDim2.new(1, -24, 0, 24)
+		end
+		if compactCards then
+			footerBand.Position = UDim2.new(0, 12, 1, -30)
+			footerBand.Size = UDim2.new(1, -24, 0, 24)
+			catalogSummary.Text = ("%d ITEMS"):format(#products)
+			catalogSummary.Size = UDim2.fromScale(0.38, 1)
+			footerHint.Position = UDim2.fromScale(0.4, 0)
+			footerHint.Size = UDim2.fromScale(0.575, 1)
+		end
+		shopReference:SetAttribute("ShopCompactLayout", compactCards and "MobileReadableRowsV1" or desktopRows and "DesktopReadableRowsV1" or "DesktopCatalogV2")
 		shopReference:SetAttribute("ShopCompactCardHeight", compactCards and scrollCardHeight or 0)
-		shopReference:SetAttribute("ShopCompactTextScale", compactCards and 0.5 or 1)
+		shopReference:SetAttribute("ShopCompactTextScale", 1)
+		shopReference:SetAttribute("ShopCatalogColumns", catalogColumns)
+		shopReference:SetAttribute("ShopMinimumPrimaryTextSize", (compactCards or desktopRows) and 14 or 0)
+		shopReference:SetAttribute("ShopMinimumSecondaryTextSize", (compactCards or desktopRows) and 12 or 0)
 		shopRuntime.ScheduleBoostTick(page, shopRefreshNow)
 		return true
 	end
@@ -11763,6 +13884,7 @@ shared.PunchWallInventoryController = InventoryUI.new({
 		return latestStats
 	end,
 	BuildPetPreview = companionRuntime.BuildInventoryPetPreview,
+	BuildFistPreview = companionRuntime.BuildInventoryFistPreview,
 	GetHUDHidden = function()
 		return not referenceHUD.Visible
 			and not mobileControls.Visible
@@ -11828,7 +13950,7 @@ applyReferenceHUDState = function(force)
 	setVisibleIfChanged(nextWorld, false)
 	setVisibleIfChanged(help, false)
 	setVisibleIfChanged(mobileControls, false)
-	setVisibleIfChanged(bossHUD, false)
+	if shared.PunchWallCombatHUD.Refresh then shared.PunchWallCombatHUD.Refresh() end
 	setVisibleIfChanged(contextLabel, false)
 	setVisibleIfChanged(referenceHUD, not menuVisible)
 	local contextActionVisible = not menuVisible
@@ -11840,7 +13962,7 @@ applyReferenceHUDState = function(force)
 
 	local shopWasVisible = shared.PunchWallShopReference.Visible
 	setVisibleIfChanged(shared.PunchWallShopReference, shopVisible)
-	setVisibleIfChanged(shared.PunchWallShopDimmer, shopVisible)
+	setVisibleIfChanged(shared.PunchWallShopDimmer, shopVisible or inventoryVisible)
 	if shopVisible and not shopWasVisible and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()
 	end
@@ -11916,7 +14038,7 @@ statRemote.OnClientEvent:Connect(function(payload)
 	widgets.WorldProgress.Text = ("%d%%  |  D%d/%d"):format(math.floor(worldRatio * 100 + 0.5), math.min(depth, worldTarget), worldTarget)
 	local tutorial = payload.Tutorial
 	if type(tutorial) == "table" then
-		widgets.ObjectiveText.Text = ("OBJECTIVE  |  %s\n%s"):format(string.upper(tostring(tutorial.title or "KEEP SMASHING")), tostring(tutorial.detail or ""))
+		widgets.ObjectiveText.Text = string.upper(tostring(tutorial.title or "KEEP SMASHING"))
 		if widgets.ObjectiveIcon then applyThemeIcon(widgets.ObjectiveIcon, tostring(tutorial.icon or "Quest")) end
 		widgets.ObjectiveCard.Visible = payload.TutorialCompleted ~= true
 			and (tonumber(payload.TutorialCompleted) or 0) < 1
@@ -12050,24 +14172,7 @@ end, false, Enum.KeyCode.B, Enum.KeyCode.Escape, Enum.KeyCode.ButtonSelect, Enum
 applyResponsiveLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
-	local viewport = camera.ViewportSize
-	-- Studio Device Simulator may retain the host-window camera viewport while
-	-- rasterizing ScreenGui content at the selected phone/tablet dimensions.
-	-- Prefer the actual full-screen HUD bounds whenever they disagree so compact
-	-- controls are selected from the pixels players can really touch.
-	local viewportSource = "Camera"
-	local referenceRoot = gui:FindFirstChild("PixelPerfectHeroCityHUD")
-	local referenceSize = referenceRoot and referenceRoot.AbsoluteSize
-	if referenceSize and referenceSize.X >= 320 and referenceSize.Y >= 240 then
-		if viewport.X < 320
-			or viewport.Y < 240
-			or math.abs(referenceSize.X - viewport.X) > 2
-			or math.abs(referenceSize.Y - viewport.Y) > 2
-		then
-			viewport = referenceSize
-			viewportSource = "ReferenceHUD"
-		end
-	end
+	local viewport, viewportSource = shared.PunchWallGetResponsiveViewport()
 	gui:SetAttribute("ResponsiveViewportWidth", math.floor(viewport.X + 0.5))
 	gui:SetAttribute("ResponsiveViewportHeight", math.floor(viewport.Y + 0.5))
 	gui:SetAttribute("ResponsiveViewportSource", viewportSource)
@@ -12077,6 +14182,12 @@ applyResponsiveLayout = function()
 		or 1
 	gui:SetAttribute("ResponsiveProfile", responsiveProfile)
 	gui:SetAttribute("ResponsivePhoneScale", phoneScale)
+	referenceHUD:SetAttribute("RightMenuLayoutMode", "UniformIconGridV1")
+	referenceHUD:SetAttribute("RightMenuIconSize", "87x111")
+	referenceHUD:SetAttribute("RightMenuIconGap", 3)
+	referenceHUD:SetAttribute("RightMenuRenderedWidth", nil)
+	referenceHUD:SetAttribute("RightMenuRenderedHeight", nil)
+	referenceHUD:SetAttribute("RightMenuSafeMargin", nil)
 	local coreGuiTopLeft = Vector2.zero
 	local coreGuiBottomRight = Vector2.zero
 	pcall(function()
@@ -12162,8 +14273,10 @@ applyResponsiveLayout = function()
 		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
 		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneCompactSafeV1")
 	else
-		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(720, 468)
-		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(640, 420)
+		local rebirthLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 720, 468)
+		local settingsLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 640, 420)
+		shared.PunchWallStandaloneWindows.RebirthPanel.Size = UDim2.fromOffset(rebirthLayout.width, rebirthLayout.height)
+		shared.PunchWallStandaloneWindows.SettingsPanel.Size = UDim2.fromOffset(settingsLayout.width, settingsLayout.height)
 		for _, panel in ipairs({ shared.PunchWallStandaloneWindows.RebirthPanel, shared.PunchWallStandaloneWindows.SettingsPanel }) do
 			local header = panel:FindFirstChild("Header")
 			local headerIcon = header and header:FindFirstChild("HeaderIcon")
@@ -12215,7 +14328,9 @@ applyResponsiveLayout = function()
 				end
 				if helper then
 					helper.Position = UDim2.fromOffset(70, 31)
-					helper.Size = UDim2.fromOffset(170, 28)
+					local options = row:FindFirstChild("Options")
+					local optionWidth = options and options.Size.X.Offset or 258
+					helper.Size = UDim2.fromOffset(math.min(170, math.max(1, settingsLayout.width - 24 - 70 - optionWidth - 18)), 28)
 				end
 				row:SetAttribute("ResponsiveRowProfile", "Desktop72V1")
 			end
@@ -12227,6 +14342,19 @@ applyResponsiveLayout = function()
 		end
 		shared.PunchWallStandaloneWindows.RebirthPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
 		shared.PunchWallStandaloneWindows.SettingsPanel:SetAttribute("ResponsiveProfile", "StandaloneDesktopV1")
+	end
+	-- Bound the fixed-width confirmation controls without rebuilding their handlers.
+	-- Restore the original relative lanes when returning to compact or wide layouts.
+	local rebirthActions = shared.PunchWallStandaloneWindows.RebirthBody:FindFirstChild("Actions")
+	if rebirthActions then
+		local bodyWidth = shared.PunchWallStandaloneWindows.RebirthPanel.Size.X.Offset - 24
+		local lanes = not compact and shared.PunchWallResolveRebirthActionLanes(bodyWidth)
+		local cancel = rebirthActions:FindFirstChild("CancelRebirth")
+		local question = rebirthActions:FindFirstChild("ConfirmQuestion")
+		local readyHint = rebirthActions:FindFirstChild("ReadyHint")
+		if cancel then cancel.Position = lanes and UDim2.new(0, lanes.cancelRight, 0.5, 0) or UDim2.fromScale(0.75, 0.5) end
+		if question then question.Size = lanes and UDim2.new(0, lanes.questionWidth, 1, 0) or UDim2.fromScale(0.48, 1) end
+		if readyHint then readyHint.Size = lanes and UDim2.new(0, lanes.readyWidth, 1, 0) or UDim2.fromScale(0.63, 1) end
 	end
 	local shopOpen = mainPanel.Visible and activeTab == "Fists"
 	local inventoryOpen = mainPanel.Visible and activeTab == "Inventory"
@@ -12328,9 +14456,9 @@ applyResponsiveLayout = function()
 		referenceWallCard.Size = UDim2.fromOffset(98, topCardHeight)
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.new(0.5, 0)
 		shared.PunchWallHUDWidgets.ObjectiveCard.Position = UDim2.new(0.5, 0, 0, topCardHeight + 10)
-		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(220, viewport.X * 0.27), 30)
+		shared.PunchWallHUDWidgets.ObjectiveCard.Size = UDim2.fromOffset(math.min(280, viewport.X - 136), 36)
 		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
-		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 10 end
+		if objectiveTextConstraint then objectiveTextConstraint.MinTextSize, objectiveTextConstraint.MaxTextSize = 14, 14 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.new(0.5, 0)
@@ -12382,16 +14510,11 @@ applyResponsiveLayout = function()
 		if inventoryOpen then
 			local availableWidth = math.max(1, viewport.X - 24)
 			local availableHeight = math.max(1, viewport.Y - 24)
-			local compactAspect = math.clamp(availableWidth / availableHeight, 1.5, 2.1)
-			local modalWidth = math.min(availableWidth, availableHeight * compactAspect)
-			local modalHeight = math.min(availableHeight, modalWidth / compactAspect)
-			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
-			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeMargin12V3")
+			mainPanel.Size = UDim2.fromOffset(availableWidth, availableHeight)
+			mainPanel:SetAttribute("InventoryModalSizing", "PhoneSafeFill12V1")
 		elseif shopOpen then
-			local aspect = 1.72
-			local modalHeight = math.max(270, math.min(viewport.Y - 40, (viewport.X - 40) / aspect))
-			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
-			mainPanel:SetAttribute("ShopModalSizing", "CompactBalanced1.72V3")
+			mainPanel.Size = UDim2.fromOffset(math.max(1, viewport.X - 24), math.max(1, viewport.Y - 24))
+			mainPanel:SetAttribute("ShopModalSizing", "PhoneSafeFill12V1")
 		else
 			local panelHeight = math.max(210, math.min(viewport.Y - 24, (viewport.X - 24) * 408 / 677))
 			local panelWidth = panelHeight * 677 / 408
@@ -12445,11 +14568,6 @@ applyResponsiveLayout = function()
 		toastHolder.Size = UDim2.fromOffset(260, 110)
 		rewardHolder.Position = UDim2.fromScale(0.5, 0.66)
 		rewardHolder.Size = UDim2.fromOffset(320, 150)
-		bossHUD.Position = UDim2.new(0.32, 0, 0, 66)
-		bossHUD.Size = UDim2.fromOffset(250, 56)
-		targetHUD.AnchorPoint = Vector2.new(0.5, 0)
-		targetHUD.Position = UDim2.fromScale(0.61, 0.16)
-		targetHUD.Size = UDim2.fromOffset(500, 86)
 		leftDock.Position = UDim2.new(0, 7, 0.5, 12)
 		rightDock.Position = UDim2.new(1, -7, 0.5, 44)
 		local leftScale = leftDock:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", leftDock)
@@ -12485,7 +14603,7 @@ applyResponsiveLayout = function()
 		shared.PunchWallHUDWidgets.ObjectiveCard.AnchorPoint = Vector2.zero
 		shared.PunchWallHUDWidgets.ObjectiveCard.Position, shared.PunchWallHUDWidgets.ObjectiveCard.Size = designRect(682, 132, 340, 48)
 		local objectiveTextConstraint = shared.PunchWallHUDWidgets.ObjectiveText:FindFirstChildOfClass("UITextSizeConstraint")
-		if objectiveTextConstraint then objectiveTextConstraint.MaxTextSize = 13 end
+		if objectiveTextConstraint then objectiveTextConstraint.MinTextSize, objectiveTextConstraint.MaxTextSize = 14, 16 end
 		local honorCard = honorOpen and honorOpen.Parent
 		if honorCard and honorCard:IsA("GuiObject") then
 			honorCard.AnchorPoint = Vector2.zero
@@ -12504,6 +14622,23 @@ applyResponsiveLayout = function()
 		referencePets.Position, referencePets.Size = designRect(rightMenuColumnX, rightMenuTop + rightMenuIconHeight + rightMenuIconGap, rightMenuIconWidth, rightMenuIconHeight)
 		referenceQuests.Position, referenceQuests.Size = designRect(rightMenuColumnX, rightMenuTop + (rightMenuIconHeight + rightMenuIconGap) * 2, rightMenuIconWidth, rightMenuIconHeight)
 		shared.PunchWallReferenceRebirth.Position, shared.PunchWallReferenceRebirth.Size = designRect(16, 429, 82, 111)
+		-- Keep the authored aspect ratios while giving the narrow desktop menu
+		-- real touch targets and equal horizontal/vertical spacing.
+		local narrowMenuLayout = shared.PunchWallResolveNarrowMenuGrid(viewport)
+		if narrowMenuLayout then
+			for _, button in ipairs({ referenceInventory, referenceShop, referencePets, referenceQuests, shared.PunchWallReferenceRebirth }) do
+				local target = narrowMenuLayout.targets[button.Name]
+				button.Position = UDim2.fromOffset(target.x, target.y)
+				button.Size = UDim2.fromOffset(target.width, target.height)
+				enforceReferenceTouchTarget(button)
+			end
+			referenceHUD:SetAttribute("RightMenuLayoutMode", "NarrowDesktopUniformIconGridV1")
+			referenceHUD:SetAttribute("RightMenuIconSize", ("%dx%.6f"):format(narrowMenuLayout.width, narrowMenuLayout.height))
+			referenceHUD:SetAttribute("RightMenuIconGap", narrowMenuLayout.gap)
+			referenceHUD:SetAttribute("RightMenuRenderedWidth", narrowMenuLayout.width)
+			referenceHUD:SetAttribute("RightMenuRenderedHeight", narrowMenuLayout.height)
+			referenceHUD:SetAttribute("RightMenuSafeMargin", narrowMenuLayout.margin)
+		end
 		shared.PunchWallSoundToolButton.AnchorPoint = Vector2.zero
 		shared.PunchWallSoundToolButton.Position, shared.PunchWallSoundToolButton.Size = designRect(1465, 22, 60, 64)
 		shared.PunchWallSettingsToolButton.AnchorPoint = Vector2.zero
@@ -12526,6 +14661,15 @@ applyResponsiveLayout = function()
 		punchDownButton.Position, punchDownButton.Size = designRect(1280, 590, 76, 76)
 		punchUpButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
 		punchDownButton:SetAttribute("ResponsiveProfile", "ReferenceDirectionalPunch")
+		local narrowPair = shared.PunchWallResolveNarrowDirectionalPair(viewport)
+		if narrowPair then
+			punchUpButton.Position = UDim2.fromOffset(narrowPair.upX, narrowPair.y)
+			punchDownButton.Position = UDim2.fromOffset(narrowPair.downX, narrowPair.y)
+			punchUpButton.Size = UDim2.fromOffset(narrowPair.width, narrowPair.height)
+			punchDownButton.Size = punchUpButton.Size
+			punchUpButton:SetAttribute("ResponsiveProfile", "NarrowDesktopDirectionalGap4V1")
+			punchDownButton:SetAttribute("ResponsiveProfile", "NarrowDesktopDirectionalGap4V1")
+		end
 		referenceHUD:SetAttribute("RightMenuResponsiveProfile", "ReferenceUniformIconGrid")
 		statusDeckScale.Scale = userScale
 		statusDeck.AnchorPoint = Vector2.new(0.5, 0)
@@ -12561,24 +14705,32 @@ applyResponsiveLayout = function()
 		menuButton.Size = UDim2.fromOffset(92, 42)
 		mainPanel.AnchorPoint = Vector2.new(0.5, 0.5)
 		if inventoryOpen then
-			local referenceAspect = 1.5
-			local availableWidth = math.max(1, viewport.X - 48)
-			local availableHeight = math.max(1, viewport.Y - 36)
-			local modalWidth = math.min(viewport.X * 0.72, viewport.Y * 0.84 * referenceAspect, availableWidth)
-			local modalHeight = math.min(modalWidth / referenceAspect, availableHeight)
-			modalWidth = modalHeight * referenceAspect
-			mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
-			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
-			mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
+			if viewport.X < 900 then
+				local inventoryLayout = shared.PunchWallResolveStandaloneDesktopSize(viewport, 876, math.huge)
+				mainPanel.Size = UDim2.fromOffset(inventoryLayout.width, inventoryLayout.height)
+				mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+				mainPanel:SetAttribute("InventoryModalSizing", "NarrowDesktopSafeFill12V1")
+			else
+				local referenceAspect = 1.5
+				local availableWidth = math.max(1, viewport.X - 48)
+				local availableHeight = math.max(1, viewport.Y - 36)
+				local modalWidth = math.min(viewport.X * 0.72, viewport.Y * 0.84 * referenceAspect, availableWidth)
+				local modalHeight = math.min(modalWidth / referenceAspect, availableHeight)
+				modalWidth = modalHeight * referenceAspect
+				mainPanel.Size = UDim2.fromOffset(modalWidth, modalHeight)
+				mainPanel.Position = UDim2.fromScale(0.5, 0.5)
+				mainPanel:SetAttribute("InventoryModalSizing", "CenteredReference1.50")
+			end
 		elseif shopOpen then
-			local aspect = 1.52
-			local modalHeight = math.max(440, math.min(viewport.Y - 64, 820, (viewport.X - 64) / aspect))
-			mainPanel.Size = UDim2.fromOffset(modalHeight * aspect, modalHeight)
+			local shopLayout = shared.PunchWallResolveShopLayout(viewport)
+			mainPanel.Size = UDim2.fromOffset(shopLayout.width, shopLayout.height)
 			mainPanel.Position = UDim2.fromScale(0.5, 0.5)
-			mainPanel:SetAttribute("ShopModalSizing", "DesktopSafeMarginV2")
+			mainPanel:SetAttribute("ShopModalSizing", shopLayout.desktopRows and "DesktopSafeFill12V1" or "DesktopSafeMarginV2")
 		else
-			mainPanel.Size = UDim2.fromOffset(677, 408)
-			mainPanel.Position = UDim2.fromScale(0.5, 0.52)
+			local genericLayout = shared.PunchWallResolveGenericDesktopModal(viewport)
+			mainPanel.Size = UDim2.fromOffset(genericLayout.width, genericLayout.height)
+			mainPanel.Position = UDim2.new(0.5, 0, 0, genericLayout.centerY)
+			mainPanel:SetAttribute("GenericDesktopMenuLayout", "SafeBounds12V1")
 			closeButton.Position = UDim2.new(1, -10, 0, 10)
 			closeButton.Size = UDim2.fromOffset(44, 44)
 			tabBar.Position = UDim2.fromOffset(12, 12)
@@ -12613,11 +14765,6 @@ applyResponsiveLayout = function()
 		toastHolder.Size = UDim2.fromOffset(460, 160)
 		rewardHolder.Position = UDim2.fromScale(0.5, 0.48)
 		rewardHolder.Size = UDim2.fromOffset(520, 220)
-		bossHUD.Position = UDim2.new(0.5, 0, 0, 82)
-		bossHUD.Size = UDim2.fromOffset(420, 58)
-		targetHUD.AnchorPoint = Vector2.new(0.5, 0)
-		targetHUD.Position = UDim2.fromScale(0.62, 0.14)
-		targetHUD.Size = UDim2.fromOffset(340, 62)
 		leftDock.Position = UDim2.new(0, 18, 0.5, 10)
 		rightDock.Position = UDim2.new(1, -18, 0.5, 74)
 		local leftScale = leftDock:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", leftDock)
@@ -12628,6 +14775,13 @@ applyResponsiveLayout = function()
 		local nextScale = nextWorld:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", nextWorld)
 		nextScale.Scale = userScale
 	end
+	shared.PunchWallCombatHUD.ScheduleLayout(viewport, compact, userScale, referenceHUD, {
+  referencePowerCard, referenceCoinsCard, referenceWallCard,
+  shared.PunchWallHUDWidgets.ObjectiveCard, shared.PunchWallHUDWidgets.QuestCard, rankWidgets.Root,
+  referenceDaily, referenceSpin, referenceInventory, referenceShop, referencePets, referenceQuests,
+  shared.PunchWallReferenceRebirth, shared.PunchWallSoundToolButton, shared.PunchWallSettingsToolButton,
+  shared.PunchWallMoreToolButton, referenceJoystick, referencePunch, referenceJump, punchUpButton, punchDownButton,
+ })
 	scheduleResponsiveHudDiagnostics(compact, responsiveProfile)
 	if shopOpen and shared.PunchWallHeroShopRefresh then
 		shared.PunchWallHeroShopRefresh()

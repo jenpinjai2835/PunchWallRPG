@@ -1,0 +1,65 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punch-camera-device-20",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "settle any prior play session",
+        "wait for edit datamodel",
+        "clear prior device simulation",
+        "set desktop camera viewport",
+        "start desktop play",
+        "wait desktop runtime",
+        "prepare desktop punches",
+        "capture camera failure console before stop",
+        "cleanup stop play",
+        "cleanup viewport"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"metricsValid\"[ ]*:[ ]*true\nReceived: {\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.8540145985401459,\"metricsValid\":false,\"maxInheritedRootStep\":12.590652465820313,\"configuredOrbit\":22.72128677368164,\"transientLineOfSightFrames\":20,\"inside\":0,\"visualValid\":false,\"angle\":0,\"actions\":8,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":7.508455276489258,\"cameraDeviceContractValid\":false,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":11,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":17.59430694580078,\"maxGuardPublishedTravelPerCycle\":12.470155715942383,\"selectedDistance\":22.72128677368164,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":2,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"motion_geometry_or_native_contract\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.40000057220459,\"handoffActive\":true,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":137,\"resultType\":\"table\",\"lead\":18.024585723876954,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.03337219999957597,\"maxCorrectionStep\":2.4000015258789064,\"userOrbitDistance\":22.72128677368164,\"finishDistance\":30.2297420501709,\"visibleRatio\":1}",
+      "cleanup": {
+        "attempted": true,
+        "actions": [
+          {
+            "label": "capture camera failure console before stop",
+            "tool": "get_console_output",
+            "ok": true
+          },
+          {
+            "label": "cleanup stop play",
+            "tool": "start_stop_play",
+            "ok": true
+          },
+          {
+            "label": "cleanup viewport",
+            "tool": "execute_luau",
+            "ok": true
+          }
+        ],
+        "stopAcknowledged": true,
+        "editVerified": true,
+        "restored": true,
+        "edit": {
+          "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+          "placeId": "0",
+          "datamodelType": "Edit"
+        }
+      },
+      "context": {
+        "desktopCamera": "{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.8540145985401459,\"metricsValid\":false,\"maxInheritedRootStep\":12.590652465820313,\"configuredOrbit\":22.72128677368164,\"transientLineOfSightFrames\":20,\"inside\":0,\"visualValid\":false,\"angle\":0,\"actions\":8,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":7.508455276489258,\"cameraDeviceContractValid\":false,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":11,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":17.59430694580078,\"maxGuardPublishedTravelPerCycle\":12.470155715942383,\"selectedDistance\":22.72128677368164,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":2,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"motion_geometry_or_native_contract\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.40000057220459,\"handoffActive\":true,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":137,\"resultType\":\"table\",\"lead\":18.024585723876954,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.03337219999957597,\"maxCorrectionStep\":2.4000015258789064,\"userOrbitDistance\":22.72128677368164,\"finishDistance\":30.2297420501709,\"visibleRatio\":1}",
+        "cameraFailureConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    }
+  ]
+}

@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local tier=root.Polish[\"Wall Tier Frames\"] local parts,legacyWalls,ambient=0,0,0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 if d:GetAttribute(\"AmbientMotion\")==\"Pulse\" then ambient+=1 end end end for _,w in ipairs(root.Walls:GetChildren()) do if w:IsA(\"BasePart\") and w.Name~=\"Titan Server Wall\" then legacyWalls+=1 end end local header=tier[\"Titan Containment Graphic Header\"] local images,decals=0,0 for _,d in ipairs(header:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://93552182756522\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://93552182756522\" then decals+=1 end end local plates,faces=0,true for _,name in ipairs({\"Boxing Glove\",\"Iron Knuckle\",\"Thunder Fist\",\"Titan Gauntlet\"}) do local plate=root.Polish[\"City Decor\"]:FindFirstChild(name..\" Armory Nameplate\") plates+=plate and 1 or 0 local front,back=false,false if plate then for _,d in ipairs(plate:GetChildren()) do if d:IsA(\"SurfaceGui\") then front=front or d.Face==Enum.NormalId.Front back=back or d.Face==Enum.NormalId.Back end end end faces=faces and front and back end local presentation=root.Polish:FindFirstChild(\"World Presentation\") local presentationReady=presentation and presentation:GetAttribute(\"ContractValidated\")==true and (presentation:GetAttribute(\"DecorativePartCount\") or 0)>0 and (presentation:GetAttribute(\"DecorativePartCount\") or 0)<=(presentation:GetAttribute(\"DecorativePartBudget\") or 0) return H:JSONEncode({parts=parts,legacyWalls=legacyWalls,blocks=#root[\"Depth Blocks\"]:GetChildren(),depthContract=root:GetAttribute(\"DepthBlockContractValidated\"),landmarks=#root[\"Depth Tier Landmarks\"]:GetChildren(),presentationReady=presentationReady,bossDepth=tier[\"Titan HQ Deep Tower Core\"].Size.Z,ribs=(tier:FindFirstChild(\"Titan HQ Structural Rib -1\") and tier:FindFirstChild(\"Titan HQ Structural Rib 1\")) and 2 or 0,images=images,decals=decals,plates=plates,faces=faces,ambientReady=ambient>=6})"
+        "code": "local H=game:GetService(\"HttpService\") local G=require(game.ReplicatedStorage.GameConfig) local function verifyBothFaceText(part,title)\n assert(part and part:IsA('BasePart') and part.Transparency<1,'text sign missing or hidden')\n for _,face in ipairs({Enum.NormalId.Front,Enum.NormalId.Back}) do\n  local found=false\n  for _,surface in ipairs(part:GetChildren()) do\n   if surface:IsA('SurfaceGui') and surface.Face==face and surface.Enabled then\n    for _,label in ipairs(surface:GetDescendants()) do if label:IsA('TextLabel') and label.Visible and label.TextTransparency<1 and string.find(string.upper(label.Text),string.upper(title),1,true) then found=true end end\n   end\n  end\n  assert(found,'visible sign text missing on '..tostring(face)..': '..title)\n end\n return true\nend\nlocal function verifyPremiumDisplays(root,G)\n local city=root.Polish['City Decor'] local count=0 local tiers={}\n assert(#G.PremiumFists>0,'empty premium catalog')\n for _,item in ipairs(G.PremiumFists) do\n  local stand=assert(root.Interactables:FindFirstChild(item.name..' Stand'),'configured stand missing '..item.name)\n  assert(stand:IsA('BasePart') and stand.Anchored and stand.CanQuery and stand:GetAttribute('PremiumOnly')==true,'stand is not an actual premium interaction')\n  local display=assert(city:FindFirstChild(item.name..' Creator Store Display'),'showcase missing '..item.name)\n  local visible=0 for _,d in ipairs(display:GetDescendants()) do if d:IsA('BasePart') and d.Transparency<1 then visible+=1 end end\n  assert(visible>0 and display:GetAttribute('VisualRole')=='PremiumFistShowcase' and display:GetAttribute('PremiumTier')==item.tier,'showcase geometry/tier missing')\n  verifyBothFaceText(city:FindFirstChild(item.name..' Armory Nameplate'),item.displayName or item.name)\n  assert(not tiers[item.tier],'duplicate premium tier') tiers[item.tier]=true count+=1\n end\n return count\nend\n local root=workspace.PunchWallRPG local tier=root.Polish[\"Wall Tier Frames\"] local parts,legacyWalls,ambient=0,0,0 for _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then parts+=1 if d:GetAttribute(\"AmbientMotion\")==\"Pulse\" then ambient+=1 end end end for _,w in ipairs(root.Walls:GetChildren()) do if w:IsA(\"BasePart\") and w.Name~=\"Titan Server Wall\" then legacyWalls+=1 end end local header=tier[\"Titan Containment Graphic Header\"] local images,decals=0,0 for _,d in ipairs(header:GetDescendants()) do if d:IsA(\"ImageLabel\") and d.Image==\"rbxassetid://93552182756522\" then images+=1 elseif d:IsA(\"Decal\") and d.Texture==\"rbxassetid://93552182756522\" then decals+=1 end end local plates=verifyPremiumDisplays(root,G) local faces=true local presentation=root.Polish:FindFirstChild(\"World Presentation\") local presentationReady=presentation and presentation:GetAttribute(\"ContractValidated\")==true and (presentation:GetAttribute(\"DecorativePartCount\") or 0)>0 and (presentation:GetAttribute(\"DecorativePartCount\") or 0)<=(presentation:GetAttribute(\"DecorativePartBudget\") or 0) assert(plates==#G.PremiumFists and plates>0,\"premium display count mismatch\") return H:JSONEncode({parts=parts,legacyWalls=legacyWalls,blocks=#root[\"Depth Blocks\"]:GetChildren(),depthContract=root:GetAttribute(\"DepthBlockContractValidated\"),landmarks=#root[\"Depth Tier Landmarks\"]:GetChildren(),presentationReady=presentationReady,bossDepth=tier[\"Titan HQ Deep Tower Core\"].Size.Z,ribs=(tier:FindFirstChild(\"Titan HQ Structural Rib -1\") and tier:FindFirstChild(\"Titan HQ Structural Rib 1\")) and 2 or 0,images=images,decals=decals,plates=plates,faces=faces,ambientReady=ambient>=6})"
       },
       "expectRegex": [
         "\"parts\"\\s*:\\s*[1-9][0-9]{3,}",
@@ -35,9 +37,9 @@
         "\"ribs\"\\s*:\\s*2",
         "\"images\"\\s*:\\s*2",
         "\"decals\"\\s*:\\s*2",
-        "\"plates\"\\s*:\\s*4",
         "\"faces\"\\s*:\\s*true",
-        "\"ambientReady\"\\s*:\\s*true"
+        "\"ambientReady\"\\s*:\\s*true",
+        "\"plates\"\\s*:\\s*[1-9][0-9]*"
       ],
       "label": "depth contract, bounded presentation, Titan art, and Armory tags exist"
     },
@@ -45,28 +47,37 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
-        "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(2.2) local d=g.HeroStatusDeck local power=d:FindFirstChild(\"PowerCard\") local coins=d:FindFirstChild(\"CoinsCard\") local wall=d:FindFirstChild(\"WallLevelCard\") local layoutOK=d.Visible and d:FindFirstChildOfClass(\"UIListLayout\")~=nil local visibilityOK=power~=nil and coins~=nil and wall~=nil and power.Visible and coins.Visible and wall.Visible return H:JSONEncode({layoutOK=layoutOK,visibilityOK=visibilityOK,title=\"HERO CITY\",progress=g.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale,bossArt=g.BossHUD.TitanContainmentArt.Image,ambientReady=(g:GetAttribute(\"AmbientPulseCount\") or 0)>=6,ambientActive=g:GetAttribute(\"AmbientMotionActive\")})"
+        "datamodel_type": "Server",
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('Reset') local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
       "expectRegex": [
-        "\"layoutOK\"\\s*:\\s*true",
-        "\"visibilityOK\"\\s*:\\s*true",
-        "HERO CITY",
-        "\"progress\"\\s*:\\s*0\\.2",
-        "rbxassetid://93552182756522",
-        "\"ambientReady\"\\s*:\\s*true",
-        "\"ambientActive\"\\s*:\\s*true"
+        "\"ok\"\\s*:\\s*true"
       ],
-      "label": "mobile status, objective progress, boss art, and ambient state pass"
+      "label": "reset current tutorial fixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal function assertContained(container,object)\n assert(object and object:IsA('GuiObject') and object.AbsoluteSize.X>0 and object.AbsoluteSize.Y>0,'missing rendered rectangle')\n local a,b=container.AbsolutePosition,container.AbsoluteSize local p,s=object.AbsolutePosition,object.AbsoluteSize\n assert(p.X>=a.X-1 and p.Y>=a.Y-1 and p.X+s.X<=a.X+b.X+1 and p.Y+s.Y<=a.Y+b.Y+1,'rendered bounds outside safe host: '..object.Name)\nend\nlocal function effectivelyVisible(object)\n local node=object while node do if node:IsA('GuiObject') and not node.Visible then return false end node=node.Parent end return true\nend\na:Invoke('CloseMenus') task.wait(1) local hud=g.PixelPerfectHeroCityHUD assert(effectivelyVisible(hud),'actual reference HUD hidden')\nfor _,pair in ipairs({{'PowerCard','PowerValue','15'},{'CoinsCard','CoinsValue','0'},{'WallCard','DepthValue','0'}}) do local card=hud[pair[1]] local value=card[pair[2]] assert(effectivelyVisible(card) and value.Text==pair[3],'actual fresh HUD value mismatch '..pair[1]) assertContained(hud,card) end\nlocal objective=hud.TutorialObjectiveHUD assert(objective.Visible and objective.ObjectiveText.Text:find('PUNCH THE WALL',1,true),'fresh objective absent')\nassert(math.abs(g.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale-1/3)<.001,'current three-action progress incorrect')\nassert(g.BossHUD.TitanContainmentArt.Image==require(game.ReplicatedStorage.GameConfig).GeneratedGraphics.Iteration05TitanBanner,'Titan HUD art incorrect')\nassert((g:GetAttribute('AmbientPulseCount') or 0)>=6 and g:GetAttribute('AmbientMotionActive')==true,'ambient loop not active')\nreturn H:JSONEncode({ok=true,objective=objective.ObjectiveText.Text,progress=g.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale,actualHudValues=true}) "
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "visible current HUD values, three-action objective, and ambient state"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "game.ServerStorage.PunchWallAutomation:Invoke(\"SetStats\",{TutorialStep=4}) return true"
+        "code": "local p=assert(game.Players:GetPlayers()[1])\nlocal root=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and root:GetAttribute('PersistenceMode')=='EphemeralStudio' and root:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nc:Invoke('SetStats',{TutorialStep=2,TutorialCompleted=0}) local H=game:GetService('HttpService') return H:JSONEncode({ok=true})"
       },
-      "label": "advance tutorial progress"
+      "label": "advance to current open-Shop tutorial boundary",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ]
     },
     {
       "type": "wait",
@@ -78,25 +89,31 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "return tostring(game.Players.LocalPlayer.PlayerGui.PunchWallHUD.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal hud=g.PixelPerfectHeroCityHUD local objective=hud.TutorialObjectiveHUD assert(objective.Visible and objective.ObjectiveText.Text:find('OPEN THE SHOP',1,true),'open-Shop objective missing') local progress=g.ObjectiveCard.ObjectiveProgress.Fill.Size.X.Scale assert(math.abs(progress-2/3)<.001,'three-action objective progress mismatch') return H:JSONEncode({ok=true,progress=progress,objective=objective.ObjectiveText.Text}) "
       },
-      "expectRegex": ["0\\.8"],
-      "label": "objective progress reflects tutorial step"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "current objective and progress reflect the open-Shop action"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local part=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"][\"Titan Warning Beacon -1\"] local a=part.Transparency task.wait(.45) local b=part.Transparency game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) task.wait(.8) local c=part.Transparency task.wait(.45) local d=part.Transparency local inactive=g:GetAttribute(\"AmbientMotionActive\")==false game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return H:JSONEncode({changed=math.abs(a-b)>.015,stable=math.abs(c-d)<.002,base=math.abs(c)<.002,inactive=inactive})"
+        "code": "local H=game:GetService('HttpService')\nlocal RunService=game:GetService('RunService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal part=workspace.PunchWallRPG.Polish['Wall Tier Frames']['Titan Warning Beacon -1']\nlocal remote=game.ReplicatedStorage.PunchWallEvents.ActionRequest\nlocal settingsValue=p.RPGStats.SettingsJSON\n-- BEGIN AMBIENT WINDOW ASSERTIONS\nlocal function observeAmbientWindow(part,duration)\n assert(duration==2.7,'ambient observation must cover the full 2.7 second window')\n local started=os.clock()\n local first,last,minimum,maximum,count=nil,nil,math.huge,-math.huge,0\n local done,failure=false,nil\n local connection=RunService.RenderStepped:Connect(function()\n  if done or failure then return end\n  if not part.Parent then failure='ambient part removed during observation' return end\n  local value=part.Transparency\n  if value~=value or value<0 or value>1 then failure='invalid actual transparency' return end\n  local now=os.clock()\n  first=first or now last=now count+=1\n  minimum=math.min(minimum,value) maximum=math.max(maximum,value)\n  -- Continue through the entire cycle even after a sufficient delta appears.\n  done=last-first>=duration\n end)\n local ok,reason=pcall(function()\n  while not done and not failure and os.clock()-started<duration+2 do task.wait(.02) end\n end)\n connection:Disconnect()\n assert(ok,tostring(reason))\n assert(not failure,failure)\n assert(done and count>=3 and last-first>=duration,'full RenderStepped ambient observation timed out')\n return {minimum=minimum,maximum=maximum,delta=maximum-minimum,samples=count,elapsed=last-first}\nend\nlocal function evaluateAmbientWindows(normal,reduced,inactive)\n assert(normal.elapsed>=2.7 and reduced.elapsed>=2.7 and normal.samples>=3 and reduced.samples>=3,'incomplete ambient observation')\n return {changed=normal.delta>.015,stable=reduced.delta<.002,base=math.max(math.abs(reduced.minimum),math.abs(reduced.maximum))<.002,inactive=inactive,normal=normal,reduced=reduced}\nend\n-- END AMBIENT WINDOW ASSERTIONS\nlocal function settledSettings(expected)\n local ok,value=pcall(function() return H:JSONDecode(settingsValue.Value) end)\n return ok and type(value)=='table' and value.motion==expected.motion and value.sound==expected.sound\n  and math.abs((tonumber(value.uiScale) or -1)-expected.uiScale)<.00001\n  and g:GetAttribute('AmbientMotionActive')==expected.motion\nend\nlocal function awaitSettings(expected)\n local deadline=os.clock()+4\n repeat task.wait(.05) until settledSettings(expected) or os.clock()>=deadline\n assert(settledSettings(expected),'replicated settings and ambient state did not settle')\nend\nlocal originalRaw=settingsValue.Value\nlocal original=H:JSONDecode(originalRaw)\nassert(type(original)=='table' and type(original.motion)=='boolean' and type(original.sound)=='boolean' and type(original.uiScale)=='number' and original.uiScale>=.8 and original.uiScale<=1.2,'invalid original ambient settings')\ng:SetAttribute('Iteration05AmbientOriginalSettings',originalRaw)\nlocal result={changed=false,stable=false,base=false,inactive=false}\nlocal ok,reason=pcall(function()\n local normalSettings={motion=true,sound=original.sound,uiScale=original.uiScale}\n remote:FireServer({action='UpdateSettings',value=normalSettings})\n awaitSettings(normalSettings)\n local normal=observeAmbientWindow(part,2.7)\n local reducedSettings={motion=false,sound=original.sound,uiScale=original.uiScale}\n remote:FireServer({action='UpdateSettings',value=reducedSettings})\n awaitSettings(reducedSettings)\n local reduced=observeAmbientWindow(part,2.7)\n result=evaluateAmbientWindows(normal,reduced,g:GetAttribute('AmbientMotionActive')==false)\nend)\n-- Restore even when the observation or its assertions fail.\nlocal restored,restoreError=pcall(function()\n remote:FireServer({action='UpdateSettings',value=original})\n awaitSettings(original)\nend)\nif restored then g:SetAttribute('Iteration05AmbientOriginalSettings',nil) end\nresult.observed=ok result.restored=restored\nresult.error=not ok and tostring(reason):sub(1,240) or ''\nresult.restoreError=not restored and tostring(restoreError):sub(1,240) or ''\nreturn H:JSONEncode(result)"
       },
       "expectRegex": [
         "\"changed\"\\s*:\\s*true",
         "\"stable\"\\s*:\\s*true",
         "\"base\"\\s*:\\s*true",
-        "\"inactive\"\\s*:\\s*true"
+        "\"inactive\"\\s*:\\s*true",
+        "\"observed\"\\s*:\\s*true",
+        "\"restored\"\\s*:\\s*true"
       ],
-      "label": "ambient pulse runs and reduced motion restores a stable base"
+      "label": "ambient pulse runs and reduced motion restores a stable base",
+      "saveAs": "ambientMotionWindow",
+      "timeoutMs": 30000
     },
     {
       "type": "call",
@@ -127,7 +144,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -135,8 +154,22 @@
   "cleanup": [
     {
       "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer\nlocal g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD')\nlocal raw=g and g:GetAttribute('Iteration05AmbientOriginalSettings')\nif type(raw)~='string' then return {restored=true,needed=false} end\nlocal H=game:GetService('HttpService')\nlocal value=H:JSONDecode(raw)\nassert(type(value)=='table' and type(value.motion)=='boolean' and type(value.sound)=='boolean' and type(value.uiScale)=='number' and value.uiScale>=.8 and value.uiScale<=1.2,'invalid saved ambient settings')\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='UpdateSettings',value=value})\nlocal deadline=os.clock()+4\nlocal restored=false\nrepeat\n task.wait(.05)\n local current=H:JSONDecode(p.RPGStats.SettingsJSON.Value)\n restored=current.motion==value.motion and current.sound==value.sound and math.abs(current.uiScale-value.uiScale)<.00001 and g:GetAttribute('AmbientMotionActive')==value.motion\nuntil restored or os.clock()>=deadline\nassert(restored,'ambient failure cleanup did not restore settings')\ng:SetAttribute('Iteration05AmbientOriginalSettings',nil)\nreturn {restored=true,needed=true}"
+      },
+      "expectRegex": [
+        "\"restored\"\\s*:\\s*true"
+      ],
+      "label": "cleanup original ambient settings before stopping Play"
+    },
+    {
+      "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

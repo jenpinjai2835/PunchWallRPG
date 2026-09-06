@@ -1,0 +1,55 @@
+{
+  "steps": [
+    {
+      "label": "start play and wait for both runtime DataModels",
+      "text": "Game Started"
+    },
+    {
+      "label": "seed duplicate pet occurrences with only slot one equipped",
+      "text": "{\"rawSequence\":0,\"resultSequence\":0,\"hooked\":true,\"equipped\":[\"Forest Pup\"]}"
+    }
+  ],
+  "install": "true",
+  "open": "{\"visible\":true,\"visibleArea\":true,\"callbackSequence\":0,\"active\":true,\"interactable\":true,\"text\":\"EQUIP\",\"frames\":2,\"reacquired\":true,\"top\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions.Equip2\",\"selectable\":true,\"interactableAvailable\":true,\"topmost\":true,\"button\":true,\"selected\":true,\"row\":true,\"ancestorVisible\":true}",
+  "normalized": {
+    "datamodel_type": "Client",
+    "actions": [
+      {
+        "action": "moveTo",
+        "x": 770,
+        "y": 427
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 250
+      },
+      {
+        "action": "moveTo",
+        "x": 770,
+        "y": 427
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 120
+      },
+      {
+        "action": "mouseButtonDown",
+        "mouse_button": "left",
+        "x": 770,
+        "y": 427
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 80
+      },
+      {
+        "action": "mouseButtonUp",
+        "mouse_button": "left",
+        "x": 770,
+        "y": 427
+      }
+    ]
+  },
+  "click": "Success",
+  "diagnostic": "{\"sequence\":0,\"viewport\":\"1277, 780\",\"canvas\":\"0, 1509\",\"events\":[{\"at\":11779.6741282,\"canvas\":\"0, 0\",\"position\":\"202, 706\",\"selected\":\"nil\",\"name\":\"Installed\"},{\"at\":11779.7921568,\"name\":\"ButtonCreated\",\"canvas\":\"0, 0\",\"position\":\"202, 706\",\"id\":1,\"selected\":\"nil\",\"buttonPosition\":\"0, 0\",\"buttonId\":1},{\"at\":11780.002305099999,\"canvas\":\"0, 1565\",\"position\":\"202, 706\",\"name\":\"CanvasChanged\",\"selected\":\"nil\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":1},{\"at\":11780.4518374,\"canvas\":\"0, 1565\",\"position\":\"202, 706\",\"name\":\"StatsChanged:1\",\"selected\":\"Equip2\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":1},{\"at\":11780.4595982,\"canvas\":\"0, 0\",\"position\":\"202, 706\",\"selected\":\"Equip2\",\"name\":\"CanvasChanged\"},{\"at\":11780.4600899,\"canvas\":\"0, 0\",\"position\":\"202, 706\",\"id\":1,\"selected\":\"Equip3\",\"name\":\"Destroyed\"},{\"at\":11780.4866682,\"name\":\"ButtonCreated\",\"canvas\":\"0, 0\",\"position\":\"202, 706\",\"id\":2,\"selected\":\"Equip3\",\"buttonPosition\":\"0, 0\",\"buttonId\":2},{\"at\":11780.492829699999,\"canvas\":\"0, 1509\",\"position\":\"202, 706\",\"name\":\"CanvasChanged\",\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":2},{\"at\":11781.0855538,\"name\":\"ButtonDown\",\"canvas\":\"0, 1509\",\"position\":\"770, 485\",\"id\":2,\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":2},{\"at\":11781.0859167,\"canvas\":\"0, 1509\",\"position\":\"770, 427, 0\",\"name\":\"GlobalDown:true\",\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":2},{\"at\":11781.4678634,\"canvas\":\"0, 1509\",\"position\":\"770, 485\",\"name\":\"StatsChanged:2\",\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":2},{\"at\":11781.4762239,\"canvas\":\"0, 1509\",\"position\":\"770, 485\",\"id\":2,\"selected\":\"Equip3\",\"name\":\"Destroyed\"},{\"at\":11781.4989604,\"name\":\"ButtonCreated\",\"canvas\":\"0, 1509\",\"position\":\"770, 485\",\"id\":3,\"selected\":\"Equip3\",\"buttonPosition\":\"0, 0\",\"buttonId\":3},{\"at\":11781.508928,\"name\":\"ButtonUp\",\"canvas\":\"0, 1509\",\"position\":\"770, 485\",\"id\":3,\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":3},{\"at\":11781.5091971,\"canvas\":\"0, 1509\",\"position\":\"770, 427, 0\",\"name\":\"GlobalUp:true\",\"selected\":\"Equip3\",\"buttonPosition\":\"735, 404.599976\",\"buttonId\":3}],\"mouseHits\":[{\"active\":true,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#03  [Rare] Miner Cat  *.Actions.Equip3\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#03  [Rare] Miner Cat  *.Actions\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#03  [Rare] Miner Cat  *\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu\",\"z\":1}],\"centerHits\":[{\"active\":true,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions.Equip2\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content\",\"z\":1},{\"active\":false,\"name\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu\",\"z\":1}],\"expected\":1,\"mouse\":\"770, 485\",\"center\":\"770, 426.599976\"}"
+}

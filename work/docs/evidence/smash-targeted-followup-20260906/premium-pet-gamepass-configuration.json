@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "premium-pet-gamepass-configuration",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for premium catalog and UI",
+        "live Roblox Game Pass identities and regional prices are available",
+        "all premium pet world stands expose configured authoritative purchase paths",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium pet regional UI configuration mismatch {\"ok\":false,\"rows\":[{\"livePrice\":59,\"selectable\":false,\"identity\":true,\"priceText\":\"59\",\"renderedPrice\":true,\"actionText\":\"EQUIPPED\",\"id\":1948233870,\"world\":true,\"resolved\":true,\"price\":true,\"found\":true,\"name\":\"Crimson Phoenix\",\"card\":true,\"configured\":true,\"bound\":false,\"active\":false,\"displayed\":59},{\"livePrice\":125,\"selectable\":false,\"identity\":true,\"priceText\":\"125\",\"renderedPrice\":true,\"actionText\":\"EQUIPPED\",\"id\":1948851823,\"world\":true,\"resolved\":true,",
+      "context": {}
+    }
+  ]
+}

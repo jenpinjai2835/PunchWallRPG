@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-06T03:50:10.9002550Z",
+  "phase": "Stopped after pre-restart diagnostic, before native Save As",
+  "studio": {
+    "startTime": "2026-09-06T01:30:13.8203869+07:00",
+    "workingSetBytes": 7135580160,
+    "privateBytes": 24397373440,
+    "pid": 19348
+  },
+  "host": {
+    "physicalKiB": 16621748,
+    "freeVirtualKiB": 28109852,
+    "virtualKiB": 69869748,
+    "freePhysicalKiB": 712900
+  }
+}

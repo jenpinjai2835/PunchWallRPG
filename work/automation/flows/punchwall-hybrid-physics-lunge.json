@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") game.ServerStorage.PunchWallAutomation:Invoke(\"Reset\") local root=workspace.PunchWallRPG return H:JSONEncode({lunge=root:GetAttribute(\"PunchLungeDistance\"),windup=root:GetAttribute(\"PunchWindupSeconds\"),maxFalling=root:GetAttribute(\"MaxStructuralFalling\"),active=root:GetAttribute(\"ActiveStructuralFalling\")})"
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal H=game:GetService(\"HttpService\") game.ServerStorage.PunchWallAutomation:Invoke(\"Reset\") local root=workspace.PunchWallRPG return H:JSONEncode({lunge=root:GetAttribute(\"PunchLungeDistance\"),windup=root:GetAttribute(\"PunchWindupSeconds\"),maxFalling=root:GetAttribute(\"MaxStructuralFalling\"),active=root:GetAttribute(\"ActiveStructuralFalling\")})"
       },
       "expectRegex": [
         "\"lunge\"\\s*:\\s*10\\.5",
@@ -111,19 +113,23 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"SetStats\",{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local name=\"DepthBlock_L001_C06_R02\" local r=c:Invoke(\"HitDepthBlock\",name) local b=workspace.PunchWallRPG[\"Depth Blocks\"]:FindFirstChild(name) return H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,hp=r.hp,impactAt=b:GetAttribute(\"LastDetachedImpactAt\"),launchSpeed=b:GetAttribute(\"LastDetachedLaunchSpeed\"),falling=b:GetAttribute(\"StructuralFalling\"),stillVisible=b.Transparency==0,stillCollidable=b.CanCollide,stillQueryable=b.CanQuery})"
+        "code": "local function verifyRubbleBounce(result, state)\n assert(result.ok==true and result.outcome=='hit' and result.detached==true,'rubble hit must survive as detached geometry')\n assert(state.exactDamage and state.unanchoredAtImpact and state.serverOwnedAtImpact and state.fallingAtImpact,'rubble must receive exact damage under server-owned physics')\n assert(state.movedWhileUnanchored>.01 and state.token==state.beforeToken+1,'rubble did not move under a fresh impulse')\n assert(not state.broken and state.visible and state.collidable and state.queryable,'bouncing rubble disappeared or lost collision/query')\n return true\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation\nc:Invoke('SetStats',{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0,HonorPowerBonus=0})\nlocal p=game.Players:GetPlayers()[1] p:SetAttribute('DamageBoostExpiresAt',0)\nlocal name='DepthBlock_L001_C06_R02' local b=workspace.PunchWallRPG['Depth Blocks']:FindFirstChild(name)\nassert(b and b.Anchored and b:GetAttribute('StructuralSettled')==true and b:GetAttribute('Broken')~=true,'fixture requires naturally settled rubble')\nlocal origin=b.Position local beforeHP=b:GetAttribute('HP') local beforeToken=b:GetAttribute('DetachedImpactToken') or 0\nlocal r=c:Invoke('HitDepthBlock',name)\nlocal unanchoredAtImpact=not b.Anchored local serverOwnedAtImpact=b:GetNetworkOwner()==nil\nlocal fallingAtImpact=b:GetAttribute('StructuralFalling')==true and b:GetAttribute('StructuralSettled')==false and b.CollisionGroup=='FallingStructural'\nlocal exactDamage=math.abs(b:GetAttribute('HP')-(beforeHP-G.EffectivePower(1,1,0,0,1,0)))<1e-6\nlocal movedWhileUnanchored=0 local deadline=os.clock()+.4\nrepeat task.wait(.02) if not b.Anchored then movedWhileUnanchored=math.max(movedWhileUnanchored,(b.Position-origin).Magnitude) end until movedWhileUnanchored>.01 or os.clock()>=deadline\nlocal valid=verifyRubbleBounce(r,{exactDamage=exactDamage,unanchoredAtImpact=unanchoredAtImpact,serverOwnedAtImpact=serverOwnedAtImpact,fallingAtImpact=fallingAtImpact,movedWhileUnanchored=movedWhileUnanchored,token=b:GetAttribute('DetachedImpactToken'),beforeToken=beforeToken,broken=b:GetAttribute('Broken')==true,visible=b.Transparency==0,collidable=b.CanCollide,queryable=b.CanQuery})\nreturn H:JSONEncode({ok=r.ok,outcome=r.outcome,detached=r.detached,hp=r.hp,impactAt=b:GetAttribute('LastDetachedImpactAt'),launchSpeed=b:GetAttribute('LastDetachedLaunchSpeed'),falling=fallingAtImpact,unanchoredAtImpact=unanchoredAtImpact,serverOwnedAtImpact=serverOwnedAtImpact,movedWhileUnanchored=movedWhileUnanchored,exactDamage=exactDamage,valid=valid,stillVisible=b.Transparency==0,stillCollidable=b.CanCollide,stillQueryable=b.CanQuery})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"outcome\"\\s*:\\s*\"hit\"",
         "\"detached\"\\s*:\\s*true",
-		"\"hp\"\\s*:\\s*1\\.[0-9]+",
-		"\"impactAt\"\\s*:\\s*[1-9]",
-		"\"launchSpeed\"\\s*:\\s*[1-9][0-9]*(?:\\.[0-9]+)?",
+        "\"hp\"\\s*:\\s*1\\.[0-9]+",
+        "\"impactAt\"\\s*:\\s*[1-9]",
+        "\"launchSpeed\"\\s*:\\s*[1-9][0-9]*(?:\\.[0-9]+)?",
         "\"falling\"\\s*:\\s*true",
         "\"stillVisible\"\\s*:\\s*true",
         "\"stillCollidable\"\\s*:\\s*true",
-        "\"stillQueryable\"\\s*:\\s*true"
+        "\"stillQueryable\"\\s*:\\s*true",
+        "\"valid\"\\s*:\\s*true",
+        "\"unanchoredAtImpact\"\\s*:\\s*true",
+        "\"serverOwnedAtImpact\"\\s*:\\s*true",
+        "\"exactDamage\"\\s*:\\s*true"
       ],
       "label": "punching fallen rubble makes it bounce without deleting it"
     },
@@ -137,13 +143,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local b=workspace.PunchWallRPG[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local origin=b:GetAttribute(\"DetachedImpactOrigin\") return H:JSONEncode({moved=origin and (b.Position-origin.Position).Magnitude or 0,unanchored=not b.Anchored})"
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local b=root['Depth Blocks'].DepthBlock_L001_C06_R02\nlocal origin=b:GetAttribute('DetachedImpactOrigin') assert(typeof(origin)=='CFrame','missing real impact origin')\nlocal deadline=os.clock()+6\nrepeat task.wait(.05) until b.Anchored or os.clock()>=deadline\nlocal support=RaycastParams.new() support.FilterType=Enum.RaycastFilterType.Exclude support.FilterDescendantsInstances={b,root['Depth Physics Debris']} support.IgnoreWater=true\nlocal supported=workspace:Raycast(b.Position,Vector3.new(0,-b.Size.Y*.5-.9,0),support)~=nil\nlocal moved=(b.Position-origin.Position).Magnitude\nlocal settled=b.Anchored and b:GetAttribute('StructuralSettled')==true and b:GetAttribute('StructuralFalling')==false and b:GetAttribute('StructuralActiveSlot')==false and b.CollisionGroup=='DepthRubble' and b.CanCollide and b.CanQuery and b.Transparency==0 and b:GetAttribute('Broken')~=true and b.AssemblyLinearVelocity.Magnitude<.01 and b.AssemblyAngularVelocity.Magnitude<.01 and supported\nassert(moved>.01 and settled,'impulsed rubble must persist at its moved supported resting position')\nreturn H:JSONEncode({moved=moved,anchored=b.Anchored,supported=supported,settled=settled})"
       },
       "expectRegex": [
-        "\"moved\"\\s*:\\s*(?:0\\.[0-9]*[1-9]|[1-9][0-9]*(?:\\.[0-9]+)?)",
-        "\"unanchored\"\\s*:\\s*true"
+        "\"anchored\"\\s*:\\s*true",
+        "\"supported\"\\s*:\\s*true",
+        "\"settled\"\\s*:\\s*true"
       ],
-      "label": "fallen block moves from its settled position under impulse"
+      "label": "impulsed rubble settles only on real support and remains collidable"
     },
     {
       "type": "call",
@@ -179,7 +186,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -188,7 +197,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

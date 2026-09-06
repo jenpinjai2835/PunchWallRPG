@@ -2,6 +2,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -39,104 +41,34 @@ function block(start, end) {
   return source.slice(startIndex, endIndex);
 }
 
-function allocateToolbarWidths(totalWidth, compact, touchTarget = 44) {
-  totalWidth = Math.max(0, Math.floor(Number(totalWidth) + 0.5));
-  touchTarget = Math.max(1, Math.floor(Number(touchTarget) + 0.5));
-  let gap = compact && totalWidth < 420 ? 6 : 8;
-  let minimumSearchWidth = compact ? touchTarget : 160;
-  let minimumCapacityWidth = Math.max(touchTarget, compact ? 78 : 86);
-  let minimumRarityWidth = Math.max(touchTarget, compact ? 88 : 96);
-  let requiredWidth =
-    minimumSearchWidth + minimumCapacityWidth + minimumRarityWidth + gap * 2;
-  if (totalWidth < requiredWidth) {
-    gap = 4;
-    minimumSearchWidth = touchTarget;
-    minimumCapacityWidth = touchTarget;
-    minimumRarityWidth = touchTarget;
-    requiredWidth =
-      minimumSearchWidth + minimumCapacityWidth + minimumRarityWidth + gap * 2;
-  }
-  const distributable = Math.max(0, totalWidth - requiredWidth);
-  const searchExtra = Math.floor(distributable * 0.6);
-  const controlsExtra = distributable - searchExtra;
-  const capacityExtra = Math.floor(controlsExtra * 0.55);
-  let search = minimumSearchWidth + searchExtra;
-  const capacity = minimumCapacityWidth + capacityExtra;
-  const rarity = Math.max(
-    touchTarget,
-    totalWidth - search - capacity - gap * 2,
-  );
-  let used = search + capacity + rarity + gap * 2;
-  if (used > totalWidth) {
-    search = Math.max(touchTarget, search - (used - totalWidth));
-    used = search + capacity + rarity + gap * 2;
-  }
-  return { search, capacity, rarity, gap, used, totalWidth };
-}
 
-function calculateResponsiveBounds(viewportWidth, viewportHeight, uiScale) {
-  const scale = Math.min(1.2, Math.max(0.75, Number(uiScale) || 1));
-  const availableWidth = viewportWidth / scale;
-  const availableHeight = viewportHeight / scale;
-  const compactMinimumWidth = 320 / scale;
-  const compactMinimumHeight = 280 / scale;
-  const compactMaximumWidth = Math.max(1, (viewportWidth - 20) / scale);
-  const compactMaximumHeight = Math.max(1, (viewportHeight - 24) / scale);
-  const compactDesiredWidth = Math.max(
-    compactMinimumWidth,
-    availableWidth - 12,
-  );
-  const compactDesiredHeight = Math.max(
-    compactMinimumHeight,
-    availableHeight - 12,
-  );
-  const width = Math.min(compactDesiredWidth, compactMaximumWidth);
-  const height = Math.min(compactDesiredHeight, compactMaximumHeight);
-  const touchTarget = Math.ceil(44 / scale);
-  const bodyWidth = width - 16;
-  const toolbarContentWidth = Math.max(0, bodyWidth - 8 - 16);
-  const toolbar = allocateToolbarWidths(
-    toolbarContentWidth,
-    true,
-    touchTarget,
-  );
-  const categoryWidth = Math.max(
-    touchTarget,
-    Math.floor((bodyWidth - 8 - 16 - 20) / 5),
-  );
-  const categoryUsedWidth = categoryWidth * 5 + 4 * 5 + 8;
-  const categoryAvailableWidth = bodyWidth - 8;
-  const gridContentWidth = Math.max(1, bodyWidth - 8 - 24);
-  const padding = 8;
-  const minimumCellWidth = Math.max(touchTarget, 92);
-  const fittingColumns = Math.max(
-    1,
-    Math.floor(
-      (gridContentWidth + padding) / (minimumCellWidth + padding),
-    ),
-  );
-  const preferredColumns = viewportWidth < 800 ? 3 : 4;
-  const columns = Math.min(preferredColumns, fittingColumns);
-  const cellWidth = Math.max(
-    touchTarget,
-    Math.floor(
-      (gridContentWidth - (columns - 1) * padding) / columns,
-    ),
-  );
-  return {
-    scale,
-    width,
-    height,
-    renderedWidth: width * scale,
-    renderedHeight: height * scale,
-    renderedTouchTarget: touchTarget * scale,
-    toolbar,
-    categoryUsedWidth,
-    categoryAvailableWidth,
-    gridContentWidth,
-    columns,
-    cellWidth,
-  };
+function runProductionLuau(name, code) {
+  const optionIndex = process.argv.indexOf("--luau-tool-dir");
+  const explicitDirectory = optionIndex >= 0
+    ? process.argv[optionIndex + 1] : process.env.PUNCH_WALL_LUAU_TOOL_DIR;
+  const directories = explicitDirectory ? [explicitDirectory] : [
+    path.join(repositoryRoot, ".tools/luau"),
+    ...String(process.env.PATH || "").split(path.delimiter),
+    ...fs.readdirSync(os.tmpdir(), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && /^codex-luau-/i.test(entry.name))
+      .map((entry) => path.join(os.tmpdir(), entry.name)),
+  ];
+  const executable = directories.filter(Boolean)
+    .map((directory) => path.join(directory, process.platform === "win32" ? "luau.exe" : "luau"))
+    .find((candidate) => fs.existsSync(candidate));
+  assert(executable, "BLOCKED: Luau runtime unavailable; pass --luau-tool-dir or PUNCH_WALL_LUAU_TOOL_DIR");
+  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), name + "-"));
+  const temporaryFile = path.join(temporaryDirectory, "contract.luau");
+  try {
+    fs.writeFileSync(temporaryFile, code);
+    const result = spawnSync(executable, [temporaryFile], { encoding: "utf8", timeout: 30000 });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stderr || result.stdout || "Luau contract failed without output");
+    return result.stdout.trim();
+  } finally {
+    if (fs.existsSync(temporaryFile)) fs.unlinkSync(temporaryFile);
+    fs.rmdirSync(temporaryDirectory);
+  }
 }
 
 const allocation = block(
@@ -184,55 +116,6 @@ check(
     ),
   "Search, rarity, and capacity widths must share the actual GridPane toolbar width.",
 );
-
-check(
-  "compact_minimums_and_touch_targets_are_rendered_units",
-  responsive.includes("local touchTarget = math.ceil(44 / scale)")
-    && responsive.includes("local compactMinimumWidth = 320 / scale")
-    && responsive.includes("local compactMinimumHeight = 280 / scale")
-    && responsive.includes(
-      "local compactMaximumWidth = math.max(1, (viewport.X - compactSafeInsetX) / scale)",
-    )
-    && responsive.includes(
-      "local compactMaximumHeight = math.max(1, (viewport.Y - compactSafeInsetY) / scale)",
-    )
-    && allocation.includes(
-      "touchTarget = math.max(1, math.floor((tonumber(touchTarget) or 44) + 0.5))",
-    ),
-  "Compact minima and 44 px targets must be divided by UIScale before sizing descendants.",
-);
-
-for (const viewport of [
-  { width: 320, height: 280 },
-  { width: 360, height: 240 },
-  { width: 480, height: 280 },
-  { width: 568, height: 320 },
-]) {
-  for (const scale of [0.8, 1, 1.2]) {
-    const result = calculateResponsiveBounds(
-      viewport.width,
-      viewport.height,
-      scale,
-    );
-    check(
-      `compact_${viewport.width}x${viewport.height}_scale_${String(scale).replace(".", "_")}_is_render_safe`,
-      result.renderedWidth <= viewport.width
-        && result.renderedHeight <= viewport.height
-        && result.renderedTouchTarget >= 44,
-      `Unexpected compact bounds: ${JSON.stringify(result)}`,
-    );
-    check(
-      `compact_${viewport.width}x${viewport.height}_scale_${String(scale).replace(".", "_")}_content_is_bounded`,
-      result.toolbar.used <= result.toolbar.totalWidth
-        && result.categoryUsedWidth <= result.categoryAvailableWidth
-        && result.columns >= 1
-        && result.cellWidth * result.columns
-          + Math.max(0, result.columns - 1) * 8
-          <= result.gridContentWidth,
-      `Unexpected compact content allocation: ${JSON.stringify(result)}`,
-    );
-  }
-}
 
 check(
   "narrow_grid_reduces_columns_before_overflow",
@@ -304,34 +187,6 @@ check(
   "The allocator and runtime hierarchy must expose the no-overlap invariant.",
 );
 
-for (const testCase of [
-  { name: "reported_1277_desktop_grid", width: 379, compact: false },
-  { name: "medium_desktop_grid", width: 440, compact: false },
-  { name: "wide_desktop_grid", width: 640, compact: false },
-]) {
-  const result = allocateToolbarWidths(testCase.width, testCase.compact);
-  check(
-    `${testCase.name}_is_readable_and_bounded`,
-    result.search >= 160
-      && result.capacity >= 44
-      && result.rarity >= 44
-      && result.used <= result.totalWidth,
-    `Unexpected desktop allocation: ${JSON.stringify(result)}`,
-  );
-}
-
-for (const width of [280, 320, 400]) {
-  const result = allocateToolbarWidths(width, true);
-  check(
-    `compact_${width}_keeps_touch_targets`,
-    result.search >= 44
-      && result.capacity >= 44
-      && result.rarity >= 44
-      && result.used <= result.totalWidth,
-    `Unexpected compact allocation: ${JSON.stringify(result)}`,
-  );
-}
-
 check(
   "category_pointer_and_selection_states_are_connected_once",
   [
@@ -353,7 +208,7 @@ check(
     'local state = selected and "Selected" or hovered and "Hovered" or "Idle"',
   )
     && categoryVisual.includes(
-      "widgets.stroke.Color = selected and PALETTE.Gold",
+      "widgets.stroke.Color = selected and PALETTE.Cyan",
     )
     && categoryVisual.includes(
       "widgets.indicator.Visible = selected or hovered",
@@ -398,6 +253,310 @@ check(
   "Narrow capacity chrome must retain an inspectable full semantic label.",
 );
 
+const code=String.raw`
+local function vec2(x,y) return {X=x,Y=y,__kind='Vector2'} end
+local Vector2={new=vec2,zero=vec2(0,0)}
+local UDim={new=function(s,o)return {Scale=s,Offset=o}end}
+local UDim2={new=function(xs,xo,ys,yo)return {X={Scale=xs,Offset=xo},Y={Scale=ys,Offset=yo}}end}
+UDim2.fromOffset=function(x,y)return UDim2.new(0,x,0,y)end
+local function typeof(x)return type(x)=='table' and x.__kind or type(x) end
+local Enum=setmetatable({},{__index=function(t,k)local v=setmetatable({},{__index=function(_,v)return v end});rawset(t,k,v);return v end})
+local function node()
+ local result={Visible=true,attrs={},AbsoluteSize=vec2(0,0),Position=UDim2.fromOffset(0,0),Size=UDim2.fromOffset(0,0),AnchorPoint=Vector2.zero}
+ result.SetAttribute=function(self,k,v)self.attrs[k]=v end
+ result.GetAttribute=function(self,k)return self.attrs[k] end
+ result.IsA=function(_,k)return k=='TextButton' end
+ return setmetatable(result,{__index=function(t,k)local n=node();rawset(t,k,n);return n end})
+end
+local CATEGORIES={'All','Fists','Pets','Boosts','Honor'}
+local RARITIES={'All','Common','Uncommon','Rare','Epic','Legendary','Mythic','Secret'}
+local WIDE_CATEGORY_WIDTH=164
+local WIDE_CATEGORY_GAP=12
+local InventoryUI={}
+`+block('local function allocateToolbarWidths(', 'local function hasTimedItem(')+block('function InventoryUI:ApplyResponsive(', 'function InventoryUI:_enabledActionNames(')+String.raw`
+local count=0
+local function check(ok,message) count+=1;assert(ok,message) end
+local function near(a,b)return math.abs(a-b)<.01 end
+local function makeSelf(actions)
+ local self=setmetatable({_layout={},_rarityButtons={},_cardPool={},_categoryButtons={},_activeActionButtons={},EmptySlotLabels={},_sparseSlotPool={},DetailStatRows={},_snapshot=false,_category='All',_detailExpanded=true,_selectedItem={key='pet:1'},_selectedKey='pet:1',_search='cat'}, {__index=function(t,k)
+  local n=node();rawset(t,k,n);return n
+ end})
+ for _,name in ipairs({'_updateCapacity','_setRarityMenu','_syncDetailVisibility'}) do self[name]=function()end end
+ for _,name in ipairs(CATEGORIES)do self._categoryButtons[name]={button=node(),padding=node(),icon=node(),indicator=node(),arrow=node()}end
+ for i=1,actions do table.insert(self._activeActionButtons,node())end
+ local card={}
+ for _,name in ipairs({'rarity','quantity','equipped','locked','lockedMessage','footerRail','artFrame','name','nameTextLimit'})do card[name]=node()end
+ card.quantity.Visible=true
+ table.insert(self._cardPool,card)
+ self.DetailStatus.Visible=false
+ self.Grid.CanvasPosition=vec2(0,93)
+ return self
+end
+for _,viewport in ipairs({{296,716},{336,616},{366,736},{716,296},{616,336},{576,316},{796,366},{876,466},{716,260},{776,315}}) do
+ for _,scale in ipairs({.8,1,1.2})do
+  for actions=1,4 do
+   local s=makeSelf(actions)
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),true,scale)
+   local prefix=tostring(viewport[1])..'x'..tostring(viewport[2])..'@'..tostring(scale)..'/'..actions..': '
+   check(near(s.Window.Size.X.Offset*scale,viewport[1]),prefix..'host width')
+   check(near(s.Window.Size.Y.Offset*scale,viewport[2]),prefix..'host height')
+   check(near(s.GridLayout.CellSize.Y.Offset*scale,92),prefix..'row height')
+   check(s._layout.columns==(s.Root.attrs.InventoryAvailableGridWidth>=600 and 2 or 1),prefix..'column breakpoint')
+   check(s._cardPool[1].name.TextSize*scale>=14,prefix..'primary text')
+   check(s._cardPool[1].rarity.TextSize*scale>=12,prefix..'secondary text')
+   check(s.Grid.CanvasPosition.Y==93 and s._selectedKey=='pet:1' and s._search=='cat',prefix..'state retained')
+   check(#s._cardPool==1 and #s._activeActionButtons==actions,prefix..'pool retained')
+   local card=s._cardPool[1]
+   local width=s.GridLayout.CellSize.X.Offset
+   local gridUsed=width*s._layout.columns+(s._layout.columns-1)*s.GridLayout.CellPadding.X.Offset
+   check(gridUsed*scale<=s.Root.attrs.InventoryAvailableGridWidth+.01,prefix..'grid cells within content')
+   local categoryUsed=s._categoryButtons.All.button.Size.X.Offset*#CATEGORIES+(#CATEGORIES-1)*s.CategoryLayout.Padding.Offset+s.CategoryPadding.PaddingLeft.Offset+s.CategoryPadding.PaddingRight.Offset
+   check(categoryUsed<=s.Window.Size.X.Offset-24+.01,prefix..'category controls within bar')
+   check(card.equipped.Position.X.Offset+card.equipped.Size.X.Offset<=width-card.quantity.Size.X.Offset-8/scale,prefix..'state quantity separation')
+   check(s.DetailActionLayout.CellSize.X.Offset*scale>=44 and s.DetailActionLayout.CellSize.Y.Offset*scale>=44,prefix..'actions touch target')
+   local action=s.DetailActions
+   local panelWidth=s.Window.Size.X.Offset-24
+   check(action.Position.X.Offset>=0 and action.Position.X.Offset+action.Size.X.Offset<=panelWidth+.01,prefix..'actions x bounds')
+   check(action.Position.Y.Offset>=0 and action.Position.Y.Offset+action.Size.Y.Offset<=s.Detail.Size.Y.Offset+.01,prefix..'actions y bounds')
+   local used=s.DetailActionLayout.CellSize.X.Offset*s.DetailActionLayout.FillDirectionMaxCells+(s.DetailActionLayout.FillDirectionMaxCells-1)*s.DetailActionLayout.CellPadding.X.Offset
+   check(used<=action.Size.X.Offset+.01,prefix..'action grid within panel')
+   check(s.Root.attrs.InventoryToolbarNoOverlap,prefix..'toolbar')
+   s._detailExpanded=false
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),true,scale)
+   check(s.Grid.Visible and s.GridPane.Visible and s.Grid.CanvasPosition.Y==93,prefix..'drawer return retains scroll')
+   InventoryUI.ApplyResponsive(s,vec2(1280,800),false,1)
+   check(not s._cardPool[1].name.TextScaled and s.DetailInternalName.Visible and s._categoryButtons.Boosts.button.Text=='BOOSTS',prefix..'desktop restores readable rows')
+  end
+ end
+end
+-- Test both sides at every scale and the exact inclusive boundary at 100%.
+-- A double-based Vector2 mock cannot represent fractional scaled pixels exactly.
+for _,scale in ipairs({.8,1,1.2}) do
+ for _,availableGridWidth in ipairs(scale==1 and {599,600,601} or {599,601}) do
+  local s=makeSelf(1)
+  InventoryUI.ApplyResponsive(s,vec2(availableGridWidth+48*scale,616),true,scale)
+  check(s._layout.columns==(availableGridWidth>=600 and 2 or 1),'inclusive rendered column breakpoint: '..tostring(scale)..' / '..tostring(availableGridWidth)..' / actual '..tostring(s.Root.attrs.InventoryAvailableGridWidth)..' / columns '..tostring(s._layout.columns))
+ end
+end
+-- Execute the production allocator, including its desktop minimum and compact collapse.
+for _,width in ipairs({379,440,640}) do
+ local result=allocateToolbarWidths(width,false,44)
+ check(result.search>=160 and result.capacity>=44 and result.rarity>=44 and result.used<=width,'desktop toolbar allocation')
+end
+for _,width in ipairs({280,320,400}) do
+ local result=allocateToolbarWidths(width,true,44)
+ check(result.search>=44 and result.capacity>=44 and result.rarity>=44 and result.used<=width,'compact toolbar allocation')
+end
+-- Real desktop layout must retain text floors at every scale. Increasing UI scale
+-- switches a too-narrow three-pane host to compact before its toolbar overlaps.
+for _,viewport in ipairs({{900,600},{980,620},{1100,720},{1277,780},{1600,900}}) do
+ for _,scale in ipairs({.8,1,1.2})do
+  for actions=1,4 do
+   local s=makeSelf(actions)
+   InventoryUI.ApplyResponsive(s,vec2(viewport[1],viewport[2]),false,scale)
+   local c=s._cardPool[1]
+   local prefix='desktop '..tostring(viewport[1])..'@'..tostring(scale)..'/'..tostring(actions)..': '
+   check(not c.name.TextScaled and c.name.TextSize*scale>=14,prefix..'desktop primary floor')
+   check(c.rarity.TextSize*scale>=12 and c.equipped.TextSize*scale>=12 and c.locked.TextSize*scale>=12,prefix..'desktop secondary floor')
+   check(s.Empty.TextSize*scale>=12,prefix..'no-results secondary floor')
+   check(s._layout.columns<=2 and s._layout.columns>=1,prefix..'bounded columns')
+   local width=s.GridLayout.CellSize.X.Offset
+   check(width*scale>=280,prefix..'readable row width')
+   check(near(s.GridLayout.CellSize.Y.Offset*scale,s._layout.compact and 92 or 104),prefix..'readable row height')
+   check(s.Root.attrs.InventoryToolbarNoOverlap,prefix..'desktop toolbar no overlap')
+   check(c.artFrame.Position.X.Offset+c.artFrame.Size.X.Offset<=c.name.Position.X.Offset,prefix..'art name separation')
+   check(c.name.Position.Y.Offset+c.name.Size.Y.Offset<=c.rarity.Position.Y.Offset,prefix..'name rarity separation')
+   check(c.equipped.Position.X.Offset+c.equipped.Size.X.Offset<=width-c.quantity.Size.X.Offset-8/scale,prefix..'desktop state quantity separation')
+   check(width*s._layout.columns+(s._layout.columns-1)*s.GridLayout.CellPadding.X.Offset<=s.Root.attrs.InventoryAvailableGridWidth/scale+.01,prefix..'desktop grid bounds')
+   check(s.Grid.CanvasPosition.Y==93 and s._selectedKey=='pet:1' and s._search=='cat',prefix..'desktop state retained')
+   check(s.DetailActionLayout.CellSize.X.Offset*scale>=44 and s.DetailActionLayout.CellSize.Y.Offset*scale>=44,prefix..'desktop actions touch')
+  end
+ end
+end
+print('Inventory production ApplyResponsive: '..count..' assertions passed')
+`;
+
+const productionOutput = runProductionLuau("inventory-responsive-contract", code);
+assert.match(productionOutput, /Inventory production ApplyResponsive: 2953 assertions passed/);
+const polishSource = fs.readFileSync(path.join(repositoryRoot, "work/punch-wall-rpg/src/shared/PolishConfig.lua"), "utf8").replace(/\r\n?/g, "\n");
+const rarityMapping = polishSource.match(/PolishConfig\.RarityColors = \{[\s\S]*?\n\}/)?.[0];
+assert(rarityMapping, "Missing shared rarity mapping");
+const premiumFlow = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "work/automation/flows/inventory-premium-readability.json"), "utf8"));
+const actualVerification = premiumFlow.steps.find((step) => step.label === "actual Inventory dimensions, semantic colors, selection, search and pet actions").args.code;
+const fitHelper = actualVerification.slice(actualVerification.indexOf("local function fits("), actualVerification.indexOf("local function cardByKey("));
+assert(fitHelper.startsWith("local function fits("), "Missing actual TextBounds verifier");
+const semanticCode = String.raw`
+local Color3={fromRGB=function(r,g,b)return {R=r/255,G=g/255,B=b/255,__kind='Color3'}end}
+local function typeof(v)return type(v)=='table' and v.__kind or type(v)end
+local PolishConfig={}
+` + rarityMapping + "\n" + block("local PALETTE = {", "-- UIGradient")
+  + block("local RARITY_COLORS = {", "local function create(")
+  + block("local function asColor(", "local function itemAccent(")
+  + block("local function itemRarityColor(", "local function actionName(")
+  + fitHelper + String.raw`
+local count=0
+local function check(value,message)count+=1;assert(value,message)end
+for rarity,expected in pairs(PolishConfig.RarityColors)do
+ local original=Color3.fromRGB(255,0,255)
+ local item={rarity=rarity,accent=original}
+ check(itemRarityColor(item)==expected,'shared rarity ignores model accent '..rarity)
+ check(item.accent==original,'model accent unchanged '..rarity)
+end
+check(itemRarityColor(nil)==PolishConfig.RarityColors.Common,'empty defaults to common')
+check(itemRarityColor({rarity='Premium'})==RARITY_COLORS.Premium,'premium fallback')
+check(itemRarityColor({rarity='Unmapped',accent=Color3.fromRGB(255,0,255)})==PALETTE.Muted,'unknown is semantic neutral')
+local function label()
+ return {Text='Readable',TextScaled=false,TextSize=14,TextFits=true,TextBounds={X=80,Y=17},AbsoluteSize={X=180,Y=36},GetFullName=function()return 'actual label' end}
+end
+check(pcall(fits,label(),14,1),'valid text accepted')
+for _,mutate in ipairs({
+ function(x)x.TextScaled=true end,
+ function(x)x.TextSize=13 end,
+ function(x)x.TextFits=false end,
+ function(x)x.TextBounds.X=182 end,
+ function(x)x.TextBounds.Y=38 end,
+})do local x=label();mutate(x);check(not pcall(fits,x,14,1),'invalid actual text rejected')end
+check(not pcall(fits,label(),14,.8),'rendered scale floor enforced')
+print('Inventory semantic/text helper: '..count..' assertions passed')
+`;
+const semanticOutput = runProductionLuau("inventory-semantic-contract", semanticCode);
+assert.match(semanticOutput, /Inventory semantic\/text helper: 20 assertions passed/);
+const clientSource = fs.readFileSync(path.join(repositoryRoot,'work/punch-wall-rpg/src/client/PunchWallClient.client.lua'),'utf8').replace(/\r\n?/g,'\n');
+const setterStart=clientSource.indexOf('\t\t\tif action == "SetSettings" then');
+const setterEnd=clientSource.indexOf('\t\t\tif action == "ClearMarkers" then',setterStart);
+assert(setterStart>=0&&setterEnd>setterStart,'actual settings producer required');
+const settingsProducer=clientSource.slice(setterStart,setterEnd);
+const scaleStart=actualVerification.indexOf('local scaleSettlements={}');
+const scaleEnd=actualVerification.indexOf('local first=',scaleStart);
+assert(scaleStart>=0&&scaleEnd>scaleStart,'actual bounded scale observation helpers required');
+const scaleHelpers=actualVerification.slice(scaleStart,scaleEnd);
+check('premium_flow_uses_one_authoritative_request_per_scale',scaleHelpers.match(/a:Invoke\('SetSettings'/g)?.length===1&&!scaleHelpers.includes('persist=false'),'Polling must never repeat SetSettings or suppress authority');
+check('premium_flow_restores_authoritative_original_scale',actualVerification.includes('local originalSettings=H:JSONDecode(player.RPGStats.SettingsJSON.Value)')&&actualVerification.includes('pcall(setScale,oldScale)'),'Restore the server-backed original value through the same producer');
+const scaleCode=String.raw`
+local n=0 local function check(v,m)n+=1 assert(v,m)end
+local now=0 local os={clock=function()return now end}
+local mode='normal'local requested local requests,serverRequests=0,0 local pending local pendingAt=0
+local typeof=type
+local clientSettings={uiScale=1,motion=true,sound=true}
+local player={RPGStats={SettingsJSON={Value='1'}}}
+local g={GameMenu={FunctionalInventory={InventoryWindow={InventoryScale={Scale=1}}}}}
+local function decodeJSON(v,fallback)local scale=tonumber(v)return scale and{uiScale=scale,motion=true,sound=true}or fallback end
+local H={JSONDecode=function(_,s)local v=decodeJSON(s)assert(v,'malformed settings')return v end,JSONEncode=function(_,v)return 'authority='..tostring(v.authoritative)..', snapshot='..tostring(v.snapshot)..', rendered='..tostring(v.rendered)end}
+local shared={PunchWallStandaloneWindows={SettingsPanel={Visible=false}}}
+local function applyResponsiveLayout()g.GameMenu.FunctionalInventory.InventoryWindow.InventoryScale.Scale=clientSettings.uiScale end
+local function clientSnapshot()return {ok=true,uiScale=clientSettings.uiScale}end
+local actionRemote={FireServer=function(_,payload)
+ check(payload.action=='UpdateSettings','actual producer uses UpdateSettings')serverRequests+=1 pending=payload.value.uiScale pendingAt=now+(mode=='delayed'and 1 or .2)
+end}
+local function invokeSetter(value)local action='SetSettings'
+`+settingsProducer+String.raw`
+end
+local a={Invoke=function(_,action,value)
+ if action=='SetSettings'then requests+=1 requested=value.uiScale return invokeSetter(value)end
+ check(action=='Snapshot','observation only reads Snapshot')
+ if mode=='interInvoke'and requests>0 and serverRequests==0 then clientSettings=decodeJSON(player.RPGStats.SettingsJSON.Value,clientSettings)applyResponsiveLayout()end
+ local r=clientSnapshot()
+ if mode=='snapshotWrong'and now>.01 then r.uiScale=1 end
+ if mode=='malformedSnapshot'and now>.01 then return {}end
+ return r
+end}
+local task={wait=function(dt)
+ now+=dt check(now<10,'observation is bounded')
+ if pending and now>=pendingAt and mode~='authorityWrong'then player.RPGStats.SettingsJSON.Value=tostring(pending)pending=nil end
+ if mode=='authorityMalformed'then player.RPGStats.SettingsJSON.Value='broken'end
+ clientSettings=decodeJSON(player.RPGStats.SettingsJSON.Value,clientSettings)
+ if mode=='authorityWrong'then clientSettings.uiScale=requested end
+ if mode=='transient'and now>=.25 and now<.5 then clientSettings.uiScale=1 end
+ applyResponsiveLayout()
+ if mode=='renderWrong'then g.GameMenu.FunctionalInventory.InventoryWindow.InventoryScale.Scale=1 end
+end}
+`+scaleHelpers+String.raw`
+local function reset(which)
+ now=0 mode=which or'normal'requests=0 serverRequests=0 pending=nil requested=nil
+ clientSettings={uiScale=1,motion=true,sound=true}player.RPGStats.SettingsJSON.Value='1'applyResponsiveLayout()table.clear(scaleSettlements)
+end
+reset()local immediate=a:Invoke('SetSettings',{uiScale=.8,persist=false})
+check(immediate.uiScale==.8 and serverRequests==0,'actual local-only producer returns optimistic .8 without authority')
+task.wait(.05)check(a:Invoke('Snapshot').uiScale==1,'next authoritative snapshot overwrites local-only scale')
+for _,value in ipairs({.8,1,1.2})do reset()local result=setScale(value)
+ check(result.uiScale==value and requests==1 and serverRequests==1,'one authoritative request settles each supported scale')
+ check(#scaleSettlements==1 and scaleSettlements[1].authoritative==value and scaleSettlements[1].rendered==value and now>=.3,'settled evidence requires real authority plus rendered scale')
+ task.wait(.5)check(assertRequestedScale(value).uiScale==value,'later stats retain the authoritative requested value')
+end
+reset('interInvoke')setScale(.8)check(requests==1 and serverRequests==1,'authority_not_local_echo_controls_inter_invocation_snapshot')
+reset('delayed')setScale(.8)check(now>=1.3 and now<2 and requests==1 and serverRequests==1,'delayed authority settles without repeated requests')
+reset('transient')setScale(.8)check(now>=.8 and requests==1,'transient mismatch resets the continuous stability window')
+for _,which in ipairs({'authorityWrong','snapshotWrong','renderWrong','authorityMalformed','malformedSnapshot'})do reset(which)
+ local ok,err=pcall(setScale,.8)
+ check(not ok and tostring(err):find('did not settle within 6s')and now>=6 and now<6.1,which..'_cannot_pass_bounded_settlement')
+ check(requests==1 and serverRequests==1,which..'_cannot_be_masked_by_repeated_settings')
+end
+reset()setScale(.8)player.RPGStats.SettingsJSON.Value='1'task.wait(.1)
+check(not pcall(assertRequestedScale,.8),'later_authoritative_reversion_is_still_a_failure')
+reset()setScale(.8)setScale(.8)check(requests==2 and serverRequests==2,'explicit_same_state_check_has_one_request_each')
+setScale(1)check(assertRequestedScale(1).uiScale==1 and requests==3 and serverRequests==3,'cleanup_restores_original_authoritative_scale_once')
+print('Inventory scale observation: '..n..' assertions passed')
+`;
+const scaleOutput=runProductionLuau('inventory-scale-observation',scaleCode);
+assert.match(scaleOutput,/Inventory scale observation: \d+ assertions passed/);
+let baselineProof;
+const baselineIndex = process.argv.indexOf("--readability-baseline");
+if (baselineIndex >= 0) {
+  const ref = process.argv[baselineIndex + 1];
+  assert(ref, "--readability-baseline requires a Git ref");
+  const result = spawnSync("git", ["show", `${ref}:work/punch-wall-rpg/src/client/InventoryUI.lua`], {cwd: repositoryRoot, encoding:"utf8"});
+  assert.equal(result.status, 0, result.stderr);
+  const baseline = result.stdout.replace(/\r\n?/g, "\n");
+  const begin = baseline.indexOf("function InventoryUI:ApplyResponsive(");
+  const end = baseline.indexOf("function InventoryUI:_enabledActionNames(", begin);
+  assert(begin >= 0 && end > begin, "Missing baseline layout");
+  assert.throws(() => runProductionLuau("inventory-readability-baseline", code.replace(responsive, baseline.slice(begin,end))), /desktop restores readable rows|desktop primary floor|readable row width|no-results secondary floor/);
+  baselineProof = {ref, intendedFailure:true};
+}
+let scaleBaselineProof;
+const scaleBaselineIndex=process.argv.indexOf('--scale-baseline');
+if(scaleBaselineIndex>=0){
+ const ref=process.argv[scaleBaselineIndex+1]||'0262ad6';
+ const result=spawnSync('git',['show',ref+':work/automation/flows/inventory-premium-readability.json'],{cwd:repositoryRoot,encoding:'utf8'});assert.equal(result.status,0,result.stderr);
+ const oldCode=JSON.parse(result.stdout).steps.find(s=>s.label==='actual Inventory dimensions, semantic colors, selection, search and pet actions').args.code;
+ const start=oldCode.indexOf('local function assertRequestedScale('),end=oldCode.indexOf('local first=',start);assert(start>=0&&end>start);
+ const prefix=scaleCode.slice(0,scaleCode.indexOf("reset()local immediate="));
+ const historical=prefix.replace(scaleHelpers,'local scaleSettlements={}\n'+oldCode.slice(start,end))+"reset('interInvoke')setScale(.8)";
+ assert.throws(()=>runProductionLuau('inventory-scale-old-flow',historical),/actual client Snapshot\.uiScale did not retain requested scale 0\.8/);
+ scaleBaselineProof={ref,intendedFailure:'actual client Snapshot.uiScale did not retain requested scale 0.8'};
+}
+const mutationChecks = [];
+if (process.argv.includes("--self-test")) {
+  for (const [name, original, replacement, failure] of [
+    ["duplicate_inset", "and availableWidth\n", "and (availableWidth - 40)\n", /host width/],
+    ["tiny_primary_text", "math.ceil(14 / scale)", "math.ceil(10 / scale)", /primary text/],
+    ["early_two_column_breakpoint", "gridContentWidth * scale >= 600", "gridContentWidth * scale >= 500", /column breakpoint/],
+    ["oversized_grid_cells", "math.floor((gridContentWidth - (columns - 1) * padding) / columns)", "100 + math.floor((gridContentWidth - (columns - 1) * padding) / columns)", /grid cells within content/],
+    ["tiny_desktop_primary_text", "cardRef.name.TextSize = primaryTextSize", "cardRef.name.TextSize = useCompact and primaryTextSize or 10", /desktop primary floor/],
+    ["tiny_desktop_empty_text", "self.Empty.TextSize = secondaryTextSize", "self.Empty.TextSize = useCompact and secondaryTextSize or 12", /no-results secondary floor/],
+    ["scale_ignores_available_width", " or availableWidth < 900", "", /readable row width/],
+  ]) {
+    assert(code.includes(original), `Missing mutation target: ${name}`);
+    assert.throws(() => runProductionLuau("inventory-responsive-mutation", code.replace(original, replacement)), failure);
+    mutationChecks.push(name);
+  }
+  for(const [name,from,to,failure]of [
+   ['settings_local_only_again',"a:Invoke('SetSettings',{uiScale=requested})","a:Invoke('SetSettings',{uiScale=requested,persist=false})",/did not settle within 6s/],
+   ['ignore_scale_authority',"and type(authoritative)=='number' and math.abs(authoritative-requested)<.001","and true",/authorityWrong_cannot_pass_bounded_settlement/],
+   ['ignore_client_scale_snapshot',"and type(actual.uiScale)=='number' and math.abs(actual.uiScale-requested)<.001","and true",/snapshotWrong_cannot_pass_bounded_settlement/],
+   ['ignore_rendered_inventory_scale',"and type(rendered)=='number' and math.abs(rendered-requested)<.001","and true",/renderWrong_cannot_pass_bounded_settlement/],
+   ['ignore_unstable_scale_gap','else stableSince=nil end','end',/transient mismatch resets/],
+   ['accept_optimistic_scale_immediately','now-stableSince>=.3','now-stableSince>=0',/settled evidence requires/],
+   ['repeat_settings_while_polling','task.wait(.05)',"a:Invoke('SetSettings',{uiScale=requested}) task.wait(.05)",/did not settle within 6s/],
+   ['unbound_scale_settlement','deadline=started+6','deadline=started+60',/authorityWrong_cannot_pass_bounded_settlement/],
+  ]){
+   assert(scaleCode.includes(from),name);assert.throws(()=>runProductionLuau('inventory-scale-mutation',scaleCode.replace(from,to)),failure);mutationChecks.push(name);
+  }
+  assert.throws(() => runProductionLuau("inventory-semantic-mutation", semanticCode.replace("PolishConfig.RarityColors[rarity]", "item and item.accent")), /shared rarity ignores model accent/);
+  mutationChecks.push("rarity_uses_model_accent");
+  assert.throws(() => runProductionLuau("inventory-text-mutation", semanticCode.replace("label.TextFits and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1", "true")), /invalid actual text rejected/);
+  mutationChecks.push("text_clipping_guard_removed");
+}
 const passed = Object.values(checks).filter(Boolean).length;
 console.log(
   JSON.stringify(
@@ -406,6 +565,13 @@ console.log(
       passed,
       total: Object.keys(checks).length,
       checks,
+      productionOutput,
+      semanticOutput,
+      scaleOutput,
+      baselineProof,
+      scaleBaselineProof,
+      mutationChecks,
+      limitation: "UI value mocks do not render Roblox text or establish device performance",
       files: [
         path.relative(repositoryRoot, inventoryPath),
         path.relative(repositoryRoot, flowPath),

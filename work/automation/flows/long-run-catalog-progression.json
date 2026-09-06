@@ -5,8 +5,20 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7500, "label": "wait for runtime catalog" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for runtime catalog"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -14,7 +26,13 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local uniqueFists,uniquePets={},{} local fistsOk=#cfg.Fists==16 local petsOk=#cfg.Pets==16 for i,item in ipairs(cfg.Fists) do fistsOk=fistsOk and uniqueFists[item.name]==nil and item.tier==i and (i==1 or item.cost>cfg.Fists[i-1].cost) and (i==1 or item.mult>cfg.Fists[i-1].mult) uniqueFists[item.name]=true end for i,item in ipairs(cfg.Pets) do petsOk=petsOk and uniquePets[item.name]==nil and (i==1 or item.minDepth>cfg.Pets[i-1].minDepth) and (i==1 or item.mult>cfg.Pets[i-1].mult) uniquePets[item.name]=true end local result={ok=fistsOk and petsOk and cfg.MaxPetInventory==150 and cfg.Fists[#cfg.Fists].cost==180000000000000 and cfg.Fists[#cfg.Fists].mult==2800000 and cfg.Pets[#cfg.Pets].minDepth==75 and cfg.Pets[#cfg.Pets].mult==48,fists=#cfg.Fists,pets=#cfg.Pets,capacity=cfg.MaxPetInventory,lastFist=cfg.Fists[#cfg.Fists].name,lastPet=cfg.Pets[#cfg.Pets].name} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"fists\"\\s*:\\s*16", "\"pets\"\\s*:\\s*16", "Ascendant Hero", "Omega Guardian"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"fists\"\\s*:\\s*16",
+        "\"pets\"\\s*:\\s*16",
+        "Ascendant Hero",
+        "Omega Guardian"
+      ],
       "label": "catalog is unique ordered and spans endgame"
     },
     {
@@ -24,7 +42,19 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local cfg=require(game.ReplicatedStorage.GameConfig) local last=cfg.Fists[#cfg.Fists] c:Invoke('Reset') c:Invoke('SetStats',{Coins=last.cost,Depth=74,WallLevel=99,OwnedFistsJSON='[\"Starter Glove\"]',EquippedFist='Starter Glove',FistMultiplier=1}) local locked=c:Invoke('BuyFist',last.name) local afterLocked=c:Invoke('Snapshot') c:Invoke('SetStats',{Coins=last.cost-1,Depth=75,WallLevel=1}) local low=c:Invoke('BuyFist',last.name) local afterLow=c:Invoke('Snapshot') c:Invoke('SetStats',{Coins=last.cost}) local exact=c:Invoke('BuyFist',last.name) local after=c:Invoke('Snapshot') local result={ok=locked.ok==false and locked.reason=='depth_locked' and locked.depth==74 and afterLocked.WallLevel==99 and afterLocked.Coins==last.cost and low.ok==false and low.reason=='not_enough_coins' and afterLow.Coins==last.cost-1 and afterLow.WallLevel==1 and afterLow.EquippedFist=='Starter Glove' and exact.ok==true and after.Coins==0 and after.EquippedFist==last.name and after.FistMultiplier==last.mult,locked=locked.reason,lockedDepth=locked.depth,highWallLevel=afterLocked.WallLevel,required=locked.requiredDepth,low=low.reason,unlockDepth=afterLow.Depth,unlockWallLevel=afterLow.WallLevel,afterLow=afterLow.Coins,exact=exact.ok,equipped=after.EquippedFist,mult=after.FistMultiplier,coins=after.Coins} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "depth_locked", "\"lockedDepth\"\\s*:\\s*74", "\"highWallLevel\"\\s*:\\s*99", "\"required\"\\s*:\\s*75", "not_enough_coins", "\"unlockDepth\"\\s*:\\s*75", "\"unlockWallLevel\"\\s*:\\s*1", "Ascendant Hero", "\"mult\"\\s*:\\s*2800000", "\"coins\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "depth_locked",
+        "\"lockedDepth\"\\s*:\\s*74",
+        "\"highWallLevel\"\\s*:\\s*99",
+        "\"required\"\\s*:\\s*75",
+        "not_enough_coins",
+        "\"unlockDepth\"\\s*:\\s*75",
+        "\"unlockWallLevel\"\\s*:\\s*1",
+        "Ascendant Hero",
+        "\"mult\"\\s*:\\s*2800000",
+        "\"coins\"\\s*:\\s*0"
+      ],
       "label": "server enforces depth-only final fist and cost boundaries"
     },
     {
@@ -34,10 +64,21 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Depth=75,WallLevel=75}) local grant=c:Invoke('GrantPet',{name='Omega Guardian',stars=1}) local first=c:Invoke('Snapshot') local duplicate=c:Invoke('GrantPet',{name='Omega Guardian',stars=1}) local after=c:Invoke('Snapshot') local inventory=H:JSONDecode(after.PetInventoryJSON) local equipped=H:JSONDecode(after.EquippedPetsJSON) local result={ok=grant.ok==true and duplicate.ok==true and table.find(inventory,'Omega Guardian')~=nil and table.find(equipped,'Omega Guardian')~=nil and first.PetMultiplier==48 and after.PetMultiplier==96 and first.Luck==2.25 and after.Luck==first.Luck,grant=grant.ok,duplicate=duplicate.ok,inventory=#inventory,equipped=equipped[1],firstMult=first.PetMultiplier,afterMult=after.PetMultiplier,firstLuck=first.Luck,afterLuck=after.Luck} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "Omega Guardian", "\"firstMult\"\\s*:\\s*48", "\"afterMult\"\\s*:\\s*96", "\"firstLuck\"\\s*:\\s*2.25", "\"afterLuck\"\\s*:\\s*2.25"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "Omega Guardian",
+        "\"firstMult\"\\s*:\\s*48",
+        "\"afterMult\"\\s*:\\s*96",
+        "\"firstLuck\"\\s*:\\s*2.25",
+        "\"afterLuck\"\\s*:\\s*2.25"
+      ],
       "label": "depth-75 pet grants once and duplicate cannot farm Luck"
     },
-    { "type": "wait", "ms": 1800, "label": "wait for Omega Guardian visual" },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "wait for Omega Guardian visual"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -45,7 +86,12 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:FindFirstChild(p.Name..' Client Companions') local model=folder and folder:FindFirstChildWhichIsA('Model') local unsafe=0 local largest=99 if model then local _,size=model:GetBoundingBox() largest=math.max(size.X,size.Y,size.Z) for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') or d:IsA('Tool') then unsafe+=1 end end end local result={ok=model and model:GetAttribute('PetDefinitionName')=='Omega Guardian' and model:GetAttribute('VisualSource')=='ExternalTemplate' and model:GetAttribute('PetVisualIdentity')=='Sanitized_SecretTitanGolemPet' and model:GetAttribute('CatalogPetThemeMatched')==true and model:GetAttribute('CatalogPetColorMatched')==true and unsafe==0 and largest<=1.76,name=model and model:GetAttribute('PetDefinitionName'),source=model and model:GetAttribute('VisualSource'),identity=model and model:GetAttribute('PetVisualIdentity'),largest=largest,unsafe=unsafe} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "Omega Guardian", "Sanitized_SecretTitanGolemPet", "\"unsafe\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "Omega Guardian",
+        "Sanitized_SecretTitanGolemPet",
+        "\"unsafe\"\\s*:\\s*0"
+      ],
       "label": "endgame pet uses bounded sanitized model"
     },
     {
@@ -55,10 +101,17 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') local result=c:Invoke('GrantAllPets') result.valid=result.ok==true and result.granted==16 assert(result.valid,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"granted\"\\s*:\\s*16"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"granted\"\\s*:\\s*16"
+      ],
       "label": "grant complete normal pet catalog"
     },
-    { "type": "wait", "ms": 1800, "label": "wait for complete pet inventory previews" },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "wait for complete pet inventory previews"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -66,7 +119,13 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') task.wait(.6) local root=gui.GameMenu:FindFirstChild('InventoryRoot',true) or gui.GameMenu local seen,ready,unsafe,bounded=0,0,0,0 local missing={} for _,def in ipairs(cfg.Pets) do local card=nil for _,d in ipairs(root:GetDescendants()) do if d:IsA('TextButton') and d:GetAttribute('PreviewPetName')==def.name then card=d break end end if card then seen+=1 local viewport=card:FindFirstChild('ItemPetPreview',true) local world=viewport and viewport:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') if viewport and viewport:GetAttribute('PreviewReady')==true and model and model:GetAttribute('PetDefinitionName')==def.name and model:GetAttribute('PetPreviewVisualSource')=='ExternalTemplate' then ready+=1 end if model then local bounds,size=model:GetBoundingBox() local radius=math.max(size.X,size.Y,size.Z)*.5 local camera=viewport.CurrentCamera local distance=camera and (camera.CFrame.Position-bounds.Position).Magnitude or 0 local required=math.max(2.6,radius/math.tan(math.rad((camera and camera.FieldOfView or 34)*.62))) if camera and distance>=required then bounded+=1 end for _,child in ipairs(model:GetDescendants()) do if child:IsA('LuaSourceContainer') or child:IsA('RemoteEvent') or child:IsA('RemoteFunction') or child:IsA('ClickDetector') or child:IsA('ProximityPrompt') or child:IsA('Tool') or child:IsA('Sound') then unsafe+=1 end end end else table.insert(missing,def.name) end end local result={ok=seen==16 and ready==16 and bounded==16 and unsafe==0,seen=seen,ready=ready,bounded=bounded,unsafe=unsafe,missing=missing} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"seen\"\\s*:\\s*16", "\"ready\"\\s*:\\s*16", "\"bounded\"\\s*:\\s*16", "\"unsafe\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"seen\"\\s*:\\s*16",
+        "\"ready\"\\s*:\\s*16",
+        "\"bounded\"\\s*:\\s*16",
+        "\"unsafe\"\\s*:\\s*0"
+      ],
       "label": "all sixteen pet cards render exact bounded sanitized previews"
     },
     {
@@ -76,7 +135,9 @@
         "datamodel_type": "Server",
         "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{Depth=0,WallLevel=99,OwnedFistsJSON='[\"Starter Glove\"]',EquippedFist='Starter Glove',FistMultiplier=1}) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "seed high-level zero-depth shop lock state"
     },
     {
@@ -84,9 +145,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenTab','Fists') a:Invoke('OpenShopPage','Fists') task.wait(.25) local shop=gui.GameMenu.FunctionalHeroShop local locked=0 local valid=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) local action=card and card:FindFirstChild(item.name..'Action',true) local expected=(tonumber(item.unlockDepth) or 0)>0 locked+=card and card:GetAttribute('DepthLocked')==true and 1 or 0 valid=valid and card~=nil and action~=nil and (card:GetAttribute('DepthLocked')==true)==expected and (not expected or (action.Active==false and action.Selectable==false and action:GetAttribute('ShopActionBound')==false)) end local result={ok=valid and locked==15,locked=locked,wallLevel=99,depth=0} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenTab','Fists') task.wait(.25) local shop=gui.GameMenu.FunctionalHeroShop local locked=0 local valid=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) local action=card and card:FindFirstChild(item.name..'Action',true) local expected=(tonumber(item.unlockDepth) or 0)>0 locked+=card and card:GetAttribute('DepthLocked')==true and 1 or 0 valid=valid and card~=nil and action~=nil and (card:GetAttribute('DepthLocked')==true)==expected and (not expected or (action.Active==false and action.Selectable==false and action:GetAttribute('ShopActionBound')==false)) end local result={ok=valid and locked==15,locked=locked,wallLevel=99,depth=0} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"locked\"\\s*:\\s*15", "\"wallLevel\"\\s*:\\s*99", "\"depth\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"locked\"\\s*:\\s*15",
+        "\"wallLevel\"\\s*:\\s*99",
+        "\"depth\"\\s*:\\s*0"
+      ],
       "label": "client keeps fifteen fists locked despite high WallLevel"
     },
     {
@@ -96,7 +162,9 @@
         "datamodel_type": "Server",
         "code": "game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=74,WallLevel=99}) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "advance shop to penultimate depth"
     },
     {
@@ -106,7 +174,11 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenShopPage','Fists') task.wait(.25) local shop=gui.GameMenu.FunctionalHeroShop local locked=0 local finalCard=shop:FindFirstChild('Ascendant HeroShopCard',true) for _,d in ipairs(shop:GetDescendants()) do if d:IsA('Frame') and d:GetAttribute('DepthLocked')==true then locked+=1 end end local result={ok=locked==1 and finalCard and finalCard:GetAttribute('DepthLocked')==true,locked=locked,finalLocked=finalCard and finalCard:GetAttribute('DepthLocked')} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"locked\"\\s*:\\s*1", "\"finalLocked\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"locked\"\\s*:\\s*1",
+        "\"finalLocked\"\\s*:\\s*true"
+      ],
       "label": "client leaves only final fist locked at depth seventy-four"
     },
     {
@@ -116,7 +188,9 @@
         "datamodel_type": "Server",
         "code": "game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=75,WallLevel=1}) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "unlock shop with depth despite low WallLevel"
     },
     {
@@ -124,27 +198,88 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenTab','Fists') a:Invoke('OpenShopPage','Fists') task.wait(.35) local shop=gui.GameMenu.FunctionalHeroShop local scroll=shop:FindFirstChild('FistCatalogScroll') local cards,actions,locked=0,0,0 local minHeight=999 local statesValid=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) local action=card and card:FindFirstChild(item.name..'Action',true) if card then cards+=1 minHeight=math.min(minHeight,card.AbsoluteSize.Y) end if action then actions+=1 local isLocked=card:GetAttribute('DepthLocked')==true local isEquipped=action.Text=='EQUIPPED' if isLocked then locked+=1 statesValid=statesValid and action.Active==false and action.Selectable==false and action:GetAttribute('ShopActionBound')==false elseif isEquipped then statesValid=statesValid and action:GetAttribute('ShopActionBound')==false else statesValid=statesValid and action.Active==true and action.Selectable==true and action:GetAttribute('ShopActionBound')==true end else statesValid=false end end local result={ok=scroll~=nil and shop:GetAttribute('ShopCatalogScrollable')==true and shop:GetAttribute('ShopCatalogItemCount')==16 and cards==16 and actions==16 and locked==0 and minHeight>=110 and scroll.CanvasSize.Y.Offset>scroll.AbsoluteSize.Y and statesValid,cards=cards,actions=actions,locked=locked,minHeight=minHeight,canvas=scroll and scroll.CanvasSize.Y.Offset or 0,viewport=scroll and scroll.AbsoluteSize.Y or 0,statesValid=statesValid,mode=shop:GetAttribute('ShopCatalogScrollMode')} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=gui.PunchWallClientAutomation a:Invoke('OpenTab','Fists') task.wait(.35) local shop=gui.GameMenu.FunctionalHeroShop local scroll=shop:FindFirstChild('ShopCatalogScroll') local cards,actions,locked=0,0,0 local minHeight=999 local statesValid=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) local action=card and card:FindFirstChild(item.name..'Action',true) if card then cards+=1 minHeight=math.min(minHeight,card.AbsoluteSize.Y) end if action then actions+=1 local isLocked=card:GetAttribute('DepthLocked')==true local isEquipped=action.Text=='EQUIPPED' if isLocked then locked+=1 statesValid=statesValid and action.Active==false and action.Selectable==false and action:GetAttribute('ShopActionBound')==false elseif isEquipped then statesValid=statesValid and action:GetAttribute('ShopActionBound')==false else statesValid=statesValid and action.Active==true and action.Selectable==true and action:GetAttribute('ShopActionBound')==true end else statesValid=false end end local compact=shop:GetAttribute('ShopCompactLayout')=='MobileReadableRowsV1' local desktopRows=shop:GetAttribute('ShopCompactLayout')=='DesktopReadableRowsV1' local mode=shop:GetAttribute('ShopCatalogScrollMode') local modeValid=mode==(compact and 'MobileReadableRowsV1' or desktopRows and 'DesktopReadableRowsV1' or 'FixedReadableCardsV1') local result={ok=modeValid and scroll~=nil and shop:GetAttribute('ShopCatalogScrollable')==true and shop:GetAttribute('ShopCatalogItemCount')==16 and cards==16 and actions==16 and locked==0 and minHeight>=110 and scroll.AbsoluteSize.Y>0 and scroll.AbsoluteCanvasSize.Y>scroll.AbsoluteSize.Y and statesValid,cards=cards,actions=actions,locked=locked,minHeight=minHeight,canvas=scroll and scroll.CanvasSize.Y.Offset or 0,viewport=scroll and scroll.AbsoluteSize.Y or 0,statesValid=statesValid,mode=shop:GetAttribute('ShopCatalogScrollMode')} assert(result.ok,H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"cards\"\\s*:\\s*16", "\"actions\"\\s*:\\s*16", "\"locked\"\\s*:\\s*0", "FixedReadableCardsV1", "\"statesValid\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"cards\"\\s*:\\s*16",
+        "\"actions\"\\s*:\\s*16",
+        "\"locked\"\\s*:\\s*0",
+        "(?:FixedReadableCardsV1|MobileReadableRowsV1|DesktopReadableRowsV1)",
+        "\"statesValid\"\\s*:\\s*true"
+      ],
       "label": "all fist offers are readable and scroll-accessible"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_LongRun_FistCatalog_Top" }, "label": "capture expanded fist catalog top" },
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_LongRun_FistCatalog_Top"
+      },
+      "label": "capture expanded fist catalog top"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
-      "args": { "datamodel_type": "Client", "code": "local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local scroll=gui.GameMenu.FunctionalHeroShop:FindFirstChild('FistCatalogScroll') scroll.CanvasPosition=Vector2.new(0,math.max(0,scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteSize.Y)) task.wait(.25) return scroll.CanvasPosition.Y>0" },
-      "expectRegex": ["true"],
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local shop=gui.GameMenu.FunctionalHeroShop local scroll=shop:FindFirstChild('ShopCatalogScroll') assert(scroll and scroll.AbsoluteSize.Y>0,'live catalog scroll missing') scroll.CanvasPosition=Vector2.new(0,math.max(0,scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteWindowSize.Y)) task.wait(.25) local card=shop:FindFirstChild('Ascendant HeroShopCard',true) local action=card and card:FindFirstChild('Ascendant HeroAction') local sp,ss=scroll.AbsolutePosition,scroll.AbsoluteSize local cp,cs=card.AbsolutePosition,card.AbsoluteSize local visible=cp.X>=sp.X-1 and cp.Y>=sp.Y-1 and cp.X+cs.X<=sp.X+ss.X+1 and cp.Y+cs.Y<=sp.Y+ss.Y+1 local result={ok=scroll.CanvasPosition.Y>0 and visible and action~=nil and action.Active and action:GetAttribute('ShopActionBound')==true,scroll=scroll.CanvasPosition.Y,visible=visible,key=card.Name} assert(result.ok,H:JSONEncode(result)) return true"
+      },
+      "expectRegex": [
+        "true"
+      ],
       "label": "scroll to endgame fist offers"
     },
-    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_LongRun_FistCatalog_Endgame" }, "label": "capture expanded fist catalog endgame" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+    {
+      "type": "call",
+      "tool": "screen_capture",
+      "args": {
+        "capture_id": "VQC_LongRun_FistCatalog_Endgame"
+      },
+      "label": "capture expanded fist catalog endgame"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleAfterStop",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleAfterStop",
+      "label": "post-stop console clean"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

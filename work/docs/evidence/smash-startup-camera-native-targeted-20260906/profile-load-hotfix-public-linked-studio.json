@@ -1,0 +1,55 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "profile-load-hotfix-public-linked-studio",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start linked published-place Studio lifecycle",
+        "linked Studio receives a ready non-writable ephemeral profile",
+        "preserve startup failure console before stop",
+        "cleanup stop linked Studio lifecycle and verify Edit"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"hudReflectsSnapshot\":true,\"observedSnapshots\":26,\"elapsed\":25.024916700000177,\"profileReady\":true,\"observerDisconnected\":true,\"coinText\":\"0\",\"authoritativeSnapshotReceived\":true,\"authoritativeValuesMatch\":true,\"timedOut\":true,\"clientSnapshotReady\":false,\"hudReady\":true,\"remotes\":{\"Feedback\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"StatsChanged\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"ActionRequest\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"Notify\":{\"currentParent\":true,\"class\":\"RemoteEvent\"}},\"powerText\":\"22.8K\",\"remotesReady\":true}",
+      "cleanup": {
+        "attempted": true,
+        "actions": [
+          {
+            "label": "preserve startup failure console before stop",
+            "tool": "get_console_output",
+            "ok": true
+          },
+          {
+            "label": "cleanup stop linked Studio lifecycle and verify Edit",
+            "tool": "start_stop_play",
+            "ok": true
+          }
+        ],
+        "stopAcknowledged": true,
+        "editVerified": true,
+        "restored": true,
+        "edit": {
+          "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+          "placeId": "0",
+          "datamodelType": "Edit"
+        }
+      },
+      "context": {
+        "ephemeralProfileReady": "{\"ok\":true,\"state\":\"EphemeralStudio\",\"liveOptIn\":false,\"writable\":false,\"mode\":\"EphemeralStudio\",\"ready\":true,\"defaultEphemeral\":true}",
+        "clientStartupReady": "{\"ok\":false,\"hudReflectsSnapshot\":true,\"observedSnapshots\":26,\"elapsed\":25.024916700000177,\"profileReady\":true,\"observerDisconnected\":true,\"coinText\":\"0\",\"authoritativeSnapshotReceived\":true,\"authoritativeValuesMatch\":true,\"timedOut\":true,\"clientSnapshotReady\":false,\"hudReady\":true,\"remotes\":{\"Feedback\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"StatsChanged\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"ActionRequest\":{\"currentParent\":true,\"class\":\"RemoteEvent\"},\"Notify\":{\"currentParent\":true,\"class\":\"RemoteEvent\"}},\"powerText\":\"22.8K\",\"remotesReady\":true}",
+        "failureConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    }
+  ]
+}

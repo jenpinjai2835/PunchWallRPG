@@ -1,0 +1,35 @@
+{
+  "name": "boss-depth-authority",
+  "description": "Verify final Titan entry requires the declared Depth 75 and Lv99 before health, participation, or rewards can change.",
+  "studioName": "PunchWallRPGPlayable_v1_final",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for server" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local boss=workspace.PunchWallRPG.Walls['Titan Server Wall'] assert(boss:GetAttribute('RequiredDepth')==75,'Titan declared depth changed') local rows={} for _,depth in ipairs({29,30,74}) do c:Invoke('ResetWorld') c:Invoke('Reset') c:Invoke('SetStats',{Depth=depth,WallLevel=99,Power=1500000000,FistMultiplier=100,Coins=0,Honor=0,Score=0,WallXP=0}) c:Invoke('ClearCooldowns') local before=c:Invoke('Snapshot') local hp=boss:GetAttribute('HP') local result=c:Invoke('HitBossWeakPoint') local after=c:Invoke('Snapshot') local ok=result.ok==false and result.reason=='depth_gate' and result.requiredDepth==75 and boss:GetAttribute('HP')==hp and boss:GetAttribute('ParticipantCount')==0 and not boss:GetAttribute('Broken') and after.Coins==before.Coins and after.Honor==before.Honor and after.WallXP==before.WallXP and after.Score==before.Score and after.Depth==depth assert(ok,'invalid Titan entry at '..depth..' '..H:JSONEncode(result)) rows[#rows+1]={depth=depth,ok=ok,reason=result.reason} end return H:JSONEncode({ok=true,rejections=#rows,rows=rows})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rejections\"\\s*:\\s*3"],
+      "label": "reject Depth29,30,74 without combat or reward mutation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local boss=workspace.PunchWallRPG.Walls['Titan Server Wall'] c:Invoke('ResetWorld') c:Invoke('SetStats',{Depth=75,WallLevel=98,Power=15,FistMultiplier=1,PetMultiplier=0}) c:Invoke('ClearCooldowns') local before=boss:GetAttribute('HP') local blocked=c:Invoke('HitBoss') assert(blocked.ok==false and blocked.reason=='level_gate' and boss:GetAttribute('HP')==before,'Lv98 bypassed gate') c:Invoke('SetStats',{WallLevel=99}) c:Invoke('ClearCooldowns') local hit=c:Invoke('HitBoss') assert(hit.ok==true and hit.outcome=='hit' and boss:GetAttribute('HP')<before and boss:GetAttribute('ParticipantCount')==1,'Depth75 Lv99 valid hit failed') return H:JSONEncode({ok=true,levelGate=blocked.reason,outcome=hit.outcome,participants=boss:GetAttribute('ParticipantCount')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"participants\"\\s*:\\s*1"],
+      "label": "retain Lv99 requirement and admit exactly Depth75"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

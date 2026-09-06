@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-09-06T14:06:38.3228305Z",
+  "priorEvidence": "smash-user-authorized-studio-cleanup-20260906.json",
+  "note": "Read-only post-exit verification; initial immediate process enumeration retained exiting process objects.",
+  "processes": [
+    {
+      "ProcessId": 7716,
+      "CreationDate": "2026-09-06T20:40:59.315623+07:00",
+      "CommandLine": "\"C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe\" \"F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx\""
+    }
+  ],
+  "unchangedFiles": true,
+  "ok": true,
+  "memory": {
+    "TotalVisibleMemorySize": 16621748,
+    "FreePhysicalMemory": 5191984,
+    "TotalVirtualMemorySize": 78343704,
+    "FreeVirtualMemory": 51895680
+  }
+}

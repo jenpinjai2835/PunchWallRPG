@@ -5,8 +5,20 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7000, "label": "wait for gameplay runtime" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for gameplay runtime"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -23,10 +35,11 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local automation=g:WaitForChild('PunchWallClientAutomation') local oldMinZoom,oldMaxZoom=p.CameraMinZoomDistance,p.CameraMaxZoomDistance local diagnostics local ok,runError=xpcall(function() local result=automation:Invoke('__RunCamera',18) local character=p.Character or p.CharacterAdded:Wait() local root=character:WaitForChild('HumanoidRootPart') local head=character:FindFirstChild('Head') or root local cam=workspace.CurrentCamera local headPoint,onScreen=cam:WorldToViewportPoint(head.Position) local feetPoint=cam:WorldToViewportPoint(root.Position-Vector3.new(0,2.5,0)) local readable=onScreen and math.abs(headPoint.Y-feetPoint.Y)>=18 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character} local freshInside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then freshInside+=1 end end local freshFaded=0 for _,part in ipairs(character:GetDescendants()) do if part:IsA('BasePart') and part.LocalTransparencyModifier>.01 then freshFaded+=1 end end local zoomRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 local freshValid=onScreen and readable and freshInside==0 and freshFaded==0 and cam.CameraType==Enum.CameraType.Custom and g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true and zoomRestored local contractValid=type(result)=='table' and result.valid==true and result.visualValid==true and result.actions==18 and result.inside==0 and result.type=='Custom' and result.mode=='CustomPreserved' and freshValid diagnostics={valid=contractValid,visualValid=result and result.visualValid==true,actions=result and result.actions or -1,inside=result and result.inside or -1,type=result and result.type or 'Missing',mode=result and result.mode or 'Missing',initialOrbitSettled=result and result.initialOrbitSettled==true,settleTimedOut=result and result.settleTimedOut==true,freshValid=freshValid,freshOnScreen=onScreen,freshReadable=readable,freshInside=freshInside,freshFaded=freshFaded,zoomRestored=zoomRestored} assert(contractValid,'self-contained long-tunnel camera contract failed: '..H:JSONEncode(diagnostics)) end,debug.traceback) p.CameraMaxZoomDistance=oldMaxZoom p.CameraMinZoomDistance=oldMinZoom local cleanupRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 diagnostics=diagnostics or {valid=false,freshValid=false} diagnostics.cleanupRestored=cleanupRestored if not ok then error(runError) end assert(cleanupRestored,'long-tunnel camera cleanup failed: '..H:JSONEncode(diagnostics)) return H:JSONEncode(diagnostics)"
+        "code": "local function compactCameraResult(result)\n local summary={}\n if type(result)~='table' then return {valid=false,reason='missing_camera_result'} end\n for key,value in pairs(result) do\n  local kind=type(value) if kind=='boolean' or kind=='number' or kind=='string' then summary[key]=value end\n end\n summary.visualFailureReasons=result.visualFailureReasons\n summary.visibilityPhases=result.visibilityPhases\n return summary\nend\nlocal H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local automation=g:WaitForChild('PunchWallClientAutomation') local oldMinZoom,oldMaxZoom=p.CameraMinZoomDistance,p.CameraMaxZoomDistance local diagnostics local ok,runError=xpcall(function() local result=automation:Invoke('__RunCamera',18) local character=p.Character or p.CharacterAdded:Wait() local root=character:WaitForChild('HumanoidRootPart') local head=character:FindFirstChild('Head') or root local cam=workspace.CurrentCamera local headPoint,onScreen=cam:WorldToViewportPoint(head.Position) local feetPoint=cam:WorldToViewportPoint(root.Position-Vector3.new(0,2.5,0)) local readable=onScreen and math.abs(headPoint.Y-feetPoint.Y)>=18 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character} local freshInside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then freshInside+=1 end end local freshFaded=0 for _,part in ipairs(character:GetDescendants()) do if part:IsA('BasePart') and part.LocalTransparencyModifier>.01 then freshFaded+=1 end end local obscurerIgnore={character} for _,name in ipairs({'Local Punch Debris',p.Name..' Client Companions'}) do local folder=workspace:FindFirstChild(name) if folder then table.insert(obscurerIgnore,folder) end end local gameRoot=workspace:FindFirstChild('PunchWallRPG') local physicsDebris=gameRoot and gameRoot:FindFirstChild('Depth Physics Debris') if physicsDebris then table.insert(obscurerIgnore,physicsDebris) end local freshObscurers={} for _,part in ipairs(cam:GetPartsObscuringTarget({head.Position,root.Position+Vector3.new(0,1.15,0)},obscurerIgnore)) do if part:IsA('BasePart') and part.Transparency<.95 then table.insert(freshObscurers,{name=part:GetFullName(),canQuery=part.CanQuery,canCollide=part.CanCollide,transparency=part.Transparency,localTransparency=part.LocalTransparencyModifier}) end end local freshLineOfSightClear=#freshObscurers==0 local correctionBounded=type(result)=='table' and type(result.maxCorrectionStep)=='number' and result.maxCorrectionStep<=2.65 local safetyBounded=type(result)=='table' and type(result.maxEscapeStep)=='number' and result.maxEscapeStep<=2.65 and result.physicalUnresolvedFrames==0 and result.unresolvedSafetyFrames==result.physicalUnresolvedFrames local visibilityMeasured=type(result)=='table' and type(result.transientLineOfSightFrames)=='number' and result.transientLineOfSightFrames>=0 and type(result.clearRatio)=='number' and result.clearRatio>=.55 and type(result.settledClearRatio)=='number' and result.settledClearRatio>=.9 and type(result.readableRatio)=='number' and result.readableRatio>=.65 and type(result.settledReadableRatio)=='number' and result.settledReadableRatio>=.9 local selectedOrbitPreserved=type(result)=='table' and type(result.configuredOrbit)=='number' and type(result.selectedDistance)=='number' and type(result.userOrbitDistance)=='number' and type(result.finishDistance)=='number' and math.abs(result.configuredOrbit-result.selectedDistance)<.001 and math.abs(result.configuredOrbit-result.userOrbitDistance)<.001 and math.abs(result.finishDistance-result.configuredOrbit)<.08 local zoomRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 local freshValid=onScreen and readable and freshLineOfSightClear and freshInside==0 and freshFaded==0 and cam.CameraType==Enum.CameraType.Custom and g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true and zoomRestored local contractValid=type(result)=='table' and result.valid==true and result.visualValid==true and result.actions==18 and result.inside==0 and result.type=='Custom' and result.mode=='CustomPreserved' and correctionBounded and safetyBounded and visibilityMeasured and selectedOrbitPreserved and freshValid diagnostics={sampledResult=compactCameraResult(result),contractValid=contractValid,valid=contractValid,visualValid=result and result.visualValid==true,actions=result and result.actions or -1,inside=result and result.inside or -1,type=result and result.type or 'Missing',mode=result and result.mode or 'Missing',initialOrbitSettled=result and result.initialOrbitSettled==true,settleTimedOut=result and result.settleTimedOut==true,freshValid=freshValid,finalCamera=tostring(cam.CFrame.Position),finalRoot=tostring(root.Position),finalHead=tostring(head.Position),freshOnScreen=onScreen,freshReadable=readable,freshInside=freshInside,freshFaded=freshFaded,freshObscurers=freshObscurers,freshObscurerCount=#freshObscurers,freshLineOfSightClear=freshLineOfSightClear,correctionBounded=correctionBounded,safetyBounded=safetyBounded,visibilityMeasured=visibilityMeasured,selectedOrbitPreserved=selectedOrbitPreserved,zoomRestored=zoomRestored} end,debug.traceback) p.CameraMaxZoomDistance=oldMaxZoom p.CameraMinZoomDistance=oldMinZoom local cleanupRestored=math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 diagnostics=diagnostics or {valid=false,freshValid=false} diagnostics.cleanupRestored=cleanupRestored if not ok then error(runError) end assert(cleanupRestored,'long-tunnel camera cleanup failed: '..H:JSONEncode(diagnostics)) return H:JSONEncode(diagnostics)"
       },
       "saveAs": "cameraDiagnostics",
       "expectRegex": [
+        "\"contractValid\"\\s*:\\s*true",
         "\"valid\"[ ]*:[ ]*true",
         "\"visualValid\"[ ]*:[ ]*true",
         "\"actions\"[ ]*:[ ]*18",
@@ -41,15 +54,110 @@
         "\"freshInside\"[ ]*:[ ]*0",
         "\"freshFaded\"[ ]*:[ ]*0",
         "\"zoomRestored\"[ ]*:[ ]*true",
-        "\"cleanupRestored\"[ ]*:[ ]*true"
+        "\"cleanupRestored\"[ ]*:[ ]*true",
+        "\"freshLineOfSightClear\"\\s*:\\s*true",
+        "\"freshObscurerCount\"\\s*:\\s*0",
+        "\"correctionBounded\"\\s*:\\s*true"
       ],
       "label": "sample and freshly verify eighteen high-power tunnel punches"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=1,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[1] local encoded=H:JSONEncode({page=1,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail1",
+      "allowError": true,
+      "label": "preserve camera visibility detail 1 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=2,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[2] local encoded=H:JSONEncode({page=2,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail2",
+      "allowError": true,
+      "label": "preserve camera visibility detail 2 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=3,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[3] local encoded=H:JSONEncode({page=3,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail3",
+      "allowError": true,
+      "label": "preserve camera visibility detail 3 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=4,available=false}) end local d=H:JSONDecode(text) local sample=d.last local encoded=H:JSONEncode({page=4,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail4",
+      "allowError": true,
+      "label": "preserve camera visibility detail 4 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local raw=g and g:GetAttribute('CameraAutomationRecoveryJSON') if type(raw)~='string' then return H:JSONEncode({available=false,record='last'}) end local d=H:JSONDecode(raw) local encoded=H:JSONEncode({available=d.last~=nil,record='last',sample=d.last}) assert(#encoded<3900,'recovery detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraRecoveryLast",
+      "allowError": true,
+      "label": "preserve last bounded recovery route before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local raw=g and g:GetAttribute('CameraAutomationRecoveryJSON') if type(raw)~='string' then return H:JSONEncode({available=false,record='first'}) end local d=H:JSONDecode(raw) local encoded=H:JSONEncode({available=d.first~=nil,record='first',sample=d.first}) assert(#encoded<3900,'recovery detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraRecoveryFirst",
+      "allowError": true,
+      "label": "preserve first bounded recovery route before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-shared-excavation-field",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for shared field bootstrap",
+        "reset shared field before geometry assertions",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"firstHP\"\\s*:\\s*15\nReceived: {\"uniform\":true,\"layersOK\":true,\"bossDepth\":76,\"width\":48,\"uniqueMaterials\":10,\"lastTier\":10,\"count\":5400,\"firstTier\":1,\"height\":24,\"length\":300,\"lastHP\":220000000,\"firstHP\":8}",
+      "context": {}
+    }
+  ]
+}

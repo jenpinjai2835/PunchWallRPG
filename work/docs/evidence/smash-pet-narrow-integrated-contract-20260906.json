@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "source": "current",
+  "results": {
+    "safeFrame": {
+      "passed": 441
+    },
+    "petLifetime": {
+      "passed": 38
+    },
+    "narrowFormation": {
+      "passed": 2645
+    },
+    "croppedProjection": {
+      "passed": 5
+    },
+    "separationOracle": {
+      "passed": 15
+    },
+    "formationWiring": {
+      "passed": 4
+    },
+    "frameOracle": {
+      "passed": 7
+    }
+  },
+  "mutations": [
+    "skip_actual_safe_publication",
+    "remove_safe_inset",
+    "rebuild_pets_on_hand_size",
+    "ignore_template_replacement",
+    "ignore_companion_lifetime",
+    "omit_publication_blockers",
+    "ignore_pair_world_separation",
+    "fabricate_impossible_fit",
+    "query_avatar_between_lod_updates",
+    "retain_stale_avatar_growth_corners",
+    "allow_avatar_overlap",
+    "allow_pair_overlap",
+    "allow_world_intersection",
+    "check_only_final_separation_distance",
+    "only_last_distance_aggregate",
+    "omit_safe_aggregate",
+    "fabricate_safe_aggregate",
+    "allow_partial_front",
+    "allow_top_edge",
+    "skip_motion_window",
+    "assume_safe_height_equals_projection_height",
+    "ignore_hardware_near_plane"
+  ],
+  "compiledPrograms": 29
+}

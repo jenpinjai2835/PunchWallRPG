@@ -1,8 +1,12 @@
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import { createHash } from "node:crypto";
 
-const repositoryRoot = path.resolve(import.meta.dirname, "..", "..", "..");
+const sourceRootIndex = process.argv.indexOf('--source-root');
+if (sourceRootIndex >= 0 && !process.argv[sourceRootIndex + 1]) throw new Error('--source-root requires a repository path');
+const repositoryRoot = sourceRootIndex >= 0 ? path.resolve(process.argv[sourceRootIndex + 1]) : path.resolve(import.meta.dirname, '..', '..', '..');
 const clientPath = path.join(
   repositoryRoot,
   "work",
@@ -83,16 +87,6 @@ const legacyPets = section(
   client,
   "local function renderPets()",
   "local function renderHonor()",
-);
-const heroGauntlet = section(
-  client,
-  "function companionRuntime.BuildHeroGauntlet",
-  "local function buildHonorCosmetic",
-);
-const itemMatchedGauntlet = section(
-  client,
-  "function companionRuntime.BuildItemMatchedGauntlet",
-  "function companionRuntime.BuildHeroGauntlet",
 );
 const proceduralPets = section(
   client,
@@ -707,91 +701,73 @@ check(
     && !proceduralPets.includes("RenderStepped:Connect"),
   "Visual upgrades must reuse the bounded companion runtime without another loop.",
 );
+// Test the active first-five catalog route; inactive HeroGauntlet code cannot satisfy it.
+function evaluateFistSources(clientSource, builderSource) {
+ const runtime=section(clientSource,'function companionRuntime.BuildItemMatchedGauntlet','function companionRuntime.BuildHeroGauntlet');
+ const catalog=section(runtime,'local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)','local importedSource');
+ const modelBuilder=section(builderSource,'function FistVisualBuilder.BuildCatalogModel','function FistVisualBuilder.ComputeImportedScale');
+ const spec=section(builderSource,'local CATALOG_GEOMETRY_VERSION','function FistVisualBuilder.BuildCatalogModel');
+ const preview=section(clientSource,'function shopRuntime.AddCatalogFistPreview','function shopRuntime.AddStaticFistPresentation');
+ const inventory=section(clientSource,'function companionRuntime.BuildInventoryFistPreview','function companionRuntime.BuildItemMatchedGauntlet');
+ const classes=[...modelBuilder.matchAll(/Instance\.new\("([^"]+)"\)/g)].map(m=>m[1]);
+ return {
+  active_route_prefers_catalog_retains_sanitized_fallback:
+   clientSource.includes('companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove")')
+   && includesAll(runtime,['"VisualSystem", "ItemMatchedClosedFistV3"','"SanitizedCreatorStoreMesh"','"CreatorStore_ArmoredClosedHeroFist"','"ItemColorMatched", true','"ItemMaterialMatched", true'])
+   && includesAll(catalog,['"SharedCatalogGeometry"','"ImportedRuntimeSilhouette", false','"ItemVisualReady", true','return true'])
+   && runtime.indexOf('FistVisualBuilder.BuildCatalogModel(definition)')<runtime.indexOf('local importedSource'),
+  native_geometry_is_visual_only_and_bounded:
+   classes.length===2 && classes[0]==='Model' && classes[1]==='Part'
+   && includesAll(modelBuilder,['#spec.parts >= 12','#spec.parts <= spec.partBudget','part.Anchored = true','part.CanCollide = false','part.CanTouch = false','part.CanQuery = false','part.Massless = true','part.CastShadow = false','FistVisualBuilder.SanitizeVisual(model)'])
+   && spec.includes('partBudget = 28') && !/Heartbeat:Connect|RenderStepped:Connect|while\s/.test(modelBuilder),
+  first_five_have_closed_anatomy_and_wrist_origin:
+   ['Starter Glove','Boxing Glove','Iron Knuckle','Thunder Fist','Titan Gauntlet'].every(name=>spec.includes('["'+name+'"]'))
+   && includesAll(spec,['catalog_identity_mismatch','unsupported_catalog_fist','Catalog Closed Palm','Catalog Wrist Cuff','Catalog Backhand Guard','Catalog Knuckle ','Catalog Curled Finger ','Catalog Folded Thumb','for finger = 1, 4 do','wristOrigin = CFrame.identity'])
+   && includesAll(modelBuilder,['model.WorldPivot = spec.wristOrigin','"FistCatalogVisual", true','"CatalogGeometryVersion", spec.version','"FistVisualKey", spec.name','"HasEnergyCore", spec.tier >= 4']),
+  catalog_equipment_welds_measures_final_bounds_and_tears_down:
+   includesAll(runtime,['if currentGauntlet then currentGauntlet:Destroy() end','"WholeHandHidden", false','"HandTransparencyPreserved", true'])
+   && includesAll(catalog,['hand.Size.X','catalogSpec.referenceHandWidth','rigProfile.cuffYScale','math.rad(180)','part.Anchored = false','Instance.new("WeldConstraint")','weld.Part0, weld.Part1 = part, hand','catalogModel:GetBoundingBox()','"CatalogWristOriginV1"','"WristAttachmentBounded"','"FaceOcclusionSafe"'])
+   && catalog.indexOf('catalogModel:GetBoundingBox()')>catalog.indexOf('catalogModel:PivotTo(wrist)') && !/Heartbeat:Connect|RenderStepped:Connect/.test(catalog),
+  imported_fallback_retains_collision_and_budget_guards:
+   includesAll(runtime,['descendant.CanCollide = false','descendant.CanTouch = false','descendant.CanQuery = false','"WristAttachmentBounded", wristCenterOffset <= rigProfile.maxCenterOffset','"FaceOcclusionSafe", visualToHandRatio <= rigProfile.maxTargetRatio + 0.01','"WithinVisualPartBudget", visualPartCount <= 28'])
+   && !/Heartbeat:Connect|RenderStepped:Connect/.test(runtime),
+  both_routes_reuse_bounded_motion_aware_aura:
+   catalog.includes('addTierAura(palm)') && includesAll(runtime,['if tier < 3 then','"AuraClass", "None"','"AuraEmitterCount", emitterCount','"AuraTotalRate", totalRate','"FistAuraEffect", true','"ProminenceSystem", "TierHeroVolumeV4"'])
+   && clientSource.includes('shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting') && clientSource.includes('"AuraReducedMotionSuppressed", not enabled and emitterCount > 0'),
+  r6_and_r15_have_live_shared_wrist_profiles:
+   includesAll(builderSource,['name = "R15RightHand"','name = "R6DistalWrist"','function FistVisualBuilder.GetRigProfile'])
+   && includesAll(catalog,['FistVisualBuilder.GetRigProfile(hand)','rigProfile.cuffYScale','"AlignmentStandard", rigProfile.name']),
+  shop_and_inventory_use_same_catalog_builder:
+   includesAll(preview,['FistVisualBuilder.BuildCatalogModel(item)','"FistCatalogPreview"','"FistVisualKey", item.name','"RenderLoop", false'])
+   && inventory.includes('FistVisualBuilder.BuildCatalogModel(GameConfig.FistDefinition(fistName))') && clientSource.includes('BuildFistPreview = companionRuntime.BuildInventoryFistPreview'),
+  shop_catalog_releases_hidden_models_and_connections:
+   includesAll(preview,['card.AbsolutePosition','scroll.AbsolutePosition','"FistPreviewVisible", visible','if visible and not model then','elseif not visible and model then','model:Destroy()','model = nil','viewport.Destroying:Once(function()','connection:Disconnect()'])
+   && !/Heartbeat:Connect|RenderStepped:Connect/.test(preview),
+  static_fallback_retains_distinct_existing_art_keys:
+   /Boxing = \{[\s\S]*?shopArtKey = "StarterGlove"/.test(builderSource) && /Iron = \{[\s\S]*?shopArtKey = "ChampionGlove"/.test(builderSource) && /Thunder = \{[\s\S]*?shopArtKey = "TitanGlove"/.test(builderSource),
+ };
+}
+const fistChecks=evaluateFistSources(client,builder);
+for(const [name,value] of Object.entries(fistChecks))check(name,value,'Active shared catalog or preserved sanitized fallback safety contract missing.');
+const negativeControls=[];
+function rejectsFistMutation(name,target,kind,before,after){
+ const original=kind==='client'?client:builder;
+ const mutated=original.replace(before,after);
+ const actual=evaluateFistSources(kind==='client'?mutated:client,kind==='builder'?mutated:builder);
+ const rejected=original!==mutated&&fistChecks[target]===true&&actual[target]===false;
+ negativeControls.push({name,target,status:rejected?'REJECTED':'BLOCKED',positiveBaseline:fistChecks[target]===true,mutationApplied:original!==mutated});
+ return rejected;
+}
+const negativeResults=[
+ rejectsFistMutation('remove_active_catalog_route','active_route_prefers_catalog_retains_sanitized_fallback','client','local catalogModel, catalogSpec = FistVisualBuilder.BuildCatalogModel(definition)','local catalogModel, catalogSpec = nil, nil'),
+ rejectsFistMutation('allow_catalog_collision','native_geometry_is_visual_only_and_bounded','builder','part.CanCollide = false','part.CanCollide = true'),
+ rejectsFistMutation('inflate_part_budget','native_geometry_is_visual_only_and_bounded','builder','partBudget = 28','partBudget = 999'),
+ rejectsFistMutation('wrong_weld_endpoint','catalog_equipment_welds_measures_final_bounds_and_tears_down','client','weld.Part0, weld.Part1 = part, hand','weld.Part0, weld.Part1 = part, part'),
+ rejectsFistMutation('leak_preview_connections','shop_catalog_releases_hidden_models_and_connections','client',/viewport\.Destroying:Once\(function\(\)\s*for _, connection in ipairs\(connections\) do connection:Disconnect\(\) end/,'viewport.Destroying:Once(function() for _, connection in ipairs(connections) do print(connection) end'),
+];
+check('live_fist_negative_controls_reject_regressions',negativeResults.every(Boolean),'Every negative control needs a positive baseline and must fail its specific safety gate.');
 check(
-  "item_matched_closed_fist_is_runtime_path",
-  client.includes(
-    'companionRuntime.BuildItemMatchedGauntlet(latestStats.EquippedFist or "Starter Glove")',
-  )
-    && (client.match(/BuildItemMatchedGauntlet\(/g) ?? []).length === 2
-    && itemMatchedGauntlet.includes('"VisualSystem", "ItemMatchedClosedFistV3"')
-    && itemMatchedGauntlet.includes('"VisualSource", "SanitizedCreatorStoreMesh"')
-    && itemMatchedGauntlet.includes('"ImportedRuntimeSilhouette", true')
-    && itemMatchedGauntlet.includes('"CreatorStore_ArmoredClosedHeroFist"')
-    && itemMatchedGauntlet.includes('"GripAxis", isImportedClosedFist and "LocalYToDistalForearm" or "Legacy"')
-    && !itemMatchedGauntlet.includes('"LocalYToPunchDirection"')
-    && itemMatchedGauntlet.includes('"ItemColorMatched", true')
-    && itemMatchedGauntlet.includes('"ItemMaterialMatched", true')
-    && itemMatchedGauntlet.includes('"ItemVisualReady", true'),
-  "Runtime refresh must use the approved sanitized closed-fist mesh with item-matched presentation.",
-);
-check(
-  "item_matched_closed_fist_is_bounded_and_noninteractive",
-  itemMatchedGauntlet.includes("descendant.CanCollide = false")
-    && itemMatchedGauntlet.includes("descendant.CanTouch = false")
-    && itemMatchedGauntlet.includes("descendant.CanQuery = false")
-    && itemMatchedGauntlet.includes('"WristAttachmentBounded", wristCenterOffset <= rigProfile.maxCenterOffset')
-    && itemMatchedGauntlet.includes('"FaceOcclusionSafe", visualToHandRatio <= rigProfile.maxTargetRatio + 0.01')
-    && itemMatchedGauntlet.includes('"WithinVisualPartBudget", visualPartCount <= 28')
-    && !itemMatchedGauntlet.includes("Heartbeat:Connect")
-    && !itemMatchedGauntlet.includes("RenderStepped:Connect"),
-  "The item-matched fist must be welded, non-interactive, bounded, and build-once.",
-);
-check(
-  "item_matched_fist_has_tier_prominence_and_bounded_motion_aware_aura",
-  itemMatchedGauntlet.includes('"ProminenceSystem", "TierHeroVolumeV4"')
-    && itemMatchedGauntlet.includes('"ProminenceScale", prominenceScale')
-    && itemMatchedGauntlet.includes("definition.tier >= 8 and 1.28")
-    && itemMatchedGauntlet.includes("if tier < 3 then")
-    && itemMatchedGauntlet.includes('"AuraClass", "None"')
-    && itemMatchedGauntlet.includes('"AuraEmitterCount", emitterCount')
-    && itemMatchedGauntlet.includes('"AuraTotalRate", totalRate')
-    && itemMatchedGauntlet.includes('"FistAuraEffect", true')
-    && client.includes("shared.PunchWallApplyFistAuraMotion = companionRuntime.ApplyFistAuraMotionSetting")
-    && client.includes('"AuraReducedMotionSuppressed", not enabled and emitterCount > 0'),
-  "Equipped fists must be more prominent by tier and keep high-tier aura bounded and reduced-motion aware.",
-);
-check(
-  "hero_gauntlet_has_complete_closed_fist_anatomy",
-  heroGauntlet.includes('"Hero Gauntlet Wrist Cuff"')
-    && heroGauntlet.includes('"Hero Gauntlet Backhand Plate"')
-    && heroGauntlet.includes('"Hero Gauntlet Palm Shell"')
-    && heroGauntlet.includes('"Hero Closed Knuckle " .. finger')
-    && heroGauntlet.includes('"Hero Folded Thumb"')
-    && heroGauntlet.includes('"Hero Gauntlet Energy Core"')
-    && heroGauntlet.includes('"KnuckleCount", 4'),
-  "V2 needs cuff, backhand, palm, four knuckles, thumb, and core.",
-);
-check(
-  "hero_gauntlet_is_bounded_and_noninteractive",
-  heroGauntlet.includes("part.CanCollide = false")
-    && heroGauntlet.includes("part.CanTouch = false")
-    && heroGauntlet.includes("part.CanQuery = false")
-    && heroGauntlet.includes('"WristAttachmentBounded", wristBounded')
-    && heroGauntlet.includes('"FaceOcclusionSafe", faceSafe')
-    && heroGauntlet.includes('"WithinVisualPartBudget", visualPartCount <= 28')
-    && !heroGauntlet.includes("Heartbeat:Connect")
-    && !heroGauntlet.includes("RenderStepped:Connect")
-    && !heroGauntlet.includes("while "),
-  "Equipped geometry must be safe, bounded, and build-once.",
-);
-check(
-  "r15_and_r6_specs_are_explicit",
-  builder.includes('name = "R15RightHand"')
-    && builder.includes('name = "R6DistalWrist"')
-    && builder.includes("function FistVisualBuilder.GetHeroGauntletSpec")
-    && builder.includes("palmCFrame = CFrame.new(0, wristY, palmZ)")
-    && builder.includes("cuffCFrame = CFrame.new(0, cuffY, 0)"),
-  "Both rigs need explicit distal-wrist alignment profiles.",
-);
-check(
-  "shop_tiers_two_through_four_have_distinct_art_keys",
-  /Boxing = \{[\s\S]*?shopArtKey = "StarterGlove"/.test(builder)
-    && /Iron = \{[\s\S]*?shopArtKey = "ChampionGlove"/.test(builder)
-    && /Thunder = \{[\s\S]*?shopArtKey = "TitanGlove"/.test(builder),
-  "Street, Iron, and Thunder cards must not reuse one Champion image.",
-);
-check(
-  "shop_loaded_art_uses_perimeter_only_static_identity",
+  "shop_fallback_loaded_art_uses_perimeter_only_static_identity",
   shopPresentation.includes('"HeroGauntletTierChrome"')
     && shopPresentation.includes('"StaticPreviewRenderLoop", false')
     && shopPresentation.includes('"StaticPreviewChromeOnly", true')
@@ -822,17 +798,33 @@ check(
     && !shopPresentation.includes("RenderStepped:Connect"),
   "Loaded fist art must remain white and unobscured while unique style, motif, and signature identity stays in bounded perimeter chrome.",
 );
-check(
-  "shop_description_has_high_contrast_readability_panel",
-  shopCards.includes('"DetailReadabilityPanel"')
-    && shopCards.includes("BackgroundColor3 = Color3.fromRGB(3, 9, 13)")
-    && shopCards.includes("detailStroke.Transparency = 0.72")
-    && shopCards.includes("Color3.fromRGB(236, 242, 244)")
-    && shopCards.includes("Enum.Font.GothamMedium")
-    && shopCards.includes("detail.TextStrokeTransparency = 0.35")
-    && shopCards.includes('"DescriptionReadabilityMode", "HighContrastPanelV1"'),
-  "Visible Shop descriptions need a dark panel and higher-contrast, medium-weight type.",
-);
+const shopDescriptionSurface = section(client, 'for index, item in ipairs(products) do', 'detail:SetAttribute("DescriptionReadabilityMode"');
+function validShopDescriptionSurface(source) {
+  const background = source.match(/card\.BackgroundColor3 = Color3\.fromRGB\((\d+), (\d+), (\d+)\)/);
+  const foreground = source.match(/local detail = label\(card, "Detail",[^\n]+Color3\.fromRGB\((\d+), (\d+), (\d+)\), 12, Enum\.Font\.GothamMedium/);
+  if (!background || !foreground) return false;
+  const luminance = match => match.slice(1, 4).map(Number).map(value => {
+    const channel = value / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+  const dark = luminance(background), light = luminance(foreground);
+  return dark < 0.05 && (light + 0.05) / (dark + 0.05) >= 7
+    && source.includes('detailBackdrop.Visible = false')
+    && source.includes('detail.TextStrokeTransparency = 1')
+    && source.includes('ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1))')
+    && source.includes('ColorSequenceKeypoint.new(1, Color3.fromRGB(242, 247, 252))');
+}
+check('shop_description_has_high_contrast_readability_surface', validShopDescriptionSurface(shopDescriptionSurface),
+  'Descriptions require a quiet dark card with at least 7:1 authored text contrast and medium-weight type.');
+for (const [name, from, to] of [
+  ['bright_card', 'card.BackgroundColor3 = Color3.fromRGB(18, 26, 38)', 'card.BackgroundColor3 = Color3.fromRGB(230, 230, 230)'],
+  ['low_contrast_text', 'Color3.fromRGB(236, 242, 244), 12, Enum.Font.GothamMedium', 'Color3.fromRGB(40, 48, 56), 12, Enum.Font.GothamMedium'],
+  ['extra_backdrop', 'detailBackdrop.Visible = false', 'detailBackdrop.Visible = true'],
+]) {
+  const mutated = shopDescriptionSurface.replace(from, to);
+  check('shop_description_rejects_' + name, validShopDescriptionSurface(shopDescriptionSurface) && mutated !== shopDescriptionSurface && !validShopDescriptionSurface(mutated),
+    'The readability surface check must reject this distinct regression.');
+}
 check(
   "shop_feedback_text_is_explicit_and_truthful",
   feedbackText.includes('elseif payload.type == "Shop" then')
@@ -922,6 +914,123 @@ check(
   "The reference HUD needs a >=44px safe action button with exact requests.",
 );
 
+const feedbackHolderFlowPath = path.join(repositoryRoot, 'work/automation/flows/feedback-holder-presentation.json');
+const feedbackHolderFlow = JSON.parse(fs.readFileSync(feedbackHolderFlowPath, 'utf8'));
+function validLegacySurface(candidate) {
+ const open = candidate.steps.find(step => step.label === 'open legacy Pets and expose duplicate slot two action')?.args?.code ?? '';
+ return includesAll(open, ["IsStudio()", "a:Invoke('CloseMenus')", "g:SetAttribute('AutomationTab','Pets')", "g:GetAttribute('RenderedGenericTab')=='Pets'", 'and modern and not modern.Visible', 'local routeDeadline=os.clock()+3'])
+  && !open.includes("a:Invoke('OpenTab','Pets')")
+  && includesAll(client, ['gui:GetAttributeChangedSignal("AutomationTab"):Connect(function()', 'activeTab = requestedTab', 'renderOpenPanel()']);
+}
+check('legacy_flow_opens_existing_studio_hook_and_proves_legacy_surface', validLegacySurface(legacySlotFlow), 'Public Pets intentionally routes to modern Inventory; retained legacy callbacks require the existing Studio hook and actual surface checks.');
+const legacyRouteNegativeControls=[];
+for(const [name,from,to] of [
+ ['public_modern_route',"g:SetAttribute('AutomationTab','Pets')","a:Invoke('OpenTab','Pets')"],
+ ['remove_legacy_surface_assertion','and modern and not modern.Visible','and modern'],
+]) {
+ const candidate=structuredClone(legacySlotFlow);
+ const step=candidate.steps.find(item=>item.label==='open legacy Pets and expose duplicate slot two action');
+ const original=step.args.code;step.args.code=original.replace(from,to);
+ const applied=step.args.code!==original,rejected=!validLegacySurface(candidate);
+ check('legacy_route_negative_'+name,applied&&rejected,'The invalid legacy route must be detected.');
+ legacyRouteNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
+}
+const seedCode=duplicateSeedStep.args.code;
+check('legacy_duplicate_seed_refuses_live_persistence',includesAll(seedCode,["PersistenceMode')=='EphemeralStudio'","ProfileWritable')==false","PunchWallAllowLiveDataStoreAccess')~=true"])&&seedCode.indexOf('verifyEphemeralSeed(game.Players:GetPlayers()[1]')<seedCode.indexOf("c:Invoke('Reset')"),'Duplicate fixture must fail closed before Reset.');
+const rejectionStep=feedbackHolderFlow.steps.find(step=>step.label==='request a gated rebirth through the player remote');
+const premiumArmStep=feedbackHolderFlow.steps.find(step=>step.label==='arm exact premium Feedback observation before server grant');
+const premiumGrantStep=feedbackHolderFlow.steps.find(step=>step.label==='request the deterministic Studio premium pet grant');
+const premiumVerifyStep=feedbackHolderFlow.steps.find(step=>step.label==='premium grant renders one visible feedback channel');
+const rejectionCode=rejectionStep?.args?.code??'';
+const premiumArmCode=premiumArmStep?.args?.code??'';
+const premiumGrantCode=premiumGrantStep?.args?.code??'';
+const premiumVerifyCode=premiumVerifyStep?.args?.code??'';
+check('feedback_rebirth_captures_numeric_baseline_and_real_event_in_one_call',includesAll(rejectionCode,["local before=tonumber(g:GetAttribute('FeedbackCount')) or 0",'events.Feedback.OnClientEvent:Connect(function(payload)',"events.ActionRequest:FireServer({action='Rebirth'})",'evidence.eventCount+=1','connection:Disconnect()',"pcall(verifyFeedbackEvidence,evidence,'Fail','Rebirth')",'return encoded'])&&rejectionCode.indexOf('local before=')<rejectionCode.indexOf('events.Feedback.OnClientEvent:Connect')&&rejectionCode.indexOf('events.Feedback.OnClientEvent:Connect')<rejectionCode.indexOf('events.ActionRequest:FireServer'), 'The before value, actual event, displayed identity, count increment and visible channel must belong to the same action call.');
+check('feedback_premium_grant_is_guarded_and_observed_without_commerce',premiumGrantStep?.args?.datamodel_type==='Server'&&includesAll(premiumGrantCode,["PersistenceMode')=='EphemeralStudio'","ProfileWritable')==false","Invoke('GrantPremiumPet','Crimson Phoenix')",'OwnedPremiumPetsJSON.Value','PetInventoryJSON.Value'])&&!JSON.stringify(feedbackHolderFlow).includes('BuyPremiumPet')&&includesAll(premiumArmCode,['local before=','events.Feedback.OnClientEvent:Connect(function(payload)','evidence.eventCount+=1','task.delay(30,function()connection:Disconnect()end)'])&&includesAll(premiumVerifyCode,["pcall(verifyFeedbackEvidence,evidence,'Pet','Crimson Phoenix')",'evidence.token==token'])&&feedbackHolderFlow.steps.indexOf(premiumArmStep)<feedbackHolderFlow.steps.indexOf(premiumGrantStep)&&feedbackHolderFlow.steps.indexOf(premiumGrantStep)<feedbackHolderFlow.steps.indexOf(premiumVerifyStep),'A server grant is an ephemeral test fixture; real commerce prompts cannot substitute for granting or feedback.');
+const exactFeedbackHelper = section(rejectionCode, 'local function verifyFeedbackEvidence(', "g.PunchWallClientAutomation:Invoke('ClearToasts')").trim();
+const premiumFeedbackHelper = section(premiumVerifyCode, 'local function verifyFeedbackEvidence(', 'local token=assert(').trim();
+check('feedback_evidence_uses_one_exact_shared_verifier', exactFeedbackHelper.length>500&&exactFeedbackHelper===premiumFeedbackHelper, 'Both paths must use the same strict count, event, identity and actual channel verifier.');
+const feedbackHelperFixture = String.raw`
+local function valid(reward)
+ return {presentationCaptured=true,before=10,after=11,delta=1,baselineVisualCount=0,eventCount=1,events={{type='Pet',target='Crimson Phoenix'}},type='Pet',target='Crimson Phoenix',channels=1,toasts=reward and 0 or 1,rewards=reward and 1 or 0,presented=true}
+end
+local safe,rejected=0,0
+local function test(name,mutation,reward)
+ local e=valid(reward) if mutation then mutation(e) end
+ local ok=pcall(verifyFeedbackEvidence,e,'Pet','Crimson Phoenix')
+ assert(ok==(mutation==nil),name..' verifier outcome incorrect')
+ if ok then safe+=1 else rejected+=1 end
+end
+test('one toast') test('one reward',nil,true)
+test('missing actual presentation capture',function(e)e.presentationCaptured=false end)
+test('counter missing',function(e)e.after=10 e.delta=0 end)
+test('counter doubled',function(e)e.after=12 e.delta=2 end)
+test('missing actual event',function(e)e.eventCount=0 e.events={} end)
+test('duplicate actual event',function(e)e.eventCount=2 table.insert(e.events,{type='Pet',target='Crimson Phoenix'})end)
+test('wrong event type',function(e)e.events[1].type='Fail'end)
+test('wrong event target',function(e)e.events[1].target='Rebirth'end)
+test('wrong displayed type',function(e)e.type='Fail'end)
+test('wrong displayed target',function(e)e.target='Rebirth'end)
+test('two channels',function(e)e.rewards=1 e.channels=2 end)
+test('two instances in one channel',function(e)e.toasts=2 end)
+test('no visible presentation',function(e)e.toasts=0 e.channels=0 e.presented=false end)
+test('stale visible item',function(e)e.baselineVisualCount=1 end)
+test('non numeric baseline',function(e)e.before='10'end)
+assert(safe==2 and rejected==14)
+print('EXACT_FEEDBACK_HELPER_PASS safe='..safe..' rejected='..rejected)
+`;
+function executeFeedbackHelper(helper) {
+ const code=helper+'\n'+feedbackHelperFixture;
+ let input='LegacyInputContract=""\n';
+ for(let i=0;i<code.length;i+=200)input+='LegacyInputContract=LegacyInputContract..'+JSON.stringify(code.slice(i,i+200))+'\n';
+ input+='assert(loadstring(LegacyInputContract))()\n';
+ const result=spawnSync(process.env.LUAU_COMMAND||'C:/Users/Jennarong Pinjai/AppData/Local/Temp/codex-luau-smash-0.737/luau.exe',[],{input,encoding:'utf8',maxBuffer:4*1024*1024});
+ const output=(result.stdout??'')+(result.stderr??'');
+ return {pass:result.status===0&&output.includes('EXACT_FEEDBACK_HELPER_PASS safe=2 rejected=14')&&!/stdin:|stack backtrace|SyntaxError/.test(output),output,error:result.error?.message};
+}
+const feedbackHelperResult=executeFeedbackHelper(exactFeedbackHelper);
+check('feedback_exact_helper_accepts_two_valid_and_rejects_fourteen_faults',feedbackHelperResult.pass,feedbackHelperResult.error||feedbackHelperResult.output);
+const feedbackWeakeningControls=[];
+for(const [name,pattern] of [
+ ['omit_count_check',/^ assert\(type\(e.before\)[^\n]+$/m],
+ ['omit_actual_event_count',/^ assert\(e.eventCount[^\n]+$/m],
+ ['omit_visible_channel_check',/^ assert\(e.channels[^\n]+$/m],
+]) {
+ const weakened=exactFeedbackHelper.replace(pattern,'');
+ const applied=weakened!==exactFeedbackHelper;
+ const result=executeFeedbackHelper(weakened);
+ check('feedback_negative_'+name,feedbackHelperResult.pass&&applied&&!result.pass,'Weakening an exact evidence guard must make the helper fixture fail.');
+ feedbackWeakeningControls.push({name,mutationApplied:applied,status:!result.pass?'REJECTED':'MISSED'});
+}
+
+function validLegacyIdleObservation(candidate) {
+ const code=candidate.steps.find(step=>step.label==='open legacy Pets and expose duplicate slot two action')?.args?.code??'';
+ const observation=section(code,'local function observeIdleControl(','local state=expose(');
+ return includesAll(observation,[
+  'local original=assert(currentButton()', 'local observed,destroyed=false,false',
+  'StatsChanged.OnClientEvent:Connect(function(payload)', '(tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime',
+  'original.Destroying:Connect(function()destroyed=true end)', 'b==original and b:IsDescendantOf(c) and not destroyed',
+  'hittable=live and contained and ancestorVisible', 'local deadline=os.clock()+3',
+  'stats:Disconnect()', 'lifetime:Disconnect()', 'pcall(verifyIdleControlState,result)',
+  "g:GetAttribute('GenericPanelStructuralRenderCount')", 'requestAfter=p:GetAttribute(requestAttribute) or 0',
+ ]) && !/FireServer|:Invoke\(|CreateVirtualInput|SendMouse|SetAttribute/.test(observation)
+  && includesAll(code,["observeIdleControl(currentIdleButton,g.GameMenu.Content,g,p,'Flow30RawPetRequestSequence')",'state.idleIdentityStable=idle.identityStable','state.idleCanvasStable=idle.canvasStable'])
+  && code.indexOf('local idle=observeIdleControl(')<code.indexOf("g:SetAttribute('Flow30ExpectedCallbackSequence'");
+}
+check('legacy_real_input_waits_for_an_actual_idle_snapshot_without_replacing_target',validLegacyIdleObservation(legacySlotFlow),'Before one real Equip gesture, observe an increasing real Playtime payload, current Instance identity, canvas and request count; disconnect all temporary listeners without injecting input or changing the UI.');
+const idleObservationNegativeControls=[];
+for(const [name,from,to]of[
+ ['drop_identity_equality','b==original and b:IsDescendantOf(c) and not destroyed','b:IsDescendantOf(c)'],
+ ['force_hittable','hittable=live and contained and ancestorVisible','hittable=true or live and contained and ancestorVisible'],
+ ['remove_stats_listener_cleanup','stats:Disconnect()','-- omitted cleanup'],
+]) {
+ const candidate=structuredClone(legacySlotFlow);const step=candidate.steps.find(item=>item.label==='open legacy Pets and expose duplicate slot two action');
+ const original=step.args.code;step.args.code=original.replace(from,to);
+ const applied=step.args.code!==original,rejected=!validLegacyIdleObservation(candidate);
+ check('legacy_idle_negative_'+name,applied&&rejected,'A weakened idle-input evidence path must be rejected.');
+ idleObservationNegativeControls.push({name,mutationApplied:applied,status:rejected?'REJECTED':'MISSED'});
+}
+
 const passed = Object.values(checks).filter(Boolean).length;
 const total = Object.keys(checks).length;
 const ok = passed === total;
@@ -932,6 +1041,14 @@ console.log(
       passed,
       total,
       checks,
+      negativeControls,
+      legacyRouteNegativeControls,
+      feedbackWeakeningControls,
+      idleObservationNegativeControls,
+      feedbackHelperControls: {valid: 2, rejected: 14, passed: feedbackHelperResult.pass},
+      sourceRoot: repositoryRoot,
+      sourceHashes: Object.fromEntries(Object.entries({client,server,builder}).map(([name,text]) => [name,createHash("sha256").update(text).digest("hex")])),
+      studioRuntimeStatus: "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
       failures: notes,
       files: [
         path.relative(repositoryRoot, clientPath),
@@ -939,6 +1056,7 @@ console.log(
         path.relative(repositoryRoot, builderPath),
         path.relative(repositoryRoot, fistItemsFlowPath),
         path.relative(repositoryRoot, legacySlotFlowPath),
+        path.relative(repositoryRoot, feedbackHolderFlowPath),
         path.relative(repositoryRoot, studioMcpClientPath),
       ],
     },

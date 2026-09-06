@@ -1,0 +1,76 @@
+{
+  "at": "2026-09-06T04:18:38.2825463Z",
+  "kind": "Read-only extraction from byte-exact native AutoRecovery copy; binary itself not reserialized",
+  "sourceCommit": "1529b7d7f0d5a87447fe27005c3729c3cf202c0e",
+  "recoveryPath": "work/tools/PunchWallRPGMemoryRecovery_20260906.rbxl",
+  "nativeOriginal": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\RobloxStudio\\AutoSaves\\PunchWallRPGPlayable_v1_final_AutoRecovery_4.rbxl",
+  "recoveryFileSHA256": "D702BF922C1D02CD9C9BCDF114118C2322E85CE5876B3FF75B72F2365208F435",
+  "count": 9,
+  "checks": [
+    {
+      "name": "PunchWallClient",
+      "class": "LocalScript",
+      "matches": true,
+      "sourceSHA256": "6D92C8E35B544EA4C6F6E6E812D93544C90DB52E37070F5C0803A0119CA61A31",
+      "recoverySHA256": "6D92C8E35B544EA4C6F6E6E812D93544C90DB52E37070F5C0803A0119CA61A31"
+    },
+    {
+      "name": "InventoryUI",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "64DE2702CD527EE6BE13889FE1B8DF7750325CAC4DB2031C6738E3F70C027F33",
+      "recoverySHA256": "64DE2702CD527EE6BE13889FE1B8DF7750325CAC4DB2031C6738E3F70C027F33"
+    },
+    {
+      "name": "GameConfig",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+      "recoverySHA256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2"
+    },
+    {
+      "name": "PolishConfig",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+      "recoverySHA256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81"
+    },
+    {
+      "name": "ForestVisualBuilder",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+      "recoverySHA256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1"
+    },
+    {
+      "name": "FistVisualBuilder",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+      "recoverySHA256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE"
+    },
+    {
+      "name": "InventoryViewModel",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+      "recoverySHA256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C"
+    },
+    {
+      "name": "PunchWallBootstrap",
+      "class": "Script",
+      "matches": true,
+      "sourceSHA256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+      "recoverySHA256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85"
+    },
+    {
+      "name": "ProfilePersistence",
+      "class": "ModuleScript",
+      "matches": true,
+      "sourceSHA256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+      "recoverySHA256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9"
+    }
+  ],
+  "ok": true,
+  "canonicalUnchanged": true
+}

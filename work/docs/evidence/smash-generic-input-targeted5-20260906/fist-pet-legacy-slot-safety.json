@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "fist-pet-legacy-slot-safety",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play and wait for both runtime DataModels",
+        "wait for gameplay bootstrap",
+        "seed duplicate pet occurrences with only slot one equipped",
+        "cleanup fist and pet safety regression"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:131: AssistantCommand:86: idle stats moved the selected canvas: {\"requestBefore\":0,\"canvasStable\":false,\"structuralBefore\":1,\"targetParent\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions\",\"structuralAfter\":1,\"observedSnapshot\":true,\"requestAfter\":0,\"hittable\":true,\"destroyed\":false,\"identityStable\":true,\"topPath\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions.Equip2\",\"canvasY\":1509}",
+      "context": {}
+    }
+  ]
+}

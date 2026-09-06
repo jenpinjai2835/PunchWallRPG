@@ -1,0 +1,168 @@
+{
+  "ok": true,
+  "passed": 56,
+  "total": 56,
+  "checks": {
+    "legacy_equip_and_unequip_dispatch_exact_index": true,
+    "legacy_studio_action_attestation_is_bounded": true,
+    "legacy_flow_reacquires_hittable_duplicate_actions": true,
+    "legacy_flow_uses_only_serializable_cross_call_state": true,
+    "legacy_flow_couples_pointer_settle_reresolve_and_balanced_real_press": true,
+    "legacy_delete_real_click_preconditions_reuse_hittable_helper": true,
+    "legacy_first_delete_press_reports_callback_vs_invalidation_state": true,
+    "legacy_flow_proves_callback_request_and_result_reason": true,
+    "legacy_delete_first_click_is_local_only": true,
+    "legacy_delete_second_click_dispatches_exact_slot": true,
+    "legacy_delete_confirmation_survives_rerender": true,
+    "legacy_duplicate_callbacks_snapshot_exact_occurrence": true,
+    "legacy_delete_timeout_and_locked_guard": true,
+    "legacy_flow_reacquires_fresh_confirmation_before_second_click": true,
+    "legacy_flow_proves_confirmed_client_callback_before_authority": true,
+    "legacy_flow_authority_poll_is_bounded_exact_and_diagnostic": true,
+    "legacy_flow_confirm_attempt_has_exactly_two_real_clicks_without_retry": true,
+    "procedural_pets_are_species_readable": true,
+    "procedural_pets_keep_bounded_existing_motion": true,
+    "active_route_prefers_catalog_retains_sanitized_fallback": true,
+    "native_geometry_is_visual_only_and_bounded": true,
+    "first_five_have_closed_anatomy_and_wrist_origin": true,
+    "catalog_equipment_welds_measures_final_bounds_and_tears_down": true,
+    "imported_fallback_retains_collision_and_budget_guards": true,
+    "both_routes_reuse_bounded_motion_aware_aura": true,
+    "r6_and_r15_have_live_shared_wrist_profiles": true,
+    "shop_and_inventory_use_same_catalog_builder": true,
+    "shop_catalog_releases_hidden_models_and_connections": true,
+    "static_fallback_retains_distinct_existing_art_keys": true,
+    "live_fist_negative_controls_reject_regressions": true,
+    "shop_fallback_loaded_art_uses_perimeter_only_static_identity": true,
+    "shop_description_has_high_contrast_readability_surface": true,
+    "shop_description_rejects_bright_card": true,
+    "shop_description_rejects_low_contrast_text": true,
+    "shop_description_rejects_extra_backdrop": true,
+    "shop_feedback_text_is_explicit_and_truthful": true,
+    "shop_feedback_uses_existing_starter_fist_icon": true,
+    "shop_feedback_uses_bounded_no_center_toast_without_sound_change": true,
+    "shop_feedback_flow_proves_visible_exact_bounded_toast_icon": true,
+    "contextual_train_and_use_reuse_target_scan": true,
+    "contextual_action_is_visible_safe_and_exact": true,
+    "legacy_flow_opens_existing_studio_hook_and_proves_legacy_surface": true,
+    "legacy_route_negative_public_modern_route": true,
+    "legacy_route_negative_remove_legacy_surface_assertion": true,
+    "legacy_duplicate_seed_refuses_live_persistence": true,
+    "feedback_rebirth_captures_numeric_baseline_and_real_event_in_one_call": true,
+    "feedback_premium_grant_is_guarded_and_observed_without_commerce": true,
+    "feedback_evidence_uses_one_exact_shared_verifier": true,
+    "feedback_exact_helper_accepts_two_valid_and_rejects_fourteen_faults": true,
+    "feedback_negative_omit_count_check": true,
+    "feedback_negative_omit_actual_event_count": true,
+    "feedback_negative_omit_visible_channel_check": true,
+    "legacy_real_input_waits_for_an_actual_idle_snapshot_without_replacing_target": true,
+    "legacy_idle_negative_drop_identity_equality": true,
+    "legacy_idle_negative_force_hittable": true,
+    "legacy_idle_negative_remove_stats_listener_cleanup": true
+  },
+  "negativeControls": [
+    {
+      "name": "remove_active_catalog_route",
+      "target": "active_route_prefers_catalog_retains_sanitized_fallback",
+      "status": "REJECTED",
+      "positiveBaseline": true,
+      "mutationApplied": true
+    },
+    {
+      "name": "allow_catalog_collision",
+      "target": "native_geometry_is_visual_only_and_bounded",
+      "status": "REJECTED",
+      "positiveBaseline": true,
+      "mutationApplied": true
+    },
+    {
+      "name": "inflate_part_budget",
+      "target": "native_geometry_is_visual_only_and_bounded",
+      "status": "REJECTED",
+      "positiveBaseline": true,
+      "mutationApplied": true
+    },
+    {
+      "name": "wrong_weld_endpoint",
+      "target": "catalog_equipment_welds_measures_final_bounds_and_tears_down",
+      "status": "REJECTED",
+      "positiveBaseline": true,
+      "mutationApplied": true
+    },
+    {
+      "name": "leak_preview_connections",
+      "target": "shop_catalog_releases_hidden_models_and_connections",
+      "status": "REJECTED",
+      "positiveBaseline": true,
+      "mutationApplied": true
+    }
+  ],
+  "legacyRouteNegativeControls": [
+    {
+      "name": "public_modern_route",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "remove_legacy_surface_assertion",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    }
+  ],
+  "feedbackWeakeningControls": [
+    {
+      "name": "omit_count_check",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "omit_actual_event_count",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "omit_visible_channel_check",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    }
+  ],
+  "idleObservationNegativeControls": [
+    {
+      "name": "drop_identity_equality",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "force_hittable",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    },
+    {
+      "name": "remove_stats_listener_cleanup",
+      "mutationApplied": true,
+      "status": "REJECTED"
+    }
+  ],
+  "feedbackHelperControls": {
+    "valid": 2,
+    "rejected": 14,
+    "passed": true
+  },
+  "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906",
+  "sourceHashes": {
+    "client": "500f7c56a55d3389ddd5525f732629409846c331c01751c39a8e1b24f362d014",
+    "server": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+    "builder": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be"
+  },
+  "studioRuntimeStatus": "BLOCKED_PENDING_SEPARATE_COORDINATOR_RUNTIME_EVIDENCE",
+  "failures": {},
+  "files": [
+    "work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+    "work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+    "work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+    "work\\automation\\flows\\fist-items-icon-ui.json",
+    "work\\automation\\flows\\fist-pet-legacy-slot-safety.json",
+    "work\\automation\\flows\\feedback-holder-presentation.json",
+    "work\\automation\\scripts\\studio_mcp_client.mjs"
+  ]
+}

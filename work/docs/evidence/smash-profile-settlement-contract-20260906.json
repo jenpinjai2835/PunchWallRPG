@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "checks": 88,
+  "compiledSnippets": 8,
+  "executedLuauAssertions": 157,
+  "mutationsRejected": [
+    "historical_seed_resets_before_settlement",
+    "waive_pending_queue",
+    "waive_failure_status",
+    "extend_settlement_deadline",
+    "waive_timeout_rejection",
+    "waive_seed_readback",
+    "trust_only_current_property_value",
+    "ignore_resize_events",
+    "fabricate_initial_foreground",
+    "waive_viewport_context",
+    "waive_focus_context",
+    "leak_context_listeners",
+    "unbounded_resize_trace"
+  ],
+  "studioUsed": false
+}

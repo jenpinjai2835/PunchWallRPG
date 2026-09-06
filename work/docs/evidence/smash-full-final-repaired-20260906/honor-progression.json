@@ -1,0 +1,108 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "honor-progression",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "lock exact desktop viewport for world relic input",
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "canonical Honor earn and relic matrices are exact and Spin grants no Honor",
+        "Depth 10 through 75 awards exact lifetime Honor once",
+        "Rebirth 1 through 50 awards exact lifetime Honor once",
+        "two Depth-30 Titan attempts are rejected without coins, XP, or Honor",
+        "qualified Titan clears award 12 then 5 and 5 with cycle replay and daily cap",
+        "Honor gain clamps at the persistence maximum",
+        "seed true Depth-locked relic state with enough Honor",
+        "real click Honor HUD opens the canonical Honor menu",
+        "wait for Honor menu render",
+        "Honor menu distinguishes true progression lock from insufficient currency",
+        "seed one-Honor-short unlocked relic state",
+        "Honor menu shows a disabled exact shortfall state",
+        "seed exact Vanguard cost",
+        "wait for affordable Honor state",
+        "real click explicitly unlocks Vanguard Trail",
+        "wait for authoritative relic purchase",
+        "production ActionRequest receives owned replay and forged relic id",
+        "production replay and forged id cause zero charge duplicate or bonus mutation",
+        "equipped relic UI and cosmetic match the stable item id",
+        "close Honor menu before world relic preview",
+        "move live player to the bottom-catalog Eternal Crown display",
+        "center the Eternal Crown ClickDetector in the desktop viewport",
+        "real world mouse click previews the Eternal Crown relic",
+        "wait through stat refresh for exact Inventory Honor selection and in-view placement",
+        "world preview opens Inventory Honor and keeps the exact eighth unaffordable relic in view",
+        "Reduced Motion suppresses animated Honor effects but keeps static identity",
+        "respawn after Honor equip",
+        "Honor ownership equip and reduced-motion cosmetic survive respawn",
+        "server Honor balance ownership equip and bonus survive respawn exactly",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 0)",
+        "restore default viewport after Honor flow"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "runtimeConsole",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

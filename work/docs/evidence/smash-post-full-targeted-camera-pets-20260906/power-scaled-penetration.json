@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-scaled-penetration",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for penetration runtime",
+        "fixed cadence and penetration contract",
+        "client hold cadence matches server",
+        "server rejects sub-second repeat regardless of break speed",
+        "starter power breaks front block with short lunge",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"broken\"\\s*:\\s*4[0-8]\nReceived: {\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"scale\":1,\"observation\":{\"observedFragments\":120,\"sampleCapReached\":false,\"elapsed\":0.8930669000037597,\"postSimulationMaxSpeed\":218.36085510253907,\"immediateMaxSpeed\":0,\"ownershipFailures\":0,\"deferredMaxSpeed\":0,\"postSimulationSteps\":7,\"trace\":[{\"moved\":13.487739562988282,\"parts\":120,\"t\":0.409272000004421,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4582418999998481,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4930026000001817,\"peak\":218.36085510253907,\"dt\":0.05000000447034836},{\"moved\":26.41138458251953,\"parts\":120,\"t\":0.6841663000013796,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":28.81826400756836,\"parts\":120,\"t\":0.7647784000000684,\"peak\":218.36085510253907,\"dt\":0.06666667014360428}],\"lastStep\":{\"moved\":32.8326301574707,\"parts\":120,\"t\":0.8841138000061619,\"peak\":218.36085510253907,\"dt\":0.0625},\"firstFragmentAt\":0.2053520000044955,\"fragments\":120,\"returnToReadSeconds\":0.18414569999731612,\"anchoredFailures\":0,\"peakAt\":0.40915099999983797,\"timedOut\":false,\"fastMaxDisplacement\":32.8326301574707,\"fastFragmentsMoved\":120,\"minPostReads\":7,\"maxSpeed\":218.36085510253907,\"postSimulationReads\":840,\"maxInitial\":137.36000061035157,\"serverOwned\":120,\"peakFragment\":\"DepthBlock_L002_C06_R02 Server Physics Chunk 6\",\"observationError\":\"\"},\"travel\":48,\"maxSpeed\":218.36085510253907,\"maxInitial\":137.36000061035157,\"observedPhysicalLaunch\":true,\"outcome\":\"penetration\",\"requested\":48,\"broken\":50,\"force\":3.4,\"hit\":44,\"limit\":48}",
+      "context": {
+        "penetrationObservation": "{\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"scale\":1,\"observation\":{\"observedFragments\":120,\"sampleCapReached\":false,\"elapsed\":0.8930669000037597,\"postSimulationMaxSpeed\":218.36085510253907,\"immediateMaxSpeed\":0,\"ownershipFailures\":0,\"deferredMaxSpeed\":0,\"postSimulationSteps\":7,\"trace\":[{\"moved\":13.487739562988282,\"parts\":120,\"t\":0.409272000004421,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4582418999998481,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":23.468029022216798,\"parts\":120,\"t\":0.4930026000001817,\"peak\":218.36085510253907,\"dt\":0.05000000447034836},{\"moved\":26.41138458251953,\"parts\":120,\"t\":0.6841663000013796,\"peak\":218.36085510253907,\"dt\":0.06666667014360428},{\"moved\":28.81826400756836,\"parts\":120,\"t\":0.7647784000000684,\"peak\":218.36085510253907,\"dt\":0.06666667014360428}],\"lastStep\":{\"moved\":32.8326301574707,\"parts\":120,\"t\":0.8841138000061619,\"peak\":218.36085510253907,\"dt\":0.0625},\"firstFragmentAt\":0.2053520000044955,\"fragments\":120,\"returnToReadSeconds\":0.18414569999731612,\"anchoredFailures\":0,\"peakAt\":0.40915099999983797,\"timedOut\":false,\"fastMaxDisplacement\":32.8326301574707,\"fastFragmentsMoved\":120,\"minPostReads\":7,\"maxSpeed\":218.36085510253907,\"postSimulationReads\":840,\"maxInitial\":137.36000061035157,\"serverOwned\":120,\"peakFragment\":\"DepthBlock_L002_C06_R02 Server Physics Chunk 6\",\"observationError\":\"\"},\"travel\":48,\"maxSpeed\":218.36085510253907,\"maxInitial\":137.36000061035157,\"observedPhysicalLaunch\":true,\"outcome\":\"penetration\",\"requested\":48,\"broken\":50,\"force\":3.4,\"hit\":44,\"limit\":48}"
+      }
+    }
+  ]
+}

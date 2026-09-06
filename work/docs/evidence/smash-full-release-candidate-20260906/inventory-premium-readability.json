@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "inventory-premium-readability",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start isolated Inventory visual check",
+        "wait for ready profile and GUI",
+        "seed five fists and three pet tokens only in ephemeral Studio",
+        "wait for authoritative inventory replication",
+        "actual Inventory dimensions, semantic colors, selection, search and pet actions",
+        "stop isolated Inventory visual check"
+      ],
+      "consoleClassifications": []
+    }
+  ]
+}

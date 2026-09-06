@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "scope": "Local execution of the exact full-harness fingerprint guard; not a native runtime test",
+  "checkedAt": "2026-09-06T10:08:08.8549982Z",
+  "harnessSHA256": "E9A7DDF54DFAC4C3E240A1F60A42DCF6D336B8D5906EAED868C1FC5F50D4173C",
+  "syncEvidence": "work/docs/evidence/smash-startup-diagnostics-source-sync-20260906.json",
+  "syncEvidenceSHA256": "A225A615DDC7A2CDE378700676FC98AE082A4816BC8F2D9D0BC644553E3F7304",
+  "positiveActualSync": true,
+  "negativeControls": [
+    {
+      "name": "same names and byte lengths; fingerprint belongs to changed source content",
+      "rejected": true,
+      "reason": "Sync write fingerprint differs from current frozen source: GameConfig"
+    },
+    {
+      "name": "wrong byte length",
+      "rejected": true,
+      "reason": "Sync write fingerprint differs from current frozen source: GameConfig"
+    },
+    {
+      "name": "source path swapped",
+      "rejected": true,
+      "reason": "Sync fingerprint source path differs from the explicit source mapping"
+    },
+    {
+      "name": "duplicate source name",
+      "rejected": true,
+      "reason": "Sync fingerprint inventory must identify exactly nine distinct sources"
+    },
+    {
+      "name": "missing fingerprint",
+      "rejected": true,
+      "reason": "Sync write fingerprint differs from current frozen source: GameConfig"
+    }
+  ]
+}

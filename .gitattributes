@@ -7,3 +7,17 @@
 *.mp4 binary
 *.zip binary
 *.exe binary
+
+# Preserve exact bytes of the final build and SHA-linked acceptance evidence.
+outputs/PunchWallRPGPlayable_v1_final.build.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-full-emote-readiness-r4-20260906/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-final-artifact-visuals-20260906/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-final-artifact-tunnel-20260906/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-artifact-*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-final-artifact-*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-final-performance-peer-review-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-frame-profile-final*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-windows-powershell-launch-context-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-native-input-helper-corrections-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+work/docs/evidence/smash-user-authorized-studio-cleanup*-20260906.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

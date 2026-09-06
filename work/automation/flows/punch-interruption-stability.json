@@ -1,0 +1,123 @@
+{
+  "name": "punch-interruption-stability",
+  "description": "Cancel active world motion on reset or structural detach; exercise actual damage, windup and lunge callbacks.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local blocks=workspace.PunchWallRPG['Depth Blocks'] for _,delay in ipairs({.02,.14}) do c:Invoke('Reset') c:Invoke('SetStats',{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local b=blocks.DepthBlock_L001_C06_R02 c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) assert(b:GetAttribute('Shaking'),'fixture did not begin shake') local token=b:GetAttribute('ShakeToken') task.wait(delay) c:Invoke('SetStats',{Power=15}) c:Invoke('HitDepthBlock',{layer=1,column=6,row=1}) c:Invoke('HitDepthBlock',{layer=1,column=7,row=1}) assert(b:GetAttribute('StructuralDetached'),'fixture did not detach damaged block') assert(b:GetAttribute('ShakeToken')>token and not b:GetAttribute('Shaking'),'detach did not invalidate shake') task.wait(.4) assert((b.Position-b:GetAttribute('BaseCFrame').Position).Magnitude>1,'shake restored detached block to grid') end return true"
+      },
+      "label": "detachment cancels initial and restoring shake tween"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local b=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R02 c:Invoke('HitDepthBlock',{layer=1,column=6,row=2}) task.wait(.02) c:Invoke('ResetWorld') local expected=b:GetAttribute('BaseCFrame') task.wait(.4) assert(b.Anchored and not b:GetAttribute('Shaking') and (b.Position-expected.Position).Magnitude<.001,'reset left active shake') return true"
+      },
+      "label": "reset cancels block motion before restoration"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] for _,delay in ipairs({.06,.30}) do c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=p.Character.HumanoidRootPart r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-40)) local before=workspace:GetServerTimeNow() local origin=r.Position local result task.spawn(function() result=c:Invoke('PunchRadius') end) task.wait(delay) if delay>.2 then assert((p:GetAttribute('LastPunchLungeAt') or 0)>=before and (p:GetAttribute('LastPunchLungeDistance') or 0)>.05 and (r.Position-origin).Magnitude>.05,'fixture did not observe active lunge travel') end local oldToken=p:GetAttribute('PunchOwnershipToken') c:Invoke('ResetWorld') local expected=r.Position assert(p:GetAttribute('PunchOwnershipToken')>oldToken,'reset did not cancel punch token') task.wait(.9) assert((Vector3.new(r.Position.X,0,r.Position.Z)-Vector3.new(expected.X,0,expected.Z)).Magnitude<1,('cancelled lunge moved player after reset delay=%s expected=%s actual=%s velocity=%s move=%s'):format(delay,tostring(expected),tostring(r.Position),tostring(r.AssemblyLinearVelocity),tostring(p.Character.Humanoid.MoveDirection))) assert(r.CollisionGroup=='PlayerCharacters','reset left punching collision group') assert(result and result.ok==false,'interrupted punch must not report success') end return true"
+      },
+      "label": "reset interrupts windup and active lunge",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=99,Depth=75,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke('ClearCooldowns') local p=game.Players:GetPlayers()[1] local r=p.Character.HumanoidRootPart r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-40)) local probe={done=false} shared.SmashCancelRemoteProbe=probe local connection connection=game.ReplicatedStorage.PunchWallEvents.ActionRequest.OnServerEvent:Connect(function(who,request) if who~=p or not (request=='Punch' or type(request)=='table' and request.action=='Punch') then return end connection:Disconnect() task.wait(.06) c:Invoke('ResetWorld') local boss=workspace.PunchWallRPG.Walls['Titan Server Wall'] r.CFrame=CFrame.lookAt(boss.Position+Vector3.new(0,0,5),boss.Position) local hp=boss:GetAttribute('HP') local coins=p.leaderstats.Coins.Value task.wait(.7) probe.ok=boss:GetAttribute('HP')==hp and p.leaderstats.Coins.Value==coins probe.done=true end) return true"
+      },
+      "label": "arm real remote cancellation near fallback boss",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer('Punch') return true"
+      },
+      "label": "send actual player Punch remote",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local probe=shared.SmashCancelRemoteProbe local untilTime=os.clock()+3 repeat task.wait(.03) until probe.done or os.clock()>untilTime assert(probe.done and probe.ok,'cancelled player input fell through to boss damage') shared.SmashCancelRemoteProbe=nil return true"
+      },
+      "label": "cancelled remote cannot fall through to another combat target",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] local oldCharacter=p.Character local r=oldCharacter.HumanoidRootPart r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-40)) local block=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R01 local hp=block:GetAttribute('HP') local result task.spawn(function() result=c:Invoke('PunchRadius') end) task.wait(.05) oldCharacter.Humanoid.Health=0 task.wait(.35) assert(result and not result.ok and block:GetAttribute('HP')==hp,'death during windup dealt damage') c:Invoke('Respawn') assert(p.Character~=oldCharacter and p.Character.HumanoidRootPart.CollisionGroup=='PlayerCharacters','respawn retained old character or punch collision') c:Invoke('Reset') return true"
+      },
+      "label": "death cancels windup and respawn restores normal character",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "game runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "cleanup stop play",
+      "allowError": true
+    }
+  ]
+}

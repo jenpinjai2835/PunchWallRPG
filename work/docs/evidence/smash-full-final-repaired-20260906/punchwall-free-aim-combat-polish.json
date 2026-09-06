@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punchwall-free-aim-combat-polish",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for polished runtime",
+        "cubic field and clean forest environment",
+        "free aim keeps facing and wall rewards coins only",
+        "debris starts outside the wall and bursts toward open space",
+        "trigger one client punch",
+        "wait for action cooldown",
+        "animation follows the one-second action cooldown",
+        "wait for client feedback",
+        "visual audio motion and HUD contracts",
+        "finish actual free-aim motion before observation-only fixture",
+        "observe restored live wall after free-aim motion completes",
+        "free aim coexists with one actual target outline and accurate readable wall HUD",
+        "restore owned HUD observation pose",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "combat-target-boss-hud",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "create owned desktop HUD fixture device",
+        "start isolated combat HUD play",
+        "wait for isolated profile and HUD",
+        "seed a stationary actual partial-damage target",
+        "desktop actual HP estimate outline and idle coalescing",
+        "Shop Inventory Tasks Settings hide and restore combat ownership",
+        "actual control clearance 874x402 at 0.8",
+        "actual control clearance 874x402 at 1.2",
+        "actual control clearance 667x375 at 1",
+        "actual control clearance 900x600 at 1",
+        "break the displayed target through server gameplay",
+        "broken target releases both HUD and outline",
+        "enter actual qualified Titan phase two",
+        "actual boss HP countdown control clearance and menu ownership",
+        "leave damaged Titan outside every combat range",
+        "damaged distant Titan cannot retain HUD ownership",
+        "release owned stationary character fixture",
+        "capture combat HUD console",
+        "combat HUD console clean (identified Studio input warnings: 0)",
+        "stop isolated combat HUD play",
+        "restore simulator and remove only owned fixture device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "combat HUD console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

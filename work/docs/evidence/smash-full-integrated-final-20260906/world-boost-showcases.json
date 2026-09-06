@@ -1,0 +1,154 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "world-boost-showcases",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "activate fixed desktop viewport for real input routes",
+        "start play",
+        "wait for world commerce and HUD",
+        "capture startup console",
+        "startup console clean (identified Studio input warnings: 0)",
+        "three bounded static showcase models are built",
+        "all product geometry stays anchored non-colliding and outside the lane",
+        "keyboard gamepad touch and mouse bindings are configured",
+        "invoke the same server route used by prompt and click",
+        "rapid repeat is throttled server-side",
+        "wait for client shop transition",
+        "kiosk lands on the exact Boosts catalog",
+        "close shop before real keyboard prompt test",
+        "move the live player into Coin Boost prompt range",
+        "wait for proximity prompt visibility",
+        "press E through the live player input path",
+        "wait for keyboard-opened shop",
+        "real E input opens the exact Boosts page",
+        "close shop before live mouse test",
+        "wait beyond kiosk throttle for mouse test",
+        "move live player to Speed showcase",
+        "center Speed world click target in fixed viewport",
+        "wait for Speed click target",
+        "click Speed showcase through the live mouse path",
+        "wait for mouse-opened shop",
+        "real mouse click opens Speed Boosts page",
+        "close shop before ButtonX binding route validation",
+        "wait beyond kiosk throttle for ButtonX binding route validation",
+        "move live player to Damage showcase",
+        "wait for Damage ButtonX-bound prompt",
+        "verify Damage server route paired with ButtonX-bound prompt",
+        "wait for ButtonX-bound route shop",
+        "ButtonX-bound prompt opens Damage Boosts page",
+        "capture Boosts page reached from validated desktop routes",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 0)",
+        "activate phone simulator for touch route",
+        "start phone touch play",
+        "wait for phone world and HUD",
+        "phone simulator exposes touch input",
+        "move phone player to Coin showcase",
+        "center Coin touch target in phone viewport",
+        "wait for phone clickable prompt",
+        "tap Coin showcase in the live phone simulator",
+        "wait for touch-opened shop",
+        "phone simulator tap opens exact Coin Boosts page",
+        "capture phone Boosts page reached by simulator tap",
+        "capture phone runtime console",
+        "phone runtime console clean (identified Studio input warnings: 0)",
+        "stop phone touch play",
+        "capture phone post-stop console",
+        "phone post-stop console clean (identified Studio input warnings: 0)",
+        "restore default viewport after touch route"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "startupConsole",
+          "label": "startup console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "console",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleAfterStop",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "phoneConsole",
+          "label": "phone runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "phoneConsoleAfterStop",
+          "label": "phone post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

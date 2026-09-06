@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-player-state",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for player bootstrap",
+        "fresh authoritative schema defaults and seeded snapshot are current",
+        "wait for authoritative stat replication",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"valid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"power\":\"321\",\"marker\":\"ItimDad D7\",\"legacyFist\":\"Fist: Starter Fist\",\"coins\":\"654\",\"legacyExact\":true,\"rank\":\"DEPTH 7  |  SCORE 987\",\"heroExact\":false,\"stateExact\":false,\"legacyPet\":\"Pets: None  x1.00\",\"depth\":\"7\",\"quest\":\"0 / 10\",\"world\":\"9%  |  D7/75\"}",
+      "context": {
+        "serverStats": "{\"rpgNumbers\":18,\"score\":987,\"power\":321,\"leaderNumbers\":8,\"pet\":\"None\",\"coins\":654,\"equippedFist\":\"Starter Glove\",\"breaks\":3,\"wallLevel\":4,\"rpgText\":14,\"fresh\":true,\"seeded\":true,\"schema\":true,\"depth\":7}",
+        "hudStats": "{\"valid\":false,\"power\":\"321\",\"marker\":\"ItimDad D7\",\"legacyFist\":\"Fist: Starter Fist\",\"coins\":\"654\",\"legacyExact\":true,\"rank\":\"DEPTH 7  |  SCORE 987\",\"heroExact\":false,\"stateExact\":false,\"legacyPet\":\"Pets: None  x1.00\",\"depth\":\"7\",\"quest\":\"0 / 10\",\"world\":\"9%  |  D7/75\"}"
+      }
+    }
+  ]
+}

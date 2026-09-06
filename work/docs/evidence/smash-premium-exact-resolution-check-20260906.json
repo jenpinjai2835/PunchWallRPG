@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "changedScalingReferences": 3,
+  "unrelatedChanges": false,
+  "compiledChunks": 6,
+  "nativeEvidence": "smash-premium-exact-resolution-r1-20260906.json",
+  "sourceCommit": "85c51e58eb0fda1c5d4230828f18f4fb5bfd173c",
+  "api": "https://create.roblox.com/docs/reference/engine/enums/DeviceSimulatorScalingMode"
+}

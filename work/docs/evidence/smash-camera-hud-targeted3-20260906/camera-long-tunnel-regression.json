@@ -1,0 +1,30 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "camera-long-tunnel-regression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for gameplay runtime",
+        "prepare long high-power tunnel run",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 7.214224815368652, -200.6503448486328\",\"contractValid\":false,\"cleanupRestored\":true,\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.9811975955963135, 4.676042079925537, -212.85501098632812\",\"valid\":false,\"type\":\"Custom\",\"freshObscurers\":[],\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.7987804878048781,\"maxInheritedRootStep\":23.480607986450197,\"configuredOrbit\":12.474493980407715,\"maxEscapeStep\":3.6,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Interactables.Pet Egg Drops.Mystery Pet Egg 9158952231.Mystery Pet Egg\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C06_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L020_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L030_C06_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L036_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L042_C07_R04\"],\"maxBackPunch\":11,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.0065937042236328129,\"finishDistance\":12.467900276184082,\"readableRatio\":1,\"overlapEscapes\":22,\"sampleMaxStep\":23.98865509033203,\"selectedDistance\":12.474493980407715,\"settledSamples\":11,\"settledReadableRatio\":1,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.213592052459717, -108.64893341064453\",\"unresolvedSafetyFrames\":25,\"maxBackTo\":\"-2.000030517578125, 3.181673765182495, -192.8544921875\",\"sampledFrames\":164,\"userOrbitDistance\":12.474493980407715,\"lead\":21.10581398010254,\"insideSamples\":[],\"mode\":\"CustomPreserved\",\"settledClearRatio\":1,\"handoffActive\":false,\"maxCorrectionStep\":2.3999996185302736,\"maxBackFrom\":\"-2.000030517578125, 3.1992361545562744, -192.85450744628906\",\"maxStepTo\":\"-2.000030517578125, 7.214900016784668, -132.63758850097656\",\"visibleRatio\":1},\"selectedOrbitPreserved\":true,\"freshValid\":true,\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"safetyBounded\":false,\"settleTimedOut\":false,\"inside\":0}",
+      "context": {
+        "cameraDiagnostics": "{\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 7.214224815368652, -200.6503448486328\",\"contractValid\":false,\"cleanupRestored\":true,\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.9811975955963135, 4.676042079925537, -212.85501098632812\",\"valid\":false,\"type\":\"Custom\",\"freshObscurers\":[],\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.7987804878048781,\"maxInheritedRootStep\":23.480607986450197,\"configuredOrbit\":12.474493980407715,\"maxEscapeStep\":3.6,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Interactables.Pet Egg Drops.Mystery Pet Egg 9158952231.Mystery Pet Egg\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C06_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L020_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L030_C06_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L036_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L042_C07_R04\"],\"maxBackPunch\":11,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.0065937042236328129,\"finishDistance\":12.467900276184082,\"readableRatio\":1,\"overlapEscapes\":22,\"sampleMaxStep\":23.98865509033203,\"selectedDistance\":12.474493980407715,\"settledSamples\":11,\"settledReadableRatio\":1,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.213592052459717, -108.64893341064453\",\"unresolvedSafetyFrames\":25,\"maxBackTo\":\"-2.000030517578125, 3.181673765182495, -192.8544921875\",\"sampledFrames\":164,\"userOrbitDistance\":12.474493980407715,\"lead\":21.10581398010254,\"insideSamples\":[],\"mode\":\"CustomPreserved\",\"settledClearRatio\":1,\"handoffActive\":false,\"maxCorrectionStep\":2.3999996185302736,\"maxBackFrom\":\"-2.000030517578125, 3.1992361545562744, -192.85450744628906\",\"maxStepTo\":\"-2.000030517578125, 7.214900016784668, -132.63758850097656\",\"visibleRatio\":1},\"selectedOrbitPreserved\":true,\"freshValid\":true,\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"safetyBounded\":false,\"settleTimedOut\":false,\"inside\":0}"
+      }
+    }
+  ]
+}

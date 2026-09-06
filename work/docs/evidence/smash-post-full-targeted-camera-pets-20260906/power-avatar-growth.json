@@ -1,0 +1,63 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "pets do not grow when hero Power grows",
+        "hero shrinks back at low Power and grows again independently of WallLevel",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nSomething unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "Something unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Power growth camera framing failed {\"valid\":false,\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"visualValid\":false,\"visibleCorners\":8,\"heroMultiplier\":1.25,\"settled\":true}",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nSomething unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate.",
+        "growthMatrix": "{\"valid\":true,\"bossWallHeight\":18,\"grounded\":true,\"wallLevelIndependent\":true,\"rows\":[{\"applied\":1,\"directScale\":1,\"aura\":false,\"power\":15,\"bodyHeight\":4.683196058372315,\"expected\":1,\"bottomDelta\":0,\"visualHeight\":5.217703819274902},{\"applied\":1.0750000476837159,\"directScale\":1.0750000476837159,\"aura\":false,\"power\":1500,\"bodyHeight\":5.022444629584654,\"expected\":1.075,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.29761266708374},{\"applied\":1.125,\"directScale\":1.125,\"aura\":true,\"power\":150000,\"bodyHeight\":5.370869839719842,\"expected\":1.125,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.73016357421875},{\"applied\":1.2000000476837159,\"directScale\":1.2000000476837159,\"aura\":true,\"power\":15000000,\"bodyHeight\":5.73328155035833,\"expected\":1.2000000000000002,\"bottomDelta\":2.384185791015625e-7,\"visualHeight\":6.166746139526367},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1500000000,\"bodyHeight\":5.9269050476222289,\"expected\":1.25,\"bottomDelta\":-1.1920928955078126e-7,\"visualHeight\":6.538206100463867},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1000000000000000,\"bodyHeight\":5.905748553709125,\"expected\":1.25,\"bottomDelta\":0,\"visualHeight\":6.538206100463867}],\"version\":\"PowerLogWallCappedV1\",\"monotonic\":true,\"directScaleValid\":true,\"bounded\":true,\"passageHeight\":8,\"sourcePower\":1000000000000000,\"maximumHeight\":7.2}",
+        "petInvariant": "{\"valid\":true,\"policy\":\"IndependentFixedTarget\",\"identitiesStable\":true,\"observersCleaned\":true,\"count\":3,\"rows\":[{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Forest Pup\",\"afterHeight\":1.4499998092651368,\"afterScale\":0.8387129306793213,\"sameModel\":true,\"beforeHeight\":1.4500006437301636,\"beforeScale\":0.8387129306793213},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Miner Cat\",\"afterHeight\":1.0721968412399293,\"afterScale\":0.2411685585975647,\"sameModel\":true,\"beforeHeight\":1.0721977949142457,\"beforeScale\":0.2411685585975647},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Crystal Fox\",\"afterHeight\":1.6500002145767213,\"afterScale\":0.19778680801391602,\"sameModel\":true,\"beforeHeight\":1.6500003337860108,\"beforeScale\":0.19778680801391602}],\"baselinePresent\":true,\"fixed\":true,\"heroMultiplier\":1.25,\"exactIdentities\":true}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "source": "current",
+  "results": {
+    "safeFrame": {
+      "passed": 441
+    },
+    "petLifetime": {
+      "passed": 38
+    },
+    "croppedProjection": {
+      "passed": 5
+    },
+    "frameOracle": {
+      "passed": 7
+    }
+  },
+  "mutations": [
+    "skip_actual_safe_publication",
+    "remove_safe_inset",
+    "rebuild_pets_on_hand_size",
+    "ignore_template_replacement",
+    "ignore_companion_lifetime",
+    "only_last_distance_aggregate",
+    "omit_safe_aggregate",
+    "fabricate_safe_aggregate",
+    "allow_partial_front",
+    "allow_top_edge",
+    "skip_motion_window",
+    "assume_safe_height_equals_projection_height",
+    "ignore_hardware_near_plane"
+  ],
+  "compiledPrograms": 17
+}

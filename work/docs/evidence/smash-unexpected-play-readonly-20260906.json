@@ -1,0 +1,16 @@
+{
+  "readOnly": true,
+  "at": "2026-09-06T01:15:49.752Z",
+  "studio": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "Server": {
+    "isError": true,
+    "text": "Server datamodel is not available in Edit mode"
+  },
+  "Client": {
+    "isError": true,
+    "text": "Client datamodel is not available in Edit mode"
+  }
+}

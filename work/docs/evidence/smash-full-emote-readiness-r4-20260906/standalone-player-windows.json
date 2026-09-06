@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "standalone-player-windows",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "lock standalone windows phone viewport",
+        "start standalone windows play",
+        "wait for standalone windows runtime",
+        "capture standalone windows boot console",
+        "standalone windows boot console clean (identified Studio input warnings: 0)",
+        "seed standalone Rebirth locked state",
+        "seed standalone Rebirth coins",
+        "Rebirth HUD route opens standalone window",
+        "wait for standalone Rebirth render",
+        "standalone Rebirth is exclusive readable and touch safe",
+        "close standalone Rebirth",
+        "Settings tool route opens standalone window",
+        "wait for standalone Settings render",
+        "standalone Settings is exclusive readable and touch safe",
+        "Settings sound callback applies immediately",
+        "wait for Settings authority sync",
+        "standalone Settings reaches server normalization",
+        "open standalone Missions surface",
+        "wait for Missions render",
+        "Missions surface has no combined tabs or embedded Rebirth",
+        "capture standalone windows runtime console",
+        "standalone windows runtime console clean (identified Studio input warnings: 0)",
+        "stop standalone windows play",
+        "capture standalone windows post-stop console",
+        "standalone windows post-stop console clean (identified Studio input warnings: 0)",
+        "restore default simulator and remove standalone windows device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "standalone windows boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "runtimeConsole",
+          "label": "standalone windows runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "standalone windows post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

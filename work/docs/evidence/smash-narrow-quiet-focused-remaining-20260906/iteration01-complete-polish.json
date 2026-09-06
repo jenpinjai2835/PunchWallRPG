@@ -1,0 +1,35 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "iteration01-complete-polish",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for iteration runtime",
+        "current Forest hub art and visible landmarks",
+        "reset isolated fresh-player fixture",
+        "actual Shop and closed starter fist preserve native avatar",
+        "partially damage actual front depth block",
+        "wait for wall HUD",
+        "wall display name, canonical identity, HP and hit estimate match actual block",
+        "set current first-fist tutorial boundary",
+        "wait for dynamic tutorial",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:35: first-fist visible purchase guidance did not settle: AssistantCommand:23: first-fist Shop guidance is not actually visible",
+      "context": {}
+    }
+  ]
+}

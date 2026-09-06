@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-09-06T03:46:20.145Z",
+  "runKind": "Diagnostic observations; inspect readiness and geometry fields separately from execution status",
+  "flowSHA256": "f4c160f3ca52125a0b43fe9edd35b79968f5e95608057027d7148e65d517443c",
+  "helperSHA256": "ce21aa27d9d4df98cbefa88d44bbfc6cee6699490dc5d64826265b06f1dc1106",
+  "selected": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "observations": [
+    {
+      "label": "desktop setup",
+      "at": "2026-09-06T03:46:20.474Z",
+      "text": "{\"default\":true}",
+      "isError": false
+    },
+    {
+      "label": "desktop start",
+      "at": "2026-09-06T03:47:02.684Z",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "desktop server readiness and bounds",
+      "at": "2026-09-06T03:47:12.084Z",
+      "text": "{\"at\":1788666432046,\"memoryMB\":6726.33203125,\"activeFalling\":0,\"characterSize\":\"3.3642871379852295, 5.3240251541137695, 1.8544750213623047\",\"harnessReady\":true,\"lastCollapse\":0,\"serverTime\":1788666432.047303,\"profileReady\":true}",
+      "isError": false
+    },
+    {
+      "label": "desktop actual control rectangles",
+      "at": "2026-09-06T03:47:12.316Z",
+      "text": "{\"touch\":false,\"up\":{\"visible\":true,\"effectiveVisible\":true,\"active\":true,\"w\":44,\"y\":352.05316162109377,\"x\":453.3672180175781,\"exists\":true,\"z\":34,\"min\":\"44, 44\",\"profile\":\"ReferenceDirectionalPunch\",\"h\":52.820404052734378},\"upNext\":false,\"hud\":[637,654],\"downNext\":false,\"at\":1788666432263,\"camera\":[637,654],\"lastInput\":\"Enum.UserInputType.MouseMovement\",\"next\":{\"visible\":false,\"effectiveVisible\":false,\"active\":false,\"w\":73.91028594970703,\"y\":482.714111328125,\"x\":388.6004638671875,\"exists\":true,\"z\":31,\"h\":55.242225646972659},\"down\":{\"visible\":true,\"effectiveVisible\":true,\"active\":true,\"w\":44,\"y\":352.05316162109377,\"x\":487.655517578125,\"exists\":true,\"z\":34,\"min\":\"44, 44\",\"profile\":\"ReferenceDirectionalPunch\",\"h\":52.820404052734378},\"responsive\":[\"Desktop\",637,654,\"Camera\"],\"upDown\":true}",
+      "isError": false
+    },
+    {
+      "label": "desktop console",
+      "at": "2026-09-06T03:47:12.411Z",
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+      "isError": false
+    },
+    {
+      "label": "desktop stop",
+      "at": "2026-09-06T03:47:13.769Z",
+      "text": "Game Stopped",
+      "isError": false
+    },
+    {
+      "label": "phone setup",
+      "at": "2026-09-06T03:47:18.360Z",
+      "text": "{\"height\":360,\"active\":true,\"name\":\"VQC Phone 740x360\",\"width\":740}",
+      "isError": false
+    },
+    {
+      "label": "phone start",
+      "at": "2026-09-06T03:47:59.780Z",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "phone server readiness and bounds",
+      "at": "2026-09-06T03:48:08.913Z",
+      "text": "{\"at\":1788666488850,\"memoryMB\":6836.171875,\"activeFalling\":0,\"characterSize\":\"3.174110174179077, 5.204812049865723, 1.6348655223846436\",\"harnessReady\":true,\"lastCollapse\":0,\"serverTime\":1788666488.851533,\"profileReady\":true}",
+      "isError": false
+    },
+    {
+      "label": "phone actual control rectangles",
+      "at": "2026-09-06T03:48:09.149Z",
+      "text": "{\"touch\":true,\"up\":{\"visible\":true,\"effectiveVisible\":true,\"active\":true,\"w\":44,\"y\":225,\"x\":472,\"exists\":true,\"z\":34,\"min\":\"44, 44\",\"profile\":\"PhoneLandscapeDirectionPair44V4\",\"h\":44},\"upNext\":true,\"hud\":[740,339],\"downNext\":true,\"at\":1788666489066,\"camera\":[740,339],\"lastInput\":\"Enum.UserInputType.Focus\",\"next\":{\"visible\":false,\"effectiveVisible\":false,\"active\":false,\"w\":69.88948059082031,\"y\":222.2784423828125,\"x\":451.4353942871094,\"exists\":true,\"z\":31,\"h\":52.23698043823242},\"down\":{\"visible\":true,\"effectiveVisible\":true,\"active\":true,\"w\":44,\"y\":225,\"x\":520,\"exists\":true,\"z\":34,\"min\":\"44, 44\",\"profile\":\"PhoneLandscapeDirectionPair44V4\",\"h\":44},\"responsive\":[\"PhoneLandscape\",740,339,\"Camera\"],\"upDown\":false}",
+      "isError": false
+    },
+    {
+      "label": "phone console",
+      "at": "2026-09-06T03:48:09.244Z",
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nSomething unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate.",
+      "isError": false
+    },
+    {
+      "label": "phone stop",
+      "at": "2026-09-06T03:48:11.688Z",
+      "text": "Game Stopped",
+      "isError": false
+    }
+  ],
+  "cleanup": [
+    {
+      "step": "verify default simulator",
+      "text": "{\"default\":true}",
+      "isError": false
+    }
+  ],
+  "ok": true,
+  "completedAt": "2026-09-06T03:48:14.082Z"
+}

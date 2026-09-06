@@ -1,0 +1,74 @@
+{
+  "ok": true,
+  "timeline": {
+    "ok": true,
+    "restoreReturned": 1,
+    "requested": 0.8,
+    "returnedScale": 0.8,
+    "rows": [
+      {
+        "ok": true,
+        "label": "before",
+        "clock": 29321.076550899998,
+        "uiScale": 1,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "immediate",
+        "clock": 29321.0786314,
+        "uiScale": 0.8,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "after 0.05",
+        "clock": 29321.1392978,
+        "uiScale": 0.8,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "after 0.2",
+        "clock": 29321.3533943,
+        "uiScale": 0.8,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "after 0.5",
+        "clock": 29321.858502299998,
+        "uiScale": 0.8,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "after 1",
+        "clock": 29322.872487399996,
+        "uiScale": 0.8,
+        "sound": true,
+        "motion": true
+      },
+      {
+        "ok": true,
+        "label": "restored",
+        "clock": 29323.3886625,
+        "uiScale": 1,
+        "sound": true,
+        "motion": true
+      }
+    ],
+    "beforeScale": 1
+  },
+  "cleanup": {
+    "ok": true,
+    "device": "default",
+    "name": "Studio desktop window",
+    "emulated": false
+  }
+}

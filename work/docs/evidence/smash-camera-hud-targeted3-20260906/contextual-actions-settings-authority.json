@@ -1,0 +1,42 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "contextual-actions-settings-authority",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start contextual action session",
+        "wait for profile-ready runtime",
+        "place player away from contextual Use targets",
+        "single real out-of-range Use returns authoritative failure",
+        "place player beside current training station",
+        "send real Train request",
+        "settle training lock and gain state",
+        "training becomes authoritative and movement-locked",
+        "send real StopTraining request",
+        "settle training release",
+        "StopTraining releases authoritative movement state",
+        "place player beside Pet Lab interaction",
+        "send real in-range contextual Use request",
+        "settle server-opened contextual menu",
+        "cleanup contextual action session"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"tab\"\\s*:\\s*\"Pets\"\nReceived: {\"menu\":true,\"tab\":\"Inventory\"}",
+      "context": {
+        "outOfRangeFixture": "{\"ok\":true,\"outsideUseRange\":true,\"targets\":8,\"range\":38,\"minimumDistance\":65.7818374633789}",
+        "outOfRangeUseFeedback": "{\"ok\":true,\"kind\":\"Fail\",\"actualRemoteFeedback\":true,\"target\":\"Use\"}"
+      }
+    }
+  ]
+}

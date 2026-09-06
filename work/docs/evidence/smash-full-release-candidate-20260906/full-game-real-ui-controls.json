@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "full-game-real-ui-controls",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start real UI control playtest",
+        "wait for player and authoritative UI bootstrap",
+        "seed ready safe authoritative UI state",
+        "wait for seeded stats replication",
+        "precheck reference Inventory open button",
+        "real click reference Inventory open",
+        "assert Inventory opened and precheck Inventory close",
+        "real click Inventory close",
+        "cleanup real UI control playtest"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:20: Flow31 C02 close callback / C03 Shop precheck failed: {\"snapshotOk\":true,\"selectable\":true,\"c03ShopExists\":true,\"inventoryClosed\":true,\"hitTopName\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD.ShopButton.RightMenuOpticalFrame.RightMenuArt\",\"ok\":false,\"c03ShopVisible\":true,\"c03ShopDescendant\":true,\"inventoryVisible\":false,\"visibleArea\":true,\"c03ShopMin\":33.14533233642578,\"topmost\":true,\"hittable\":false,\"c02CloseCallbackMarker\":\"C02_InventoryClose\",\"c03ShopVisibleArea\":true,\"menuClos",
+      "context": {}
+    }
+  ]
+}

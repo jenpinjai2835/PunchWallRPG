@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "inventory-pet-icons-fusion",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for Inventory and pet builders",
+        "seed five distinct normal pet species with fusion copies",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"columns\":0,\"fuse\":\"FUSE\",\"unique\":5,\"detailPet\":\"Forest Pup\",\"fuseActive\":true,\"fuseStyle\":\"Fusion\",\"cards\":6,\"actions\":4,\"ready\":6}",
+      "context": {}
+    }
+  ]
+}

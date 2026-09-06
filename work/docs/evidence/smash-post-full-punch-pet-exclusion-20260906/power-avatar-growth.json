@@ -1,0 +1,76 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "pets do not grow when hero Power grows",
+        "hero shrinks back at low Power and grows again independently of WallLevel",
+        "observe server punch state before growth camera",
+        "observe client punch state before growth camera",
+        "observe server punch state before growth cleanup",
+        "observe client punch state before growth cleanup",
+        "preserve camera visibility detail 1 before cleanup",
+        "preserve camera visibility detail 2 before cleanup",
+        "preserve camera visibility detail 3 before cleanup",
+        "preserve camera visibility detail 4 before cleanup",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "Expected regex not found: \"growthCameraContractValid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.8589210510253906,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":4,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.025815963745117189,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":1.592171549797058,\"maxGuardPublishedTravelPerCycle\":0.02581440657377243,\"maxBackTo\":\"-2.000030517578125, 4.513697624206543, -19.56670379638672\",\"visibilityPhases\":{\"follow\":{\"maxGuardAge\":0.2667265000054613,\"samples\":48,\"rayMismatch\":0,\"obscured\":0},\"native\":{\"maxGuardAge\":0.07153780000226107,\"samples\":8,\"rayMismatch\":0,\"obscured\":0}},\"visualFailureReasons\":[\"motion_geometry_or_native_contract\"],\"finishDistance\":23.288619995117189,\"settledSamples\":7,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"mode\":\"CustomPreserved\",\"maxBack\":0.0000019073486328125,\"maxBackFrom\":\"-2.000030517578125, 4.514997482299805, -19.56670570373535\",\"maxGuardPublishedWritesPerCycle\":1,\"type\":\"Custom\",\"teleportRebaseCount\":0,\"unresolvedSafetyFrames\":0,\"selectedDistance\":23.26280403137207,\"sampledFrames\":56,\"userOrbitDistance\":23.26280403137207,\"lead\":0.2912173271179199,\"maxStepFrom\":\"-2.000030517578125, 10.884546279907227, 4.774044036865234\",\"lastGuardAge\":0.01798199999757344,\"maxStep\":0.6756584644317627,\"settledClearRatio\":1,\"maxCorrectionStep\":0.31632810831069949,\"maxEscapeStep\":0,\"maxStepTo\":\"-2.000030517578125, 10.879356384277344, 3.1818809509277344\",\"visibleRatio\":1},\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"heroMultiplier\":1.25,\"visualValid\":false,\"visibleCorners\":8,\"growthCameraContractValid\":false,\"settled\":true}",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+        "growthMatrix": "{\"valid\":true,\"bossWallHeight\":18,\"grounded\":true,\"wallLevelIndependent\":true,\"rows\":[{\"applied\":1,\"directScale\":1,\"aura\":false,\"power\":15,\"bodyHeight\":4.674002064808345,\"expected\":1,\"bottomDelta\":0,\"visualHeight\":5.287452697753906},{\"applied\":1.0750000476837159,\"directScale\":1.0750000476837159,\"aura\":false,\"power\":1500,\"bodyHeight\":5.021885451956417,\"expected\":1.075,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.29770565032959},{\"applied\":1.125,\"directScale\":1.125,\"aura\":true,\"power\":150000,\"bodyHeight\":5.364267334257577,\"expected\":1.125,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.7517852783203129},{\"applied\":1.2000000476837159,\"directScale\":1.2000000476837159,\"aura\":true,\"power\":15000000,\"bodyHeight\":5.731996153190691,\"expected\":1.2000000000000002,\"bottomDelta\":2.384185791015625e-7,\"visualHeight\":6.173440456390381},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1500000000,\"bodyHeight\":5.918433332369805,\"expected\":1.25,\"bottomDelta\":-1.1920928955078126e-7,\"visualHeight\":6.5319623947143559},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1000000000000000,\"bodyHeight\":5.905013350826072,\"expected\":1.25,\"bottomDelta\":0,\"visualHeight\":6.5319623947143559}],\"version\":\"PowerLogWallCappedV1\",\"monotonic\":true,\"directScaleValid\":true,\"bounded\":true,\"passageHeight\":8,\"sourcePower\":1000000000000000,\"maximumHeight\":7.2}",
+        "petInvariant": "{\"valid\":true,\"policy\":\"IndependentFixedTarget\",\"identitiesStable\":true,\"observersCleaned\":true,\"count\":3,\"rows\":[{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Forest Pup\",\"afterHeight\":1.4499998092651368,\"afterScale\":0.8387129306793213,\"sameModel\":true,\"beforeHeight\":1.4500001668930054,\"beforeScale\":0.8387129306793213},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Miner Cat\",\"afterHeight\":1.072197437286377,\"afterScale\":0.2411685585975647,\"sameModel\":true,\"beforeHeight\":1.072197437286377,\"beforeScale\":0.2411685585975647},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Crystal Fox\",\"afterHeight\":1.6500002145767213,\"afterScale\":0.19778680801391602,\"sameModel\":true,\"beforeHeight\":1.6499998569488526,\"beforeScale\":0.19778680801391602}],\"baselinePresent\":true,\"fixed\":true,\"heroMultiplier\":1.25,\"exactIdentities\":true}",
+        "growthCameraServerBefore": "{\"rayReady\":true,\"stats\":{\"WallLevel\":99,\"Power\":1500000000},\"anchored\":false,\"heroMultiplier\":1.25,\"character\":\"Workspace.jennarong2835\",\"observation\":\"growth_camera_server\",\"available\":true,\"attrs\":{\"LastWallHit\":0,\"LastPunchDirection\":\"Forward\",\"LastPunchPlannedLungeDistance\":10.5,\"LastPunchLungeDistance\":10.5,\"LastPunchSafeTravel\":10.5,\"LastRadiusHitCount\":8,\"LastMobileAction\":0,\"LastPunchLungeAt\":1788657459.039888,\"LastPunchRequestedDistance\":10.5,\"PunchOwnershipToken\":5,\"ProfileReady\":true,\"LastPunchPredictedBreakCount\":8,\"LastRadiusPrimary\":\"DepthBlock_L001_C06_R02\",\"LastPunchPlanningBarrier\":\"none\"},\"rootFrame\":\"-2.00003052, 4.62623215, -17.9997864, 1, 0, 0, 0, 1, 0, 0, 0, 1\",\"collisionGroup\":\"PlayerCharacters\",\"rig\":\"Enum.HumanoidRigType.R15\",\"health\":100,\"rayLength\":48,\"rootVelocity\":\"0, -4.496824741363525, 0\",\"serverTime\":1788657464.327429,\"rootPosition\":\"-2.000030517578125, 4.626232147216797, -17.999786376953125\"}",
+        "growthCameraClientBefore": "{\"attrs\":{\"PunchAttackInterval\":1,\"PunchCameraHandoffActive\":false,\"CharacterPunchMotionActive\":false,\"PunchCameraFollowActive\":false,\"PunchCameraGeometryClamped\":false,\"PunchMotionPhase\":\"Idle\"},\"rootFrame\":\"-2.00003052, 4.51499748, -17.9997864, 1, 0, 0, 0, 1, 0, 0, 0, 1\",\"heroMultiplier\":1.25,\"subjectCurrent\":true,\"clientTime\":24448.0379846,\"anchored\":false,\"cameraFrame\":\"-2.00003052, 12.2520485, 4.4113102, 1, 0, 0, 0, 0.965925813, 0.258819044, 0, -0.258819044, 0.965925813\",\"rig\":\"Enum.HumanoidRigType.R15\",\"cameraType\":\"Enum.CameraType.Custom\",\"character\":\"Workspace.jennarong2835\",\"observation\":\"growth_camera_client\",\"available\":true,\"health\":100,\"rootVelocity\":\"0, 0.0000520854773640167, 0\",\"serverTime\":1788657464.517158,\"rootPosition\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\"}",
+        "cameraGrowth": "{\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.8589210510253906,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":4,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.025815963745117189,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":1.592171549797058,\"maxGuardPublishedTravelPerCycle\":0.02581440657377243,\"maxBackTo\":\"-2.000030517578125, 4.513697624206543, -19.56670379638672\",\"visibilityPhases\":{\"follow\":{\"maxGuardAge\":0.2667265000054613,\"samples\":48,\"rayMismatch\":0,\"obscured\":0},\"native\":{\"maxGuardAge\":0.07153780000226107,\"samples\":8,\"rayMismatch\":0,\"obscured\":0}},\"visualFailureReasons\":[\"motion_geometry_or_native_contract\"],\"finishDistance\":23.288619995117189,\"settledSamples\":7,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"mode\":\"CustomPreserved\",\"maxBack\":0.0000019073486328125,\"maxBackFrom\":\"-2.000030517578125, 4.514997482299805, -19.56670570373535\",\"maxGuardPublishedWritesPerCycle\":1,\"type\":\"Custom\",\"teleportRebaseCount\":0,\"unresolvedSafetyFrames\":0,\"selectedDistance\":23.26280403137207,\"sampledFrames\":56,\"userOrbitDistance\":23.26280403137207,\"lead\":0.2912173271179199,\"maxStepFrom\":\"-2.000030517578125, 10.884546279907227, 4.774044036865234\",\"lastGuardAge\":0.01798199999757344,\"maxStep\":0.6756584644317627,\"settledClearRatio\":1,\"maxCorrectionStep\":0.31632810831069949,\"maxEscapeStep\":0,\"maxStepTo\":\"-2.000030517578125, 10.879356384277344, 3.1818809509277344\",\"visibleRatio\":1},\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"heroMultiplier\":1.25,\"visualValid\":false,\"visibleCorners\":8,\"growthCameraContractValid\":false,\"settled\":true}",
+        "growthCameraServerCleanup": "{\"rayReady\":true,\"stats\":{\"WallLevel\":99,\"Power\":1500000000},\"anchored\":false,\"heroMultiplier\":1.25,\"character\":\"Workspace.jennarong2835\",\"observation\":\"growth_camera_server\",\"available\":true,\"attrs\":{\"LastWallHit\":24454.196502400002,\"LastPunchDirection\":\"Forward\",\"LastPunchPlannedLungeDistance\":48,\"LastPunchLungeDistance\":0.00017395019531241118,\"LastPunchSafeTravel\":0.00017395019531241118,\"LastRadiusHitCount\":0,\"LastMobileAction\":24454.1964402,\"LastPunchLungeAt\":1788657470.891618,\"LastPunchRequestedDistance\":48,\"PunchOwnershipToken\":11,\"ProfileReady\":true,\"LastPunchPredictedBreakCount\":0,\"LastRadiusPrimary\":\"DepthBlock_L010_C06_R04\",\"LastPunchPlanningBarrier\":\"none\"},\"rootFrame\":\"-2.00003052, 4.51520538, -19.5667057, 1, 0, 0, 0, 1, 0, 0, 0, 1\",\"collisionGroup\":\"PlayerCharacters\",\"rig\":\"Enum.HumanoidRigType.R15\",\"ray\":\"Workspace.PunchWallRPG.Interactables.Pet Egg Drops.Mystery Pet Egg 9158952231.Mystery Pet Egg\",\"health\":100,\"rayDistance\":2.600320816040039,\"rayLength\":48,\"rootVelocity\":\"0, 0, 0\",\"serverTime\":1788657471.916072,\"rootPosition\":\"-2.000030517578125, 4.515205383300781, -19.56670570373535\"}",
+        "growthCameraClientCleanup": "{\"attrs\":{\"PunchAttackInterval\":1,\"CharacterPunchMotionActive\":false,\"PunchCameraGeometryClamped\":false,\"PunchCameraHandoffActive\":false,\"CharacterPunchCount\":6,\"CharacterPunchRig\":\"R15\",\"PunchCameraFollowPeakStuds\":0.0025039101019501688,\"PunchCameraMode\":\"CustomPreserved\",\"PunchActionCooldownBlocked\":false,\"PunchCameraFollowEnabled\":true,\"PunchCameraFollowActive\":false,\"CharacterPunchReducedMotion\":false,\"CharacterPunchMotionSuppressed\":false,\"PunchMotionPhase\":\"Idle\",\"LastPunchActionAt\":24454.1893365},\"rootFrame\":\"-2.00003052, 4.51499748, -19.5667057, 1, 0, 0, 0, 1, 0, 0, 0, 1\",\"heroMultiplier\":1.25,\"subjectCurrent\":true,\"clientTime\":24455.6348728,\"anchored\":false,\"cameraFrame\":\"-2.00003052, 10.8845463, 3.20712471, 1, 0, 0, 0, 0.978980422, 0.203954294, 0, -0.203954294, 0.978980422\",\"rig\":\"Enum.HumanoidRigType.R15\",\"cameraType\":\"Enum.CameraType.Custom\",\"character\":\"Workspace.jennarong2835\",\"observation\":\"growth_camera_client\",\"available\":true,\"health\":100,\"rootVelocity\":\"0, 0.00005200638770475052, 0\",\"serverTime\":1788657472.112047,\"rootPosition\":\"-2.000030517578125, 4.514997482299805, -19.56670570373535\"}",
+        "cameraVisibilityDetail1": "{\"page\":1,\"available\":false}",
+        "cameraVisibilityDetail2": "{\"page\":2,\"available\":false}",
+        "cameraVisibilityDetail3": "{\"page\":3,\"available\":false}",
+        "cameraVisibilityDetail4": "{\"page\":4,\"available\":false}"
+      }
+    }
+  ]
+}

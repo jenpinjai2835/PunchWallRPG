@@ -1,9 +1,8 @@
 {
   "name": "training-ui-pet-recovery",
   "description": "Verify displayed effective-Power training eligibility, compact contextual action presentation, unsupported-rig equipped-fist fallback, dense Inventory cards, distinct Robux pricing, and eight pack plus three detailed Premium pet visuals on iPhone 17 landscape.",
-  "studioInstanceId": "dfcfb094-1c97-4365-81d8-22f53bafd763",
-  "studioName": "^(?:PunchWallRPGPlayable_v1_candidate_training_pets|PunchWallRPGPlayable_v1_final)[.]rbxlx$",
-  "placeName": "^(?:PunchWallRPGPlayable_v1_candidate_training_pets|PunchWallRPGPlayable_v1_final)[.]rbxlx$",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "placeName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 18,
   "pollMs": 3000,
   "steps": [
@@ -14,12 +13,34 @@
         "datamodel_type": "Edit",
         "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='QC Training UI Pet Recovery 874x402' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local c={Name=n,Width=874,Height=402,PixelDensity=460,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) local RS=game:GetService('ReplicatedStorage') local folder=RS:FindFirstChild('PunchWallExternalAssets') local names={'Sanitized_ForestPupPet','Sanitized_MinerCatPet','Sanitized_CrystalFoxPet','Sanitized_LavaDragonPet','Sanitized_SecretTitanGolemPet','Sanitized_EnragedPhoenixPet','Sanitized_ElectraHydraPet','Sanitized_MythicRadiantOnePet','Sanitized_CrimsonPhoenixPet','Sanitized_StormWyvernPet','Sanitized_CelestialGuardianPet'} local found=0 for _,name in ipairs(names) do if folder and folder:FindFirstChild(name) then found+=1 end end local r=S:GetResolutionAsync() return H:JSONEncode({ok=found==11 and r.X==874 and r.Y==402,found=found,width=r.X,height=r.Y,active=S:GetDeviceAsync()==id})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"found\"\\s*:\\s*11", "\"width\"\\s*:\\s*874", "\"height\"\\s*:\\s*402", "\"active\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"found\"\\s*:\\s*11",
+        "\"width\"\\s*:\\s*874",
+        "\"height\"\\s*:\\s*402",
+        "\"active\"\\s*:\\s*true"
+      ],
       "label": "configure iPhone 17 and require eight pack plus three detailed Premium templates"
     },
-    { "type": "wait", "ms": 2500, "label": "wait for device simulator to settle" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 60000, "label": "start focused play" },
-    { "type": "wait", "ms": 8000, "label": "wait for player UI and pet attestation" },
+    {
+      "type": "wait",
+      "ms": 2500,
+      "label": "wait for device simulator to settle"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start focused play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for player UI and pet attestation"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -27,10 +48,21 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('Reset') a:Invoke('SetStats',{Power=1400,FistMultiplier=1,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) a:Invoke('Teleport','Iron Impact Dummy') task.wait(.25) local root=workspace.PunchWallRPG local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.ok==true and s.qualificationPower<1500 and root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11,power=s.Power,qualification=s.qualificationPower,active=s.active,petReady=root:GetAttribute('PetVisualReleaseReady'),petCount=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy')})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"power\"\\s*:\\s*1400", "\"active\"\\s*:\\s*false", "\"petReady\"\\s*:\\s*true", "\"petCount\"\\s*:\\s*11", "EightPackPlusThreeDetailedPremiumV3"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*1400",
+        "\"active\"\\s*:\\s*false",
+        "\"petReady\"\\s*:\\s*true",
+        "\"petCount\"\\s*:\\s*11",
+        "EightPackPlusThreeDetailedPremiumV3"
+      ],
       "label": "seed truly below-threshold displayed Power and prove pet release readiness"
     },
-    { "type": "wait", "ms": 800, "label": "wait for exact training target scan" },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for exact training target scan"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -38,10 +70,23 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction local title=b.ActionTitle local detail=b.ActionDetail local invoked=a:Invoke('InvokeContextualAction') local result={action=g:GetAttribute('ContextualActionName'),target=g:GetAttribute('ContextualActionTarget'),eligible=g:GetAttribute('ContextualTrainingEligible'),presentation=b:GetAttribute('PresentationVersion'),profile=b:GetAttribute('ResponsiveProfile'),title=title.Text,detail=detail.Text,titleFits=title.TextFits,detailFits=detail.TextFits,width=b.AbsoluteSize.X,height=b.AbsoluteSize.Y,invoked=invoked} assert(result.action=='Train' and result.target=='Iron Impact Dummy' and not result.eligible and result.presentation=='TwoLineCompactV2' and result.profile=='PhoneTwoLineCenterLane56V4' and result.title=='LOCKED' and result.detail:find('1.5K',1,true) and result.titleFits and result.detailFits and result.width>=196 and result.height>=52 and result.invoked,'locked context '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"action\"\\s*:\\s*\"Train\"", "Iron Impact Dummy", "\"eligible\"\\s*:\\s*false", "TwoLineCompactV2", "PhoneTwoLineCenterLane56V4", "\"title\"\\s*:\\s*\"LOCKED\"", "\"titleFits\"\\s*:\\s*true", "\"detailFits\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"action\"\\s*:\\s*\"Train\"",
+        "Iron Impact Dummy",
+        "\"eligible\"\\s*:\\s*false",
+        "TwoLineCompactV2",
+        "PhoneTwoLineCenterLane56V4",
+        "\"title\"\\s*:\\s*\"LOCKED\"",
+        "\"titleFits\"\\s*:\\s*true",
+        "\"detailFits\"\\s*:\\s*true"
+      ],
       "label": "locked contextual action is exact compact and readable"
     },
-    { "type": "wait", "ms": 400, "label": "wait for server rejection" },
+    {
+      "type": "wait",
+      "ms": 400,
+      "label": "wait for server rejection"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -49,7 +94,12 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.Power==1400 and s.active==false and s.stationId=='rookie_bag',Power=s.Power,active=s.active,stationId=s.stationId})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1400", "\"active\"\\s*:\\s*false", "\"stationId\"\\s*:\\s*\"rookie_bag\""],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"Power\"\\s*:\\s*1400",
+        "\"active\"\\s*:\\s*false",
+        "\"stationId\"\\s*:\\s*\"rookie_bag\""
+      ],
       "label": "below-threshold request never starts or switches training"
     },
     {
@@ -59,39 +109,70 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation local s=a:Invoke('SetStats',{Power=1499,FistMultiplier=13,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) local t=a:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.ok==true and s.Power==1499 and t.basePower==1499 and t.qualificationPower>=1500,Power=s.Power,basePower=t.basePower,qualification=t.qualificationPower})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"Power\"\\s*:\\s*1499", "\"basePower\"\\s*:\\s*1499", "\"qualification\"\\s*:\\s*[1-9][0-9]{4,}"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"Power\"\\s*:\\s*1499",
+        "\"basePower\"\\s*:\\s*1499",
+        "\"qualification\"\\s*:\\s*[1-9][0-9]{4,}"
+      ],
       "label": "reproduce public case where displayed effective Power exceeds Iron threshold"
     },
-    { "type": "wait", "ms": 650, "label": "wait for eligible contextual state" },
+    {
+      "type": "wait",
+      "ms": 650,
+      "label": "wait for eligible contextual state"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction local altered=0 for _,d in ipairs(p.Character:GetDescendants()) do if d:IsA('Motor6D') or d:IsA('AnimationConstraint') then local connected=d:IsA('Motor6D') and d.Part1 or (d:IsA('AnimationConstraint') and d.Attachment1 and d.Attachment1.Parent) if d.Name=='RightShoulder' or d.Name=='Right Shoulder' or (connected and (connected.Name=='RightUpperArm' or connected.Name=='Right Arm')) then d.Name='QC Unsupported Shoulder' if d:IsA('Motor6D') then d.Part1=nil else d.Attachment1=nil end altered+=1 end end end local result={eligible=g:GetAttribute('ContextualTrainingEligible'),target=g:GetAttribute('ContextualActionTarget'),title=b.ActionTitle.Text,detail=b.ActionDetail.Text,altered=altered,invoked=a:Invoke('InvokeContextualAction')} assert(result.eligible and result.target=='Iron Impact Dummy' and result.title=='TRAIN' and result.detail:find('+40/s',1,true) and result.altered>=1 and result.invoked,'eligible context '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction\nassert(not g:FindFirstChild('TrainingUnsupportedRigCleanup'),'previous unsupported-rig fixture must be cleaned')\nlocal records={} local cleanup=Instance.new('BindableFunction') cleanup.Name='TrainingUnsupportedRigCleanup' cleanup.Parent=g\ncleanup.OnInvoke=function()\n local restored=0\n for _,r in ipairs(records)do\n  local joint=r.joint\n  if joint.Parent and joint:IsDescendantOf(p.Character) and r.endpoint.Parent then\n   joint.Name=r.name\n   if r.motor then joint.Part1=r.endpoint else joint.Attachment1=r.endpoint end\n   if joint.Name==r.name and (r.motor and joint.Part1==r.endpoint or not r.motor and joint.Attachment1==r.endpoint)then restored+=1 end\n  end\n end\n local result={ok=#records>0 and restored==#records,restored=restored,expected=#records}cleanup:Destroy()return result\nend\nfor _,d in ipairs(p.Character:GetDescendants())do\n if d:IsA('Motor6D')or d:IsA('AnimationConstraint')then\n  local motor=d:IsA('Motor6D')local endpoint if motor then endpoint=d.Part1 else endpoint=d.Attachment1 end local connected=motor and endpoint or endpoint and endpoint.Parent\n  if d.Name=='RightShoulder'or d.Name=='Right Shoulder'or(connected and(connected.Name=='RightUpperArm'or connected.Name=='Right Arm'))then\n   assert(endpoint,'original shoulder endpoint must be captured')table.insert(records,{joint=d,endpoint=endpoint,name=d.Name,motor=motor})\n   d.Name='QC Unsupported Shoulder'if motor then d.Part1=nil else d.Attachment1=nil end\n  end\n end\nend\nlocal result={eligible=g:GetAttribute('ContextualTrainingEligible'),target=g:GetAttribute('ContextualActionTarget'),title=b.ActionTitle.Text,detail=b.ActionDetail.Text,altered=#records,invoked=a:Invoke('InvokeContextualAction')}\nassert(result.eligible and result.target=='Iron Impact Dummy'and result.title=='TRAIN'and result.detail:find('+40/s',1,true)and result.altered>=1 and result.invoked,'eligible context '..H:JSONEncode(result))return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"eligible\"\\s*:\\s*true", "Iron Impact Dummy", "\"title\"\\s*:\\s*\"TRAIN\"", "\\+40/s", "\"invoked\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"eligible\"\\s*:\\s*true",
+        "Iron Impact Dummy",
+        "\"title\"\\s*:\\s*\"TRAIN\"",
+        "\\+40/s",
+        "\"invoked\"\\s*:\\s*true"
+      ],
       "label": "exact eligible station starts through the production request path"
     },
-    { "type": "wait", "ms": 2600, "label": "wait for two fallback fist strikes" },
+    {
+      "type": "wait",
+      "ms": 2600,
+      "label": "wait for two fallback fist strikes"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('TrainingSnapshot') return H:JSONEncode({ok=s.active==true and s.stationId=='iron_dummy' and s.gainPerSecond==40 and s.Power>=1540,active=s.active,stationId=s.stationId,gain=s.gainPerSecond,Power=s.Power})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation\nlocal deadline=os.clock()+6 local s local ready=false\nrepeat\n s=a:Invoke('TrainingSnapshot')\n ready=s.active==true and s.stationId=='iron_dummy' and s.gainPerSecond==40 and s.Power>=1579 and (s.sessionTickCount or 0)>=2\n if ready then break end\n task.wait(.1)\nuntil os.clock()>=deadline\nreturn H:JSONEncode({ok=ready,active=s.active,stationId=s.stationId,gain=s.gainPerSecond,Power=s.Power,tickCount=s.sessionTickCount,twoTicks=(s.sessionTickCount or 0)>=2})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"active\"\\s*:\\s*true", "\"stationId\"\\s*:\\s*\"iron_dummy\"", "\"gain\"\\s*:\\s*40"],
-      "label": "qualified player trains at the exact Iron rate"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*true",
+        "\"stationId\"\\s*:\\s*\"iron_dummy\"",
+        "\"gain\"\\s*:\\s*40",
+        "\"twoTicks\"\\s*:\\s*true"
+      ],
+      "label": "qualified player trains at the exact Iron rate",
+      "timeoutMs": 12000
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local count=g:GetAttribute('TrainingFistFallbackCount') or 0 local echoes=0 for _,x in ipairs(workspace:GetChildren()) do if x:GetAttribute('VisualRole')=='TrainingFistStrikeFallback' then echoes+=1 end end local result={ok=count>=1 and g:GetAttribute('TrainingCharacterAnimationApplied')==false and g:GetAttribute('TrainingFistFallbackEquippedFist')=='Starter Glove' and echoes<=1,count=count,characterAnimated=g:GetAttribute('TrainingCharacterAnimationApplied'),equipped=g:GetAttribute('TrainingFistFallbackEquippedFist'),echoes=echoes} assert(result.ok,'fist fallback '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local count=g:GetAttribute('TrainingFistFallbackCount') or 0 local echoes=0 for _,x in ipairs(workspace:GetChildren()) do if x:GetAttribute('VisualRole')=='TrainingFistStrikeFallback' then echoes+=1 end end local result={ok=count>=1 and g:GetAttribute('TrainingCharacterAnimationApplied')==false and g:GetAttribute('TrainingFistFallbackEquippedFist')=='Starter Glove' and echoes<=1,count=count,characterAnimated=g:GetAttribute('TrainingCharacterAnimationApplied'),equipped=g:GetAttribute('TrainingFistFallbackEquippedFist'),echoes=echoes} assert(result.ok,'fist fallback '..H:JSONEncode(result)) local cleanup=g:FindFirstChild('TrainingUnsupportedRigCleanup')local restored=cleanup and cleanup:Invoke()assert(restored and restored.ok and restored.restored>=1,'restore exact original shoulder after visual proof')result.fixtureRestored=true result.restored=restored.restored return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"characterAnimated\"\\s*:\\s*false", "\"count\"\\s*:\\s*[1-9]"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"characterAnimated\"\\s*:\\s*false",
+        "\"count\"\\s*:\\s*[1-9]",
+        "\"fixtureRestored\"\\s*:\\s*true"
+      ],
       "label": "unsupported avatar visibly strikes with the equipped fist"
     },
     {
@@ -99,21 +180,44 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation a:Invoke('StopTraining') local names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'} local s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),LockedPetsJSON='[]',EquippedPetsJSON='[]'}) local p=game.Players:GetPlayers()[1] local target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction') local root=p and p.Character and p.Character:FindFirstChild('HumanoidRootPart') assert(root and target,'Armory runtime target') root.Anchored=true root.CFrame=CFrame.new(target.Position+Vector3.new(0,2,5)) root.AssemblyLinearVelocity=Vector3.zero task.wait(.25) root.Anchored=false return H:JSONEncode({ok=s.ok==true,inventory=s.PetInventoryJSON,targetPosition={target.Position.X,target.Position.Y,target.Position.Z}})"
+        "code": "local H=game:GetService('HttpService') local a=game.ServerStorage.PunchWallAutomation\nlocal stopped=a:Invoke('StopTraining')assert(stopped.ok==true,'training stop failed')\nlocal names={'Forest Pup','Miner Cat','Crystal Fox','Lava Dragon','Secret Titan Golem','Crimson Phoenix','Storm Wyvern','Celestial Guardian'}\nlocal s=a:Invoke('SetStats',{PetInventoryJSON=H:JSONEncode(names),DiscoveredPetsJSON=H:JSONEncode(names),LockedPetsJSON='[]',EquippedPetsJSON='[]'})assert(s.ok==true,'pet preview seed failed')\nlocal p=game.Players:GetPlayers()[1]local character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart')\nlocal target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction')assert(root and target and not root.Anchored,'unanchored Armory fixture character required')\n-- BEGIN ARMORY PLACEMENT GEOMETRY\nlocal coreNames={HumanoidRootPart=true,Head=true,Torso=true,UpperTorso=true,LowerTorso=true,['Left Leg']=true,['Right Leg']=true,LeftUpperLeg=true,LeftLowerLeg=true,LeftFoot=true,RightUpperLeg=true,RightLowerLeg=true,RightFoot=true}\nlocal core={} local bottom=math.huge\nfor _,part in ipairs(character:GetChildren())do if part:IsA('BasePart')and coreNames[part.Name]then\n local relative=root.CFrame:ToObjectSpace(part.CFrame)table.insert(core,{part=part,relative=relative})\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local corner=relative:PointToWorldSpace(Vector3.new(part.Size.X*x*.5,part.Size.Y*y*.5,part.Size.Z*z*.5))bottom=math.min(bottom,corner.Y)end end end\nend end\nassert(#core>=4 and bottom<0,'actual core body/feet bounds required; detached test arm is excluded')\nlocal candidate=target.Position+Vector3.new(-6,0,6)\nlocal ray=RaycastParams.new()ray.FilterType=Enum.RaycastFilterType.Exclude ray.FilterDescendantsInstances={character}ray.RespectCanCollide=true\nlocal floor=workspace:Raycast(candidate+Vector3.new(0,24,0),Vector3.new(0,-64,0),ray)\nassert(floor and floor.Instance.CanCollide and floor.Normal.Y>.8,'walk-up requires a real collidable floor')\nlocal desiredPosition=Vector3.new(candidate.X,floor.Position.Y-bottom+.12,candidate.Z)\nlocal desiredRoot=CFrame.lookAt(desiredPosition,Vector3.new(target.Position.X,desiredPosition.Y,target.Position.Z))\nlocal overlap=OverlapParams.new()overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character}overlap.MaxParts=0 overlap.RespectCanCollide=true\nlocal function coreClear(proposed)\n local hits={}\n for _,item in ipairs(core)do local part=item.part local cf=proposed and proposed*item.relative or part.CFrame\n  local size=Vector3.new(math.max(.05,part.Size.X-.1),math.max(.05,part.Size.Y-.1),math.max(.05,part.Size.Z-.1))\n  for _,hit in ipairs(workspace:GetPartBoundsInBox(cf,size,overlap))do if hit.CanCollide then table.insert(hits,hit.Name)end end\n end\n return #hits==0,hits\nend\nlocal clear,hits=coreClear(desiredRoot)assert(clear,'walk-up body overlaps '..H:JSONEncode(hits))\n-- END ARMORY PLACEMENT GEOMETRY\nlocal pivotOffset=root.CFrame:ToObjectSpace(character:GetPivot())character:PivotTo(desiredRoot*pivotOffset)\nroot.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero\nlocal deadline=os.clock()+4 local stableSince local result\nrepeat\n task.wait(.05)local actual=root.Position local targetDistance=(actual-target.Position).Magnitude local otherDistance=math.huge\n for _,part in ipairs(workspace.PunchWallRPG.Interactables:GetChildren())do if part:IsA('BasePart')and part~=target then\n  local use=part:GetAttribute('PremiumOnly')==true and part:GetAttribute('PurchaseConfigured')==true or part:GetAttribute('PremiumOnly')~=true and(part.Name=='Pet Egg Machine'or part.Name=='Rebirth Shrine'or part:GetAttribute('InteractionMenu')~=nil)\n  if use then otherDistance=math.min(otherDistance,(actual-part.Position).Magnitude)end\n end end\n local clear,overlaps=coreClear(nil)local drift=(actual-desiredPosition).Magnitude local margin=otherDistance-targetDistance\n local ready=not root.Anchored and clear and drift<.6 and root.AssemblyLinearVelocity.Magnitude<.5 and targetDistance<=18 and margin>=2\n if ready then stableSince=stableSince or os.clock()else stableSince=nil end\n result={position={actual.X,actual.Y,actual.Z},requested={desiredPosition.X,desiredPosition.Y,desiredPosition.Z},floor=floor.Instance.Name,coreParts=#core,coreClear=clear,overlaps=overlaps,drift=drift,margin=margin,targetDistance=targetDistance,anchored=root.Anchored,stable=stableSince~=nil and os.clock()-stableSince>=.3}\n if result.stable then break end\nuntil os.clock()>=deadline\nassert(result.stable,'unanchored discriminatory Armory placement '..H:JSONEncode(result))\nreturn H:JSONEncode({ok=true,inventory=s.PetInventoryJSON,placement=result})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "Celestial Guardian", "Forest Pup"],
-      "label": "stop training and seed exact pet preview catalog"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "Celestial Guardian",
+        "Forest Pup",
+        "\"coreClear\"\\s*:\\s*true",
+        "\"stable\"\\s*:\\s*true",
+        "\"anchored\"\\s*:\\s*false"
+      ],
+      "label": "stop training and seed exact pet preview catalog",
+      "timeoutMs": 15000
     },
-    { "type": "wait", "ms": 1200, "label": "wait for exact use target scan" },
+    {
+      "type": "wait",
+      "ms": 1200,
+      "label": "wait for exact use target scan"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction local result={action=g:GetAttribute('ContextualActionName'),target=g:GetAttribute('ContextualActionTarget'),active=b.Active,title=b.ActionTitle.Text,detail=b.ActionDetail.Text,invoked=a:Invoke('InvokeContextualAction')} assert(result.action=='Use' and result.target~='' and result.active and result.title=='USE' and result.detail==string.upper(result.target) and result.invoked,'use context '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation local b=g.PixelPerfectHeroCityHUD.ContextAction\nlocal target=workspace.PunchWallRPG.Interactables:FindFirstChild('Hero Armory Merchant Interaction')\nlocal deadline=os.clock()+4 local stableSince local result local previousPosition\nrepeat\n local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart')\n result={action=g:GetAttribute('ContextualActionName'),target=g:GetAttribute('ContextualActionTarget'),active=b.Active,title=b.ActionTitle.Text,detail=b.ActionDetail.Text,rootPosition=root and tostring(root.Position),targetDistance=root and target and (root.Position-target.Position).Magnitude,anchored=root and root.Anchored,speed=root and root.AssemblyLinearVelocity.Magnitude}\n local exact=result.action=='Use' and result.target=='Hero Armory Merchant Interaction' and result.active and result.title=='USE' and result.detail==string.upper(result.target)\n local settled=root and target and not root.Anchored and result.targetDistance<=18 and result.speed<.5 and (not previousPosition or (root.Position-previousPosition).Magnitude<.1)\n if exact and settled then stableSince=stableSince or os.clock()else stableSince=nil end\n previousPosition=root and root.Position\n if stableSince and os.clock()-stableSince>=.3 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nresult.ready=stableSince~=nil and os.clock()-stableSince>=.3\nassert(result.ready,'exact Armory must be naturally selected and physically settled before Use '..H:JSONEncode(result))\nlocal reply local replies=0\nlocal watcher=game:GetService('ReplicatedStorage').PunchWallEvents.Feedback.OnClientEvent:Connect(function(payload)\n if type(payload)=='table' and payload.type=='OpenMenu' then reply={target=payload.target,tab=payload.tab}replies+=1 end\nend)\nlocal invokedOk,invoked=pcall(function()return a:Invoke('InvokeContextualAction')end)\nresult.invoked=invokedOk and invoked==true\nlocal opened=false local snapshot\nlocal finish=os.clock()+3\nlocal pollOk,pollError=pcall(function()\nrepeat\n snapshot=a:Invoke('Snapshot')\n opened=reply~=nil and reply.target=='Fists' and reply.tab=='Fists' and snapshot.shopVisible==true and snapshot.shopPage=='Fists'\n if opened or not result.invoked then break end\n task.wait(.05)\nuntil os.clock()>=finish\nend)\nwatcher:Disconnect()\nresult.serverReply=reply result.serverReplies=replies result.serverOpened=opened result.shopPage=snapshot and snapshot.shopPage result.observerCleaned=watcher.Connected==false result.pollOk=pollOk result.pollError=not pollOk and tostring(pollError) or nil\nassert(result.invoked and result.serverOpened and replies==1 and result.observerCleaned and pollOk,'Armory Use server/menu path '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
       },
-      "expectRegex": ["\"action\"\\s*:\\s*\"Use\"", "\"active\"\\s*:\\s*true", "\"target\"\\s*:\\s*\"[^\"]+\"", "\"title\"\\s*:\\s*\"USE\"", "\"invoked\"\\s*:\\s*true"],
-      "label": "nearest real non-training contextual Use stays active and follows the production path"
+      "expectRegex": [
+        "\"action\"\\s*:\\s*\"Use\"",
+        "\"active\"\\s*:\\s*true",
+        "\"title\"\\s*:\\s*\"USE\"",
+        "\"invoked\"\\s*:\\s*true",
+        "\"target\"\\s*:\\s*\"Hero Armory Merchant Interaction\"",
+        "\"ready\"\\s*:\\s*true",
+        "\"serverOpened\"\\s*:\\s*true",
+        "\"serverReplies\"\\s*:\\s*1",
+        "\"observerCleaned\"\\s*:\\s*true"
+      ],
+      "label": "nearest real non-training contextual Use stays active and follows the production path",
+      "timeoutMs": 12000
     },
     {
       "type": "call",
@@ -121,27 +225,130 @@
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') task.wait(1) local root=g.GameMenu.FunctionalInventory local grid=root.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local expected={['Forest Pup']={source='Dowodle'},['Miner Cat']={source='Catmouse'},['Crystal Fox']={source='Ocelot'},['Lava Dragon']={source='Mythic Autumn Dragon'},['Secret Titan Golem']={source='Dark Guardian'},['Crimson Phoenix']={asset='86478691482535'},['Storm Wyvern']={asset='83562531232957'},['Celestial Guardian']={asset='121956330907081'}} local cards,matched,overlaps=0,0,0 local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return math.max(0,math.min(ap.X+as.X,bp.X+bs.X)-math.max(ap.X,bp.X))*math.max(0,math.min(ap.Y+as.Y,bp.Y+bs.Y)-math.max(ap.Y,bp.Y)) end for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 local art=card:FindFirstChild('ArtFrame') local rarity=card:FindFirstChild('Rarity') local equipped=card:FindFirstChild('Equipped') local locked=card:FindFirstChild('Locked') if art and rarity then overlaps+=overlap(art,rarity) end if art and equipped and equipped.Visible then overlaps+=overlap(art,equipped) end if art and locked and locked.Visible then overlaps+=overlap(art,locked) end local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local e=expected[name] local sourceOk=e and ((e.source and model and model:GetAttribute('SourcePackModelName')==e.source) or (e.asset and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==e.asset)) if e and vp and vp:GetAttribute('PreviewReady')==true and sourceOk then matched+=1 end end end local result={ok=root:GetAttribute('InventoryCompactCardContentVersion')=='StatusRailV4' and cards==8 and matched==8 and overlaps<1,version=root:GetAttribute('InventoryCompactCardContentVersion'),cards=cards,matched=matched,overlaps=overlaps,cardHeight=root:GetAttribute('InventoryCardHeight'),columns=root:GetAttribute('InventoryColumns')} assert(result.ok and result.cardHeight<=94 and result.columns>=5,'Inventory pet cards '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "\nlocal H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal safe=g.PixelPerfectHeroCityHUD\nlocal viewport=safe.AbsoluteSize\nassert(viewport.X>=280 and viewport.Y>=180,'rendered safe viewport unavailable or degenerate')\nassert(math.abs((g:GetAttribute('ResponsiveViewportWidth') or 0)-viewport.X)<=1 and math.abs((g:GetAttribute('ResponsiveViewportHeight') or 0)-viewport.Y)<=1,'responsive viewport disagrees with rendered safe area')\n-- BEGIN MEASURED MOBILE ASSERTIONS\nlocal function inside(x,parent)\n local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize\n assert(s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1,'outside bounds: '..x.Name)\nend\nlocal function renderedFloor(x)\n local scale=1 local n=x\n while n do\n  for _,child in ipairs(n:GetChildren()) do if child:IsA('UIScale') then scale*=child.Scale end end\n  n=n.Parent\n end\n local size=x.TextSize\n if x.TextScaled then local limit=x:FindFirstChildOfClass('UITextSizeConstraint') assert(limit,'unbounded scaled text: '..x.Name) size=limit.MinTextSize end\n return size*scale\nend\nlocal function readable(x,floor)\n assert(x and x.Visible and x.Text~='','missing readable text')\n assert(renderedFloor(x)>=floor-0.01,'small rendered text: '..x.Name)\n assert(x.TextFits==true,'text does not fit: '..x.Name)\n local b,s=x.TextBounds,x.AbsoluteSize\n assert(b.X>0 and b.Y>0 and b.X<=s.X+1 and b.Y<=s.Y+1,'rendered text bounds overflow: '..x.Name)\nend\nlocal function touch(x,floor)\n assert(math.min(x.AbsoluteSize.X,x.AbsoluteSize.Y)>=floor-0.01,'small rendered target: '..x.Name)\nend\n-- END MEASURED MOBILE ASSERTIONS\nlocal function shown(x)\n local n=x\n while n and n~=g do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end\n return true\nend\nlocal H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventorySearch','') a:Invoke('SetInventoryRarity','All') task.wait(1) local root=g.GameMenu.FunctionalInventory local grid=root.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid local expected={['Forest Pup']={source='Dowodle'},['Miner Cat']={source='Catmouse'},['Crystal Fox']={source='Ocelot'},['Lava Dragon']={source='Mythic Autumn Dragon'},['Secret Titan Golem']={source='Dark Guardian'},['Crimson Phoenix']={asset='86478691482535'},['Storm Wyvern']={asset='83562531232957'},['Celestial Guardian']={asset='121956330907081'}} local cards,matched,overlaps=0,0,0 local function overlap(a,b) local ap,as,bp,bs=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize return math.max(0,math.min(ap.X+as.X,bp.X+bs.X)-math.max(ap.X,bp.X))*math.max(0,math.min(ap.Y+as.Y,bp.Y+bs.Y)-math.max(ap.Y,bp.Y)) end for _,card in ipairs(grid:GetChildren()) do if card:IsA('GuiObject') and card.Visible and card:GetAttribute('InventoryCategory')=='Pets' then cards+=1 touch(card,44) local nameLabel=card:FindFirstChild('ItemName') readable(nameLabel,14) inside(nameLabel,card) local art=card:FindFirstChild('ItemArtFrame') local rarity=card:FindFirstChild('ItemRarity') local equipped=card:FindFirstChild('EquippedBadge') local locked=card:FindFirstChild('LockedBadge') assert(art and rarity and equipped and locked,'missing pet card fields') readable(rarity,12) inside(art,card) inside(rarity,card) if art and rarity then overlaps+=overlap(art,rarity) end if art and equipped and equipped.Visible then overlaps+=overlap(art,equipped) end if art and locked and locked.Visible then overlaps+=overlap(art,locked) end local name=card:GetAttribute('PreviewPetName') local vp=card:FindFirstChild('ItemPetPreview',true) local world=vp and vp:FindFirstChild('PetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local e=expected[name] local sourceOk=e and ((e.source and model and model:GetAttribute('SourcePackModelName')==e.source) or (e.asset and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==e.asset)) if e and vp and vp:GetAttribute('PreviewReady')==true and sourceOk then matched+=1 end end end local result={ok=root:GetAttribute('InventoryCompactCardContentVersion')=='HorizontalPreviewV5' and cards==8 and matched==8 and overlaps<1,version=root:GetAttribute('InventoryCompactCardContentVersion'),cards=cards,matched=matched,overlaps=overlaps,cardHeight=root:GetAttribute('InventoryCardHeight'),columns=root:GetAttribute('InventoryColumns')} inside(g.GameMenu,safe) inside(root.InventoryWindow,g.GameMenu) local expectedColumns=(root:GetAttribute('InventoryAvailableGridWidth') or 0)>=600 and 2 or 1 assert(result.ok and result.cardHeight>=88 and result.cardHeight<=96 and result.columns==expectedColumns,'Inventory pet cards '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"version\"\\s*:\\s*\"StatusRailV4\"", "\"cards\"\\s*:\\s*8", "\"matched\"\\s*:\\s*8", "\"overlaps\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"version\"\\s*:\\s*\"HorizontalPreviewV5\"",
+        "\"cards\"\\s*:\\s*8",
+        "\"matched\"\\s*:\\s*8",
+        "\"overlaps\"\\s*:\\s*0"
+      ],
       "label": "compact Inventory shows all pet art without tag overlap"
     },
     {
       "type": "call",
       "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation assert(a:Invoke('OpenTab','Fists')) task.wait(.4) return true"
+      },
+      "label": "open Shop host before premium tab input",
+      "timeoutMs": 15000
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "PremiumShopTab"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "PremiumShopTab"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "PremiumShopTab"
+            ]
+          }
+        ]
+      },
+      "label": "select Premium through the real Shop tab"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
       "timeoutMs": 90000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Premium') a:Invoke('OpenShopPage','Premium') task.wait(1) local shop=g.GameMenu.FunctionalHeroShop local expected={['Crimson Phoenix']='86478691482535',['Storm Wyvern']='83562531232957',['Celestial Guardian']='121956330907081'} local checked,preview,detailed=0,0,0 for _,card in ipairs(shop:GetDescendants()) do if card:IsA('Frame') and card.Name:sub(-8)=='ShopCard' and card:GetAttribute('OfferKind')=='GamePass' then local price=card:FindFirstChild('Price') local icon=card:FindFirstChild('PriceIcon') assert(price and icon and price:GetAttribute('CurrencyPalette')=='RobuxGreen' and price.TextColor3~=Color3.fromRGB(255,207,58),'Robux palette '..card.Name) checked+=1 local vp=card:FindFirstChild('PremiumPetPreview',true) local world=vp and vp:FindFirstChild('PremiumPetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local name=vp and vp:GetAttribute('PreviewPetName') if card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end if expected[name] and vp:GetAttribute('PreviewSource')=='ExternalTemplate' and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==expected[name] then detailed+=1 end end end local result={ok=checked==3 and preview==3 and detailed==3,checked=checked,preview=preview,detailed=detailed,page=shop:GetAttribute('ShopPage')} assert(result.ok,'premium shop '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "\nlocal H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal safe=g.PixelPerfectHeroCityHUD\nlocal viewport=safe.AbsoluteSize\nassert(viewport.X>=280 and viewport.Y>=180,'rendered safe viewport unavailable or degenerate')\nassert(math.abs((g:GetAttribute('ResponsiveViewportWidth') or 0)-viewport.X)<=1 and math.abs((g:GetAttribute('ResponsiveViewportHeight') or 0)-viewport.Y)<=1,'responsive viewport disagrees with rendered safe area')\n-- BEGIN MEASURED MOBILE ASSERTIONS\nlocal function inside(x,parent)\n local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,parent.AbsolutePosition,parent.AbsoluteSize\n assert(s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1,'outside bounds: '..x.Name)\nend\nlocal function renderedFloor(x)\n local scale=1 local n=x\n while n do\n  for _,child in ipairs(n:GetChildren()) do if child:IsA('UIScale') then scale*=child.Scale end end\n  n=n.Parent\n end\n local size=x.TextSize\n if x.TextScaled then local limit=x:FindFirstChildOfClass('UITextSizeConstraint') assert(limit,'unbounded scaled text: '..x.Name) size=limit.MinTextSize end\n return size*scale\nend\nlocal function readable(x,floor)\n assert(x and x.Visible and x.Text~='','missing readable text')\n assert(renderedFloor(x)>=floor-0.01,'small rendered text: '..x.Name)\n assert(x.TextFits==true,'text does not fit: '..x.Name)\n local b,s=x.TextBounds,x.AbsoluteSize\n assert(b.X>0 and b.Y>0 and b.X<=s.X+1 and b.Y<=s.Y+1,'rendered text bounds overflow: '..x.Name)\nend\nlocal function touch(x,floor)\n assert(math.min(x.AbsoluteSize.X,x.AbsoluteSize.Y)>=floor-0.01,'small rendered target: '..x.Name)\nend\n-- END MEASURED MOBILE ASSERTIONS\nlocal function shown(x)\n local n=x\n while n and n~=g do if n:IsA('GuiObject') and not n.Visible then return false end n=n.Parent end\n return true\nend\nlocal H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation assert(g.PunchWallClientAutomation:Invoke('Snapshot').shopPage=='Premium','real Premium tab did not open')  task.wait(1) local shop=g.GameMenu.FunctionalHeroShop local expected={['Crimson Phoenix']='86478691482535',['Storm Wyvern']='83562531232957',['Celestial Guardian']='121956330907081'} local checked,preview,detailed=0,0,0 for _,card in ipairs(shop:GetDescendants()) do if card:IsA('Frame') and card.Name:sub(-8)=='ShopCard' and card:GetAttribute('OfferKind')=='GamePass' then for _,x in ipairs(card:GetDescendants()) do if x:GetAttribute('ReadableTextRole')=='Primary' and x.Visible then readable(x,14) inside(x,card) end end local action=card:FindFirstChildWhichIsA('TextButton') assert(action,'premium action missing') touch(action,48) local price=card:FindFirstChild('Price') local icon=card:FindFirstChild('PriceIcon') assert(price and icon and price:GetAttribute('CurrencyPalette')=='RobuxGreen' and price.TextColor3~=Color3.fromRGB(255,207,58),'Robux palette '..card.Name) checked+=1 local vp=card:FindFirstChild('PremiumPetPreview',true) local world=vp and vp:FindFirstChild('PremiumPetPreviewWorld') local model=world and world:FindFirstChildWhichIsA('Model') local name=vp and vp:GetAttribute('PreviewPetName') if card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end if expected[name] and vp:GetAttribute('PreviewSource')=='ExternalTemplate' and model and tostring(model:GetAttribute('CreatorStoreAssetId') or model:GetAttribute('AssetId'))==expected[name] then detailed+=1 end end end local result={ok=checked==3 and preview==3 and detailed==3,checked=checked,preview=preview,detailed=detailed,page=shop:GetAttribute('ShopPage')} assert(result.ok,'premium shop '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"checked\"\\s*:\\s*3", "\"preview\"\\s*:\\s*3", "\"detailed\"\\s*:\\s*3"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"checked\"\\s*:\\s*3",
+        "\"preview\"\\s*:\\s*3",
+        "\"detailed\"\\s*:\\s*3"
+      ],
       "label": "premium Shop uses green Robux pricing and original detailed pet previews"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
-    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "label": "stop focused play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "runtimeConsole",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "runtimeConsole",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop focused play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console clean"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -149,12 +356,43 @@
         "datamodel_type": "Edit",
         "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name=='QC Training UI Pet Recovery 874x402' and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return {default=S:GetDeviceAsync()=='default',removed=removed}"
       },
-      "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*1"],
+      "expectRegex": [
+        "\"default\"\\s*:\\s*true",
+        "\"removed\"\\s*:\\s*1"
+      ],
       "label": "restore simulator default"
     }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 60000, "allowError": true, "label": "cleanup stop play" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Edit", "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true" }, "allowError": true, "label": "cleanup simulator" }
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD') local cleanup=g and g:FindFirstChild('TrainingUnsupportedRigCleanup') if cleanup then local r=cleanup:Invoke() assert(r.ok,'failed to restore unsupported-rig fixture') return r end return {ok=true,alreadyClean=true}"
+      },
+      "allowError": true,
+      "label": "cleanup exact original unsupported shoulder before stopping play"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') pcall(function() S:StopSimulationAsync() end) return true"
+      },
+      "allowError": true,
+      "label": "cleanup simulator"
+    }
   ]
 }

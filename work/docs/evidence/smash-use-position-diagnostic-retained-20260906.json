@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "smash-contextual-use-position-retained-diagnostic",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 and require eight pack plus three detailed Premium templates",
+        "wait for device simulator to settle",
+        "start focused play",
+        "wait for player UI and pet attestation",
+        "seed truly below-threshold displayed Power and prove pet release readiness",
+        "wait for exact training target scan",
+        "locked contextual action is exact compact and readable",
+        "wait for server rejection",
+        "below-threshold request never starts or switches training",
+        "reproduce public case where displayed effective Power exceeds Iron threshold",
+        "wait for eligible contextual state",
+        "exact eligible station starts through the production request path",
+        "wait for two fallback fist strikes",
+        "cleanup stop play",
+        "cleanup simulator"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"active\":true,\"Power\":1539,\"gain\":40,\"stationId\":\"iron_dummy\"}",
+      "context": {}
+    }
+  ]
+}

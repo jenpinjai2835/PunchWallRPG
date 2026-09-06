@@ -5,14 +5,26 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 8000, "label": "wait for runtime bootstrap" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 8000,
+      "label": "wait for runtime bootstrap"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
+        "code": "local function observeIdleAndWave(deps)\n local idleTimeout,stableSeconds,minSamples=2,.2,3\n local retrySeconds,retryGap,outerSeconds=2,.1,2.5\n local result={idleReady=false,invokeCompleted=false,invokeOk=false,invokeAttempts=0,invokeCleanup=true}\n local ownedThread\n local function finite(value) return type(value)=='number' and value==value and value>-math.huge and value<math.huge end\n local began=deps.now()\n local lastTime=began\n local function clock()\n  local now=deps.now()\n  assert(finite(now) and now>=lastTime,'invalid observation clock')\n  lastTime=now\n  return now\n end\n local function sample()\n  local state=deps.read()\n  result.lastState=state\n  assert(state.sameIdentity,'character or emote dependency replaced')\n  return state\n end\n local function idle(state)\n  return state.alive and state.grounded and state.unanchored and state.running\n   and finite(state.move) and state.move<=.01 and finite(state.speed) and state.speed<=.05\n end\n local function packedResult(values)\n  local ok,value,second=values[1],values[2],values[3]\n  local entry={at=clock()-began,pcallOk=ok,returnCount=ok and values.n-1 or 0,\n   firstKind=typeof(value),firstValue=ok and tostring(value):sub(1,120) or '',secondKind=typeof(second)}\n  if not ok then entry.error=tostring(value):sub(1,180) end\n  if typeof(second)=='Instance' then\n   entry.secondClass=second.ClassName\n   if second:IsA('AnimationTrack') then\n    entry.trackPlaying=second.IsPlaying\n    local animation=second.Animation\n    entry.trackAnimationId=animation and tostring(animation.AnimationId):sub(1,100) or ''\n   end\n  end\n  return entry\n end\n local ok,err=xpcall(function()\n  assert(finite(began),'invalid initial clock')\n  local deadline=began+idleTimeout\n  local stableAt,stableCount=nil,0\n  result.idleSamples=0\n  repeat\n   local now=clock()\n   if now>=deadline then result.reason='idle_precondition_timeout' break end\n   local state=sample()\n   result.idleSamples+=1\n   if idle(state) then\n    if not stableAt then stableAt=now stableCount=0 end\n    stableCount+=1\n    if now-stableAt>=stableSeconds and stableCount>=minSamples then\n     result.idleReady=true result.idleReadyAt=now-began\n     result.stableSamples=stableCount result.stableSeconds=now-stableAt\n     break\n    end\n   else stableAt=nil stableCount=0 end\n   deps.wait(.05)\n  until false\n  result.idleElapsed=clock()-began\n  if not result.idleReady then return end\n  local waveBegan=clock()\n  local outerDeadline=waveBegan+outerSeconds\n  local completedAt\n  ownedThread=deps.spawn(function()\n   local taskOk,taskError=xpcall(function()\n    local invokeDeadline=clock()+retrySeconds\n    repeat\n     sample()\n     result.invokeAttempts+=1\n     local values=table.pack(pcall(deps.invoke))\n     local entry=packedResult(values)\n     result.lastReturn=entry\n     sample()\n     if values[1] and values[2]==true then result.invokeOk=true break end\n     if not result.firstRejection then result.firstRejection=entry end\n     result.lastRejection=entry\n     deps.wait(retryGap)\n    until clock()>=invokeDeadline\n   end,debug.traceback)\n   if not taskOk then result.reason='invoke_observer_error' result.error=tostring(taskError):sub(1,280) end\n   completedAt=clock()\n   result.invokeCompleted=true\n  end)\n  repeat\n   if result.invokeCompleted or clock()>=outerDeadline then break end\n   deps.wait()\n  until false\n  if not result.invokeCompleted or not completedAt or completedAt>outerDeadline then\n   result.invokeOk=false result.reason='invoke_timeout'\n  elseif not result.invokeOk and not result.reason then result.reason='wave_rejected' end\n  result.waveElapsed=clock()-waveBegan\n  sample()\n end,debug.traceback)\n if not ok then result.reason='observation_error' result.error=tostring(err):sub(1,280) end\n if ownedThread and coroutine.status(ownedThread)~='dead' then\n  local cancelled=pcall(deps.cancel,ownedThread)\n  result.invokeCleanup=cancelled and coroutine.status(ownedThread)=='dead'\n end\n local identityOK,state=pcall(deps.read)\n result.finalIdentity=identityOK and state.sameIdentity==true\n if identityOK then result.lastState=state end\n result.valid=ok and result.reason==nil and result.idleReady and result.invokeCompleted and result.invokeOk and result.invokeCleanup and result.finalIdentity\n return result\nend\nlocal H=game:GetService('HttpService')\nlocal p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character\nlocal humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal root=character and character:FindFirstChild('HumanoidRootPart')\nlocal animate=character and character:FindFirstChild('Animate')\nlocal playEmote=animate and animate:FindFirstChild('PlayEmote')\nlocal function magnitude(value)\n if type(value)=='number' and value==value and value>-math.huge and value<math.huge then return value end\n return tostring(value)\nend\nlocal function readState()\n local count=0\n if animate then for _,child in ipairs(animate:GetChildren()) do if child.Name=='PlayEmote' then count+=1 end end end\n local same=character~=nil and p.Character==character and character.Parent~=nil\n  and humanoid~=nil and humanoid.Parent==character and character:FindFirstChildOfClass('Humanoid')==humanoid\n  and root~=nil and root:IsA('BasePart') and root.Parent==character and character:FindFirstChild('HumanoidRootPart')==root\n  and animate~=nil and animate:IsA('LocalScript') and animate.Enabled and animate.Parent==character and character:FindFirstChild('Animate')==animate\n  and playEmote~=nil and playEmote:IsA('BindableFunction') and playEmote.Parent==animate and animate:FindFirstChild('PlayEmote')==playEmote and count==1\n local state=humanoid and humanoid:GetState()\n return {sameIdentity=same,alive=humanoid~=nil and humanoid.Health>0,\n  grounded=humanoid~=nil and humanoid.FloorMaterial~=Enum.Material.Air,\n  unanchored=root~=nil and not root.Anchored,running=state==Enum.HumanoidStateType.Running,\n  move=magnitude(humanoid and humanoid.MoveDirection.Magnitude or -1),\n  speed=magnitude(root and root.AssemblyLinearVelocity.Magnitude or -1),\n  state=state and state.Name or 'Missing',floor=humanoid and humanoid.FloorMaterial.Name or 'Missing'}\nend\nlocal result=observeIdleAndWave({now=os.clock,wait=task.wait,spawn=task.spawn,cancel=task.cancel,\n read=readState,invoke=function() return playEmote:Invoke('wave') end})\nlocal children={}\nlocal count=0\nif animate then for _,child in ipairs(animate:GetChildren()) do\n if #children<20 then table.insert(children,(child.Name..':'..child.ClassName):sub(1,48)) end\n if child.Name=='PlayEmote' then count+=1 end\nend end\ntable.sort(children)\nresult.phase=\"bootstrap\"\nresult.contract='WorldResetEmoteReadinessV1'\nresult.animate=animate~=nil\nresult.playEmote=playEmote~=nil\nresult.playEmoteClass=playEmote and playEmote.ClassName or ''\nresult.playEmoteCount=count\nresult.hookOwned=playEmote~=nil and playEmote:GetAttribute('PunchWallOwnedFallback')==true\nresult.repairState=character and character:GetAttribute('PunchWallAnimateRepairState')\nresult.nativeHookReady=character~=nil and character:GetAttribute('PunchWallAnimateNativeHookReady')==true\nresult.probeTimeouts=character and character:GetAttribute('PunchWallAnimateProbeTimeouts') or 0\nresult.adoptedLate=character~=nil and character:GetAttribute('PunchWallAdoptedLatePlayEmoteHook')==true\nresult.animateEnabled=animate~=nil and animate.Enabled\nresult.repaired=character~=nil and character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true\nresult.duplicateRemoved=character~=nil and character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true\nresult.classMismatch=character and character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or ''\nresult.children=children\nlocal encoded=H:JSONEncode(result)\nassert(#encoded<3900,'world reset emote diagnostics exceed evidence bound')\nprint('[SMASH_WORLD_RESET_EMOTE_V1]'..encoded)\nreturn encoded"
       },
       "saveAs": "animateBootstrap",
       "expectRegex": [
@@ -21,11 +33,20 @@
         "\"playEmoteClass\"\\s*:\\s*\"BindableFunction\"",
         "\"playEmoteCount\"\\s*:\\s*1",
         "\"invokeCompleted\"\\s*:\\s*true",
-        "\"invokeOk\"\\s*:\\s*true"
+        "\"invokeOk\"\\s*:\\s*true",
+        "\"idleReady\"\\s*:\\s*true",
+        "\"invokeCleanup\"\\s*:\\s*true",
+        "\"finalIdentity\"\\s*:\\s*true",
+        "\"valid\"\\s*:\\s*true"
       ],
       "label": "capture Animate bootstrap snapshot"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "bootstrapConsole", "label": "capture bootstrap console" },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "bootstrapConsole",
+      "label": "capture bootstrap console"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -54,7 +75,10 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local deadline=os.clock()+3 repeat if gui:GetAttribute('LastFeedbackType')=='WorldReset' and gui:GetAttribute('LastFeedbackTarget')=='Spawn' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({feedback=gui:GetAttribute('LastFeedbackType'),target=gui:GetAttribute('LastFeedbackTarget')})"
       },
-      "expectRegex": ["\"feedback\"\\s*:\\s*\"WorldReset\"", "\"target\"\\s*:\\s*\"Spawn\""],
+      "expectRegex": [
+        "\"feedback\"\\s*:\\s*\"WorldReset\"",
+        "\"target\"\\s*:\\s*\"Spawn\""
+      ],
       "label": "client receives reset feedback"
     },
     {
@@ -62,7 +86,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer local character=p.Character or p.CharacterAdded:Wait() local animate=character:FindFirstChild('Animate') local playEmote=animate and animate:FindFirstChild('PlayEmote') or nil local children={} local playEmoteCount=0 if animate then for _,child in ipairs(animate:GetChildren()) do table.insert(children,child.Name..':'..child.ClassName) if child.Name=='PlayEmote' then playEmoteCount+=1 end end end table.sort(children) local invokeCompleted,invokeOk,invokeAttempts=false,false,0 if playEmote and playEmote:IsA('BindableFunction') then task.spawn(function() local invokeDeadline=os.clock()+2 repeat invokeAttempts+=1 local ok,result=pcall(function() return playEmote:Invoke('wave') end) if ok and result==true then invokeOk=true break end task.wait(.1) until os.clock()>=invokeDeadline invokeCompleted=true end) local deadline=os.clock()+2.5 repeat task.wait() until invokeCompleted or os.clock()>=deadline end return H:JSONEncode({animate=animate~=nil,playEmote=playEmote~=nil,playEmoteClass=playEmote and playEmote.ClassName or '',playEmoteCount=playEmoteCount,invokeCompleted=invokeCompleted,invokeOk=invokeOk,invokeAttempts=invokeAttempts,repaired=character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true,duplicateRemoved=character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true,classMismatch=character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or '',children=children})"
+        "code": "local function observeIdleAndWave(deps)\n local idleTimeout,stableSeconds,minSamples=2,.2,3\n local retrySeconds,retryGap,outerSeconds=2,.1,2.5\n local result={idleReady=false,invokeCompleted=false,invokeOk=false,invokeAttempts=0,invokeCleanup=true}\n local ownedThread\n local function finite(value) return type(value)=='number' and value==value and value>-math.huge and value<math.huge end\n local began=deps.now()\n local lastTime=began\n local function clock()\n  local now=deps.now()\n  assert(finite(now) and now>=lastTime,'invalid observation clock')\n  lastTime=now\n  return now\n end\n local function sample()\n  local state=deps.read()\n  result.lastState=state\n  assert(state.sameIdentity,'character or emote dependency replaced')\n  return state\n end\n local function idle(state)\n  return state.alive and state.grounded and state.unanchored and state.running\n   and finite(state.move) and state.move<=.01 and finite(state.speed) and state.speed<=.05\n end\n local function packedResult(values)\n  local ok,value,second=values[1],values[2],values[3]\n  local entry={at=clock()-began,pcallOk=ok,returnCount=ok and values.n-1 or 0,\n   firstKind=typeof(value),firstValue=ok and tostring(value):sub(1,120) or '',secondKind=typeof(second)}\n  if not ok then entry.error=tostring(value):sub(1,180) end\n  if typeof(second)=='Instance' then\n   entry.secondClass=second.ClassName\n   if second:IsA('AnimationTrack') then\n    entry.trackPlaying=second.IsPlaying\n    local animation=second.Animation\n    entry.trackAnimationId=animation and tostring(animation.AnimationId):sub(1,100) or ''\n   end\n  end\n  return entry\n end\n local ok,err=xpcall(function()\n  assert(finite(began),'invalid initial clock')\n  local deadline=began+idleTimeout\n  local stableAt,stableCount=nil,0\n  result.idleSamples=0\n  repeat\n   local now=clock()\n   if now>=deadline then result.reason='idle_precondition_timeout' break end\n   local state=sample()\n   result.idleSamples+=1\n   if idle(state) then\n    if not stableAt then stableAt=now stableCount=0 end\n    stableCount+=1\n    if now-stableAt>=stableSeconds and stableCount>=minSamples then\n     result.idleReady=true result.idleReadyAt=now-began\n     result.stableSamples=stableCount result.stableSeconds=now-stableAt\n     break\n    end\n   else stableAt=nil stableCount=0 end\n   deps.wait(.05)\n  until false\n  result.idleElapsed=clock()-began\n  if not result.idleReady then return end\n  local waveBegan=clock()\n  local outerDeadline=waveBegan+outerSeconds\n  local completedAt\n  ownedThread=deps.spawn(function()\n   local taskOk,taskError=xpcall(function()\n    local invokeDeadline=clock()+retrySeconds\n    repeat\n     sample()\n     result.invokeAttempts+=1\n     local values=table.pack(pcall(deps.invoke))\n     local entry=packedResult(values)\n     result.lastReturn=entry\n     sample()\n     if values[1] and values[2]==true then result.invokeOk=true break end\n     if not result.firstRejection then result.firstRejection=entry end\n     result.lastRejection=entry\n     deps.wait(retryGap)\n    until clock()>=invokeDeadline\n   end,debug.traceback)\n   if not taskOk then result.reason='invoke_observer_error' result.error=tostring(taskError):sub(1,280) end\n   completedAt=clock()\n   result.invokeCompleted=true\n  end)\n  repeat\n   if result.invokeCompleted or clock()>=outerDeadline then break end\n   deps.wait()\n  until false\n  if not result.invokeCompleted or not completedAt or completedAt>outerDeadline then\n   result.invokeOk=false result.reason='invoke_timeout'\n  elseif not result.invokeOk and not result.reason then result.reason='wave_rejected' end\n  result.waveElapsed=clock()-waveBegan\n  sample()\n end,debug.traceback)\n if not ok then result.reason='observation_error' result.error=tostring(err):sub(1,280) end\n if ownedThread and coroutine.status(ownedThread)~='dead' then\n  local cancelled=pcall(deps.cancel,ownedThread)\n  result.invokeCleanup=cancelled and coroutine.status(ownedThread)=='dead'\n end\n local identityOK,state=pcall(deps.read)\n result.finalIdentity=identityOK and state.sameIdentity==true\n if identityOK then result.lastState=state end\n result.valid=ok and result.reason==nil and result.idleReady and result.invokeCompleted and result.invokeOk and result.invokeCleanup and result.finalIdentity\n return result\nend\nlocal H=game:GetService('HttpService')\nlocal p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character\nlocal humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal root=character and character:FindFirstChild('HumanoidRootPart')\nlocal animate=character and character:FindFirstChild('Animate')\nlocal playEmote=animate and animate:FindFirstChild('PlayEmote')\nlocal function magnitude(value)\n if type(value)=='number' and value==value and value>-math.huge and value<math.huge then return value end\n return tostring(value)\nend\nlocal function readState()\n local count=0\n if animate then for _,child in ipairs(animate:GetChildren()) do if child.Name=='PlayEmote' then count+=1 end end end\n local same=character~=nil and p.Character==character and character.Parent~=nil\n  and humanoid~=nil and humanoid.Parent==character and character:FindFirstChildOfClass('Humanoid')==humanoid\n  and root~=nil and root:IsA('BasePart') and root.Parent==character and character:FindFirstChild('HumanoidRootPart')==root\n  and animate~=nil and animate:IsA('LocalScript') and animate.Enabled and animate.Parent==character and character:FindFirstChild('Animate')==animate\n  and playEmote~=nil and playEmote:IsA('BindableFunction') and playEmote.Parent==animate and animate:FindFirstChild('PlayEmote')==playEmote and count==1\n local state=humanoid and humanoid:GetState()\n return {sameIdentity=same,alive=humanoid~=nil and humanoid.Health>0,\n  grounded=humanoid~=nil and humanoid.FloorMaterial~=Enum.Material.Air,\n  unanchored=root~=nil and not root.Anchored,running=state==Enum.HumanoidStateType.Running,\n  move=magnitude(humanoid and humanoid.MoveDirection.Magnitude or -1),\n  speed=magnitude(root and root.AssemblyLinearVelocity.Magnitude or -1),\n  state=state and state.Name or 'Missing',floor=humanoid and humanoid.FloorMaterial.Name or 'Missing'}\nend\nlocal result=observeIdleAndWave({now=os.clock,wait=task.wait,spawn=task.spawn,cancel=task.cancel,\n read=readState,invoke=function() return playEmote:Invoke('wave') end})\nlocal children={}\nlocal count=0\nif animate then for _,child in ipairs(animate:GetChildren()) do\n if #children<20 then table.insert(children,(child.Name..':'..child.ClassName):sub(1,48)) end\n if child.Name=='PlayEmote' then count+=1 end\nend end\ntable.sort(children)\nresult.phase=\"post-reset\"\nresult.contract='WorldResetEmoteReadinessV1'\nresult.animate=animate~=nil\nresult.playEmote=playEmote~=nil\nresult.playEmoteClass=playEmote and playEmote.ClassName or ''\nresult.playEmoteCount=count\nresult.hookOwned=playEmote~=nil and playEmote:GetAttribute('PunchWallOwnedFallback')==true\nresult.repairState=character and character:GetAttribute('PunchWallAnimateRepairState')\nresult.nativeHookReady=character~=nil and character:GetAttribute('PunchWallAnimateNativeHookReady')==true\nresult.probeTimeouts=character and character:GetAttribute('PunchWallAnimateProbeTimeouts') or 0\nresult.adoptedLate=character~=nil and character:GetAttribute('PunchWallAdoptedLatePlayEmoteHook')==true\nresult.animateEnabled=animate~=nil and animate.Enabled\nresult.repaired=character~=nil and character:GetAttribute('PunchWallRepairedPlayEmoteHook')==true\nresult.duplicateRemoved=character~=nil and character:GetAttribute('PunchWallRemovedDuplicatePlayEmoteHook')==true\nresult.classMismatch=character and character:GetAttribute('PunchWallPlayEmoteHookClassMismatch') or ''\nresult.children=children\nlocal encoded=H:JSONEncode(result)\nassert(#encoded<3900,'world reset emote diagnostics exceed evidence bound')\nprint('[SMASH_WORLD_RESET_EMOTE_V1]'..encoded)\nreturn encoded"
       },
       "saveAs": "animateAfterReset",
       "expectRegex": [
@@ -71,15 +95,45 @@
         "\"playEmoteClass\"\\s*:\\s*\"BindableFunction\"",
         "\"playEmoteCount\"\\s*:\\s*1",
         "\"invokeCompleted\"\\s*:\\s*true",
-        "\"invokeOk\"\\s*:\\s*true"
+        "\"invokeOk\"\\s*:\\s*true",
+        "\"idleReady\"\\s*:\\s*true",
+        "\"invokeCleanup\"\\s*:\\s*true",
+        "\"finalIdentity\"\\s*:\\s*true",
+        "\"valid\"\\s*:\\s*true"
       ],
       "label": "capture Animate post-reset snapshot"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

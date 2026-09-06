@@ -5,10 +5,31 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 6500, "label": "wait for profile and character" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture boot console" },
-    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "boot console clean" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for profile and character"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "bootConsole",
+      "label": "capture boot console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "bootConsole",
+      "label": "boot console clean"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -16,7 +37,13 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local r=game.ServerStorage.PunchWallAutomation:Invoke('PowerGrowthRigContract') assert(r.ok,'R6/R15 growth contract failed '..H:JSONEncode(r)) return H:JSONEncode(r)"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "R6Default", "R15Default", "R15Tall", "\"accessoryIgnored\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "R6Default",
+        "R15Default",
+        "R15Tall",
+        "\"accessoryIgnored\"\\s*:\\s*true"
+      ],
       "label": "R6 R15 and tall R15 obey the core-body growth cap"
     },
     {
@@ -27,7 +54,15 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local G=require(RS.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('SetStats',{Power=15,WallLevel=1}) task.wait(.25) local character=p.Character local root=character.HumanoidRootPart root.Anchored=true local world=workspace.PunchWallRPG local block=world['Depth Blocks'].DepthBlock_L001_C06_R01 local boss=world.Walls['Titan Server Wall'] local passageHeight=block.Size.Y*2 local powers={15,1500,150000,1.5e7,1.5e9,1e15} local rows={} local monotonic=true local bounded=true local grounded=true local directScaleValid=true local previous=0 for _,power in ipairs(powers) do local before=c:Invoke('PowerGrowthSnapshot') c:Invoke('SetStats',{Power=power}) task.wait(.18) local after=c:Invoke('PowerGrowthSnapshot') local _,size=character:GetBoundingBox() local applied=after.appliedMultiplier or 0 local directScale=character:GetScale() local baseScale=character:GetAttribute('PowerGrowthBaseModelScale') or directScale local expected=G.PlayerGrowthMultiplier(power) local bodyHeight=after.bodyHeight or 99 directScaleValid=directScaleValid and math.abs(directScale/baseScale-applied)<=.003 monotonic=monotonic and applied+0.003>=previous bounded=bounded and bodyHeight<=passageHeight-G.PlayerGrowth.GameplayClearanceMarginStuds+.05 and bodyHeight<=boss.Size.Y-G.PlayerGrowth.WallClearanceStuds+.05 grounded=grounded and math.abs((after.coreBottom or 99)-(before.coreBottom or 0))<=.08 rows[#rows+1]={power=power,expected=expected,applied=applied,directScale=directScale,bodyHeight=bodyHeight,visualHeight=size.Y,bottomDelta=(after.coreBottom or 99)-(before.coreBottom or 0),aura=(root:FindFirstChild('Kaiju Growth Aura') and root['Kaiju Growth Aura'].Enabled) or false} previous=applied end local beforeLevel=character:GetAttribute('PowerGrowthAppliedMultiplier') c:Invoke('SetStats',{WallLevel=99}) task.wait(.18) local afterLevel=character:GetAttribute('PowerGrowthAppliedMultiplier') local result={valid=monotonic and bounded and grounded and directScaleValid and rows[1].applied>=.99 and rows[#rows].applied>rows[1].applied+.18 and math.abs(beforeLevel-afterLevel)<.003 and character:GetAttribute('PowerGrowthPower')==1e15 and character:GetAttribute('PowerGrowthVersion')==G.PlayerGrowth.Version,monotonic=monotonic,bounded=bounded,grounded=grounded,directScaleValid=directScaleValid,passageHeight=passageHeight,bossWallHeight=boss.Size.Y,maximumHeight=character:GetAttribute('PowerGrowthMaximumHeight'),wallLevelIndependent=math.abs(beforeLevel-afterLevel)<.003,sourcePower=character:GetAttribute('PowerGrowthPower'),version=character:GetAttribute('PowerGrowthVersion'),rows=rows} root.Anchored=false assert(result.valid,'Power growth matrix failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"monotonic\"\\s*:\\s*true", "\"bounded\"\\s*:\\s*true", "\"grounded\"\\s*:\\s*true", "\"directScaleValid\"\\s*:\\s*true", "\"wallLevelIndependent\"\\s*:\\s*true", "PowerLogWallCappedV1"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"monotonic\"\\s*:\\s*true",
+        "\"bounded\"\\s*:\\s*true",
+        "\"grounded\"\\s*:\\s*true",
+        "\"directScaleValid\"\\s*:\\s*true",
+        "\"wallLevelIndependent\"\\s*:\\s*true",
+        "PowerLogWallCappedV1"
+      ],
       "label": "Power growth is monotonic grounded and shorter than every normal wall"
     },
     {
@@ -37,7 +72,13 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('ResetWorld') c:Invoke('SetStats',{Power=15,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local character=p.Character local root=character.HumanoidRootPart root.Anchored=false root.AssemblyLinearVelocity=Vector3.zero root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-100)) p:SetAttribute('LastWallHit',0) task.defer(function() c:Invoke('SetStats',{Power=1.5e9}) end) local punch=c:Invoke('PunchRadius') task.wait(.9) local autoOk,auto=pcall(function() return root:GetNetworkOwnershipAuto() end) local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Include overlap.FilterDescendantsInstances={workspace.PunchWallRPG['Depth Blocks']} local stuck=0 local cf,size=character:GetBoundingBox() for _,block in ipairs(workspace:GetPartBoundsInBox(cf,size,overlap)) do if block.CanCollide and not block:GetAttribute('Broken') then stuck+=1 end end local applied=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0 local valid=punch.ok and applied>1.18 and character:GetAttribute('DepthActiveCollisionGroup')=='PlayerCharacters' and character:GetAttribute('PowerGrowthServerOwnershipHeld')~=true and autoOk and auto==true and stuck==0 local result={valid=valid,punch=punch.ok,applied=applied,collisionGroup=character:GetAttribute('DepthActiveCollisionGroup'),deferred=character:GetAttribute('PowerGrowthDeferredForPunch'),serverOwnershipHeld=character:GetAttribute('PowerGrowthServerOwnershipHeld'),ownershipAuto=auto,stuck=stuck} assert(valid,'Concurrent punch growth failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"punch\"\\s*:\\s*true", "\"collisionGroup\"\\s*:\\s*\"PlayerCharacters\"", "\"ownershipAuto\"\\s*:\\s*true", "\"stuck\"\\s*:\\s*0"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"punch\"\\s*:\\s*true",
+        "\"collisionGroup\"\\s*:\\s*\"PlayerCharacters\"",
+        "\"ownershipAuto\"\\s*:\\s*true",
+        "\"stuck\"\\s*:\\s*0"
+      ],
       "label": "Power growth waits for punch ownership and restores physics"
     },
     {
@@ -47,18 +88,29 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15}) local names={'Forest Pup','Miner Cat','Crystal Fox'} local granted=0 for _,name in ipairs(names) do local r=c:Invoke('GrantPet',{name=name,stars=1}) if r.ok then granted+=1 end end task.wait(.25) return H:JSONEncode({ok=granted==3,granted=granted})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"granted\"\\s*:\\s*3"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"granted\"\\s*:\\s*3"
+      ],
       "label": "prepare three fixed-size companion models"
     },
-    { "type": "wait", "ms": 1000, "label": "wait for companion formation" },
+    {
+      "type": "wait",
+      "ms": 1000,
+      "label": "wait for companion formation"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local folder=workspace:FindFirstChild(p.Name..' Client Companions') local count=0 for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then local _,size=m:GetBoundingBox() m:SetAttribute('GrowthQCBaselineModelScale',m:GetScale()) m:SetAttribute('GrowthQCBaselineHeight',size.Y) m:SetAttribute('GrowthQCBaselineTargetHeight',m:GetAttribute('CompanionTargetHeight')) count+=1 end end return H:JSONEncode({ok=count==3,count=count})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD\nlocal expected={['Forest Pup']=true,['Miner Cat']=true,['Crystal Fox']=true}\nlocal folder=workspace:FindFirstChild(p.Name..' Client Companions')\nlocal models local deadline=os.clock()+4\nrepeat\n folder=workspace:FindFirstChild(p.Name..' Client Companions')\n models={} local seen={} local ready=true\n for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then\n  local name=m:GetAttribute('PetDefinitionName') local _,size=m:GetBoundingBox()\n  ready=ready and expected[name]==true and not seen[name] and m.PrimaryPart~=nil and size.Y>.01 and m:GetScale()>0 and (m:GetAttribute('CompanionTargetHeight') or 0)>0 and m:GetAttribute('SmoothFollowReady')==true\n  seen[name]=true table.insert(models,m)\n end end\n if ready and #models==3 then break end models=nil task.wait(.05)\nuntil os.clock()>=deadline\nassert(models and #models==3,'three fully initialized companion models required before baseline')\nassert(not g:FindFirstChild('GrowthQCCleanup'),'previous growth observers must be cleaned')\nlocal connections={} local rows={} local cleanup=Instance.new('BindableFunction') cleanup.Name='GrowthQCCleanup' cleanup.Parent=g\ng:SetAttribute('GrowthQCModelDestroyed',false)\nfor _,m in ipairs(models) do\n local _,size=m:GetBoundingBox() local identity=H:GenerateGUID(false) m:SetAttribute('GrowthQCIdentity',identity)\n rows[m:GetAttribute('PetDefinitionName')]={identity=identity,scale=m:GetScale(),height=size.Y,target=m:GetAttribute('CompanionTargetHeight')}\n table.insert(connections,m.Destroying:Connect(function()g:SetAttribute('GrowthQCModelDestroyed',true)end))\nend\ng:SetAttribute('GrowthQCBaselinesJSON',H:JSONEncode(rows))\ncleanup.OnInvoke=function()\n for _,connection in ipairs(connections)do connection:Disconnect()end\n for _,m in ipairs(models)do if m.Parent then m:SetAttribute('GrowthQCIdentity',nil)end end\n g:SetAttribute('GrowthQCBaselinesJSON',nil) g:SetAttribute('GrowthQCModelDestroyed',nil) cleanup:Destroy()return true\nend\nreturn H:JSONEncode({ok=true,count=#models,baselineReady=true})"
       },
-      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*3"],
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "\"baselineReady\"\\s*:\\s*true"
+      ],
       "label": "record pet size before hero growth"
     },
     {
@@ -70,16 +122,31 @@
       },
       "label": "raise hero to maximum configured Power"
     },
-    { "type": "wait", "ms": 900, "label": "wait for hero and pet presentation update" },
+    {
+      "type": "wait",
+      "ms": 900,
+      "label": "wait for hero and pet presentation update"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "saveAs": "petInvariant",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local folder=workspace:FindFirstChild(p.Name..' Client Companions') local expected={['Forest Pup']=true,['Miner Cat']=true,['Crystal Fox']=true} local seen={} local rows={} local fixed=true local identities=true for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then local _,size=m:GetBoundingBox() local name=m:GetAttribute('PetDefinitionName') local beforeScale=m:GetAttribute('GrowthQCBaselineModelScale') or 0 local beforeHeight=m:GetAttribute('GrowthQCBaselineHeight') or 0 local target=m:GetAttribute('CompanionTargetHeight') local beforeTarget=m:GetAttribute('GrowthQCBaselineTargetHeight') local notLarger=m:GetScale()<=beforeScale+.012 and size.Y<=beforeHeight+.035 local targetFixed=target==beforeTarget identities=identities and expected[name]==true and seen[name]~=true seen[name]=true fixed=fixed and notLarger and targetFixed rows[#rows+1]={name=name,beforeScale=beforeScale,afterScale=m:GetScale(),beforeHeight=beforeHeight,afterHeight=size.Y,notLarger=notLarger,targetFixed=targetFixed} m:SetAttribute('GrowthQCBaselineModelScale',nil) m:SetAttribute('GrowthQCBaselineHeight',nil) m:SetAttribute('GrowthQCBaselineTargetHeight',nil) end end for name in pairs(expected) do identities=identities and seen[name]==true end local applied=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0 local valid=folder and #rows==3 and fixed and identities and applied>1.18 and character:GetAttribute('PowerGrowthPetScalePolicy')=='IndependentFixedTarget' local result={valid=valid==true,count=#rows,fixed=fixed,exactIdentities=identities,heroMultiplier=applied,policy=character:GetAttribute('PowerGrowthPetScalePolicy'),rows=rows} assert(valid,'Pet growth invariant failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local character=p.Character\nlocal folder=workspace:FindFirstChild(p.Name..' Client Companions') local expected={['Forest Pup']=true,['Miner Cat']=true,['Crystal Fox']=true}\nlocal baselines=H:JSONDecode(g:GetAttribute('GrowthQCBaselinesJSON') or '{}') local seen={} local rows={}\nlocal fixed=true local identities=true local baselinePresent=true local identitiesStable=g:GetAttribute('GrowthQCModelDestroyed')==false\nfor _,m in ipairs(folder and folder:GetChildren() or {})do if m:IsA('Model')then\n local _,size=m:GetBoundingBox() local name=m:GetAttribute('PetDefinitionName') local b=baselines[name]\n local hasBaseline=type(b)=='table' and type(b.scale)=='number' and b.scale>0 and type(b.height)=='number' and b.height>0 and type(b.target)=='number'\n baselinePresent=baselinePresent and hasBaseline\n local sameModel=hasBaseline and m:GetAttribute('GrowthQCIdentity')==b.identity\n identitiesStable=identitiesStable and sameModel\n local notLarger=hasBaseline and m:GetScale()<=b.scale+.012 and size.Y<=b.height+.035\n local targetFixed=hasBaseline and m:GetAttribute('CompanionTargetHeight')==b.target\n identities=identities and expected[name]==true and seen[name]~=true seen[name]=true fixed=fixed and notLarger and targetFixed\n table.insert(rows,{name=name,beforeScale=b and b.scale,afterScale=m:GetScale(),beforeHeight=b and b.height,afterHeight=size.Y,notLarger=notLarger,targetFixed=targetFixed,sameModel=sameModel})\nend end\nfor name in pairs(expected)do identities=identities and seen[name]==true end\nlocal applied=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0\nlocal valid=folder~=nil and #rows==3 and fixed and identities and baselinePresent and identitiesStable and applied>1.18 and character:GetAttribute('PowerGrowthPetScalePolicy')=='IndependentFixedTarget'\nlocal result={valid=valid,count=#rows,fixed=fixed,exactIdentities=identities,baselinePresent=baselinePresent,identitiesStable=identitiesStable,heroMultiplier=applied,policy=character:GetAttribute('PowerGrowthPetScalePolicy'),rows=rows}\nlocal cleanup=g:FindFirstChild('GrowthQCCleanup') result.observersCleaned=cleanup~=nil and cleanup:Invoke()==true\nassert(valid and result.observersCleaned,'Pet growth invariant failed '..H:JSONEncode(result))return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"fixed\"\\s*:\\s*true", "\"exactIdentities\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "IndependentFixedTarget", "\"notLarger\"\\s*:\\s*true", "\"targetFixed\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"fixed\"\\s*:\\s*true",
+        "\"exactIdentities\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "IndependentFixedTarget",
+        "\"notLarger\"\\s*:\\s*true",
+        "\"targetFixed\"\\s*:\\s*true",
+        "\"baselinePresent\"\\s*:\\s*true",
+        "\"identitiesStable\"\\s*:\\s*true",
+        "\"observersCleaned\"\\s*:\\s*true"
+      ],
       "label": "pets do not grow when hero Power grows"
     },
     {
@@ -89,8 +156,31 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local character=p.Character local high=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0 c:Invoke('SetStats',{Power=15,WallLevel=99}) local deadline=os.clock()+2 repeat task.wait(.05) until os.clock()>=deadline or (character:GetAttribute('PowerGrowthAppliedMultiplier') or 99)<=1.01 local low=character:GetAttribute('PowerGrowthAppliedMultiplier') or 99 local lowBody=character:GetAttribute('PowerGrowthBodyHeight') or 99 c:Invoke('SetStats',{Power=1.5e9}) deadline=os.clock()+2 repeat task.wait(.05) until os.clock()>=deadline or (character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18 local restored=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0 local valid=high>1.18 and low<=1.01 and restored>1.18 and lowBody<=character:GetAttribute('PowerGrowthMaximumHeight')+.05 local result={valid=valid,high=high,low=low,restored=restored,wallLevel=p.leaderstats.WallLevel.Value,lowBody=lowBody} assert(valid,'Power growth downscale/restore failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"wallLevel\"\\s*:\\s*99"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"wallLevel\"\\s*:\\s*99"
+      ],
       "label": "hero shrinks back at low Power and grows again independently of WallLevel"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerBefore",
+      "label": "observe server punch state before growth camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientBefore",
+      "label": "observe client punch state before growth camera"
     },
     {
       "type": "call",
@@ -98,10 +188,38 @@
       "saveAs": "cameraGrowth",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local humanoid=character:FindFirstChildOfClass('Humanoid') local gui=p.PlayerGui.PunchWallHUD local automation=gui.PunchWallClientAutomation automation:Invoke('ResetCamera') task.wait(.2) local metrics=automation:Invoke('__RunCamera',6) local camera=workspace.CurrentCamera local cf,size=character:GetBoundingBox() local visible=0 local total=0 for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do for _,sz in ipairs({-1,1}) do total+=1 local world=cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5)) local point,onScreen=camera:WorldToViewportPoint(world) if onScreen and point.Z>0 and point.X>=0 and point.X<=camera.ViewportSize.X and point.Y>=0 and point.Y<=camera.ViewportSize.Y then visible+=1 end end end end local valid=type(metrics)=='table' and metrics.valid==true and metrics.visualValid==true and metrics.initialOrbitSettled==true and metrics.settleTimedOut~=true and metrics.inside==0 and metrics.type=='Custom' and camera.CameraSubject==humanoid and visible==total and (character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18 local result={valid=valid,visibleCorners=visible,totalCorners=total,cameraType=tostring(camera.CameraType),subjectCurrent=camera.CameraSubject==humanoid,inside=type(metrics)=='table' and metrics.inside or -1,visualValid=type(metrics)=='table' and metrics.visualValid or false,settled=type(metrics)=='table' and metrics.initialOrbitSettled or false,heroMultiplier=character:GetAttribute('PowerGrowthAppliedMultiplier')} assert(valid,'Power growth camera framing failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+        "code": "local function compactCameraResult(result)\n local summary={}\n if type(result)~='table' then return {valid=false,reason='missing_camera_result'} end\n for key,value in pairs(result) do\n  local kind=type(value) if kind=='boolean' or kind=='number' or kind=='string' then summary[key]=value end\n end\n summary.visualFailureReasons=result.visualFailureReasons\n summary.visibilityPhases=result.visibilityPhases\n return summary\nend\nlocal H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local humanoid=character:FindFirstChildOfClass('Humanoid') local gui=p.PlayerGui.PunchWallHUD local automation=gui.PunchWallClientAutomation automation:Invoke('ResetCamera') task.wait(.2) local metrics=automation:Invoke('__RunCamera',6) local camera=workspace.CurrentCamera local cf,size=character:GetBoundingBox() local visible=0 local total=0 for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do for _,sz in ipairs({-1,1}) do total+=1 local world=cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5)) local point,onScreen=camera:WorldToViewportPoint(world) if onScreen and point.Z>0 and point.X>=0 and point.X<=camera.ViewportSize.X and point.Y>=0 and point.Y<=camera.ViewportSize.Y then visible+=1 end end end end local valid=type(metrics)=='table' and metrics.valid==true and metrics.visualValid==true and metrics.initialOrbitSettled==true and metrics.settleTimedOut~=true and metrics.inside==0 and metrics.type=='Custom' and camera.CameraSubject==humanoid and visible==total and (character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18 local result={valid=valid,growthCameraContractValid=valid,sampledResult=compactCameraResult(metrics),visibleCorners=visible,totalCorners=total,cameraType=tostring(camera.CameraType),subjectCurrent=camera.CameraSubject==humanoid,inside=type(metrics)=='table' and metrics.inside or -1,visualValid=type(metrics)=='table' and metrics.visualValid or false,settled=type(metrics)=='table' and metrics.initialOrbitSettled or false,heroMultiplier=character:GetAttribute('PowerGrowthAppliedMultiplier')} return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"visibleCorners\"\\s*:\\s*8", "\"totalCorners\"\\s*:\\s*8", "\"subjectCurrent\"\\s*:\\s*true", "\"inside\"\\s*:\\s*0", "\"visualValid\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"growthCameraContractValid\"\\s*:\\s*true",
+        "\"valid\"\\s*:\\s*true",
+        "\"visibleCorners\"\\s*:\\s*8",
+        "\"totalCorners\"\\s*:\\s*8",
+        "\"subjectCurrent\"\\s*:\\s*true",
+        "\"inside\"\\s*:\\s*0",
+        "\"visualValid\"\\s*:\\s*true"
+      ],
       "label": "maximum-size hero remains fully framed by the live camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerAfter",
+      "label": "observe server punch state after growth camera"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientAfter",
+      "label": "observe client punch state after growth camera"
     },
     {
       "type": "call",
@@ -110,7 +228,11 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local folder=workspace:FindFirstChild(p.Name..' Client Companions') local cam=workspace.CurrentCamera local function rectFor(cf,size) local minX,minY,maxX,maxY=math.huge,math.huge,-math.huge,-math.huge local visible=0 for _,sx in ipairs({-1,1}) do for _,sy in ipairs({-1,1}) do for _,sz in ipairs({-1,1}) do local point,on=cam:WorldToViewportPoint(cf:PointToWorldSpace(Vector3.new(size.X*sx*.5,size.Y*sy*.5,size.Z*sz*.5))) if on and point.Z>0 then visible+=1 end minX=math.min(minX,point.X) minY=math.min(minY,point.Y) maxX=math.max(maxX,point.X) maxY=math.max(maxY,point.Y) end end end return {minX=minX,minY=minY,maxX=maxX,maxY=maxY,visible=visible} end local function overlap(a,b) local w=math.max(0,math.min(a.maxX,b.maxX)-math.max(a.minX,b.minX)) local h=math.max(0,math.min(a.maxY,b.maxY)-math.max(a.minY,b.minY)) local area=w*h local aa=math.max((a.maxX-a.minX)*(a.maxY-a.minY),1) local ab=math.max((b.maxX-b.minX)*(b.maxY-b.minY),1) return area/math.min(aa,ab) end local avatarCf,avatarSize=character:GetBoundingBox() local avatarRect=rectFor(avatarCf,avatarSize) local pets={} local allSafe=true for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then local cf,size=m:GetBoundingBox() local rect=rectFor(cf,size) allSafe=allSafe and rect.visible==8 and rect.minX>=0 and rect.minY>=0 and rect.maxX<=cam.ViewportSize.X and rect.maxY<=cam.ViewportSize.Y pets[#pets+1]={name=m:GetAttribute('PetDefinitionName'),rect=rect,position=cf.Position} end end local maxAvatarOverlap=0 local maxPairOverlap=0 local minPair=99 for i=1,#pets do maxAvatarOverlap=math.max(maxAvatarOverlap,overlap(pets[i].rect,avatarRect)) for j=i+1,#pets do maxPairOverlap=math.max(maxPairOverlap,overlap(pets[i].rect,pets[j].rect)) minPair=math.min(minPair,(pets[i].position-pets[j].position).Magnitude) end end local valid=#pets==3 and allSafe and maxAvatarOverlap<=.35 and maxPairOverlap<=.15 and minPair>=1.35 local result={valid=valid,count=#pets,allSafe=allSafe,maxAvatarOverlap=maxAvatarOverlap,maxPairOverlap=maxPairOverlap,minWorldPair=minPair} assert(valid,'Power growth companion overlap/safe-frame failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "\"allSafe\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "\"allSafe\"\\s*:\\s*true"
+      ],
       "label": "maximum-size hero and pets remain separated inside the camera safe frame"
     },
     {
@@ -120,7 +242,11 @@
         "datamodel_type": "Server",
         "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('SetStats',{Power=1.5e9}) local old=p.Character c:Invoke('Respawn') local deadline=os.clock()+3 repeat task.wait(.05) until os.clock()>=deadline or (p.Character~=old and (p.Character:GetAttribute('PowerGrowthAppliedMultiplier') or 0)>1.18) local character=p.Character local _,size=character:GetBoundingBox() local world=workspace.PunchWallRPG local block=world['Depth Blocks'].DepthBlock_L001_C06_R01 local boss=world.Walls['Titan Server Wall'] local passageHeight=block.Size.Y*2 local applied=character:GetAttribute('PowerGrowthAppliedMultiplier') or 0 local valid=character~=old and applied>1.18 and (character:GetAttribute('PowerGrowthBodyHeight') or 99)<=passageHeight-.75 and size.Y<=boss.Size.Y-1.2 and character:GetAttribute('PowerGrowthPower')==1.5e9 return H:JSONEncode({valid=valid,newCharacter=character~=old,applied=applied,bodyHeight=character:GetAttribute('PowerGrowthBodyHeight'),visualHeight=size.Y,passageHeight=passageHeight,bossWallHeight=boss.Size.Y,power=character:GetAttribute('PowerGrowthPower'),generation=p:GetAttribute('PowerGrowthGeneration')})"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"newCharacter\"\\s*:\\s*true", "\"power\"\\s*:\\s*1500000000"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"newCharacter\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*1500000000"
+      ],
       "label": "Power growth reapplies after respawn"
     },
     {
@@ -130,16 +256,122 @@
         "datamodel_type": "Client",
         "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local character=p.Character local humanoid=character and character:FindFirstChildOfClass('Humanoid') local deadline=os.clock()+2 repeat task.wait(.05) until os.clock()>=deadline or workspace.CurrentCamera.CameraSubject==humanoid local folder=workspace:FindFirstChild(p.Name..' Client Companions') local expected={['Forest Pup']=true,['Miner Cat']=true,['Crystal Fox']=true} local seen={} local count=0 local identities=true for _,m in ipairs(folder and folder:GetChildren() or {}) do if m:IsA('Model') then local name=m:GetAttribute('PetDefinitionName') identities=identities and expected[name]==true and seen[name]~=true seen[name]=true count+=1 end end for name in pairs(expected) do identities=identities and seen[name]==true end local valid=character~=nil and humanoid~=nil and workspace.CurrentCamera.CameraSubject==humanoid and count==3 and identities local result={valid=valid,subjectCurrent=workspace.CurrentCamera.CameraSubject==humanoid,count=count,exactIdentities=identities,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier') or 0} assert(valid,'Post-respawn client rebuild failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
       },
-      "expectRegex": ["\"valid\"\\s*:\\s*true", "\"subjectCurrent\"\\s*:\\s*true", "\"count\"\\s*:\\s*3", "\"exactIdentities\"\\s*:\\s*true"],
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"subjectCurrent\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*3",
+        "\"exactIdentities\"\\s*:\\s*true"
+      ],
       "label": "camera and exact companion identities rebuild on the new character"
     },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture runtime console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "runtime console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" }
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console clean"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game:GetService('Players'):GetPlayers()[1]\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal world=workspace:FindFirstChild('PunchWallRPG') local attrs={}\nfor _,key in ipairs({'ProfileReady','LastMobileAction','LastWallHit','LastPunchDirection','LastPunchLungeAt','LastPunchLungeDistance','LastPunchRequestedDistance','LastPunchPlannedLungeDistance','LastPunchPlanningBarrier','LastPunchPredictedBreakCount','LastRadiusHitCount','LastRadiusPrimary','LastPunchSafeTravel','PunchOwnershipToken','TrainingMovementLocked'}) do attrs[key]=p and p:GetAttribute(key) end\nlocal stats={} local leaderstats=p and p:FindFirstChild('leaderstats')\nfor _,key in ipairs({'Power','WallLevel'}) do local value=leaderstats and leaderstats:FindFirstChild(key) stats[key]=value and value.Value end\nlocal ray local rayReady=false local rayLength=48\nif root and world then\n local debris=world:FindFirstChild('Depth Physics Debris') local blocks=world:FindFirstChild('Depth Blocks')\n if debris and blocks then\n  local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,debris,blocks} params.IgnoreWater=true\n  local look=root.CFrame.LookVector local horizontal=Vector3.new(look.X,0,look.Z)\n  if horizontal.Magnitude>=.01 then ray=workspace:Raycast(root.Position,horizontal.Unit*rayLength,params) rayReady=true end\n end\nend\nlocal encoded=H:JSONEncode({observation='growth_camera_server',available=root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),attrs=attrs,stats=stats,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier'),collisionGroup=character and character:GetAttribute('DepthActiveCollisionGroup'),rayReady=rayReady,rayLength=rayLength,ray=ray and ray.Instance:GetFullName(),rayDistance=ray and ray.Distance})\nassert(#encoded<3900,'server punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraServerCleanup",
+      "allowError": true,
+      "label": "observe server punch state before growth cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game:GetService('Players').LocalPlayer\nlocal character=p and p.Character local root=character and character:FindFirstChild('HumanoidRootPart') local humanoid=character and character:FindFirstChildOfClass('Humanoid')\nlocal playerGui=p and p:FindFirstChild('PlayerGui') local gui=playerGui and playerGui:FindFirstChild('PunchWallHUD') local attrs={}\nfor _,key in ipairs({'CharacterPunchCount','CharacterPunchMotionActive','CharacterPunchMotionSuppressed','CharacterPunchReducedMotion','CharacterPunchRig','PunchMotionPhase','PunchCameraFollowEnabled','PunchCameraFollowActive','PunchCameraFollowPeakStuds','LastPunchActionAt','PunchAttackInterval','PunchActionCooldownBlocked','PunchCameraMode','PunchCameraHandoffActive','PunchCameraGeometryClamped'}) do attrs[key]=gui and gui:GetAttribute(key) end\nlocal camera=workspace.CurrentCamera\nlocal encoded=H:JSONEncode({observation='growth_camera_client',available=gui~=nil and root~=nil and humanoid~=nil,serverTime=workspace:GetServerTimeNow(),clientTime=os.clock(),attrs=attrs,character=character and character:GetFullName(),rootFrame=root and tostring(root.CFrame),rootPosition=root and tostring(root.Position),rootVelocity=root and tostring(root.AssemblyLinearVelocity),anchored=root and root.Anchored,health=humanoid and humanoid.Health,rig=humanoid and tostring(humanoid.RigType),cameraType=camera and tostring(camera.CameraType),cameraFrame=camera and tostring(camera.CFrame),subjectCurrent=camera~=nil and humanoid~=nil and camera.CameraSubject==humanoid,heroMultiplier=character and character:GetAttribute('PowerGrowthAppliedMultiplier')})\nassert(#encoded<3900,'client punch observation exceeds context bound') return encoded"
+      },
+      "saveAs": "growthCameraClientCleanup",
+      "allowError": true,
+      "label": "observe client punch state before growth cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=1,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[1] local encoded=H:JSONEncode({page=1,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail1",
+      "allowError": true,
+      "label": "preserve camera visibility detail 1 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=2,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[2] local encoded=H:JSONEncode({page=2,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail2",
+      "allowError": true,
+      "label": "preserve camera visibility detail 2 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=3,available=false}) end local d=H:JSONDecode(text) local sample=d.stages and d.stages[3] local encoded=H:JSONEncode({page=3,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail3",
+      "allowError": true,
+      "label": "preserve camera visibility detail 3 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local text=g and g:GetAttribute('CameraAutomationVisibilityJSON') if not text then return H:JSONEncode({page=4,available=false}) end local d=H:JSONDecode(text) local sample=d.last local encoded=H:JSONEncode({page=4,available=sample~=nil,sample=sample}) assert(#encoded<3900,'visibility detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraVisibilityDetail4",
+      "allowError": true,
+      "label": "preserve camera visibility detail 4 before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

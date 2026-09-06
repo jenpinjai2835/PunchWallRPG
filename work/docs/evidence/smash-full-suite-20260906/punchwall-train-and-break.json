@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-train-and-break",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "reset deterministic state",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"gain\"\\s*:\\s*4\nReceived: {\"DailyBreaks\":0,\"BrickWallBroken\":false,\"OwnedHonorItemsJSON\":\"[]\",\"FistMastery\":1,\"HonorMilestoneMask\":0,\"DailyQuestClaimed\":0,\"stat\":\"Power\",\"DailyQuestDate\":\"\",\"ok\":true,\"EffectivePower\":15.014999999999999,\"PlaytimeSeconds\":0,\"FistMultiplier\":1,\"LockedPetsJSON\":\"[]\",\"TrainingUpdatedAt\":1788640241,\"CritChance\":5,\"OwnedPremiumFistsJSON\":\"[]\",\"BrickWallHP\":8,\"TitanBroken\":false,\"SpeedBoostExpiresAt\":0,\"TrainingStationId\":\"rookie_bag\",\"HonorClearDate\":\"\",\"EquippedFist\":\"Starter Glove\",\"Honor\":0,\"LastDailyDate\":\"\",\"LastHonorClearAt\":0,\"TutorialCompleted\":0,\"OwnedPremiumPetsJSON\":\"[]\",\"PlaytimeClaimed\":0,\"PetInventoryJSON\":\"[]\",\"TitanHP\":800000000,\"HonorPowerBonus\":0,\"value\":15,\"PhysicsFragments\":0,\"HonorClearsToday\":0,\"Power\":15,\"TutorialStep\":1,\"DetachedDepthBlocks\":0,\"CoinBoostExpiresAt\":0,\"Pet\":\"None\",\"EquippedHonorItem\":\"None\",\"WallXP\":0,\"BreakSpeed\":1,\"active\":true,\"HonorRebirthMilestoneMask\":0,\"PetDropPity\":0,\"WallLevel\":1,\"LastHonorClearId\":\"\",\"Score\":0,\"EquippedPetsJSON\":\"[]\",\"Luck\":1,\"DamageBoostExpiresAt\":0,\"IntactDepthBlocks\":5400,\"SpinCredits\":0,\"LastSpinAt\":0,\"TrainingActive\":1,\"SettingsJSON\":\"{\\\"motion\\\":true,\\\"sound\\\":true,\\\"uiScale\\\":1}\",\"DataVersion\":8,\"TutorialVersion\":2,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\"]\",\"TrainingBoostExpiresAt\":0,\"gain\":0,\"Rebirths\":0,\"LastHonorCycle\":-1,\"Coins\":0,\"PetMultiplier\":0,\"gainPerSecond\":4,\"qualificationPower\":15.014999999999999,\"stationId\":\"rookie_bag\",\"Depth\":0,\"DiscoveredPetsJSON\":\"[]\",\"BrokenDepthBlocks\":0}",
+      "context": {}
+    }
+  ]
+}

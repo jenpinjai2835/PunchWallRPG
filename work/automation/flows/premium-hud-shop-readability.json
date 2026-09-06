@@ -1,0 +1,130 @@
+{
+  "name": "premium-hud-shop-readability",
+  "description": "Verify actual next-action text, coherent rarity colors, distinct equipped status and active Equip controls, and full-screen Inventory dimmer across desktop and phone sizes.",
+  "studioName": "^PunchWallRPGPlayable_v1_final(?:_validation)?[.]rbxlx$",
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')local H=game.HttpService assert(workspace:GetAttribute('SmashPremiumUIOwnedDevice')==nil)local id=S:CreateDeviceAsync({Name='Smash Premium UI '..H:GenerateGUID(false),Width=1277,Height=720,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop})workspace:SetAttribute('SmashPremiumUIOwnedDevice',id)S:SetDeviceAsync(id)S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.ActualResolution)return H:JSONEncode({ok=true})"
+      },
+      "timeoutMs": 60000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "create owned visual fixture device"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for UI"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game.HttpService local R=game:GetService('RunService') local players=game.Players:GetPlayers()\nassert(R:IsStudio() and #players==1,'requires exactly one isolated Studio player')\nlocal p=players[1] local w=assert(workspace:FindFirstChild('PunchWallRPG')) local ss=game:GetService('ServerStorage')\nassert(w:GetAttribute('PersistenceMode')=='EphemeralStudio' and w:GetAttribute('PersistenceStudioDefaultEphemeral')==true\n and w:GetAttribute('PersistenceStudioLiveDataOptIn')==false and ss:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'strict default ephemeral profile required')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfileWritable')==false and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio','ready nonwritable ephemeral profile required')\nlocal function entitlementsReady()\n local pending=p:GetAttribute('PendingGamePassGrantCount')\n return p:GetAttribute('GamePassOwnershipReconciled')==true and p:GetAttribute('GamePassOwnershipReconciliationFailed')==false and (pending==nil or pending==0)\nend\nlocal deadline=os.clock()+25\nwhile not entitlementsReady() and os.clock()<deadline do\n assert(p:GetAttribute('GamePassOwnershipReconciliationFailed')~=true,'ownership reconciliation failed') task.wait(.1)\nend\nassert(entitlementsReady(),'ownership reconciliation did not finish; no fixture reset performed')\nlocal a=assert(ss:FindFirstChild('PunchWallAutomation')) assert(a:Invoke('Reset').ok)\nlocal expected={Power=15,Coins=1000,Depth=1,EquippedFist='Starter Glove',FistMultiplier=1,PetMultiplier=0,\n OwnedFistsJSON=H:JSONEncode({'Starter Glove','Boxing Glove'}),OwnedPremiumFistsJSON='[]',OwnedPremiumPetsJSON='[]',PetInventoryJSON='[]',EquippedPetsJSON='[]'}\nlocal s=a:Invoke('SetStats',{Power=15,Coins=1000,Depth=1,OwnedFistsJSON=expected.OwnedFistsJSON}) assert(s.ok)\nlocal readback=a:Invoke('Snapshot') assert(readback.ok,'authoritative readback failed')\nlocal stats=assert(p:FindFirstChild('RPGStats')) local leader=assert(p:FindFirstChild('leaderstats'))\nfor key,value in pairs(expected)do local stat=assert(stats:FindFirstChild(key)or leader:FindFirstChild(key),'missing seeded stat '..key)\n assert(readback[key]==value and stat.Value==value,'seed readback differs '..key)end\nassert(entitlementsReady(),'ownership queue changed while seeding')\nreturn H:JSONEncode({ok=true,entitlementsReconciled=true,pendingGrants=p:GetAttribute('PendingGamePassGrantCount')or 0,seedReadback=expected})"
+      },
+      "timeoutMs": 60000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "seed owned and equipped action states",
+      "saveAs": "readabilitySeed"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game.HttpService local S=game:GetService('StudioDeviceSimulatorService')local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local style=require(game.ReplicatedStorage.PolishConfig)local id=assert(workspace:GetAttribute('SmashPremiumUIOwnedDevice'))local rows={}\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function inside(x,area)local p,s=x.AbsolutePosition,x.AbsoluteSize local o,v=area.AbsolutePosition,area.AbsoluteSize return p.X>=o.X-1 and p.Y>=o.Y-1 and p.X+s.X<=o.X+v.X+1 and p.Y+s.Y<=o.Y+v.Y+1 end\nlocal function textFits(t)assert(t.Text~='' and t.TextBounds.X>0 and t.TextBounds.Y>0 and t.TextFits,'unreadable '..t:GetFullName())end\nlocal function observedConfiguration(spec)\n assert(S:GetDeviceAsync()==id,'fixture device was not selected')\n local info=S:GetDeviceInfoAsync(id) local resolution=S:GetResolutionAsync() local scaling=S:GetScalingModeAsync()\n assert(info.IsCustom==true and info.Width==spec[1]and info.Height==spec[2],'fixture preset differs from requested dimensions')\n assert(resolution.X==spec[1]and resolution.Y==spec[2]and scaling==Enum.DeviceSimulatorScalingMode.ActualResolution,'actual resolution/scaling differs')\n local snapshot=a:Invoke('Snapshot')assert(type(snapshot)=='table'and snapshot.ok==true and snapshot.uiScale==spec[3],'actual client UI scale differs')\n local orientationOK,orientation=pcall(function() return S:GetOrientationAsync() end)\nlocal U=game:GetService('GuiService')local full=U:GetInsetArea(Enum.ScreenInsets.None)local safe=U:GetInsetArea(Enum.ScreenInsets.DeviceSafeInsets)\n local width,height=full.Max.X-full.Min.X,full.Max.Y-full.Min.Y local safeWidth,safeHeight=safe.Max.X-safe.Min.X,safe.Max.Y-safe.Min.Y\n local observedCamera=workspace.CurrentCamera local cameraSize=observedCamera and observedCamera.ViewportSize\nlocal nativeAreas={requested={width=spec[1],height=spec[2],uiScale=spec[3]},resolution={width=resolution.X,height=resolution.Y},\n full={left=full.Min.X,top=full.Min.Y,width=width,height=height},safe={left=safe.Min.X,top=safe.Min.Y,width=safeWidth,height=safeHeight},\n deviceForm=tostring(info.DeviceForm),orientation=orientationOK and tostring(orientation) or 'unavailable',orientationError=not orientationOK and tostring(orientation) or nil,scaling=tostring(scaling),\n camera=cameraSize and {width=cameraSize.X,height=cameraSize.Y} or {unavailable=true},\n hud={width=g.PixelPerfectHeroCityHUD.AbsoluteSize.X,height=g.PixelPerfectHeroCityHUD.AbsoluteSize.Y},responsive=g:GetAttribute('ResponsiveProfile')}\ng:SetAttribute('SmashPremiumNativeAreaDiagnostics',H:JSONEncode(nativeAreas))\nassert(math.abs(width-resolution.X)<=1 and math.abs(height-resolution.Y)<=1,'full UI dimensions differ beyond native boundary rounding '..H:JSONEncode(nativeAreas))\n assert(safeWidth>0 and safeHeight>0 and safe.Min.X>=full.Min.X and safe.Min.Y>=full.Min.Y and safe.Max.X<=full.Max.X and safe.Max.Y<=full.Max.Y,'invalid device-safe rectangle')\n local v=assert(workspace.CurrentCamera).ViewportSize local hud=g.PixelPerfectHeroCityHUD\n assert(v.X==safeWidth and v.Y==safeHeight,'camera differs from actual native device-safe area')\n assert(hud.AbsoluteSize.X==safeWidth and hud.AbsoluteSize.Y==safeHeight and hud.AbsolutePosition.X==safe.Min.X and hud.AbsolutePosition.Y==safe.Min.Y,'responsive HUD has not reached actual safe rectangle')\n return {deviceId=id,resolution={x=resolution.X,y=resolution.Y},uiScale=snapshot.uiScale,\n  actualViewport={x=v.X,y=v.Y},fullUI={width=width,height=height},safeUI={x=safe.Min.X,y=safe.Min.Y,width=safeWidth,height=safeHeight}}\nend\nfor _,spec in ipairs({{1277,720,1},{874,402,.8},{874,402,1.2},{360,740,1}})do\nlocal info=S:GetDeviceInfoAsync(id)S:UpdateDeviceAsync(id,{Name=info.Name,Width=spec[1],Height=spec[2],PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop})S:SetDeviceAsync(id)S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.ActualResolution)\nlocal settings=a:Invoke('SetSettings',{uiScale=spec[3],motion=true,sound=true})assert(type(settings)=='table'and settings.ok==true,'SetSettings failed')assert(a:Invoke('CloseMenus')==true)task.wait(.6)\nlocal untilReady=os.clock()+6 local ready,observed repeat ready,observed=pcall(observedConfiguration,spec)if not ready then task.wait(.1)end until ready or os.clock()>=untilReady assert(ready,'actual device/scale did not settle: '..tostring(observed))\nlocal objective=g.PixelPerfectHeroCityHUD:FindFirstChild('ObjectiveText',true)assert(objective and shown(objective))textFits(objective)assert(objective:FindFirstChildOfClass('UITextSizeConstraint').MinTextSize>=14 and inside(objective,g.PixelPerfectHeroCityHUD),'objective text floor/bounds')\nif g.TargetWallHUD.Visible then textFits(g.TargetWallHUD.TargetTitle)textFits(g.TargetWallHUD.TargetDetail)local compact=spec[1]<900 or spec[2]<520 assert(g.TargetWallHUD.AbsoluteSize.Y<=math.ceil((compact and 64 or 72)*math.max(1,spec[3]))+1,'combat panel obscures too much scene')end\nassert(a:Invoke('OpenTab','Fists')==true)task.wait(.5)local shop=g.GameMenu.FunctionalHeroShop assert(shop.Visible and g.HeroShopDimmer.Visible)\nlocal cards=0 for _,card in ipairs(shop:GetDescendants())do if card:IsA('Frame')and card:GetAttribute('ShopCardLayout')then\ncards+=1 local name=card:FindFirstChild('Name')assert(name and name:FindFirstChildOfClass('UITextSizeConstraint').MinTextSize>=14)textFits(name)\nend end assert(cards>=16,'missing actual fist catalog')\nfor _,entry in ipairs({{'Starter Glove','Common'},{'Boxing Glove','Common'},{'Iron Knuckle','Rare'},{'Thunder Fist','Epic'}})do local c=assert(shop:FindFirstChild(entry[1]..'ShopCard',true))assert(c.Rarity.TextColor3==style.RarityColors[entry[2]],'inconsistent rarity color')end\nlocal starter=shop:FindFirstChild('Starter GloveAction',true)local equip=shop:FindFirstChild('Boxing GloveAction',true)assert(starter and equip and not starter.Active and equip.Active and starter.Text=='EQUIPPED' and equip.Text=='EQUIP','status/action distinction lost')assert(starter.BackgroundColor3~=equip.BackgroundColor3 and starter.TextColor3~=equip.TextColor3,'status looks actionable')for _,button in ipairs({starter,equip,shop.ShopHeader.CloseShop})do textFits(button)assert(button.AbsoluteSize.X>=44 and button.AbsoluteSize.Y>=44,'small control '..button.Name)end\nassert(a:Invoke('OpenInventory').ok)task.wait(.3)assert(g.HeroShopDimmer.Visible,'Inventory needs full viewport dimmer')assert(a:Invoke('CloseMenus')==true)assert(not g.HeroShopDimmer.Visible,'dimmer persisted after close')\nlocal after=observedConfiguration(spec)for key,value in pairs(after)do if type(value)=='table'then for field,number in pairs(value)do assert(observed[key][field]==number,'native area changed during row')end else assert(observed[key]==value,'actual device/scale changed during row')end end\nobserved.catalogCards=cards table.insert(rows,observed)\nend return H:JSONEncode({ok=true,rows=rows})"
+      },
+      "timeoutMs": 60000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "audit rendered objective and catalog controls across device sizes",
+      "saveAs": "premiumRenderedDeviceRows"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')S:StopSimulationAsync()local id=workspace:GetAttribute('SmashPremiumUIOwnedDevice')if id then S:RemoveDeviceAsync(id)end workspace:SetAttribute('SmashPremiumUIOwnedDevice',nil)return game.HttpService:JSONEncode({ok=true})"
+      },
+      "timeoutMs": 60000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "remove owned device"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p and p:FindFirstChild('PlayerGui') and p.PlayerGui:FindFirstChild('PunchWallHUD') return g and g:GetAttribute('SmashPremiumNativeAreaDiagnostics') or 'native area diagnostics unavailable'"
+      },
+      "saveAs": "premiumNativeAreaFailureDetail",
+      "allowError": true,
+      "label": "preserve actual premium native area before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "cleanup play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')S:StopSimulationAsync()local id=workspace:GetAttribute('SmashPremiumUIOwnedDevice')if id then S:RemoveDeviceAsync(id)end workspace:SetAttribute('SmashPremiumUIOwnedDevice',nil)return game.HttpService:JSONEncode({ok=true})"
+      },
+      "timeoutMs": 60000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "cleanup owned device"
+    }
+  ]
+}

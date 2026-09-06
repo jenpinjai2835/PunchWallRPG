@@ -5,18 +5,43 @@
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
-    { "type": "wait", "ms": 7000, "label": "wait for runtime shop assets and regional prices" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=500,Power=15,Depth=1,WallLevel=1}) return true" }, "expectRegex": ["true"], "label": "prepare affordable UI purchase" },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 7000,
+      "label": "wait for runtime shop assets and regional prices"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=500,Power=15,Depth=1,WallLevel=1}) return true"
+      },
+      "expectRegex": [
+        "true"
+      ],
+      "label": "prepare affordable UI purchase"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
       "saveAs": "fistsLayout",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Fists') a:Invoke('OpenShopPage','Fists') task.wait(.25) local s=g.GameMenu.FunctionalHeroShop local scroll=s:FindFirstChild('FistCatalogScroll') local cards={} for _,item in ipairs(cfg.Fists) do table.insert(cards,s:FindFirstChild(item.name..'ShopCard',true)) end local standard=true local minHeight=999 for _,card in ipairs(cards) do standard=standard and card and card:GetAttribute('ShopCardLayout')=='StandardHalfWidthV2' and card:GetAttribute('CatalogScrollable')==true minHeight=card and math.min(minHeight,card.AbsoluteSize.Y) or 0 end local scrollable=scroll and scroll.CanvasSize.Y.Offset>scroll.AbsoluteSize.Y and s:GetAttribute('ShopCatalogScrollMode')=='FixedReadableCardsV1' local result={ok=#cards==#cfg.Fists and #cards==16 and standard and minHeight>=110 and scrollable,cards=#cards,standard=standard,minHeight=minHeight,scrollable=scrollable} assert(result.ok,H:JSONEncode(result)) return true"
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Fists') task.wait(.25) local s=g.GameMenu.FunctionalHeroShop local scroll=s:FindFirstChild('ShopCatalogScroll') local compact=s:GetAttribute('ShopCompactLayout')=='MobileReadableRowsV1' local desktopRows=s:GetAttribute('ShopCompactLayout')=='DesktopReadableRowsV1' local expectedLayout=compact and 'ReadableFullWidthRowV1' or desktopRows and 'DesktopReadableFullWidthV1' or 'StandardHalfWidthV2' local cards={} for _,item in ipairs(cfg.Fists) do table.insert(cards,s:FindFirstChild(item.name..'ShopCard',true)) end local standard=true local minHeight=999 for _,card in ipairs(cards) do standard=standard and card and card:GetAttribute('ShopCardLayout')==expectedLayout and card:GetAttribute('CatalogScrollable')==true minHeight=card and math.min(minHeight,card.AbsoluteSize.Y) or 0 end local scrollable=scroll and scroll.AbsoluteSize.Y>0 and scroll.AbsoluteCanvasSize.Y>scroll.AbsoluteSize.Y and s:GetAttribute('ShopCatalogScrollMode')==(compact and 'MobileReadableRowsV1' or desktopRows and 'DesktopReadableRowsV1' or 'FixedReadableCardsV1') local result={ok=#cards==#cfg.Fists and #cards==16 and standard and minHeight>=110 and scrollable,compact=compact,columns=s:GetAttribute('ShopCatalogColumns'),cards=#cards,standard=standard,minHeight=minHeight,scrollable=scrollable} assert(result.ok,H:JSONEncode(result)) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "Fists use sixteen readable cards in a scrollable catalog"
     },
     {
@@ -25,9 +50,11 @@
       "timeoutMs": 35000,
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Premium') task.wait(.35) local s=g.GameMenu.FunctionalHeroShop local cards,preview,configured,wired,fit,priceClean=0,0,0,0,0,0 local first,last for index,pet in ipairs(cfg.PremiumPets) do local card=s:FindFirstChild(pet.name..'ShopCard') local action=card and card:FindFirstChild(pet.name..'Action',true) local viewport=card and card:FindFirstChild('PremiumPetPreview',true) local price=card and card:FindFirstChild('Price',true) if card then cards+=1 first=first or card last=card end if card and card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end if viewport and viewport:GetAttribute('PreviewFit')=='BoundingSphereSafeV2' then fit+=1 end if price and not string.find(price.Text,'R$',1,true) then priceClean+=1 end if action and action.Active and action.Selectable and action:GetAttribute('PurchaseConfigured')==true and action:GetAttribute('GamePassId')==pet.gamePassId then configured+=1 end if action and action:GetAttribute('ShopActionBound')==true then wired+=1 end end local feature=first and last and first:GetAttribute('ShopCardLayout')=='StandardHalfWidthV2' and last:GetAttribute('ShopCardLayout')=='FeaturedFullWidthV2' and last.AbsoluteSize.X>first.AbsoluteSize.X*1.95 and math.abs(last.AbsolutePosition.X-first.AbsolutePosition.X)<=3 local result={ok=cards==3 and preview==3 and fit==3 and configured==3 and wired==3 and priceClean==3 and feature,cards=cards,preview=preview,fit=fit,configured=configured,wired=wired,priceClean=priceClean,feature=feature} assert(result.ok,H:JSONEncode(result)) return true"
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Premium') task.wait(.35) local s=g.GameMenu.FunctionalHeroShop local cards,preview,configured,wired,fit,priceClean=0,0,0,0,0,0 local first,last for index,pet in ipairs(cfg.PremiumPets) do local card=s:FindFirstChild(pet.name..'ShopCard',true) local action=card and card:FindFirstChild(pet.name..'Action',true) local viewport=card and card:FindFirstChild('PremiumPetPreview',true) local price=card and card:FindFirstChild('Price',true) if card then cards+=1 first=first or card last=card end if card and card:GetAttribute('PremiumPetPreviewReady')==true then preview+=1 end if viewport and viewport:GetAttribute('PreviewFit')=='BoundingSphereSafeV2' then fit+=1 end if price and not string.find(price.Text,'R$',1,true) then priceClean+=1 end if action and action.Active and action.Selectable and action:GetAttribute('PurchaseConfigured')==true and action:GetAttribute('GamePassId')==pet.gamePassId then configured+=1 end if action and action:GetAttribute('ShopActionBound')==true then wired+=1 end end local compact=s:GetAttribute('ShopCompactLayout')=='MobileReadableRowsV1' local desktopRows=s:GetAttribute('ShopCompactLayout')=='DesktopReadableRowsV1' local desktopFeature=first and last and first:GetAttribute('ShopCardLayout')=='StandardHalfWidthV2' and last:GetAttribute('ShopCardLayout')=='FeaturedFullWidthV2' and last.AbsoluteSize.X>first.AbsoluteSize.X*1.95 and math.abs(last.AbsolutePosition.X-first.AbsolutePosition.X)<=3 local rows=first and last and first:GetAttribute('ShopCardLayout')=='ReadableFullWidthRowV1' and last:GetAttribute('ShopCardLayout')=='ReadableFullWidthRowV1' and math.abs(last.AbsoluteSize.X-first.AbsoluteSize.X)<=2 and first.AbsoluteSize.Y>=110 and last.AbsoluteSize.Y>=110 local desktopReadable=first and last and first:GetAttribute('ShopCardLayout')=='DesktopReadableFullWidthV1' and last:GetAttribute('ShopCardLayout')=='DesktopReadableFullWidthV1' and math.abs(last.AbsoluteSize.X-first.AbsoluteSize.X)<=2 and first.AbsoluteSize.Y>=154 and last.AbsoluteSize.Y>=154 local feature=compact and rows or desktopRows and desktopReadable or not compact and not desktopRows and desktopFeature local result={ok=cards==3 and preview==3 and fit==3 and configured==3 and wired==3 and priceClean==3 and feature,compact=compact,cards=cards,preview=preview,fit=fit,configured=configured,wired=wired,priceClean=priceClean,feature=feature} assert(result.ok,H:JSONEncode(result)) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "Premium companions use exact previews and configured Game Pass actions"
     },
     {
@@ -35,19 +62,23 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Boosts') task.wait(.2) local s=g.GameMenu.FunctionalHeroShop local first=s:FindFirstChild('CoinBoostShopCard') local second=s:FindFirstChild('SpeedBoostShopCard') local last=s:FindFirstChild('DamageBoostShopCard') local standard=first and second and first:GetAttribute('ShopCardLayout')=='StandardHalfWidthV2' and second:GetAttribute('ShopCardLayout')=='StandardHalfWidthV2' and math.abs(first.AbsoluteSize.X-second.AbsoluteSize.X)<=2 local feature=last and last:GetAttribute('ShopCardLayout')=='FeaturedFullWidthV2' and last.AbsoluteSize.X>first.AbsoluteSize.X*1.95 and math.abs(last.AbsolutePosition.X-first.AbsolutePosition.X)<=3 local footer=s.ShopFooter.SecureLabel.Text local result={ok=standard and feature and string.find(footer,'BOOSTS',1,true)~=nil and string.find(footer,'COIN BOOSTS',1,true)==nil,standard=standard,feature=feature,footer=footer} assert(result.ok,H:JSONEncode(result)) return true"
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Boosts') task.wait(.2) local s=g.GameMenu.FunctionalHeroShop local compact=s:GetAttribute('ShopCompactLayout')=='MobileReadableRowsV1' local desktopRows=s:GetAttribute('ShopCompactLayout')=='DesktopReadableRowsV1' local first=s:FindFirstChild('SpeedBoostShopCard',true) local second=s:FindFirstChild('DamageBoostShopCard',true) local layout=compact and 'ReadableFullWidthRowV1' or desktopRows and 'DesktopReadableFullWidthV1' or 'StandardHalfWidthV2' local standard=first and second and first:GetAttribute('ShopCardLayout')==layout and second:GetAttribute('ShopCardLayout')==layout and math.abs(first.AbsoluteSize.X-second.AbsoluteSize.X)<=2 local actions=true for _,key in ipairs({'SpeedBoost','DamageBoost'}) do local card=s:FindFirstChild(key..'ShopCard',true) local action=card and card:FindFirstChild(key..'Action') actions=actions and action~=nil and action.Active and action.Selectable and action:GetAttribute('ShopActionBound')==true and math.min(action.AbsoluteSize.X,action.AbsoluteSize.Y)>=44 end local footer=s.ShopFooter.SecureLabel.Text local truthful=compact and footer=='2 ITEMS' or not compact and string.find(footer,'BOOSTS',1,true)~=nil and string.find(footer,'2 ITEMS',1,true)~=nil local result={ok=standard and actions and truthful and s:GetAttribute('ShopCatalogItemCount')==2 and s:FindFirstChild('CoinBoostShopCard',true)==nil,standard=standard,actions=actions,compact=compact,footer=footer,items=s:GetAttribute('ShopCatalogItemCount')} assert(result.ok,H:JSONEncode(result)) return true"
       },
-      "expectRegex": ["true"],
-      "label": "Boosts use a balanced feature card and truthful footer"
+      "expectRegex": [
+        "true"
+      ],
+      "label": "two current coin-purchased Boosts use readable rows and truthful footer"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Robux') task.wait(.35) local s=g.GameMenu.FunctionalHeroShop local cards,configured,widthOk=0,0,true local width for _,product in ipairs(cfg.PremiumProducts) do local card=s:FindFirstChild(product.id..'ShopCard') local action=card and card:FindFirstChild(product.id..'Action',true) if card then cards+=1 width=width or card.AbsoluteSize.X widthOk=widthOk and math.abs(card.AbsoluteSize.X-width)<=2 end if action and action.Active and action.Selectable and action:GetAttribute('PurchaseConfigured')==true and action:GetAttribute('ShopActionBound')==true then configured+=1 end end local result={ok=cards==4 and configured==4 and widthOk,cards=cards,configured=configured,widthOk=widthOk} assert(result.ok,H:JSONEncode(result)) return true"
+        "code": "local H=game:GetService('HttpService') local cfg=require(game.ReplicatedStorage.GameConfig) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Robux') task.wait(.35) local s=g.GameMenu.FunctionalHeroShop local cards,configured,widthOk=0,0,true local width for _,product in ipairs(cfg.PremiumProducts) do if (product.shopPage or 'Robux')~='Robux' then continue end local card=s:FindFirstChild(product.id..'ShopCard',true) local action=card and card:FindFirstChild(product.id..'Action',true) if card then cards+=1 width=width or card.AbsoluteSize.X widthOk=widthOk and math.abs(card.AbsoluteSize.X-width)<=2 end if action and action.Active and action.Selectable and action:GetAttribute('PurchaseConfigured')==true and action:GetAttribute('ShopActionBound')==true and action:GetAttribute('ProductKey')==product.id and action:GetAttribute('ProductId')==product.productId and card:GetAttribute('ProductId')==product.productId then configured+=1 end end local result={ok=cards==4 and configured==4 and widthOk,cards=cards,configured=configured,widthOk=widthOk} assert(result.ok,H:JSONEncode(result)) return true"
       },
-      "expectRegex": ["true"],
+      "expectRegex": [
+        "true"
+      ],
       "label": "Robux cards are equal and wired to configured products"
     },
     {
@@ -55,23 +86,126 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Premium') task.wait(.2) local s=g.GameMenu.FunctionalHeroShop local h=s.ShopHeader local f=s.ShopFooter local tabs=0 for _,x in ipairs(s.ShopTabs:GetChildren()) do if x:IsA('TextButton') then tabs+=1 end end local allTextFits=true for _,x in ipairs(s:GetDescendants()) do if (x:IsA('TextLabel') or x:IsA('TextButton')) and x.Visible then allTextFits=allTextFits and x.TextFits end end local chrome=h.Title.Text=='SHOP' and h:FindFirstChild('Subtitle') and h:FindFirstChild('HeaderRedRail') and h:FindFirstChild('HeaderCyanRail') and h:FindFirstChild('CloseShop') and f:FindFirstChild('CloseShopBottom')==nil and f:FindFirstChild('SecureLabel') and f:FindFirstChild('ServerLabel') and s.ShopTabs.PremiumShopTab:FindFirstChild('SelectedRail') local result={ok=chrome~=nil and tabs==4 and allTextFits,chrome=chrome~=nil,tabs=tabs,allTextFits=allTextFits} assert(result.ok,H:JSONEncode(result)) return true"
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\na:Invoke('OpenShopPage','Premium') task.wait(.25)\nlocal s=g.GameMenu.FunctionalHeroShop local h=s.ShopHeader local f=s.ShopFooter\nlocal function rect(x) return {x.AbsolutePosition.X,x.AbsolutePosition.Y,x.AbsoluteSize.X,x.AbsoluteSize.Y} end\nlocal function inside(a,b) return a.AbsolutePosition.X>=b.AbsolutePosition.X-1 and a.AbsolutePosition.Y>=b.AbsolutePosition.Y-1 and a.AbsolutePosition.X+a.AbsoluteSize.X<=b.AbsolutePosition.X+b.AbsoluteSize.X+1 and a.AbsolutePosition.Y+a.AbsoluteSize.Y<=b.AbsolutePosition.Y+b.AbsoluteSize.Y+1 end\nlocal function shown(x) while x and x~=g do if x:IsA('GuiObject') and not x.Visible then return false end x=x.Parent end return x==g end\nlocal tabs=0 for _,x in ipairs(s.ShopTabs:GetChildren()) do if x:IsA('TextButton') then tabs+=1 end end\nlocal tabNames=true for _,name in ipairs({'Fists','Premium','Boosts','Honor','Robux'}) do tabNames=tabNames and s.ShopTabs:FindFirstChild(name..'ShopTab')~=nil end\nlocal allTextFits=true local bad={} local badCount=0\nfor _,x in ipairs(s:GetDescendants()) do\n if (x:IsA('TextLabel') or x:IsA('TextButton')) and x.Visible then\n  allTextFits=allTextFits and x.TextFits\n  if not x.TextFits then badCount+=1 if #bad<6 then bad[#bad+1]={name=x.Parent.Name..'.'..x.Name,text=x.Text,rect=rect(x),bounds={x.TextBounds.X,x.TextBounds.Y},textSize=x.TextSize,scaled=x.TextScaled,wrapped=x.TextWrapped,shown=shown(x)} end end\n end\nend\nlocal chrome=h.Title.Text=='SHOP' and h:FindFirstChild('Subtitle') and h:FindFirstChild('HeaderRedRail') and h:FindFirstChild('HeaderCyanRail') and h:FindFirstChild('CloseShop') and f:FindFirstChild('CloseShopBottom')==nil and f:FindFirstChild('SecureLabel') and f:FindFirstChild('ServerLabel') and s.ShopTabs.PremiumShopTab:FindFirstChild('SelectedRail')\nlocal safe=g:WaitForChild('PixelPerfectHeroCityHUD')\nlocal safeBounds=inside(g.GameMenu,safe)\nlocal result={ok=not not chrome and tabs==5 and tabNames and allTextFits and safeBounds,chrome=not not chrome,tabs=tabs,tabNames=tabNames,allTextFits=allTextFits,safeBounds=safeBounds,badCount=badCount,bad=bad,viewport={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},safe=rect(safe),menu=rect(g.GameMenu),layout=s:GetAttribute('ShopCompactLayout')}\nreturn H:JSONEncode(result)"
       },
-      "expectRegex": ["true"],
-      "label": "header tabs footer and typography form one coherent system"
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "full semantic typography fits and modal stays inside actual safe viewport"
     },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Fists') task.wait(.2) return a:Invoke('InvokeShopAction','Boxing Glove')" }, "expectRegex": ["true"], "label": "invoke visible boxing glove button handler" },
-    { "type": "wait", "ms": 700, "label": "wait for authoritative shop update" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value) return H:JSONEncode({ok=p.leaderstats.Coins.Value==320 and p.RPGStats.EquippedFist.Value=='Boxing Glove' and p.RPGStats.FistMultiplier.Value==1.8 and table.find(owned,'Boxing Glove')~=nil,coins=p.leaderstats.Coins.Value,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"coins\"\\s*:\\s*320", "\"equipped\"\\s*:\\s*\"Boxing Glove\"", "\"mult\"\\s*:\\s*1.8"], "label": "UI purchase reaches authoritative economy" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return g.PunchWallClientAutomation:Invoke('CloseMenus')" }, "expectRegex": ["true"], "label": "close shop through header close handler" },
-    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(.2) return H:JSONEncode({ok=not g.GameMenu.Visible and not g.HeroShopDimmer.Visible,menu=g.GameMenu.Visible,dimmer=g.HeroShopDimmer.Visible})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"menu\"\\s*:\\s*false", "\"dimmer\"\\s*:\\s*false"], "label": "shop and dimmer close together" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
-    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
-    { "type": "call", "tool": "get_console_output", "saveAs": "consoleAfterStop", "label": "capture post-stop console" },
-    { "type": "assertNoConsoleErrors", "source": "consoleAfterStop", "label": "post-stop console clean" }
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation\nlocal saved=H:JSONDecode(p.RPGStats.SettingsJSON.Value).uiScale\nassert(type(saved)=='number','original authoritative UI scale missing')\nlocal function observeScale(value)\n local snapshot=a:Invoke('Snapshot')\n local authority=H:JSONDecode(p.RPGStats.SettingsJSON.Value).uiScale\n return type(snapshot)=='table' and snapshot.ok==true and type(snapshot.uiScale)=='number' and type(authority)=='number'\n  and math.abs(snapshot.uiScale-value)<.001 and math.abs(authority-value)<.001\nend\nlocal function setScale(value)\n local response=a:Invoke('SetSettings',{uiScale=value})\n assert(type(response)=='table' and response.ok==true,'ordinary Settings request failed')\n local deadline=os.clock()+6 local stable\n repeat\n  local now=os.clock()\n  if observeScale(value) then stable=stable or now else stable=nil end\n  if stable and now-stable>=.3 then return end\n  assert(now<deadline,'authoritative Shop UI scale did not settle: '..tostring(value))\n  task.wait(.05)\n until false\nend\nlocal function inside(a,b)\n local p,s,q,t=a.AbsolutePosition,a.AbsoluteSize,b.AbsolutePosition,b.AbsoluteSize\n return p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1\nend\nlocal samples={} local fail\nlocal ok,err=pcall(function()\n for _,scale in ipairs({.8,1,1.2})do\n  setScale(scale)\n  for _,page in ipairs({'Fists','Premium','Boosts','Honor','Robux'})do\n   a:Invoke('OpenShopPage',page) task.wait(.25)\n   local s=g.GameMenu.FunctionalHeroShop local issues={} local count=0 local minTarget=math.huge\n   local function issue(text) if #issues<6 then issues[#issues+1]=text end end\n   if not observeScale(scale) then issue('authoritative scale changed') end\n   if not inside(g.GameMenu,g.PixelPerfectHeroCityHUD) then issue('modal escaped safe area') end\n   for _,x in ipairs(s:GetDescendants())do\n    if (x:IsA('TextLabel') or x:IsA('TextButton')) and x.Visible and not x.TextFits then issue(x.Parent.Name..'.'..x.Name..' TextFits=false') end\n    if x:IsA('Frame') and x.Name:match('ShopCard$')then\n     count+=1\n     for _,name in ipairs({'Name','Rarity','Detail','Price'})do\n      local label=x:FindFirstChild(name)\n      if not label or not inside(label,x) then issue(x.Name..'.'..name..' escaped card') end\n     end\n     local action=x:FindFirstChild(x.Name:gsub('ShopCard$','Action'))\n     if not action or not inside(action,x) then issue(x.Name..'.Action escaped card') else minTarget=math.min(minTarget,action.AbsoluteSize.X,action.AbsoluteSize.Y) end\n     if s:GetAttribute('ShopCompactLayout')=='DesktopReadableRowsV1' then\n      local nameLimit=x.Name and x:FindFirstChild('Name'):FindFirstChildOfClass('UITextSizeConstraint')\n      local priceLimit=x:FindFirstChild('Price'):FindFirstChildOfClass('UITextSizeConstraint')\n      if not nameLimit or nameLimit.MinTextSize<14 or not priceLimit or priceLimit.MinTextSize<14 or x.Rarity.TextSize<12 or x.Detail.TextSize<12 or action.TextSize<14 then issue(x.Name..' font floor') end\n      if page=='Premium' and (not string.find(x.Detail.Text,'Power',1,true) or not string.find(x.Detail.Text,'Luck',1,true)) then issue(x.Name..' incomplete Premium benefits') end\n     end\n    end\n   end\n   if minTarget<44 then issue('target below44: '..tostring(minTarget)) end\n   local expected=page=='Fists' and 16 or page=='Premium' and 3 or page=='Boosts' and 2 or 4\n   if count~=expected then issue('catalog count '..count..' expected '..expected) end\n   local sample={scale=scale,page=page,layout=s:GetAttribute('ShopCompactLayout'),cards=count,minTarget=minTarget}\n   samples[#samples+1]=sample\n   if #issues>0 then fail={sample=sample,issues=issues,viewport={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},menu={g.GameMenu.AbsoluteSize.X,g.GameMenu.AbsoluteSize.Y}} return end\n  end\n end\nend)\nlocal restored,restoreError=pcall(setScale,saved)\nlocal result={ok=ok and not fail and #samples==15 and restored,samples=samples,failed=fail,restored=restored,error=not ok and tostring(err):sub(1,400) or nil,restoreError=not restored and tostring(restoreError):sub(1,200) or nil}\nreturn H:JSONEncode(result)"
+      },
+      "timeoutMs": 45000,
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "all five Shop pages retain full text and bounds at three authoritative UI scales"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenShopPage','Fists') task.wait(.2) return a:Invoke('InvokeShopAction','Boxing Glove')"
+      },
+      "expectRegex": [
+        "true"
+      ],
+      "label": "invoke visible boxing glove button handler"
+    },
+    {
+      "type": "wait",
+      "ms": 700,
+      "label": "wait for authoritative shop update"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value) return H:JSONEncode({ok=p.leaderstats.Coins.Value==320 and p.RPGStats.EquippedFist.Value=='Boxing Glove' and p.RPGStats.FistMultiplier.Value==1.8 and table.find(owned,'Boxing Glove')~=nil,coins=p.leaderstats.Coins.Value,equipped=p.RPGStats.EquippedFist.Value,mult=p.RPGStats.FistMultiplier.Value})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"coins\"\\s*:\\s*320",
+        "\"equipped\"\\s*:\\s*\"Boxing Glove\"",
+        "\"mult\"\\s*:\\s*1.8"
+      ],
+      "label": "UI purchase reaches authoritative economy"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return g.PunchWallClientAutomation:Invoke('CloseMenus')"
+      },
+      "expectRegex": [
+        "true"
+      ],
+      "label": "close shop through header close handler"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD task.wait(.2) return H:JSONEncode({ok=not g.GameMenu.Visible and not g.HeroShopDimmer.Visible,menu=g.GameMenu.Visible,dimmer=g.HeroShopDimmer.Visible})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*false",
+        "\"dimmer\"\\s*:\\s*false"
+      ],
+      "label": "shop and dimmer close together"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "consoleAfterStop",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "consoleAfterStop",
+      "label": "post-stop console clean"
+    }
   ],
   "cleanup": [
-    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
   ]
 }

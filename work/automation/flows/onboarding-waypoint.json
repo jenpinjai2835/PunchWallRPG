@@ -1,15 +1,16 @@
 {
   "name": "onboarding-waypoint",
-  "description": "Validate fresh-player punch-first objective and world waypoint guidance.",
-  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
-  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "description": "Validate actual natural spawn facing the current course entrance, punch-first visible objective, and near/far waypoint behavior.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -23,13 +24,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nlocal p=game.Players:GetPlayers()[1]\nlocal spawn=workspace:FindFirstChild(\"Punch Rookie Spawn\",true)\np.Character:PivotTo(spawn.CFrame*CFrame.new(0,4,0))\nreturn HttpService:JSONEncode({spawnYaw=math.floor(spawn.Orientation.Y+0.5),tutorial=command:Invoke(\"Snapshot\").TutorialStep})"
+        "code": "local H=game:GetService('HttpService')\nassert(game:GetService('RunService'):IsStudio(),'onboarding fixture is Studio-only')\nlocal storage=game:GetService('ServerStorage')\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'),'game world missing')\nlocal players=game.Players:GetPlayers() assert(#players==1,'requires one isolated player')\nlocal p=players[1]\nlocal function verifyEphemeralSeed(p,world,storage)\n assert(world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'requires ephemeral Studio')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids Reset')\n assert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'profile must be ready and ephemeral')\n return true\nend\nlocal function verifySpawnGeometry(spawnFrame,characterFrame,targetPosition,spawnSize)\n local function facing(frame)\n  local delta=targetPosition-frame.Position\n  local direction=Vector3.new(delta.X,0,delta.Z)\n  local look=Vector3.new(frame.LookVector.X,0,frame.LookVector.Z)\n  assert(direction.Magnitude>1 and look.Magnitude>.9,'missing horizontal spawn direction')\n  return look.Unit:Dot(direction.Unit)\n end\n local spawnDot,characterDot=facing(spawnFrame),facing(characterFrame)\n assert(spawnDot>=.98,'SpawnLocation faces away from the actual entrance')\n assert(characterDot>=.98,'natural character faces away from the actual entrance')\n local offset=characterFrame.Position-spawnFrame.Position\n assert(math.abs(offset.X)<=spawnSize.X*.5+.5 and math.abs(offset.Z)<=spawnSize.Z*.5+.5,'natural character is outside the runtime spawn')\n assert(offset.Y>=-2 and offset.Y<=10,'natural character has not reached the spawn height')\n return {spawnDot=spawnDot,characterDot=characterDot,horizontalOffset=Vector3.new(offset.X,0,offset.Z).Magnitude,verticalOffset=offset.Y}\nend\nverifyEphemeralSeed(p,world,storage)\nlocal spawn=assert(world:FindFirstChild('Punch Rookie Spawn'),'runtime spawn missing')\nlocal entrance=assert(world.Interactables:FindFirstChild('Depth Course Entrance'),'course entrance missing')\nassert(spawn:IsA('SpawnLocation') and entrance:IsA('BasePart'),'wrong spawn or entrance instance')\nlocal deadline=os.clock()+8 local character,rootPart,humanoid\nrepeat\n character=p.Character rootPart=character and character:FindFirstChild('HumanoidRootPart') humanoid=character and character:FindFirstChildOfClass('Humanoid')\n if character and character:IsDescendantOf(workspace) and character:GetAttribute('PunchWallSpawnPlaced')==true and rootPart and rootPart:IsA('BasePart') and humanoid and humanoid.Health>0 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nassert(character and character:IsDescendantOf(workspace) and rootPart and rootPart:IsA('BasePart') and rootPart.Parent==character and humanoid and humanoid.Health>0 and character:GetAttribute('PunchWallSpawnPlaced')==true,'natural spawn placement did not complete')\nassert(p.RespawnLocation==spawn,'player respawn location is not the runtime spawn')\n-- Observe natural placement BEFORE ResetWorld can reposition an existing character.\nlocal natural=verifySpawnGeometry(spawn.CFrame,rootPart.CFrame,entrance.Position,spawn.Size)\nlocal command=storage:WaitForChild('PunchWallAutomation')\nlocal result=command:Invoke('Reset') assert(result.ok==true,'fresh tutorial Reset failed')\nassert(result.TutorialStep==1,'fresh player did not start punch-first tutorial')\nlocal reset=verifySpawnGeometry(spawn.CFrame,rootPart.CFrame,entrance.Position,spawn.Size)\nreturn H:JSONEncode({spawnFacingValid=true,natural=natural,reset=reset,spawnYaw=spawn.Orientation.Y,spawnPosition=tostring(spawn.Position),entrancePosition=tostring(entrance.Position),tutorial=result.TutorialStep})"
       },
       "expectRegex": [
-        "\"spawnYaw\"\\s*:\\s*180",
+        "\"spawnFacingValid\"\\s*:\\s*true",
         "\"tutorial\"\\s*:\\s*1"
       ],
-      "label": "fresh spawn starts punch-first onboarding"
+      "label": "fresh spawn starts punch-first onboarding",
+      "saveAs": "spawnDirectionDiagnostics"
     },
     {
       "type": "wait",
@@ -41,16 +43,46 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal gui=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\")\nlocal waypoint=gui:WaitForChild(\"TutorialWaypoint\")\nlocal help=gui:WaitForChild(\"ObjectiveCard\")\nlocal context=gui:WaitForChild(\"ContextTarget\")\nreturn HttpService:JSONEncode({enabled=waypoint.Enabled,target=waypoint.Adornee and waypoint.Adornee.Name or \"\",objective=help.Text,context=context.Text,contextVisible=context.Visible})"
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal w=g:WaitForChild('TutorialWaypoint')\nlocal hud=g:WaitForChild('PixelPerfectHeroCityHUD')\nlocal card=hud:WaitForChild('TutorialObjectiveHUD')\nlocal text=card:WaitForChild('ObjectiveText')\nlocal context=g:WaitForChild('ContextTarget')\nlocal action=hud:WaitForChild('ContextAction')\nlocal entrance=workspace.PunchWallRPG.Interactables['Depth Course Entrance']\nlocal function verifyWaypointState(e,far)\n assert(e.targetMatches==true,'waypoint does not point at actual course entrance')\n assert(e.ready==true and e.step==1,'punch-first tutorial state is not ready')\n assert(e.objectiveVisible==true and string.find(e.objective,'PUNCH THE WALL',1,true),'visible objective does not teach punching')\n assert(string.find(e.distanceText,tostring(e.distance)..' studs',1,true),'waypoint distance text does not match actual distance')\n assert((far and e.distance>18 or not far and e.distance<=18),'fixture is on the wrong side of interaction distance')\n assert(e.enabled==far,'waypoint visibility does not match interaction range')\n if not far then assert(e.contextVisible==false and e.actionVisible==false,'near wall has an unrelated action prompt') end\n return true\nend\nlocal function observeWaypoint()\n local character=p.Character local rootPart=character and character:FindFirstChild('HumanoidRootPart')\n local distance=rootPart and math.floor((entrance.Position-rootPart.Position).Magnitude+.5) or -1\n local label=w:FindFirstChildOfClass('TextLabel')\n return {targetMatches=w.Adornee==entrance,ready=g:GetAttribute('OnboardingWaypointReady')==true,step=g:GetAttribute('OnboardingObjectiveStep'),distance=distance,\n  objectiveVisible=g.Enabled and hud.Visible and card.Visible and text.Visible and text.AbsoluteSize.X>0 and text.AbsoluteSize.Y>0,objective=text.Text,\n  distanceText=label and label.Text or '',enabled=w.Enabled,contextVisible=context and context.Visible==true or false,actionVisible=action and action.Visible==true or false}\nend\nlocal deadline=os.clock()+4 local state,valid,reason\nrepeat\n state=observeWaypoint()\n valid,reason=pcall(verifyWaypointState,state,false)\n if valid then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nassert(valid,tostring(reason)..': '..H:JSONEncode(state))\nstate.nearValid=true\nreturn H:JSONEncode(state)"
       },
       "expectRegex": [
-        "\"enabled\"\\s*:\\s*true",
-        "\"target\"\\s*:\\s*\"Depth Course Entrance\"",
-        "Punch The Wall",
+        "\"nearValid\"\\s*:\\s*true",
+        "\"enabled\"\\s*:\\s*false",
+        "PUNCH THE WALL",
         "studs",
-        "\"contextVisible\"\\s*:\\s*false"
+        "\"contextVisible\"\\s*:\\s*false",
+        "\"actionVisible\"\\s*:\\s*false"
       ],
-      "label": "punch tutorial waypoint and distance visible"
+      "label": "near target keeps objective ready and collapses the large marker"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1]\nlocal target=workspace.PunchWallRPG.Interactables['Depth Course Entrance']\nlocal root=assert(p.Character:FindFirstChild('HumanoidRootPart'))\nroot.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero\nlocal destination=target.Position+Vector3.new(0,3,35)\np.Character:PivotTo(CFrame.lookAt(destination,Vector3.new(target.Position.X,destination.Y,target.Position.Z)))\nreturn true"
+      },
+      "label": "move fresh player outside waypoint interaction range"
+    },
+    {
+      "type": "wait",
+      "ms": 700,
+      "label": "allow distant objective refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal w=g:WaitForChild('TutorialWaypoint')\nlocal hud=g:WaitForChild('PixelPerfectHeroCityHUD')\nlocal card=hud:WaitForChild('TutorialObjectiveHUD')\nlocal text=card:WaitForChild('ObjectiveText')\nlocal context=g:WaitForChild('ContextTarget')\nlocal action=hud:WaitForChild('ContextAction')\nlocal entrance=workspace.PunchWallRPG.Interactables['Depth Course Entrance']\nlocal function verifyWaypointState(e,far)\n assert(e.targetMatches==true,'waypoint does not point at actual course entrance')\n assert(e.ready==true and e.step==1,'punch-first tutorial state is not ready')\n assert(e.objectiveVisible==true and string.find(e.objective,'PUNCH THE WALL',1,true),'visible objective does not teach punching')\n assert(string.find(e.distanceText,tostring(e.distance)..' studs',1,true),'waypoint distance text does not match actual distance')\n assert((far and e.distance>18 or not far and e.distance<=18),'fixture is on the wrong side of interaction distance')\n assert(e.enabled==far,'waypoint visibility does not match interaction range')\n if not far then assert(e.contextVisible==false and e.actionVisible==false,'near wall has an unrelated action prompt') end\n return true\nend\nlocal function observeWaypoint()\n local character=p.Character local rootPart=character and character:FindFirstChild('HumanoidRootPart')\n local distance=rootPart and math.floor((entrance.Position-rootPart.Position).Magnitude+.5) or -1\n local label=w:FindFirstChildOfClass('TextLabel')\n return {targetMatches=w.Adornee==entrance,ready=g:GetAttribute('OnboardingWaypointReady')==true,step=g:GetAttribute('OnboardingObjectiveStep'),distance=distance,\n  objectiveVisible=g.Enabled and hud.Visible and card.Visible and text.Visible and text.AbsoluteSize.X>0 and text.AbsoluteSize.Y>0,objective=text.Text,\n  distanceText=label and label.Text or '',enabled=w.Enabled,contextVisible=context and context.Visible==true or false,actionVisible=action and action.Visible==true or false}\nend\nlocal deadline=os.clock()+4 local state,valid,reason\nrepeat\n state=observeWaypoint()\n valid,reason=pcall(verifyWaypointState,state,true)\n if valid then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nassert(valid,tostring(reason)..': '..H:JSONEncode(state))\nstate.farValid=true\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"farValid\"\\s*:\\s*true",
+        "\"enabled\"\\s*:\\s*true",
+        "PUNCH THE WALL",
+        "studs"
+      ],
+      "label": "distant target actually enables waypoint guidance"
     },
     {
       "type": "call",
@@ -66,7 +98,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     },
@@ -86,10 +120,13 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"
     }
-  ]
+  ],
+  "directionContractVersion": "EntranceFacingGeometryV1"
 }

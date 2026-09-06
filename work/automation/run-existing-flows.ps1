@@ -1,6 +1,7 @@
 param(
     [string]$StudioInstanceId = "",
-    [string]$ExpectedPlaceName = ""
+    [string]$ExpectedPlaceName = "",
+    [string]$ExpectedStudioName = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,7 +13,7 @@ $invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 $results = @()
 foreach ($flowFile in Get-ChildItem -LiteralPath $flowsDir -Filter "*.json" | Sort-Object Name) {
     $started = Get-Date
-    $run = & $invokeFlow -FlowPath $flowFile.FullName -Runner $script -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
+    $run = & $invokeFlow -FlowPath $flowFile.FullName -Runner $script -StudioInstanceId $StudioInstanceId -ExpectedStudioName $ExpectedStudioName -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
     $results += [pscustomobject]@{
         flow = $flowFile.BaseName
         ok = $run.ok

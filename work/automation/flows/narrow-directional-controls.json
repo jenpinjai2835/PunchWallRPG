@@ -1,0 +1,537 @@
+{
+  "name": "narrow-directional-controls",
+  "description": "Native Up/Down controls at narrow desktop637x654 and phone740x360; measure actual safe viewport and44px touch targets with4px pair gap, ignore only effectively hidden NextWorld chrome, retain exact server direction and two-punch motion proof. Simulator restore is verified.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "placeName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local name=\"Smash Direction Desktop 637x654\" local id\nfor _,candidate in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(candidate) if info.Name==name and info.IsCustom then id=candidate break end end\nlocal config={Name=name,Width=637,Height=654,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop}\nif id then S:UpdateDeviceAsync(id,config) else id=S:CreateDeviceAsync(config) end\nS:SetDeviceAsync(id)\nS:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\nlocal r=S:GetResolutionAsync() return H:JSONEncode({ok=S:GetDeviceAsync()==id and r.X==637 and r.Y==654,deviceId=id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Desktop: configure exact device"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "Desktop: start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "Desktop: wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] local world=workspace.PunchWallRPG\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'ephemeral Studio only')\nassert(game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true and p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfileWritable')==false,'ready unwritable profile required')\nlocal a=game.ServerStorage.PunchWallAutomation assert(a:Invoke('Reset').ok==true) assert(a:Invoke('SetStats',{Power=250,WallLevel=99}).ok==true)\nlocal root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-80))\nreturn {ok=true}"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Desktop: seed isolated directional fixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local function awaitStableDirections()\n local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD')\n local previous,stableSince local deadline=os.clock()+5\n repeat\n  local a,b=h:FindFirstChild('PunchUp'),h:FindFirstChild('PunchDown')\n  if a and b and a.AbsoluteSize.X>=44 and b.AbsoluteSize.X>=44 then\n   local key=tostring(a.AbsolutePosition)..tostring(a.AbsoluteSize)..tostring(b.AbsolutePosition)..tostring(b.AbsoluteSize)\n   if key~=previous then previous=key stableSince=os.clock() end\n   if os.clock()-stableSince>=.2 then return end\n  else previous=nil stableSince=nil end\n  task.wait(.05)\n until os.clock()>=deadline\n error('directional geometry did not settle within5seconds')\nend\nawaitStableDirections()\nlocal H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD\nlocal function effectivelyVisible(object)\n local current=object\n while current and current~=g do\n  if current:IsA('GuiObject') and not current.Visible then return false end\n  current=current.Parent\n end\n return current==g and g.Enabled\nend\nlocal function rect(object)\n if not object then return {exists=false} end\n local pos,size=object.AbsolutePosition,object.AbsoluteSize\n return {exists=true,x=pos.X,y=pos.Y,w=size.X,h=size.Y,active=object.Active,visible=object.Visible,effectiveVisible=effectivelyVisible(object),profile=object:GetAttribute('ResponsiveProfile')}\nend\nlocal function overlap(a,b)\n return a.exists and b.exists and a.x<b.x+b.w and a.x+a.w>b.x and a.y<b.y+b.h and a.y+a.h>b.y\nend\nlocal up=h:FindFirstChild('PunchUp') local down=h:FindFirstChild('PunchDown') local nextCard=h:FindFirstChild('NextWorldCard')\nlocal a,b,n=rect(up),rect(down),rect(nextCard)\nlocal count=g:GetAttribute('CharacterPunchCount') or 0\nlocal upNext,downNext=overlap(a,n),overlap(b,n)\nlocal upDown=overlap(a,b)\nlocal ok=a.exists and b.exists and n.exists and a.active and b.active and a.effectiveVisible and b.effectiveVisible\n and not upDown and (not n.effectiveVisible or (not upNext and not downNext)) and count>=0\nlocal result={ok=ok,count=count,upDirection=up and up:GetAttribute('PunchDirection'),downDirection=down and down:GetAttribute('PunchDirection'),\n up=a,down=b,next=n,upDownOverlap=upDown,rawUpNextOverlap=upNext,rawDownNextOverlap=downNext,\n visibleUpNextOverlap=n.effectiveVisible and upNext or false,visibleDownNextOverlap=n.effectiveVisible and downNext or false,\n camera={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},hud={h.AbsoluteSize.X,h.AbsoluteSize.Y},\n responsiveProfile=g:GetAttribute('ResponsiveProfile'),touch=game:GetService('UserInputService').TouchEnabled}\nlocal function contained(r) local pos,size=h.AbsolutePosition,h.AbsoluteSize return r.x>=pos.X-.01 and r.y>=pos.Y-.01 and r.x+r.w<=pos.X+size.X+.01 and r.y+r.h<=pos.Y+size.Y+.01 end\nlocal gap=a.exists and b.exists and math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),b.y-(a.y+a.h),a.y-(b.y+b.h)) or -1\nresult.gap=gap\nresult.viewportValid=result.hud[1]>=612 and result.hud[1]<=638 and result.hud[2]>=606 and result.hud[2]<=655 and result.touch==false\nresult.touchSafe=a.exists and b.exists and math.min(a.w,a.h,b.w,b.h)>=43.999\nresult.contained=a.exists and b.exists and contained(a) and contained(b)\nresult.viewportValid=result.viewportValid and result.camera[1]>=240 and result.camera[2]>=200 and math.abs(result.camera[1]-result.hud[1])<=2 and math.abs(result.camera[2]-result.hud[2])<=2\nresult.ok=result.ok and result.viewportValid and result.touchSafe and result.contained and gap>=3.999\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Desktop: actual stable target bounds"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          }
+        ]
+      },
+      "label": "Desktop: native Up click"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local deadline=os.clock()+3 repeat if p:GetAttribute('LastPunchDirection')=='Up' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({ok=p:GetAttribute('LastPunchDirection')=='Up',direction=p:GetAttribute('LastPunchDirection'),interval=workspace.PunchWallRPG:GetAttribute('PunchAttackInterval')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"direction\"\\s*:\\s*\"Up\"",
+        "\"interval\"\\s*:\\s*1"
+      ],
+      "label": "Desktop: exact Up server direction"
+    },
+    {
+      "type": "wait",
+      "ms": 1150,
+      "label": "Desktop: retain one-second attack cadence"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          }
+        ]
+      },
+      "label": "Desktop: native Down click"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local deadline=os.clock()+3 repeat if p:GetAttribute('LastPunchDirection')=='Down' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({ok=p:GetAttribute('LastPunchDirection')=='Down',direction=p:GetAttribute('LastPunchDirection'),interval=workspace.PunchWallRPG:GetAttribute('PunchAttackInterval')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"direction\"\\s*:\\s*\"Down\"",
+        "\"interval\"\\s*:\\s*1"
+      ],
+      "label": "Desktop: exact Down server direction"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local function awaitStableDirections()\n local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD')\n local previous,stableSince local deadline=os.clock()+5\n repeat\n  local a,b=h:FindFirstChild('PunchUp'),h:FindFirstChild('PunchDown')\n  if a and b and a.AbsoluteSize.X>=44 and b.AbsoluteSize.X>=44 then\n   local key=tostring(a.AbsolutePosition)..tostring(a.AbsoluteSize)..tostring(b.AbsolutePosition)..tostring(b.AbsoluteSize)\n   if key~=previous then previous=key stableSince=os.clock() end\n   if os.clock()-stableSince>=.2 then return end\n  else previous=nil stableSince=nil end\n  task.wait(.05)\n until os.clock()>=deadline\n error('directional geometry did not settle within5seconds')\nend\nawaitStableDirections()\nlocal H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD\nlocal function effectivelyVisible(object)\n local current=object\n while current and current~=g do\n  if current:IsA('GuiObject') and not current.Visible then return false end\n  current=current.Parent\n end\n return current==g and g.Enabled\nend\nlocal function rect(object)\n if not object then return {exists=false} end\n local pos,size=object.AbsolutePosition,object.AbsoluteSize\n return {exists=true,x=pos.X,y=pos.Y,w=size.X,h=size.Y,active=object.Active,visible=object.Visible,effectiveVisible=effectivelyVisible(object),profile=object:GetAttribute('ResponsiveProfile')}\nend\nlocal function overlap(a,b)\n return a.exists and b.exists and a.x<b.x+b.w and a.x+a.w>b.x and a.y<b.y+b.h and a.y+a.h>b.y\nend\nlocal up=h:FindFirstChild('PunchUp') local down=h:FindFirstChild('PunchDown') local nextCard=h:FindFirstChild('NextWorldCard')\nlocal a,b,n=rect(up),rect(down),rect(nextCard)\nlocal count=g:GetAttribute('CharacterPunchCount') or 0\nlocal upNext,downNext=overlap(a,n),overlap(b,n)\nlocal upDown=overlap(a,b)\nlocal ok=a.exists and b.exists and n.exists and a.active and b.active and a.effectiveVisible and b.effectiveVisible\n and not upDown and (not n.effectiveVisible or (not upNext and not downNext)) and count>=2\nlocal result={ok=ok,count=count,upDirection=up and up:GetAttribute('PunchDirection'),downDirection=down and down:GetAttribute('PunchDirection'),\n up=a,down=b,next=n,upDownOverlap=upDown,rawUpNextOverlap=upNext,rawDownNextOverlap=downNext,\n visibleUpNextOverlap=n.effectiveVisible and upNext or false,visibleDownNextOverlap=n.effectiveVisible and downNext or false,\n camera={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},hud={h.AbsoluteSize.X,h.AbsoluteSize.Y},\n responsiveProfile=g:GetAttribute('ResponsiveProfile'),touch=game:GetService('UserInputService').TouchEnabled}\nlocal function contained(r) local pos,size=h.AbsolutePosition,h.AbsoluteSize return r.x>=pos.X-.01 and r.y>=pos.Y-.01 and r.x+r.w<=pos.X+size.X+.01 and r.y+r.h<=pos.Y+size.Y+.01 end\nlocal gap=a.exists and b.exists and math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),b.y-(a.y+a.h),a.y-(b.y+b.h)) or -1\nresult.gap=gap\nresult.viewportValid=result.hud[1]>=612 and result.hud[1]<=638 and result.hud[2]>=606 and result.hud[2]<=655 and result.touch==false\nresult.touchSafe=a.exists and b.exists and math.min(a.w,a.h,b.w,b.h)>=43.999\nresult.contained=a.exists and b.exists and contained(a) and contained(b)\nresult.viewportValid=result.viewportValid and result.camera[1]>=240 and result.camera[2]>=200 and math.abs(result.camera[1]-result.hud[1])<=2 and math.abs(result.camera[2]-result.hud[2])<=2\nresult.ok=result.ok and result.viewportValid and result.touchSafe and result.contained and gap>=3.999\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Desktop: final geometry and two punches"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "DesktopConsole",
+      "label": "Desktop: capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "DesktopConsole",
+      "label": "Desktop: console clean",
+      "patterns": [
+        "Stack Begin",
+        "Stack End",
+        "Script Runtime Error",
+        "Infinite yield",
+        "attempt to",
+        "Traceback",
+        "Error:",
+        "Something unexpectedly tried to set the parent of PlayEmote"
+      ]
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "Desktop: stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local name=\"Smash Direction Phone 740x360\" local id\nfor _,candidate in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(candidate) if info.Name==name and info.IsCustom then id=candidate break end end\nlocal config={Name=name,Width=740,Height=360,PixelDensity=96,DeviceForm=Enum.DeviceForm.Phone}\nif id then S:UpdateDeviceAsync(id,config) else id=S:CreateDeviceAsync(config) end\nS:SetDeviceAsync(id)\nS:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft)\nS:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow)\nlocal r=S:GetResolutionAsync() return H:JSONEncode({ok=S:GetDeviceAsync()==id and r.X==740 and r.Y==360,deviceId=id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Phone: configure exact device"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "Phone: start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "Phone: wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] local world=workspace.PunchWallRPG\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'ephemeral Studio only')\nassert(game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true and p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfileWritable')==false,'ready unwritable profile required')\nlocal a=game.ServerStorage.PunchWallAutomation assert(a:Invoke('Reset').ok==true) assert(a:Invoke('SetStats',{Power=250,WallLevel=99}).ok==true)\nlocal root=p.Character.HumanoidRootPart root.CFrame=CFrame.lookAt(Vector3.new(-2,3,-27),Vector3.new(-2,3,-80))\nreturn {ok=true}"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Phone: seed isolated directional fixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local function awaitStableDirections()\n local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD')\n local previous,stableSince local deadline=os.clock()+5\n repeat\n  local a,b=h:FindFirstChild('PunchUp'),h:FindFirstChild('PunchDown')\n  if a and b and a.AbsoluteSize.X>=44 and b.AbsoluteSize.X>=44 then\n   local key=tostring(a.AbsolutePosition)..tostring(a.AbsoluteSize)..tostring(b.AbsolutePosition)..tostring(b.AbsoluteSize)\n   if key~=previous then previous=key stableSince=os.clock() end\n   if os.clock()-stableSince>=.2 then return end\n  else previous=nil stableSince=nil end\n  task.wait(.05)\n until os.clock()>=deadline\n error('directional geometry did not settle within5seconds')\nend\nawaitStableDirections()\nlocal H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD\nlocal function effectivelyVisible(object)\n local current=object\n while current and current~=g do\n  if current:IsA('GuiObject') and not current.Visible then return false end\n  current=current.Parent\n end\n return current==g and g.Enabled\nend\nlocal function rect(object)\n if not object then return {exists=false} end\n local pos,size=object.AbsolutePosition,object.AbsoluteSize\n return {exists=true,x=pos.X,y=pos.Y,w=size.X,h=size.Y,active=object.Active,visible=object.Visible,effectiveVisible=effectivelyVisible(object),profile=object:GetAttribute('ResponsiveProfile')}\nend\nlocal function overlap(a,b)\n return a.exists and b.exists and a.x<b.x+b.w and a.x+a.w>b.x and a.y<b.y+b.h and a.y+a.h>b.y\nend\nlocal up=h:FindFirstChild('PunchUp') local down=h:FindFirstChild('PunchDown') local nextCard=h:FindFirstChild('NextWorldCard')\nlocal a,b,n=rect(up),rect(down),rect(nextCard)\nlocal count=g:GetAttribute('CharacterPunchCount') or 0\nlocal upNext,downNext=overlap(a,n),overlap(b,n)\nlocal upDown=overlap(a,b)\nlocal ok=a.exists and b.exists and n.exists and a.active and b.active and a.effectiveVisible and b.effectiveVisible\n and not upDown and (not n.effectiveVisible or (not upNext and not downNext)) and count>=0\nlocal result={ok=ok,count=count,upDirection=up and up:GetAttribute('PunchDirection'),downDirection=down and down:GetAttribute('PunchDirection'),\n up=a,down=b,next=n,upDownOverlap=upDown,rawUpNextOverlap=upNext,rawDownNextOverlap=downNext,\n visibleUpNextOverlap=n.effectiveVisible and upNext or false,visibleDownNextOverlap=n.effectiveVisible and downNext or false,\n camera={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},hud={h.AbsoluteSize.X,h.AbsoluteSize.Y},\n responsiveProfile=g:GetAttribute('ResponsiveProfile'),touch=game:GetService('UserInputService').TouchEnabled}\nlocal function contained(r) local pos,size=h.AbsolutePosition,h.AbsoluteSize return r.x>=pos.X-.01 and r.y>=pos.Y-.01 and r.x+r.w<=pos.X+size.X+.01 and r.y+r.h<=pos.Y+size.Y+.01 end\nlocal gap=a.exists and b.exists and math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),b.y-(a.y+a.h),a.y-(b.y+b.h)) or -1\nresult.gap=gap\nresult.viewportValid=result.hud[1]>=715 and result.hud[1]<=741 and result.hud[2]>=312 and result.hud[2]<=361 and result.touch==true\nresult.touchSafe=a.exists and b.exists and math.min(a.w,a.h,b.w,b.h)>=43.999\nresult.contained=a.exists and b.exists and contained(a) and contained(b)\nresult.viewportValid=result.viewportValid and result.camera[1]>=240 and result.camera[2]>=200 and math.abs(result.camera[1]-result.hud[1])<=2 and math.abs(result.camera[2]-result.hud[2])<=2\nresult.ok=result.ok and result.viewportValid and result.touchSafe and result.contained and gap>=3.999\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Phone: actual stable target bounds"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchUp"
+            ]
+          }
+        ]
+      },
+      "label": "Phone: native Up click"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local deadline=os.clock()+3 repeat if p:GetAttribute('LastPunchDirection')=='Up' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({ok=p:GetAttribute('LastPunchDirection')=='Up',direction=p:GetAttribute('LastPunchDirection'),interval=workspace.PunchWallRPG:GetAttribute('PunchAttackInterval')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"direction\"\\s*:\\s*\"Up\"",
+        "\"interval\"\\s*:\\s*1"
+      ],
+      "label": "Phone: exact Up server direction"
+    },
+    {
+      "type": "wait",
+      "ms": 1150,
+      "label": "Phone: retain one-second attack cadence"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "PunchDown"
+            ]
+          }
+        ]
+      },
+      "label": "Phone: native Down click"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local deadline=os.clock()+3 repeat if p:GetAttribute('LastPunchDirection')=='Down' then break end task.wait(.05) until os.clock()>=deadline return H:JSONEncode({ok=p:GetAttribute('LastPunchDirection')=='Down',direction=p:GetAttribute('LastPunchDirection'),interval=workspace.PunchWallRPG:GetAttribute('PunchAttackInterval')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"direction\"\\s*:\\s*\"Down\"",
+        "\"interval\"\\s*:\\s*1"
+      ],
+      "label": "Phone: exact Down server direction"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local function awaitStableDirections()\n local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD')\n local previous,stableSince local deadline=os.clock()+5\n repeat\n  local a,b=h:FindFirstChild('PunchUp'),h:FindFirstChild('PunchDown')\n  if a and b and a.AbsoluteSize.X>=44 and b.AbsoluteSize.X>=44 then\n   local key=tostring(a.AbsolutePosition)..tostring(a.AbsoluteSize)..tostring(b.AbsolutePosition)..tostring(b.AbsoluteSize)\n   if key~=previous then previous=key stableSince=os.clock() end\n   if os.clock()-stableSince>=.2 then return end\n  else previous=nil stableSince=nil end\n  task.wait(.05)\n until os.clock()>=deadline\n error('directional geometry did not settle within5seconds')\nend\nawaitStableDirections()\nlocal H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD\nlocal function effectivelyVisible(object)\n local current=object\n while current and current~=g do\n  if current:IsA('GuiObject') and not current.Visible then return false end\n  current=current.Parent\n end\n return current==g and g.Enabled\nend\nlocal function rect(object)\n if not object then return {exists=false} end\n local pos,size=object.AbsolutePosition,object.AbsoluteSize\n return {exists=true,x=pos.X,y=pos.Y,w=size.X,h=size.Y,active=object.Active,visible=object.Visible,effectiveVisible=effectivelyVisible(object),profile=object:GetAttribute('ResponsiveProfile')}\nend\nlocal function overlap(a,b)\n return a.exists and b.exists and a.x<b.x+b.w and a.x+a.w>b.x and a.y<b.y+b.h and a.y+a.h>b.y\nend\nlocal up=h:FindFirstChild('PunchUp') local down=h:FindFirstChild('PunchDown') local nextCard=h:FindFirstChild('NextWorldCard')\nlocal a,b,n=rect(up),rect(down),rect(nextCard)\nlocal count=g:GetAttribute('CharacterPunchCount') or 0\nlocal upNext,downNext=overlap(a,n),overlap(b,n)\nlocal upDown=overlap(a,b)\nlocal ok=a.exists and b.exists and n.exists and a.active and b.active and a.effectiveVisible and b.effectiveVisible\n and not upDown and (not n.effectiveVisible or (not upNext and not downNext)) and count>=2\nlocal result={ok=ok,count=count,upDirection=up and up:GetAttribute('PunchDirection'),downDirection=down and down:GetAttribute('PunchDirection'),\n up=a,down=b,next=n,upDownOverlap=upDown,rawUpNextOverlap=upNext,rawDownNextOverlap=downNext,\n visibleUpNextOverlap=n.effectiveVisible and upNext or false,visibleDownNextOverlap=n.effectiveVisible and downNext or false,\n camera={workspace.CurrentCamera.ViewportSize.X,workspace.CurrentCamera.ViewportSize.Y},hud={h.AbsoluteSize.X,h.AbsoluteSize.Y},\n responsiveProfile=g:GetAttribute('ResponsiveProfile'),touch=game:GetService('UserInputService').TouchEnabled}\nlocal function contained(r) local pos,size=h.AbsolutePosition,h.AbsoluteSize return r.x>=pos.X-.01 and r.y>=pos.Y-.01 and r.x+r.w<=pos.X+size.X+.01 and r.y+r.h<=pos.Y+size.Y+.01 end\nlocal gap=a.exists and b.exists and math.max(b.x-(a.x+a.w),a.x-(b.x+b.w),b.y-(a.y+a.h),a.y-(b.y+b.h)) or -1\nresult.gap=gap\nresult.viewportValid=result.hud[1]>=715 and result.hud[1]<=741 and result.hud[2]>=312 and result.hud[2]<=361 and result.touch==true\nresult.touchSafe=a.exists and b.exists and math.min(a.w,a.h,b.w,b.h)>=43.999\nresult.contained=a.exists and b.exists and contained(a) and contained(b)\nresult.viewportValid=result.viewportValid and result.camera[1]>=240 and result.camera[2]>=200 and math.abs(result.camera[1]-result.hud[1])<=2 and math.abs(result.camera[2]-result.hud[2])<=2\nresult.ok=result.ok and result.viewportValid and result.touchSafe and result.contained and gap>=3.999\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "Phone: final geometry and two punches"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "PhoneConsole",
+      "label": "Phone: capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "PhoneConsole",
+      "label": "Phone: console clean",
+      "patterns": [
+        "Stack Begin",
+        "Stack End",
+        "Script Runtime Error",
+        "Infinite yield",
+        "attempt to",
+        "Traceback",
+        "Error:",
+        "Something unexpectedly tried to set the parent of PlayEmote"
+      ]
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "Phone: stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')\nS:StopSimulationAsync()\nlocal deadline=os.clock()+3 repeat if S:GetDeviceAsync()=='default' then break end task.wait(.05) until os.clock()>=deadline\nassert(S:GetDeviceAsync()=='default','default simulator restore failed')\nlocal removed=0\nfor _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id)\n if info.IsCustom and (info.Name=='Smash Direction Desktop 637x654' or info.Name=='Smash Direction Phone 740x360') then S:RemoveDeviceAsync(id) removed+=1 end\nend\nreturn {ok=true,default=true,removed=removed}"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "verify default simulator restored"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "cleanup stop play",
+      "allowError": true
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')\nS:StopSimulationAsync()\nlocal deadline=os.clock()+3 repeat if S:GetDeviceAsync()=='default' then break end task.wait(.05) until os.clock()>=deadline\nassert(S:GetDeviceAsync()=='default','default simulator restore failed')\nlocal removed=0\nfor _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id)\n if info.IsCustom and (info.Name=='Smash Direction Desktop 637x654' or info.Name=='Smash Direction Phone 740x360') then S:RemoveDeviceAsync(id) removed+=1 end\nend\nreturn {ok=true,default=true,removed=removed}"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true"
+      ],
+      "label": "cleanup verified default simulator",
+      "allowError": true
+    }
+  ]
+}

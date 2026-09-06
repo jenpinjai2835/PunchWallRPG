@@ -1,0 +1,76 @@
+[
+  {
+    "flowSHA256": "80CDE167080759EF9F4B8BBEED2BA73B93616FE1EF6FF5B6BB31039B229A3D0E",
+    "ok": true,
+    "flow": "punchwall-map-progression",
+    "errors": []
+  },
+  {
+    "flowSHA256": "30B214E7ECC3A5C9A3B4B2B922FC53D03DA4C604F7DC999BE8BC6A46131F1DB8",
+    "ok": true,
+    "flow": "punchwall-visual-polish-smoke",
+    "errors": []
+  },
+  {
+    "flowSHA256": "32F52C1F6DC95FE602F362C733FD0482B0A8C80AECCBE7B9A0638DCCBF6B665B",
+    "ok": true,
+    "flow": "shop-coin-and-music",
+    "errors": []
+  },
+  {
+    "flowSHA256": "F5A7C3E458F21A365D352359F1F1C14AA480CB22DDE434ED43C00D7EB70712BE",
+    "ok": false,
+    "flow": "contextual-actions-settings-authority",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:13: invalid argument #2 to 'insert' (number expected, got Instance)"
+    ]
+  },
+  {
+    "flowSHA256": "1979867221E927C81B26FF28D464DEAFAE1E811C379406CDD8987EA20E45781E",
+    "ok": true,
+    "flow": "feedback-holder-presentation",
+    "errors": []
+  },
+  {
+    "flowSHA256": "920256415BA94648F6B6A3123DABDC3BC158B5A2A2D08C346E5B9D4A765F3AD3",
+    "ok": false,
+    "flow": "fist-pet-legacy-slot-safety",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:4: slot two Equip callback marker failed: {\"sequence\":0,\"expected\":1}"
+    ]
+  },
+  {
+    "flowSHA256": "9B3F25B9ED8CAB840A41ED8AA64ED1AB9ADF09E1F2876B81A509306938CC6967",
+    "ok": false,
+    "flow": "full-game-real-ui-controls",
+    "errors": [
+      "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"active\":true,\"selectable\":true,\"text\":\"CLAIM\",\"min\":44,\"visible\":true,\"menu\":true,\"hittable\":false,\"tab\":\"Tasks\",\"topmost\":false,\"activated\":true,\"visibleArea\":true}"
+    ]
+  },
+  {
+    "flowSHA256": "0B9E0B58D2EAFBC4F4A28B4C54BC89BF7EA75B732AD2E0B97AA84021D619E8CC",
+    "ok": true,
+    "flow": "hero-city-pixel-perfect-hud",
+    "errors": []
+  },
+  {
+    "flowSHA256": "4B4407FD690E1E1372E92F76875D99FEC3762CD7845A3D9C93DA098BD89B5154",
+    "ok": true,
+    "flow": "hero-shop-reference-polish",
+    "errors": []
+  },
+  {
+    "flowSHA256": "3DA23F6A903F89F6C0ED49A4659E7C05F5B8664AC14EA4EB0E67477B82283BC4",
+    "ok": false,
+    "flow": "inventory-menu-ui",
+    "errors": [
+      "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"actionPanelInside\":true,\"gridPaneHeight\":0,\"minTouch\":44,\"gridPaneVisible\":false,\"safe\":true,\"gridVisible\":false,\"checkerboardFree\":true,\"actionCount\":4,\"availableWidth\":0,\"ok\":false,\"detailMode\":\"Drawer\",\"columns\":2,\"compact\":true,\"magentaFree\":true,\"key\":\"pet:slot:2\",\"gridHeight\":0,\"expectedColumns\":1,\"noOverlap\":true,\"detailInside\":true,\"detailPositive\":true,\"drawer\":true,\"actionsInside\":true,\"textFits\":true,\"actionsPositive\":true}"
+    ]
+  },
+  {
+    "flowSHA256": "3204034BB905D05758EA3E9CA8012BCBE470731CB74A943DE510A447BDCCD921",
+    "ok": true,
+    "flow": "long-run-catalog-progression",
+    "errors": []
+  }
+]

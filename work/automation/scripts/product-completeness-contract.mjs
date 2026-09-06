@@ -159,7 +159,7 @@ const checks = {
     "action.Active = actionEnabled",
     "action.Selectable = actionEnabled",
     "action.AutoButtonColor = actionEnabled",
-    "This offer is unavailable until its purchase ID is configured.",
+    "Currently unavailable",
   ]),
   functional_shop_purchase_unavailable_is_always_boolean:
     includesAll(functionalShopAvailability, [

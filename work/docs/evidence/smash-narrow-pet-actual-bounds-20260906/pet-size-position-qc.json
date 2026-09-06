@@ -1,0 +1,79 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "premium pet follows smoothly after player movement",
+        "reduced motion keeps stable 20 Hz pet formation",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "select exact narrow pet framing device",
+        "start narrow pet framing play",
+        "wait for narrow companion runtime",
+        "equip exact premium pets for narrow framing",
+        "wait for narrow premium formation",
+        "verify actual narrow safe camera viewport",
+        "premium pets remain visible and bounded at near mid far cameras (narrow)",
+        "cleanup stop play",
+        "cleanup pet framing simulator presets"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,4.875312328338623,-25.966060638427736],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":7.979602336883545,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":1.556388258934021,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,5.262808799743652,-19.984895706176759],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":1.986396074295044,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":1.5842504501342774,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"6\":{\"valid\":false,\"maxPairOverlap\":0.6093065728821211,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":13.959304809570313,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":0.8903750777244568,\"focusPolicy\":\"ObservedStudio20StudPlane\"}},\"formation\":\"BoundsAwarePremiumFormationV2\",\"failures\":[{\"maxPairOverlap\":0.5323838710305999,\"cameraUnchanged\":true,\"viewportX\":636,\"distance\":6,\"maxAvatarOverlap\":0,\"avatarPosition\":[-2.239572048187256,3.8089704513549806,-19.02585792541504],\"camera\":{\"desiredFocus\":[-2,5.339999198913574,-18],\"focus\":[-2,3.7223856449127199,-31.865262985229493],\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"lookDot\":0.9999999403953552,\"angleDegrees\":0,\"desiredPosition\":[-2,6.039999008178711,-12],\"position\":[-2,6.039999008178711,-12],\"requestedFocusDelta\":13.959304809570313,\"cameraType\":\"Enum.CameraType.Scriptable\",\"focusDelta\":0,\"positionDelta\":0,\"focusPolicy\":\"ObservedStudio20StudPlane\",\"lookLengths\":0.999999880790714,\"scriptable\":true},\"sample\":1,\"minWorldPair\":1.0156408548355103,\"viewportY\":654,\"pets\":[{\"rect\":{\"maxY\":230.7848358154297,\"front\":8,\"minY\":125.44953918457031,\"minX\":6.860015869140625,\"maxX\":191.66342163085938},\"name\":\"Crimson Phoenix\",\"position\":[-4.457067489624023,7.083057880401611,-17.562124252319337],\"shift\":0.20411379635334016,\"safe\":true,\"size\":[1.799999713897705,1.040138840675354,0.629237174987793]},{\"rect\":{\"maxY\":230.78485107421876,\"front\":8,\"minY\":183.02423095703126,\"minX\":426.3546142578125,\"maxX\":629.139892578125},\"name\":\"Storm Wyvern\",\"position\":[0.289500892162323,6.760936260223389,-17.503293991088868],\"shift\":0.16447211802005769,\"safe\":true,\"size\":[1.800000548362732,0.3379168212413788,1.153076171875]},{\"rect\":{\"maxY\":253.45115661621095,\"front\":8,\"minY\":30.78546142578125,\"minX\":-157.5364990234375,\"maxX\":105.24636840820313},\"name\":\"Celestial Guardian\",\"position\":[-5.18082857131958,7.107113361358643,-16.85000228881836],\"shift\":0,\"safe\":false,\"size\":[1.1518959999084473,1.6505308151245118,1.799999475479126]}],\"avatarRect\":{\"maxY\":655.6751708984375,\"front\":8,\"minY\":232.784912109375,\"minX\":130.18658447265626,\"maxX\":464.48028564453127},\"avatarSize\":[3.875215768814087,5.37700080871582,3.0442752838134767]}],\"contractValid\":false}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.7251627445220949,\"screen\":0.0013348591209600013,\"largest\":1.4500001668930054,\"x\":-3.268240451812744,\"count\":1,\"z\":1.5500011444091797,\"policy\":\"Normal\",\"y\":0.8904707431793213,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.2489678859710695,\"rows\":[{\"y\":1.250608205795288,\"x\":-3.283444404602051,\"z\":1.5500011444091797,\"screen\":0.0013431261153059027,\"largest\":1.4500001668930054},{\"y\":0.9638826847076416,\"x\":3.273606777191162,\"z\":1.5500068664550782,\"screen\":0.0017302066322211468,\"largest\":1.650002121925354},{\"y\":1.4266974925994874,\"x\":-5.144718170166016,\"z\":2.8000049591064455,\"screen\":0.0018820046777662324,\"largest\":1.650000810623169}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\",\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000011444091797,\"combined\":0.022352831364714118,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.007820712234919371,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000004291534424,\"combined\":0.0098738086795831,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.0034076066512272326,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.800000786781311,\"combined\":0.07980880066312032,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.028373969300082074,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3}},\"contractValid\":true}",
+        "premiumScreenSeparation": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,4.875312328338623,-25.966060638427736],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":780,\"requestedFocusDelta\":7.979602336883545,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.558889389038086,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,5.262808799743652,-19.984895706176759],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":780,\"requestedFocusDelta\":1.986396074295044,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.5568822622299195,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"6\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":780,\"requestedFocusDelta\":13.959304809570313,\"maxCameraPositionDelta\":0,\"viewportX\":1277,\"minWorldPair\":1.5516533851623536,\"focusPolicy\":\"ObservedStudio20StudPlane\"}},\"formation\":\"BoundsAwarePremiumFormationV2\",\"failures\":[],\"contractValid\":true}",
+        "premiumSafeFrame": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"18\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"6\":{\"valid\":true,\"samples\":20,\"inset\":7.8}},\"safe\":true,\"failures\":[],\"contractValid\":true}",
+        "premiumFollowMotion": "{\"valid\":true,\"late\":8.140771865844727,\"smoothing\":\"ExponentialCFrame\",\"early\":2.8056905269622804,\"ready\":true}",
+        "petReducedMotion": "{\"valid\":true,\"count\":3,\"rates\":[20,20,20]}",
+        "console": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+        "actualNarrowPetViewport": "{\"valid\":true,\"viewportX\":636,\"viewportY\":654,\"requestedY\":654,\"requestedX\":637}",
+        "premiumCameraMatrixNarrow": "{\"valid\":true,\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\",\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000009059906006,\"combined\":0.0375577518294729,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.013201049402730587,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000003099441529,\"combined\":0.0165983454042616,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.005710719294542014,\"viewportY\":654,\"minAvatarSeparation\":85.35637664794922,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000000715255738,\"combined\":0.14012941841065933,\"gates\":{\"visible\":true,\"rootOn\":true,\"count\":true,\"size\":true,\"combinedArea\":true,\"individualArea\":true,\"separation\":true,\"unculled\":true},\"maxScreen\":0.04949880689734724,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3}},\"contractValid\":true}",
+        "premiumScreenSeparationNarrow": "{\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,4.875312328338623,-25.966060638427736],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":7.979602336883545,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":1.556388258934021,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,5.262808799743652,-19.984895706176759],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":1.986396074295044,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":1.5842504501342774,\"focusPolicy\":\"ObservedStudio20StudPlane\"},\"6\":{\"valid\":false,\"maxPairOverlap\":0.6093065728821211,\"maxCameraAngleDegrees\":0,\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"samples\":20,\"maxAvatarOverlap\":0,\"maxCameraFocusDelta\":0,\"viewportY\":654,\"requestedFocusDelta\":13.959304809570313,\"maxCameraPositionDelta\":0,\"viewportX\":636,\"minWorldPair\":0.8903750777244568,\"focusPolicy\":\"ObservedStudio20StudPlane\"}},\"formation\":\"BoundsAwarePremiumFormationV2\",\"failures\":[{\"maxPairOverlap\":0.5323838710305999,\"cameraUnchanged\":true,\"viewportX\":636,\"distance\":6,\"maxAvatarOverlap\":0,\"avatarPosition\":[-2.239572048187256,3.8089704513549806,-19.02585792541504],\"camera\":{\"desiredFocus\":[-2,5.339999198913574,-18],\"focus\":[-2,3.7223856449127199,-31.865262985229493],\"acceptedFocus\":[-2,3.7223856449127199,-31.865262985229493],\"lookDot\":0.9999999403953552,\"angleDegrees\":0,\"desiredPosition\":[-2,6.039999008178711,-12],\"position\":[-2,6.039999008178711,-12],\"requestedFocusDelta\":13.959304809570313,\"cameraType\":\"Enum.CameraType.Scriptable\",\"focusDelta\":0,\"positionDelta\":0,\"focusPolicy\":\"ObservedStudio20StudPlane\",\"lookLengths\":0.999999880790714,\"scriptable\":true},\"sample\":1,\"minWorldPair\":1.0156408548355103,\"viewportY\":654,\"pets\":[{\"rect\":{\"maxY\":230.7848358154297,\"front\":8,\"minY\":125.44953918457031,\"minX\":6.860015869140625,\"maxX\":191.66342163085938},\"name\":\"Crimson Phoenix\",\"position\":[-4.457067489624023,7.083057880401611,-17.562124252319337],\"shift\":0.20411379635334016,\"safe\":true,\"size\":[1.799999713897705,1.040138840675354,0.629237174987793]},{\"rect\":{\"maxY\":230.78485107421876,\"front\":8,\"minY\":183.02423095703126,\"minX\":426.3546142578125,\"maxX\":629.139892578125},\"name\":\"Storm Wyvern\",\"position\":[0.289500892162323,6.760936260223389,-17.503293991088868],\"shift\":0.16447211802005769,\"safe\":true,\"size\":[1.800000548362732,0.3379168212413788,1.153076171875]},{\"rect\":{\"maxY\":253.45115661621095,\"front\":8,\"minY\":30.78546142578125,\"minX\":-157.5364990234375,\"maxX\":105.24636840820313},\"name\":\"Celestial Guardian\",\"position\":[-5.18082857131958,7.107113361358643,-16.85000228881836],\"shift\":0,\"safe\":false,\"size\":[1.1518959999084473,1.6505308151245118,1.799999475479126]}],\"avatarRect\":{\"maxY\":655.6751708984375,\"front\":8,\"minY\":232.784912109375,\"minX\":130.18658447265626,\"maxX\":464.48028564453127},\"avatarSize\":[3.875215768814087,5.37700080871582,3.0442752838134767]}],\"contractValid\":false}"
+      }
+    }
+  ]
+}

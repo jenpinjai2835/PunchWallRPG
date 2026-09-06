@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "first-five-rig-parity",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start isolated rig parity playtest",
+        "wait for character and automation",
+        "purchase first five regular fists authoritatively",
+        "create and assign real R6 player character",
+        "cleanup restores normal character from owned fixture",
+        "cleanup stop isolated playtest"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:236: AssistantCommand:14: actual shoulder stayed outside its pre-punch pose after recovery",
+      "context": {
+        "rigSeed": "{\"ok\":true,\"count\":5,\"ownedFirstFive\":true}",
+        "fixtureR6": "{\"ok\":true,\"playerCharacterAssigned\":true,\"previousReleased\":true,\"token\":\"728fc89a-a1ed-42f2-b262-561e7eadbc46\",\"actualRig\":\"R6\"}"
+      }
+    }
+  ]
+}

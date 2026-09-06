@@ -1,0 +1,54 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "full-game-real-ui-controls",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start real UI control playtest",
+        "wait for player and authoritative UI bootstrap",
+        "seed ready safe authoritative UI state",
+        "wait for seeded stats replication",
+        "precheck reference Inventory open button",
+        "real click reference Inventory open",
+        "assert Inventory opened and precheck Inventory close",
+        "real click Inventory close",
+        "assert Inventory closed and precheck reference Shop open",
+        "real click reference Shop open",
+        "assert Shop opened and precheck Shop close",
+        "real click Shop close",
+        "assert Shop closed and precheck Inventory filtering pass",
+        "real click Inventory open for filtering",
+        "assert Inventory filtering pass opened and precheck Fists category",
+        "real click Inventory Fists category",
+        "assert Fists category and precheck rarity filter",
+        "real click Inventory rarity filter",
+        "assert rarity menu and precheck canonical Rare rarity",
+        "real click Inventory Rare rarity",
+        "assert canonical Rare rarity and precheck Iron card",
+        "real click Inventory Iron card",
+        "assert Iron card selected and precheck safe Equip action",
+        "real click safe Inventory Equip action",
+        "assert authoritative safe Inventory equip",
+        "assert client equip result and precheck Inventory close",
+        "real click Inventory close after safe action",
+        "assert Inventory closed and precheck reference Daily Tasks open",
+        "real click reference Daily Tasks open",
+        "cleanup real UI control playtest"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"active\":true,\"selectable\":true,\"text\":\"CLAIM\",\"min\":44,\"visible\":true,\"menu\":true,\"hittable\":false,\"tab\":\"Tasks\",\"topmost\":false,\"activated\":true,\"visibleArea\":true}",
+      "context": {}
+    }
+  ]
+}

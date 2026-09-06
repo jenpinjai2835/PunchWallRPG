@@ -1,0 +1,321 @@
+{
+  "name": "camera-shop-stability",
+  "description": "Verify ordinary Fists reopening and structural refresh preserve Depth eligibility and scroll, actual Speed Boost countdown retains button identity, and Scriptable camera ownership supersedes punch feedback. Verify a real client punch interrupted by respawn clears follow state and preserves a readable player orbit.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "settle prior play session"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') local n='Smash Stability Phone 740x320' local id for _,d in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(d).Name==n then id=d end end local c={Name=n,Width=740,Height=320,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,c) else id=S:CreateDeviceAsync(c) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) return true"
+      },
+      "label": "configure scrollable short phone envelope"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start source synced play"
+    },
+    {
+      "type": "wait",
+      "ms": 7500,
+      "label": "wait for runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Depth=0,Coins=50000,OwnedFistsJSON='[\"Starter Glove\"]',EquippedFist='Starter Glove'}) return true"
+      },
+      "label": "seed Depth zero and unchanged fist ownership"
+    },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for initial stats"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('OpenTab','Fists') task.wait(.3) local s=g.GameMenu.FunctionalHeroShop local c=s:FindFirstChild('Boxing GloveShopCard',true) assert(c and c:GetAttribute('DepthLocked')==true,'Depth zero must lock first purchase') g:SetAttribute('StabilityForceCount',s:GetAttribute('RefreshForceCount')) a:Invoke('CloseMenus') return true"
+      },
+      "label": "ordinary Shop route shows locked first upgrade"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=1}) return true"
+      },
+      "label": "advance only authoritative Depth"
+    },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for Depth replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g.PunchWallClientAutomation:Invoke('OpenTab','Fists') task.wait(.3) local s=g.GameMenu.FunctionalHeroShop local c=s:FindFirstChild('Boxing GloveShopCard',true) local b=c and c:FindFirstChild('Boxing GloveAction') assert(c and c:GetAttribute('DepthLocked')==false and b and b.Active and b:GetAttribute('ShopActionBound')==true,'Reached Depth must enable first upgrade') assert(s:GetAttribute('RefreshForceCount')==g:GetAttribute('StabilityForceCount'),'Reopen must not force refresh') return true"
+      },
+      "label": "reopening Shop unlocks without forced refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.GameMenu.FunctionalHeroShop local scroll=s:FindFirstChild('ShopCatalogScroll') assert(scroll,'Fists scroll missing') scroll.CanvasPosition=Vector2.new(0,60) task.wait(.2) assert(scroll.CanvasPosition.Y>0,'Fists must exercise actual scroll') g:SetAttribute('StabilityFistsScroll',scroll.CanvasPosition.Y) return true"
+      },
+      "label": "retain actual Fists scroll before structural refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{Depth=2}) return true"
+      },
+      "label": "change visible Fists eligibility"
+    },
+    {
+      "type": "wait",
+      "ms": 800,
+      "label": "wait for structural refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.GameMenu.FunctionalHeroShop local scroll=s:FindFirstChild('ShopCatalogScroll') assert(math.abs(scroll.CanvasPosition.Y-g:GetAttribute('StabilityFistsScroll'))<.5,'Fists structural refresh lost scroll') return true"
+      },
+      "label": "assert Fists scroll survives structural refresh"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{Depth=0}) c:Invoke('SetPlayerAttribute',{name='SpeedBoostExpiresAt',value=workspace:GetServerTimeNow()+30}) return true"
+      },
+      "label": "reset eligibility and seed active boost"
+    },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "wait for reset and boost sync"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.GameMenu.FunctionalHeroShop local c=s:FindFirstChild('Boxing GloveShopCard',true) local b=c and c:FindFirstChild('Boxing GloveAction') assert(c and c:GetAttribute('DepthLocked')==true and b.Active==false,'Depth reset must relock visible offer') return true"
+      },
+      "label": "visible offer relocks after authoritative reset"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "BoostsShopTab"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "BoostsShopTab"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "BoostsShopTab"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopTabs",
+              "BoostsShopTab"
+            ]
+          }
+        ]
+      },
+      "label": "open Boosts through its real tab button"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.GameMenu.FunctionalHeroShop local scroll=s:FindFirstChild('ShopCatalogScroll') local b=s:FindFirstChild('SpeedBoostAction',true) assert(scroll and b and string.find(b.Text,'ACTIVE',1,true),'Boosts tab must show active countdown') local y=scroll.CanvasPosition.Y local text=b.Text local builds=s:GetAttribute('RefreshBuildCount') task.wait(2.3) assert(scroll.Parent==s and s:FindFirstChild('ShopCatalogScroll')==scroll,'Countdown replaced scroll') assert(b.Parent and s:FindFirstChild('SpeedBoostAction',true)==b,'Countdown replaced action') assert(math.abs(scroll.CanvasPosition.Y-y)<.5,'Countdown lost scroll position') assert(b.Text~=text and s:GetAttribute('RefreshBuildCount')==builds,'Countdown must advance without rebuilding') g.PunchWallClientAutomation:Invoke('CloseMenus') local ticks=s:GetAttribute('BoostTickCount') task.wait(1.3) assert(s:GetAttribute('BoostTickCount')==ticks,'Hidden page must stop countdown work') return true"
+      },
+      "timeoutMs": 15000,
+      "label": "countdown keeps scroll button identity and stops while hidden"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local cam=workspace.CurrentCamera a:Invoke('CloseMenus') a:Invoke('SetSettings',{motion=true}) a:Invoke('ResetCamera') task.wait(.2) assert(a:Invoke('Punch')==true,'Punch must start') assert(g:GetAttribute('PunchCameraFollowActive')==true,'Fixture must enter active camera follow') local p=cam.CFrame.Position+Vector3.new(1,1,0) local target=cam.Focus.Position a:Invoke('SetCamera',{position={p.X,p.Y,p.Z},lookAt={target.X,target.Y,target.Z}}) local expected=cam.CFrame task.wait(.2) assert(cam.CameraType==Enum.CameraType.Scriptable and (cam.CFrame.Position-expected.Position).Magnitude<.01,'Punch stole Scriptable camera') assert(g:GetAttribute('PunchCameraFollowActive')==false,'Follow must relinquish camera') a:Invoke('ResetCamera') return true"
+      },
+      "label": "Scriptable camera handoff cancels active punch follow"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] local c=game.ServerStorage.PunchWallAutomation c:Invoke('ClearCooldowns') local old=shared.SmashCameraRespawnProbe if old and old.connection then old.connection:Disconnect() end local probe={done=false} shared.SmashCameraRespawnProbe=probe local connection connection=game.ReplicatedStorage.PunchWallEvents.ActionRequest.OnServerEvent:Connect(function(who,request) if who~=p or not (request=='Punch' or type(request)=='table' and request.action=='Punch') then return end connection:Disconnect() probe.connection=nil task.wait(.06) c:Invoke('Respawn') probe.done=true end) probe.connection=connection return true"
+      },
+      "timeoutMs": 30000,
+      "label": "arm respawn from the next actual client punch"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local oldCharacter=p.Character local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke('CloseMenus') a:Invoke('SetSettings',{motion=true}) a:Invoke('ResetCamera') task.wait(1.2) local oldMin,oldMax=p.CameraMinZoomDistance,p.CameraMaxZoomDistance local diagnostics local ok,err=xpcall(function() p.CameraMaxZoomDistance=12 p.CameraMinZoomDistance=12 assert(a:Invoke('Punch')==true,'fixture must issue actual client Punch') assert(g:GetAttribute('PunchCameraFollowActive')==true,'fixture must observe active client follow before respawn') local deadline=os.clock()+12 repeat task.wait(.05) until (p.Character~=oldCharacter and p.Character and p.Character:FindFirstChild('HumanoidRootPart') and g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true) or os.clock()>deadline local character=p.Character assert(character and character~=oldCharacter,'server did not replace character') assert(g==p.PlayerGui.PunchWallHUD,'fixture must retain the persistent GUI') local root=character:WaitForChild('HumanoidRootPart',5) local head=character:FindFirstChild('Head') or root local cam=workspace.CurrentCamera deadline=os.clock()+5 repeat task.wait(.05) until (g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true and tonumber(g:GetAttribute('PunchCameraUserOrbitDistance')) and math.abs((cam.CFrame.Position-cam.Focus.Position).Magnitude-12)<.3) or os.clock()>deadline local hp,onScreen=cam:WorldToViewportPoint(head.Position) local fp=cam:WorldToViewportPoint(root.Position-Vector3.new(0,2.5,0)) local readable=onScreen and math.abs(hp.Y-fp.Y)>=18 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character} local inside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then inside+=1 end end local orbit=g:GetAttribute('PunchCameraUserOrbitDistance') local zoom=(cam.CFrame.Position-cam.Focus.Position).Magnitude local valid=g:GetAttribute('PunchCameraFollowActive')==false and g:GetAttribute('PunchCameraHandoffActive')~=true and g:GetAttribute('CharacterPunchMotionActive')==false and cam.CameraType==Enum.CameraType.Custom and cam.CameraSubject==character:FindFirstChildOfClass('Humanoid') and orbit~=nil and math.abs(zoom-12)<.3 and readable and inside==0 diagnostics={valid=valid,follow=g:GetAttribute('PunchCameraFollowActive'),handoff=g:GetAttribute('PunchCameraHandoffActive'),orbit=orbit,zoom=zoom,readable=readable,inside=inside,type=cam.CameraType.Name} assert(valid,'respawn camera contract failed: '..H:JSONEncode(diagnostics)) end,debug.traceback) p.CameraMaxZoomDistance=oldMax p.CameraMinZoomDistance=oldMin if not ok then error(err) end return H:JSONEncode(diagnostics)"
+      },
+      "timeoutMs": 30000,
+      "label": "actual client punch then respawn clears camera and restores readable orbit"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local probe=shared.SmashCameraRespawnProbe assert(probe and probe.done==true and probe.connection==nil,'server respawn fixture did not complete') shared.SmashCameraRespawnProbe=nil return true"
+      },
+      "timeoutMs": 30000,
+      "label": "confirm server completed the client-triggered respawn fixture"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture post stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post stop console clean"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() for _,d in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(d).Name=='Smash Stability Phone 740x320' then S:RemoveDeviceAsync(d) end end return true"
+      },
+      "label": "restore device and remove only stability fixture"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService') S:StopSimulationAsync() for _,d in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(d).Name=='Smash Stability Phone 740x320' then S:RemoveDeviceAsync(d) end end return true"
+      },
+      "label": "restore device and remove only stability fixture"
+    }
+  ]
+}

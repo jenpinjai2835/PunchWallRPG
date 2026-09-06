@@ -1,0 +1,1028 @@
+{
+  "ok": true,
+  "kind": "Native canonical validation-copy narrow modal captures with exact artifact, proof and source bindings",
+  "startedAt": "2026-09-06T13:53:47.773Z",
+  "flowSHA256": "c8fb6a82a9c6fe779b0bcadf6a519dbec8406ccc19d986b023907dec0680a17c",
+  "captures": [
+    {
+      "name": "settings",
+      "file": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/settings.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "4E3E50AB9E3406085AE3276DC9835C0C3798DE6E82648784C188C60B303552D7",
+      "before": {
+        "ok": true,
+        "window": "Settings",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          59,
+          613,
+          420
+        ]
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "window": "Settings",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          59,
+          613,
+          420
+        ]
+      }
+    },
+    {
+      "name": "rebirth",
+      "file": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/rebirth.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "42C16BA81D02CE47EF771567C9347DE5931E64CF82BABDF6250D5AE233D9AB79",
+      "before": {
+        "ok": true,
+        "window": "Rebirth",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          35,
+          613,
+          468
+        ]
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "window": "Rebirth",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          35,
+          613,
+          468
+        ]
+      }
+    },
+    {
+      "name": "selected-fist",
+      "file": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/selected-fist.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "82C7D399D0FF997B8573ED65DA3C54C63B60492CB024BD2BFED9BE955A1E0FA1",
+      "before": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "fist:Starter Glove",
+          "previewCorners": true,
+          "category": "Fists",
+          "name": "STARTER FIST",
+          "actions": 1,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "fist:Starter Glove",
+          "previewCorners": true,
+          "category": "Fists",
+          "name": "STARTER FIST",
+          "actions": 1,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      }
+    },
+    {
+      "name": "selected-pet",
+      "file": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/selected-pet.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "C8407B896997943DDCBE93B98A1908068FA768EBC31655B04D46445566DA4A57",
+      "before": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "pet:slot:4",
+          "previewCorners": true,
+          "category": "Pets",
+          "name": "FOREST PUP",
+          "actions": 4,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "pet:slot:4",
+          "previewCorners": true,
+          "category": "Pets",
+          "name": "FOREST PUP",
+          "actions": 4,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      }
+    }
+  ],
+  "operations": [
+    {
+      "label": "create owned 637x654 ActualResolution desktop",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')local H=game:GetService('HttpService')\nassert(game:GetService('RunService'):IsStudio(),'Studio fixture only')\nassert(workspace:GetAttribute('SmashNarrowMenuOwnedFixture')==nil,'owned fixture already exists')\nlocal function readDeviceState()\n local ok,id=pcall(function()return S:GetDeviceAsync()end)\n if not ok then assert(string.find(tostring(id),'no device is active',1,true),'unrecognized simulator state: '..tostring(id))end\n if not ok or id==nil or id=='default'then return {id='default',active=false}end\n assert(type(id)=='string'and #id>0,'invalid device identity')\n return {id=id,active=true,orientation=S:GetOrientationAsync().Name,scaling=S:GetScalingModeAsync().Name}\nend\nlocal state={previous=readDeviceState(),name='Smash Narrow Menu '..H:GenerateGUID(false)}\nworkspace:SetAttribute('SmashNarrowMenuOwnedFixture',H:JSONEncode(state))\nlocal id=S:CreateDeviceAsync({Name=state.name,Width=637,Height=654,PixelDensity=96,DeviceForm=Enum.DeviceForm.Desktop})\nstate.id=id workspace:SetAttribute('SmashNarrowMenuOwnedFixture',H:JSONEncode(state))\nS:SetDeviceAsync(id)S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.ActualResolution)\nassert(S:GetDeviceAsync()==id and S:GetScalingModeAsync()==Enum.DeviceSimulatorScalingMode.ActualResolution,'owned simulator setup failed')\nreturn H:JSONEncode({ok=true,id=id,name=state.name,previous=state.previous})"
+      },
+      "timeout": 15000,
+      "text": "{\"ok\":true,\"previous\":{\"id\":\"default\",\"active\":false},\"name\":\"Smash Narrow Menu 6d1a1d77-5923-43f2-b436-bb5608c935f7\",\"id\":\"Smash Narrow Menu 6d1a1d77-5923-43f2-b436-bb5608c935f7\"}",
+      "isError": false
+    },
+    {
+      "label": "start play",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeout": 35000,
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "verify explicit narrow desktop before menu assertions",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')local S=game:GetService('StudioDeviceSimulatorService')local U=game:GetService('GuiService')\nlocal p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD')local a=g:WaitForChild('PunchWallClientAutomation')\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'),'actual game world missing')\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio'and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'strict ephemeral fixture required')\nassert(p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio'and p:GetAttribute('ProfileWritable')==false,'player profile must be ephemeral')\nlocal state=H:JSONDecode(assert(workspace:GetAttribute('SmashNarrowMenuOwnedFixture')))\nS:SetDeviceAsync(state.id)S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.ActualResolution)\nlocal settings=a:Invoke('SetSettings',{uiScale=1,motion=true,sound=true})assert(type(settings)=='table'and settings.ok==true,'actual scale request failed')assert(a:Invoke('CloseMenus')==true)\nlocal function observe()\n assert(S:GetDeviceAsync()==state.id,'owned narrow device not selected')\n local info=S:GetDeviceInfoAsync(state.id)local resolution=S:GetResolutionAsync()\n assert(info.IsCustom==true and info.Name==state.name and info.Width==637 and info.Height==654 and info.DeviceForm==Enum.DeviceForm.Desktop,'owned desktop preset differs')\n assert(resolution.X==637 and resolution.Y==654 and S:GetScalingModeAsync()==Enum.DeviceSimulatorScalingMode.ActualResolution,'actual narrow resolution/scaling differs')\n local full=U:GetInsetArea(Enum.ScreenInsets.None)local safe=U:GetInsetArea(Enum.ScreenInsets.DeviceSafeInsets)\n local fw,fh=full.Max.X-full.Min.X,full.Max.Y-full.Min.Y local sw,sh=safe.Max.X-safe.Min.X,safe.Max.Y-safe.Min.Y\n assert(math.abs(fw-637)<=1 and math.abs(fh-654)<=1,'actual full UI does not match narrow preset')\n assert(sw>=600 and sw<=637 and sh>=600 and sh<=654 and safe.Min.X>=full.Min.X and safe.Min.Y>=full.Min.Y and safe.Max.X<=full.Max.X and safe.Max.Y<=full.Max.Y,'actual safe desktop does not exercise narrow case')\n local v=assert(workspace.CurrentCamera).ViewportSize local hud=g.PixelPerfectHeroCityHUD local snapshot=a:Invoke('Snapshot')\n assert(v.X==sw and v.Y==sh and hud.AbsoluteSize.X==sw and hud.AbsoluteSize.Y==sh and hud.AbsolutePosition.X==safe.Min.X and hud.AbsolutePosition.Y==safe.Min.Y,'native camera/HUD safe rectangle not settled')\n assert(snapshot.ok==true and snapshot.uiScale==1 and g:GetAttribute('ResponsiveProfile')=='Desktop'and hud:GetAttribute('RightMenuLayoutMode')=='NarrowDesktopUniformIconGridV1','narrow desktop layout or authoritative scale not active')\n return {ok=true,owned=true,device=state.id,deviceName=state.name,resolution={637,654},actualViewport={v.X,v.Y},full={fw,fh},safe={safe.Min.X,safe.Min.Y,sw,sh},profile='Desktop',layout=hud:GetAttribute('RightMenuLayoutMode'),uiScale=snapshot.uiScale}\nend\nlocal deadline=os.clock()+8 local ok,result repeat ok,result=pcall(observe)if not ok then task.wait(.1)end until ok or os.clock()>=deadline\nassert(ok,'explicit narrow device did not settle: '..tostring(result))return H:JSONEncode(result)"
+      },
+      "timeout": 15000,
+      "text": "{\"ok\":true,\"actualViewport\":[637,654],\"uiScale\":1,\"owned\":true,\"layout\":\"NarrowDesktopUniformIconGridV1\",\"full\":[637,654],\"resolution\":[637,654],\"profile\":\"Desktop\",\"deviceName\":\"Smash Narrow Menu 6d1a1d77-5923-43f2-b436-bb5608c935f7\",\"safe\":[0,-58,637,654],\"device\":\"Smash Narrow Menu 6d1a1d77-5923-43f2-b436-bb5608c935f7\"}",
+      "isError": false
+    },
+    {
+      "label": "open Settings",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation assert(a:Invoke('OpenSettings'))task.wait(.25)return game.HttpService:JSONEncode({ok=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true}",
+      "isError": false
+    },
+    {
+      "label": "settings checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local pg=game.Players.LocalPlayer.PlayerGui local g=assert(pg:FindFirstChild('PunchWallHUD'))assert(not pg:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint already exists')\nlocal cp=Instance.new('Folder')cp.Name='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'cp:SetAttribute('CaptureOwner','SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')cp.Parent=pg\nlocal function hold(name,value)local ref=Instance.new('ObjectValue')ref.Name=name ref.Value=assert(value,'capture reference missing '..name)ref.Parent=cp end\nhold('Hud',g)hold('Safe',g.PixelPerfectHeroCityHUD)\nlocal w=g.SettingsWindow hold('Window',w)hold('Close',w.Close)\nreturn game.HttpService:JSONEncode({ok=true,checkpointCreated=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointCreated\":true}",
+      "isError": false
+    },
+    {
+      "label": "settings state before",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nassert(safe.AbsoluteSize.X==637 and safe.AbsoluteSize.Y==654,'wrong actual narrow safe rectangle')\nlocal window=g.SettingsWindow local close=window.Close same('Hud',g)same('Safe',safe)same('Window',window)same('Close',close)assert(g.Enabled and window.Visible and inside(window,safe) and close.Visible and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,window),'window geometry differs') return game.HttpService:JSONEncode({ok=true,window='Settings',safe={safe.AbsolutePosition.X,safe.AbsolutePosition.Y,safe.AbsoluteSize.X,safe.AbsoluteSize.Y},bounds={window.AbsolutePosition.X,window.AbsolutePosition.Y,window.AbsoluteSize.X,window.AbsoluteSize.Y}})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"window\":\"Settings\",\"safe\":[0,-58,637,654],\"bounds\":[12,59,613,420]}",
+      "isError": false
+    },
+    {
+      "label": "settings state after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nassert(safe.AbsoluteSize.X==637 and safe.AbsoluteSize.Y==654,'wrong actual narrow safe rectangle')\nlocal window=g.SettingsWindow local close=window.Close same('Hud',g)same('Safe',safe)same('Window',window)same('Close',close)assert(g.Enabled and window.Visible and inside(window,safe) and close.Visible and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,window),'window geometry differs') return game.HttpService:JSONEncode({ok=true,window='Settings',safe={safe.AbsolutePosition.X,safe.AbsolutePosition.Y,safe.AbsoluteSize.X,safe.AbsoluteSize.Y},bounds={window.AbsolutePosition.X,window.AbsolutePosition.Y,window.AbsoluteSize.X,window.AbsoluteSize.Y}})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"window\":\"Settings\",\"safe\":[0,-58,637,654],\"bounds\":[12,59,613,420]}",
+      "isError": false
+    },
+    {
+      "label": "settings remove checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')if cp then assert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')cp:Destroy()end return game.HttpService:JSONEncode({ok=true,checkpointRemoved=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointRemoved\":true}",
+      "isError": false
+    },
+    {
+      "label": "open Rebirth",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local a=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PunchWallClientAutomation assert(a:Invoke('OpenRebirth'))task.wait(.25)return game.HttpService:JSONEncode({ok=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true}",
+      "isError": false
+    },
+    {
+      "label": "rebirth checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local pg=game.Players.LocalPlayer.PlayerGui local g=assert(pg:FindFirstChild('PunchWallHUD'))assert(not pg:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint already exists')\nlocal cp=Instance.new('Folder')cp.Name='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'cp:SetAttribute('CaptureOwner','SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')cp.Parent=pg\nlocal function hold(name,value)local ref=Instance.new('ObjectValue')ref.Name=name ref.Value=assert(value,'capture reference missing '..name)ref.Parent=cp end\nhold('Hud',g)hold('Safe',g.PixelPerfectHeroCityHUD)\nlocal w=g.RebirthWindow hold('Window',w)hold('Close',w.Close)\nreturn game.HttpService:JSONEncode({ok=true,checkpointCreated=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointCreated\":true}",
+      "isError": false
+    },
+    {
+      "label": "rebirth state before",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nassert(safe.AbsoluteSize.X==637 and safe.AbsoluteSize.Y==654,'wrong actual narrow safe rectangle')\nlocal window=g.RebirthWindow local close=window.Close same('Hud',g)same('Safe',safe)same('Window',window)same('Close',close)assert(g.Enabled and window.Visible and inside(window,safe) and close.Visible and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,window),'window geometry differs') return game.HttpService:JSONEncode({ok=true,window='Rebirth',safe={safe.AbsolutePosition.X,safe.AbsolutePosition.Y,safe.AbsoluteSize.X,safe.AbsoluteSize.Y},bounds={window.AbsolutePosition.X,window.AbsolutePosition.Y,window.AbsoluteSize.X,window.AbsoluteSize.Y}})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"window\":\"Rebirth\",\"safe\":[0,-58,637,654],\"bounds\":[12,35,613,468]}",
+      "isError": false
+    },
+    {
+      "label": "rebirth state after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nassert(safe.AbsoluteSize.X==637 and safe.AbsoluteSize.Y==654,'wrong actual narrow safe rectangle')\nlocal window=g.RebirthWindow local close=window.Close same('Hud',g)same('Safe',safe)same('Window',window)same('Close',close)assert(g.Enabled and window.Visible and inside(window,safe) and close.Visible and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,window),'window geometry differs') return game.HttpService:JSONEncode({ok=true,window='Rebirth',safe={safe.AbsolutePosition.X,safe.AbsolutePosition.Y,safe.AbsoluteSize.X,safe.AbsoluteSize.Y},bounds={window.AbsolutePosition.X,window.AbsolutePosition.Y,window.AbsoluteSize.X,window.AbsoluteSize.Y}})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"window\":\"Rebirth\",\"safe\":[0,-58,637,654],\"bounds\":[12,35,613,468]}",
+      "isError": false
+    },
+    {
+      "label": "rebirth remove checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')if cp then assert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')cp:Destroy()end return game.HttpService:JSONEncode({ok=true,checkpointRemoved=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointRemoved\":true}",
+      "isError": false
+    },
+    {
+      "label": "seed one normal pet for narrow selected-detail geometry",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')local p=game.Players:GetPlayers()[1]local world=assert(workspace:FindFirstChild('PunchWallRPG'))\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio'and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'strict ephemeral fixture required')\nassert(game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true and p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio'and p:GetAttribute('ProfileWritable')==false,'ephemeral player required')\nlocal a=game.ServerStorage:WaitForChild('PunchWallAutomation')local result=a:Invoke('GrantPet',{name='Forest Pup',stars=1})assert(result.ok==true and result.petName=='Forest Pup'and result.stars==1,'normal pet grant failed')\nlocal snapshot=a:Invoke('Snapshot')local pets=H:JSONDecode(snapshot.PetInventoryJSON)assert(table.find(pets,'Forest Pup'),'granted normal pet absent from authoritative inventory')\nreturn H:JSONEncode({ok=true,pet='Forest Pup',stars=1})"
+      },
+      "timeout": 15000,
+      "text": "{\"ok\":true,\"pet\":\"Forest Pup\",\"stars\":1}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist navigate",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local opened=a:Invoke('OpenInventory')assert(type(opened)=='table'and opened.ok==true) a:Invoke('SelectInventoryCategory',category) a:Invoke('SetInventorySearch','')a:Invoke('SetInventoryRarity','All')task.wait(.4)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n if not key then\n  local deadline=os.clock()+5 repeat\n   for _,card in ipairs(body.InventoryGridPane.InventoryGrid:GetChildren())do local k=card:GetAttribute('InventoryKey')local label=card:FindFirstChild('ItemName')if type(k)=='string'and string.sub(k,1,9)=='pet:slot:'and label and label.Text==expectedName then key=k break end end\n   if not key then task.wait(.1)end\n  until key or os.clock()>=deadline\n end\n assert(key,'actual owned pet card missing')a:Invoke('SelectInventoryItem',key)task.wait(.3)\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n local original=name a:Invoke('SelectInventoryItem',key)task.wait(.15)local liveRoot=g.GameMenu.FunctionalInventory local liveDetail=liveRoot.InventoryWindow.InventoryBody.InventoryDetail local liveName=liveDetail.DetailName assert(liveRoot==root and liveDetail==detail and liveName==original and liveName.Parent==liveDetail and liveRoot:GetAttribute('InventorySelectedKey')==key,'repeat selection replaced detail identity')\n assert(liveDetail.DetailArtFrame.DetailPetPreview:FindFirstChildOfClass('WorldModel'):FindFirstChildWhichIsA('Model')==previewModel,'repeat selection rebuilt the tall detail model')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Fists\",\"fist:Starter Glove\",\"Starter Fist\",1)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"fist:Starter Glove\",\"previewCorners\":true,\"category\":\"Fists\",\"name\":\"STARTER FIST\",\"actions\":1,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local pg=game.Players.LocalPlayer.PlayerGui local g=assert(pg:FindFirstChild('PunchWallHUD'))assert(not pg:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint already exists')\nlocal cp=Instance.new('Folder')cp.Name='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'cp:SetAttribute('CaptureOwner','SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')cp.Parent=pg\nlocal function hold(name,value)local ref=Instance.new('ObjectValue')ref.Name=name ref.Value=assert(value,'capture reference missing '..name)ref.Parent=cp end\nhold('Hud',g)hold('Safe',g.PixelPerfectHeroCityHUD)\nlocal root=g.GameMenu.FunctionalInventory local w=root.InventoryWindow local detail=w.InventoryBody.InventoryDetail local preview=detail.DetailArtFrame.DetailPetPreview hold('Root',root)hold('Window',w)hold('Detail',detail)hold('Name',detail.DetailName)hold('Preview',preview)hold('Model',preview:FindFirstChildOfClass('WorldModel'):FindFirstChildWhichIsA('Model'))hold('Camera',preview.CurrentCamera)\nreturn game.HttpService:JSONEncode({ok=true,checkpointCreated=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointCreated\":true}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist state before",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n\n same('Hud',g) same('Safe',safe) same('Root',root) same('Window',root.InventoryWindow)\n same('Detail',detail) same('Name',name) same('Preview',preview) same('Model',previewModel) same('Camera',camera)\n assert(g.Enabled and game.Players.LocalPlayer.PlayerGui:FindFirstChild('PunchWallHUD')==g,'HUD replaced or disabled')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Fists\",\"fist:Starter Glove\",\"Starter Fist\",1)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"fist:Starter Glove\",\"previewCorners\":true,\"category\":\"Fists\",\"name\":\"STARTER FIST\",\"actions\":1,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist state after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n\n same('Hud',g) same('Safe',safe) same('Root',root) same('Window',root.InventoryWindow)\n same('Detail',detail) same('Name',name) same('Preview',preview) same('Model',previewModel) same('Camera',camera)\n assert(g.Enabled and game.Players.LocalPlayer.PlayerGui:FindFirstChild('PunchWallHUD')==g,'HUD replaced or disabled')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Fists\",\"fist:Starter Glove\",\"Starter Fist\",1)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"fist:Starter Glove\",\"previewCorners\":true,\"category\":\"Fists\",\"name\":\"STARTER FIST\",\"actions\":1,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist remove checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')if cp then assert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')cp:Destroy()end return game.HttpService:JSONEncode({ok=true,checkpointRemoved=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointRemoved\":true}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet navigate",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local opened=a:Invoke('OpenInventory')assert(type(opened)=='table'and opened.ok==true) a:Invoke('SelectInventoryCategory',category) a:Invoke('SetInventorySearch','')a:Invoke('SetInventoryRarity','All')task.wait(.4)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n if not key then\n  local deadline=os.clock()+5 repeat\n   for _,card in ipairs(body.InventoryGridPane.InventoryGrid:GetChildren())do local k=card:GetAttribute('InventoryKey')local label=card:FindFirstChild('ItemName')if type(k)=='string'and string.sub(k,1,9)=='pet:slot:'and label and label.Text==expectedName then key=k break end end\n   if not key then task.wait(.1)end\n  until key or os.clock()>=deadline\n end\n assert(key,'actual owned pet card missing')a:Invoke('SelectInventoryItem',key)task.wait(.3)\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n local original=name a:Invoke('SelectInventoryItem',key)task.wait(.15)local liveRoot=g.GameMenu.FunctionalInventory local liveDetail=liveRoot.InventoryWindow.InventoryBody.InventoryDetail local liveName=liveDetail.DetailName assert(liveRoot==root and liveDetail==detail and liveName==original and liveName.Parent==liveDetail and liveRoot:GetAttribute('InventorySelectedKey')==key,'repeat selection replaced detail identity')\n assert(liveDetail.DetailArtFrame.DetailPetPreview:FindFirstChildOfClass('WorldModel'):FindFirstChildWhichIsA('Model')==previewModel,'repeat selection rebuilt the tall detail model')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Pets\",nil,\"Forest Pup\",4)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"pet:slot:4\",\"previewCorners\":true,\"category\":\"Pets\",\"name\":\"FOREST PUP\",\"actions\":4,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local pg=game.Players.LocalPlayer.PlayerGui local g=assert(pg:FindFirstChild('PunchWallHUD'))assert(not pg:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint already exists')\nlocal cp=Instance.new('Folder')cp.Name='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'cp:SetAttribute('CaptureOwner','SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')cp.Parent=pg\nlocal function hold(name,value)local ref=Instance.new('ObjectValue')ref.Name=name ref.Value=assert(value,'capture reference missing '..name)ref.Parent=cp end\nhold('Hud',g)hold('Safe',g.PixelPerfectHeroCityHUD)\nlocal root=g.GameMenu.FunctionalInventory local w=root.InventoryWindow local detail=w.InventoryBody.InventoryDetail local preview=detail.DetailArtFrame.DetailPetPreview hold('Root',root)hold('Window',w)hold('Detail',detail)hold('Name',detail.DetailName)hold('Preview',preview)hold('Model',preview:FindFirstChildOfClass('WorldModel'):FindFirstChildWhichIsA('Model'))hold('Camera',preview.CurrentCamera)\nreturn game.HttpService:JSONEncode({ok=true,checkpointCreated=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointCreated\":true}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet state before",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n\n same('Hud',g) same('Safe',safe) same('Root',root) same('Window',root.InventoryWindow)\n same('Detail',detail) same('Name',name) same('Preview',preview) same('Model',previewModel) same('Camera',camera)\n assert(g.Enabled and game.Players.LocalPlayer.PlayerGui:FindFirstChild('PunchWallHUD')==g,'HUD replaced or disabled')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Pets\",\"pet:slot:4\",\"Forest Pup\",4)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"pet:slot:4\",\"previewCorners\":true,\"category\":\"Pets\",\"name\":\"FOREST PUP\",\"actions\":4,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet state after",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=assert(game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc'),'capture checkpoint missing')\nassert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')\nlocal function same(name,current)local saved=assert(cp:FindFirstChild(name),'capture reference missing '..name)assert(saved:IsA('ObjectValue')and saved.Value==current,'capture instance changed '..name)end\nlocal H=game:GetService('HttpService')local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local safe=g.PixelPerfectHeroCityHUD\nlocal function inside(x,area)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,area.AbsolutePosition,area.AbsoluteSize return s.X>0 and s.Y>0 and p.X>=q.X-1 and p.Y>=q.Y-1 and p.X+s.X<=q.X+t.X+1 and p.Y+s.Y<=q.Y+t.Y+1 end\nlocal function overlap(x,y)local p,s,q,t=x.AbsolutePosition,x.AbsoluteSize,y.AbsolutePosition,y.AbsoluteSize return math.max(0,math.min(p.X+s.X,q.X+t.X)-math.max(p.X,q.X))*math.max(0,math.min(p.Y+s.Y,q.Y+t.Y)-math.max(p.Y,q.Y)) end\nlocal function shown(x)local n=x while n do if n:IsA('GuiObject')and not n.Visible then return false end n=n.Parent end return true end\nlocal function verify(category,key,expectedName,expectedActions)\n local root=g.GameMenu.FunctionalInventory local body=root.InventoryWindow.InventoryBody\n local detail=body.InventoryDetail local name=detail.DetailName local area=detail.DetailActions\n assert(root:GetAttribute('InventorySelectedKey')==key and shown(detail),'requested detail not visible')\n assert(g.GameMenu:GetAttribute('InventoryModalSizing')=='NarrowDesktopSafeFill12V1'and inside(g.GameMenu,safe)and inside(root.InventoryWindow,g.GameMenu)and inside(detail,root.InventoryWindow),'narrow Inventory host/detail clipped')\n assert(name.Text==string.upper(expectedName) and shown(name)and name.TextFits==true and name.TextSize>=14 and name.TextBounds.X>0 and name.TextBounds.Y>0 and name.TextBounds.X<=name.AbsoluteSize.X+1 and name.TextBounds.Y<=name.AbsoluteSize.Y+1 and inside(name,detail),'selected name is unreadable')\n -- BEGIN TALL DETAIL VISUAL GATES\n local art,summary,rarity=detail.DetailArtFrame,detail.DetailDescription,detail.DetailRarity\n assert(root:GetAttribute('InventoryCompactDetailLayout')=='TallHeroColumnsV1','narrow selected detail did not use tall hero layout')\n assert(art.AbsoluteSize.X>=240 and art.AbsoluteSize.X<=280 and math.abs(art.AbsoluteSize.X-art.AbsoluteSize.Y)<1,'actual hero stage is small or distorted')\n assert(math.abs(art.AbsoluteSize.X-root:GetAttribute('InventoryDetailHeroSize'))<1,'hero metadata differs from actual stage')\n assert(summary.Visible and summary.AbsoluteSize.Y<=65 and summary.BackgroundTransparency==1 and summary:FindFirstChildOfClass('UIStroke').Transparency==1,'summary still uses a hollow description field')\n for _,label in ipairs({rarity,summary})do assert(shown(label)and label.TextFits and label.TextBounds.X>0 and label.TextBounds.Y>0 and label.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=12 and label.TextBounds.X<=label.AbsoluteSize.X+1 and label.TextBounds.Y<=label.AbsoluteSize.Y+1,'tall detail information is unreadable')end\n assert(name.TextSize*(root:GetAttribute('InventoryUIScale')or 1)>=16,'tall title hierarchy too small')\n local decisionGap=area.AbsolutePosition.Y-summary.AbsolutePosition.Y-summary.AbsoluteSize.Y\n assert(decisionGap>=11 and decisionGap<=13,'actions detached from decision information')\n local regions={art,rarity,name,summary,area,detail.DetailDrawerClose}\n for i,region in ipairs(regions)do assert(inside(region,detail),'tall content escaped drawer')for j=i+1,#regions do assert(overlap(region,regions[j])<1,'tall content regions overlap')end end\n local preview=art:FindFirstChild('DetailPetPreview')local world=preview and preview:FindFirstChildOfClass('WorldModel')local previewModel=world and world:FindFirstChildWhichIsA('Model')local camera=preview and preview.CurrentCamera\n assert(preview and shown(preview)and previewModel and camera and preview:GetAttribute('PreviewFitMode')=='TallDetailEightCornersV1','real fitted detail model missing')\n assert(math.abs(preview:GetAttribute('PreviewFitWidth')-preview.AbsoluteSize.X)<1 and math.abs(preview:GetAttribute('PreviewFitHeight')-preview.AbsoluteSize.Y)<1,'preview fit predates rendered size')\n local bounds,size=previewModel:GetBoundingBox()local tanY=math.tan(math.rad(camera.FieldOfView*.5))local tanX=tanY*preview.AbsoluteSize.X/preview.AbsoluteSize.Y\n local maxProjection=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do local point=camera.CFrame:PointToObjectSpace(bounds:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))local depth=-point.Z assert(depth>0,'preview corner behind camera')local projected=math.max(math.abs(point.X)/(depth*tanX),math.abs(point.Y)/(depth*tanY))assert(projected<=.9,'real model clipped in tall stage')maxProjection=math.max(maxProjection,projected)end end end\n-- END TALL DETAIL VISUAL GATES\n local buttons={}for _,button in ipairs(area:GetChildren())do if (button:IsA('TextButton')or button:IsA('TextLabel'))and shown(button)then\n  assert(math.min(button.AbsoluteSize.X,button.AbsoluteSize.Y)>=44 and inside(button,detail),'detail action clipped or small')\n  assert(overlap(button,name)<1 and overlap(button,detail.DetailArtFrame)<1,'detail action overlaps name or model')\n  for _,other in ipairs(buttons)do assert(overlap(button,other)<1,'detail actions overlap')end table.insert(buttons,button)\n end end assert(#buttons==expectedActions,'unexpected selected-item action count')\n local close=detail.DetailDrawerClose assert(shown(close)and close.Active and math.min(close.AbsoluteSize.X,close.AbsoluteSize.Y)>=44 and inside(close,detail),'drawer close clipped or small')\n for _,button in ipairs(buttons)do assert(overlap(button,close)<1,'drawer close overlaps action')end\n\n same('Hud',g) same('Safe',safe) same('Root',root) same('Window',root.InventoryWindow)\n same('Detail',detail) same('Name',name) same('Preview',preview) same('Model',previewModel) same('Camera',camera)\n assert(g.Enabled and game.Players.LocalPlayer.PlayerGui:FindFirstChild('PunchWallHUD')==g,'HUD replaced or disabled')\n return {tallHero=true,previewCorners=true,previewIdentity=true,category=category,key=key,actions=#buttons,name=name.Text,nameReadable=true,bounded=true,targets44=true,noOverlap=true}\nend\nlocal item=verify(\"Pets\",\"pet:slot:4\",\"Forest Pup\",4)return H:JSONEncode({ok=true,item=item})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"pet:slot:4\",\"previewCorners\":true,\"category\":\"Pets\",\"name\":\"FOREST PUP\",\"actions\":4,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet remove checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')if cp then assert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')cp:Destroy()end return game.HttpService:JSONEncode({ok=true,checkpointRemoved=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointRemoved\":true}",
+      "isError": false
+    },
+    {
+      "label": "console",
+      "tool": "get_console_output",
+      "args": {},
+      "timeout": 35000,
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+      "isError": false
+    },
+    {
+      "label": "remove owned capture checkpoint",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local cp=game.Players.LocalPlayer.PlayerGui:FindFirstChild('SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc')if cp then assert(cp:GetAttribute('CaptureOwner')=='SmashFinalNarrowCapture_4f44431145304c2790eebf1353acd5dc','capture checkpoint owner changed')cp:Destroy()end return game.HttpService:JSONEncode({ok=true,checkpointRemoved=true})"
+      },
+      "timeout": 35000,
+      "text": "{\"ok\":true,\"checkpointRemoved\":true}",
+      "isError": false
+    },
+    {
+      "label": "cleanup stop play",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeout": 35000,
+      "text": "Game Stopped",
+      "isError": false
+    },
+    {
+      "label": "restore previous simulator and remove owned narrow device",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local S=game:GetService('StudioDeviceSimulatorService')local H=game:GetService('HttpService')\nlocal raw=workspace:GetAttribute('SmashNarrowMenuOwnedFixture')if raw==nil then return H:JSONEncode({ok=true,alreadyRestored=true})end\nlocal state=H:JSONDecode(raw)\nassert(type(state.name)=='string'and string.sub(state.name,1,18)=='Smash Narrow Menu ','invalid fixture owner')\nlocal function readDeviceState()\n local ok,id=pcall(function()return S:GetDeviceAsync()end)\n if not ok then assert(string.find(tostring(id),'no device is active',1,true),'unrecognized simulator state: '..tostring(id))end\n if not ok or id==nil or id=='default'then return {id='default',active=false}end\n assert(type(id)=='string'and #id>0,'invalid device identity')\n return {id=id,active=true,orientation=S:GetOrientationAsync().Name,scaling=S:GetScalingModeAsync().Name}\nend\nlocal previous=state.previous assert(type(previous)=='table'and type(previous.id)=='string'and type(previous.active)=='boolean','invalid saved simulator state')\nlocal restoreOk,restoreError=pcall(function()\n if previous.active then\n  S:SetDeviceAsync(previous.id)S:SetOrientationAsync(assert(Enum.ScreenOrientation[previous.orientation]))S:SetScalingModeAsync(assert(Enum.DeviceSimulatorScalingMode[previous.scaling]))\n else S:StopSimulationAsync()end\n local observed=readDeviceState()assert(observed.id==previous.id and observed.active==previous.active,'previous device not restored')\n if previous.active then assert(observed.orientation==previous.orientation and observed.scaling==previous.scaling,'previous simulator options not restored')end\nend)\nlocal removed=0\nlocal removeOk,removeError=pcall(function()\n for _,id in ipairs(S:GetDeviceListAsync())do\n  local info=S:GetDeviceInfoAsync(id)\n  if id==state.id or info.Name==state.name then\n   assert(info.IsCustom==true and info.Name==state.name and id~=previous.id and (state.id==nil or id==state.id),'refuse to remove foreign device')\n   S:RemoveDeviceAsync(id)removed+=1 assert(removed<=1,'duplicate owned fixture')\n  end\n end\nend)\nassert(restoreOk and removeOk,'simulator cleanup failed: '..tostring(restoreError)..' / '..tostring(removeError))\nworkspace:SetAttribute('SmashNarrowMenuOwnedFixture',nil)\nreturn H:JSONEncode({ok=true,restored=previous.id,removed=removed})"
+      },
+      "timeout": 15000,
+      "text": "{\"ok\":true,\"removed\":1,\"restored\":\"default\"}",
+      "isError": false
+    }
+  ],
+  "sourceCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+  "binding": {
+    "disk": {
+      "canonical": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "validation": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
+      "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src",
+      "bytes": 6492145,
+      "sha256": "f61b80e722041a526fb965cc6173ceb1be37be35e5f9fd1310b5e4ca503d5781",
+      "validationSHA256": "f61b80e722041a526fb965cc6173ceb1be37be35e5f9fd1310b5e4ca503d5781"
+    },
+    "sources": {
+      "GameConfig": {
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "normalizedBytes": 38942
+      },
+      "PolishConfig": {
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "normalizedBytes": 12834
+      },
+      "ForestVisualBuilder": {
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "normalizedBytes": 34025
+      },
+      "FistVisualBuilder": {
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "normalizedBytes": 24885
+      },
+      "InventoryViewModel": {
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "normalizedBytes": 29640
+      },
+      "ProfilePersistence": {
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "normalizedBytes": 72504
+      },
+      "PunchWallBootstrap": {
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "normalizedBytes": 434288
+      },
+      "InventoryUI": {
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "normalizedBytes": 167898
+      },
+      "PunchWallClient": {
+        "rawSHA256": "0ef2251928515bdb8b5e64e3e3d71a70b56656dd17013f1045b68010cefd0d2e",
+        "normalizedSHA256": "28c74805a4cb778edf8c527d208c2d9ca86ec326480a23e12ee1464999b1431b",
+        "normalizedBytes": 666401
+      }
+    },
+    "manifest": {
+      "ok": true,
+      "game": "Smash Wall",
+      "branch": "codex/feature/smash-completion-20260906",
+      "sourceCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+      "sourcePlace": "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-asset-template.rbxlx",
+      "outputPlace": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "sourceRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "templateSha256": "22406EFE5CFFCE2B6A4FC6669D99E1AC094BFDB8EAE7CDC59B760B86EC00191E",
+      "sourceMapVersion": 1,
+      "codeAllowlistVersion": 1,
+      "embeddedModuleCount": 9,
+      "codeObjectCount": 9,
+      "removedCodeObjectCount": 0,
+      "removedCodeObjects": [],
+      "embeddedScripts": [
+        "GameConfig",
+        "PolishConfig",
+        "ForestVisualBuilder",
+        "FistVisualBuilder",
+        "InventoryViewModel",
+        "ProfilePersistence",
+        "PunchWallBootstrap",
+        "InventoryUI",
+        "PunchWallClient"
+      ],
+      "exactSourceSha256": {
+        "GameConfig": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+        "PolishConfig": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+        "ForestVisualBuilder": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+        "FistVisualBuilder": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+        "InventoryViewModel": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+        "ProfilePersistence": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+        "PunchWallBootstrap": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+        "InventoryUI": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+        "PunchWallClient": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B"
+      },
+      "sourceFileSha256": {
+        "GameConfig": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+        "PolishConfig": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+        "ForestVisualBuilder": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+        "FistVisualBuilder": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+        "InventoryViewModel": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+        "ProfilePersistence": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+        "PunchWallBootstrap": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+        "InventoryUI": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+        "PunchWallClient": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E"
+      },
+      "cdataPreserved": true,
+      "configuredGamePasses": 6,
+      "configuredDeveloperProducts": 8,
+      "studioHarnessGuarded": true,
+      "generatedAtUtc": "2026-09-06T13:40:02.3388880Z"
+    },
+    "proof": {
+      "ok": true,
+      "canonicalOutput": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+      "canonicalValidationCopy": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
+      "rbxlxSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "moduleCount": 9,
+      "sourceMapVersion": 1,
+      "codeAllowlistVersion": 1,
+      "codeObjectCount": 9,
+      "cdataPreserved": true,
+      "exactSourceHashes": {
+        "GameConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 38942,
+          "normalizedSha256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+          "sourceFileSha256": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+          "cdata": true
+        },
+        "PolishConfig": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 12834,
+          "normalizedSha256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+          "sourceFileSha256": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+          "cdata": true
+        },
+        "ForestVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 34025,
+          "normalizedSha256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+          "sourceFileSha256": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+          "cdata": true
+        },
+        "FistVisualBuilder": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 24885,
+          "normalizedSha256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+          "sourceFileSha256": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+          "cdata": true
+        },
+        "InventoryViewModel": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua",
+          "service": "ReplicatedStorage",
+          "parent": "ReplicatedStorage",
+          "parentClass": "ReplicatedStorage",
+          "characters": 29640,
+          "normalizedSha256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+          "sourceFileSha256": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+          "cdata": true
+        },
+        "ProfilePersistence": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 72504,
+          "normalizedSha256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+          "sourceFileSha256": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+          "cdata": true
+        },
+        "PunchWallBootstrap": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+          "service": "ServerScriptService",
+          "parent": "ServerScriptService",
+          "parentClass": "ServerScriptService",
+          "characters": 434272,
+          "normalizedSha256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+          "sourceFileSha256": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+          "cdata": true
+        },
+        "InventoryUI": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 167896,
+          "normalizedSha256": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+          "sourceFileSha256": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+          "cdata": true
+        },
+        "PunchWallClient": {
+          "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+          "service": "StarterPlayer",
+          "parent": "StarterPlayerScripts",
+          "parentClass": "StarterPlayerScripts",
+          "characters": 666269,
+          "normalizedSha256": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B",
+          "sourceFileSha256": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E",
+          "cdata": true
+        }
+      },
+      "selectedStudio": {
+        "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start rebuilt final copy",
+        "wait for embedded scripts to bootstrap",
+        "rebuilt final exposes the exact nine-module source map",
+        "embedded server release boots complete world",
+        "embedded client release boots HUD Inventory shop spin and music",
+        "rebuilt final loads approved NPC bag training and premium pet displays",
+        "rebuilt final attests all eleven sanitized pet templates",
+        "rebuilt final uses supplied Spin vertical race and directional controls",
+        "capture rebuilt final console",
+        "rebuilt final console clean (identified Studio input warnings: 0)",
+        "stop rebuilt final copy"
+      ]
+    },
+    "manifestSHA256": "f06521b6d714479c271c2c6c194b3e422a3e944ee9fb61a937f9e553a09ea5f2",
+    "reopenProofSHA256": "d46c7f44dd417eb36d1db9c3e48d324a18c7666047fd88943c2d1b920d89f5bf",
+    "toolHashes": {
+      "work/tools/smash-final-narrow-modal-capture.mjs": "c3382d1fbfd9b4870351b98797e2ab08120bbef20b29b9093288f675b39f0101",
+      "work/automation/scripts/studio-frame-profile.mjs": "baf689468a3ab73dbc7268cb76c0d12720d4ae3ab74a3c816fffdf7ec3f1cdbf",
+      "work/automation/scripts/studio-final-visual-capture.mjs": "4a1adcf333b06b9b18148e6e52af2c16064ac2d98cd803fffbce1791caf008cf",
+      "work/automation/scripts/flow_runner.mjs": "b856767dc3378691501af7faba7ef1f4e4ff5da4ae59cc0e01e2b1e7646ec5f1",
+      "work/automation/scripts/studio_mcp_client.mjs": "1384c89971a3f339f1cf37da36ced827fef77796d650a703d78484ac7147eb75",
+      "work/automation/scripts/verify-studio-source.mjs": "b91fd8b14ac317914b5d5330f7ba9fd877a659270cfb25c9a1a75003d0b118d1",
+      "work/automation/flows/narrow-desktop-menu-real-input.json": "c8fb6a82a9c6fe779b0bcadf6a519dbec8406ccc19d986b023907dec0680a17c"
+    }
+  },
+  "sourceBefore": {
+    "ok": true,
+    "checkedAt": "2026-09-06T13:53:49.206Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+      "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "28c74805a4cb778edf8c527d208c2d9ca86ec326480a23e12ee1464999b1431b",
+        "rawSHA256": "0ef2251928515bdb8b5e64e3e3d71a70b56656dd17013f1045b68010cefd0d2e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 666401,
+          "name": "PunchWallClient",
+          "actualBytes": 666401
+        }
+      }
+    ]
+  },
+  "selected": {
+    "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+    "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+  },
+  "console": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+  "consoleClassification": {
+    "ok": true,
+    "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+    "identifiedToolWarningCount": 0,
+    "identifiedToolWarnings": [],
+    "retainedLines": [
+      {
+        "lineNumber": 1,
+        "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    ],
+    "suspiciousLines": []
+  },
+  "cleanup": [
+    {
+      "label": "remove owned capture checkpoint",
+      "ok": true
+    },
+    {
+      "label": "cleanup stop play",
+      "ok": true
+    },
+    {
+      "label": "restore previous simulator and remove owned narrow device",
+      "ok": true
+    }
+  ],
+  "sourceAfter": {
+    "ok": true,
+    "checkedAt": "2026-09-06T13:54:11.611Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+      "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "28c74805a4cb778edf8c527d208c2d9ca86ec326480a23e12ee1464999b1431b",
+        "rawSHA256": "0ef2251928515bdb8b5e64e3e3d71a70b56656dd17013f1045b68010cefd0d2e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 666401,
+          "name": "PunchWallClient",
+          "actualBytes": 666401
+        }
+      }
+    ]
+  },
+  "postflightUnchanged": true,
+  "sourceUnchanged": true,
+  "finishedAt": "2026-09-06T13:54:11.685Z"
+}

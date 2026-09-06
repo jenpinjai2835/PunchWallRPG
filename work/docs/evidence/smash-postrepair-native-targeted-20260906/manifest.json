@@ -1,0 +1,195 @@
+{
+  "ok": false,
+  "sourceCommit": "59ad4540460445a886a23afd0db3149c8a96d921",
+  "runKind": "Targeted integrated source in native disk-open R2 staging; not canonical artifact acceptance",
+  "studioInstanceId": "be1067b9-90ed-414f-8f5c-12f467f114bc",
+  "studioProcessId": 22388,
+  "nativeOpenProof": "work/docs/evidence/smash-source-review-r2-native-open-proof-20260906.json",
+  "startedAt": "2026-09-06T07:38:17.6239351Z",
+  "completedAt": "2026-09-06T07:47:54.2259804Z",
+  "discovered": 20,
+  "frozenFiles": {
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua": "20147D8EB71AF5A1BA008DF88201B51ED1FE93F0602CE7527C6FE098E9579E86",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua": "C6D0C7FFB6CB2F64842ED0526AF93E56E02762841FAA29606669A8B625EB304C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\narrow-desktop-menu-real-input.json": "90F36029CC7592D8E32EC4AB4FB4B14C83572B9EE8A342E3D08B0087972691ED",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-long-tunnel-regression.json": "0B2FAF990C744693D1E8FB17E56B238E4D63B343262891400A56AC112F98EECE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-camera-device-20.json": "BA79F7CF1A7EB147DE5A7BED6EF6827D867317BD990455512E9EA94C8A947124",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-tunnel-frame-profile.json": "748FAC5D05AF655A9DD41B40ED096FAD87C03F040345EB83ECB3AD31A924D638",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-tunnel-zoom-preservation.json": "C966AF20A4F347D4C95AAA1C66B8D497066D6FBD816B6F2688BBDB34242E545C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-teleport-scriptable-visibility.json": "0340E7C4FBBE1E7996621A61106CB173754D4242DCDFEF46AAAB82656B884AB3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-shop-stability.json": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-camera-smooth-follow.json": "489BD76D2CF66ED0B31543F28ADDFAD60A797B8940880F7B651D5AE332CA32DD",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\full-game-real-ui-controls.json": "299555173298C4ED19DF065FE60569897FDFFC5E93AE4DEB93C5877613DAB158",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\right-hud-menu-uniform-grid.json": "E01BB4BAC325A647FCFBE25E1ACDEE5BC6F7231CA578851C6BAFE8D4794CF54E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration03-safearea-destruction.json": "11475030DDF27C4DC7ECC1FB38FD838232F8AC614D108885AFBC62E0CE079D59",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\honor-progression.json": "B21835D3CFA25AEB903DDCFEE9ADE471C549E53126EF283F393B250654EA1E1E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-category-icon-cohesion.json": "5BB378FD274D1AD01358E552C97BBF16854CA5ACB003C5FD0B8A86DE4F4250F6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-pet-icons-fusion.json": "E30E1EE397561815550A68E0A59B2954D2352F5381306AF8F89B25A0EB6A3198",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration05-final-depth-motion.json": "537615894B3F51F31605EB14ED7FAB91801E06F2FEA5B69579CD149A61E61678",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\mobile-iphone17-layout.json": "F9FB23892600DEDBA9CEE49A2BB365CE5EFC739D65D31ED9405961E884A3F3FA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\product-completeness-purchase-availability.json": "B3783F0DC1B43D34DB7A621415E15CBEC246279295C9E7340DAF8D4A9F16F34E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\premium-hud-shop-readability.json": "F1006E5C692AF777B58C7CEDE444EC555BC1078FE4CBA72370E487DC7872831D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\full-game-tester-critical-ui-and-models.json": "F2ECEF8B7E4F7E42E74D7E99A033A3A69E25B9D8D66798C3F09204376B0C2928",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\pet-size-position-qc.json": "D867448382FEC8A71C88DCF34CD9851614B3BBF006660672DCA1FC15A0B91CA7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\flow_runner.mjs": "2434372201C2447DD2BE18DD46ACDCD41A613A90BFD2361F2307C852CDD7001F",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\studio_mcp_client.mjs": "1384C89971A3F339F1CF37DA36CED827FEF77796D650A703D78484AC7147EB75",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\verify-studio-source.mjs": "B91FD8B14AC317914B5D5330F7BA9FD877A659270CFB25C9A1A75003D0B118D1"
+  },
+  "sourceBeforeOk": true,
+  "sourceAfterOk": true,
+  "frozenVerifiedAfter": true,
+  "results": [
+    {
+      "flow": "narrow-desktop-menu-real-input",
+      "ok": false,
+      "exitCode": 1,
+      "seconds": 18.69,
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:3: strict ephemeral fixture required"
+      ]
+    },
+    {
+      "flow": "camera-long-tunnel-regression",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 34.01,
+      "errors": []
+    },
+    {
+      "flow": "punch-camera-device-20",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 77.15,
+      "errors": []
+    },
+    {
+      "flow": "camera-tunnel-frame-profile",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 33.36,
+      "errors": []
+    },
+    {
+      "flow": "camera-tunnel-zoom-preservation",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 17.17,
+      "errors": []
+    },
+    {
+      "flow": "camera-teleport-scriptable-visibility",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 14.07,
+      "errors": []
+    },
+    {
+      "flow": "camera-shop-stability",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 32.95,
+      "errors": []
+    },
+    {
+      "flow": "punch-camera-smooth-follow",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 21.14,
+      "errors": []
+    },
+    {
+      "flow": "full-game-real-ui-controls",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 49.96,
+      "errors": []
+    },
+    {
+      "flow": "right-hud-menu-uniform-grid",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 23.16,
+      "errors": []
+    },
+    {
+      "flow": "iteration03-safearea-destruction",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 23.41,
+      "errors": []
+    },
+    {
+      "flow": "honor-progression",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 28.59,
+      "errors": []
+    },
+    {
+      "flow": "inventory-category-icon-cohesion",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 14.37,
+      "errors": []
+    },
+    {
+      "flow": "inventory-pet-icons-fusion",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 17.07,
+      "errors": []
+    },
+    {
+      "flow": "iteration05-final-depth-motion",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 22.48,
+      "errors": []
+    },
+    {
+      "flow": "mobile-iphone17-layout",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 37.12,
+      "errors": []
+    },
+    {
+      "flow": "product-completeness-purchase-availability",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 22.03,
+      "errors": []
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 21.37,
+      "errors": []
+    },
+    {
+      "flow": "full-game-tester-critical-ui-and-models",
+      "ok": true,
+      "exitCode": 0,
+      "seconds": 17.54,
+      "errors": []
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "ok": false,
+      "exitCode": 1,
+      "seconds": 47.82,
+      "errors": [
+        "Expected regex not found: \"valid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"totalSamples\":55,\"lateObservation\":{\"move\":8.10512924194336,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.9296471999987261,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"late\",\"ready\":true},\"samples\":[{\"at\":0.012882399998488836,\"move\":0,\"motionHz\":20},{\"at\":0.031016100001579617,\"move\":0,\"motionHz\":20},{\"at\":0.04573990000062622,\"move\":0,\"motionHz\":20},{\"at\":0.06280839999817545,\"move\":0,\"motionHz\":20},{\"at\":0.07982330000231741,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.09678949999943143,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.11269819999870379,\"move\":3.0346763134002687,\"motionHz\":20},{\"at\":0.12954030000400963,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.14758440000150586,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.16300910000427394,\"move\":4.61325216293335,\"motionHz\":20},{\"at\":0.17989769999985584,\"move\":5.679381370544434,\"motionHz\":20},{\"at\":0.9126439000028768,\"move\":8.10512924194336,\"motionHz\":20}],\"smoothing\":\"ExponentialCFrame\",\"earlyObservation\":{\"move\":0,\"rootMove\":8,\"anchored\":true,\"cameraDistance\":19.820192337036134,\"at\":0.06277540000155568,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"early\",\"ready\":true},\"cleanupRestored\":true,\"watchdogTimedOut\":false,\"droppedSamples\":43,\"late\":8.10512924194336,\"initial\":{\"move\":0,\"rootMove\":0,\"anchored\":false,\"cameraDistance\":18.13394546508789,\"at\":0.000007200003892648965,\"sameCharacter\":true,\"cameraType\":\"Scriptable\",\"motionHz\":20,\"stage\":\"before\",\"ready\":true},\"early\":0,\"ready\":true}"
+      ]
+    }
+  ],
+  "interruption": null
+}

@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "final-rbxlx-build-validation",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start rebuilt final copy",
+        "wait for embedded scripts to bootstrap",
+        "rebuilt final exposes the exact nine-module source map",
+        "embedded server release boots complete world",
+        "embedded client release boots HUD Inventory shop spin and music",
+        "rebuilt final loads approved NPC bag training and premium pet displays",
+        "rebuilt final attests all eleven sanitized pet templates",
+        "rebuilt final uses supplied Spin vertical race and directional controls",
+        "capture rebuilt final console",
+        "rebuilt final console clean (identified Studio input warnings: 0)",
+        "stop rebuilt final copy"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "rebuilt final console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1645 @@
+{
+  "startedAt": "2026-09-05T22:59:31.0926003Z",
+  "completedAt": "2026-09-06T00:18:39.0206386Z",
+  "sourceCommit": "6211b0075df92b38e0b5c13f4824968909a06b10",
+  "sourceSync": "work/docs/evidence/smash-source-sync-settings-stability-20260906.json",
+  "studioInstanceId": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+  "runKind": "Integrated source in Studio; canonical artifact not yet rebuilt",
+  "frozenFiles": {
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\apply-premium-template-repair.ps1": "597705A39DDF2A2E5E50D48BD43DA5D40A9D3284962C0A65A15452731F83B361",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\build-hero-city-bottom-shell.ps1": "06F96BF9B48B01AC1A24DF2FC646EE6B0CF0BD87EDEBA863ADC64DF2B16FD3C0",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\build-hero-city-ui-crops.ps1": "F5FB4C1621903B9A9BDD2F8E77AD5E7D44CBD2A80E8FBC776CF4CF7FD3378280",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\build-production.ps1": "F57B3020739D74A260EACA914F90BD8040AB296CD3F2A013D6A7146BA1A61A02",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\build-spin-ui-assets.ps1": "CB8057B6B6CF89130F7244B680C822892346DE2828C2223BBE27E57A347BCFAE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\embed-source-into-rbxlx.ps1": "0FA9CD44EEB3620E41644D802A9319191493168F0CABA69F479B35BA750D851B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\ai-material-assets.json": "115FD23114DFA06D59F095187B2071E084491BF19FF91D9D64EDF35ED6932E75",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\authoritative-progression-hud.json": "4F332C832E510A0CC6A6515F5CFFF26BF3C5F5EF982E14DB88898B60249F2D1C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\boss-depth-authority.json": "A53A6CB4487214FD85494DF42C94E21D7877172DB7EB1424D7B821F030DD371B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\branded-loading-onboarding.json": "BAEFEC4CE166B424B1C14930D026E2C90A1BA86E5B1412D6DE27AE10D37715BF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-long-tunnel-regression.json": "1A84A9D21DE001C68C65A7A20340561293D40D30E65C81E0AE0414AF104A4BF7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-shop-stability.json": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-teleport-scriptable-visibility.json": "0340E7C4FBBE1E7996621A61106CB173754D4242DCDFEF46AAAB82656B884AB3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\camera-tunnel-zoom-preservation.json": "C966AF20A4F347D4C95AAA1C66B8D497066D6FBD816B6F2688BBDB34242E545C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\center-feedback-suppression.json": "5394952BEBFD3A555028A64013FFE54FA9731B2703B44FB376F30E7BF2B42DF1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\coin-burst-reward-feedback.json": "E5F602EAA516216445C4D12A4AA776458A71DD9CA996275196DF9E1336B420DB",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\combat-target-boss-hud.json": "4D0CE24F5929ACFD71072EA184DC2DF849BF56ABA5491B9ACFE0A7A9A6D7FED6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\contextual-actions-settings-authority.json": "240C9CCDBF50AA0E3C38B9B7E5CCB76395FB25AA5848273EDB8E425BB19D3D5C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\creator-store-commerce-npcs.json": "E58C6F9A923715336DD5B99530CCC8907F84993437CD6509422ADDA2625669BE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\creator-store-fist-visuals.json": "3CDA61B0CB2993ECF35AB603496646EF42CA6F25CE4BD5B1705220DE6B003362",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\creator-store-pet-pack-visuals.json": "741D940E300DED9FE6AB97688734CD2966F772700D71391F65D73604ACE3D92B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\depth-tier-materials.json": "D996184E26AD05B4BBFC06BAA1BA0D24424CC4E33C969AB1C2B6DA8BE92BA95A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\destruction-boss-phases.json": "7F31EDD6E964DE431934E5A8391200DCD8F79BE54230AF1A8613F069A0F90C8C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\developer-product-configuration.json": "017DC8E4EA0372E45664744539137F82A206F798FA34EFABD8C3B9565E093F7D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\device-matrix-hud-shop.json": "D23FE63200F4BA06A3874AECF10E1190EF24C27CCD525350DB68B8AD96B328F6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\directional-punch-controls.json": "C2B70C0C88D0E804C90FDDCEFD88D7A228487445B53E2CF327A6AE5C7A375B7B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\feedback-holder-presentation.json": "1979867221E927C81B26FF28D464DEAFAE1E811C379406CDD8987EA20E45781E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\final-rbxlx-build-validation.json": "DC9B16C421B97A7ED3CD777010DE1816619552716B096C533E6D148F78DF104D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\first-five-fist-presentation.json": "B042DA6272560028F247229D772BEE340953AE5654F883621E76938610374929",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\first-five-rig-parity.json": "D156428E49BBE15F01EDD7702B2823A83467A09938045ACF097FDF9D023E686D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\first-hit-forest-stone.json": "0299331B153099298BA9F4A6E4B3FFD2CA848F1E762FC8601B4A781B2147541E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\fist-arm-alignment-qc.json": "F348CE9773674E9E930B6D5C69B6291007F857C06426F55698631C885DAFD86D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\fist-items-icon-ui.json": "4A26270081339F9D97FED8A270A89A321BF62126FABA04AE1524219222A4F524",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\fist-pet-legacy-slot-safety.json": "C9D4C7AD54E7981923841A19FAB1A2450DA31407114A491CB769F5CEC9860B37",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\forest-world-visual-qc.json": "E7B3FD91B5261EFA50F4944BD08499E3A5ADEC546D96BCBD0E559FFD1249721E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\full-game-economy-boundaries.json": "B1F315F7B075C151E15DCB63C0B5B88635669F9B1698D8D37944242004239F5D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\full-game-real-ui-controls.json": "299555173298C4ED19DF065FE60569897FDFFC5E93AE4DEB93C5877613DAB158",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\full-game-tester-critical-ui-and-models.json": "9EC58715EB4D1C1240170EF8924B772812ECBAEA252A2D9DF695655C416D490B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\functional-hero-shop.json": "883CA9CCF1D707C435C9E6238CC70BAFE736C45264B1BDB7DA09E70D0A11B131",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\generic-phone-game-menu-accessibility.json": "2EBDB520FE568141428495EE318739B539D02A3E1C49D0867CF8C7D418B8B895",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\hero-city-design-alignment.json": "880B210A792C6B61D90B37F02C39F8D3C88D70B18858F9D5FB66963E028A18C1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\hero-city-pixel-perfect-hud.json": "0B9E0B58D2EAFBC4F4A28B4C54BC89BF7EA75B732AD2E0B97AA84021D619E8CC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\hero-city-reference-ui.json": "4B024460EA2AFB590F4C4079AE3D77DE6BDC3F5100300C529E38C7D1289B60A3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\hero-city-theme.json": "0E8D24ABC37BB2E760949558212BF53655CFEC7B7B6BF7C14961E868DF5E0CE4",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\hero-shop-reference-polish.json": "4B4407FD690E1E1372E92F76875D99FEC3762CD7845A3D9C93DA098BD89B5154",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\honor-product-receipts.json": "B4900C37DFE5C183A07A0FE5FB8D335781DAF7D9FF650EEA1916EFCC2AA1FCDD",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\honor-progression.json": "CA030C2EBB5C8A4CACBB132C9F6F3E314E8A690B94BCB5CA2AD2E6E4EAB8AD8C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\impact-destruction-feedback.json": "08EA1ADD7CF7BAEC9EF6D8502C87CC56A2A963E5F9A5A5453DE8FDACAD93DE13",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-category-icon-cohesion.json": "299D5BB6D899F37A5F9D3FC59C01335C9321AD07800D2DB113F7B0C8A3C62ADF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-delete-real-input.json": "F3D1A93D434993C27260FFD35F9295C67E762DBE07A0FC7FD03FB483C113C96B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-menu-ui.json": "C4A739EE307EBD788CC0F07468AC7795BE2D6130EB72B1ECFD45D53E9F4008D7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-persistence.json": "0AAE6010FEC24E509F122B6475783739E4977C62FD19081C144DC04862B0EFD6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-pet-icons-fusion.json": "B13D3C7CCA84DE840A76F77F027656A16EE77F91AD32B3C10B88E8CB5FF7DBC1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\inventory-visual-responsive.json": "97510EF4E0F51DA9AC11F2D5A517D31B0C12D1E1E1CAE66AE8B1937D864196F3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\item-matched-fist-visuals.json": "E86ABDB66EDD9819633643680EBE385DFB423AEA49EFE754A87089AD50C55F24",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration01-complete-polish.json": "C9C2EBCFEDAF150B7ED0894ECA71D4CD6CADB876822FE9AC76DEC9585A537F5B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration02-companion-tasks-boss.json": "4CC206691265F0CD510847C2B04C043CD0883D3DA2D93410955BEBC9071355CD",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration03-safearea-destruction.json": "054BE80EBD3BE0118834667430DC2ECEF3949A653805BC472558710A7652124A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration04-armory-pets-feedback.json": "798A730A7D01140AF01F1EE982FB9AAEDEEC6955F2DC429770CDF099228038EC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\iteration05-final-depth-motion.json": "4608362F6B78C88EB9576A14E960014F8C400D087FD5E572E828D5C32625A47C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\layered-spin-reference-ui.json": "D744E840AC55584944F14B2928DAA7D9C7B25FCD0EA41EA1B8AB5FBFCD91FCEF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\long-run-catalog-progression.json": "3204034BB905D05758EA3E9CA8012BCBE470731CB74A943DE510A447BDCCD921",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\luck-distribution.json": "62C8CB9BDB684B76CB458DE4B6E17D8D88D91A75D62F960D5E7940F2B467E0FD",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\milestone-world-transition.json": "25A9AF4065C02E16D03C90239A846A09912935324413DE82E2F1346B8E5A8CCF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\mobile-iphone17-layout.json": "AC7EB58140DC4EB9426DC2320005563BF45E84441FE453010BA05F1725663725",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\natural-progression.json": "AFD1CEC2E6BA6E8F75BE5D66CAF1BDCB81757749B53B149BDE13C401A3599AAA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\normal-pet-visual-models.json": "5772DBF1B56C92D6D4AC9144A5A48A949F3993BA36E6D3D94068D647FAD9FC5B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\onboarding-waypoint.json": "A18A76F1341D80B4A5CBE0662B13C3953822488881728908C9EA11495215D826",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\persistence-shutdown-single-flight.json": "2680A4A8E0713D7FCEB550AB46744E9C48A848A7656692903D893D9E6771C09C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\pet-egg-world-pickup.json": "FF857F189D82177DBAB3D8CBC9F1CE7B5212DF5C254315DC7DB9180714DFF57D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\pet-size-position-qc.json": "6D4A0549CA5940EAEDBD885CA3DDD56704577C84FAE0797B8CA0AA41A9FAA0F1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\pet-wall-drops-and-fusion.json": "26CB868B2B34F25CA6120AA979BDAAC49F0C4ACB0DCB857FAA9AF37621FFF60C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\power-avatar-growth.json": "8C6EC2692B71A6094A4AE78F2D29F99AABB0CA8745067C8A8EEA1F24765EF0D6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\power-scaled-penetration.json": "0F33714740A325717E6AAA06E3B7AAAC6C2A782DB398FF4828FBB4E69463ABDC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\premium-pet-gamepass-configuration.json": "97B0E9C53D513DB97B9C051FD095FFD55769B2166E2419B9437479AEE5F3B09B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\premium-pet-studio-test-mode.json": "761133CF754F5D102C1884C074FE01903DF9CDCD087EE7D0BED839F38260C454",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\premium-pet-visual-parity-motion.json": "8861FAA8B29636DB5455811847FC83F6386B8083B75AB5750F0D943A379FE9C0",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\product-completeness-purchase-availability.json": "533F1187840BFE7695D5B67B6A94AA62F161C4BD89EC99A435A3268B31AEDF1C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\profile-load-hotfix-public-linked-studio.json": "C56197F7F7816B36C2F2267A90CE235EB24D8B4BE5A2399CC02948644B32B451",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-200-stress.json": "CA6C26C559EC471AD3F627C94B470BE069423D6D46D8E61E80750BB44CC04005",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-action-timing.json": "882A2C7ECECC61210091BF0A33A65F974AECBE7A1866A42C0FFBB3497686A9E1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-camera-device-20.json": "BA79F7CF1A7EB147DE5A7BED6EF6827D867317BD990455512E9EA94C8A947124",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-camera-smooth-follow.json": "489BD76D2CF66ED0B31543F28ADDFAD60A797B8940880F7B651D5AE332CA32DD",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-character-motion.json": "2997E7B04AAF7E49EB2C6A48E8F2576E832A4E18291E722D33DCFF1750D3CDDA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-collision-recovery.json": "B3DEAADFB5AC3FCD4949818BD4C50910B4DD3B2BD0CFD184BE36F4793FF9A817",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-collision-state-restoration.json": "EA77048041BF6A85FF0C73A013AEFA9A7BC2F454BEB727DEA42CBE64794933DF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-interruption-stability.json": "2B490B7FB8CDC52CDEB4E2243AB7C0B2EDAEB0CAED9FFA12ECAB8C7858E13A69",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-no-snapback.json": "E46E9F9758AD2C6872AAFA24C2C238F1FE8381D37D275811FDAA0E52F3D4F07D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punch-safe-endpoint.json": "EA6B27181E8966829FF748D3E65AE4B3CA93ECF52BC52E495C7A331EC39A3EAB",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punched-route-navigability.json": "32C7A4D2FAFB13E85297E71C1BE2425C6AA71909DB4805078176CDF324E439D2",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-depth-corridor.json": "056A7D7FEC8D69141960C2205D5B50E67AAF55B8C1F12E58E10D5DC5F571274A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-free-aim-combat-polish.json": "6AFFC50A58D81FB4A7C2E70BF9B89C94C1562B61AB0E5058E2B895D7432D1A5A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-hybrid-physics-lunge.json": "A8055931DDD46660622E93BED2566724FB2F8773E2DDE87C4173A9D2B7D0F599",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-map-progression.json": "80CDE167080759EF9F4B8BBEED2BA73B93616FE1EF6FF5B6BB31039B229A3D0E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-mobile-controls.json": "8F184D6B4133334DFDE6C278ED762CA08BA6E45EDAD602742182621EB33DED97",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-motion-feedback.json": "F548AC41AF2E271ED1EEBC68DBDCE4C47033472AA33930FBD06F85F34DD94C1D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-player-state.json": "62B0344D5A13FBA680D22B1CD58AA0F5B45EC32097A6D2A8CF32C0B4390CD175",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-radius-damage-shake.json": "2F738BA1D1BF69095876FBBC71D191796DBF218EE4EEA50E6D1F14A7DAB21B56",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-rebirth-boss.json": "8E2E1126804DED3AD8898DFDCA966021EE57DC39DB840988849ED56899869AAA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-shared-excavation-field.json": "2C98F5199B72C4735E95A1E4F479C5F2E4790E466A215690CDE354720C52E21A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-shop-and-pet.json": "172522895A0C8ABA06668DD2AD90E576D7B6CC4668BF742B8588E9FC111C7FD3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-smoke.json": "4DA632E695A9FBAB8668E3CFE5BB052936A047D1D3A6D3FA6CED35ACABF436FB",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-train-and-break.json": "B7364FCF96835B6BA62C257B52F2816A985150FCBC4DCE8443702AA2A3D4670A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\punchwall-visual-polish-smoke.json": "30B214E7ECC3A5C9A3B4B2B922FC53D03DA4C604F7DC999BE8BC6A46131F1DB8",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\rebirth-progression.json": "33EA192FE74096D7C51E413F524D9614CF1D0E5D9622E7C531EDBEB9A8158EAB",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\reduced-motion-performance.json": "4F3928F92ABEFD75C55BA49FDB75D3382839BA8A688CFEEAB833F70306781338",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\release-expansion-economy.json": "8604A678A67117CD5C1A1ACC3F5AA55F51F25F98E5FDB94F3D86D8B024C35877",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\release-expansion-ui.json": "7D56542B0ACB1FA3FD00349300997DD2370A716CF91BD7B7FD7D90DD7341414C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\release-expansion-world.json": "33346328F3D5199359D64299BD3F29A690C08C230555F821346D04473711BD31",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\responsive-ui-inputs.json": "C2F1B441A4649BA2C49DA3C696BB6DF70FA817DB686CD5D708C3F810B924B453",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\right-hud-menu-uniform-grid.json": "CE8B5B447D1024F90ACBD3033C7C38EA7E613C09F26BBADBD501B8CBBFF67079",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\server-snapshot-coalescing.json": "5AB4899112F84EC8CA63BAB175D5F44A5353BDB57B32F4B6A8B0D42A99ED845A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\shop-coin-and-music.json": "32F52C1F6DC95FE602F362C733FD0482B0A8C80AECCBE7B9A0638DCCBF6B665B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\standalone-player-windows.json": "D58B6973ED1BCD2B317BF0BC0381A99B239E1D05CA284B346B56DB3479638362",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\structural-character-clearance.json": "6E3086AD28AE89876A41755C35B9244EFC0E59A5ABABB50A6B023F7A4E829C6D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\structural-overlap-ejection.json": "7D33D479FB3BC396B43591F4FFE1358726820172733137FF4C34D8A6B3CBC4B8",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\structural-rubble-solidity.json": "FE0404BD2F4688B8F32EB86DECF004BB506312D81CCAA0874869AB169FA49A01",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\studio-high-power-test-mode.json": "958C7CE9716C47E3EF8900649BC95F0881A2E6941985A1AF566D86E7BCBD7B5D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\studio-test-harness-control.json": "B8E01707C6D8E7B480B0971F3AFCEEFC00D5EF9279AF4D0D6F8779739DA3FA41",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\studio-test-harness-full-control.json": "F221F4FFD8BD984762F32F5210DF49DA2603F83AC05CD16154E4D8E7FCEEA013",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\support-loss-matrix.json": "B2CE0DA51835638B7532F8ECD18694EAC7BE16D3BEACD09B73F95331799FE3F1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\tall-multiplayer-depth-wall.json": "355C886BF37A35EBA70C3D5B0FA85F91D6FB9CDFAD779EA077F07BF8138CADB3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\titan-hq-tonal-readability.json": "DD7B456FBF50ACB7AE2F1815833670DE6AD71C70CE1C1CDE4F2EBC2C7256777D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\training-lock-motion-feedback.json": "5DC35856E7343AE582F5AB9507BD8D06395D8D2B7DD144E2ED7E43AB16ACF68C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\training-station-progression.json": "C0093A4800D86C1FCF3913B59441EF7F9516166F0308338D993C9376A68BE436",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\training-ui-pet-recovery.json": "BDADAF25DB41E8E31086E4379CA04DB842CFE64502568A865AA0E1F605180420",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\tutorial-action-notification-badges.json": "4C1D19E1EFF6F0F286A7B7DF896E1F1E6E4BBDB6391CFA4CD6FD360584499C4D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\vertical-depth-race-hud.json": "B056DEB0371A4E99BBB2802840D7B644BED491B4DC7345A0B8FC7CC3563F0691",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\world-boost-showcases.json": "E394CFEB021034191F2B51C1F728CF58C75381EFD925D6691100D58CF63F5F54",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\world-wall-reset.json": "F135EE8934BA74AE9F23F7CB4F453286D31524ED0407DA2C0135762EE5C82A4E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\invoke-recorded-flow.ps1": "387348CEAFD46024585D65E41A901944DF743211686FDE55693C9B0E0C4F987C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\package-versioned-release.ps1": "DFC60A4AFDB050AE8839C7DD178CA793EF313F64D03CB6DE6E9FE2466C114704",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\record-gameplay-frames.mjs": "8F41523D374A2CB202D7FA26133514C5A1301C2F1624F22BF25BEA92B9C42CC7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\record-new-flow.ps1": "8A32826AF0DB483E0588D73FEC04FB1DF561DB76F02B096932670AB54B1FF3E7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\release-build-contract.ps1": "7DD81960CA639CA7DB40EBB2CEDC5AC905E02C7640C05ABF16C7CC10066140EF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-automation-static-contracts.ps1": "1CFB57147FA18432BB55637318BDCF0F9FC8BE16549EA99F6E28354C04858DEA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-existing-flows.ps1": "0D33A5F8A709F06562CADDA85999B4EBF7209A31410B75E9F3DC49656F08373D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-fast-regression.ps1": "5E6ED193059B5D123AEC45B11D36A230E63F5C1609F3C4B9AE929DCFAE78E33A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-feature-qc-regression.ps1": "69D57E074FEF15F86432BB3895FE8C325B3B260E6719CF41240B9CC6BA8B9439",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-final-artifact-regression.ps1": "EBE53B4D4394B41938FD423354F30CD1386B910F78268F167E794D9C7E9B7822",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-punchwall-playtest.ps1": "5E3EDA8DC2AA7321324A2EA13E0835D6D334BF8A9F5CE5662984A43DBC564E4B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-smash-integrated-regression.ps1": "2F0697A3007F0B62A2A0538EFAD5710784FFEC6E7BC93D15320B1509EA1AB11E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-studio-test-harness.ps1": "E3E2C9135DE1A8975940CEB2953847C43BF3C8C57E59E193A52DCAC9EF1DB2C1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-video-qc-regression.ps1": "E74E958A522B76B4AFF6349C069030F9B7ECF6542AF39EEDEE2B30BE452A0094",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\animate-hook-lifecycle-contract.mjs": "1346EB5180014D36CADEF3FF40DD1CEEE59D5AB4FFFFD7C9ABCAE651417041F0",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\automation-infrastructure-contract.mjs": "77860ADF8F72C27E0D939FF112803F7562B38B209EDC8D9C05B9EE76CCD6CBA6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\batch-b-fist-flow-contract.mjs": "FD1D410C4F54506F91C362E385581A532A320F7FA69C4BA43C0984887B3B4294",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\camera-geometry-guard-contract.mjs": "4A4F4BAF3F38C8B400ECA1527507AF0EBDE056E2B26F5724841C9319ED2BABD9",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\camera-shop-stability-contract.mjs": "E98A83CF8FD951B07A9F67B9803D2C08E0704F5373A1C7F6F1C1B90D7D261E7C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture_qc_screenshots.mjs": "31C6B8FFDB2B3F95CEB69DCDEAD44578A085CE3C0FDD4E5C45033758B212D0AC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-fist-angle.mjs": "41AE8A4C76D2558C8A68B324D44FB84E11EDDCAE6F2B53F159209F74B3D2EBFE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-honor-products.mjs": "E565249FA4798833671141D3373896437B14142B61979B7EBD60D6A6226CCBAC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-honor-progression.mjs": "4B7DBA07CA22C82E48F0BC846E7125F32185F88E4EB38DA4463E62430A0E01A0",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-mobile-ui-iphone17.mjs": "22F8FC85BDBEF85DD2950F5AE3EEA7A8D6322BD2AF6EBEB4B59D01C348E28C33",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-pet-pack-candidates.mjs": "85C4D3D20D873024CE058B12B4537F6173D3EB2DEDD6E792C7B698D8D54DC960",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-pet-pack-runtime.mjs": "69807FE719EEB33BE9D844036D62BA08DBA77AA1B724BB5B867244148484745C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-power-avatar-growth.mjs": "345E3DE4E5C4A79051F4B0F0FBCB0423EEE86F0FA695D1EEF1AC953492BB098E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-rebirth-progression.mjs": "DFCBA59C7EAB4751197FC5B1212F61EE6785E5A11F4AB173B999742E28DC025C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-shop-qc-screenshots.mjs": "06FE11758D1A0F30AAEC6D7926B79674E8BCAE59A45C237FEF7BA38B74CC1751",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-training-stations.mjs": "931C6EBE201FBE6E4E69CE4B9FBA3285F29BB86BE5E4B2F6C897CE6EF3351C73",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-training-ui-pet-recovery.mjs": "FDFDF7FD8DC1F042C21CAA87F96C0F78D8A94B1AB1958B8158E56397414B70B9",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\capture-world-boost-showcases.mjs": "51830EE9EBC39F4571E4C1BE2A112AB1154BD3313400AA882E8B0986C8FABF2A",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\character-spawn-lifecycle-contract.mjs": "E9369BE5410D4DFD043DDD27FCF251CA31DFB06B02AB87DC5C9DF15D407C30EE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\client-runtime-performance-contract.mjs": "5A8BE5EBF08E7458784E3AF1F4264D3B6C868E035C222AC47873B7FCC8C58F8E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\combat-target-boss-hud-contract.mjs": "FABD36BD59CEDA4E9FF8BFCA5C43EA72864BDE4F429A6215C0D248CA20E5F36B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\creator-store-pet-pack-contract.mjs": "8C8D9E401B2F2AD8F9743940C5B02C6A6E1AFA2801CF525670A9EC2BC86DA499",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\device-matrix-hud-shop-contract.mjs": "A5518BBBE5646B51F29CF3FDDC32D1CA83F1BF68849268E147FA70602BA3DB15",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\final-feedback-consumer-contract.mjs": "4B0CC6F6E6BBA0047476D313C43D3794E05235282940F567E7226E33009BC657",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\fist-growth-lifecycle-contract.mjs": "95A577892280E42074D269B8EC6BE0E802A9879C84B6221CD0B6DF13270DD4E0",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\fist-icon-identity-contract.mjs": "706A85A68C6CE477EB24106E2C1E019461837189B3F4B24035CAE31044943822",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\fist-pet-safety-contract.mjs": "0F89DAC01BCE47026C07E85FA565CF8A66832A5E8033077EFC36E4CA669DEC3C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\flow_runner.mjs": "2434372201C2447DD2BE18DD46ACDCD41A613A90BFD2361F2307C852CDD7001F",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\full-game-economy-boundaries-contract.mjs": "F20ED1604D26E35696E35EDAA079833B8367F67398C062203AE5E21D4ACCA1CC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\full-game-real-ui-controls-contract.mjs": "E3E994740E76B9AA775FF6198A5F40843B14102E0175D4F0D18D3BA1698D00B6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\generic-panel-stability-contract.mjs": "59EE5619DE421BE2045AEF477C7DD8B1C942BAC9DC4DE00353529BC5F0E305B5",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\honor-product-receipts-contract.mjs": "BE513BEA83B98F0863E8D1A6FE9C5F11566ED982DC578103A7573EE59AB170D3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\honor-progression-contract.mjs": "12FABA266929BEE774080E74910622ABB09B9D9A9BB1509BEE8658AE6B2BA630",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inspect-pet-pack.mjs": "50178B7C68DE93AE802C34EF21CA7F965E790860B10E0207BDA439FFFBED5C08",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\install-detailed-premium-pet-templates.mjs": "A08D6041DCC99FDA2C442F1F6CFE5242443A4B753732E8C2EC5DECFB92028814",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\install-pet-pack-templates.mjs": "F14119B2C98446FAAEBE0630FB31FF855212F2F41FB1360F183F2C285C97ED48",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-card-render-contract.mjs": "BED97710D792A2F9A0CCDEA48CE3CD10548338586AC53830C99FFA0E617ABF6C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-model-preview-contract.mjs": "D9C1593CF88DB98A6EE3838DD535F808CC396BC02F43A6147CFA739F3E98DCF1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-performance-contract.mjs": "C7D82CA4D43531FF9FE89DED7183BE6A4851B462B42FD17D38F39014CEF1A5F2",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-runtime-cache-contract.mjs": "28763399F5E55456C91F7AB7EBC0B14F309349496BCC2E7DC0A5D4FB3587B803",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-visual-fidelity-contract.mjs": "5FE086070AC346352B5CB19AD69E9024789B6A24F8342BBB8DF245B7DCDEDA4D",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\inventory-visual-responsive-contract.mjs": "000270C225DCA1ACFABF201A695B56483A0E51E83DA52159CA58545086DAF820",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\long-run-content-contract.mjs": "5B94C406582993ABC9C7A06606405388D4EC5B0BAE39144152F5D69D27B4E4D9",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\mobile-iphone17-layout-contract.mjs": "9AC3DBB2D580A8DAF1592157092F76416EB1BEF604CECF4254CE5B74E000C2FA",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\mobile-iphone17-state-driver.mjs": "69ABCE2FAE69E7CBCC2443D007174711E217EAE53EE3A0FD51C24E79D9F19629",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\normalize-rbxmk-place-xml.mjs": "BF3BD02B1951CDFF23576B2C35CCC5D94C9F8A4A3F708311BE33B40716BF65AE",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\persistence-contract.mjs": "99F232E5C91A550CAD7B886544CAF0A7878BE9183F04EE292BC3B825CFD9E0CF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\power-avatar-growth-contract.mjs": "E1914A0854EE6E607850A1D5516B209597F7777CCCD3637B11DE4D8CE5B7CA53",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\prepare-rbxmk-place-input.mjs": "6F0DAE6975B1AFF3A08141F5C97FE237277F05C3FFA8174432C1F86FBF9F8A57",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\product-completeness-contract.mjs": "5236FBA8FA2E1CAB7834D879E37DAD2EDD9C21227069E8AAEB36383DA74D4114",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\rebirth-progression-contract.mjs": "2BF6BDD12A26DA6118C61451CBEA0A21F77762744A22B75CD2FFED56DD424480",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\record_flow.mjs": "B0B2152C2A5637D1F83F4C695643EA31AA056D0345C777374EA8B275C3AE33CF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\restore-rbxmk-mesh-content.mjs": "74EBFC9DAAFF3CE0045384802C70D16B2332665C93D8055AE381C0EC225BCBD9",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\sanitize-pet-pack-workspace.mjs": "DE047B924D6487413ED0C08C9DDA171224392D39B5FE9A585BA53F40957A14B3",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\server-snapshot-coalescing-contract.mjs": "034E1E7426618C587ECB3330318F82185BF637A8F7268453060A3DAF3DE26305",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\settings-panel-stability-contract.mjs": "C5C718C960BE2C08E97702B6AACA25F5A395FA94A83FAAB7E9677B8A71A0D43C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\standalone-player-windows-contract.mjs": "4FB0CD209A74409FBC52BA8774E76A79157155EC0C352AC5FC96CC08D181CE55",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\studio_mcp_client.mjs": "1384C89971A3F339F1CF37DA36CED827FEF77796D650A703D78484AC7147EB75",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\studio-console-classification-contract.mjs": "BBB51F57ED2DE180F60DC193B301EA1160F3F4381EB537355B2AC17532E6B578",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\studio-readiness-contract.mjs": "B7179DE2B8197B1FEB0D4935814BCFD5C8CE638E01A6E0848B7592FF62175131",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\sync_rojo_source_to_studio.mjs": "37352629B13F61ABAA97B050ADDAB0D212996D87B868CDA1BC19F8C956CAA5C6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\target-depth-selection-contract.mjs": "D9BAD1E2E018FB50D711CE83BFE6143E9369C0C01C4D0DD406D6CE34821A58CF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\titan-hq-visual-contract.mjs": "3C6188779991550DAE87FDC1292CF5B7045FAFBEBDDD109260EA3A075C9232AF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\training-station-progression-contract.mjs": "96A2A8471B0C992F710CE4F2992C48130606BF418C0AB801AE1E4B016DC34E9C",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\training-ui-pet-recovery-contract.mjs": "1937F1E4CC1BDD82B1556E9D052AD9995465A11A1BB2FBD1E62C1C2CF917BC2E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\tutorial-action-notification-badges-contract.mjs": "3ADE8D577EF8B2C58F77392D7A69B9CDD92CA9AC12D6CBB5B28A6279F34CE627",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\verify-studio-source.mjs": "B91FD8B14AC317914B5D5330F7BA9FD877A659270CFB25C9A1A75003D0B118D1",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\scripts\\world-boost-showcase-contract.mjs": "2FDA4906EC8CC577A1F9C1B0D597E4830B8C221682A0F2A37FC676259FD01589",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\sync-source-to-studio.ps1": "55D1EDD1CF5D1AD5E9AA8F0367E58F897582D23DD222239DF2725DA5314CC2F6",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\verify-exact-rbxlx-sources.ps1": "FB7D598CE0C24243995574128D1C5AF68CE3FAD047144DFA26FE8EB1FE705EBC",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua": "F1D344F3131A077755A4AF2EE5F44F2B5DEA82FB68EC08573917C2C5B4E33CD7",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua": "894A5E2BE2592BC953E04D4208D8E53041BD7E8A640A43605DE76EE6CF842BE5",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua": "F238DE4D398A9E8BB1076AC028C9CB18A856090EECEDF3E1A6522C1F4E80DB53",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua": "0C1A3389CB3F3F4B4F1B729050016D22363796BFE2EEF17CBB984403CC5CEEEF",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua": "89B9EA4422DAD55006092EFCC0FCD39DC44CC238716B706D77C2AAD668A4962B",
+    "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941"
+  },
+  "liveBefore": {
+    "ok": true,
+    "checkedAt": "2026-09-05T22:59:32.775Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+      "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "9b57a40143c81460e87c50abb754b512a52868c70b436b2b0af8f56edb1e238b",
+        "rawSHA256": "f238de4d398a9e8bb1076ac028c9cb18a856090eecedf3e1a6522c1f4e80db53",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434179,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434179
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "b240a035847f74bc5e7301d05506cc768dc953bcd1f602dd60ff4d6b3da38d06",
+        "rawSHA256": "f1d344f3131a077755a4af2ee5f44f2b5dea82fb68ec08573917c2c5b4e33cd7",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 162895,
+          "name": "InventoryUI",
+          "actualBytes": 162895
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "255c390519fa3cb9024e90b7c6683794da7453876c874e41f9e0b1391c55420a",
+        "rawSHA256": "894a5e2be2592bc953e04d4208d8e53041bd7e8a640a43605de76ee6cf842be5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 613345,
+          "name": "PunchWallClient",
+          "actualBytes": 613345
+        }
+      }
+    ]
+  },
+  "liveAfter": {
+    "ok": true,
+    "checkedAt": "2026-09-06T00:18:38.921Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+      "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "9b57a40143c81460e87c50abb754b512a52868c70b436b2b0af8f56edb1e238b",
+        "rawSHA256": "f238de4d398a9e8bb1076ac028c9cb18a856090eecedf3e1a6522c1f4e80db53",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434179,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434179
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "b240a035847f74bc5e7301d05506cc768dc953bcd1f602dd60ff4d6b3da38d06",
+        "rawSHA256": "f1d344f3131a077755a4af2ee5f44f2b5dea82fb68ec08573917c2c5b4e33cd7",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 162895,
+          "name": "InventoryUI",
+          "actualBytes": 162895
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "255c390519fa3cb9024e90b7c6683794da7453876c874e41f9e0b1391c55420a",
+        "rawSHA256": "894a5e2be2592bc953e04d4208d8e53041bd7e8a640a43605de76ee6cf842be5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 613345,
+          "name": "PunchWallClient",
+          "actualBytes": 613345
+        }
+      }
+    ]
+  },
+  "discovered": 124,
+  "excluded": [],
+  "results": [
+    {
+      "errors": [],
+      "flow": "ai-material-assets",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\ai-material-assets.json",
+      "seconds": 23.0,
+      "ok": true,
+      "flowSHA256": "115FD23114DFA06D59F095187B2071E084491BF19FF91D9D64EDF35ED6932E75",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "authoritative-progression-hud",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\authoritative-progression-hud.json",
+      "seconds": 32.5,
+      "ok": true,
+      "flowSHA256": "4F332C832E510A0CC6A6515F5CFFF26BF3C5F5EF982E14DB88898B60249F2D1C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "boss-depth-authority",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\boss-depth-authority.json",
+      "seconds": 23.9,
+      "ok": true,
+      "flowSHA256": "A53A6CB4487214FD85494DF42C94E21D7877172DB7EB1424D7B821F030DD371B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "branded-loading-onboarding",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\branded-loading-onboarding.json",
+      "seconds": 28.2,
+      "ok": true,
+      "flowSHA256": "BAEFEC4CE166B424B1C14930D026E2C90A1BA86E5B1412D6DE27AE10D37715BF",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 7.214224815368652, -200.6425323486328\",\"contractValid\":false,\"cleanupRestored\":true,\"freshObscurers\":[],\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-2.035217046737671, 4.596865653991699, -212.80242919921875\",\"valid\":false,\"type\":\"Custom\",\"selectedOrbitPreserved\":true,\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8548126220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"largestEscape\":{\"raw\":\"-2.000030517578125, 7.214212417602539, -184.6427001953125\",\"origin\":\"-2.000030517578125, 7.214212417602539, -184.6427001953125\",\"phase\":\"render\",\"distance\":2.6380786895751955,\"step\":\"-1.8260706663131714, -1.8976985216140747, -0.1538374125957489\",\"originKind\":\"current\",\"losRejected\":7,\"losClear\":true,\"kind\":\"face\",\"overlapCount\":1,\"parts\":[{\"falling\":true,\"name\":\"DepthBlock_L038_C07_R03\",\"frame\":\"-2.09546661, 7.03004837, -185.077042, 0.720844448, 0.692197204, -0.0353052169, -0.693060577, 0.719348729, -0.0469526164, -0.00710370345, 0.0583141856, 0.998273015\",\"velocity\":\"0, -4.5520501136779785, 0\",\"size\":\"4, 4, 4\"}]},\"clearRatio\":0.5975609756097561,\"maxInheritedRootStep\":21.62519645690918,\"configuredOrbit\":12.474493980407715,\"maxEscapeStep\":2.6380786895751955,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L029_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L029_C06_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L035_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L038_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L043_C06_R02\"],\"maxBackPunch\":11,\"visualValid\":false,\"angle\":0,\"actions\":18,\"firstEscape\":{\"raw\":\"-2.000030517578125, 7.214900016784668, -76.63282012939453\",\"origin\":\"-2.000030517578125, 7.214900016784668, -76.63282012939453\",\"phase\":\"render\",\"distance\":1.7999999523162842,\"step\":\"1.7999999523162842, 0, 0\",\"originKind\":\"current\",\"losRejected\":2,\"losClear\":true,\"kind\":\"grid\",\"overlapCount\":1,\"parts\":[{\"falling\":true,\"name\":\"DepthBlock_L011_C07_R04\",\"frame\":\"-3.04356885, 6.96915054, -76.5761108, 0.907708108, -0.0407391489, -0.417619854, 0.0612184852, 0.99748385, 0.0357547253, 0.415112376, -0.0580209084, 0.907918155\",\"velocity\":\"-0.18829046189785004, -25.46769905090332, 1.115545630455017\",\"size\":\"4, 4, 4\"}]},\"settleTimedOut\":false,\"zoomDelta\":0.0065937042236328129,\"physicalUnresolvedFrames\":4,\"readableRatio\":1,\"lastGuardPhase\":\"render\",\"overlapEscapes\":53,\"sampleMaxStep\":99.79548645019531,\"selectedDistance\":12.474493980407715,\"userOrbitDistance\":12.474493980407715,\"maxStepFrom\":\"-2.000030517578125, 7.214224815368652, -180.63832092285156\",\"settledSamples\":4,\"maxBackTo\":\"-2.000030517578125, 3.2024991512298584, -192.85060119628906\",\"settledReadableRatio\":1,\"geometryClamped\":false,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxBackFrom\":\"-2.000030517578125, 3.203174114227295, -192.85061645507812\",\"handoffActive\":false,\"type\":\"Custom\",\"maxStep\":2.40000057220459,\"unresolvedSafetyFrames\":4,\"settledClearRatio\":1,\"sampledFrames\":164,\"lastGuardAge\":0.04973030000110157,\"lead\":20.5659236907959,\"insideSamples\":[],\"maxStepTo\":\"-0.14673805236816406, 4.294681072235107, -80.90276336669922\",\"finishDistance\":12.467900276184082,\"mode\":\"CustomPreserved\",\"maxCorrectionStep\":2.4000015258789064,\"transientLineOfSightFrames\":66,\"valid\":false,\"visibleRatio\":1},\"visibilityMeasured\":true,\"freshValid\":true,\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"safetyBounded\":false,\"settleTimedOut\":false,\"inside\":0}"
+      ],
+      "flow": "camera-long-tunnel-regression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\camera-long-tunnel-regression.json",
+      "seconds": 45.4,
+      "ok": false,
+      "flowSHA256": "1A84A9D21DE001C68C65A7A20340561293D40D30E65C81E0AE0414AF104A4BF7",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "camera-shop-stability",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\camera-shop-stability.json",
+      "seconds": 45.1,
+      "ok": true,
+      "flowSHA256": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: AssistantCommand:1: self-contained camera teleport contract failed: {\"valid\":false,\"type\":\"Custom\",\"zoomDelta\":0,\"rebaseCount\":1,\"inside\":0,\"teleportStuds\":63.259037017822269,\"faded\":0,\"rebaseBefore\":0,\"distance\":30.164321899414064,\"baselineDistance\":30.164321899414064,\"bypass\":false,\"scriptError\":0,\"scriptValid\":true}\nAssistantCommand:1\nAssistantCommand:1\n"
+      ],
+      "flow": "camera-teleport-scriptable-visibility",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\camera-teleport-scriptable-visibility.json",
+      "seconds": 29.6,
+      "ok": false,
+      "flowSHA256": "0340E7C4FBBE1E7996621A61106CB173754D4242DCDFEF46AAAB82656B884AB3",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "camera-tunnel-zoom-preservation",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\camera-tunnel-zoom-preservation.json",
+      "seconds": 29.4,
+      "ok": true,
+      "flowSHA256": "C966AF20A4F347D4C95AAA1C66B8D497066D6FBD816B6F2688BBDB34242E545C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "center-feedback-suppression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\center-feedback-suppression.json",
+      "seconds": 29.3,
+      "ok": true,
+      "flowSHA256": "5394952BEBFD3A555028A64013FFE54FA9731B2703B44FB376F30E7BF2B42DF1",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "coin-burst-reward-feedback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\coin-burst-reward-feedback.json",
+      "seconds": 26.0,
+      "ok": true,
+      "flowSHA256": "E5F602EAA516216445C4D12A4AA776458A71DD9CA996275196DF9E1336B420DB",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "combat-target-boss-hud",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\combat-target-boss-hud.json",
+      "seconds": 34.2,
+      "ok": true,
+      "flowSHA256": "4D0CE24F5929ACFD71072EA184DC2DF849BF56ABA5491B9ACFE0A7A9A6D7FED6",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "contextual-actions-settings-authority",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\contextual-actions-settings-authority.json",
+      "seconds": 27.7,
+      "ok": true,
+      "flowSHA256": "240C9CCDBF50AA0E3C38B9B7E5CCB76395FB25AA5848273EDB8E425BB19D3D5C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "creator-store-commerce-npcs",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\creator-store-commerce-npcs.json",
+      "seconds": 26.3,
+      "ok": true,
+      "flowSHA256": "E58C6F9A923715336DD5B99530CCC8907F84993437CD6509422ADDA2625669BE",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "creator-store-fist-visuals",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\creator-store-fist-visuals.json",
+      "seconds": 30.7,
+      "ok": true,
+      "flowSHA256": "3CDA61B0CB2993ECF35AB603496646EF42CA6F25CE4BD5B1705220DE6B003362",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "creator-store-pet-pack-visuals",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\creator-store-pet-pack-visuals.json",
+      "seconds": 31.3,
+      "ok": true,
+      "flowSHA256": "741D940E300DED9FE6AB97688734CD2966F772700D71391F65D73604ACE3D92B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "depth-tier-materials",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\depth-tier-materials.json",
+      "seconds": 27.1,
+      "ok": true,
+      "flowSHA256": "D996184E26AD05B4BBFC06BAA1BA0D24424CC4E33C969AB1C2B6DA8BE92BA95A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "destruction-boss-phases",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\destruction-boss-phases.json",
+      "seconds": 37.9,
+      "ok": true,
+      "flowSHA256": "7F31EDD6E964DE431934E5A8391200DCD8F79BE54230AF1A8613F069A0F90C8C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "developer-product-configuration",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\developer-product-configuration.json",
+      "seconds": 28.3,
+      "ok": true,
+      "flowSHA256": "017DC8E4EA0372E45664744539137F82A206F798FA34EFABD8C3B9565E093F7D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "device-matrix-hud-shop",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\device-matrix-hud-shop.json",
+      "seconds": 143.5,
+      "ok": true,
+      "flowSHA256": "D23FE63200F4BA06A3874AECF10E1190EF24C27CCD525350DB68B8AD96B328F6",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "directional-punch-controls",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\directional-punch-controls.json",
+      "seconds": 26.1,
+      "ok": true,
+      "flowSHA256": "C2B70C0C88D0E804C90FDDCEFD88D7A228487445B53E2CF327A6AE5C7A375B7B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "feedback-holder-presentation",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\feedback-holder-presentation.json",
+      "seconds": 28.2,
+      "ok": true,
+      "flowSHA256": "1979867221E927C81B26FF28D464DEAFAE1E811C379406CDD8987EA20E45781E",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "final-rbxlx-build-validation",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\final-rbxlx-build-validation.json",
+      "seconds": 27.8,
+      "ok": true,
+      "flowSHA256": "DC9B16C421B97A7ED3CD777010DE1816619552716B096C533E6D148F78DF104D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "first-five-fist-presentation",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\first-five-fist-presentation.json",
+      "seconds": 46.5,
+      "ok": true,
+      "flowSHA256": "B042DA6272560028F247229D772BEE340953AE5654F883621E76938610374929",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "first-five-rig-parity",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\first-five-rig-parity.json",
+      "seconds": 43.0,
+      "ok": true,
+      "flowSHA256": "D156428E49BBE15F01EDD7702B2823A83467A09938045ACF097FDF9D023E686D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "first-hit-forest-stone",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\first-hit-forest-stone.json",
+      "seconds": 26.1,
+      "ok": true,
+      "flowSHA256": "0299331B153099298BA9F4A6E4B3FFD2CA848F1E762FC8601B4A781B2147541E",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "fist-arm-alignment-qc",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\fist-arm-alignment-qc.json",
+      "seconds": 32.3,
+      "ok": true,
+      "flowSHA256": "F348CE9773674E9E930B6D5C69B6291007F857C06426F55698631C885DAFD86D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "fist-items-icon-ui",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\fist-items-icon-ui.json",
+      "seconds": 31.6,
+      "ok": true,
+      "flowSHA256": "4A26270081339F9D97FED8A270A89A321BF62126FABA04AE1524219222A4F524",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "fist-pet-legacy-slot-safety",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\fist-pet-legacy-slot-safety.json",
+      "seconds": 44.3,
+      "ok": true,
+      "flowSHA256": "C9D4C7AD54E7981923841A19FAB1A2450DA31407114A491CB769F5CEC9860B37",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "forest-world-visual-qc",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\forest-world-visual-qc.json",
+      "seconds": 28.9,
+      "ok": true,
+      "flowSHA256": "E7B3FD91B5261EFA50F4944BD08499E3A5ADEC546D96BCBD0E559FFD1249721E",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "full-game-economy-boundaries",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\full-game-economy-boundaries.json",
+      "seconds": 30.9,
+      "ok": true,
+      "flowSHA256": "B1F315F7B075C151E15DCB63C0B5B88635669F9B1698D8D37944242004239F5D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "full-game-real-ui-controls",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\full-game-real-ui-controls.json",
+      "seconds": 66.2,
+      "ok": true,
+      "flowSHA256": "299555173298C4ED19DF065FE60569897FDFFC5E93AE4DEB93C5877613DAB158",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "full-game-tester-critical-ui-and-models",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\full-game-tester-critical-ui-and-models.json",
+      "seconds": 30.0,
+      "ok": true,
+      "flowSHA256": "9EC58715EB4D1C1240170EF8924B772812ECBAEA252A2D9DF695655C416D490B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "functional-hero-shop",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\functional-hero-shop.json",
+      "seconds": 29.4,
+      "ok": true,
+      "flowSHA256": "883CA9CCF1D707C435C9E6238CC70BAFE736C45264B1BDB7DA09E70D0A11B131",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "generic-phone-game-menu-accessibility",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\generic-phone-game-menu-accessibility.json",
+      "seconds": 31.0,
+      "ok": true,
+      "flowSHA256": "2EBDB520FE568141428495EE318739B539D02A3E1C49D0867CF8C7D418B8B895",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "hero-city-design-alignment",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\hero-city-design-alignment.json",
+      "seconds": 26.8,
+      "ok": true,
+      "flowSHA256": "880B210A792C6B61D90B37F02C39F8D3C88D70B18858F9D5FB66963E028A18C1",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "hero-city-pixel-perfect-hud",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\hero-city-pixel-perfect-hud.json",
+      "seconds": 28.1,
+      "ok": true,
+      "flowSHA256": "0B9E0B58D2EAFBC4F4A28B4C54BC89BF7EA75B732AD2E0B97AA84021D619E8CC",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "hero-city-reference-ui",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\hero-city-reference-ui.json",
+      "seconds": 29.7,
+      "ok": true,
+      "flowSHA256": "4B024460EA2AFB590F4C4079AE3D77DE6BDC3F5100300C529E38C7D1289B60A3",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "hero-city-theme",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\hero-city-theme.json",
+      "seconds": 25.7,
+      "ok": true,
+      "flowSHA256": "0E8D24ABC37BB2E760949558212BF53655CFEC7B7B6BF7C14961E868DF5E0CE4",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "hero-shop-reference-polish",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\hero-shop-reference-polish.json",
+      "seconds": 29.6,
+      "ok": true,
+      "flowSHA256": "4B4407FD690E1E1372E92F76875D99FEC3762CD7845A3D9C93DA098BD89B5154",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "honor-product-receipts",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\honor-product-receipts.json",
+      "seconds": 32.8,
+      "ok": true,
+      "flowSHA256": "B4900C37DFE5C183A07A0FE5FB8D335781DAF7D9FF650EEA1916EFCC2AA1FCDD",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "honor-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\honor-progression.json",
+      "seconds": 43.8,
+      "ok": true,
+      "flowSHA256": "CA030C2EBB5C8A4CACBB132C9F6F3E314E8A690B94BCB5CA2AD2E6E4EAB8AD8C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "impact-destruction-feedback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\impact-destruction-feedback.json",
+      "seconds": 30.1,
+      "ok": true,
+      "flowSHA256": "08EA1ADD7CF7BAEC9EF6D8502C87CC56A2A963E5F9A5A5453DE8FDACAD93DE13",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-category-icon-cohesion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-category-icon-cohesion.json",
+      "seconds": 29.3,
+      "ok": true,
+      "flowSHA256": "299D5BB6D899F37A5F9D3FC59C01335C9321AD07800D2DB113F7B0C8A3C62ADF",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-delete-real-input",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-delete-real-input.json",
+      "seconds": 30.0,
+      "ok": true,
+      "flowSHA256": "F3D1A93D434993C27260FFD35F9295C67E762DBE07A0FC7FD03FB483C113C96B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-menu-ui",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-menu-ui.json",
+      "seconds": 89.1,
+      "ok": true,
+      "flowSHA256": "C4A739EE307EBD788CC0F07468AC7795BE2D6130EB72B1ECFD45D53E9F4008D7",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-persistence",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-persistence.json",
+      "seconds": 25.0,
+      "ok": true,
+      "flowSHA256": "0AAE6010FEC24E509F122B6475783739E4977C62FD19081C144DC04862B0EFD6",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-pet-icons-fusion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-pet-icons-fusion.json",
+      "seconds": 31.6,
+      "ok": true,
+      "flowSHA256": "B13D3C7CCA84DE840A76F77F027656A16EE77F91AD32B3C10B88E8CB5FF7DBC1",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "inventory-visual-responsive",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\inventory-visual-responsive.json",
+      "seconds": 57.9,
+      "ok": true,
+      "flowSHA256": "97510EF4E0F51DA9AC11F2D5A517D31B0C12D1E1E1CAE66AE8B1937D864196F3",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "item-matched-fist-visuals",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\item-matched-fist-visuals.json",
+      "seconds": 45.2,
+      "ok": true,
+      "flowSHA256": "E86ABDB66EDD9819633643680EBE385DFB423AEA49EFE754A87089AD50C55F24",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "iteration01-complete-polish",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\iteration01-complete-polish.json",
+      "seconds": 28.7,
+      "ok": true,
+      "flowSHA256": "C9C2EBCFEDAF150B7ED0894ECA71D4CD6CADB876822FE9AC76DEC9585A537F5B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "iteration02-companion-tasks-boss",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\iteration02-companion-tasks-boss.json",
+      "seconds": 35.4,
+      "ok": true,
+      "flowSHA256": "4CC206691265F0CD510847C2B04C043CD0883D3DA2D93410955BEBC9071355CD",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "iteration03-safearea-destruction",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\iteration03-safearea-destruction.json",
+      "seconds": 37.7,
+      "ok": true,
+      "flowSHA256": "054BE80EBD3BE0118834667430DC2ECEF3949A653805BC472558710A7652124A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "iteration04-armory-pets-feedback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\iteration04-armory-pets-feedback.json",
+      "seconds": 36.3,
+      "ok": true,
+      "flowSHA256": "798A730A7D01140AF01F1EE982FB9AAEDEEC6955F2DC429770CDF099228038EC",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "iteration05-final-depth-motion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\iteration05-final-depth-motion.json",
+      "seconds": 31.0,
+      "ok": true,
+      "flowSHA256": "4608362F6B78C88EB9576A14E960014F8C400D087FD5E572E828D5C32625A47C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "layered-spin-reference-ui",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\layered-spin-reference-ui.json",
+      "seconds": 29.2,
+      "ok": true,
+      "flowSHA256": "D744E840AC55584944F14B2928DAA7D9C7B25FCD0EA41EA1B8AB5FBFCD91FCEF",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "long-run-catalog-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\long-run-catalog-progression.json",
+      "seconds": 39.1,
+      "ok": true,
+      "flowSHA256": "3204034BB905D05758EA3E9CA8012BCBE470731CB74A943DE510A447BDCCD921",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "luck-distribution",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\luck-distribution.json",
+      "seconds": 27.8,
+      "ok": true,
+      "flowSHA256": "62C8CB9BDB684B76CB458DE4B6E17D8D88D91A75D62F960D5E7940F2B467E0FD",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "milestone-world-transition",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\milestone-world-transition.json",
+      "seconds": 31.1,
+      "ok": true,
+      "flowSHA256": "25A9AF4065C02E16D03C90239A846A09912935324413DE82E2F1346B8E5A8CCF",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "mobile-iphone17-layout",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\mobile-iphone17-layout.json",
+      "seconds": 52.8,
+      "ok": true,
+      "flowSHA256": "AC7EB58140DC4EB9426DC2320005563BF45E84441FE453010BA05F1725663725",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "natural-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\natural-progression.json",
+      "seconds": 49.9,
+      "ok": true,
+      "flowSHA256": "AFD1CEC2E6BA6E8F75BE5D66CAF1BDCB81757749B53B149BDE13C401A3599AAA",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "normal-pet-visual-models",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\normal-pet-visual-models.json",
+      "seconds": 40.5,
+      "ok": true,
+      "flowSHA256": "5772DBF1B56C92D6D4AC9144A5A48A949F3993BA36E6D3D94068D647FAD9FC5B",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"spawnYaw\"\\s*:\\s*180\nReceived: {\"spawnYaw\":0,\"tutorial\":1}"
+      ],
+      "flow": "onboarding-waypoint",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\onboarding-waypoint.json",
+      "seconds": 26.9,
+      "ok": false,
+      "flowSHA256": "A18A76F1341D80B4A5CBE0662B13C3953822488881728908C9EA11495215D826",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "persistence-shutdown-single-flight",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\persistence-shutdown-single-flight.json",
+      "seconds": 22.8,
+      "ok": true,
+      "flowSHA256": "2680A4A8E0713D7FCEB550AB46744E9C48A848A7656692903D893D9E6771C09C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "pet-egg-world-pickup",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\pet-egg-world-pickup.json",
+      "seconds": 57.6,
+      "ok": true,
+      "flowSHA256": "FF857F189D82177DBAB3D8CBC9F1CE7B5212DF5C254315DC7DB9180714DFF57D",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium safe-frame failed {\"failures\":[{\"viewportX\":1277,\"distance\":6,\"maxY\":281,\"name\":\"Celestial Guardian\",\"maxX\":382,\"minY\":1,\"viewportY\":780,\"inset\":7.8,\"minX\":63}]}"
+      ],
+      "flow": "pet-size-position-qc",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\pet-size-position-qc.json",
+      "seconds": 41.2,
+      "ok": false,
+      "flowSHA256": "6D4A0549CA5940EAEDBD885CA3DDD56704577C84FAE0797B8CA0AA41A9FAA0F1",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "pet-wall-drops-and-fusion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\pet-wall-drops-and-fusion.json",
+      "seconds": 30.0,
+      "ok": true,
+      "flowSHA256": "26CB868B2B34F25CA6120AA979BDAAC49F0C4ACB0DCB857FAA9AF37621FFF60C",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Pet growth invariant failed {\"valid\":false,\"count\":3,\"rows\":[{\"notLarger\":false,\"name\":\"Forest Pup\",\"afterHeight\":1.4499996900558472,\"afterScale\":0.8387129306793213,\"targetFixed\":false,\"beforeHeight\":0,\"beforeScale\":0},{\"notLarger\":false,\"name\":\"Miner Cat\",\"afterHeight\":1.2047007083892823,\"afterScale\":0.22719381749629975,\"targetFixed\":false,\"beforeHeight\":0,\"beforeScale\":0},{\"notLarger\":false,\"name\":\"Crystal Fox\",\"afterHeight\":1.6500006914138795,\"afterScale\":0.19778680801391602,\"targetFixed\":false,\"beforeH"
+      ],
+      "flow": "power-avatar-growth",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\power-avatar-growth.json",
+      "seconds": 35.9,
+      "ok": false,
+      "flowSHA256": "8C6EC2692B71A6094A4AE78F2D29F99AABB0CA8745067C8A8EEA1F24765EF0D6",
+      "exitCode": 1
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"maxSpeed\"\\s*:\\s*(?:[3-9][0-9]|[1-9][0-9]{2,})(?:\\.[0-9]+)?\nReceived: {\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"scale\":1,\"travel\":48,\"maxInitial\":137.36000061035157,\"maxSpeed\":21.75751304626465,\"outcome\":\"penetration\",\"requested\":48,\"broken\":44,\"force\":3.4,\"hit\":44,\"limit\":48}"
+      ],
+      "flow": "power-scaled-penetration",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\power-scaled-penetration.json",
+      "seconds": 33.3,
+      "ok": false,
+      "flowSHA256": "0F33714740A325717E6AAA06E3B7AAAC6C2A782DB398FF4828FBB4E69463ABDC",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "premium-pet-gamepass-configuration",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\premium-pet-gamepass-configuration.json",
+      "seconds": 32.9,
+      "ok": true,
+      "flowSHA256": "97B0E9C53D513DB97B9C051FD095FFD55769B2166E2419B9437479AEE5F3B09B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "premium-pet-studio-test-mode",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\premium-pet-studio-test-mode.json",
+      "seconds": 30.1,
+      "ok": true,
+      "flowSHA256": "761133CF754F5D102C1884C074FE01903DF9CDCD087EE7D0BED839F38260C454",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "premium-pet-visual-parity-motion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\premium-pet-visual-parity-motion.json",
+      "seconds": 31.9,
+      "ok": true,
+      "flowSHA256": "8861FAA8B29636DB5455811847FC83F6386B8083B75AB5750F0D943A379FE9C0",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "product-completeness-purchase-availability",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\product-completeness-purchase-availability.json",
+      "seconds": 37.7,
+      "ok": true,
+      "flowSHA256": "533F1187840BFE7695D5B67B6A94AA62F161C4BD89EC99A435A3268B31AEDF1C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "profile-load-hotfix-public-linked-studio",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\profile-load-hotfix-public-linked-studio.json",
+      "seconds": 22.9,
+      "ok": true,
+      "flowSHA256": "C56197F7F7816B36C2F2267A90CE235EB24D8B4BE5A2399CC02948644B32B451",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-200-stress",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-200-stress.json",
+      "seconds": 170.4,
+      "ok": true,
+      "flowSHA256": "CA6C26C559EC471AD3F627C94B470BE069423D6D46D8E61E80750BB44CC04005",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-action-timing",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-action-timing.json",
+      "seconds": 33.6,
+      "ok": true,
+      "flowSHA256": "882A2C7ECECC61210091BF0A33A65F974AECBE7A1866A42C0FFBB3497686A9E1",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-camera-device-20",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-camera-device-20.json",
+      "seconds": 124.1,
+      "ok": true,
+      "flowSHA256": "BA79F7CF1A7EB147DE5A7BED6EF6827D867317BD990455512E9EA94C8A947124",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"settleTimedOut\"[ ]*:[ ]*false\nReceived: {\"initialOrbitSettled\":true,\"largestEscape\":{\"raw\":\"-2.000030517578125, 5.430996894836426, -59.79245376586914\",\"origin\":\"-2.000030517578125, 5.430996894836426, -59.79245376586914\",\"phase\":\"postphysics-overlap\",\"distance\":0.04417518153786659,\"step\":\"-0.041103918105363846, -0.005459809675812721, -0.015234988182783127\",\"originKind\":\"cached\",\"losRejected\":0,\"losClear\":true,\"kind\":\"face\",\"overlapCount\":2,\"parts\":[{\"falling\":false,\"name\":\"DepthBlock_L004_C06_R02 Server Physics Chunk 3\",\"frame\":\"-1.30988634, 4.88379955, -58.9671936, 0.568263769, 0.751967371, -0.334098011, -0.769120157, 0.341096073, -0.540469944, -0.292456239, 0.564090967, 0.772185683\",\"velocity\":\"-5.598039627075195, -39.01885986328125, -92.22924041748047\",\"size\":\"0.7799999713897705, 1.059999942779541, 1.100000023841858\"},{\"falling\":false,\"name\":\"DepthBlock_L004_C07_R02 Server Physics Chunk 4\",\"frame\":\"-1.23982131, 5.98511124, -59.9818153, -0.170049191, 0.930475473, 0.324497759, 0.97952646, 0.123594515, 0.158910215, 0.107755899, 0.344876677, -0.932442427\",\"velocity\":\"22.175132751464844, -23.5205078125, -104.63868713378906\",\"size\":\"1.0499999523162842, 0.7200000286102295, 1.3799999952316284\"}]},\"clearRatio\":0.8846153846153846,\"maxInheritedRootStep\":2.6771697998046877,\"configuredOrbit\":12.474493980407715,\"maxEscapeStep\":0.04417518153786659,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L009_C07_R03\"],\"maxBackPunch\":0,\"visualValid\":false,\"angle\":0,\"actions\":1,\"firstEscape\":{\"raw\":\"-2.000030517578125, 5.430996894836426, -59.79245376586914\",\"origin\":\"-2.000030517578125, 5.430996894836426, -59.79245376586914\",\"phase\":\"postphysics-overlap\",\"distance\":0.04417518153786659,\"step\":\"-0.041103918105363846, -0.005459809675812721, -0.015234988182783127\",\"originKind\":\"cached\",\"losRejected\":0,\"losClear\":true,\"kind\":\"face\",\"overlapCount\":2,\"parts\":[{\"falling\":false,\"name\":\"DepthBlock_L004_C06_R02 Server Physics Chunk 3\",\"frame\":\"-1.30988634, 4.88379955, -58.9671936, 0.568263769, 0.751967371, -0.334098011, -0.769120157, 0.341096073, -0.540469944, -0.292456239, 0.564090967, 0.772185683\",\"velocity\":\"-5.598039627075195, -39.01885986328125, -92.22924041748047\",\"size\":\"0.7799999713897705, 1.059999942779541, 1.100000023841858\"},{\"falling\":false,\"name\":\"DepthBlock_L004_C07_R02 Server Physics Chunk 4\",\"frame\":\"-1.23982131, 5.98511124, -59.9818153, -0.170049191, 0.930475473, 0.324497759, 0.97952646, 0.123594515, 0.158910215, 0.107755899, 0.344876677, -0.932442427\",\"velocity\":\"22.175132751464844, -23.5205078125, -104.63868713378906\",\"size\":\"1.0499999523162842, 0.7200000286102295, 1.3799999952316284\"}]},\"settleTimedOut\":true,\"zoomDelta\":0.026091575622558595,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"anglePreserved\":true,\"stepBounded\":true,\"lastGuardPhase\":\"render\",\"overlapEscapes\":1,\"sampleMaxStep\":35.055110931396487,\"maxStepTo\":\"-2.0274720191955566, 7.3790059089660645, -49.83531951904297\",\"selectedDistance\":12.474493980407715,\"distancePreserved\":true,\"maxStepFrom\":\"-2.000030517578125, 8.100225448608398, -14.787638664245605\",\"valid\":true,\"userOrbitDistance\":12.474493980407715,\"noSnap\":true,\"settledSamples\":0,\"maxBackTo\":\"-2.000030517578125, 3.9309990406036377, -26.999923706054688\",\"settledReadableRatio\":0,\"geometryClamped\":true,\"insideNames\":[],\"maxBack\":0,\"maxBackFrom\":\"-2.000030517578125, 3.9309990406036377, -26.999923706054688\",\"handoffActive\":true,\"type\":\"Custom\",\"maxStep\":2.40000057220459,\"unresolvedSafetyFrames\":0,\"settledClearRatio\":0,\"sampledFrames\":78,\"lastGuardAge\":0.0663771999970777,\"lead\":43.20000076293945,\"insideSamples\":[],\"geometryClear\":true,\"finishDistance\":12.500585556030274,\"mode\":\"CustomPreserved\",\"maxCorrectionStep\":1.9210824966430665,\"transientLineOfSightFrames\":9,\"delay\":0.08,\"visibleRatio\":1}"
+      ],
+      "flow": "punch-camera-smooth-follow",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-camera-smooth-follow.json",
+      "seconds": 39.0,
+      "ok": false,
+      "flowSHA256": "489BD76D2CF66ED0B31543F28ADDFAD60A797B8940880F7B651D5AE332CA32DD",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "punch-character-motion",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-character-motion.json",
+      "seconds": 32.4,
+      "ok": true,
+      "flowSHA256": "2997E7B04AAF7E49EB2C6A48E8F2576E832A4E18291E722D33DCFF1750D3CDDA",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-collision-recovery",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-collision-recovery.json",
+      "seconds": 31.2,
+      "ok": true,
+      "flowSHA256": "B3DEAADFB5AC3FCD4949818BD4C50910B4DD3B2BD0CFD184BE36F4793FF9A817",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-collision-state-restoration",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-collision-state-restoration.json",
+      "seconds": 35.3,
+      "ok": true,
+      "flowSHA256": "EA77048041BF6A85FF0C73A013AEFA9A7BC2F454BEB727DEA42CBE64794933DF",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-interruption-stability",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-interruption-stability.json",
+      "seconds": 39.0,
+      "ok": true,
+      "flowSHA256": "2B490B7FB8CDC52CDEB4E2243AB7C0B2EDAEB0CAED9FFA12ECAB8C7858E13A69",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-no-snapback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-no-snapback.json",
+      "seconds": 43.1,
+      "ok": true,
+      "flowSHA256": "E46E9F9758AD2C6872AAFA24C2C238F1FE8381D37D275811FDAA0E52F3D4F07D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punch-safe-endpoint",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punch-safe-endpoint.json",
+      "seconds": 40.9,
+      "ok": true,
+      "flowSHA256": "EA6B27181E8966829FF748D3E65AE4B3CA93ECF52BC52E495C7A331EC39A3EAB",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punched-route-navigability",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punched-route-navigability.json",
+      "seconds": 36.1,
+      "ok": true,
+      "flowSHA256": "32C7A4D2FAFB13E85297E71C1BE2425C6AA71909DB4805078176CDF324E439D2",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-depth-corridor",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-depth-corridor.json",
+      "seconds": 31.4,
+      "ok": true,
+      "flowSHA256": "056A7D7FEC8D69141960C2205D5B50E67AAF55B8C1F12E58E10D5DC5F571274A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-free-aim-combat-polish",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-free-aim-combat-polish.json",
+      "seconds": 34.4,
+      "ok": true,
+      "flowSHA256": "6AFFC50A58D81FB4A7C2E70BF9B89C94C1562B61AB0E5058E2B895D7432D1A5A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-hybrid-physics-lunge",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-hybrid-physics-lunge.json",
+      "seconds": 43.2,
+      "ok": true,
+      "flowSHA256": "A8055931DDD46660622E93BED2566724FB2F8773E2DDE87C4173A9D2B7D0F599",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-map-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-map-progression.json",
+      "seconds": 32.5,
+      "ok": true,
+      "flowSHA256": "80CDE167080759EF9F4B8BBEED2BA73B93616FE1EF6FF5B6BB31039B229A3D0E",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-mobile-controls",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-mobile-controls.json",
+      "seconds": 36.8,
+      "ok": true,
+      "flowSHA256": "8F184D6B4133334DFDE6C278ED762CA08BA6E45EDAD602742182621EB33DED97",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-motion-feedback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-motion-feedback.json",
+      "seconds": 40.4,
+      "ok": true,
+      "flowSHA256": "F548AC41AF2E271ED1EEBC68DBDCE4C47033472AA33930FBD06F85F34DD94C1D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-player-state",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-player-state.json",
+      "seconds": 33.3,
+      "ok": true,
+      "flowSHA256": "62B0344D5A13FBA680D22B1CD58AA0F5B45EC32097A6D2A8CF32C0B4390CD175",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-radius-damage-shake",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-radius-damage-shake.json",
+      "seconds": 36.3,
+      "ok": true,
+      "flowSHA256": "2F738BA1D1BF69095876FBBC71D191796DBF218EE4EEA50E6D1F14A7DAB21B56",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-rebirth-boss",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-rebirth-boss.json",
+      "seconds": 33.6,
+      "ok": true,
+      "flowSHA256": "8E2E1126804DED3AD8898DFDCA966021EE57DC39DB840988849ED56899869AAA",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-shared-excavation-field",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-shared-excavation-field.json",
+      "seconds": 32.7,
+      "ok": true,
+      "flowSHA256": "2C98F5199B72C4735E95A1E4F479C5F2E4790E466A215690CDE354720C52E21A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-shop-and-pet",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-shop-and-pet.json",
+      "seconds": 31.7,
+      "ok": true,
+      "flowSHA256": "172522895A0C8ABA06668DD2AD90E576D7B6CC4668BF742B8588E9FC111C7FD3",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-smoke",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-smoke.json",
+      "seconds": 30.3,
+      "ok": true,
+      "flowSHA256": "4DA632E695A9FBAB8668E3CFE5BB052936A047D1D3A6D3FA6CED35ACABF436FB",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-train-and-break",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-train-and-break.json",
+      "seconds": 34.3,
+      "ok": true,
+      "flowSHA256": "B7364FCF96835B6BA62C257B52F2816A985150FCBC4DCE8443702AA2A3D4670A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "punchwall-visual-polish-smoke",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\punchwall-visual-polish-smoke.json",
+      "seconds": 32.8,
+      "ok": true,
+      "flowSHA256": "30B214E7ECC3A5C9A3B4B2B922FC53D03DA4C604F7DC999BE8BC6A46131F1DB8",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "rebirth-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\rebirth-progression.json",
+      "seconds": 46.1,
+      "ok": true,
+      "flowSHA256": "33EA192FE74096D7C51E413F524D9614CF1D0E5D9622E7C531EDBEB9A8158EAB",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"stable\"\\s*:\\s*true\nReceived: {\"before\":{\"sounds\":7,\"loaded\":7,\"debris\":0,\"particles\":111,\"parts\":6690},\"after\":{\"sounds\":7,\"loaded\":7,\"debris\":0,\"particles\":111,\"parts\":6697},\"stable\":false,\"loadedAll\":true}"
+      ],
+      "flow": "reduced-motion-performance",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\reduced-motion-performance.json",
+      "seconds": 40.8,
+      "ok": false,
+      "flowSHA256": "4F3928F92ABEFD75C55BA49FDB75D3382839BA8A688CFEEAB833F70306781338",
+      "exitCode": 1
+    },
+    {
+      "errors": [
+        "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"credits\":4,\"reward\":\"BonusSpinPurple\"}"
+      ],
+      "flow": "release-expansion-economy",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\release-expansion-economy.json",
+      "seconds": 34.6,
+      "ok": false,
+      "flowSHA256": "8604A678A67117CD5C1A1ACC3F5AA55F51F25F98E5FDB94F3D86D8B024C35877",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "release-expansion-ui",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\release-expansion-ui.json",
+      "seconds": 34.7,
+      "ok": true,
+      "flowSHA256": "7D56542B0ACB1FA3FD00349300997DD2370A716CF91BD7B7FD7D90DD7341414C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "release-expansion-world",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\release-expansion-world.json",
+      "seconds": 31.1,
+      "ok": true,
+      "flowSHA256": "33346328F3D5199359D64299BD3F29A690C08C230555F821346D04473711BD31",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "responsive-ui-inputs",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\responsive-ui-inputs.json",
+      "seconds": 31.9,
+      "ok": true,
+      "flowSHA256": "C2F1B441A4649BA2C49DA3C696BB6DF70FA817DB686CD5D708C3F810B924B453",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "right-hud-menu-uniform-grid",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\right-hud-menu-uniform-grid.json",
+      "seconds": 29.6,
+      "ok": true,
+      "flowSHA256": "CE8B5B447D1024F90ACBD3033C7C38EA7E613C09F26BBADBD501B8CBBFF67079",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "server-snapshot-coalescing",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\server-snapshot-coalescing.json",
+      "seconds": 32.5,
+      "ok": true,
+      "flowSHA256": "5AB4899112F84EC8CA63BAB175D5F44A5353BDB57B32F4B6A8B0D42A99ED845A",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "shop-coin-and-music",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\shop-coin-and-music.json",
+      "seconds": 39.5,
+      "ok": true,
+      "flowSHA256": "32F52C1F6DC95FE602F362C733FD0482B0A8C80AECCBE7B9A0638DCCBF6B665B",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "standalone-player-windows",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\standalone-player-windows.json",
+      "seconds": 36.9,
+      "ok": true,
+      "flowSHA256": "D58B6973ED1BCD2B317BF0BC0381A99B239E1D05CA284B346B56DB3479638362",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "structural-character-clearance",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\structural-character-clearance.json",
+      "seconds": 36.4,
+      "ok": true,
+      "flowSHA256": "6E3086AD28AE89876A41755C35B9244EFC0E59A5ABABB50A6B023F7A4E829C6D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "structural-overlap-ejection",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\structural-overlap-ejection.json",
+      "seconds": 35.1,
+      "ok": true,
+      "flowSHA256": "7D33D479FB3BC396B43591F4FFE1358726820172733137FF4C34D8A6B3CBC4B8",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "structural-rubble-solidity",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\structural-rubble-solidity.json",
+      "seconds": 36.9,
+      "ok": true,
+      "flowSHA256": "FE0404BD2F4688B8F32EB86DECF004BB506312D81CCAA0874869AB169FA49A01",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "studio-high-power-test-mode",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\studio-high-power-test-mode.json",
+      "seconds": 34.9,
+      "ok": true,
+      "flowSHA256": "958C7CE9716C47E3EF8900649BC95F0881A2E6941985A1AF566D86E7BCBD7B5D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "studio-test-harness-control",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\studio-test-harness-control.json",
+      "seconds": 35.2,
+      "ok": true,
+      "flowSHA256": "B8E01707C6D8E7B480B0971F3AFCEEFC00D5EF9279AF4D0D6F8779739DA3FA41",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "studio-test-harness-full-control",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\studio-test-harness-full-control.json",
+      "seconds": 33.6,
+      "ok": true,
+      "flowSHA256": "F221F4FFD8BD984762F32F5210DF49DA2603F83AC05CD16154E4D8E7FCEEA013",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "support-loss-matrix",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\support-loss-matrix.json",
+      "seconds": 38.6,
+      "ok": true,
+      "flowSHA256": "B2CE0DA51835638B7532F8ECD18694EAC7BE16D3BEACD09B73F95331799FE3F1",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "tall-multiplayer-depth-wall",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\tall-multiplayer-depth-wall.json",
+      "seconds": 30.4,
+      "ok": true,
+      "flowSHA256": "355C886BF37A35EBA70C3D5B0FA85F91D6FB9CDFAD779EA077F07BF8138CADB3",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "titan-hq-tonal-readability",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\titan-hq-tonal-readability.json",
+      "seconds": 34.6,
+      "ok": true,
+      "flowSHA256": "DD7B456FBF50ACB7AE2F1815833670DE6AD71C70CE1C1CDE4F2EBC2C7256777D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "training-lock-motion-feedback",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\training-lock-motion-feedback.json",
+      "seconds": 35.3,
+      "ok": true,
+      "flowSHA256": "5DC35856E7343AE582F5AB9507BD8D06395D8D2B7DD144E2ED7E43AB16ACF68C",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "training-station-progression",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\training-station-progression.json",
+      "seconds": 58.8,
+      "ok": true,
+      "flowSHA256": "C0093A4800D86C1FCF3913B59441EF7F9516166F0308338D993C9376A68BE436",
+      "exitCode": 0
+    },
+    {
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: use context {\"action\":\"Use\",\"active\":true,\"target\":\"Crimson Vanguard Fist Stand\",\"invoked\":true,\"title\":\"USE\",\"detail\":\"CRIMSON VANGUARD FIST STAND\"}"
+      ],
+      "flow": "training-ui-pet-recovery",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\training-ui-pet-recovery.json",
+      "seconds": 45.8,
+      "ok": false,
+      "flowSHA256": "BDADAF25DB41E8E31086E4379CA04DB842CFE64502568A865AA0E1F605180420",
+      "exitCode": 1
+    },
+    {
+      "errors": [],
+      "flow": "tutorial-action-notification-badges",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\tutorial-action-notification-badges.json",
+      "seconds": 39.3,
+      "ok": true,
+      "flowSHA256": "4C1D19E1EFF6F0F286A7B7DF896E1F1E6E4BBDB6391CFA4CD6FD360584499C4D",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "vertical-depth-race-hud",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\vertical-depth-race-hud.json",
+      "seconds": 32.7,
+      "ok": true,
+      "flowSHA256": "B056DEB0371A4E99BBB2802840D7B644BED491B4DC7345A0B8FC7CC3563F0691",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "world-boost-showcases",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\world-boost-showcases.json",
+      "seconds": 83.7,
+      "ok": true,
+      "flowSHA256": "E394CFEB021034191F2B51C1F728CF58C75381EFD925D6691100D58CF63F5F54",
+      "exitCode": 0
+    },
+    {
+      "errors": [],
+      "flow": "world-wall-reset",
+      "evidence": "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-integrated-final-20260906\\world-wall-reset.json",
+      "seconds": 34.8,
+      "ok": true,
+      "flowSHA256": "F135EE8934BA74AE9F23F7CB4F453286D31524ED0407DA2C0135762EE5C82A4E",
+      "exitCode": 0
+    }
+  ],
+  "ok": false,
+  "interruption": null
+}
