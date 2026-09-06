@@ -1,0 +1,80 @@
+{
+  "name": "punch-lunge-collision-filter",
+  "description": "Verify real server lunges ignore a queryable production pickup while retaining physical-solid clearance, measured motion, and server ownership.",
+  "studioName": "^PunchWallRPG(?:Playable_v1_final(?:_validation)?|_ManualPlaytest_[0-9]{8}(?:_[A-Za-z0-9]+)?)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for profile and character"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local function verifyLungeFixtureRow(row)\n assert(row.accepted and row.timestampFresh and row.ownershipAdvanced,'actual new server punch required')\n assert(row.serverOwned and row.physicsSamples>=2 and row.maxObservedMove>1 and row.unanchored,'actual physical server-owned lunge required')\n assert(row.noDepthTarget and row.planClear and row.requested==10.5 and row.planned==10.5,'fixture must isolate the ordinary physical-solid ray')\n assert(math.abs(row.actualMoved-row.expectedTravel)<.15 and math.abs(row.reportedTravel-row.expectedTravel)<.02,'actual root movement and server travel must match the native physical ray')\n assert(row.bodyOverlaps==0 and row.endpointClearance>=2.45,'lunge must stop before solid geometry')\n assert(row.coinsUnchanged and row.petsUnchanged,'fixture must not grant economy or pets')\n if row.case=='clear' then assert(row.originalNoHit and row.physicalNoHit and row.expectedTravel==10.5,'clear path must preserve full lunge')\n elseif row.case=='egg' then assert(row.originalHitEgg and row.eggQueryable and row.eggNoncollidable and row.physicalNoHit and row.expectedTravel==10.5,'query-only production egg must remain pickable without shortening lunge')\n elseif row.case=='solid' then assert(row.originalHitEgg and row.eggQueryable and row.eggNoncollidable and row.physicalHitSolid and row.expectedTravel>1 and row.expectedTravel<10.5,'solid collider behind egg must still stop lunge')\n else error('unknown lunge fixture case') end\nend\nlocal H=game:GetService('HttpService') local R=game:GetService('RunService') local S=game:GetService('ServerStorage')\nlocal players=game:GetService('Players'):GetPlayers() local world=workspace:FindFirstChild('PunchWallRPG')\nassert(R:IsStudio() and #players==1 and world and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and S:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'strict isolated ephemeral Studio required')\nlocal p=players[1]\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'ready nonwritable ephemeral player required')\nlocal c=S.PunchWallAutomation local fixtureName='SmashLungeCollisionQA'\nassert(not workspace:FindFirstChild(fixtureName),'previous collision fixture must be cleaned')\nlocal fixture=Instance.new('Folder') fixture.Name=fixtureName fixture:SetAttribute('OwnedByFlow','punch-lunge-collision-filter') fixture.Parent=workspace\nlocal floor=Instance.new('Part') floor.Name='Isolated Floor' floor.Size=Vector3.new(60,1,80) floor.CFrame=CFrame.new(-2,100,10) floor.Anchored=true floor.CanCollide=true floor.Parent=fixture\nlocal connection local rows={}\nlocal function cleanup()\n if connection then connection:Disconnect() connection=nil end\n local resetOK,reset=pcall(function()return c:Invoke('Reset')end)\n if fixture and fixture.Parent then fixture:Destroy()end\n return resetOK and type(reset)=='table' and reset.ok==true and workspace:FindFirstChild(fixtureName)==nil\nend\nlocal ok,why=xpcall(function()\n for _,caseName in ipairs({'clear','egg','solid'})do\n  assert(c:Invoke('Reset').ok==true,'case reset failed')\n  assert(c:Invoke('SetStats',{Power=15,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}).ok==true,'case stats failed')\n  local character=p.Character local root=character:FindFirstChild('HumanoidRootPart') local humanoid=character:FindFirstChildOfClass('Humanoid')\n  assert(root and humanoid and humanoid.Health>0 and not root.Anchored,'living unanchored character required')\n  root.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero root.CFrame=CFrame.lookAt(Vector3.new(-2,104,26),Vector3.new(-2,104,0))\n  local deadline=os.clock()+2 local stable=0\n  repeat task.wait(.05) if math.abs(root.AssemblyLinearVelocity.Y)<.1 and root.Position.Y>102 and root.Position.Y<105 and math.abs((character:GetAttribute('PowerGrowthAppliedMultiplier')or 0)-1)<=.003 then stable+=1 else stable=0 end until stable>=3 or os.clock()>=deadline\n  assert(stable>=3 and p.Character==character,'fixture body did not settle on its isolated floor')\n  local start=root.Position local direction=Vector3.new(0,0,-1) local egg local eggModel local solid\n  if caseName~='clear' then\n   assert(c:Invoke('ForcePetEggDrop',1).ok==true,'production egg spawn failed')\n   local folder=world.Interactables['Pet Egg Drops'] eggModel=folder:FindFirstChild('Mystery Pet Egg '..p.UserId) egg=eggModel and eggModel.PrimaryPart\n   assert(egg and eggModel:GetAttribute('VisualRole')=='PetDropEgg' and eggModel:GetAttribute('OwnerUserId')==p.UserId and eggModel:GetAttribute('DropId')==p:GetAttribute('ActivePetEggDropId'),'actual owned production egg required')\n   assert(egg.CanQuery and not egg.CanCollide and egg:FindFirstChild('Pet Egg Click Pickup'),'pickup properties must stay unchanged')\n   eggModel:PivotTo(CFrame.new(start+direction*5))\n  end\n  if caseName=='solid' then\n   solid=Instance.new('Part') solid.Name='Physical Stop' solid.Size=Vector3.new(20,20,1) solid.CFrame=CFrame.new(start+direction*8) solid.Anchored=true solid.CanCollide=true solid.CanQuery=true solid.Parent=fixture\n  end\n  local function cast(respect)\n   local params=RaycastParams.new() params.FilterType=Enum.RaycastFilterType.Exclude params.FilterDescendantsInstances={character,world['Depth Physics Debris'],world['Depth Blocks']} params.IgnoreWater=true params.RespectCanCollide=respect\n   return workspace:Raycast(start,direction*10.5,params)\n  end\n  local originalRay=cast(false) local physicalRay=cast(true)\n  local expectedTravel=physicalRay and math.max(0,physicalRay.Distance-2.6)or 10.5\n  assert(caseName=='solid' and physicalRay and physicalRay.Instance==solid or caseName~='solid' and physicalRay==nil,'unexpected fixture ray blocker')\n  if egg then assert(originalRay and originalRay.Instance==egg,'query-only egg must intercept the original native ray')else assert(originalRay==nil,'clear native ray required')end\n  local beforeTime=workspace:GetServerTimeNow() local beforeToken=p:GetAttribute('PunchOwnershipToken')or 0\n  local beforeCoins=p.leaderstats.Coins.Value local beforePets=p.RPGStats.PetInventoryJSON.Value\n  local samples=0 local serverOwned=true local maxObservedMove=0 local unanchored=true local observerError\n  connection=R.PostSimulation:Connect(function()\n   local readOK,readError=pcall(function()\n    samples+=1 assert(samples<=240,'physics observation cap exceeded')\n    serverOwned=serverOwned and root:GetNetworkOwner()==nil unanchored=unanchored and not root.Anchored\n    maxObservedMove=math.max(maxObservedMove,(root.Position-start):Dot(direction))\n   end)\n   if not readOK then observerError=tostring(readError)end\n  end)\n  local punch=c:Invoke('PunchRadius')\n  connection:Disconnect() connection=nil\n  assert(not observerError,'physics observer failed: '..tostring(observerError))\n  local actualMoved=(root.Position-start):Dot(direction)\n  local overlaps=0 local clearance=999\n  if solid then\n   local cf,size=character:GetBoundingBox() local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Include overlap.FilterDescendantsInstances={solid}\n   overlaps=#workspace:GetPartBoundsInBox(cf,size,overlap)\n   clearance=(solid.Position-root.Position):Dot(direction)-solid.Size.Z*.5\n  end\n  local row={case=caseName,accepted=type(punch)=='table' and punch.outcome=='no_block',timestampFresh=(p:GetAttribute('LastPunchLungeAt')or 0)>=beforeTime,ownershipAdvanced=p:GetAttribute('PunchOwnershipToken')==beforeToken+1,\n   physicsSamples=samples,serverOwned=serverOwned,unanchored=unanchored,maxObservedMove=maxObservedMove,requested=p:GetAttribute('LastPunchRequestedDistance'),planned=p:GetAttribute('LastPunchPlannedLungeDistance'),planClear=p:GetAttribute('LastPunchPlanningBarrier')=='none',noDepthTarget=p:GetAttribute('LastRadiusHitCount')==0,\n   actualMoved=actualMoved,reportedTravel=p:GetAttribute('LastPunchLungeDistance'),expectedTravel=expectedTravel,bodyOverlaps=overlaps,endpointClearance=clearance,\n   originalNoHit=originalRay==nil,physicalNoHit=physicalRay==nil,originalHitEgg=egg~=nil and originalRay~=nil and originalRay.Instance==egg,physicalHitSolid=solid~=nil and physicalRay~=nil and physicalRay.Instance==solid,\n   eggQueryable=egg~=nil and egg.CanQuery,eggNoncollidable=egg~=nil and not egg.CanCollide,coinsUnchanged=p.leaderstats.Coins.Value==beforeCoins,petsUnchanged=p.RPGStats.PetInventoryJSON.Value==beforePets}\n  table.insert(rows,row) verifyLungeFixtureRow(row)\n  if solid then solid:Destroy()end\n end\nend,debug.traceback)\nlocal cleaned=cleanup()\nlocal result={lungeCollisionContractValid=ok and cleaned and #rows==3,cleaned=cleaned,rows=rows,error=not ok and string.sub(tostring(why),1,700)or nil}\nlocal encoded=H:JSONEncode(result) assert(#encoded<3900,'lunge collision evidence exceeds bound')return encoded"
+      },
+      "timeoutMs": 45000,
+      "saveAs": "lungeCollision",
+      "expectRegex": [
+        "\"lungeCollisionContractValid\"\\s*:\\s*true",
+        "\"cleaned\"\\s*:\\s*true"
+      ],
+      "label": "actual lunge ignores query-only pickup and stops before solid collider"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local f=workspace:FindFirstChild('SmashLungeCollisionQA') if f then assert(f:GetAttribute('OwnedByFlow')=='punch-lunge-collision-filter','unowned collision fixture') local s=game:GetService('ServerStorage') local w=workspace:FindFirstChild('PunchWallRPG') assert(game:GetService('RunService'):IsStudio() and w and w:GetAttribute('PersistenceMode')=='EphemeralStudio' and w:GetAttribute('PersistenceStudioDefaultEphemeral')==true and w:GetAttribute('PersistenceStudioLiveDataOptIn')==false and s:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ephemeral cleanup required') local ok,r=pcall(function()return s.PunchWallAutomation:Invoke('Reset')end) f:Destroy() assert(ok and r.ok,'cleanup reset failed') end return true"
+      },
+      "allowError": true,
+      "label": "cleanup only the owned collision fixture"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

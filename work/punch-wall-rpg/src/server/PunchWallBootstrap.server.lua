@@ -5056,6 +5056,8 @@ function depthPunch.Lunge(player, rootPart, profile)
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character, depthDebrisFolder, depthBlocksFolder }
 	params.IgnoreWater = true
+	-- Pickup targets remain queryable, but only physical solids stop a lunge.
+	params.RespectCanCollide = true
 	local ray = workspace:Raycast(startPosition, direction * profile.distance, params)
 	local travel = ray and math.max(0, ray.Distance - depthPunch.LungeClearance) or profile.distance
 
