@@ -8032,6 +8032,11 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 	local orbitCharacter
 	local pendingOrbitDelta = 0
 	local previousPinchScale
+	local recoveryRoute
+	local nextRecoverySearchAt = 0
+	local recoverySearches, recoveryCacheHits = 0, 0
+	local recoveryCandidates, recoverySweeps = 0, 0
+	local recoverySearchReason = "idle"
 	local guardPhase = "render"
 	local recordCameraDiagnostics = RunService:IsStudio()
 	local cyclePublishedTravel, cycleEscapeTravel, cyclePublishedWrites = 0, 0, 0
@@ -8089,6 +8094,10 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			activeFollow = gui:GetAttribute("PunchCameraFollowActive") == true,
 			geometryRecovery = recoveringFromGeometryClamp, handoffRecovery = recoveringFromFollowHandoff,
 			handoffAttribute = gui:GetAttribute("PunchCameraHandoffActive") == true,
+			recoveryTarget = recoveryRoute and tostring(recoveryRoute.position),
+			recoverySearches = recoverySearches, recoveryCacheHits = recoveryCacheHits,
+			recoveryCandidates = recoveryCandidates, recoverySweeps = recoverySweeps,
+			recoverySearchReason = recoverySearchReason,
 			teleportRebaseCount = gui:GetAttribute("PunchCameraTeleportRebaseCount") or 0,
 		}
 		shared.PunchWallCameraLastRecovery = sample
@@ -8113,6 +8122,11 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		orbitCharacter = character
 		pendingOrbitDelta = 0
 		previousPinchScale = nil
+		recoveryRoute = nil
+		nextRecoverySearchAt = 0
+		recoverySearches, recoveryCacheHits = 0, 0
+		recoveryCandidates, recoverySweeps = 0, 0
+		recoverySearchReason = "reset"
 		beginPublicationCycle()
 		gui:SetAttribute("PunchCameraUserOrbitDistance", nil)
 		gui:SetAttribute("PunchCameraHandoffActive", false)
@@ -8151,6 +8165,89 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			end
 		end
 		return leftOverlap
+	end
+	local function readableRecoveryPose(cframe, character)
+		local camera = workspace.CurrentCamera
+		local viewport = camera and camera.ViewportSize
+		local head = character:FindFirstChild("Head")
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if not viewport or viewport.X < 1 or viewport.Y < 1 or not head or not root then return false end
+		-- Project through the live camera's native viewport transform, including
+		-- its cutouts/FOV, without assigning or rotating the actual camera.
+		local function project(point)
+			return camera:WorldToViewportPoint(camera.CFrame:PointToWorldSpace(cframe:PointToObjectSpace(point)))
+		end
+		local headPoint, onScreen = project(head.Position)
+		local feetPoint = project(root.Position - Vector3.new(0, 2.5, 0))
+		return onScreen and headPoint.Z > 0 and feetPoint.Z > 0 and math.abs(headPoint.Y - feetPoint.Y) >= 18
+	end
+	local function resolveOccludedRecovery(origin, desiredCFrame, desiredFocus, character, radius)
+		local target = cameraCharacterTarget(character)
+		if not target or radius < 2 or radius > 80 then recoveryRoute = nil return nil, nil end
+		local originReadable = readableRecoveryPose(desiredCFrame + (origin - desiredCFrame.Position), character)
+		local function candidateAt(position)
+			local shift = position - desiredCFrame.Position
+			return desiredCFrame + shift, desiredFocus + shift
+		end
+		if recoveryRoute then
+			local position = target + recoveryRoute.offset
+			local candidate, focus = candidateAt(position)
+			if originReadable and recoveryRoute.character == character
+				and recoveryRoute.camera == workspace.CurrentCamera
+				and math.abs(recoveryRoute.radius - radius) < 0.001
+				and math.abs((recoveryRoute.userOrbit or radius) - (userOrbitDistance or radius)) < 0.001
+				and recoveryRoute.look:Dot(desiredCFrame.LookVector) > 0.99999
+				and not cameraPoseBlocked(candidate, character)
+				and readableRecoveryPose(candidate, character) then
+				recoveryRoute.position = position
+				recoveryCacheHits += 1
+				return candidate, focus
+			end
+			recoveryRoute = nil
+			recoverySearchReason = "invalidated"
+		end
+		if not originReadable then return nil, nil end
+		if os.clock() < nextRecoverySearchAt then return nil, nil end
+		nextRecoverySearchAt = os.clock() + 0.25
+		recoverySearches += 1
+		recoveryCandidates, recoverySweeps = 0, 0
+		recoverySearchReason = "no-readable-clear-route"
+		local offset = origin - target
+		if offset.Magnitude < 0.1 then return nil, nil end
+		local radial = offset.Unit
+		local right = desiredCFrame.RightVector - radial * desiredCFrame.RightVector:Dot(radial)
+		if right.Magnitude < 0.01 then return nil, nil end
+		right = right.Unit
+		local up = radial:Cross(right).Unit
+		-- At most 48 endpoints and 6 full physical sweeps per search, at most
+		-- four searches/second. Each route is <=24 studs (<=96 .25-stud probes).
+		-- Unlike the fixed hints, diagonal angular rings can find a clear view
+		-- around compound falling blocks while retaining the chosen radius.
+		for _, degrees in ipairs({ 10, 20, 30, 40, 50, 60 }) do
+			local angle = math.rad(degrees)
+			for index = 0, 7 do
+				local bearing = math.pi * index / 4
+				local tangent = right * math.cos(bearing) + up * math.sin(bearing)
+				local position = target + (radial * math.cos(angle) + tangent * math.sin(angle)) * radius
+				local travel = position - origin
+				recoveryCandidates += 1
+				local candidate, focus = candidateAt(position)
+				if travel.Magnitude > 0.001 and travel.Magnitude <= 24
+					and not cameraPoseBlocked(candidate, character)
+					and readableRecoveryPose(candidate, character) then
+					if recoverySweeps >= 6 then recoverySearchReason = "route-budget" return nil, nil end
+					recoverySweeps += 1
+					if clearTranslationStep(origin, travel, character) then
+						recoveryRoute = { character = character, camera = workspace.CurrentCamera,
+							offset = position - target, position = position, radius = radius,
+							userOrbit = userOrbitDistance, look = desiredCFrame.LookVector }
+						recoverySearchReason = "clear-route"
+						return candidate, focus
+					end
+				end
+			end
+		end
+		return nil, nil
 	end
 	local function escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, maximumDistance, originKind)
 		-- Falling geometry can enclose a pose which was clear last frame. The
@@ -8261,7 +8358,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		end
 		return nil, nil
 	end
-	local function limitClearCameraStep(origin, desiredCFrame, desiredFocus, character, maxStep)
+	local function limitClearCameraStep(origin, desiredCFrame, desiredFocus, character, maxStep, allowOccludedTransit)
 		if shared.PunchWallCameraPositionBlocked(origin, character) then
 			return escapeCameraOverlap(origin, desiredCFrame, desiredFocus, character, 2.65, "cached")
 		end
@@ -8281,6 +8378,19 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				if not cameraPoseBlocked(candidateCFrame, character) then
 					return candidateCFrame, desiredFocus + translation, false, stepKinds[index]
 				end
+			end
+		end
+		if allowOccludedTransit and displacement.Magnitude > 0.001
+			and not cameraPoseBlocked(desiredCFrame, character)
+			and clearTranslationStep(origin, direct, character) then
+			local shift = origin + direct - desiredCFrame.Position
+			local candidate = desiredCFrame + shift
+			if readableRecoveryPose(candidate, character)
+				and (desiredCFrame.Position - candidate.Position).Magnitude < displacement.Magnitude - 0.001 then
+				-- This route began at an occluded origin. Requiring every intermediate
+				-- LOS to clear would deadlock beyond one step, or at a brief clear gap.
+				-- This remains a reported LOS-unresolved transit, never a clear pose.
+				return candidate, desiredFocus + shift, false, "occluded-transit", true
 			end
 		end
 		local translation = origin - desiredCFrame.Position
@@ -8317,6 +8427,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
 		if camera.CameraType == Enum.CameraType.Scriptable then
 			lastRootPosition = rootPart and rootPart.Position or lastRootPosition
+			recoveryRoute = nil
 			gui:SetAttribute("PunchCameraScriptableBypass", true)
 			return
 		end
@@ -8324,8 +8435,14 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		gui:SetAttribute("PunchCameraLastGuardPhase", guardPhase)
 		gui:SetAttribute("PunchCameraLastGuardAt", os.clock())
 		local safetyEscape = false
+		local occludedTransit = false
 		local publishedOrigin = camera.CFrame.Position
 		local rawCFrame = camera.CFrame
+		local rawTarget = recoveryRoute and cameraCharacterTarget(character)
+		if rawTarget and not cameraPoseBlocked(rawCFrame, character)
+			and math.abs((rawCFrame.Position - rawTarget).Magnitude - (userOrbitDistance or recoveryRoute.radius)) < 0.001 then
+			recoveryRoute = nil
+		end
 		local cachedCFrame = lastClearCameraCFrame
 		local recoveryOrigin, recoveryCandidate, recoveryRequested, recoveryReason
 		local desiredCFrame = camera.CFrame
@@ -8386,6 +8503,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		local rootDisplacement = rootPart and lastRootPosition and rootPart.Position - lastRootPosition or Vector3.zero
 		if rootPart and lastRootPosition then
 			if rootDisplacement.Magnitude > 30 then
+				recoveryRoute = nil
+				nextRecoverySearchAt = 0
 				local rebasedCFrame = lastClearCameraCFrame and (lastClearCameraCFrame + rootDisplacement) or desiredCFrame
 				local rebasedFocus = lastClearCameraFocus and (lastClearCameraFocus + rootDisplacement) or desiredFocus
 				local safeCFrame, safeFocus, clearance = resolveClearCameraPose(rebasedCFrame, rebasedFocus, character)
@@ -8459,7 +8578,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 				end
 			end
 		end
-		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff) and lastClearCameraCFrame then
+		if (activeFollow or recoveringFromGeometryClamp or recoveringFromFollowHandoff or recoveryRoute) and lastClearCameraCFrame then
 			local requestedPosition = desiredPosition
 			recoveryRequested = requestedPosition
 			local maxStep = 24 * math.min(deltaTime, 0.1)
@@ -8493,6 +8612,31 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 			local limitedCFrame, limitedFocus, escapedOverlap, limitReason = limitClearCameraStep(
 				followOrigin, desiredCFrame, desiredFocus, character, correctionBudget
 			)
+			local originCFrame = desiredCFrame + (followOrigin - desiredCFrame.Position)
+			if targetPosition and (not limitedCFrame or recoveryRoute) and not shared.PunchWallCameraPositionBlocked(followOrigin, character)
+				and (recoveryRoute or cameraPoseBlocked(originCFrame, character)) then
+				local recoveryRadius = userOrbitDistance or (followOrigin - targetPosition).Magnitude
+				if activeFollow and (not recoveryRoute or math.abs((recoveryRoute.userOrbit or recoveryRadius) - recoveryRadius) < 0.001) then
+					-- A straight bounded transit can temporarily shorten its chord.
+					-- Keep its goal radius stable instead of replanning that shortening.
+					recoveryRadius = recoveryRoute and recoveryRoute.radius or (followOrigin - targetPosition).Magnitude
+				end
+				local targetCFrame, targetFocus = resolveOccludedRecovery(
+					followOrigin, desiredCFrame, desiredFocus, character, recoveryRadius
+				)
+				if targetCFrame and targetFocus then
+					requestedPosition = targetCFrame.Position
+					recoveryRequested = requestedPosition
+					limitedCFrame, limitedFocus, escapedOverlap, limitReason, occludedTransit = limitClearCameraStep(
+						followOrigin, targetCFrame, targetFocus, character, correctionBudget,
+						recoveryRoute ~= nil
+					)
+					if not limitedCFrame or (limitReason == "origin-hold" and (requestedPosition - followOrigin).Magnitude > 0.001) then
+						recoveryRoute = nil
+						recoverySearchReason = "next-segment-blocked"
+					end
+				end
+			end
 			recoveryCandidate = limitedCFrame
 			recoveryReason = (adoptedRawOrigin and "raw-recovery/" or "cached-recovery/") .. (limitReason or "physical-escape")
 			gui:SetAttribute("PunchCameraInheritedRootStep", inheritedRootStep)
@@ -8526,7 +8670,7 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		-- Validate the pose we will actually publish, after all smoothing and
 		-- orbit correction, before marking it as a future safety fallback.
 		if shared.PunchWallCameraPositionBlocked(desiredCFrame.Position, character)
-			or (not safetyEscape and cameraPoseBlocked(desiredCFrame, character)) then
+			or (not safetyEscape and not occludedTransit and cameraPoseBlocked(desiredCFrame, character)) then
 			resolvedCFrame = nil
 			resolvedFocus = nil
 		end
@@ -8595,7 +8739,8 @@ shared.PunchWallInstallCameraGeometryGuard = function()
 		lastClearCameraFocus = desiredFocus
 		shared.PunchWallHeartbeatLastClearCFrame = desiredCFrame
 		shared.PunchWallHeartbeatLastClearFocus = desiredFocus
-		gui:SetAttribute("PunchCameraGeometryClamped", false)
+		if occludedTransit then recoveringFromGeometryClamp = true end
+		gui:SetAttribute("PunchCameraGeometryClamped", occludedTransit == true)
 		gui:SetAttribute("LastCameraInsideGeometry", false)
 		gui:SetAttribute("PunchCameraSafetyUnresolved", false)
 		gui:SetAttribute("PunchCameraLineOfSightUnresolved", cameraPoseBlocked(desiredCFrame, character))
@@ -9018,6 +9163,7 @@ if RunService:IsStudio() then
 		gui:SetAttribute("CameraAutomationVisualLastValid", visualValid)
 		gui:SetAttribute("CameraAutomationLastPunches", actions)
 		gui:SetAttribute("CameraAutomationVisibilityJSON", HttpService:JSONEncode(visibilityDiagnostics))
+		gui:SetAttribute("CameraAutomationRecoveryJSON", HttpService:JSONEncode({last = shared.PunchWallCameraLastRecovery, first = shared.PunchWallCameraFirstStalledRecovery}))
 		player.CameraMaxZoomDistance = originalMaxZoom
 		player.CameraMinZoomDistance = originalMinZoom
 		return result

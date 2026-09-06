@@ -14,8 +14,9 @@ const runtimeBaseline = process.argv.includes("--baseline-runtime2");
 const faceBaseline = process.argv.includes('--baseline-face');
 const finalBaseline = process.argv.includes('--baseline-final');
 const settleBaseline = process.argv.includes('--baseline-settle');
-const baselineIndex = process.argv.indexOf(settleBaseline ? '--baseline-settle' : finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
-const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (settleBaseline ? '1164ca9b8196c9c8e3c5c562c358dfa8afddd596' : finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
+const recoveryBaseline = process.argv.includes('--baseline-recovery');
+const baselineIndex = process.argv.indexOf(recoveryBaseline ? '--baseline-recovery' : settleBaseline ? '--baseline-settle' : finalBaseline ? '--baseline-final' : faceBaseline ? '--baseline-face' : runtimeBaseline ? "--baseline-runtime2" : losBaseline ? "--baseline-los" : "--baseline");
+const baseline = baselineIndex < 0 ? null : process.argv[baselineIndex + 1] || (recoveryBaseline ? '85c51e58eb0fda1c5d4230828f18f4fb5bfd173c' : settleBaseline ? '1164ca9b8196c9c8e3c5c562c358dfa8afddd596' : finalBaseline ? '6211b00' : faceBaseline ? '4d23e28' : runtimeBaseline ? "781ff4b" : losBaseline ? "ef9b5f8" : "b521dea");
 const original = baseline && spawnSync("git", ["show", `${baseline}:${clientPath}`], { cwd: root, encoding: "utf8" });
 if (original) assert.equal(original.status, 0, original.stderr);
 const source = (original ? original.stdout : fs.readFileSync(path.join(root, clientPath), "utf8")).replace(/\r\n?/g, "\n");
@@ -762,6 +763,168 @@ const settleFailures = {
  settleEdge:'valid_native_origin_and_axis_waypoint_complete_real_handoff_before_timeout',
  teleportHandoffMarker:'successful_rebase_synchronizes_public_handoff_marker',
 };
+// The complete production resolver/guard runs against finite sensor geometry.
+// This diagonal opening defeats every original fixed hint. It is a controlled
+// counterexample, not a claim to reconstruct the live L043 block from one frame.
+const recoverySetup = common
+ .replace('vm.__add=', 'vm.__unm=function(a)return a*-1 end\nvm.__add=')
+ .replace("if k=='Rotation'", `if k=='RightVector' then return Vector3.new(math.cos(a.Yaw),0,math.sin(a.Yaw)) end
+ if k=='UpVector' then return Vector3.new(0,1,0) end
+ if k=='PointToObjectSpace' then return function(a,p)local d=p-a.Position return Vector3.new(d.X*math.cos(a.Yaw)+d.Z*math.sin(a.Yaw),d.Y,-d.X*math.sin(a.Yaw)+d.Z*math.cos(a.Yaw))end end
+ if k=='PointToWorldSpace' then return function(a,p)return a.Position+Vector3.new(p.X*math.cos(a.Yaw)-p.Z*math.sin(a.Yaw),p.Y,p.X*math.sin(a.Yaw)+p.Z*math.cos(a.Yaw))end end
+ if k=='Rotation'`)
+ .replace('local rootPart={Position=Vector3.zero}', "local rootPart={Position=Vector3.zero,CFrame=CFrame.new(),IsA=function(_,k)return k=='BasePart'end}\nlocal headPart={Position=Vector3.new(0,1.5,0)}")
+ .replace('local character={FindFirstChild=function() return rootPart end}', "local character={FindFirstChild=function(_,name)return name=='Head' and headPart or rootPart end}")
+ .replace('local function resolveClearCameraPose(cf,focus,c) return resolver(cf,focus,c) end','')
+ + block('local function resolveClearCameraPose(desiredCFrame','\nlocal lastPunchCameraRenderAt') + guard + `
+camera.ViewportSize={X=637,Y=654}
+camera.FieldOfView=70
+local projectionCount=0
+function camera:WorldToViewportPoint(point)
+ projectionCount+=1 local p=self.CFrame:PointToObjectSpace(point) local z=-p.Z
+ local scale=654/(2*math.tan(math.rad(35)))
+ local x=637/2+p.X*scale/z local y=654/2-p.Y*scale/z
+ return Vector3.new(x,y,z),z>0 and x>=0 and x<=637 and y>=0 and y<=654
+end
+local update=bound.PunchWallCameraGeometryGuard
+local radius=22.6
+local function raw()camera.CFrame=frame(rootPart.Position+Vector3.new(0,0,radius))camera.Focus=frame(camera.CFrame.Position+Vector3.new(0,0,-radius))end
+local function advance(delta)now+=delta raw()update(delta)end
+lastPunchActionAt=0 raw()update(1/60)
+attrs.PunchCameraFollowActive=true raw()update(1/60)
+attrs.PunchCameraFollowActive=false
+local function diagonalOpening(p)local relative=p-rootPart.Position return relative.X<=5 or relative.Y<=5 end
+occluded=diagonalOpening
+local fixedCFrame=resolveClearCameraPose(camera.CFrame,camera.Focus,character)
+check(fixedCFrame==nil,'control_exhausts_body_line_and_all_original_fixed_hints')
+local function physicalPathClear(a,b)
+ for i=0,100 do if blocked(a+(b-a)*(i/100)) then return false end end
+ return true
+end
+`;
+fixtures.occludedRecovery = `${recoverySetup}
+local previous=camera.CFrame.Position local arrived=false local transit=0 local steps=0
+for i=1,81 do
+ advance(.05) steps=i
+ check(not blocked(camera.CFrame.Position),'recovery_route_never_publishes_physical_overlap')
+ check(physicalPathClear(previous,camera.CFrame.Position),'recovery_route_every_published_segment_is_physically_clear')
+ check((camera.CFrame.Position-previous).Magnitude<=1.20001,'recovery_route_keeps_original_actual_response_budget')
+ if occluded(camera.CFrame.Position) then
+  transit+=1
+  check(attrs.PunchCameraLineOfSightUnresolved==true and attrs.PunchCameraGeometryClamped==true,'transient_LOS_is_reported_until_actual_clearance')
+ end
+ previous=camera.CFrame.Position
+ if not occluded(previous) and attrs.PunchCameraHandoffActive==false then arrived=true break end
+end
+check(arrived,'exhausted_fixed_hints_and_occluded_origin_converge_before_timeout')
+check(steps>2 and steps<81 and transit>1,'convergence_traverses_more_than_one_budget_without_hiding_obstruction')
+check(math.abs(camera.CFrame.Position.Magnitude-radius)<.001,'expanded_recovery_restores_exact_selected_radius')
+check(camera.CFrame.Yaw==0 and math.abs((camera.CFrame.Position-camera.Focus.Position).Magnitude-radius)<.001,'expanded_recovery_preserves_rotation_and_focus_distance')
+local d=shared.PunchWallCameraLastRecovery
+check(d and d.remaining<.001 and d.recoverySearches==1 and d.recoveryCacheHits>=2,'clear_goal_is_cached_and_exact_arrival_is_observed')
+check(d.recoveryCandidates<=48 and d.recoverySweeps<=6,'expanded_recovery_search_has_finite_endpoint_and_sweep_budgets')
+local held=camera.CFrame.Position
+for i=1,10 do advance(.05)check((camera.CFrame.Position-held).Magnitude<.001 and not occluded(camera.CFrame.Position) and attrs.PunchCameraGeometryClamped==false,'blocked_native_request_does_not_discard_reached_clear_goal')end
+check(shared.PunchWallCameraLastRecovery.recoverySearches==1,'holding_clear_recovery_goal_does_not_repeat_search')
+occluded=function()return false end advance(.05)
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil,'clear_native_selected_pose_releases_recovery_cache')
+print('PASS '..count)
+`;
+fixtures.continuousFollowRecovery = `${recoverySetup}
+attrs.PunchCameraFollowActive=true
+local previous=camera.CFrame.Position local clearWhileFollowing=false
+for i=1,60 do
+ local motion=Vector3.new(0,0,-.4)
+ rootPart.Position+=motion rootPart.CFrame=CFrame.new(rootPart.Position)headPart.Position=rootPart.Position+Vector3.new(0,1.5,0)
+ advance(.05)
+ check(not blocked(camera.CFrame.Position),'moving_root_recovery_remains_physically_clear')
+ check((camera.CFrame.Position-previous-motion).Magnitude<=1.20001,'moving_root_recovery_separates_correction_from_root_transport')
+ previous=camera.CFrame.Position
+ if not occluded(previous) then clearWhileFollowing=true break end
+end
+check(clearWhileFollowing and attrs.PunchCameraFollowActive==true,'continuous_punch_follow_recovers_visibility_without_waiting_for_handoff')
+check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-radius)<.4,'continuous_follow_does_not_accumulate_radial_backlog')
+attrs.PunchCameraFollowActive=false
+for i=1,81 do advance(.05)if attrs.PunchCameraHandoffActive==false then break end end
+check(attrs.PunchCameraHandoffActive==false and not occluded(camera.CFrame.Position),'continuous_follow_finishes_real_handoff')
+check(math.abs((camera.CFrame.Position-rootPart.Position).Magnitude-radius)<.001,'continuous_follow_handoff_restores_exact_radius')
+check(shared.PunchWallCameraLastRecovery.recoverySearches<=2,'moving_root_reuses_root_relative_recovery_destination')
+print('PASS '..count)
+`;
+fixtures.recoveryRouteBlocked = `${recoverySetup}
+blocked=function(p)local x=p.X-rootPart.Position.X return x>2 and x<4 end
+local previous=camera.CFrame.Position
+advance(.05)
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil and (camera.CFrame.Position-previous).Magnitude<.001,'blocked_whole_route_is_rejected_before_transit_starts')
+for i=1,19 do
+ advance(.05)
+ check(not blocked(camera.CFrame.Position) and physicalPathClear(previous,camera.CFrame.Position),'blocked_whole_route_is_never_selected_or_crossed')
+ previous=camera.CFrame.Position
+end
+local d=shared.PunchWallCameraLastRecovery
+check(d.recoveryTarget==nil and attrs.PunchCameraHandoffActive==true,'unavailable_route_keeps_real_unresolved_handoff')
+check(d.recoverySearches>=1 and d.recoverySearches<=4,'unavailable_search_is_throttled_to_four_attempts_per_second')
+check(d.recoveryCandidates<=48 and d.recoverySweeps<=6,'unavailable_search_stays_within_candidate_and_sweep_budgets')
+check(occluded(camera.CFrame.Position) and attrs.PunchCameraLineOfSightUnresolved==true,'unavailable_route_does_not_mask_actual_LOS_failure')
+print('PASS '..count)
+`;
+fixtures.recoveryRouteInvalidation = `${recoverySetup}
+advance(.05)
+local previous=camera.CFrame.Position
+check(previous.X>0 and shared.PunchWallCameraLastRecovery.recoveryTarget~=nil,'control_has_cached_route_in_transit')
+-- A thin barrier arrives after the full route was planned. Both endpoints can
+-- remain clear; the next swept segment must be checked again before publishing.
+blocked=function(p)return p.X>previous.X+.15 and p.X<previous.X+.35 end
+advance(.05)
+check(physicalPathClear(previous,camera.CFrame.Position),'changed_geometry_revalidates_next_segment_before_publication')
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil,'blocked_next_segment_invalidates_cached_route')
+blocked=function()return false end
+for i=1,20 do advance(.05)if shared.PunchWallCameraLastRecovery.recoveryTarget then break end end
+local before=camera.CFrame.Position local beforeFocus=camera.Focus.Position
+camera.CameraType=Enum.CameraType.Scriptable activePunchCamera={}
+now+=.05 update(.05)
+check((camera.CFrame.Position-before).Magnitude==0 and (camera.Focus.Position-beforeFocus).Magnitude==0,'Scriptable_owner_is_untouched_during_cached_recovery')
+camera.CameraType=Enum.CameraType.Custom occluded=function()return false end advance(.05)
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil,'Scriptable_transition_clears_cached_recovery_route')
+print('PASS '..count)
+`;
+fixtures.recoveryReadability = `${recoverySetup}
+-- Deliberately tiny live projection cannot meet the original18px silhouette
+-- requirement. The fallback must not label this a readable safe destination.
+function camera:WorldToViewportPoint(point)return Vector3.new(318,327,-point.Z),true end
+for i=1,10 do advance(.05)end
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil and attrs.PunchCameraHandoffActive==true,'unreadable_projection_is_not_an_accepted_recovery_route')
+check(camera.CFrame.Position.Magnitude==radius,'readability_failure_does_not_change_selected_zoom')
+print('PASS '..count)
+`;
+fixtures.recoveryLifetime = `${recoverySetup}
+advance(.05)
+check(shared.PunchWallCameraLastRecovery.recoveryTarget~=nil,'lifetime_control_has_active_cached_route')
+-- A new selected radius must invalidate the old route, even when the change
+-- is smaller than the ordinary native-camera .08 tolerance.
+radius+=.026 player.CameraMinZoomDistance=radius player.CameraMaxZoomDistance=radius
+local arrived=false
+for i=1,81 do advance(.05)if not occluded(camera.CFrame.Position) and attrs.PunchCameraHandoffActive==false then arrived=true break end end
+check(arrived and math.abs(camera.CFrame.Position.Magnitude-radius)<.001,'changed_selected_radius_replans_to_exact_new_radius')
+check(shared.PunchWallCameraLastRecovery.recoverySearches>=2,'changed_selected_radius_invalidates_old_destination')
+local oldCamera=camera
+local replacement={CameraType='Scriptable',CFrame=CFrame.new(100,30,20),Focus=CFrame.new(100,30,8),ViewportSize=camera.ViewportSize,WorldToViewportPoint=camera.WorldToViewportPoint}
+workspace.CurrentCamera=replacement now+=.05 update(.05)
+check(replacement.CFrame.Position.X==100 and replacement.Focus.Position.Z==8,'replacement_Scriptable_camera_is_not_changed_by_old_route')
+workspace.CurrentCamera=oldCamera
+local nextRoot={Position=Vector3.new(50,0,0),CFrame=CFrame.new(50,0,0),IsA=rootPart.IsA}
+local nextHead={Position=Vector3.new(50,1.5,0)}
+local nextCharacter={FindFirstChild=function(_,name)return name=='Head' and nextHead or nextRoot end}
+player.Character=nextCharacter rootPart=nextRoot headPart=nextHead
+attrs.PunchCameraFollowActive=false occluded=function()return false end advance(.05)
+check(shared.PunchWallCameraLastRecovery.recoveryTarget==nil and shared.PunchWallCameraLastRecovery.recoverySearches==0,'new_character_does_not_reuse_old_recovery_target_or_search_state')
+check((camera.CFrame.Position-rootPart.Position).Magnitude<radius+.001,'new_character_camera_is_not_pulled_toward_old_route')
+print('PASS '..count)
+`;
+const recoveryFailures={
+ occludedRecovery:'exhausted_fixed_hints_and_occluded_origin_converge_before_timeout',
+ continuousFollowRecovery:'continuous_punch_follow_recovers_visibility_without_waiting_for_handoff',
+};
 if (!baseline) {
   const visibilityObserver = block('\t\tlocal visibilityDiagnostics = ', '\n\t\tgui:SetAttribute("PunchCameraMaxAppliedStep", 0)');
   fixtures.visibilityObservation = `${common}
@@ -819,8 +982,8 @@ print('PASS '..count)
     if (flow.steps[index].label!==originalStep.label) assert.deepEqual(flow.steps[index],originalFlow.steps[index]);
   }
   assert.deepEqual(flow.cleanup.slice(-originalFlow.cleanup.length),originalFlow.cleanup,'Keep original stop cleanup after diagnostic reads');
-  assert.equal(flow.cleanup.length-originalFlow.cleanup.length,4,'Exactly four bounded failure-detail pages');
-  for(const item of flow.cleanup.slice(0,4)) {
+  assert.equal(flow.cleanup.length-originalFlow.cleanup.length,6,'Four visibility pages and two bounded recovery records');
+  for(const item of flow.cleanup.slice(0,6)) {
     assert(item.saveAs && item.allowError===true && item.args.datamodel_type==='Client' && item.args.code.includes("#encoded<3900"),'Failure details must be bounded and must not prevent stop cleanup');
   }
 }
@@ -861,13 +1024,15 @@ const generated = [];
 const compiled = [];
 try {
   for (const [name, fixture] of Object.entries(fixtures)) {
+    if (recoveryBaseline && !(name in recoveryFailures)) continue;
+    if (baseline && !recoveryBaseline && (name in recoveryFailures || name.startsWith('recoveryRoute') || name==='recoveryReadability' || name==='recoveryLifetime')) continue;
     if (settleBaseline && !(name in settleFailures)) continue;
     if (baseline && !settleBaseline && name in settleFailures) continue;
     if (baseline && ['exactHandoffArrival','rawOriginControls','releaseNoRecoveryDiagnostics'].includes(name)) continue;
     if (finalBaseline && !(name in finalFailures)) continue;
     if (faceBaseline && !(name in faceFailures)) continue;
     if (runtimeBaseline && !(name in runtimeFailures)) continue;
-    if (baseline && !settleBaseline && !losBaseline && !runtimeBaseline && !faceBaseline && !finalBaseline && !(name in expectedFailures)) continue;
+    if (baseline && !recoveryBaseline && !settleBaseline && !losBaseline && !runtimeBaseline && !faceBaseline && !finalBaseline && !(name in expectedFailures)) continue;
     if (baseline && !finalBaseline && ['boundsTransition','postSimulationOrdering','publicationDiagnostics','unresolvedDiagnostics','releaseNoPublicationDiagnostics'].includes(name)) continue;
     if (losBaseline && ['overlapRecovery','heartbeatOverlap','overlapWithoutHistory','enclosingObject','overlapControls','unavailableSafety','selectedOrbitSetup','runtimeAcceptance'].includes(name)) continue;
     if (losBaseline && ['orientedFaceExit','compoundFaceExit','physicalVersusLos','lateScriptableOwner','coarseGap','freshPhysicalSample','overlapCollection'].includes(name)) continue;
@@ -876,7 +1041,7 @@ try {
     generated.push(file);
     const result = spawnSync(luau, [file], { encoding: "utf8", timeout: 15000 });
     const output = `${result.stdout || ""}${result.stderr || ""}`;
-    const expectedFailure = baseline && (settleBaseline ? settleFailures[name] : finalBaseline ? finalFailures[name] : faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
+    const expectedFailure = baseline && (recoveryBaseline ? recoveryFailures[name] : settleBaseline ? settleFailures[name] : finalBaseline ? finalFailures[name] : faceBaseline ? faceFailures[name] : runtimeBaseline ? runtimeFailures[name] : losBaseline ? losFailures[name] : expectedFailures[name]);
     if (expectedFailure) {
       assert.ok(result.status !== 0 && output.includes(expectedFailure), `${name}: expected baseline failure ${expectedFailure}: ${output}`);
       results[name] = { reproduced: expectedFailure };
@@ -887,6 +1052,16 @@ try {
   }
   if (!baseline) {
     const mutationsToCheck = [
+      ['omit_expanded_recovery_search','occludedRecovery',text=>text.replace('for _, degrees in ipairs({ 10, 20, 30, 40, 50, 60 }) do','for _, degrees in ipairs({}) do'),'exhausted_fixed_hints_and_occluded_origin_converge_before_timeout'],
+      ['forbid_occluded_intermediate_transit','occludedRecovery',text=>text.replace('if allowOccludedTransit and displacement.Magnitude > 0.001','if false and displacement.Magnitude > 0.001'),'exhausted_fixed_hints_and_occluded_origin_converge_before_timeout'],
+      ['defer_recovery_until_punching_stops','continuousFollowRecovery',text=>text.replace('if targetPosition and (not limitedCFrame or recoveryRoute) and not shared.PunchWallCameraPositionBlocked(followOrigin, character)','if not activeFollow and targetPosition and (not limitedCFrame or recoveryRoute) and not shared.PunchWallCameraPositionBlocked(followOrigin, character)'),'continuous_punch_follow_recovers_visibility_without_waiting_for_handoff'],
+      ['omit_full_recovery_route_sweep','recoveryRouteBlocked',text=>text.replace('if clearTranslationStep(origin, travel, character) then','if true then'),'blocked_whole_route_is_rejected_before_transit_starts'],
+      ['omit_cached_route_next_segment_sweep','recoveryRouteInvalidation',text=>text.replace('and clearTranslationStep(origin, direct, character) then','and true then'),'changed_geometry_revalidates_next_segment_before_publication'],
+      ['unthrottle_exhausted_recovery_search','recoveryRouteBlocked',text=>text.replace('if os.clock() < nextRecoverySearchAt then return nil, nil end','if false then return nil, nil end'),'unavailable_search_is_throttled_to_four_attempts_per_second'],
+      ['accept_unreadable_recovery_destination','recoveryReadability',text=>text.replace('return onScreen and headPoint.Z > 0 and feetPoint.Z > 0 and math.abs(headPoint.Y - feetPoint.Y) >= 18','return true'),'unreadable_projection_is_not_an_accepted_recovery_route'],
+      ['reuse_small_but_real_zoom_change','recoveryLifetime',text=>text.replace('and math.abs(recoveryRoute.radius - radius) < 0.001','and math.abs(recoveryRoute.radius - radius) < 0.08').replace('and math.abs((recoveryRoute.userOrbit or radius) - (userOrbitDistance or radius)) < 0.001','and math.abs((recoveryRoute.userOrbit or radius) - (userOrbitDistance or radius)) < 0.08'),'changed_selected_radius_replans_to_exact_new_radius'],
+      ['forget_reached_recovery_destination','occludedRecovery',text=>text.replace('or recoveringFromFollowHandoff or recoveryRoute) and lastClearCameraCFrame','or recoveringFromFollowHandoff) and lastClearCameraCFrame'),'blocked_native_request_does_not_discard_reached_clear_goal'],
+      ['hide_in_transit_LOS_failure','occludedRecovery',text=>text.replace('gui:SetAttribute("PunchCameraLineOfSightUnresolved", cameraPoseBlocked(desiredCFrame, character))','gui:SetAttribute("PunchCameraLineOfSightUnresolved", false)'),'transient_LOS_is_reported_until_actual_clearance'],
       ['conflate_prior_guard_and_current_LOS','visibilityObservation',text=>text.replace('headRayBlocked = headBlocked, bodyRayBlocked = bodyBlocked','headRayBlocked = recovery and recovery.publishedBlocked, bodyRayBlocked = bodyBlocked'),'fresh_sample_LOS_is_distinguished_from_prior_guard_clearance'],
       ['unbound_visibility_stage_records','visibilityObservation',text=>text.replace('visibilityDiagnostics.stages[stage] = visibilityDiagnostics.stages[stage] or sample','visibilityDiagnostics.stages[currentPunch] = visibilityDiagnostics.stages[currentPunch] or sample'),'three_stage_records_are_bounded_and_first_record_is_stable'],
       ['mask_visibility_failure_in_summary','compactVisibilityResult',text=>text.replace('summary[key]=value','summary[key]=key=="visualValid" and true or value'),'compact_evidence_retains_failed_acceptance_and_exact_measurements'],
@@ -896,7 +1071,7 @@ try {
       ['leave_stale_rebase_handoff_marker','teleportHandoffMarker',text=>text.replace('recoveringFromFollowHandoff = false\n\t\t\t\t\tgui:SetAttribute("PunchCameraHandoffActive", false)','recoveringFromFollowHandoff = false'),'successful_rebase_synchronizes_public_handoff_marker'],
       ['loosen_exact_handoff_arrival','exactHandoffArrival',text=>text.replace('local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.001','local arrived = limitedCFrame and (desiredPosition - requestedPosition).Magnitude < 0.08'),'sub_point_zero_eight_error_does_not_clear_original_arrival_gate'],
       ['skip_raw_origin_physical_sweep','rawOriginControls',text=>text.replace('and clearTranslationStep(followOrigin, rawOffset, character)','and true'),'physical_barrier_prevents_native_origin_adoption'],
-      ['accept_LOS_blocked_native_origin','rawOriginControls',text=>text.replace('and not cameraPoseBlocked(rawCFrame, character)','and true'),'LOS_blocked_raw_pose_never_becomes_recovery_origin'],
+      ['accept_LOS_blocked_native_origin','rawOriginControls',text=>text.replace('and not cameraPoseBlocked(rawCFrame, character)\n\t\t\t\tand rawOffset.Magnitude <= maxStep','and true\n\t\t\t\tand rawOffset.Magnitude <= maxStep'),'LOS_blocked_raw_pose_never_becomes_recovery_origin'],
       ['adopt_distant_native_origin','rawOriginControls',text=>text.replace('and rawOffset.Magnitude <= maxStep','and true'),'distant_native_pose_does_not_bypass_local_recovery_budget'],
       ['allocate_release_recovery_records','releaseNoRecoveryDiagnostics',text=>text.replace('local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)\n\t\tif not recordCameraDiagnostics then return end','local function recordRecoveryState(raw, cached, requested, origin, candidate, rootDelta, reason)\n\t\tif false then return end'),'published_game_does_not_allocate_recovery_records'],
       ['omit_face_candidates','orientedFaceExit',text=>text.replace('if distance > 0 then addCandidate(normal * distance, "face") end','if false then addCandidate(normal * distance, "face") end'),'rotated_block_uses_near_face_exit_within_existing_budget'],

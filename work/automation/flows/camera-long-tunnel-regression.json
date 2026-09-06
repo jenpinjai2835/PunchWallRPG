@@ -129,6 +129,28 @@
     },
     {
       "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local raw=g and g:GetAttribute('CameraAutomationRecoveryJSON') if type(raw)~='string' then return H:JSONEncode({available=false,record='last'}) end local d=H:JSONDecode(raw) local encoded=H:JSONEncode({available=d.last~=nil,record='last',sample=d.last}) assert(#encoded<3900,'recovery detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraRecoveryLast",
+      "allowError": true,
+      "label": "preserve last bounded recovery route before cleanup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p and p.PlayerGui:FindFirstChild('PunchWallHUD') local raw=g and g:GetAttribute('CameraAutomationRecoveryJSON') if type(raw)~='string' then return H:JSONEncode({available=false,record='first'}) end local d=H:JSONDecode(raw) local encoded=H:JSONEncode({available=d.first~=nil,record='first',sample=d.first}) assert(#encoded<3900,'recovery detail exceeds runner context bound') return encoded"
+      },
+      "saveAs": "cameraRecoveryFirst",
+      "allowError": true,
+      "label": "preserve first bounded recovery route before cleanup"
+    },
+    {
+      "type": "call",
       "tool": "start_stop_play",
       "args": {
         "is_start": false
