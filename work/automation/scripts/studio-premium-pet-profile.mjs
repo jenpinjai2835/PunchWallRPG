@@ -22,6 +22,7 @@ const petNames = ['Crimson Phoenix','Storm Wyvern','Celestial Guardian'];
 const namesLua = '{' + petNames.map(name => JSON.stringify(name)).join(',') + '}';
 const quote = value => { let equal='='; while(String(value).includes(']'+equal+']')) equal+='='; return `string.sub([${equal}[!${value}]${equal}],2)`; };
 const patternFor = value => '^' + value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$';
+export const startStopPlayTimeoutMS = 60000;
 const readDeviceState = `local function readDeviceState()
  local ok,id=pcall(function()return S:GetDeviceAsync()end)
  if not ok then assert(string.find(tostring(id),'no device is active',1,true),'Unrecognized device-state failure: '..tostring(id)) end
@@ -110,7 +111,7 @@ ${readDeviceState}
 local previous=${quote(before.id)} local removed=0
 ${before.active ? `S:SetDeviceAsync(previous)
 S:SetOrientationAsync(Enum.ScreenOrientation[${quote(before.orientation)}]) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode[${quote(before.scaling)}])`
-    : 'S:ClearDeviceAsync()'}
+    : 'S:StopSimulationAsync()'}
 for _,id in ipairs(S:GetDeviceListAsync())do local info=S:GetDeviceInfoAsync(id) if info.Name==${quote(name)} then
  assert(info.IsCustom,'Refuse to remove non-owned built-in preset') S:RemoveDeviceAsync(id) removed+=1 end end
 local state=readDeviceState() assert(removed<=1 and state.id==previous and state.active==${before.active},'Owned device cleanup failed')
@@ -277,7 +278,7 @@ async function run(options) {
   let c,before,previous,playAttempted=false,selected=false,primary;
   const name='Smash Premium Profile '+crypto.randomUUID();
   const call=async(type,code)=>{const value=await c.callTool('execute_luau',{datamodel_type:type,code},35000);assert(!value.isError,value.text);return JSON.parse(value.text);};
-  const tool=async(name,args)=>{const value=await c.callTool(name,args,35000);assert(!value.isError,value.text);return value.text;};
+  const tool=async(name,args)=>{const value=await c.callTool(name,args,name==='start_stop_play'?startStopPlayTimeoutMS:35000);assert(!value.isError,value.text);return value.text;};
   const live=()=>{const result=JSON.parse(command(process.execPath,[path.join(root,'work/automation/scripts/verify-studio-source.mjs'),options['studio-id'],patternFor(options['studio-name'])]));assertLiveBinding(result,options,before.sources);return result;};
   try {
     before=binding(); record.binding=before; record.liveBefore=live();
@@ -318,6 +319,8 @@ async function run(options) {
 
 export async function selfTest() {
   let checks=0;const check=(condition,label)=>{assert(condition,label);checks++;};const reject=(fn,label)=>{assert.throws(fn,undefined,label);checks++;};
+  check(startStopPlayTimeoutMS===60000,'Start and stop Play use the ordinary 60-second response allowance');
+  check(deviceCleanup('Smash Premium Profile abc',{id:'default',active:false}).includes('S:StopSimulationAsync()'),'Use the already verified simulator stop API');
   reject(()=>parseArgs([]),'Explicit target required');reject(()=>parseArgs(['--studio-id','x','--studio-name','other.rbxlx','--evidence-leaf','smash-check']),'Wrong place');
   reject(()=>parseArgs(['--studio-id','x','--studio-name','PunchWallRPGPlayable_v1_final.rbxlx','--evidence-leaf','../escape']),'Traversal');
   assertAbsentPlayModel({isError:true,text:'Client DataModel not available'});checks++;
@@ -394,7 +397,7 @@ local S={}
 function S:GetDeviceAsync()if state.unknown then error('unrelated service failure')end if state.throwNoActive and not state.active then error('StudioDeviceSimulatorService: no device is active — call SetDeviceAsync() first')end return state.id end
 function S:GetOrientationAsync()state.metaReads+=1 assert(state.active,'no device is active')if state.badOrientation then error('active orientation unavailable')end return {Name=state.orientation}end
 function S:GetScalingModeAsync()state.metaReads+=1 assert(state.active,'no device is active')return {Name=state.scaling}end
-function S:ClearDeviceAsync()state.clears+=1 if not state.ignoreClear then state.id='default'state.active=false end end
+function S:StopSimulationAsync()state.clears+=1 if not state.ignoreClear then state.id='default'state.active=false end end
 function S:SetDeviceAsync(id)state.sets+=1 state.id=id state.active=true end
 function S:SetOrientationAsync(value)assert(state.active)if not state.ignoreOptions then state.orientation=value end end
 function S:SetScalingModeAsync(value)assert(state.active)if not state.ignoreOptions then state.scaling=value end end
@@ -421,6 +424,9 @@ local game={HttpService=H,GetService=function(_,name)return name=='HttpService' 
     verifyDevice('failed clear rejects',"state.id='owned' state.active=true state.ignoreClear=true",clearedCleanup,false);
     verifyDevice('failed option restore rejects',"state.id='owned' state.active=true state.orientation='Portrait' state.ignoreOptions=true",activeCleanup,false);
     verifyDevice('built-in cannot be deleted','catalog.owned.IsCustom=false',clearedCleanup,false,'state.removed==0 and catalog.other~=nil');
+    // Model only the verified service API. The previously guessed member must fail.
+    const unsupportedClear=clearedCleanup.replace('S:StopSimulationAsync()', 'S:ClearDeviceAsync()');assert.notEqual(unsupportedClear,clearedCleanup);
+    verifyDevice('unsupported ClearDeviceAsync rejects',"state.id='owned' state.active=true",unsupportedClear,false,'state.clears==0 and state.removed==0 and catalog.other~=nil');
     const unconditional=LUA.deviceBefore.replace('local ok,id=pcall', 'S:GetOrientationAsync() local ok,id=pcall');assert.notEqual(unconditional,LUA.deviceBefore);
     verifyDevice('old unconditional metadata fails', '',unconditional,false,'state.metaReads==1');
     outputs.push('PASS '+deviceChecks+' exact device lifecycle controls (including fail-before)');
