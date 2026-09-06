@@ -37,12 +37,50 @@ function verifyFlow(candidate){
  const detail=copy.steps.find(s=>s.label==='verify selected fist and pet detail lanes at explicit narrow desktop');
  assert(detail.args.code.includes("verify('Fists','fist:Starter Glove','Starter Fist',1)")&&detail.args.code.includes("verify('Pets',nil,'Forest Pup',4)"),'actual fist/normal-pet selection coverage missing');
  assert(detail.args.code.includes('name.TextFits==true')&&detail.args.code.includes('name.TextSize>=14')&&detail.args.code.includes('overlap(button,name)<1')&&detail.args.code.includes('button.AbsoluteSize.Y)>=44'),'actual selected-item readability/action gates missing');
+ assert(detail.args.code.includes('name.Text==string.upper(expectedName)')&&detail.args.code.includes('label.Text==expectedName'),'actual detail/card name normalization must remain distinct');
  const seed=copy.steps.find(s=>s.label==='seed one normal pet for narrow selected-detail geometry');
  assert(seed.args.code.includes("world:GetAttribute('PersistenceMode')=='EphemeralStudio'")&&seed.args.code.includes("p:GetAttribute('ProfileWritable')==false")&&seed.args.code.includes("table.find(pets,'Forest Pup')"),'strict seed and authoritative readback required');
  copy.steps=copy.steps.filter(s=>s!==detail&&s!==seed);
  assert.deepEqual(copy,oldFlow,'all existing narrow fixture/native routes/settings/world/cleanup gates must remain exact');
 }
 verifyFlow(flow);
+const detailCode=flow.steps.find(s=>s.label==='verify selected fist and pet detail lanes at explicit narrow desktop').args.code;
+const detailNameProducer=inv.match(/self\.DetailName\.Text = string\.upper\(displayName\)/)?.[0];
+const cardNameProducer=inv.match(/cardRef\.name\.Text = [^\n]+/)?.[0];
+assert(detailNameProducer&&cardNameProducer,'actual Inventory name producers missing');
+const detailNameConsumer=detailCode.match(/name\.Text==[^\n]+? and shown\(name\)/)?.[0].replace(' and shown(name)','');
+const cardNameConsumer=detailCode.match(/label\.Text==expectedName/)?.[0];
+assert(detailNameConsumer&&cardNameConsumer,'actual flow name consumers missing');
+const nameCaseProgram=`for _,expectedName in ipairs({'Starter Fist','Forest Pup'})do
+ local item={displayName=expectedName,name='internal-name'}local displayName=tostring(item.displayName or item.name)
+ local self={DetailName={}}local cardRef={name={}}
+ ${detailNameProducer}
+ ${cardNameProducer}
+ local name,label=self.DetailName,cardRef.name
+ assert(${detailNameConsumer},'actual detail-name consumer differs from producer')
+ assert(${cardNameConsumer},'actual mixed-case card lookup differs from producer')
+ assert(name.Text~=expectedName,'wrong-case negative did not exercise different values')
+end print('ACTUAL_NAME_CASE_PASS=2')`;
+const identityConsumer=detailCode.match(/local original=name[^\n]+repeat selection replaced detail identity'\)/)?.[0];
+assert(identityConsumer&&identityConsumer.includes('local liveRoot=g.GameMenu.FunctionalInventory'),'repeat selection must resolve the live tree');
+const identityProgram=`local function verify(replacement)
+ local key='pet:slot:1'local detail={}local name={Parent=detail}detail.DetailName=name
+ local root={InventoryWindow={InventoryBody={InventoryDetail=detail}}}
+ function root:GetAttribute(k)assert(k=='InventorySelectedKey')return key end
+ local g={GameMenu={FunctionalInventory=root}}local task={wait=function()end}
+ local a={}function a:Invoke(action,requested)
+  assert(action=='SelectInventoryItem'and requested==key)
+  if replacement=='root'then
+   local clone={InventoryWindow=root.InventoryWindow,GetAttribute=root.GetAttribute}g.GameMenu.FunctionalInventory=clone
+  elseif replacement=='detail'then
+   local clone={}local newName={Parent=clone}clone.DetailName=newName root.InventoryWindow.InventoryBody.InventoryDetail=clone
+  elseif replacement=='name'then detail.DetailName={Parent=detail}end
+ end
+ ${identityConsumer}
+end
+assert(pcall(verify,'none'))
+for _,replacement in ipairs({'root','detail','name'})do assert(not pcall(verify,replacement),'replacement escaped live identity consumer')end
+print('LIVE_IDENTITY_PASS=4')`;
 const main=String.raw`
 UDim2.fromScale=function(x,y)return UDim2.new(x,0,y,0)end
 local shared={}
@@ -128,6 +166,11 @@ const program=inventoryHarness+'\n'+main;
 const luau=[process.env.LUAU_COMMAND,...fs.readdirSync(os.tmpdir()).filter(n=>n.startsWith('codex-luau-')).sort().reverse().map(n=>path.join(os.tmpdir(),n,'luau.exe'))].find(p=>p&&fs.existsSync(p));assert(luau);const compiler=process.env.LUAU_COMPILE_COMMAND||path.join(path.dirname(luau),'luau-compile.exe');const temp=fs.mkdtempSync(path.join(os.tmpdir(),'smash-narrow-modal-'));let compiled=0;const mutations=[];
 function run(name,code,expected){const p=path.join(temp,name+'.luau');fs.writeFileSync(p,code);const c=spawnSync(compiler,['--null',p],{encoding:'utf8'});assert.equal(c.status,0,c.stderr);compiled++;const r=spawnSync(luau,[p],{encoding:'utf8',timeout:10000});if(expected)assert(r.status!==0&&(r.stdout+r.stderr).includes(expected),name+': '+r.stdout+r.stderr);else assert.equal(r.status,0,r.stdout+r.stderr);return r.stdout;}
 try{
+ run('actual-name-producer-consumer',nameCaseProgram);
+ run('wrong-detail-consumer-case',nameCaseProgram.replace(detailNameConsumer,'name.Text==expectedName'),'actual detail-name consumer differs from producer');mutations.push('wrong_detail_consumer_case');
+ run('wrong-card-lookup-case',nameCaseProgram.replace(cardNameConsumer,'label.Text==string.upper(expectedName)'),'actual mixed-case card lookup differs from producer');mutations.push('wrong_card_lookup_case');
+ run('live-detail-identity',identityProgram);
+ run('stale-alias-identity',identityProgram.replace('liveRoot==root and liveDetail==detail and liveName==original and liveName.Parent==liveDetail', 'name==original and name.Parent==detail'),'replacement escaped live identity consumer');mutations.push('stale_alias_identity');
  const out=run('actual-producers',program);const checks=Number(out.match(/NARROW_MODAL_PASS=(\d+)/)?.[1]);assert(checks>400);
  const variants=[
  ['historical_b7_standalone',program.replace(dimensions,oldDimensions),'standalone host outside12px margins'],
@@ -147,5 +190,3 @@ try{
  for(const opt of ['-O0','-O1','-O2']){const r=spawnSync(compiler,[opt,'--null',path.join(root,clientPath)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);compiled++;}
  console.log(JSON.stringify({ok:true,checks,mutations,compiled,actualInventoryProducer:true,callbacksAndCompactUnchanged:true,native:'pending'},null,2));
 }finally{assert.equal(path.dirname(fs.realpathSync(temp)),fs.realpathSync(os.tmpdir()));fs.rmSync(temp,{recursive:true,force:true});}
-
-
