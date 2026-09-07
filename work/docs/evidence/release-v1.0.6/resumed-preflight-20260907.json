@@ -1,0 +1,51 @@
+{
+  "recordedAtUtc": "2026-09-07T01:08:30.22Z",
+  "userAuthorizedPublish": true,
+  "chromeCdpAvailable": true,
+  "chromeCdpEndpoint": "http://127.0.0.1:9222",
+  "creatorAccount": "jennarong2835",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "latestPublishedVersion": 20,
+  "latestSavedVersion": 22,
+  "historyEvidence": "live-history-before-20260907.json",
+  "backup": {
+    "path": "outputs/releases/v1.0.6/rollback-place-v20.rbxl",
+    "bytes": 755367,
+    "sha256": "4E7BDADE10DFECB5F0548CD91178FD191B9BF91DD0868D6894E7E3E24930FB8F",
+    "method": "Documented version-specific assetdelivery v2 navigation and browser-owned download through Chrome CDP",
+    "cookiesExtracted": false
+  },
+  "keyForm": {
+    "name": "SmashWall_v1_0_6_Publish_20260907",
+    "scope": "universe-places:write",
+    "restrictedUniverseId": 10490793155,
+    "expiresOn": "2026-09-08",
+    "generated": false,
+    "actionTimeApproval": "SUPERSEDED_DO_NOT_CREATE_KEY",
+    "reviewedVisibleText": "ครีเอเตอร์\njennarong2835\n​\nหน้าหลัก\nการสร้างสรรค์\nเรียนรู้\nร้านค้า\nฟอรัม\nการอัปเดต\nการเงิน\nการวิเคราะห์\nโฆษณา\nเครื่องมือทั้งหมด\nRoblox.com\nStudio\nซ่อนแถบด้านข้าง\nส่วนขยาย API\nคีย์ API ใหม่\nบันทึกและสร้างคีย์\n1\nข้อมูลทั่วไป\nชื่อ(จำเป็นต้องมี)\n\nตั้งชื่อที่ไม่ซ้ำกันให้คีย์ API ของคุณ\n\n​\n33/64\nคำอธิบาย\n\nกรอกคำอธิบายเพิ่มเติมสำหรับคีย์ API ของคุณ (ไม่บังคับ)\n\n​\n106/1000\n2\nสิทธิ์ในการเข้าถึง\n​\nตั้งค่าสิทธิ์ขั้นต่ำสำหรับแอปพลิเคชันของคุณ เพื่อลดผลกระทบในกรณีที่คีย์ของคุณถูกเปิดเผย\nuniverse-places\n​\n​\nSmash Wall\n\nสิทธิ์ \"เขียน\" จะมีผลกับสถานที่ที่มีอยู่ทั้งหมดในประสบการณ์\n\nuniverse-places:write\n​\n3\nความปลอดภัย\nจำกัดที่อยู่ IP ที่สามารถใช้คีย์ API นี้ได้\nหมดอายุ\nคีย์ API จะหมดอายุในวันที่ระบุไว้ หรือหลังจากไม่มีการใช้งานเป็นเวลา 60 วัน แล้วแต่ว่ากรณีใดจะเกิดขึ้นก่อน\n9/8/2026\n​\nจำเป็นต้องมีชื่อที่ไม่ซ้ำกันเพื่อสร้างคีย์ API\nบันทึกและสร้างคีย์\n©2026 Roblox Corporation สงวนลิขสิทธิ์\nข้อกำหนด·ความเป็นส่วนตัว·การเข้าถึง·ฝ่ายบริการช่วยเหลือ·\nตัวเลือกสำหรับความเป็นส่วนตัวของคุณ\nภาษาไทย\n\nแดชบอร์ดครีเอเตอร์"
+  },
+  "studioSourcePreflight": {
+    "checkedAtUtc": "2026-09-07T00:55:44.725Z",
+    "mode": "Edit",
+    "placeId": 0,
+    "codeObjects": 9,
+    "exactNormalizedSources": 9,
+    "passed": true
+  },
+  "nativeUiLimitations": [
+    "Screenshot SetIsBorderRequired failed 0x80004002",
+    "Indexed click coordinate input geometry unavailable",
+    "Alt+F and F10 did not expose File menu"
+  ],
+  "optionalKeyFormScreenshot": "FAILED: timeout; no screenshot claimed",
+  "uploaded": false,
+  "status": "BLOCKED_NATIVE_PUBLISH_ACTION_REQUIRED",
+  "baselineAudit": {
+    "path": "live-baseline-audit-20260907.json",
+    "sha256": "71DEA4C10F9CD21756D2A800565C54ACBF291580638245DD23DB8A0729DDAB98",
+    "apiVisualSuitability": "BLOCKED",
+    "sourceDataGate": "PASS",
+    "nativePublishRequested": true
+  }
+}
