@@ -1,0 +1,14 @@
+[PunchWallRPG] DataStore disabled for this session: You must publish this place to the web to access DataStore.
+Insufficent permissions to set DevCameraOcclusionMode
+Boxing GloveShopCard is not a valid member of Frame "Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop"
+Stack Begin
+Script 'AssistantCommand', Line 1
+Stack End
+Coins is not a valid member of Folder "Players.jennarong2835.RPGStats"
+Stack Begin
+Script 'AssistantCommand', Line 8
+Stack End
+Visible is not a valid member of UICorner "Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.UICorner"
+Stack Begin
+Script 'AssistantCommand', Line 1
+Stack End

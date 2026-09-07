@@ -1,0 +1,114 @@
+{
+  "name": "normal-pet-visual-models",
+  "description": "Verify all five non-Robux pets use their selected visual-only child from Creator Store pack 70715599928632 with exact identity, bounded size, item-matched styling, and zero behavior descendants.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7500, "label": "wait for sanitized visual templates" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('GrantPet',{name='Forest Pup',stars=1}).ok and 'PUP_GRANTED' or 'PUP_FAILED'" },
+      "expectRegex": ["PUP_GRANTED"],
+      "label": "equip normal Forest Pup"
+    },
+    { "type": "wait", "ms": 1800, "label": "wait for Forest Pup visual" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local f=workspace:FindFirstChild(p.Name..' Client Companions') local m=f and f:FindFirstChildWhichIsA('Model') local unsafe=0 if m then for _,d in ipairs(m:GetDescendants()) do if d:IsA('LuaSourceContainer') or d:IsA('Sound') or d:IsA('Tool') or d:IsA('RemoteEvent') or d:IsA('RemoteFunction') or d:IsA('ClickDetector') or d:IsA('ProximityPrompt') then unsafe+=1 end end end local valid=m and m:GetAttribute('PetDefinitionName')=='Forest Pup' and m:GetAttribute('VisualSource')=='ExternalTemplate' and m:GetAttribute('PetVisualIdentity')=='Sanitized_ForestPupPet' and m:GetAttribute('SourcePackModelName')=='Dowodle' and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('CatalogPetStyleVersion')=='CreatorStorePackMatchedV2' and unsafe==0 return H:JSONEncode({valid=valid==true,name=m and m:GetAttribute('PetDefinitionName'),source=m and m:GetAttribute('VisualSource'),identity=m and m:GetAttribute('PetVisualIdentity'),packModel=m and m:GetAttribute('SourcePackModelName'),pack=tostring(m and m:GetAttribute('CreatorStorePackAssetId')),unsafe=unsafe})"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "Sanitized_ForestPupPet", "Dowodle", "70715599928632", "\"unsafe\"\\s*:\\s*0"],
+      "label": "Forest Pup uses sanitized Dowodle pack child"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('GrantPet',{name='Miner Cat',stars=1}).ok and 'MINER_GRANTED' or 'MINER_FAILED'" },
+      "expectRegex": ["MINER_GRANTED"],
+      "label": "equip normal Miner Cat"
+    },
+    { "type": "wait", "ms": 2500, "label": "wait for Miner Cat visual" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local f=workspace:FindFirstChild(p.Name..' Client Companions') local m=f and f:FindFirstChildWhichIsA('Model') local s=nil if m then local ignored,size=m:GetBoundingBox(); s=size end local largest=s and math.max(s.X,s.Y,s.Z) or 99 local valid=m and m:GetAttribute('PetDefinitionName')=='Miner Cat' and m:GetAttribute('VisualSource')=='ExternalTemplate' and m:GetAttribute('PetVisualIdentity')=='Sanitized_MinerCatPet' and m:GetAttribute('SourcePackModelName')=='Catmouse' and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('CatalogPetThemeMatched')==true and m:GetAttribute('CatalogPetColorMatched')==true and largest>=.65 and largest<=1.66 return H:JSONEncode({valid=valid==true,name=m and m:GetAttribute('PetDefinitionName'),source=m and m:GetAttribute('VisualSource'),identity=m and m:GetAttribute('PetVisualIdentity'),packModel=m and m:GetAttribute('SourcePackModelName'),matched=m and m:GetAttribute('CatalogPetThemeMatched'),largest=largest})"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"name\"\\s*:\\s*\"Miner Cat\"",
+        "\"source\"\\s*:\\s*\"ExternalTemplate\"",
+        "Sanitized_MinerCatPet"
+      ],
+      "saveAs": "minerCatProbe",
+      "label": "Miner Cat uses sanitized item-matched external visual"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('GrantPet',{name='Crystal Fox',stars=1}).ok and 'FOX_GRANTED' or 'FOX_FAILED'" },
+      "expectRegex": ["FOX_GRANTED"],
+      "label": "equip normal Crystal Fox"
+    },
+    { "type": "wait", "ms": 2000, "label": "wait for Crystal Fox visual" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local f=workspace:FindFirstChild(p.Name..' Client Companions') local m=f and f:FindFirstChildWhichIsA('Model') local valid=m and m:GetAttribute('PetDefinitionName')=='Crystal Fox' and m:GetAttribute('VisualSource')=='ExternalTemplate' and m:GetAttribute('PetVisualIdentity')=='Sanitized_CrystalFoxPet' and m:GetAttribute('SourcePackModelName')=='Ocelot' and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('CatalogPetStyleVersion')=='CreatorStorePackMatchedV2' return H:JSONEncode({valid=valid==true,name=m and m:GetAttribute('PetDefinitionName'),source=m and m:GetAttribute('VisualSource'),identity=m and m:GetAttribute('PetVisualIdentity'),packModel=m and m:GetAttribute('SourcePackModelName')})"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "Sanitized_CrystalFoxPet", "Ocelot", "\"source\"\\s*:\\s*\"ExternalTemplate\""],
+      "label": "Crystal Fox uses sanitized Ocelot pack child"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('GrantPet',{name='Lava Dragon',stars=1}).ok and 'DRAGON_GRANTED' or 'DRAGON_FAILED'" },
+      "expectRegex": ["DRAGON_GRANTED"],
+      "label": "equip normal Lava Dragon"
+    },
+    { "type": "wait", "ms": 2500, "label": "wait for Lava Dragon visual" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local f=workspace:FindFirstChild(p.Name..' Client Companions') local m=f and f:FindFirstChildWhichIsA('Model') local s=nil if m then local ignored,size=m:GetBoundingBox(); s=size end local largest=s and math.max(s.X,s.Y,s.Z) or 99 local valid=m and m:GetAttribute('PetDefinitionName')=='Lava Dragon' and m:GetAttribute('VisualSource')=='ExternalTemplate' and m:GetAttribute('PetVisualIdentity')=='Sanitized_LavaDragonPet' and m:GetAttribute('SourcePackModelName')=='Mythic Autumn Dragon' and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('CatalogPetThemeMatched')==true and m:GetAttribute('CatalogPetColorMatched')==true and largest>=.7 and largest<=1.73 return H:JSONEncode({valid=valid==true,name=m and m:GetAttribute('PetDefinitionName'),source=m and m:GetAttribute('VisualSource'),identity=m and m:GetAttribute('PetVisualIdentity'),packModel=m and m:GetAttribute('SourcePackModelName'),matched=m and m:GetAttribute('CatalogPetThemeMatched'),largest=largest})"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "Sanitized_LavaDragonPet", "\"source\"\\s*:\\s*\"ExternalTemplate\""],
+      "label": "Lava Dragon uses sanitized recolored external visual"
+    },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Normal_Pet_Visual_Models" }, "label": "capture normal pet player view" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('GrantPet',{name='Secret Titan Golem',stars=1}).ok and 'GOLEM_GRANTED' or 'GOLEM_FAILED'" },
+      "expectRegex": ["GOLEM_GRANTED"],
+      "label": "equip normal Secret Titan Golem"
+    },
+    { "type": "wait", "ms": 2000, "label": "wait for Titan Golem visual" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local f=workspace:FindFirstChild(p.Name..' Client Companions') local m=f and f:FindFirstChildWhichIsA('Model') local valid=m and m:GetAttribute('PetDefinitionName')=='Secret Titan Golem' and m:GetAttribute('VisualSource')=='ExternalTemplate' and m:GetAttribute('PetVisualIdentity')=='Sanitized_SecretTitanGolemPet' and m:GetAttribute('SourcePackModelName')=='Dark Guardian' and tostring(m:GetAttribute('CreatorStorePackAssetId'))=='70715599928632' and m:GetAttribute('CatalogPetStyleVersion')=='CreatorStorePackMatchedV2' return H:JSONEncode({valid=valid==true,name=m and m:GetAttribute('PetDefinitionName'),source=m and m:GetAttribute('VisualSource'),identity=m and m:GetAttribute('PetVisualIdentity'),packModel=m and m:GetAttribute('SourcePackModelName')})"
+      },
+      "expectRegex": ["\"valid\"\\s*:\\s*true", "Sanitized_SecretTitanGolemPet", "Dark Guardian", "\"source\"\\s*:\\s*\"ExternalTemplate\""],
+      "label": "Secret Titan Golem uses sanitized Dark Guardian pack child"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }
+  ]
+}

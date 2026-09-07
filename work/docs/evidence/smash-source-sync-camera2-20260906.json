@@ -1,0 +1,98 @@
+{
+  "ok": true,
+  "repositoryRoot": "F:\\Roblox\\PuchWall-completion-20260906",
+  "projectRoot": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg",
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "selectedStudio": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "synced": [
+    {
+      "name": "GameConfig",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+      "result": "synced GameConfig",
+      "fingerprint": {
+        "length": 38942,
+        "adler32": 1868186695
+      }
+    },
+    {
+      "name": "PolishConfig",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua",
+      "result": "synced PolishConfig",
+      "fingerprint": {
+        "length": 12834,
+        "adler32": 1001298265
+      }
+    },
+    {
+      "name": "ForestVisualBuilder",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua",
+      "result": "synced ForestVisualBuilder",
+      "fingerprint": {
+        "length": 34025,
+        "adler32": 4192181038
+      }
+    },
+    {
+      "name": "FistVisualBuilder",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+      "result": "synced FistVisualBuilder",
+      "fingerprint": {
+        "length": 24885,
+        "adler32": 286219770
+      }
+    },
+    {
+      "name": "InventoryViewModel",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua",
+      "result": "synced InventoryViewModel",
+      "fingerprint": {
+        "length": 29640,
+        "adler32": 367996686
+      }
+    },
+    {
+      "name": "ProfilePersistence",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua",
+      "result": "synced ProfilePersistence",
+      "fingerprint": {
+        "length": 72504,
+        "adler32": 2952145461
+      }
+    },
+    {
+      "name": "PunchWallBootstrap",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+      "result": "synced PunchWallBootstrap in 4 chunks",
+      "fingerprint": {
+        "length": 434179,
+        "adler32": 1359971259
+      }
+    },
+    {
+      "name": "InventoryUI",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+      "result": "synced InventoryUI",
+      "fingerprint": {
+        "length": 162895,
+        "adler32": 2011792333
+      }
+    },
+    {
+      "name": "PunchWallClient",
+      "source": "F:\\Roblox\\PuchWall-completion-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+      "result": "synced PunchWallClient in 6 chunks",
+      "fingerprint": {
+        "length": 599305,
+        "adler32": 127218231
+      }
+    }
+  ]
+}

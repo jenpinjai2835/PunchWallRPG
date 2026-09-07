@@ -1,0 +1,14 @@
+[
+  {
+    "flow": "camera-long-tunnel-regression",
+    "flowSHA256": "CBBC26C2A9F4849665923304E779635F16EF546382D892B1C7633EE16A6A8F54",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flow": "camera-shop-stability",
+    "flowSHA256": "2CD5D945A5374FE0BCE3732D72CB3BCDF45D4C3CF942E81E31FABCD6C11FE959",
+    "errors": [],
+    "ok": true
+  }
+]

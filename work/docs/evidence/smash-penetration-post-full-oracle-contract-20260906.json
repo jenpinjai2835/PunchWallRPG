@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "sourceChecks": 25,
+  "compiledSnippetsAndControls": 31,
+  "executedAssertions": 78,
+  "mutationsRejected": [
+    "metadata-only-no-impulse",
+    "insufficient-real-impulse",
+    "client-owned-fragments",
+    "anchored-fragments",
+    "observer-after-launch",
+    "velocity-without-displacement",
+    "weakened-observation-guard-0",
+    "weakened-observation-guard-1",
+    "weakened-observation-guard-2",
+    "weakened-observation-guard-3",
+    "weakened-observation-guard-4",
+    "weakened-observation-guard-5",
+    "weakened-observation-guard-6",
+    "weakened-observation-guard-7",
+    "ignore_actual_direct_count",
+    "ignore_actual_hit_count",
+    "ignore_returned_world_snapshot",
+    "ignore_shatter_provenance",
+    "ignore_actual_destroyed_geometry",
+    "ignore_unique_direct_indices",
+    "delta-captured-after-observer-wait"
+  ],
+  "studioUsed": false,
+  "note": "Deterministic contact-loss schedule proves observer timing and guards, not actual Roblox contacts."
+}

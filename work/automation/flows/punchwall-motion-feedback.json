@@ -1,7 +1,7 @@
 {
   "name": "punchwall-motion-feedback",
-  "description": "Validate Train, Punch/Reward, Shop, Pet, Rebirth, and Boss feedback remotes reach the client HUD.",
-  "studioName": "PunchWallRPG",
+  "description": "Validate one bounded start-training presentation, exact scheduled Power without tick feedback spam, and real Punch/Reward, Shop, fixture-granted Pet, Rebirth and Boss feedback.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -24,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Reset\"))"
       },
       "expectRegex": [
         "\"Power\"\\s*:\\s*15"
@@ -32,16 +32,37 @@
       "label": "reset deterministic state"
     },
     {
+      "type": "wait",
+      "ms": 3200,
+      "label": "allow reset feedback to expire before the exact training presentation probe"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal G=require(RS.GameConfig) local station=G.TrainingStation('rookie_bag')\nlocal function inspect(holder)\n local count,bounded,text=0,true,'' local a=holder.AbsolutePosition local z=a+holder.AbsoluteSize\n for _,d in ipairs(holder:GetChildren()) do\n  if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n   count+=1 local l=d.AbsolutePosition local r=l+d.AbsoluteSize\n   bounded=bounded and l.X>=a.X-2 and l.Y>=a.Y-2 and r.X<=z.X+2 and r.Y<=z.Y+2\n   if d:IsA('TextLabel') then text=d.Text end\n  end\n end\n return {count=count,bounded=bounded,text=text,sequence=holder:GetAttribute('PresentationSequence') or 0,mode=holder:GetAttribute('PresentationMode'),cap=holder:GetAttribute('MaxVisibleItems')}\nend\nlocal initial=inspect(gui.Toasts) assert(initial.count==0,'old feedback must expire before arming training probe')\nlocal token=H:GenerateGUID(false) gui:SetAttribute('CombatQATrainToken',token)\nlocal state={token=token,events={},powerBefore=p.leaderstats.Power.Value,feedbackBefore=gui:GetAttribute('FeedbackCount') or 0,toastBefore=initial.sequence,rewardBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0,expectedTarget=station.displayName,rate=station.gain,captured=false}\nlocal function save() if gui:GetAttribute('CombatQATrainToken')==token then gui:SetAttribute('CombatQATrainEvidence',H:JSONEncode(state)) end end\nsave()\nlocal connection\nconnection=RS.PunchWallEvents.Feedback.OnClientEvent:Connect(function(payload)\n if gui:GetAttribute('CombatQATrainToken')~=token then connection:Disconnect() return end\n if typeof(payload)~='table' then return end\n state.events[#state.events+1]={type=tostring(payload.type or ''),target=tostring(payload.target or ''),active=payload.active==true,stationId=tostring(payload.stationId or ''),gain=tonumber(payload.gain) or 0}\n task.defer(function()\n  if gui:GetAttribute('CombatQATrainToken')~=token then return end\n  if not state.captured then\n   game:GetService('RunService').RenderStepped:Wait()\n   state.feedbackAfter=gui:GetAttribute('FeedbackCount') or 0 state.toasts=inspect(gui.Toasts) state.rewards=inspect(gui.RewardPops)\n   state.lastType=gui:GetAttribute('LastFeedbackType') state.lastTarget=gui:GetAttribute('LastFeedbackTarget') state.captured=true\n  end\n  save()\n end)\nend)\ntask.delay(30,function() connection:Disconnect() end)\nreturn H:JSONEncode({ready=true,token=token,expectedTarget=station.displayName,feedbackBefore=state.feedbackBefore})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true"
+      ],
+      "label": "arm serialized start-training event and fresh presentation capture"
+    },
+    {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nreturn HttpService:JSONEncode(command:Invoke(\"Train\", \"Power Bag\"))"
+        "code": "local function verifyTrainingPayout(before, immediate, after, rate, tickSeconds)\n assert(immediate.Power==before.Power and immediate.payoutSerial==before.payoutSerial and immediate.sessionTickCount==0,'training paid before a scheduled tick')\n assert(immediate.sessionGeneration==before.sessionGeneration+1 and immediate.active and immediate.movementLocked,'training did not start one locked session')\n local ticks=after.sessionTickCount local delta=after.Power-before.Power\n assert(ticks>=1 and ticks<=2 and ticks==math.floor(ticks),'missing or excessive first scheduled tick batch')\n assert(after.payoutSerial==immediate.payoutSerial+1 and after.lastTickBatch==ticks,'duplicate or unaccounted payout batch')\n assert(delta==rate*ticks and after.lastGrant==delta and after.gainPerSecond==rate,'training rate differs from the server station configuration')\n assert(math.abs(after.tickAnchor-immediate.tickAnchor-ticks*tickSeconds)<1e-5,'payout did not consume exactly its scheduled intervals')\n assert(after.active and after.movementLocked,'training unlocked before its payout was observed')\n return true\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1]\np:SetAttribute('TrainingBoostExpiresAt',0) local station=G.TrainingStation('rookie_bag') local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train',station.name) local immediate=c:Invoke('TrainingSnapshot')\nassert(r.ok and r.gain==0 and r.active,'start must activate without a free payout')\nlocal after=immediate local deadline=os.clock()+2.6 repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=deadline\nlocal exactPayout=verifyTrainingPayout(before,immediate,after,station.gain,G.Training.TickSeconds)\nreturn H:JSONEncode({ok=r.ok,active=after.active,TrainingActive=after.TrainingActive,gain=r.gain,Power=after.Power,exactPayout=exactPayout,ticks=after.sessionTickCount})"
       },
       "expectRegex": [
-        "\"Power\"\\s*:\\s*19"
+        "\"ok\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*true",
+        "\"exactPayout\"\\s*:\\s*true",
+        "\"gain\"\\s*:\\s*0",
+        "\"TrainingActive\"\\s*:\\s*1"
       ],
-      "label": "trigger train feedback"
+      "label": "start training without free gain and observe the first authoritative payout"
     },
     {
       "type": "wait",
@@ -53,26 +74,57 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal function verifyTrainingFeedback(e)\n assert(e.captured and #e.events==1,'training start must present exactly one feedback event')\n local event=e.events[1]\n assert(event.type=='TrainingState' and event.target==e.expectedTarget and event.active==true and event.stationId=='rookie_bag' and event.gain==e.rate,'wrong start training payload')\n assert(e.feedbackAfter-e.feedbackBefore==1 and e.lastType=='TrainingState' and e.lastTarget==e.expectedTarget,'start feedback counter or displayed identity drifted')\n assert(e.toasts.mode=='BoundedVisibleQueueV1' and e.toasts.cap==3 and e.toasts.count==1 and e.toasts.bounded and e.toasts.sequence==e.toastBefore+1 and e.toasts.text==e.expectedTarget,'start toast is duplicated, hidden, unbounded or wrong')\n assert(e.rewards.mode=='BoundedVisibleQueueV1' and e.rewards.cap==3 and e.rewards.bounded and e.rewards.sequence==e.rewardBefore,'training leaked a center reward presentation')\n return true\nend\nlocal raw=gui:GetAttribute('CombatQATrainEvidence') assert(type(raw)=='string','missing serialized training probe') local evidence=H:JSONDecode(raw)\nassert(gui:GetAttribute('CombatQATrainToken')==evidence.token,'stale training probe')\nlocal presentation=verifyTrainingFeedback(evidence)\nlocal ticks=p:GetAttribute('TrainingSessionTickCount') or 0 local delta=p.leaderstats.Power.Value-evidence.powerBefore\nlocal exactPower=ticks>=1 and delta==ticks*evidence.rate\nlocal noTickFeedback=(gui:GetAttribute('FeedbackCount') or 0)==evidence.feedbackAfter and #evidence.events==1 and (gui.Toasts:GetAttribute('PresentationSequence') or 0)==evidence.toastBefore+1 and (gui.RewardPops:GetAttribute('PresentationSequence') or 0)==evidence.rewardBefore\nlocal state=p.RPGStats.TrainingActive.Value==1 and p:GetAttribute('AutoTrainingActive')==true and p:GetAttribute('TrainingMovementLocked')==true and gui:GetAttribute('ContinuousTrainingAnimation')==true\nlocal valid=presentation and exactPower and noTickFeedback and state\nassert(valid,'training presentation, exact replicated payout, or quiet continuous tick failed '..H:JSONEncode({evidence=evidence,ticks=ticks,delta=delta,noTickFeedback=noTickFeedback,state=state}))\ngui:SetAttribute('CombatQATrainToken','')\nreturn H:JSONEncode({valid=valid,eventCount=#evidence.events,firstType=evidence.events[1].type,firstTarget=evidence.events[1].target,countDelta=evidence.feedbackAfter-evidence.feedbackBefore,toastBounded=evidence.toasts.bounded,rewardBounded=evidence.rewards.bounded,rewardSequenceDelta=evidence.rewards.sequence-evidence.rewardBefore,exactPower=exactPower,noTickFeedback=noTickFeedback,state=state,power=p.leaderstats.Power.Value,ticks=ticks})"
       },
       "expectRegex": [
-        "\"type\"\\s*:\\s*\"Train\"",
-        "\"target\"\\s*:\\s*\"Power Bag\""
+        "\"valid\"\\s*:\\s*true",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"firstType\"\\s*:\\s*\"TrainingState\"",
+        "\"firstTarget\"\\s*:\\s*\"Rookie Power Bag\"",
+        "\"countDelta\"\\s*:\\s*1",
+        "\"toastBounded\"\\s*:\\s*true",
+        "\"rewardBounded\"\\s*:\\s*true",
+        "\"rewardSequenceDelta\"\\s*:\\s*0",
+        "\"exactPower\"\\s*:\\s*true",
+        "\"noTickFeedback\"\\s*:\\s*true",
+        "\"state\"\\s*:\\s*true"
       ],
-      "label": "train feedback received"
+      "label": "one bounded start toast accompanies exact quiet scheduled training"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal RS=game:GetService('ReplicatedStorage')\nlocal player=game:GetService('Players').LocalPlayer\nlocal gui=player:WaitForChild('PlayerGui'):WaitForChild('PunchWallHUD')\nlocal automation=gui:WaitForChild('PunchWallClientAutomation',5)\nassert(automation,'missing PunchWallClientAutomation')\nlocal settings=automation:Invoke('SetSettings',{motion=true,sound=true,uiScale=1,persist=false})\nassert(settings and settings.motion==true,'failed to enable normal motion')\nlocal root=workspace:WaitForChild('PunchWallRPG')\nlocal block=root:WaitForChild('Depth Blocks'):WaitForChild('DepthBlock_L001_C06_R02')\nlocal GameConfig=require(RS:WaitForChild('GameConfig'))\nlocal blockCoinReward=tonumber(block:GetAttribute('CoinReward')) or 0\nlocal expectedCoins=GameConfig.ContributionReward(blockCoinReward,1)\nassert(blockCoinReward>0 and expectedCoins>0,'invalid replicated contribution reward contract')\nlocal previous=shared.PunchWallRewardFeedbackProbe\nif previous and previous.connection then previous.connection:Disconnect() end\nlocal coinFolder=workspace:FindFirstChild('Local Coin Rewards')\nlocal probe={events={},alias=block.Name,expectedCoins=expectedCoins,feedbackBefore=gui:GetAttribute('FeedbackCount') or 0,coinBurstBefore=gui:GetAttribute('CoinBurstTotal') or 0,rewardSequenceBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0,liveCoinsBefore=coinFolder and #coinFolder:GetChildren() or 0}\nprobe.connection=RS:WaitForChild('PunchWallEvents'):WaitForChild('Feedback').OnClientEvent:Connect(function(payload)\n if typeof(payload)=='table' then\n  table.insert(probe.events,{type=tostring(payload.type or ''),target=tostring(payload.target or ''),coins=tonumber(payload.coins) or 0,wallBreak=payload.wallBreak==true})\n end\nend)\nshared.PunchWallRewardFeedbackProbe=probe\nreturn H:JSONEncode({ready=true,normalMotion=settings.motion==true,alias=probe.alias,expectedCoins=probe.expectedCoins,feedbackBefore=probe.feedbackBefore,coinBurstBefore=probe.coinBurstBefore,rewardSequenceBefore=probe.rewardSequenceBefore,liveCoinsBefore=probe.liveCoinsBefore})"
+      },
+      "expectRegex": [
+        "\"ready\"\\s*:\\s*true",
+        "\"normalMotion\"\\s*:\\s*true",
+        "\"alias\"\\s*:\\s*\"DepthBlock_L001_C06_R02\"",
+        "\"expectedCoins\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "arm exact punch reward and coin VFX probe"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Power = 120, Coins = 0, WallLevel = 1, CritChance = 0, FistMultiplier = 1, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"BreakWall\", \"Brick Wall\", 1))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal Players = game:GetService(\"Players\")\nlocal ReplicatedStorage = game:GetService(\"ReplicatedStorage\")\nlocal GameConfig = require(ReplicatedStorage:WaitForChild(\"GameConfig\"))\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\nlocal player = Players:GetPlayers()[1]\nassert(player, \"missing test player\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Power = 120, Coins = 0, WallLevel = 1, CritChance = 0, FistMultiplier = 1, PetMultiplier = 0 })\nplayer:SetAttribute(\"CoinBoostExpiresAt\", 0)\nlocal root = workspace:WaitForChild(\"PunchWallRPG\")\nlocal block = root:WaitForChild(\"Depth Blocks\"):WaitForChild(\"DepthBlock_L001_C06_R02\")\nlocal blockCoinReward = tonumber(block:GetAttribute(\"CoinReward\")) or 0\nlocal expectedCoins = GameConfig.ContributionReward(blockCoinReward, 1)\nlocal beforeCoins = player.leaderstats.Coins.Value\nlocal result = command:Invoke(\"BreakWall\", \"Brick Wall\", 1)\nlocal resultingCoins = tonumber(result and result.Coins) or -1\nlocal outcome = tostring(result and result.outcome or \"\")\nlocal aliasIsCurrent = block:GetAttribute(\"IsDepthBlock\") == true and block:GetAttribute(\"Tier\") == 1 and block:GetAttribute(\"Depth\") == 1\nlocal boostCleared = (tonumber(player:GetAttribute(\"CoinBoostExpiresAt\")) or -1) == 0 and tonumber(result and result.CoinBoostExpiresAt) == 0\nlocal expectedPositive = blockCoinReward > 0 and expectedCoins > 0\nlocal exactReward = beforeCoins == 0 and resultingCoins == expectedCoins and player.leaderstats.Coins.Value == expectedCoins\nlocal rewardValid = result ~= nil and result.ok == true and aliasIsCurrent and boostCleared and expectedPositive and result.BrickWallBroken == true and outcome == \"broken\" and exactReward\nreturn HttpService:JSONEncode({ ok = result and result.ok == true, alias = block.Name, blockCoinReward = blockCoinReward, expectedCoins = expectedCoins, coins = resultingCoins, boostCleared = boostCleared, expectedPositive = expectedPositive, exactReward = exactReward, BrickWallBroken = result and result.BrickWallBroken == true, outcome = outcome, rewardValid = rewardValid })"
       },
+      "saveAs": "punchRewardAuthority",
       "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"alias\"\\s*:\\s*\"DepthBlock_L001_C06_R02\"",
+        "\"boostCleared\"\\s*:\\s*true",
+        "\"expectedPositive\"\\s*:\\s*true",
+        "\"exactReward\"\\s*:\\s*true",
         "\"BrickWallBroken\"\\s*:\\s*true",
-        "\"Coins\"\\s*:\\s*45"
+        "\"outcome\"\\s*:\\s*\"broken\"",
+        "\"rewardValid\"\\s*:\\s*true"
       ],
-      "label": "trigger punch and reward feedback"
+      "label": "trigger punch and exact contribution reward feedback"
     },
     {
       "type": "wait",
@@ -84,20 +136,31 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+        "code": "local H=game:GetService('HttpService')\nlocal gui=game:GetService('Players').LocalPlayer:WaitForChild('PlayerGui'):WaitForChild('PunchWallHUD')\nlocal probe=shared.PunchWallRewardFeedbackProbe\nassert(probe,'missing punch reward feedback probe')\nif probe.connection then probe.connection:Disconnect() probe.connection=nil end\nshared.PunchWallRewardFeedbackProbe=nil\nlocal punchIndex,rewardIndex\nfor index,event in ipairs(probe.events) do\n if not punchIndex and event.type=='Punch' and event.target==probe.alias then punchIndex=index end\n if not rewardIndex and event.type=='Reward' and event.target==probe.alias then rewardIndex=index end\nend\nlocal rewardEvent=rewardIndex and probe.events[rewardIndex] or nil\nlocal ordered=punchIndex~=nil and rewardIndex~=nil and punchIndex<rewardIndex\nlocal rewardExact=rewardEvent~=nil and rewardEvent.wallBreak==true and rewardEvent.coins==probe.expectedCoins\nlocal feedbackDelta=(gui:GetAttribute('FeedbackCount') or 0)-probe.feedbackBefore\nlocal feedbackCovers=feedbackDelta>=#probe.events and #probe.events>=2\nlocal lastBurst=tonumber(gui:GetAttribute('LastCoinBurstCount')) or 0\nlocal burstDelta=(tonumber(gui:GetAttribute('CoinBurstTotal')) or 0)-probe.coinBurstBefore\nlocal burstValid=lastBurst>=1 and lastBurst<=7 and burstDelta>=lastBurst\nlocal coinFolder=workspace:FindFirstChild('Local Coin Rewards')\nlocal liveCoins=coinFolder and #coinFolder:GetChildren() or -1\nlocal liveBounded=coinFolder~=nil and liveCoins>=0 and liveCoins<=30\nlocal normalMotion=gui:GetAttribute('LastMotionApplied')==true and gui:GetAttribute('ReducedMotionCoinTravelSuppressed')==false\nlocal centerDisabled=gui:GetAttribute('CenterActionFeedbackEnabled')==false\nlocal rewardSequenceDelta=(gui.RewardPops:GetAttribute('PresentationSequence') or 0)-probe.rewardSequenceBefore\nlocal noCenterReward=rewardSequenceDelta==0\nlocal valid=ordered and rewardExact and feedbackCovers and burstValid and liveBounded and normalMotion and centerDisabled and noCenterReward\nreturn H:JSONEncode({valid=valid,normalMotion=normalMotion,ordered=ordered,eventCount=#probe.events,punchIndex=punchIndex or 0,rewardIndex=rewardIndex or 0,alias=probe.alias,expectedCoins=probe.expectedCoins,rewardCoins=rewardEvent and rewardEvent.coins or -1,rewardWallBreak=rewardEvent and rewardEvent.wallBreak==true or false,rewardExact=rewardExact,feedbackDelta=feedbackDelta,feedbackCovers=feedbackCovers,lastBurst=lastBurst,burstDelta=burstDelta,burstValid=burstValid,liveCoins=liveCoins,liveBounded=liveBounded,centerDisabled=centerDisabled,rewardSequenceDelta=rewardSequenceDelta,noCenterReward=noCenterReward,terminalType=tostring(gui:GetAttribute('LastFeedbackType') or ''),terminalTarget=tostring(gui:GetAttribute('LastFeedbackTarget') or '')})"
       },
       "expectRegex": [
-        "\"type\"\\s*:\\s*\"Reward\"",
-        "\"target\"\\s*:\\s*\"Brick Wall\""
+        "\"valid\"\\s*:\\s*true",
+        "\"normalMotion\"\\s*:\\s*true",
+        "\"ordered\"\\s*:\\s*true",
+        "\"alias\"\\s*:\\s*\"DepthBlock_L001_C06_R02\"",
+        "\"rewardWallBreak\"\\s*:\\s*true",
+        "\"rewardExact\"\\s*:\\s*true",
+        "\"feedbackCovers\"\\s*:\\s*true",
+        "\"lastBurst\"\\s*:\\s*[1-7]",
+        "\"burstValid\"\\s*:\\s*true",
+        "\"liveBounded\"\\s*:\\s*true",
+        "\"centerDisabled\"\\s*:\\s*true",
+        "\"rewardSequenceDelta\"\\s*:\\s*0",
+        "\"noCenterReward\"\\s*:\\s*true"
       ],
-      "label": "reward feedback received"
+      "label": "ordered exact reward drives bounded coin VFX without center pop"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Coins = 1000, FistMultiplier = 1, BreakSpeed = 1, EquippedFist = \"Starter Glove\" })\nreturn HttpService:JSONEncode(command:Invoke(\"BuyFist\", \"Boxing Glove\"))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\", { Coins = 1000, Depth = 1, FistMultiplier = 1, BreakSpeed = 1, EquippedFist = \"Starter Glove\" })\nreturn HttpService:JSONEncode(command:Invoke(\"BuyFist\", \"Boxing Glove\"))"
       },
       "expectRegex": [
         "\"EquippedFist\"\\s*:\\s*\"Boxing Glove\""
@@ -144,13 +207,22 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal gui = game:GetService(\"Players\").LocalPlayer:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\")\nreturn HttpService:JSONEncode({ type = gui:GetAttribute(\"LastFeedbackType\"), target = gui:GetAttribute(\"LastFeedbackTarget\"), count = gui:GetAttribute(\"FeedbackCount\") or 0 })"
+        "code": "local H=game:GetService('HttpService')\nlocal RS=game:GetService('ReplicatedStorage')\nlocal player=game:GetService('Players').LocalPlayer\nlocal gui=player:WaitForChild('PlayerGui'):WaitForChild('PunchWallHUD')\nlocal GameConfig=require(RS:WaitForChild('GameConfig'))\nlocal feedbackType=tostring(gui:GetAttribute('LastFeedbackType') or '')\nlocal target=tostring(gui:GetAttribute('LastFeedbackTarget') or '')\nlocal baseName,stars=GameConfig.ParsePetToken(target)\nlocal definition=GameConfig.PetDefinition(baseName)\nlocal catalogIndex=0\nfor index,pet in ipairs(GameConfig.Pets) do\n if pet.name==baseName then catalogIndex=index break end\nend\nlocal premium=false\nfor _,pet in ipairs(GameConfig.PremiumPets) do\n if pet.name==baseName then premium=true break end\nend\nlocal canonical=GameConfig.PetToken(baseName,stars)==target\nlocal starsValid=stars==1 and stars>=1 and stars<=GameConfig.MaxPetStars\nlocal inventoryValue=player:WaitForChild('RPGStats'):WaitForChild('PetInventoryJSON').Value\nlocal decoded,inventory=pcall(function() return H:JSONDecode(inventoryValue) end)\nif not decoded or type(inventory)~='table' then inventory={} end\nlocal inventoryContains=table.find(inventory,target)~=nil\nlocal petValid=feedbackType=='Pet' and definition~=nil and catalogIndex>0 and not premium and starsValid and canonical and inventoryContains\nreturn H:JSONEncode({petValid=petValid,type=feedbackType,target=target,baseName=baseName,stars=stars,starsValid=starsValid,canonical=canonical,definitionExists=definition~=nil,hatchCatalog=catalogIndex>0,catalogIndex=catalogIndex,premium=premium,rarity=definition and definition.rarity or '',inventoryContains=inventoryContains,inventoryCount=#inventory,count=gui:GetAttribute('FeedbackCount') or 0})"
       },
       "expectRegex": [
+        "\"petValid\"\\s*:\\s*true",
         "\"type\"\\s*:\\s*\"Pet\"",
-        "\"target\"\\s*:\\s*\"(Brick Pup|Miner Cat|Crystal Fox|Lava Dragon|Secret Titan Golem)\""
+        "\"stars\"\\s*:\\s*1",
+        "\"starsValid\"\\s*:\\s*true",
+        "\"canonical\"\\s*:\\s*true",
+        "\"definitionExists\"\\s*:\\s*true",
+        "\"hatchCatalog\"\\s*:\\s*true",
+        "\"catalogIndex\"\\s*:\\s*[1-9][0-9]*",
+        "\"premium\"\\s*:\\s*false",
+        "\"inventoryContains\"\\s*:\\s*true",
+        "\"inventoryCount\"\\s*:\\s*[1-9][0-9]*"
       ],
-      "label": "pet feedback received"
+      "label": "pet feedback is a canonical current hatch token replicated into inventory"
     },
     {
       "type": "call",
@@ -186,7 +258,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"SetStats\", { WallLevel = 20, Coins = 0, Power = 4000000, FistMultiplier = 2, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"HitBoss\"))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"ResetWorld\")\ncommand:Invoke(\"SetStats\", { WallLevel = 99, Depth = 75, Coins = 0, Power = 400000000, CritChance = 0, FistMultiplier = 2, PetMultiplier = 0 })\nreturn HttpService:JSONEncode(command:Invoke(\"HitBoss\"))"
       },
       "expectRegex": [
         "\"TitanBroken\"\\s*:\\s*true"

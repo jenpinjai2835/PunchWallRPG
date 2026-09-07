@@ -4,11 +4,21 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  assertPlaceIdentity,
+  inspectSelectedPlace,
+  selectStudioStrict,
+  waitForDataModels,
+} from "./scripts/studio_mcp_client.mjs";
+
+const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "..", "..");
 
 function parseArgs(argv) {
   const args = {
     studioName: "PunchWallRPGPlayable_v1_final.rbxlx",
-    outputDir: path.resolve("qc-gameplay-frames"),
+    outputDir: path.join(REPOSITORY_ROOT, "work", "docs", "qc-gameplay-frames"),
     durationSeconds: 24,
     captureIntervalMs: 180,
   };
@@ -20,7 +30,9 @@ function parseArgs(argv) {
     else if (key === "--duration") args.durationSeconds = Number(value);
     else if (key === "--interval") args.captureIntervalMs = Number(value);
     else if (key === "--studio-mcp") args.studioMcp = value;
-    else continue;
+    else if (key === "--studio-instance-id") args.studioInstanceId = value;
+    else if (key === "--place-name") args.placeName = value;
+    else throw new Error(`Unknown argument: ${key}`);
     index += 1;
   }
   if (!Number.isFinite(args.durationSeconds) || args.durationSeconds < 3) {
@@ -117,8 +129,14 @@ class McpClient {
 
   async callTool(name, args = {}, timeoutMs = 30000) {
     const response = await this.waitFor(this.send("tools/call", { name, arguments: args }), timeoutMs);
-    if (response?.result?.isError) throw new Error(`${name} failed: ${textOf(response)}`);
-    return response;
+    const wrapped = {
+      raw: response,
+      text: textOf(response),
+      content: response?.result?.content ?? [],
+      isError: response?.error !== undefined || response?.result?.isError === true,
+    };
+    if (wrapped.isError) throw new Error(`${name} failed: ${wrapped.text}`);
+    return wrapped;
   }
 
   close() {
@@ -126,27 +144,8 @@ class McpClient {
   }
 }
 
-async function selectStudio(client, studioName) {
-  let studios = [];
-  for (let attempt = 0; attempt < 15; attempt += 1) {
-    const result = await client.callTool("list_roblox_studios");
-    try {
-      studios = JSON.parse(textOf(result)).studios ?? [];
-    } catch {
-      studios = [];
-    }
-    if (studios.length) break;
-    await sleep(2500);
-  }
-  if (!studios.length) throw new Error("No Roblox Studio instances registered with MCP");
-  const expected = studioName.toLowerCase();
-  const studio = studios.find((item) => item.name?.toLowerCase().includes(expected)) ?? studios[0];
-  await client.callTool("set_active_studio", { studio_id: studio.id });
-  return studio;
-}
-
 function extractImage(response) {
-  const content = response?.result?.content ?? [];
+  const content = response?.content ?? [];
   const image = content.find((item) => item.type === "image" && typeof item.data === "string");
   if (!image) return null;
   const buffer = Buffer.from(image.data, "base64");
@@ -222,14 +221,23 @@ async function main() {
   const frames = [];
   const errors = [];
   let selectedStudio;
+  let selectedPlace;
   let recordingStartedAt;
   try {
     await client.initialize();
-    selectedStudio = await selectStudio(client, args.studioName);
+    selectedStudio = await selectStudioStrict(client, {
+      studioInstanceId: args.studioInstanceId,
+      studioName: args.studioName,
+      pollAttempts: 15,
+      pollMs: 2500,
+    });
+    selectedPlace = await inspectSelectedPlace(client);
+    assertPlaceIdentity(selectedPlace, { placeName: args.placeName });
     await client.callTool("start_stop_play", { is_start: false }, 35000).catch(() => {});
-    await sleep(1500);
+    await waitForDataModels(client, ["Edit"], 60000);
     await client.callTool("start_stop_play", { is_start: true }, 35000);
-    await sleep(7000);
+    await waitForDataModels(client, ["Server", "Client"], 60000);
+    await sleep(5500);
     await prepareGameplay(client, args.durationSeconds);
     await sleep(500);
 
@@ -262,11 +270,12 @@ async function main() {
     }
 
     const consoleResponse = await client.callTool("get_console_output", {}, 30000);
-    const consoleText = textOf(consoleResponse);
+    const consoleText = consoleResponse.text;
     const durationMs = Math.max(1, Date.now() - recordingStartedAt);
     const metadata = {
       ok: frames.length >= 3,
       selectedStudio,
+      selectedPlace,
       studioMcp,
       requestedDurationSeconds: args.durationSeconds,
       actualDurationSeconds: durationMs / 1000,

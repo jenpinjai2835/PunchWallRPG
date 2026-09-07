@@ -1,0 +1,11 @@
+{
+  "ok": false,
+  "status": "blocked",
+  "capturedAt": "2026-08-19T06:34:23.834Z",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "stage": "user_mouse_input:open 01_desktop_1366_locked attempt 1",
+  "error": "Timed out waiting for Studio MCP response 13",
+  "physicalInputPassed": false,
+  "currentVisualCapturePassed": false
+}

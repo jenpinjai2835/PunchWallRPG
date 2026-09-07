@@ -1,0 +1,55 @@
+{
+  "name": "server-snapshot-coalescing",
+  "description": "Verify a production stat burst produces bounded complete snapshots and the real client receives the final values and catalogs.",
+  "studioName": "PunchWallRPGPlayable_v1_final",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 7000, "label": "wait for profile and client" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Coins=0,Score=0,TrainingActive=0}) task.wait(.15) return H:JSONEncode({ok=true})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "settle initial and explicit snapshots"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') if shared.SmashSnapshotProbe and shared.SmashSnapshotProbe.connection then shared.SmashSnapshotProbe.connection:Disconnect() end local probe={received=0} shared.SmashSnapshotProbe=probe probe.connection=RS.PunchWallEvents.StatsChanged.OnClientEvent:Connect(function(payload) probe.received+=1 probe.latest=payload end) return H:JSONEncode({ok=true})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "observe real StatsChanged snapshots"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local counts={} for _,player in ipairs(game.Players:GetPlayers()) do counts[player]=player:GetAttribute('StatsSnapshotCount') or 0 end local before=counts[p] for i=1,160 do p.leaderstats.Coins.Value=i p.leaderstats.Score.Value=i*10 p.leaderstats.WallXP.Value=i end local synchronous=(p:GetAttribute('StatsSnapshotCount') or 0)-before assert(synchronous==0,'ordinary burst sent synchronous snapshots') task.wait(.16) local bounded=true local deltas={} for player,count in pairs(counts) do local delta=(player:GetAttribute('StatsSnapshotCount') or 0)-count deltas[tostring(player.UserId)]=delta bounded=bounded and delta>=1 and delta<=2 end assert(bounded,'burst snapshot count unbounded '..H:JSONEncode(deltas)) return H:JSONEncode({ok=bounded,synchronous=synchronous,deltas=deltas,coins=p.leaderstats.Coins.Value,score=p.leaderstats.Score.Value,xp=p.leaderstats.WallXP.Value})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"synchronous\"\\s*:\\s*0", "\"coins\"\\s*:\\s*160", "\"score\"\\s*:\\s*1600"],
+      "label": "480 ordinary changes flush once per player with one idle-tick allowance"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local probe=shared.SmashSnapshotProbe local deadline=os.clock()+3 repeat local s=probe.latest if s and s.Coins==160 and s.Score==1600 and s.WallXP==160 then break end task.wait(.03) until os.clock()>=deadline local s=probe.latest or {} local ok=s.Coins==160 and s.Score==1600 and s.WallXP==160 and type(s.FistCatalog)=='table' and #s.FistCatalog==16 and type(s.PetCatalog)=='table' and #s.PetCatalog==16 and type(s.TrainingConfig)=='table' and type(s.Leaderboard)=='table' if probe.connection then probe.connection:Disconnect() end shared.SmashSnapshotProbe=nil assert(ok,'client did not receive complete final burst state') return H:JSONEncode({ok=ok,coins=s.Coins,score=s.Score,xp=s.WallXP,catalogCount=#s.FistCatalog})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"catalogCount\"\\s*:\\s*16"],
+      "label": "real client receives complete final state"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
+    { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" }
+  ],
+  "cleanup": [{ "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup stop play" }]
+}

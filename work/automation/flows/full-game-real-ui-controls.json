@@ -1,0 +1,2455 @@
+{
+  "name": "full-game-real-ui-controls",
+  "inputContractVersion": "RealInputAttestationV3BalancedGesture",
+  "description": "Drive 25 current player-facing HUD/menu controls through coupled real mouse gestures. Every intended gesture uses the same exact segmented instance path on both moves and the balanced left-button down/60ms/up pair so the runner resolves one fresh cached coordinate; each control is >=44 px, Active, Selectable, viewport-visible, topmost, callback-attested, and followed by bounded client/request/authoritative evidence without hidden retries. Rare filtering uses owned Iron Knuckle and must exclude the two owned Common fists. Settings gestures use the current standalone window and exact semantic options. Screen visibility compares AbsolutePosition plus GuiInset against the raw viewport; native input and GetGuiObjectsAtPosition retain the original AbsolutePosition coordinates, including valid negative top coordinates.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start real UI control playtest"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for player and authoritative UI bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal H=game:GetService('HttpService')\nlocal c=game.ServerStorage:WaitForChild('PunchWallAutomation')\nlocal p=game.Players:GetPlayers()[1]\nc:Invoke('Reset')\nlocal today=os.date('!%Y-%m-%d')\nlocal seeded=c:Invoke('SetStats',{Coins=0,OwnedFistsJSON='[\"Starter Glove\",\"Boxing Glove\",\"Iron Knuckle\"]',EquippedFist='Starter Glove',LastDailyDate='',DailyQuestDate=today,DailyBreaks=10,DailyQuestClaimed=0,PlaytimeSeconds=300,PlaytimeClaimed=0,SpinCredits=1,SettingsJSON=H:JSONEncode({motion=true,sound=true,uiScale=1})})\nlocal tracked={EquipFist=true,ClaimDaily=true,ClaimQuest=true,ClaimPlaytime=true,UpdateSettings=true}\np:SetAttribute('Flow31ActionRequestSequence',0)\np:SetAttribute('Flow31LastActionRequest','')\np:SetAttribute('Flow31LastActionTarget','')\np:SetAttribute('Flow31LastActionPayloadJSON','{}')\ngame.ReplicatedStorage.PunchWallEvents.ActionRequest.OnServerEvent:Connect(function(source,payload)\n if source~=p or type(payload)~='table' then return end\n local action=tostring(payload.action or '')\n if tracked[action]~=true then return end\n local sequence=(p:GetAttribute('Flow31ActionRequestSequence') or 0)+1\n local encodedOk,encoded=pcall(function() return H:JSONEncode(payload) end)\n p:SetAttribute('Flow31ActionRequestSequence',sequence)\n p:SetAttribute('Flow31LastActionRequest',action)\n p:SetAttribute('Flow31LastActionTarget',tostring(payload.target or ''))\n p:SetAttribute('Flow31LastActionPayloadJSON',encodedOk and encoded or '{}')\nend)\nlocal result={ok=seeded.ok==true and p:GetAttribute('Flow31ActionRequestSequence')==0,coins=seeded.Coins,equipped=seeded.EquippedFist,breaks=seeded.DailyBreaks,played=seeded.PlaytimeSeconds,requestSequence=p:GetAttribute('Flow31ActionRequestSequence')}\nassert(result.ok,'flow31 authority seed failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"coins\"\\s*:\\s*0",
+        "\"equipped\"\\s*:\\s*\"Starter Glove\"",
+        "\"breaks\"\\s*:\\s*10",
+        "\"played\"\\s*:\\s*300",
+        "\"requestSequence\"\\s*:\\s*0"
+      ],
+      "label": "seed ready safe authoritative UI state"
+    },
+    {
+      "type": "wait",
+      "ms": 600,
+      "label": "wait for seeded stats replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui:WaitForChild('PunchWallHUD') local h=g:WaitForChild('PixelPerfectHeroCityHUD') local b=h:WaitForChild('InventoryButton') local ok=b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C01_InventoryButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C01_InventoryButton' then\n   g:SetAttribute('Flow31ActivatedControl','C01_InventoryButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,ok=ok,visible=b.Visible,active=b.Active,width=b.AbsoluteSize.X,height=b.AbsoluteSize.Y,action=b:GetAttribute('ToolAction')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"visible\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*true",
+        "\"action\"\\s*:\\s*\"OpenInventory\"",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "precheck reference Inventory open button"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          }
+        ]
+      },
+      "label": "real click reference Inventory open"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryHeader.InventoryClose local ok=s.menuVisible==true and s.activeTab=='Inventory' and s.inventoryVisible==true and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C01_InventoryButton'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C02_InventoryClose')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C02_InventoryClose' then\n   g:SetAttribute('Flow31ActivatedControl','C02_InventoryClose')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeTab,inventory=s.inventoryVisible,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"tab\"\\s*:\\s*\"Inventory\"",
+        "\"inventory\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Inventory opened and precheck Inventory close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory close"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.15) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local c02CloseCallbackMarker=tostring(g:GetAttribute('Flow31ActivatedControl') or '') local activated=c02CloseCallbackMarker=='C02_InventoryClose' local a=g:FindFirstChild('PunchWallClientAutomation') local snapshotOk,s=pcall(function() return a and a:Invoke('Snapshot') end) local snapshotError=snapshotOk and '' or tostring(s) if type(s)~='table' then s={} end local menuClosed=s.menuVisible==false local inventoryClosed=s.inventoryVisible==false local referenceHud=g:FindFirstChild('PixelPerfectHeroCityHUD') local b=referenceHud and referenceHud:FindFirstChild('ShopButton') local c03ShopExists=b~=nil local c03ShopDescendant=b~=nil and b:IsDescendantOf(g) local c03ShopVisible=b~=nil and b.Visible local c03ShopActive=b~=nil and b.Active local c03ShopSelectable=b~=nil and b.Selectable local c03ShopWidth=b and b.AbsoluteSize.X or 0 local c03ShopHeight=b and b.AbsoluteSize.Y or 0 local c03ShopMin=math.min(c03ShopWidth,c03ShopHeight) local ok=snapshotOk and menuClosed and inventoryClosed and c03ShopVisible and c03ShopActive and c03ShopMin>=44\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\nok=ok and hittable local evidence={phase='C02_CLOSE_TO_C03_SHOP_PRECHECK',snapshotOk=snapshotOk,snapshotError=snapshotError,c02CloseCallbackMarker=c02CloseCallbackMarker,c02CloseActivated=activated,menuVisible=s.menuVisible==true,menuClosed=menuClosed,inventoryVisible=s.inventoryVisible==true,inventoryClosed=inventoryClosed,c03ShopExists=c03ShopExists,c03ShopDescendant=c03ShopDescendant,c03ShopVisible=c03ShopVisible,c03ShopActive=c03ShopActive,c03ShopSelectable=c03ShopSelectable,c03ShopWidth=c03ShopWidth,c03ShopHeight=c03ShopHeight,c03ShopMin=c03ShopMin,c03ShopVisibleArea=visibleArea,c03ShopTopmost=topmost,c03ShopHittable=hittable,hitTopName=hitTop and hitTop:GetFullName() or '',hittable=hittable,selectable=c03ShopSelectable,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok} local evidenceJson=H:JSONEncode(evidence) assert(ok,'Flow31 C02 close callback / C03 Shop precheck failed: '..evidenceJson)\ng:SetAttribute('Flow31ExpectedControl','C03_ShopButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C03_ShopButton' then\n   g:SetAttribute('Flow31ActivatedControl','C03_ShopButton')\n  end\n end)\nend\nreturn evidenceJson"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"c02CloseCallbackMarker\"\\s*:\\s*\"C02_InventoryClose\"",
+        "\"c02CloseActivated\"\\s*:\\s*true",
+        "\"menuVisible\"\\s*:\\s*false",
+        "\"menuClosed\"\\s*:\\s*true",
+        "\"inventoryVisible\"\\s*:\\s*false",
+        "\"inventoryClosed\"\\s*:\\s*true",
+        "\"c03ShopExists\"\\s*:\\s*true",
+        "\"c03ShopDescendant\"\\s*:\\s*true",
+        "\"c03ShopVisible\"\\s*:\\s*true",
+        "\"c03ShopActive\"\\s*:\\s*true",
+        "\"c03ShopSelectable\"\\s*:\\s*true",
+        "\"c03ShopVisibleArea\"\\s*:\\s*true",
+        "\"c03ShopTopmost\"\\s*:\\s*true",
+        "\"c03ShopHittable\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Inventory closed and precheck reference Shop open"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "ShopButton"
+            ]
+          }
+        ]
+      },
+      "label": "real click reference Shop open"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.25) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local shop=g.GameMenu.FunctionalHeroShop local b=shop.ShopHeader.CloseShop local ok=s.menuVisible==true and s.activeTab=='Fists' and s.shopVisible==true and shop.Visible and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C03_ShopButton'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C04_CloseShop')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C04_CloseShop' then\n   g:SetAttribute('Flow31ActivatedControl','C04_CloseShop')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeTab,shop=s.shopVisible,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"tab\"\\s*:\\s*\"Fists\"",
+        "\"shop\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Shop opened and precheck Shop close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopHeader",
+              "CloseShop"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopHeader",
+              "CloseShop"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopHeader",
+              "CloseShop"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalHeroShop",
+              "ShopHeader",
+              "CloseShop"
+            ]
+          }
+        ]
+      },
+      "label": "real click Shop close"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.15) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.InventoryButton local ok=s.menuVisible==false and s.shopVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C04_CloseShop'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C05_InventoryButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C05_InventoryButton' then\n   g:SetAttribute('Flow31ActivatedControl','C05_InventoryButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,shop=s.shopVisible,inventoryButton=b.Visible,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*false",
+        "\"shop\"\\s*:\\s*false",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Shop closed and precheck Inventory filtering pass"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "InventoryButton"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory open for filtering"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.25) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.CategoryBar.CategoryFists local ok=s.inventoryVisible==true and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C05_InventoryButton'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C06_CategoryFists')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C06_CategoryFists' then\n   g:SetAttribute('Flow31ActivatedControl','C06_CategoryFists')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,inventory=s.inventoryVisible,category=(s.inventory or {}).category,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"inventory\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Inventory filtering pass opened and precheck Fists category"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "CategoryBar",
+              "CategoryFists"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "CategoryBar",
+              "CategoryFists"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "CategoryBar",
+              "CategoryFists"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "CategoryBar",
+              "CategoryFists"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory Fists category"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('InventorySnapshot') local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryToolbar.RarityFilter local ok=s.category=='Fists' and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C06_CategoryFists'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C07_RarityFilter')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C07_RarityFilter' then\n   g:SetAttribute('Flow31ActivatedControl','C07_RarityFilter')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,category=s.category,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"category\"\\s*:\\s*\"Fists\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Fists category and precheck rarity filter"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryToolbar",
+              "RarityFilter"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryToolbar",
+              "RarityFilter"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryToolbar",
+              "RarityFilter"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryToolbar",
+              "RarityFilter"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory rarity filter"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.15) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local p=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane local m=p.RarityMenu local b=m.RarityRare local ok=m.Visible and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C07_RarityFilter'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C08_RarityRare')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C08_RarityRare' then\n   g:SetAttribute('Flow31ActivatedControl','C08_RarityRare')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=m.Visible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert rarity menu and precheck canonical Rare rarity"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "RarityMenu",
+              "RarityRare"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "RarityMenu",
+              "RarityRare"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "RarityMenu",
+              "RarityRare"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "RarityMenu",
+              "RarityRare"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory Rare rarity"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal grid=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid\nlocal s,b\nlocal deadline=os.clock()+3\nrepeat\n s=a:Invoke('InventorySnapshot')\n b=grid:FindFirstChild('ItemCard_fist_Iron_Knuckle')\n if s.rarity=='Rare' and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal present=table.find(s.visibleKeys or {},'fist:Iron Knuckle')~=nil\nlocal commonExcluded=table.find(s.visibleKeys or {},'fist:Boxing Glove')==nil and table.find(s.visibleKeys or {},'fist:Starter Glove')==nil\nassert(b,'Rare filter has no current Iron card: '..H:JSONEncode({rarity=s.rarity,visibleKeys=s.visibleKeys,gridChildren=#grid:GetChildren()}))\nlocal ok=s.rarity=='Rare' and present and commonExcluded and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C08_RarityRare'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C09_ItemCard_fist_Iron_Knuckle')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C09_ItemCard_fist_Iron_Knuckle' then\n   g:SetAttribute('Flow31ActivatedControl','C09_ItemCard_fist_Iron_Knuckle')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,rarity=s.rarity,present=present,commonExcluded=commonExcluded,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"rarity\"\\s*:\\s*\"Rare\"",
+        "\"present\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"commonExcluded\"\\s*:\\s*true"
+      ],
+      "label": "assert canonical Rare rarity and precheck Iron card"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryGrid",
+              "ItemCard_fist_Iron_Knuckle"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryGrid",
+              "ItemCard_fist_Iron_Knuckle"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryGrid",
+              "ItemCard_fist_Iron_Knuckle"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryGridPane",
+              "InventoryGrid",
+              "ItemCard_fist_Iron_Knuckle"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory Iron card"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.3) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('InventorySnapshot') local d=s.selected or {} local b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryDetail.DetailActions.Actionequip local ok=d.key=='fist:Iron Knuckle' and d.equipped==false and table.find(d.actions or {},'Equip')~=nil and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C09_ItemCard_fist_Iron_Knuckle'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C10_Actionequip')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C10_Actionequip' then\n   g:SetAttribute('Flow31ActivatedControl','C10_Actionequip')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,key=d.key,equipped=d.equipped,actions=d.actions,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"key\"\\s*:\\s*\"fist:Iron Knuckle\"",
+        "\"equipped\"\\s*:\\s*false",
+        "\"Equip\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Iron card selected and precheck safe Equip action"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryDetail",
+              "DetailActions",
+              "Actionequip"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryDetail",
+              "DetailActions",
+              "Actionequip"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryDetail",
+              "DetailActions",
+              "Actionequip"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryBody",
+              "InventoryDetail",
+              "DetailActions",
+              "Actionequip"
+            ]
+          }
+        ]
+      },
+      "label": "real click safe Inventory Equip action"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal deadline=os.clock()+4\nlocal payload={}\nrepeat\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n if p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Iron Knuckle' and p.RPGStats.EquippedFist.Value=='Iron Knuckle' then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal owned=H:JSONDecode(p.RPGStats.OwnedFistsJSON.Value)\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==1 and p:GetAttribute('Flow31LastActionRequest')=='EquipFist' and p:GetAttribute('Flow31LastActionTarget')=='Iron Knuckle' and payload.action=='EquipFist' and payload.target=='Iron Knuckle' and p.RPGStats.EquippedFist.Value=='Iron Knuckle' and table.find(owned,'Iron Knuckle')~=nil,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),target=p:GetAttribute('Flow31LastActionTarget'),equipped=p.RPGStats.EquippedFist.Value,owned=p.RPGStats.OwnedFistsJSON.Value}\nassert(result.ok,'real Inventory Equip authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*1",
+        "\"request\"\\s*:\\s*\"EquipFist\"",
+        "\"target\"\\s*:\\s*\"Iron Knuckle\"",
+        "\"equipped\"\\s*:\\s*\"Iron Knuckle\""
+      ],
+      "label": "assert authoritative safe Inventory equip"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal d,b\nlocal deadline=os.clock()+4\nrepeat\n local s=a:Invoke('InventorySnapshot')\n d=s.selected or {}\n b=g.GameMenu.FunctionalInventory.InventoryWindow.InventoryHeader.InventoryClose\n if d.key=='fist:Iron Knuckle' and d.equipped==true and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=d.key=='fist:Iron Knuckle' and d.equipped==true and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C10_Actionequip'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C11_InventoryClose')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C11_InventoryClose' then\n   g:SetAttribute('Flow31ActivatedControl','C11_InventoryClose')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,key=d.key,equipped=d.equipped,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"key\"\\s*:\\s*\"fist:Iron Knuckle\"",
+        "\"equipped\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert client equip result and precheck Inventory close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "FunctionalInventory",
+              "InventoryWindow",
+              "InventoryHeader",
+              "InventoryClose"
+            ]
+          }
+        ]
+      },
+      "label": "real click Inventory close after safe action"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.15) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.DailyButton local ok=s.menuVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C11_InventoryClose'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C12_DailyButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C12_DailyButton' then\n   g:SetAttribute('Flow31ActivatedControl','C12_DailyButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*false",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Inventory closed and precheck reference Daily Tasks open"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "DailyButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "DailyButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "DailyButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "DailyButton"
+            ]
+          }
+        ]
+      },
+      "label": "real click reference Daily Tasks open"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal c=g.GameMenu.Content\nlocal function currentDailyButton()\n local row=c:FindFirstChild('Daily Supply')\n return row,row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild('ClaimDaily')\nend\nlocal row,b\nlocal deadline=os.clock()+3\nrepeat\n row,b=currentDailyButton()\n if b and b.Parent and b.Text=='CLAIM' and b.Active and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nassert(b,'missing current Daily claim')\nc.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5),0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\ntask.wait(.15)\nrow,b=currentDailyButton()\nassert(b and b:IsDescendantOf(c),'Daily claim vanished while scrolling')\nlocal function verifyIdleControlState(e)\n assert(e.observedSnapshot==true,'no increasing real Playtime snapshot observed')\n assert(e.identityStable==true,'idle stats replaced the intended native button')\n assert(e.canvasStable==true,'idle stats moved the selected canvas')\n assert(type(e.structuralBefore)=='number' and type(e.structuralAfter)=='number' and e.structuralAfter==e.structuralBefore,'idle stats rebuilt generic content')\n assert(type(e.requestBefore)=='number' and e.requestAfter==e.requestBefore,'idle observation changed authoritative request count')\n assert(e.hittable==true,'current idle-stable button is not hittable')\n return true\nend\nlocal function observeIdleControl(currentButton,c,g,p,requestAttribute)\n -- Native selection navigation may finish scrolling after the focus callback.\n -- Establish the baseline only after that bounded motion has settled, then\n -- require a subsequent actual clock snapshot to preserve this exact canvas.\n local started=os.clock() local deadline=started+2\n local previous=c.CanvasPosition local stableSince=started local settled=false\n repeat\n  task.wait(.05)\n  local now=os.clock() local position=c.CanvasPosition\n  if (position-previous).Magnitude>.25 then stableSince=now end\n  previous=position\n  settled=now-started>=.5 and now-stableSince>=.2\n until settled or os.clock()>=deadline\n assert(settled,'native selection canvas failed to settle before idle baseline')\n local original=assert(currentButton(),'missing idle observation target')\n local startCanvas=c.CanvasPosition\n local startPlaytime=p.RPGStats.PlaytimeSeconds.Value\n local before=g:GetAttribute('GenericPanelStructuralRenderCount')\n local requestBefore=p:GetAttribute(requestAttribute) or 0\n local observed,destroyed=false,false\n local stats=game.ReplicatedStorage.PunchWallEvents.StatsChanged.OnClientEvent:Connect(function(payload)\n  if type(payload)=='table' and (tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime then observed=true end\n end)\n local lifetime=original.Destroying:Connect(function()destroyed=true end)\n local ok,result=pcall(function()\n  local deadline=os.clock()+3\n  repeat task.wait(.05) until observed or os.clock()>=deadline\n  task.wait(.05)\n  local b=currentButton()\n  local live=b~=nil and b==original and b:IsDescendantOf(c) and not destroyed\n  local center=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\n  local hits=live and p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y) or {}\n  local top=hits[1]\n  local ancestorVisible=true\n  local ancestor=b\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local contained=live and b.AbsolutePosition.X>=c.AbsolutePosition.X and b.AbsolutePosition.Y>=c.AbsolutePosition.Y and b.AbsolutePosition.X+b.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X and b.AbsolutePosition.Y+b.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y\n  local topmost=live and (top==b or top~=nil and top:IsDescendantOf(b))\n  local available,interactable=pcall(function()return b.Interactable end)\n  return {observedSnapshot=observed,identityStable=live,canvasStable=math.abs(c.CanvasPosition.Y-startCanvas.Y)<.5 and math.abs(c.CanvasPosition.X-startCanvas.X)<.5,\n   structuralBefore=before,structuralAfter=g:GetAttribute('GenericPanelStructuralRenderCount'),requestBefore=requestBefore,requestAfter=p:GetAttribute(requestAttribute) or 0,\n   hittable=live and contained and ancestorVisible and b.Visible and b.Active and b.Selectable and available and interactable and topmost and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44,\n   targetParent=b and b.Parent and b.Parent:GetFullName() or '',topPath=top and top:GetFullName() or '',canvasBeforeY=startCanvas.Y,canvasY=c.CanvasPosition.Y,destroyed=destroyed}\n end)\n stats:Disconnect()\n lifetime:Disconnect()\n if not ok then error(result) end\n local verified,reason=pcall(verifyIdleControlState,result)\n assert(verified,tostring(reason)..': '..H:JSONEncode(result))\n return result\nend\nlocal idle=observeIdleControl(function()return select(2,currentDailyButton())end,c,g,p,'Flow31ActionRequestSequence')\nrow,b=currentDailyButton()\nlocal s=a:Invoke('Snapshot')\nlocal current=b~=nil and b==select(2,currentDailyButton()) and b:IsDescendantOf(c)\nlocal ok=s.menuVisible==true and s.activeTab=='Tasks' and current and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C12_DailyButton'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C13_ClaimDaily')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C13_ClaimDaily' then\n   g:SetAttribute('Flow31ActivatedControl','C13_ClaimDaily')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({current=current,idleSnapshotObserved=idle.observedSnapshot,idleIdentityStable=idle.identityStable,idleCanvasStable=idle.canvasStable,idleStructuralDelta=idle.structuralAfter-idle.structuralBefore,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeTab,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"tab\"\\s*:\\s*\"Tasks\"",
+        "\"text\"\\s*:\\s*\"CLAIM\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"current\"\\s*:\\s*true",
+        "\"idleSnapshotObserved\"\\s*:\\s*true",
+        "\"idleIdentityStable\"\\s*:\\s*true",
+        "\"idleCanvasStable\"\\s*:\\s*true",
+        "\"idleStructuralDelta\"\\s*:\\s*0"
+      ],
+      "label": "assert Tasks opened and precheck Daily claim"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Daily Supply",
+              "Actions",
+              "ClaimDaily"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Daily Supply",
+              "Actions",
+              "ClaimDaily"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Daily Supply",
+              "Actions",
+              "ClaimDaily"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Daily Supply",
+              "Actions",
+              "ClaimDaily"
+            ]
+          }
+        ]
+      },
+      "label": "real click legacy Daily claim"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal today=os.date('!%Y-%m-%d')\nlocal deadline=os.clock()+4\nrepeat\n if p:GetAttribute('Flow31ActionRequestSequence')==2 and p:GetAttribute('Flow31LastActionRequest')=='ClaimDaily' and p.RPGStats.LastDailyDate.Value==today and p.leaderstats.Coins.Value==600 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==2 and p:GetAttribute('Flow31LastActionRequest')=='ClaimDaily' and p.RPGStats.LastDailyDate.Value==today and p.leaderstats.Coins.Value==600,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),date=p.RPGStats.LastDailyDate.Value,coins=p.leaderstats.Coins.Value}\nassert(result.ok,'real Daily claim authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*2",
+        "\"request\"\\s*:\\s*\"ClaimDaily\"",
+        "\"coins\"\\s*:\\s*600"
+      ],
+      "label": "assert authoritative Daily claim"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal c=g.GameMenu.Content\nlocal claimed,row,b\nlocal deadline=os.clock()+4\nrepeat\n local daily=c:FindFirstChild('Daily Supply')\n claimed=daily and daily.Actions:FindFirstChild('ClaimDaily')\n row=c:FindFirstChild('City Cleanup')\n b=row and row.Actions:FindFirstChild('ClaimQuest')\n if claimed and claimed.Text=='CLAIMED' and not claimed.Active and b and b.Text=='CLAIM' and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row=c:FindFirstChild('City Cleanup')\n b=row and row.Actions:FindFirstChild('ClaimQuest')\nend\nlocal ok=claimed and claimed.Text=='CLAIMED' and not claimed.Active and b and b.Text=='CLAIM' and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C13_ClaimDaily'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C14_ClaimQuest')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C14_ClaimQuest' then\n   g:SetAttribute('Flow31ActivatedControl','C14_ClaimQuest')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,dailyText=claimed and claimed.Text,dailyActive=claimed and claimed.Active,questText=b and b.Text,questVisible=b and b.Visible,questActive=b and b.Active,questMin=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"dailyText\"\\s*:\\s*\"CLAIMED\"",
+        "\"dailyActive\"\\s*:\\s*false",
+        "\"questText\"\\s*:\\s*\"CLAIM\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Daily button settled and precheck Quest claim"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "City Cleanup",
+              "Actions",
+              "ClaimQuest"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "City Cleanup",
+              "Actions",
+              "ClaimQuest"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "City Cleanup",
+              "Actions",
+              "ClaimQuest"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "City Cleanup",
+              "Actions",
+              "ClaimQuest"
+            ]
+          }
+        ]
+      },
+      "label": "real click legacy Quest claim"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal deadline=os.clock()+4\nrepeat\n if p:GetAttribute('Flow31ActionRequestSequence')==3 and p:GetAttribute('Flow31LastActionRequest')=='ClaimQuest' and p.RPGStats.DailyQuestClaimed.Value==1 and p.leaderstats.Coins.Value==1450 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==3 and p:GetAttribute('Flow31LastActionRequest')=='ClaimQuest' and p.RPGStats.DailyQuestClaimed.Value==1 and p.leaderstats.Coins.Value==1450,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),claimed=p.RPGStats.DailyQuestClaimed.Value,coins=p.leaderstats.Coins.Value}\nassert(result.ok,'real Quest claim authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*3",
+        "\"request\"\\s*:\\s*\"ClaimQuest\"",
+        "\"claimed\"\\s*:\\s*1",
+        "\"coins\"\\s*:\\s*1450"
+      ],
+      "label": "assert authoritative Quest claim"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal baseline=p.leaderstats.Coins.Value\nlocal unclaimed=p.RPGStats.PlaytimeClaimed.Value==0\nlocal requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\nassert(unclaimed and baseline==1450 and requestSequence==3,'Playtime real-input baseline is not the exact post-Quest authority state')\np:SetAttribute('RealInputPlaytimeBaselineCoins',baseline)\nreturn H:JSONEncode({ok=true,unclaimed=unclaimed,baseline=baseline,reward=require(game.ReplicatedStorage.GameConfig).Rewards.PlaytimeCoins,requestSequence=requestSequence})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"unclaimed\"\\s*:\\s*true",
+        "\"baseline\"\\s*:\\s*1450",
+        "\"reward\"\\s*:\\s*1200",
+        "\"requestSequence\"\\s*:\\s*3"
+      ],
+      "label": "record exact authoritative Playtime reward baseline"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal c=g.GameMenu.Content\nlocal function currentButton()\n local row=c:FindFirstChild('Five Minute Supply')\n return row,row and row.Actions:FindFirstChild('ClaimPlaytime')\nend\nlocal row,b,claimed\nlocal deadline=os.clock()+4\nrepeat\n row,b=currentButton()\n local quest=c:FindFirstChild('City Cleanup')\n claimed=quest and quest.Actions:FindFirstChild('ClaimQuest')\n if p.RPGStats.PlaytimeClaimed.Value==0 and claimed and claimed.Text=='CLAIMED' and not claimed.Active and b and b.Text=='CLAIM' and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nif row and b then\n c.CanvasPosition=Vector2.new(0,math.clamp(c.CanvasPosition.Y+row.AbsolutePosition.Y-c.AbsolutePosition.Y-10,0,math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteWindowSize.Y)))\n task.wait(.08)\n row,b=currentButton()\nend\nlocal current=b~=nil and b==select(2,currentButton()) and b:IsDescendantOf(g)\nlocal reacquired=current\nlocal ok=p.RPGStats.PlaytimeClaimed.Value==0 and claimed and claimed.Text=='CLAIMED' and not claimed.Active and current and b.Text=='CLAIM' and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C14_ClaimQuest'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C15_ClaimPlaytime')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C15_ClaimPlaytime' then\n   g:SetAttribute('Flow31ActivatedControl','C15_ClaimPlaytime')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,current=current,reacquired=reacquired,unclaimed=p.RPGStats.PlaytimeClaimed.Value==0,questText=claimed and claimed.Text,questActive=claimed and claimed.Active,playText=b and b.Text,playVisible=b and b.Visible,playActive=b and b.Active,playMin=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"current\"\\s*:\\s*true",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"unclaimed\"\\s*:\\s*true",
+        "\"questText\"\\s*:\\s*\"CLAIMED\"",
+        "\"questActive\"\\s*:\\s*false",
+        "\"playText\"\\s*:\\s*\"CLAIM\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "reacquire a fresh current Playtime CLAIM button immediately after Tasks rebuild"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Five Minute Supply",
+              "Actions",
+              "ClaimPlaytime"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Five Minute Supply",
+              "Actions",
+              "ClaimPlaytime"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Five Minute Supply",
+              "Actions",
+              "ClaimPlaytime"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "Five Minute Supply",
+              "Actions",
+              "ClaimPlaytime"
+            ]
+          }
+        ]
+      },
+      "label": "real click current player-facing Playtime claim"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal deadline=os.clock()+4\nlocal requestSequence,request,claimed,coins\nrepeat\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n request=p:GetAttribute('Flow31LastActionRequest')\n claimed=p.RPGStats.PlaytimeClaimed.Value\n coins=p.leaderstats.Coins.Value\n if requestSequence==4 and request=='ClaimPlaytime' and claimed==1 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal settled=claimed==1\nlocal requestAttested=requestSequence==4 and request=='ClaimPlaytime'\nlocal ok=settled and requestAttested\nassert(ok,'single real Playtime click did not settle: '..H:JSONEncode({requestSequence=requestSequence,request=request,claimed=claimed,coins=coins}))\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C15_ClaimPlaytime'\nok=ok and activated return H:JSONEncode({activated=activated,ok=ok,settled=settled,requestAttested=requestAttested,requestSequence=requestSequence,request=request,claimed=claimed,coins=coins})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"settled\"\\s*:\\s*true",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*4",
+        "\"request\"\\s*:\\s*\"ClaimPlaytime\"",
+        "\"claimed\"\\s*:\\s*1",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "label": "observe the single real Playtime click with bounded client and request attestation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal config=require(game.ReplicatedStorage.GameConfig)\nlocal p=game.Players:GetPlayers()[1]\nlocal baseline=p:GetAttribute('RealInputPlaytimeBaselineCoins')\nlocal expected=baseline+config.Rewards.PlaytimeCoins\nlocal deadline=os.clock()+4\nrepeat\n if p:GetAttribute('Flow31ActionRequestSequence')==4 and p:GetAttribute('Flow31LastActionRequest')=='ClaimPlaytime' and p.RPGStats.PlaytimeClaimed.Value==1 and p.leaderstats.Coins.Value==expected then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal delta=p.leaderstats.Coins.Value-baseline\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==4 and p:GetAttribute('Flow31LastActionRequest')=='ClaimPlaytime' and p.RPGStats.PlaytimeClaimed.Value==1 and delta==config.Rewards.PlaytimeCoins and p.leaderstats.Coins.Value==2650,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),claimed=p.RPGStats.PlaytimeClaimed.Value,baseline=baseline,reward=config.Rewards.PlaytimeCoins,delta=delta,coins=p.leaderstats.Coins.Value}\nassert(result.ok,'real Playtime claim authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*4",
+        "\"request\"\\s*:\\s*\"ClaimPlaytime\"",
+        "\"claimed\"\\s*:\\s*1",
+        "\"baseline\"\\s*:\\s*1450",
+        "\"reward\"\\s*:\\s*1200",
+        "\"delta\"\\s*:\\s*1200",
+        "\"coins\"\\s*:\\s*2650"
+      ],
+      "label": "poll exact authoritative Playtime reward delta and final state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local c=g.GameMenu.Content local play=c:FindFirstChild('Five Minute Supply') local claimed=play and play.Actions:FindFirstChild('ClaimPlaytime') local b=g.GameMenu.Close local ok=claimed and claimed.Text=='CLAIMED' and not claimed.Active and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C16_Close')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C16_Close' then\n   g:SetAttribute('Flow31ActivatedControl','C16_Close')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,ok=ok,playText=claimed and claimed.Text,playActive=claimed and claimed.Active,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"playText\"\\s*:\\s*\"CLAIMED\"",
+        "\"playActive\"\\s*:\\s*false",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Playtime button settled and precheck Tasks close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Close"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Close"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Close"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Close"
+            ]
+          }
+        ]
+      },
+      "label": "real click Tasks close"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.15) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.SettingsTool local ok=s.menuVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C16_Close'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C17_SettingsTool')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C17_SettingsTool' then\n   g:SetAttribute('Flow31ActivatedControl','C17_SettingsTool')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y),buttonPosition=tostring(b.AbsolutePosition),buttonSize=tostring(b.AbsoluteSize),buttonCenter=tostring(clickCenter),viewport=tostring(viewport),rootPosition=tostring(g.PixelPerfectHeroCityHUD.AbsolutePosition),rootSize=tostring(g.PixelPerfectHeroCityHUD.AbsoluteSize),rootVisible=g.PixelPerfectHeroCityHUD.Visible,insets=tostring(g.ScreenInsets),compatibility=tostring(g.SafeAreaCompatibility),camera=tostring(camera)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*false",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Tasks closed and precheck reference Settings open",
+      "saveAs": "settingsOpenPrecheck"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SettingsTool"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SettingsTool"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SettingsTool"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SettingsTool"
+            ]
+          }
+        ]
+      },
+      "label": "real click reference Settings open"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal function watchSettingsContinuity(g,body,token)\n g:SetAttribute('Flow31SettingsWatchActive',false)\n g:SetAttribute('Flow31SettingsIdentityRun',token)\n g:SetAttribute('Flow31SettingsIdentityLost','')\n g:SetAttribute('Flow31SettingsWatchActive',true)\n local controls=settingsControls(body)\n local connections={} local cleaned=false\n local function cleanup()\n  if cleaned then return end\n  cleaned=true\n  for _,connection in ipairs(connections) do connection:Disconnect() end\n  if g:GetAttribute('Flow31SettingsIdentityRun')==token then g:SetAttribute('Flow31SettingsWatchConnections',0) end\n end\n local function lost(reason)\n  if not cleaned and g:GetAttribute('Flow31SettingsWatchActive')==true and g:GetAttribute('Flow31SettingsIdentityRun')==token and g:GetAttribute('Flow31SettingsIdentityLost')=='' then\n   g:SetAttribute('Flow31SettingsIdentityLost',reason)\n  end\n end\n for _,button in ipairs(controls) do\n  button:SetAttribute('Flow31SettingsIdentityRun',token)\n  local originalParent=button.Parent\n  table.insert(connections,button.Destroying:Connect(function() lost(button.Name..': Destroying') end))\n  table.insert(connections,button.AncestryChanged:Connect(function(_,parent)\n   if parent~=originalParent or not button:IsDescendantOf(body) then lost(button.Name..': ancestry changed') end\n  end))\n end\n table.insert(connections,g:GetAttributeChangedSignal('Flow31SettingsWatchActive'):Connect(function()\n  if g:GetAttribute('Flow31SettingsWatchActive')~=true or g:GetAttribute('Flow31SettingsIdentityRun')~=token then cleanup() end\n end))\n table.insert(connections,g.Destroying:Connect(cleanup))\n g:SetAttribute('Flow31SettingsWatchConnections',#connections)\n return controls\nend\nlocal function verifySettingsIdleState(e)\n assert(e.observedSnapshot==true,'no increasing real Playtime snapshot observed in Settings')\n assert(e.identityStable==true,'idle StatsChanged replaced an original Settings control')\n assert(e.geometryStable==true,'idle StatsChanged moved a settled Settings control')\n assert(type(e.requestBefore)=='number' and e.requestAfter==e.requestBefore,'Settings idle observation changed authoritative requests')\n assert(e.controls==8,'Settings idle observation did not cover all controls')\n return true\nend\nlocal function observeSettingsIdle(g,body,p,originals)\n local function geometry()\n  local positions={}\n  for _,button in ipairs(originals) do table.insert(positions,{button.AbsolutePosition,button.AbsoluteSize}) end\n  return positions\n end\n local function sameGeometry(a,b)\n  for i=1,#a do\n   if (a[i][1]-b[i][1]).Magnitude>.25 or (a[i][2]-b[i][2]).Magnitude>.25 then return false end\n  end\n  return true\n end\n -- Let initial focus/layout finish before the idle baseline, without allowing replacement.\n local started=os.clock() local deadline=started+2 local stableSince=started\n local previous=geometry() local settled=false\n repeat\n  task.wait(.05)\n  verifySettingsContinuity(g,body)\n  local now=os.clock() local current=geometry()\n  if not sameGeometry(previous,current) then stableSince=now end\n  previous=current\n  settled=now-started>=.5 and now-stableSince>=.2\n until settled or os.clock()>=deadline\n assert(settled,'Settings focus/layout failed to settle before idle baseline')\n local baseline=geometry()\n local startPlaytime=p.RPGStats.PlaytimeSeconds.Value\n local requestBefore=p:GetAttribute('Flow31ActionRequestSequence') or 0\n local observed=false\n local stats=game.ReplicatedStorage.PunchWallEvents.StatsChanged.OnClientEvent:Connect(function(payload)\n  if type(payload)=='table' and (tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime then observed=true end\n end)\n local success,result=pcall(function()\n  local deadline=os.clock()+3\n  repeat task.wait(.05) until observed or os.clock()>=deadline\n  task.wait(.05)\n  local controls=settingsControls(body) local identityStable=true\n  for i,button in ipairs(controls) do if button~=originals[i] then identityStable=false end end\n  local count=verifySettingsContinuity(g,body)\n  return {observedSnapshot=observed,identityStable=identityStable,geometryStable=sameGeometry(baseline,geometry()),controls=count,\n   requestBefore=requestBefore,requestAfter=p:GetAttribute('Flow31ActionRequestSequence') or 0}\n end)\n stats:Disconnect()\n if not success then error(result) end\n local verified,reason=pcall(verifySettingsIdleState,result)\n assert(verified,tostring(reason)..': '..game:GetService('HttpService'):JSONEncode(result))\n return result\nend\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('MOTIONSetting')\n b=row and row.Options:FindFirstChild('MotionCalm')\n if s.settingsVisible==true and s.activeWindow=='Settings' and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=s.menuVisible==true and s.settingsVisible==true and s.activeWindow=='Settings' and window.Visible and not g.GameMenu.Visible and s.motion==true and b and b.Visible and b.Active and b.Text=='CALM' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal originals=watchSettingsContinuity(g,c,H:GenerateGUID(false))\nlocal idleOk,settingsIdle=pcall(observeSettingsIdle,g,c,game.Players.LocalPlayer,originals)\nif not idleOk then g:SetAttribute('Flow31SettingsWatchActive',false) error(settingsIdle) end\nrow=c:FindFirstChild('MOTIONSetting') b=row and row.Options:FindFirstChild('MotionCalm')\nlocal settingsContinuity=verifySettingsContinuity(g,c)\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C17_SettingsTool'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C18_motion')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C18_motion' then\n   g:SetAttribute('Flow31ActivatedControl','C18_motion')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=settingsIdle,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,tab=s.activeWindow,settingsVisible=s.settingsVisible,motion=s.motion,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"tab\"\\s*:\\s*\"Settings\"",
+        "\"motion\"\\s*:\\s*true",
+        "\"text\"\\s*:\\s*\"CALM\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"settingsVisible\"\\s*:\\s*true"
+      ],
+      "label": "assert Settings opened and precheck Motion control"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "MOTIONSetting",
+              "Options",
+              "MotionCalm"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings Motion control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('SOUNDSetting')\n b=row and row.Options:FindFirstChild('SoundOff')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==5 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==true\n if s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and s.motion==false and s.sound==true and requestAttested and b and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal settingsContinuity=verifySettingsContinuity(g,g.SettingsWindow.Body)\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C18_motion'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C19_sound')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C19_sound' then\n   g:SetAttribute('Flow31ActivatedControl','C19_sound')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=nil,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"motion\"\\s*:\\s*false",
+        "\"sound\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*5",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"text\"\\s*:\\s*\"OFF\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Motion toggled and precheck Sound control"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "SOUNDSetting",
+              "Options",
+              "SoundOff"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings Sound control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale80')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==6 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false\n if s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and s.motion==false and s.sound==false and requestAttested and b and b.Visible and b.Active and b.Text=='80%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal settingsContinuity=verifySettingsContinuity(g,g.SettingsWindow.Body)\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C19_sound'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C20_Scale80')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C20_Scale80' then\n   g:SetAttribute('Flow31ActivatedControl','C20_Scale80')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=nil,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale0.8',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"motion\"\\s*:\\s*false",
+        "\"sound\"\\s*:\\s*false",
+        "\"requestSequence\"\\s*:\\s*6",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"original\"\\s*:\\s*\"Scale0.8\"",
+        "\"safeName\"\\s*:\\s*\"Scale80\"",
+        "\"text\"\\s*:\\s*\"80%\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Sound toggled and precheck path-safe 80 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale80"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings 80 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale100')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==7 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-.8)<.001\n if math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and math.abs((s.uiScale or 0)-.8)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='100%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal settingsContinuity=verifySettingsContinuity(g,g.SettingsWindow.Body)\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C20_Scale80'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C21_Scale100')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C21_Scale100' then\n   g:SetAttribute('Flow31ActivatedControl','C21_Scale100')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=nil,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"uiScale\"\\s*:\\s*0.8",
+        "\"requestSequence\"\\s*:\\s*7",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"safeName\"\\s*:\\s*\"Scale100\"",
+        "\"text\"\\s*:\\s*\"100%\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert 80 percent and precheck path-safe 100 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale100"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings 100 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal window=assert(g:FindFirstChild('SettingsWindow'),'standalone Settings missing')\nlocal c=window.Body\nlocal s,row,b,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n row=c:FindFirstChild('UI SIZESetting')\n b=row and row.Options:FindFirstChild('Scale120')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==8 and payload.action=='UpdateSettings' and payload.value and math.abs((payload.value.uiScale or 0)-1)<.001\n if math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=window.Visible and s.settingsVisible==true and s.activeWindow=='Settings' and math.abs((s.uiScale or 0)-1)<.001 and requestAttested and b and b.Visible and b.Active and b.Text=='120%' and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal settingsContinuity=verifySettingsContinuity(g,g.SettingsWindow.Body)\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C21_Scale100'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C22_Scale120')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C22_Scale120' then\n   g:SetAttribute('Flow31ActivatedControl','C22_Scale120')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=nil,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,uiScale=s.uiScale,requestSequence=requestSequence,requestAttested=requestAttested,original='Scale1.2',safeName=b and b.Name,text=b and b.Text,visible=b and b.Visible,active=b and b.Active,min=b and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y) or 0})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"uiScale\"\\s*:\\s*1",
+        "\"requestSequence\"\\s*:\\s*8",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"original\"\\s*:\\s*\"Scale1.2\"",
+        "\"safeName\"\\s*:\\s*\"Scale120\"",
+        "\"text\"\\s*:\\s*\"120%\"",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert 100 percent and precheck path-safe 120 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Body",
+              "UI SIZESetting",
+              "Options",
+              "Scale120"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings 120 percent control"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal deadline=os.clock()+4\nlocal settings,payload\nrepeat\n local settingsOk,decodedSettings=pcall(function() return H:JSONDecode(p.RPGStats.SettingsJSON.Value) end)\n settings=settingsOk and decodedSettings or {}\n local payloadOk,decodedPayload=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=payloadOk and decodedPayload or {}\n if p:GetAttribute('Flow31ActionRequestSequence')==9 and p:GetAttribute('Flow31LastActionRequest')=='UpdateSettings' and settings.motion==false and settings.sound==false and math.abs((settings.uiScale or 0)-1.2)<.001 then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal result={ok=p:GetAttribute('Flow31ActionRequestSequence')==9 and p:GetAttribute('Flow31LastActionRequest')=='UpdateSettings' and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false and math.abs((payload.value.uiScale or 0)-1.2)<.001 and settings.motion==false and settings.sound==false and math.abs((settings.uiScale or 0)-1.2)<.001,requestSequence=p:GetAttribute('Flow31ActionRequestSequence'),request=p:GetAttribute('Flow31LastActionRequest'),motion=settings.motion,sound=settings.sound,uiScale=settings.uiScale}\nassert(result.ok,'final Settings authority attestation failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"requestSequence\"\\s*:\\s*9",
+        "\"request\"\\s*:\\s*\"UpdateSettings\"",
+        "\"motion\"\\s*:\\s*false",
+        "\"sound\"\\s*:\\s*false",
+        "\"uiScale\"\\s*:\\s*1.2"
+      ],
+      "label": "assert authoritative final Settings state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal a=g.PunchWallClientAutomation\nlocal function settingsControls(body)\n local result={}\n for _,spec in ipairs({{'SOUNDSetting','SoundOn'},{'SOUNDSetting','SoundOff'},{'MOTIONSetting','MotionOn'},{'MOTIONSetting','MotionCalm'},{'UI SIZESetting','Scale80'},{'UI SIZESetting','Scale100'},{'UI SIZESetting','Scale120'},{'Footer','Done'}}) do\n  local row=assert(body:FindFirstChild(spec[1]),'Settings row missing: '..spec[1])\n  local parent=spec[1]=='Footer' and row or assert(row:FindFirstChild('Options'),'Settings options missing')\n  local button=assert(parent:FindFirstChild(spec[2]),'Settings control missing: '..spec[2])\n  assert(button:IsA('GuiButton') and button:IsDescendantOf(body),'invalid Settings control: '..spec[2])\n  table.insert(result,button)\n end\n return result\nend\nlocal function verifySettingsContinuity(g,body)\n local token=g:GetAttribute('Flow31SettingsIdentityRun')\n assert(type(token)=='string' and #token>0,'Settings lifetime observation was not started')\n assert(g:GetAttribute('Flow31SettingsWatchActive')==true,'Settings lifetime observation ended early')\n assert(g:GetAttribute('Flow31SettingsIdentityLost')=='','original Settings control lifetime changed: '..tostring(g:GetAttribute('Flow31SettingsIdentityLost')))\n local controls=settingsControls(body)\n for _,button in ipairs(controls) do\n  assert(button:GetAttribute('Flow31SettingsIdentityRun')==token,'Settings control instance replaced: '..button.Name)\n end\n return #controls\nend\nlocal s,payload,requestSequence,requestAttested\nlocal deadline=os.clock()+4\nrepeat\n s=a:Invoke('Snapshot')\n requestSequence=p:GetAttribute('Flow31ActionRequestSequence')\n local decodedOk,decoded=pcall(function() return H:JSONDecode(p:GetAttribute('Flow31LastActionPayloadJSON') or '{}') end)\n payload=decodedOk and decoded or {}\n requestAttested=requestSequence==9 and payload.action=='UpdateSettings' and payload.value and payload.value.motion==false and payload.value.sound==false and math.abs((payload.value.uiScale or 0)-1.2)<.001\n if math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal b=g.SettingsWindow.Close\nlocal ok=g.SettingsWindow.Visible and s.settingsVisible==true and math.abs((s.uiScale or 0)-1.2)<.001 and s.motion==false and s.sound==false and requestAttested and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44\nlocal settingsContinuity=verifySettingsContinuity(g,g.SettingsWindow.Body)\ng:SetAttribute('Flow31SettingsWatchActive',false)\nlocal cleanupDeadline=os.clock()+.5\nrepeat task.wait() until g:GetAttribute('Flow31SettingsWatchConnections')==0 or os.clock()>=cleanupDeadline\nassert(g:GetAttribute('Flow31SettingsWatchConnections')==0,'Settings lifetime observers were not disconnected')\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C22_Scale120'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C23_Close')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C23_Close' then\n   g:SetAttribute('Flow31ActivatedControl','C23_Close')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({settingsContinuity=settingsContinuity,settingsIdle=nil,hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,uiScale=s.uiScale,motion=s.motion,sound=s.sound,requestSequence=requestSequence,requestAttested=requestAttested,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"uiScale\"\\s*:\\s*1.2",
+        "\"motion\"\\s*:\\s*false",
+        "\"sound\"\\s*:\\s*false",
+        "\"requestSequence\"\\s*:\\s*9",
+        "\"requestAttested\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert 120 percent Settings state and precheck Settings close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Close"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Close"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Close"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "SettingsWindow",
+              "Close"
+            ]
+          }
+        ]
+      },
+      "label": "real click Settings close"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local b=g.PixelPerfectHeroCityHUD.SpinButton local ok=s.menuVisible==false and s.settingsVisible==false and not g.SettingsWindow.Visible and s.spinVisible==false and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C23_Close'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C24_SpinButton')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C24_SpinButton' then\n   g:SetAttribute('Flow31ActivatedControl','C24_SpinButton')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,menu=s.menuVisible,spin=s.spinVisible,visible=b.Visible,active=b.Active,min=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"menu\"\\s*:\\s*false",
+        "\"spin\"\\s*:\\s*false",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Settings closed and precheck reference Spin open"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SpinButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SpinButton"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SpinButton"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "PixelPerfectHeroCityHUD",
+              "SpinButton"
+            ]
+          }
+        ]
+      },
+      "label": "real click reference Spin open"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') task.wait(.2) local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local s=g.PunchWallClientAutomation:Invoke('Snapshot') local m=g.HeroSpinModal local b=m.SpinPanel.CloseSpin local ok=s.spinVisible==true and m.Visible and b.Visible and b.Active and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 local activated=g:GetAttribute('Flow31ActivatedControl')=='C24_SpinButton'\nok=ok and activated local clickCenter=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\nlocal camera=workspace.CurrentCamera\nlocal viewport=camera and camera.ViewportSize or Vector2.zero\nlocal function guiPointInViewport(absolutePoint,viewportSize,inset)\n -- Absolute GUI coordinates also belong to native input and GUI hit testing.\n -- Only the screen-bounds comparison adds the engine's top-left GuiInset.\n local screenPoint=absolutePoint+inset\n return viewportSize.X>0 and viewportSize.Y>0\n  and screenPoint.X>=0 and screenPoint.Y>=0\n  and screenPoint.X<viewportSize.X and screenPoint.Y<viewportSize.Y,screenPoint\nend\nlocal guiInset=game:GetService('GuiService'):GetGuiInset()\nlocal visibleArea,screenCenter=guiPointInViewport(clickCenter,viewport,guiInset)\nvisibleArea=b~=nil and visibleArea\nlocal hitObjects=visibleArea and game.Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(clickCenter.X,clickCenter.Y) or {}\nlocal hitTop=hitObjects[1]\nlocal topmost=b~=nil and (hitTop==b or (hitTop~=nil and hitTop:IsDescendantOf(b))) or false\nlocal hittable=b~=nil and b:IsDescendantOf(g) and b.Visible and b.Active and b.Selectable and visibleArea and topmost and b.AbsoluteSize.X>=44 and b.AbsoluteSize.Y>=44\ng:SetAttribute('Flow31ExpectedControl','C25_CloseSpin')\ng:SetAttribute('Flow31ActivatedControl','')\nif hittable then\n local armedButton=b\n armedButton.Activated:Once(function()\n  if armedButton.Parent and g:GetAttribute('Flow31ExpectedControl')=='C25_CloseSpin' then\n   g:SetAttribute('Flow31ActivatedControl','C25_CloseSpin')\n  end\n end)\nend\nok=ok and hittable return H:JSONEncode({hittable=hittable,selectable=b and b.Selectable or false,visibleArea=visibleArea,topmost=topmost,inputX=clickCenter.X,inputY=clickCenter.Y,screenX=screenCenter.X,screenY=screenCenter.Y,insetX=guiInset.X,insetY=guiInset.Y,activated=activated,ok=ok,spin=s.spinVisible,modal=m.Visible,closeVisible=b.Visible,closeActive=b.Active,closeMin=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"spin\"\\s*:\\s*true",
+        "\"modal\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true",
+        "\"hittable\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true"
+      ],
+      "label": "assert Spin opened and precheck Spin close"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "HeroSpinModal",
+              "SpinPanel",
+              "CloseSpin"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "HeroSpinModal",
+              "SpinPanel",
+              "CloseSpin"
+            ]
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "HeroSpinModal",
+              "SpinPanel",
+              "CloseSpin"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 60
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "HeroSpinModal",
+              "SpinPanel",
+              "CloseSpin"
+            ]
+          }
+        ]
+      },
+      "label": "real click Spin close"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal deadline=os.clock()+3\nlocal s\nrepeat\n s=g.PunchWallClientAutomation:Invoke('Snapshot')\n if s.spinVisible==false and s.menuVisible==false and g.PixelPerfectHeroCityHUD.Visible==true then break end\n task.wait(.05)\nuntil os.clock()>=deadline\nlocal ok=s.spinVisible==false and s.menuVisible==false and g.PixelPerfectHeroCityHUD.Visible==true\nlocal activated=g:GetAttribute('Flow31ActivatedControl')=='C25_CloseSpin'\nok=ok and activated return H:JSONEncode({activated=activated,ok=ok,spin=s.spinVisible,menu=s.menuVisible,hud=g.PixelPerfectHeroCityHUD.Visible})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"spin\"\\s*:\\s*false",
+        "\"menu\"\\s*:\\s*false",
+        "\"hud\"\\s*:\\s*true",
+        "\"activated\"\\s*:\\s*true"
+      ],
+      "label": "assert Spin closed and reference HUD restored"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture full real UI control console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "full real UI control console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop real UI control playtest"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup real UI control playtest"
+    }
+  ],
+  "coordinateContractVersion": "GuiAbsoluteInputViewportInsetV1",
+  "settingsIdentityContractVersion": "NativeSettingsLifetimeV1"
+}

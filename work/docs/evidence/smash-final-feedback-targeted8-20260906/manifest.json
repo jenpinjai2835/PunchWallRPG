@@ -1,0 +1,14 @@
+[
+  {
+    "ok": true,
+    "flowSHA256": "054BE80EBD3BE0118834667430DC2ECEF3949A653805BC472558710A7652124A",
+    "flow": "iteration03-safearea-destruction",
+    "errors": []
+  },
+  {
+    "ok": true,
+    "flowSHA256": "798A730A7D01140AF01F1EE982FB9AAEDEEC6955F2DC429770CDF099228038EC",
+    "flow": "iteration04-armory-pets-feedback",
+    "errors": []
+  }
+]

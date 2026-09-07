@@ -1,0 +1,168 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punch-camera-device-20",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "settle any prior play session",
+        "wait for edit datamodel",
+        "clear prior device simulation",
+        "set desktop camera viewport",
+        "start desktop play",
+        "wait desktop runtime",
+        "prepare desktop punches",
+        "sample eight desktop punches",
+        "capture measured desktopCamera scalar evidence",
+        "classify measured desktopCamera console (identified Studio input warnings: 0)",
+        "stop desktop play",
+        "wait for desktop edit datamodel",
+        "set tablet camera viewport",
+        "start tablet play",
+        "wait tablet runtime",
+        "prepare tablet punches",
+        "sample six tablet punches",
+        "capture measured tabletCamera scalar evidence",
+        "classify measured tabletCamera console (identified Studio input warnings: 0)",
+        "stop tablet play",
+        "wait for tablet edit datamodel",
+        "set phone camera viewport",
+        "start phone play",
+        "wait phone runtime",
+        "prepare phone punches",
+        "preserve camera visibility detail 1 before cleanup",
+        "preserve camera visibility detail 2 before cleanup",
+        "preserve camera visibility detail 3 before cleanup",
+        "preserve camera visibility detail 4 before cleanup",
+        "preserve last bounded recovery route before cleanup",
+        "preserve first bounded recovery route before cleanup",
+        "capture camera failure console before stop",
+        "cleanup stop play",
+        "cleanup viewport"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "deviceDiagnosticConsole1",
+          "label": "classify measured desktopCamera console",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.7972972972972973,\"metricsValid\":true,\"maxInheritedRootStep\":16.076932907104493,\"configuredOrbit\":22.54991912841797,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":8,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0066070556640625,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":4,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":25.541044235229493,\"maxGuardPublishedTravelPerCycle\":17.92561912536621,\"selectedDistance\":22.54991912841797,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":4,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400001287460327,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":74,\"resultType\":\"table\",\"lead\":19.98859405517578,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.0657333999988623,\"maxCorrectionStep\":2.4000024795532228,\"userOrbitDistance\":22.54991912841797,\"finishDistance\":22.543312072753908,\"visibleRatio\":1}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.7972972972972973,\"metricsValid\":true,\"maxInheritedRootStep\":16.076932907104493,\"configuredOrbit\":22.54991912841797,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":8,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0066070556640625,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":4,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":25.541044235229493,\"maxGuardPublishedTravelPerCycle\":17.92561912536621,\"selectedDistance\":22.54991912841797,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":4,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400001287460327,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":74,\"resultType\":\"table\",\"lead\":19.98859405517578,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.0657333999988623,\"maxCorrectionStep\":2.4000024795532228,\"userOrbitDistance\":22.54991912841797,\"finishDistance\":22.543312072753908,\"visibleRatio\":1}"
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "deviceDiagnosticConsole2",
+          "label": "classify measured tabletCamera console",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0.07665354758501053,\"geometryClamped\":false,\"clearRatio\":0.7321428571428571,\"metricsValid\":true,\"maxInheritedRootStep\":11.50809097290039,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0017833709716796876,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":8,\"lastGuardPhase\":\"render\",\"overlapEscapes\":1,\"sampleMaxStep\":18.319538116455079,\"maxGuardPublishedTravelPerCycle\":11.422475814819336,\"selectedDistance\":12.474493980407715,\"maxGuardPublishedWritesPerCycle\":2,\"viewportWidth\":1023,\"settledSamples\":3,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0.0000762939453125,\"maxStep\":2.40000057220459,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":56,\"resultType\":\"table\",\"lead\":16.883323669433595,\"viewportHeight\":748,\"settledClearRatio\":1,\"maxEscapeStep\":0.07665131241083145,\"lastGuardAge\":0.050408399998559619,\"maxCorrectionStep\":2.3999996185302736,\"userOrbitDistance\":12.474493980407715,\"finishDistance\":12.476277351379395,\"visibleRatio\":1}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0.07665354758501053,\"geometryClamped\":false,\"clearRatio\":0.7321428571428571,\"metricsValid\":true,\"maxInheritedRootStep\":11.50809097290039,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0017833709716796876,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":8,\"lastGuardPhase\":\"render\",\"overlapEscapes\":1,\"sampleMaxStep\":18.319538116455079,\"maxGuardPublishedTravelPerCycle\":11.422475814819336,\"selectedDistance\":12.474493980407715,\"maxGuardPublishedWritesPerCycle\":2,\"viewportWidth\":1023,\"settledSamples\":3,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0.0000762939453125,\"maxStep\":2.40000057220459,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":56,\"resultType\":\"table\",\"lead\":16.883323669433595,\"viewportHeight\":748,\"settledClearRatio\":1,\"maxEscapeStep\":0.07665131241083145,\"lastGuardAge\":0.050408399998559619,\"maxCorrectionStep\":2.3999996185302736,\"userOrbitDistance\":12.474493980407715,\"finishDistance\":12.476277351379395,\"visibleRatio\":1}"
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "Expected regex not found: \"metricsValid\"[ ]*:[ ]*true\nReceived: {\"maxGuardEscapeTravelPerCycle\":9.239213168621064,\"geometryClamped\":true,\"clearRatio\":0.9338842975206612,\"metricsValid\":false,\"maxInheritedRootStep\":11.771703720092774,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":8,\"inside\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":true,\"zoomDelta\":0.006603240966796875,\"cameraDeviceContractValid\":false,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":3,\"lastGuardPhase\":\"render\",\"overlapEscapes\":3,\"sampleMaxStep\":18.424219131469728,\"maxGuardPublishedTravelPerCycle\":15.556658744812012,\"selectedDistance\":23.26280403137207,\"maxGuardPublishedWritesPerCycle\":3,\"viewportWidth\":844,\"settledSamples\":0,\"followActiveObserved\":false,\"settledReadableRatio\":0,\"visualFailureReasons\":\"settled_clear_visibility,settled_readable_visibility\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400000810623169,\"handoffActive\":true,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":121,\"resultType\":\"table\",\"lead\":17.383947372436525,\"viewportHeight\":369,\"settledClearRatio\":0,\"maxEscapeStep\":1.2000000476837159,\"lastGuardAge\":0.06469940000533825,\"maxCorrectionStep\":2.147550582885742,\"userOrbitDistance\":23.26280403137207,\"finishDistance\":23.256200790405275,\"visibleRatio\":1}",
+      "cleanup": {
+        "attempted": true,
+        "actions": [
+          {
+            "label": "preserve camera visibility detail 1 before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "preserve camera visibility detail 2 before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "preserve camera visibility detail 3 before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "preserve camera visibility detail 4 before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "preserve last bounded recovery route before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "preserve first bounded recovery route before cleanup",
+            "tool": "execute_luau",
+            "ok": true
+          },
+          {
+            "label": "capture camera failure console before stop",
+            "tool": "get_console_output",
+            "ok": true
+          },
+          {
+            "label": "cleanup stop play",
+            "tool": "start_stop_play",
+            "ok": true
+          },
+          {
+            "label": "cleanup viewport",
+            "tool": "execute_luau",
+            "ok": true
+          }
+        ],
+        "stopAcknowledged": true,
+        "editVerified": true,
+        "restored": true,
+        "edit": {
+          "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+          "placeId": "0",
+          "datamodelType": "Edit"
+        }
+      },
+      "context": {
+        "desktopCamera": "{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.7972972972972973,\"metricsValid\":true,\"maxInheritedRootStep\":16.076932907104493,\"configuredOrbit\":22.54991912841797,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":8,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0066070556640625,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":4,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":25.541044235229493,\"maxGuardPublishedTravelPerCycle\":17.92561912536621,\"selectedDistance\":22.54991912841797,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":4,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400001287460327,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":74,\"resultType\":\"table\",\"lead\":19.98859405517578,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.0657333999988623,\"maxCorrectionStep\":2.4000024795532228,\"userOrbitDistance\":22.54991912841797,\"finishDistance\":22.543312072753908,\"visibleRatio\":1}",
+        "deviceDiagnosticConsole1": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":0.7972972972972973,\"metricsValid\":true,\"maxInheritedRootStep\":16.076932907104493,\"configuredOrbit\":22.54991912841797,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":8,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0066070556640625,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":4,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":25.541044235229493,\"maxGuardPublishedTravelPerCycle\":17.92561912536621,\"selectedDistance\":22.54991912841797,\"maxGuardPublishedWritesPerCycle\":1,\"viewportWidth\":1366,\"settledSamples\":4,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400001287460327,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":74,\"resultType\":\"table\",\"lead\":19.98859405517578,\"viewportHeight\":767,\"settledClearRatio\":1,\"maxEscapeStep\":0,\"lastGuardAge\":0.0657333999988623,\"maxCorrectionStep\":2.4000024795532228,\"userOrbitDistance\":22.54991912841797,\"finishDistance\":22.543312072753908,\"visibleRatio\":1}",
+        "tabletCamera": "{\"maxGuardEscapeTravelPerCycle\":0.07665354758501053,\"geometryClamped\":false,\"clearRatio\":0.7321428571428571,\"metricsValid\":true,\"maxInheritedRootStep\":11.50809097290039,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0017833709716796876,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":8,\"lastGuardPhase\":\"render\",\"overlapEscapes\":1,\"sampleMaxStep\":18.319538116455079,\"maxGuardPublishedTravelPerCycle\":11.422475814819336,\"selectedDistance\":12.474493980407715,\"maxGuardPublishedWritesPerCycle\":2,\"viewportWidth\":1023,\"settledSamples\":3,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0.0000762939453125,\"maxStep\":2.40000057220459,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":56,\"resultType\":\"table\",\"lead\":16.883323669433595,\"viewportHeight\":748,\"settledClearRatio\":1,\"maxEscapeStep\":0.07665131241083145,\"lastGuardAge\":0.050408399998559619,\"maxCorrectionStep\":2.3999996185302736,\"userOrbitDistance\":12.474493980407715,\"finishDistance\":12.476277351379395,\"visibleRatio\":1}",
+        "deviceDiagnosticConsole2": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":0.07665354758501053,\"geometryClamped\":false,\"clearRatio\":0.7321428571428571,\"metricsValid\":true,\"maxInheritedRootStep\":11.50809097290039,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":15,\"inside\":0,\"visualValid\":true,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":false,\"zoomDelta\":0.0017833709716796876,\"cameraDeviceContractValid\":true,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":8,\"lastGuardPhase\":\"render\",\"overlapEscapes\":1,\"sampleMaxStep\":18.319538116455079,\"maxGuardPublishedTravelPerCycle\":11.422475814819336,\"selectedDistance\":12.474493980407715,\"maxGuardPublishedWritesPerCycle\":2,\"viewportWidth\":1023,\"settledSamples\":3,\"followActiveObserved\":false,\"settledReadableRatio\":1,\"visualFailureReasons\":\"\",\"mode\":\"CustomPreserved\",\"maxBack\":0.0000762939453125,\"maxStep\":2.40000057220459,\"handoffActive\":false,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":1,\"sampledFrames\":56,\"resultType\":\"table\",\"lead\":16.883323669433595,\"viewportHeight\":748,\"settledClearRatio\":1,\"maxEscapeStep\":0.07665131241083145,\"lastGuardAge\":0.050408399998559619,\"maxCorrectionStep\":2.3999996185302736,\"userOrbitDistance\":12.474493980407715,\"finishDistance\":12.476277351379395,\"visibleRatio\":1}",
+        "phoneCamera": "{\"maxGuardEscapeTravelPerCycle\":9.239213168621064,\"geometryClamped\":true,\"clearRatio\":0.9338842975206612,\"metricsValid\":false,\"maxInheritedRootStep\":11.771703720092774,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":8,\"inside\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":true,\"zoomDelta\":0.006603240966796875,\"cameraDeviceContractValid\":false,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":3,\"lastGuardPhase\":\"render\",\"overlapEscapes\":3,\"sampleMaxStep\":18.424219131469728,\"maxGuardPublishedTravelPerCycle\":15.556658744812012,\"selectedDistance\":23.26280403137207,\"maxGuardPublishedWritesPerCycle\":3,\"viewportWidth\":844,\"settledSamples\":0,\"followActiveObserved\":false,\"settledReadableRatio\":0,\"visualFailureReasons\":\"settled_clear_visibility,settled_readable_visibility\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400000810623169,\"handoffActive\":true,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":121,\"resultType\":\"table\",\"lead\":17.383947372436525,\"viewportHeight\":369,\"settledClearRatio\":0,\"maxEscapeStep\":1.2000000476837159,\"lastGuardAge\":0.06469940000533825,\"maxCorrectionStep\":2.147550582885742,\"userOrbitDistance\":23.26280403137207,\"finishDistance\":23.256200790405275,\"visibleRatio\":1}",
+        "cameraVisibilityDetail1": "{\"page\":1,\"available\":false}",
+        "cameraVisibilityDetail2": "{\"page\":2,\"available\":false}",
+        "cameraVisibilityDetail3": "{\"page\":3,\"available\":false}",
+        "cameraVisibilityDetail4": "{\"sample\":{\"headRayBlocked\":false,\"bodyRayPart\":\"DepthBlock_L017_C06_R04\",\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L017_C06_R04\",\"velocity\":\"0.239,-1.198,5.468\",\"bodyRayBlocked\":true,\"onScreen\":true,\"root\":\"-2.000,3.202,-108.861\",\"readable\":true,\"punch\":6,\"guardAge\":0.06835200000205077,\"look\":\"-0.000,-0.204,-0.979\",\"head\":\"-1.840,4.601,-108.797\",\"guardPhase\":\"render\",\"at\":5.3378097000022539,\"partFrame\":\"-4.00754738, 3.08527422, -100.692955, -0.13391161, -0.117674135, 0.983981967, -0.59350884, 0.804678977, 0.0154598197, -0.793608785, -0.58193177, -0.177596495\",\"guardPublished\":\"-0.9377396106719971, 1.3844385147094727, -72.80543518066406\",\"canCollide\":true,\"phase\":\"follow\",\"guardPublishedBlocked\":false,\"guardRequested\":\"-2.000030517578125, 9.413765907287598, -86.08720397949219\",\"detached\":true,\"renderAge\":0.06845809999504127,\"camera\":\"-0.938,1.384,-72.805\",\"guardReason\":\"cached-recovery/origin-hold\",\"radius\":36.223514556884769,\"guardRootDelta\":\"0, 0.0001971721649169922, 0\",\"partSize\":\"4.000,4.000,4.000\",\"canQuery\":true,\"falling\":true},\"page\":4,\"available\":true}",
+        "cameraRecoveryLast": "{\"record\":\"last\",\"sample\":{\"raw\":\"-2.000030517578125, 9.414546966552734, -94.07560729980469\",\"handoffAttribute\":true,\"cache\":\"-0.9377396106719971, 1.3844385147094727, -72.80543518066406\",\"reason\":\"cached-recovery/no-safe-step\",\"publishedBlocked\":false,\"remaining\":0.0066066342405974869,\"requested\":\"-2.000030517578125, 9.415884971618652, -94.06913757324219\",\"publishedPhysical\":false,\"rootDelta\":\"0, 0, 0\",\"cacheBlocked\":true,\"recoveryCacheHits\":0,\"handoffRecovery\":true,\"published\":\"-2.000030517578125, 9.414546966552734, -94.07560729980469\",\"recoverySweeps\":2,\"phase\":\"render\",\"cachePhysical\":false,\"rawBlocked\":false,\"recoverySearchReason\":\"no-readable-clear-route\",\"at\":7428.246485199998,\"rawPhysical\":false,\"recoverySearches\":21,\"activeFollow\":false,\"teleportRebaseCount\":0,\"geometryRecovery\":true,\"origin\":\"-0.9377396106719971, 1.3844385147094727, -72.80543518066406\",\"recoveryCandidates\":48},\"available\":true}",
+        "cameraRecoveryFirst": "{\"record\":\"first\",\"sample\":{\"raw\":\"-2.000030517578125, 9.413649559020996, -50.12116622924805\",\"handoffAttribute\":false,\"cache\":\"-3.1153066158294678, 8.92624568939209, -50.20812225341797\",\"reason\":\"cached-recovery/no-safe-step\",\"publishedBlocked\":true,\"remaining\":3.7485713958740236,\"requested\":\"-2.000030517578125, 13.011589050292969, -51.173126220703125\",\"publishedPhysical\":false,\"rootDelta\":\"0, 0.0021409988403320312, -0.058685302734375\",\"cacheBlocked\":true,\"recoveryCacheHits\":0,\"handoffRecovery\":false,\"published\":\"-2.000030517578125, 9.413649559020996, -50.12116622924805\",\"recoverySweeps\":1,\"phase\":\"render\",\"cachePhysical\":false,\"rawBlocked\":true,\"recoverySearchReason\":\"invalidated\",\"at\":7420.476805799997,\"rawPhysical\":false,\"recoverySearches\":1,\"activeFollow\":true,\"teleportRebaseCount\":0,\"geometryRecovery\":true,\"origin\":\"-3.1153066158294678, 8.928386688232422, -50.266807556152344\",\"recoveryCandidates\":4},\"available\":true}",
+        "cameraFailureConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_DEVICE_DIAGNOSTIC] {\"maxGuardEscapeTravelPerCycle\":9.239213168621064,\"geometryClamped\":true,\"clearRatio\":0.9338842975206612,\"metricsValid\":false,\"maxInheritedRootStep\":11.771703720092774,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":8,\"inside\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":true,\"settleTimedOut\":true,\"zoomDelta\":0.006603240966796875,\"cameraDeviceContractValid\":false,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":3,\"lastGuardPhase\":\"render\",\"overlapEscapes\":3,\"sampleMaxStep\":18.424219131469728,\"maxGuardPublishedTravelPerCycle\":15.556658744812012,\"selectedDistance\":23.26280403137207,\"maxGuardPublishedWritesPerCycle\":3,\"viewportWidth\":844,\"settledSamples\":0,\"followActiveObserved\":false,\"settledReadableRatio\":0,\"visualFailureReasons\":\"settled_clear_visibility,settled_readable_visibility\",\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxStep\":2.400000810623169,\"handoffActive\":true,\"type\":\"Custom\",\"initialOrbitSettled\":true,\"unresolvedSafetyFrames\":0,\"teleportRebaseCount\":0,\"sampledFrames\":121,\"resultType\":\"table\",\"lead\":17.383947372436525,\"viewportHeight\":369,\"settledClearRatio\":0,\"maxEscapeStep\":1.2000000476837159,\"lastGuardAge\":0.06469940000533825,\"maxCorrectionStep\":2.147550582885742,\"userOrbitDistance\":23.26280403137207,\"finishDistance\":23.256200790405275,\"visibleRatio\":1}"
+      }
+    }
+  ]
+}

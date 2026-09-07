@@ -1,0 +1,348 @@
+{
+  "ok": true,
+  "kind": "ByteIdenticalReleasePackageV1",
+  "releaseVersion": "1.0.6",
+  "startedAtUtc": "2026-09-06T15:04:22.7225842Z",
+  "inheritedBuildCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+  "packaging": {
+    "version": "1.0.6",
+    "checkoutCommit": "aebbb2b409ca77be2367881f1b55e7936fd6a9b1",
+    "checkoutCommitMeaning": "Git HEAD at packaging invocation; the resulting packaging commit is recorded by Git, not self-embedded.",
+    "branch": "codex/release/smash-v1.0.6",
+    "worktree": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906",
+    "sourceRoot": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src",
+    "studioUsed": false,
+    "cloudPublished": false
+  },
+  "canonicalBefore": {
+    "path": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+    "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+    "bytes": 6492145,
+    "manifestPath": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\outputs\\PunchWallRPGPlayable_v1_final.build.json",
+    "manifestSha256": "F06521B6D714479C271C2C6C194B3E422A3E944EE9FB61A937F9E553A09EA5F2"
+  },
+  "previousProduction": {
+    "sha256": "605A4F70169FD0C7C86635B20171576DC4A81C46B10A4E28C8744F4F29A40208",
+    "manifestSha256": "DE020F9CCBDB02FBEE59C770C44D7E97A956F93A6AD6CFF8BEA16ED75FB61AEF"
+  },
+  "sourceVerification": {
+    "ok": true,
+    "sourceMapVersion": 1,
+    "repositoryRoot": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906",
+    "place": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\outputs\\PunchWallRPGPlayable_v1_final.rbxlx",
+    "fileName": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "rbxlxSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+    "moduleCount": 9,
+    "codeAllowlistVersion": 1,
+    "codeObjectCount": 9,
+    "rejectedCodeObjectCount": 0,
+    "cdataPreserved": true,
+    "modules": {
+      "GameConfig": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+        "service": "ReplicatedStorage",
+        "parent": "ReplicatedStorage",
+        "parentClass": "ReplicatedStorage",
+        "characters": 38942,
+        "normalizedSha256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+        "sourceFileSha256": "083D3B49645A906CB5A45A80462311DD826521B2EF3EAC7B4CC2AF850EC3597E",
+        "cdata": true
+      },
+      "PolishConfig": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\shared\\PolishConfig.lua",
+        "service": "ReplicatedStorage",
+        "parent": "ReplicatedStorage",
+        "parentClass": "ReplicatedStorage",
+        "characters": 12834,
+        "normalizedSha256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+        "sourceFileSha256": "1E584CA6843AC23EA23EF728C5AE33A24F3FE1ADCD2AC2F8D86CDE661D472941",
+        "cdata": true
+      },
+      "ForestVisualBuilder": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\shared\\ForestVisualBuilder.lua",
+        "service": "ReplicatedStorage",
+        "parent": "ReplicatedStorage",
+        "parentClass": "ReplicatedStorage",
+        "characters": 34025,
+        "normalizedSha256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+        "sourceFileSha256": "7C48F59B9F5CAB5F53320284B033177AB9ACC1BF085572A340E36499EAF37E85",
+        "cdata": true
+      },
+      "FistVisualBuilder": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\shared\\FistVisualBuilder.lua",
+        "service": "ReplicatedStorage",
+        "parent": "ReplicatedStorage",
+        "parentClass": "ReplicatedStorage",
+        "characters": 24885,
+        "normalizedSha256": "634170D5FD2A0827C4C2144D9FEAAC3AC916783FC83CE7DC658D5734A56D81BE",
+        "sourceFileSha256": "FEA0148600C491F822C5605292925BCC9AAD261FBA6D240377FE215392FC6BB0",
+        "cdata": true
+      },
+      "InventoryViewModel": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\shared\\InventoryViewModel.lua",
+        "service": "ReplicatedStorage",
+        "parent": "ReplicatedStorage",
+        "parentClass": "ReplicatedStorage",
+        "characters": 29640,
+        "normalizedSha256": "A696C37178F9A582276A5953DF798757862912B36B0FF0E5BEEBE028235F2D1C",
+        "sourceFileSha256": "24632B481BCA35A752A8E9239A6323D200856E19DFE3DDB35E655E57D104DE51",
+        "cdata": true
+      },
+      "ProfilePersistence": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\server\\ProfilePersistence.lua",
+        "service": "ServerScriptService",
+        "parent": "ServerScriptService",
+        "parentClass": "ServerScriptService",
+        "characters": 72504,
+        "normalizedSha256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+        "sourceFileSha256": "B4A674304346253D2B1A570A0E01AD842995D1423F52AE78BB1C7839BD25DDD5",
+        "cdata": true
+      },
+      "PunchWallBootstrap": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+        "service": "ServerScriptService",
+        "parent": "ServerScriptService",
+        "parentClass": "ServerScriptService",
+        "characters": 434272,
+        "normalizedSha256": "D426339D4265A8CC34E4D75217D6CE39C203A50E1B2C334EF8574234D819AD85",
+        "sourceFileSha256": "D1C390936DE058E2A098C657211C3CB9FD20C838D40BF0EFC60A5D067DF87D20",
+        "cdata": true
+      },
+      "InventoryUI": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\client\\InventoryUI.lua",
+        "service": "StarterPlayer",
+        "parent": "StarterPlayerScripts",
+        "parentClass": "StarterPlayerScripts",
+        "characters": 167896,
+        "normalizedSha256": "98A754415B272ACD135587D854B3CA9C5ED14D7261D0420F7E6D2FC0913B3EDB",
+        "sourceFileSha256": "4DBE5C2280276CF1818E4F74530B069DA5B3E3DBB92EEB78BDE69871B7FAFE50",
+        "cdata": true
+      },
+      "PunchWallClient": {
+        "source": "F:\\Roblox\\PuchWall-release-v1.0.6-20260906\\work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+        "service": "StarterPlayer",
+        "parent": "StarterPlayerScripts",
+        "parentClass": "StarterPlayerScripts",
+        "characters": 666269,
+        "normalizedSha256": "28C74805A4CB778EDF8C527D208C2D9CA86EC326480A23E12EE1464999B1431B",
+        "sourceFileSha256": "0EF2251928515BDB8B5E64E3E3D71A70B56656DD17013F1045B68010CEFD0D2E",
+        "cdata": true
+      }
+    }
+  },
+  "sourceRawComparison": {
+    "ok": true,
+    "normalizedMatches": 9,
+    "rawMatches": 7,
+    "rawDifferences": [
+      "FistVisualBuilder",
+      "InventoryViewModel"
+    ],
+    "rawDifferenceDisposition": "Git core.autocrlf checkout normalization only; original authored raw hashes retained separately.",
+    "unchangedSourceGitBlobs": 9,
+    "codeObjectCount": 9,
+    "cdataPreserved": true
+  },
+  "sourceGitBlobs": [
+    {
+      "name": "GameConfig",
+      "path": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "buildBlob": "4ddcc96d1bdbfdb3425c1c4fb96f753235ade961",
+      "packagingBlob": "4ddcc96d1bdbfdb3425c1c4fb96f753235ade961",
+      "unchanged": true
+    },
+    {
+      "name": "PolishConfig",
+      "path": "work/punch-wall-rpg/src/shared/PolishConfig.lua",
+      "buildBlob": "14d296af0a667a6e32442b230d516c87eda35fe3",
+      "packagingBlob": "14d296af0a667a6e32442b230d516c87eda35fe3",
+      "unchanged": true
+    },
+    {
+      "name": "ForestVisualBuilder",
+      "path": "work/punch-wall-rpg/src/shared/ForestVisualBuilder.lua",
+      "buildBlob": "f35e717b98172309f9742cb384ee7d4c5c5d2dcf",
+      "packagingBlob": "f35e717b98172309f9742cb384ee7d4c5c5d2dcf",
+      "unchanged": true
+    },
+    {
+      "name": "FistVisualBuilder",
+      "path": "work/punch-wall-rpg/src/shared/FistVisualBuilder.lua",
+      "buildBlob": "3f1c77aad5945d432d09c96fb8d0eeec288fe9cd",
+      "packagingBlob": "3f1c77aad5945d432d09c96fb8d0eeec288fe9cd",
+      "unchanged": true
+    },
+    {
+      "name": "InventoryViewModel",
+      "path": "work/punch-wall-rpg/src/shared/InventoryViewModel.lua",
+      "buildBlob": "5c7f4dd197bebc0f51d78fdeed3c83f6d69cac9d",
+      "packagingBlob": "5c7f4dd197bebc0f51d78fdeed3c83f6d69cac9d",
+      "unchanged": true
+    },
+    {
+      "name": "ProfilePersistence",
+      "path": "work/punch-wall-rpg/src/server/ProfilePersistence.lua",
+      "buildBlob": "edb4bb8b79ee237aa4458b95ba7442db9ea4b8b8",
+      "packagingBlob": "edb4bb8b79ee237aa4458b95ba7442db9ea4b8b8",
+      "unchanged": true
+    },
+    {
+      "name": "PunchWallBootstrap",
+      "path": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "buildBlob": "855aa8e798fd503bd14969f1c211b60f2586d8d5",
+      "packagingBlob": "855aa8e798fd503bd14969f1c211b60f2586d8d5",
+      "unchanged": true
+    },
+    {
+      "name": "InventoryUI",
+      "path": "work/punch-wall-rpg/src/client/InventoryUI.lua",
+      "buildBlob": "01bf8f9624476beef9608fdc1b6235aa5b02e3db",
+      "packagingBlob": "01bf8f9624476beef9608fdc1b6235aa5b02e3db",
+      "unchanged": true
+    },
+    {
+      "name": "PunchWallClient",
+      "path": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "buildBlob": "ea3af0bed3e587df24df41fc7664fac5bec3888c",
+      "packagingBlob": "ea3af0bed3e587df24df41fc7664fac5bec3888c",
+      "unchanged": true
+    }
+  ],
+  "publication": {
+    "performed": false,
+    "status": "NOT_PUBLISHED",
+    "scope": "Local package only; no Studio, cloud, API key or publish action."
+  },
+  "inheritedValidation": {
+    "rerunForPackaging": false,
+    "binding": "Inherited tests apply to the exact identical artifact SHA256; packaging did not start Studio or claim a new native test.",
+    "fullRegression": {
+      "evidence": {
+        "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/manifest.json",
+        "sha256": "143CBC63F308C3B14123B7C7FFE382765BEB3461665F3B04FB8A189176917DC5"
+      },
+      "sourceCommit": "de8ffeb6a8a4c7084fa6596a139f64ceb09a1072",
+      "passed": 131,
+      "failed": 0,
+      "excluded": 0,
+      "minutes": 57.69143009,
+      "frozenFiles": 258,
+      "frozenFilesVerifiedAfter": true,
+      "liveSourceBefore": 9,
+      "liveSourceAfter": 9
+    },
+    "nativeArtifact": {
+      "evidence": {
+        "path": "work/docs/evidence/smash-artifact-runtime-20260906.json",
+        "sha256": "D46C7F44DD417EB36D1DB9C3E48D324A18C7666047FD88943C2D1B920D89F5BF"
+      },
+      "checks": 11,
+      "sourceObjects": 9,
+      "artifactSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "studio": {
+        "id": "656ac8ed-1afe-488d-a5f9-adc196517b71",
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx"
+      },
+      "place": {
+        "name": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      }
+    },
+    "nativeOpen": {
+      "path": "work/docs/evidence/smash-artifact-native-open-20260906.json",
+      "sha256": "3F86718B63F02BB566B18E512210823557F2414A05CF8437F5735B52EA9E69E7"
+    },
+    "static": {
+      "path": "work/docs/evidence/smash-world-emote-combined-static-20260906.json",
+      "sha256": "24C53729444920A2BB3035A04BDF7E551A5A0EAC33D066D39F6E4A9D881CA89D"
+    },
+    "visuals": {
+      "count": 14,
+      "standard": {
+        "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/manifest.json",
+        "sha256": "ACED1E80F90422AA0CB626814F1B98D87F89BD96C72D4637EEDCF510D14074CB"
+      },
+      "narrow": {
+        "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/manifest.json",
+        "sha256": "A302FF13CEF8C3E52E39265F6E21C637EB2BBDEBCE79CFEE22ECD79CAC70115E"
+      },
+      "peer": {
+        "path": "work/docs/evidence/smash-final-artifact-peer-reviews-20260906.json",
+        "sha256": "748D70EDEBCC063B3EA8AA85FAB4C3B2B153D08F6424B11A1FDF5A9F9FD51521"
+      }
+    },
+    "desktopPerformancePeer": {
+      "path": "work/docs/evidence/smash-final-performance-peer-review-20260906.json",
+      "sha256": "0DFDC1F315940B36FAA88CE545170112C95DDA869984FF7B5E55BB0126EA732A"
+    }
+  },
+  "commands": [
+    {
+      "command": "verify-exact-rbxlx-sources.ps1 -PlacePath outputs/PunchWallRPGPlayable_v1_final.rbxlx",
+      "ok": true,
+      "meaning": "Read-only current normalized nine-source/global allowlist/CDATAs comparison before copy"
+    },
+    {
+      "command": "Copy-Item canonical to outputs/SmashWall_Production.rbxlx",
+      "ok": true,
+      "meaning": "Byte-identical copy only"
+    },
+    {
+      "command": "package-versioned-release.ps1 -Version 1.0.6",
+      "ok": true,
+      "script": {
+        "path": "work/automation/package-versioned-release.ps1",
+        "sha256": "DFC60A4AFDB050AE8839C7DD178CA793EF313F64D03CB6DE6E9FE2466C114704"
+      },
+      "verifier": {
+        "path": "work/automation/verify-exact-rbxlx-sources.ps1",
+        "sha256": "FB7D598CE0C24243995574128D1C5AF68CE3FAD047144DFA26FE8EB1FE705EBC"
+      },
+      "meaning": "Existing packager verifies production and both temporary version copies with exact9/CDATAs, verifies hashes, then renames them"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "outputs/SmashWall_Production.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "byteIdenticalToCanonical": true
+    },
+    {
+      "path": "outputs/releases/v1.0.6/SmashWall_v1.0.6.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "byteIdenticalToCanonical": true
+    },
+    {
+      "path": "outputs/releases/v1.0.6/SmashWall_v1.0.6_validation.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+      "byteIdenticalToCanonical": true
+    }
+  ],
+  "productionAttestation": {
+    "path": "outputs/SmashWall_Production.build.json",
+    "sha256": "BA775A4B7ACAB2AB79158F62599D2DC1765F005A31BA0930B8E4CDEABBF2D036"
+  },
+  "releaseManifest": {
+    "path": "outputs/releases/v1.0.6/SmashWall_v1.0.6.manifest.json",
+    "sha256": "161A6F4EE16CA24CFA7B7904F35FBDEE1582323D9C455C2426C468DFBFBC3D54"
+  },
+  "canonicalAfter": {
+    "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+    "bytes": 6492145,
+    "manifestSha256": "F06521B6D714479C271C2C6C194B3E422A3E944EE9FB61A937F9E553A09EA5F2",
+    "validationSha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+  },
+  "canonicalUnchanged": true,
+  "limitations": [
+    "This is a local byte-identical package of the accepted canonical build, not a fresh build, reembedding, or serialization.",
+    "Original authored source raw hashes are inherited. This Windows checkout matches7/9 raw hashes and9/9 normalized source contents/Git blobs; the two newline-only differences are not relabelled as raw matches.",
+    "Native11/full131/14-image evidence is inherited by identical artifact hash. No Studio or new gameplay regression ran during packaging.",
+    "Desktop performance acceptance remains scoped to recorded workloads, with disclosed stress hitches and unknown initial focus; not physical-phone, real-two-player, production persistence or paid-checkout acceptance.",
+    "No cloud upload or Roblox publication was performed. Publication access and final Git integration are owned by the Coordinator."
+  ],
+  "completedAtUtc": "2026-09-06T15:06:19.5854063Z"
+}

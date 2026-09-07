@@ -1,0 +1,350 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_desktop_1366_honor_products",
+      "name": "PunchWallHonorProductsDesktop1366",
+      "width": 1366,
+      "height": 768,
+      "form": "Desktop",
+      "diagnostics": {
+        "ok": true,
+        "subtitle": {
+          "fits": true,
+          "text": "HONOR 0  •  CURRENCY ONLY  •  RELIC GATES STILL APPLY"
+        },
+        "modal": "DesktopSafeMarginV2",
+        "viewport": {
+          "y": 767,
+          "x": 1366
+        },
+        "rows": [
+          {
+            "rarity": "+25 HONOR  •  STARTER",
+            "id": "HonorPouch25",
+            "text": "UNAVAILABLE",
+            "exact": true,
+            "name": "HONOR POUCH",
+            "pips": 1,
+            "button": {
+              "y": 68.72527313232422,
+              "x": 111.76620483398438
+            },
+            "wrapped": false,
+            "card": {
+              "y": 214.76649475097656,
+              "x": 485.94000244140625
+            }
+          },
+          {
+            "rarity": "+90 HONOR  •  POPULAR",
+            "id": "HonorCache90",
+            "text": "UNAVAILABLE",
+            "exact": true,
+            "name": "HONOR CACHE",
+            "pips": 2,
+            "button": {
+              "y": 68.72527313232422,
+              "x": 111.76620483398438
+            },
+            "wrapped": false,
+            "card": {
+              "y": 214.76649475097656,
+              "x": 485.94000244140625
+            }
+          },
+          {
+            "rarity": "+300 HONOR  •  GREAT VALUE",
+            "id": "HonorVault300",
+            "text": "UNAVAILABLE",
+            "exact": true,
+            "name": "HONOR VAULT",
+            "pips": 3,
+            "button": {
+              "y": 68.72527313232422,
+              "x": 111.76620483398438
+            },
+            "wrapped": false,
+            "card": {
+              "y": 214.76649475097656,
+              "x": 485.94000244140625
+            }
+          },
+          {
+            "rarity": "+850 HONOR  •  BEST VALUE",
+            "id": "HonorTreasury850",
+            "text": "UNAVAILABLE",
+            "exact": true,
+            "name": "HONOR TREASURY",
+            "pips": 4,
+            "button": {
+              "y": 68.72527313232422,
+              "x": 111.76620483398438
+            },
+            "wrapped": false,
+            "card": {
+              "y": 214.76649475097656,
+              "x": 485.94000244140625
+            }
+          }
+        ],
+        "fixedOverlap": false
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-products-20260819\\01_desktop_1366_honor_products.jpg",
+      "sha256": "8ad4918445ce9ff4af76aba01332535e22566347f24a541413684a0d0cb5cfc3"
+    },
+    {
+      "id": "02_phone_844_honor_products",
+      "name": "PunchWallHonorProductsPhone844",
+      "width": 844,
+      "height": 390,
+      "form": "Phone",
+      "diagnostics": {
+        "ok": true,
+        "subtitle": {
+          "fits": true,
+          "text": "HONOR 0  •  CURRENCY ONLY  •  GATES APPLY"
+        },
+        "modal": "CompactSafeMarginV2",
+        "viewport": {
+          "y": 369,
+          "x": 844
+        },
+        "rows": [
+          {
+            "rarity": "STARTER",
+            "id": "HonorPouch25",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "25 HONOR",
+            "pips": 1,
+            "button": {
+              "y": 44,
+              "x": 57.03425216674805
+            },
+            "wrapped": false,
+            "card": {
+              "y": 91.42499542236328,
+              "x": 247.97500610351562
+            }
+          },
+          {
+            "rarity": "POPULAR",
+            "id": "HonorCache90",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "90 HONOR",
+            "pips": 2,
+            "button": {
+              "y": 44,
+              "x": 57.03425216674805
+            },
+            "wrapped": false,
+            "card": {
+              "y": 91.42499542236328,
+              "x": 247.97500610351562
+            }
+          },
+          {
+            "rarity": "GREAT VALUE",
+            "id": "HonorVault300",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "300 HONOR",
+            "pips": 3,
+            "button": {
+              "y": 44,
+              "x": 57.03425216674805
+            },
+            "wrapped": false,
+            "card": {
+              "y": 91.42499542236328,
+              "x": 247.97500610351562
+            }
+          },
+          {
+            "rarity": "BEST VALUE",
+            "id": "HonorTreasury850",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "850 HONOR",
+            "pips": 4,
+            "button": {
+              "y": 44,
+              "x": 57.03425216674805
+            },
+            "wrapped": false,
+            "card": {
+              "y": 91.42499542236328,
+              "x": 247.97500610351562
+            }
+          }
+        ],
+        "fixedOverlap": false
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-products-20260819\\02_phone_844_honor_products.jpg",
+      "sha256": "4831d490ad08ea459f6e9c734ea13ee68eff787700108d42944f5ceff23a3423"
+    },
+    {
+      "id": "03_phone_740_honor_products",
+      "name": "PunchWallHonorProductsPhone740",
+      "width": 740,
+      "height": 360,
+      "form": "Phone",
+      "diagnostics": {
+        "ok": true,
+        "subtitle": {
+          "fits": true,
+          "text": "HONOR 0  •  CURRENCY ONLY  •  GATES APPLY"
+        },
+        "modal": "CompactSafeMarginV2",
+        "viewport": {
+          "y": 339,
+          "x": 740
+        },
+        "rows": [
+          {
+            "rarity": "STARTER",
+            "id": "HonorPouch25",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "25 HONOR",
+            "pips": 1,
+            "button": {
+              "y": 44,
+              "x": 52.01105499267578
+            },
+            "wrapped": false,
+            "card": {
+              "y": 83.4749984741211,
+              "x": 226.135009765625
+            }
+          },
+          {
+            "rarity": "POPULAR",
+            "id": "HonorCache90",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "90 HONOR",
+            "pips": 2,
+            "button": {
+              "y": 44,
+              "x": 52.01105499267578
+            },
+            "wrapped": false,
+            "card": {
+              "y": 83.4749984741211,
+              "x": 226.135009765625
+            }
+          },
+          {
+            "rarity": "GREAT VALUE",
+            "id": "HonorVault300",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "300 HONOR",
+            "pips": 3,
+            "button": {
+              "y": 44,
+              "x": 52.01105499267578
+            },
+            "wrapped": false,
+            "card": {
+              "y": 83.4749984741211,
+              "x": 226.135009765625
+            }
+          },
+          {
+            "rarity": "BEST VALUE",
+            "id": "HonorTreasury850",
+            "text": "NOT READY",
+            "exact": true,
+            "name": "850 HONOR",
+            "pips": 4,
+            "button": {
+              "y": 44,
+              "x": 52.01105499267578
+            },
+            "wrapped": false,
+            "card": {
+              "y": 83.4749984741211,
+              "x": 226.135009765625
+            }
+          }
+        ],
+        "fixedOverlap": false
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-products-20260819\\03_phone_740_honor_products.jpg",
+      "sha256": "59bfcebc4effdffba770ac378b86e00798a2a80613b69471ac484333c0e98724"
+    }
+  ],
+  "runs": [
+    {
+      "id": "01_desktop_1366_honor_products",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "02_phone_844_honor_products",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "03_phone_740_honor_products",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "6535351f83a2159ad483604f801101deda3ddd699aecedf175f0612460c74a44",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "daf08cfaf0bb3bfb3a913203896fda4924bb72fe2c28342df8614471ef323aab",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "831e7fa884e9ffecb565f62da6bf2c45f26fa991f1c2d02af2950deda1ac0b39",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "57deb389486f62380880840ebae8592890b66062c9dd73bf3b35ae6560d55554",
+    "work/automation/flows/honor-product-receipts.json": "c40571e273c3a8d5837ef04960f68d9b66d36e710f8d9e0cb8f7d0c602134edc",
+    "work/automation/scripts/honor-product-receipts-contract.mjs": "2d7acb271d7ae2e02da6ab6f615e679ca667fe3ffb4a4a01fe94bfa5f8522d4f",
+    "work/automation/scripts/capture-honor-products.mjs": "5909b4cae20bc2fbdc11910a81674457446fb3e1b991122381cd4ffc71977778"
+  },
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "GameConfig": {
+      "adler32": 1215820764,
+      "length": 37196,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "matchesLocal": true
+    },
+    "PunchWallClient": {
+      "adler32": 673729945,
+      "length": 456344,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "matchesLocal": true
+    },
+    "PunchWallBootstrap": {
+      "adler32": 1379982458,
+      "length": 407212,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "matchesLocal": true
+    },
+    "ProfilePersistence": {
+      "adler32": 2695979586,
+      "length": 69670,
+      "file": "work/punch-wall-rpg/src/server/ProfilePersistence.lua",
+      "matchesLocal": true
+    }
+  },
+  "console": {
+    "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\honor-products-20260819\\console.txt",
+    "clean": true
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 3
+  }
+}

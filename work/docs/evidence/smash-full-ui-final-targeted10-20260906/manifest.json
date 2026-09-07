@@ -1,0 +1,8 @@
+{
+  "errors": [
+    "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"requestAttested\":true,\"screenX\":813.5,\"active\":true,\"selectable\":true,\"requestSequence\":5,\"hittable\":true,\"insetX\":0,\"sound\":true,\"ok\":false,\"inputX\":813.5,\"visible\":true,\"motion\":false,\"min\":44,\"text\":\"OFF\",\"topmost\":true,\"insetY\":58,\"screenY\":298,\"inputY\":240,\"activated\":false,\"visibleArea\":true}"
+  ],
+  "ok": false,
+  "flow": "full-game-real-ui-controls",
+  "flowSHA256": "6B4164D0D3D89AE71E44F8680F0040E708FD46CD7EBAD3BC1019FA2E4AB61CFF"
+}

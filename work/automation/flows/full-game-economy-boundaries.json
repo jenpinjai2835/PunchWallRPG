@@ -1,0 +1,273 @@
+{
+  "name": "full-game-economy-boundaries",
+  "description": "Exercise authoritative negative, exact-cost, repeat, cooldown, claim, and rebirth boundaries used by the complete-game acceptance pass.",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 60000,
+      "label": "start authoritative economy boundary session"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for profile-ready runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage:WaitForChild('PunchWallAutomation',5)\nassert(c,'missing automation')\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=179,Depth=1,OwnedFistsJSON='[\"Starter Glove\"]',EquippedFist='Starter Glove',FistMultiplier=1})\nlocal low=c:Invoke('BuyFist','Boxing Glove')\nassert(low.ok==false and low.reason=='not_enough_coins' and low.Coins==179,'fist cost-1 mutated state')\nc:Invoke('SetStats',{Coins=180})\nlocal exact=c:Invoke('BuyFist','Boxing Glove')\nassert(exact.ok==true and exact.Coins==0 and exact.EquippedFist=='Boxing Glove','exact fist purchase failed')\nlocal repeatBuy=c:Invoke('BuyFist','Boxing Glove')\nassert(repeatBuy.ok==true and repeatBuy.outcome=='equipped' and repeatBuy.Coins==0,'owned fist repeat charged or failed')\nlocal invalidEquip=c:Invoke('EquipFist','Celestial Titan Fist')\nassert(invalidEquip.ok==false and invalidEquip.reason=='not_owned' and invalidEquip.Coins==0,'not-owned fist equip mutated state')\nreturn H:JSONEncode({costMinusOne=low.reason,exactCoins=exact.Coins,repeatOutcome=repeatBuy.outcome,notOwned=invalidEquip.reason,equipped=repeatBuy.EquippedFist})"
+      },
+      "expectRegex": [
+        "\"costMinusOne\"\\s*:\\s*\"not_enough_coins\"",
+        "\"exactCoins\"\\s*:\\s*0",
+        "\"repeatOutcome\"\\s*:\\s*\"equipped\"",
+        "\"notOwned\"\\s*:\\s*\"not_owned\"",
+        "\"equipped\"\\s*:\\s*\"Boxing Glove\""
+      ],
+      "label": "verify fist purchase and equip boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=7999})\nlocal removed=c:Invoke('BuyShopBoost','CoinBoost')\nassert(removed.ok==false and removed.reason=='unknown_boost' and removed.Coins==7999 and tonumber(removed.CoinBoostExpiresAt or 0)<=0,'removed coin purchase route mutated state')\nlocal low=c:Invoke('BuyShopBoost','SpeedBoost')\nassert(low.ok==false and low.reason=='not_enough_coins' and low.Coins==7999,'speed boost cost-1 mutated state')\nc:Invoke('SetStats',{Coins=8000})\nlocal exact=c:Invoke('BuyShopBoost','SpeedBoost')\nassert(exact.ok==true and exact.Coins==0 and tonumber(exact.expiresAt)>workspace:GetServerTimeNow(),'exact speed boost purchase failed')\nlocal invalid=c:Invoke('BuyShopBoost','UnknownBoost')\nassert(invalid.ok==false and invalid.reason=='unknown_boost' and invalid.Coins==0,'unknown boost mutated state')\nreturn H:JSONEncode({removed=removed.reason,low=low.reason,exact=exact.ok,coins=exact.Coins,unknown=invalid.reason,active=tonumber(exact.expiresAt)>workspace:GetServerTimeNow()})"
+      },
+      "expectRegex": [
+        "\"removed\"\\s*:\\s*\"unknown_boost\"",
+        "\"low\"\\s*:\\s*\"not_enough_coins\"",
+        "\"exact\"\\s*:\\s*true",
+        "\"coins\"\\s*:\\s*0",
+        "\"unknown\"\\s*:\\s*\"unknown_boost\"",
+        "\"active\"\\s*:\\s*true"
+      ],
+      "label": "verify Coin x2 coin route removed and remaining boost boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal config=require(game.ReplicatedStorage.GameConfig)\nlocal c=game.ServerStorage.PunchWallAutomation\nlocal first=config.HonorItems[1]\nassert(first and first.id,'missing stable-id Honor catalog')\nc:Invoke('Reset')\nc:Invoke('SetStats',{Depth=first.requiredDepth,Rebirths=first.requiredRebirths,Honor=first.cost-1,OwnedHonorItemsJSON='[]',EquippedHonorItem='None',HonorPowerBonus=0})\nlocal low=c:Invoke('BuyHonorItem',first.id)\nassert(low.ok==false and low.reason=='not_enough_honor' and low.Honor==first.cost-1,'honor cost-1 mutated state')\nc:Invoke('SetStats',{Honor=first.cost})\nlocal exact=c:Invoke('BuyHonorItem',first.id)\nassert(exact.ok==true and exact.Honor==0 and exact.EquippedHonorItem==first.id,'exact stable-id honor purchase failed')\nlocal repeatBuy=c:Invoke('BuyHonorItem',first.id)\nassert(repeatBuy.ok==true and repeatBuy.Honor==0 and repeatBuy.EquippedHonorItem==first.id,'owned honor repeat charged or failed')\nc:Invoke('SetStats',{Honor=100000,Depth=75,Rebirths=25})\nlocal count=1\nfor index=2,#config.HonorItems do local item=config.HonorItems[index] assert(item.id,'missing Honor item id at '..index) local r=c:Invoke('BuyHonorItem',item.id) assert(r.ok==true,'honor catalog purchase failed at '..index) count+=1 end\nlocal final=c:Invoke('Snapshot')\nlocal owned=H:JSONDecode(final.OwnedHonorItemsJSON)\nassert(#owned==#config.HonorItems,'honor ownership catalog incomplete')\nreturn H:JSONEncode({low=low.reason,exact=exact.ok,repeatHonor=repeatBuy.Honor,catalog=count,owned=#owned,equipped=final.EquippedHonorItem})"
+      },
+      "expectRegex": [
+        "\"low\"\\s*:\\s*\"not_enough_honor\"",
+        "\"exact\"\\s*:\\s*true",
+        "\"repeatHonor\"\\s*:\\s*0",
+        "\"catalog\"\\s*:\\s*8",
+        "\"owned\"\\s*:\\s*8",
+        "\"equipped\"\\s*:\\s*\"[^\"]+\""
+      ],
+      "label": "verify honor cost, repeat, and full-catalog boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=0,LastDailyDate=''})\nlocal first=c:Invoke('ClaimDaily')\nlocal afterFirst=first.Coins\nlocal second=c:Invoke('ClaimDaily')\nassert(first.ok==true and tonumber(first.reward)>0 and afterFirst==first.reward,'first daily claim failed')\nassert(second.ok==false and second.reason=='already_claimed' and second.Coins==afterFirst,'repeat daily claim mutated coins')\nreturn H:JSONEncode({first=first.ok,reward=first.reward,repeatReason=second.reason,coins=second.Coins})"
+      },
+      "expectRegex": [
+        "\"first\"\\s*:\\s*true",
+        "\"reward\"\\s*:\\s*[1-9][0-9]*",
+        "\"repeatReason\"\\s*:\\s*\"already_claimed\""
+      ],
+      "label": "verify daily reward first and repeat claims"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=0,DailyBreaks=9,DailyQuestClaimed=0})\nlocal low=c:Invoke('ClaimQuest')\nassert(low.ok==false and low.reason=='not_ready' and low.Coins==0,'quest target-1 mutated state')\nc:Invoke('SetStats',{DailyBreaks=10})\nlocal exact=c:Invoke('ClaimQuest')\nassert(exact.ok==true and tonumber(exact.reward)>0 and exact.Coins==exact.reward,'exact quest claim failed')\nlocal repeatClaim=c:Invoke('ClaimQuest')\nassert(repeatClaim.ok==false and repeatClaim.reason=='already_claimed' and repeatClaim.Coins==exact.Coins,'repeat quest claim mutated coins')\nreturn H:JSONEncode({low=low.reason,exact=exact.ok,reward=exact.reward,repeatReason=repeatClaim.reason,coins=repeatClaim.Coins})"
+      },
+      "expectRegex": [
+        "\"low\"\\s*:\\s*\"not_ready\"",
+        "\"exact\"\\s*:\\s*true",
+        "\"reward\"\\s*:\\s*[1-9][0-9]*",
+        "\"repeatReason\"\\s*:\\s*\"already_claimed\""
+      ],
+      "label": "verify daily quest target and repeat boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{Coins=0,PlaytimeSeconds=299,PlaytimeClaimed=0})\nlocal low=c:Invoke('ClaimPlaytime')\nassert(low.ok==false and low.reason=='not_ready' and low.Coins==0,'playtime target-1 mutated state')\nc:Invoke('SetStats',{PlaytimeSeconds=300})\nlocal exact=c:Invoke('ClaimPlaytime')\nassert(exact.ok==true and tonumber(exact.reward)>0 and exact.Coins==exact.reward,'exact playtime claim failed')\nlocal repeatClaim=c:Invoke('ClaimPlaytime')\nassert(repeatClaim.ok==false and repeatClaim.reason=='already_claimed' and repeatClaim.Coins==exact.Coins,'repeat playtime claim mutated coins')\nreturn H:JSONEncode({low=low.reason,exact=exact.ok,reward=exact.reward,repeatReason=repeatClaim.reason,coins=repeatClaim.Coins})"
+      },
+      "expectRegex": [
+        "\"low\"\\s*:\\s*\"not_ready\"",
+        "\"exact\"\\s*:\\s*true",
+        "\"reward\"\\s*:\\s*[1-9][0-9]*",
+        "\"repeatReason\"\\s*:\\s*\"already_claimed\""
+      ],
+      "label": "verify playtime target and repeat boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal config=require(game.ReplicatedStorage.GameConfig)\nlocal c=game.ServerStorage.PunchWallAutomation\nlocal p=game.Players:GetPlayers()[1]\nc:Invoke('Reset')\nlocal baseline=os.time()-config.Spin.CooldownSeconds+30\nc:Invoke('SetStats',{LastSpinAt=baseline,SpinCredits=0,Coins=37,Power=43,Honor=11,PetInventoryJSON='[]'})\np:SetAttribute('EconomyCooldownBaselineLastSpinAt',baseline)\np:SetAttribute('LastMobileAction',0)\nlocal result={seeded=p.RPGStats.LastSpinAt.Value==baseline and p.RPGStats.SpinCredits.Value==0 and p.leaderstats.Coins.Value==37 and p.leaderstats.Power.Value==43 and p.leaderstats.Honor.Value==11 and p.RPGStats.PetInventoryJSON.Value=='[]',lastSpinAt=p.RPGStats.LastSpinAt.Value,credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nassert(result.seeded,'cooldown Spin seed mismatch: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"seeded\"\\s*:\\s*true",
+        "\"credits\"\\s*:\\s*0",
+        "\"coins\"\\s*:\\s*37",
+        "\"power\"\\s*:\\s*43",
+        "\"honor\"\\s*:\\s*11"
+      ],
+      "label": "seed authoritative spin cooldown boundary without invoking automation Spin"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal RS=game:GetService('ReplicatedStorage')\nlocal p=game.Players.LocalPlayer\nlocal gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal actionRemote=RS.PunchWallEvents.ActionRequest\nlocal feedbackRemote=RS.PunchWallEvents.Feedback\nlocal function snapshot()\n return {lastSpinAt=p.RPGStats.LastSpinAt.Value,credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nend\nlocal replicationDeadline=os.clock()+3\nlocal baseline=snapshot()\nwhile not (baseline.credits==0 and baseline.coins==37 and baseline.power==43 and baseline.honor==11 and baseline.pets=='[]') and os.clock()<replicationDeadline do\n task.wait(.05)\n baseline=snapshot()\nend\nlocal baselineReady=baseline.credits==0 and baseline.coins==37 and baseline.power==43 and baseline.honor==11 and baseline.pets=='[]'\nassert(baselineReady,'cooldown Spin baseline replication failed: '..H:JSONEncode(baseline))\nlocal events={}\nlocal feedbackBefore=gui:GetAttribute('FeedbackCount') or 0\nlocal toastSequenceBefore=gui.Toasts:GetAttribute('PresentationSequence') or 0\nlocal rewardSequenceBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0\nlocal connection\nlocal result\nlocal ok,err=xpcall(function()\n connection=feedbackRemote.OnClientEvent:Connect(function(payload)\n  if typeof(payload)=='table' then\n   table.insert(events,{type=tostring(payload.type or ''),target=tostring(payload.target or ''),message=tostring(payload.message or ''),kind=tostring(payload.kind or ''),amount=tonumber(payload.amount) or 0})\n  end\n end)\n actionRemote:FireServer({action='Spin'})\n local eventDeadline=os.clock()+2\n while #events==0 and os.clock()<eventDeadline do task.wait(.03) end\n local presentationDeadline=os.clock()+.5\n while os.clock()<presentationDeadline and ((gui:GetAttribute('FeedbackCount') or 0)<feedbackBefore+1 or (gui.Toasts:GetAttribute('PresentationSequence') or 0)<toastSequenceBefore+1) do task.wait(.02) end\n local duplicateWindowDeadline=os.clock()+.15\n while os.clock()<duplicateWindowDeadline do task.wait(.02) end\n local after=snapshot()\n local event=events[1]\n local feedbackDelta=(gui:GetAttribute('FeedbackCount') or 0)-feedbackBefore\n local toastSequenceDelta=(gui.Toasts:GetAttribute('PresentationSequence') or 0)-toastSequenceBefore\n local rewardSequenceDelta=(gui.RewardPops:GetAttribute('PresentationSequence') or 0)-rewardSequenceBefore\n local bounded=gui.Toasts:GetAttribute('PresentationMode')=='BoundedVisibleQueueV1' and gui.Toasts:GetAttribute('MaxVisibleItems')==3 and (gui.Toasts:GetAttribute('VisibleItemCount') or 0)<=3\n local unchanged=after.lastSpinAt==baseline.lastSpinAt and after.credits==baseline.credits and after.coins==baseline.coins and after.power==baseline.power and after.honor==baseline.honor and after.pets==baseline.pets\n local failures={}\n local function expect(condition,name) if not condition then table.insert(failures,name) end end\n expect(#events==1,'event_count')\n expect(event and event.type=='Fail','event_type')\n expect(event and event.target=='Spin','event_target')\n expect(unchanged,'authority_mutation')\n expect(gui:GetAttribute('LastFeedbackType')=='Fail','terminal_type')\n expect(gui:GetAttribute('LastFeedbackTarget')=='Spin','terminal_target')\n expect(feedbackDelta==1,'feedback_delta')\n expect(toastSequenceDelta==1,'toast_sequence_delta')\n expect(rewardSequenceDelta==0,'reward_sequence_leak')\n expect(bounded,'toast_not_bounded')\n result={valid=#failures==0,failures=failures,eventCount=#events,type=event and event.type or '',target=event and event.target or '',message=event and event.message or '',unchanged=unchanged,feedbackDelta=feedbackDelta,terminalType=gui:GetAttribute('LastFeedbackType'),terminalTarget=gui:GetAttribute('LastFeedbackTarget'),toastSequenceDelta=toastSequenceDelta,rewardSequenceDelta=rewardSequenceDelta,bounded=bounded,lastSpinAt=after.lastSpinAt,credits=after.credits,coins=after.coins,power=after.power,honor=after.honor,pets=after.pets}\nend,debug.traceback)\nif connection then connection:Disconnect() end\nassert(ok,'cooldown Spin probe crashed: '..tostring(err))\nassert(result.valid,'cooldown Spin client contract failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"type\"\\s*:\\s*\"Fail\"",
+        "\"target\"\\s*:\\s*\"Spin\"",
+        "\"unchanged\"\\s*:\\s*true",
+        "\"feedbackDelta\"\\s*:\\s*1",
+        "\"terminalType\"\\s*:\\s*\"Fail\"",
+        "\"terminalTarget\"\\s*:\\s*\"Spin\"",
+        "\"toastSequenceDelta\"\\s*:\\s*1",
+        "\"rewardSequenceDelta\"\\s*:\\s*0",
+        "\"bounded\"\\s*:\\s*true"
+      ],
+      "label": "real cooldown Spin emits one bounded Fail and no reward mutation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal result={lastSpinAt=p.RPGStats.LastSpinAt.Value,baselineLastSpinAt=p:GetAttribute('EconomyCooldownBaselineLastSpinAt'),credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nresult.unchanged=result.lastSpinAt==result.baselineLastSpinAt and result.credits==0 and result.coins==37 and result.power==43 and result.honor==11 and result.pets=='[]'\nassert(result.unchanged,'real cooldown Spin mutated authoritative state: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"unchanged\"\\s*:\\s*true",
+        "\"credits\"\\s*:\\s*0",
+        "\"coins\"\\s*:\\s*37",
+        "\"power\"\\s*:\\s*43",
+        "\"honor\"\\s*:\\s*11"
+      ],
+      "label": "real cooldown Spin leaves every authoritative reward field unchanged"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nlocal p=game.Players:GetPlayers()[1]\nlocal baseline=os.time()\nc:Invoke('SetStats',{LastSpinAt=baseline,SpinCredits=1,Coins=0,Power=15,Honor=0,PetInventoryJSON='[]'})\np:SetAttribute('EconomyCreditBaselineLastSpinAt',baseline)\np:SetAttribute('LastMobileAction',0)\nlocal result={seeded=p.RPGStats.LastSpinAt.Value==baseline and p.RPGStats.SpinCredits.Value==1 and p.leaderstats.Coins.Value==0 and p.leaderstats.Power.Value==15 and p.leaderstats.Honor.Value==0 and p.RPGStats.PetInventoryJSON.Value=='[]',lastSpinAt=p.RPGStats.LastSpinAt.Value,credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nassert(result.seeded,'credit Spin seed mismatch: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"seeded\"\\s*:\\s*true",
+        "\"credits\"\\s*:\\s*1",
+        "\"coins\"\\s*:\\s*0",
+        "\"power\"\\s*:\\s*15",
+        "\"honor\"\\s*:\\s*0"
+      ],
+      "label": "seed one authoritative bonus spin credit"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal RS=game:GetService('ReplicatedStorage')\nlocal p=game.Players.LocalPlayer\nlocal gui=p.PlayerGui:WaitForChild('PunchWallHUD')\nlocal actionRemote=RS.PunchWallEvents.ActionRequest\nlocal feedbackRemote=RS.PunchWallEvents.Feedback\nlocal function snapshot()\n return {lastSpinAt=p.RPGStats.LastSpinAt.Value,credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nend\nlocal replicationDeadline=os.clock()+3\nlocal baseline=snapshot()\nwhile not (baseline.credits==1 and baseline.coins==0 and baseline.power==15 and baseline.honor==0 and baseline.pets=='[]') and os.clock()<replicationDeadline do\n task.wait(.05)\n baseline=snapshot()\nend\nlocal baselineReady=baseline.credits==1 and baseline.coins==0 and baseline.power==15 and baseline.honor==0 and baseline.pets=='[]'\nassert(baselineReady,'credit Spin baseline replication failed: '..H:JSONEncode(baseline))\nlocal events={}\nlocal feedbackBefore=gui:GetAttribute('FeedbackCount') or 0\nlocal toastSequenceBefore=gui.Toasts:GetAttribute('PresentationSequence') or 0\nlocal rewardSequenceBefore=gui.RewardPops:GetAttribute('PresentationSequence') or 0\nlocal connection\nlocal result\nlocal ok,err=xpcall(function()\n connection=feedbackRemote.OnClientEvent:Connect(function(payload)\n  if typeof(payload)=='table' then\n   table.insert(events,{type=tostring(payload.type or ''),target=tostring(payload.target or ''),kind=tostring(payload.kind or ''),amount=tonumber(payload.amount) or 0,reward=tostring(payload.reward or '')})\n  end\n end)\n actionRemote:FireServer({action='Spin'})\n local eventDeadline=os.clock()+2\n while #events==0 and os.clock()<eventDeadline do task.wait(.03) end\n local function exactApplied(event,after)\n  if not event or event.amount<=0 then return false,'' end\n  if event.kind=='Coins' then return after.credits==0 and after.coins==baseline.coins+event.amount and after.power==baseline.power and after.honor==baseline.honor and after.pets==baseline.pets,'Coins' end\n  if event.kind=='Power' then return after.credits==0 and after.power==baseline.power+event.amount and after.coins==baseline.coins and after.honor==baseline.honor and after.pets==baseline.pets,'Power' end\n  if event.kind=='Honor' then return after.credits==0 and after.honor==baseline.honor+event.amount and after.coins==baseline.coins and after.power==baseline.power and after.pets==baseline.pets,'Honor' end\n  if event.kind=='BonusSpin' then return after.credits==1 and after.coins==baseline.coins and after.power==baseline.power and after.honor==baseline.honor and after.pets==baseline.pets,'BonusSpin' end\n  return false,''\n end\n local after=snapshot()\n local event=events[1]\n local applied,authorityPath=exactApplied(event,after)\n local mutationDeadline=os.clock()+1\n while event and not applied and os.clock()<mutationDeadline do task.wait(.03) after=snapshot() applied,authorityPath=exactApplied(event,after) end\n local presentationDeadline=os.clock()+.5\n while os.clock()<presentationDeadline and ((gui:GetAttribute('FeedbackCount') or 0)<feedbackBefore+1 or (gui.Toasts:GetAttribute('PresentationSequence') or 0)<toastSequenceBefore+1) do task.wait(.02) end\n local duplicateWindowDeadline=os.clock()+.15\n while os.clock()<duplicateWindowDeadline do task.wait(.02) end\n local feedbackDelta=(gui:GetAttribute('FeedbackCount') or 0)-feedbackBefore\n local toastSequenceDelta=(gui.Toasts:GetAttribute('PresentationSequence') or 0)-toastSequenceBefore\n local rewardSequenceDelta=(gui.RewardPops:GetAttribute('PresentationSequence') or 0)-rewardSequenceBefore\n local bounded=gui.Toasts:GetAttribute('PresentationMode')=='BoundedVisibleQueueV1' and gui.Toasts:GetAttribute('MaxVisibleItems')==3 and (gui.Toasts:GetAttribute('VisibleItemCount') or 0)<=3\n local failures={}\n local function expect(condition,name) if not condition then table.insert(failures,name) end end\n expect(#events==1,'event_count')\n expect(event and event.type=='SpinResult','event_type')\n expect(event and event.target~='','event_target')\n expect(event and event.reward~='','event_reward')\n expect(event and event.amount>0,'event_amount')\n expect(applied,'authority_mutation')\n expect(after.lastSpinAt==baseline.lastSpinAt,'cooldown_timestamp_changed')\n expect(gui:GetAttribute('LastFeedbackType')=='SpinResult','terminal_type')\n expect(event and gui:GetAttribute('LastFeedbackTarget')==event.target,'terminal_target')\n expect(feedbackDelta==1,'feedback_delta')\n expect(toastSequenceDelta==1,'toast_sequence_delta')\n expect(rewardSequenceDelta==0,'reward_sequence_leak')\n expect(bounded,'toast_not_bounded')\n result={valid=#failures==0,failures=failures,eventCount=#events,type=event and event.type or '',target=event and event.target or '',reward=event and event.reward or '',kind=event and event.kind or '',amount=event and event.amount or 0,applied=applied,authorityPath=authorityPath,lastSpinUnchanged=after.lastSpinAt==baseline.lastSpinAt,feedbackDelta=feedbackDelta,terminalType=gui:GetAttribute('LastFeedbackType'),terminalTarget=gui:GetAttribute('LastFeedbackTarget'),toastSequenceDelta=toastSequenceDelta,rewardSequenceDelta=rewardSequenceDelta,bounded=bounded,credits=after.credits,coins=after.coins,power=after.power,honor=after.honor,pets=after.pets}\nend,debug.traceback)\nif connection then connection:Disconnect() end\nassert(ok,'credit Spin probe crashed: '..tostring(err))\nassert(result.valid,'credit Spin client contract failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"type\"\\s*:\\s*\"SpinResult\"",
+        "\"target\"\\s*:\\s*\"[^\"]+\"",
+        "\"reward\"\\s*:\\s*\"[^\"]+\"",
+        "\"kind\"\\s*:\\s*\"(?:Coins|Power|Honor|BonusSpin)\"",
+        "\"amount\"\\s*:\\s*[1-9][0-9]*",
+        "\"applied\"\\s*:\\s*true",
+        "\"authorityPath\"\\s*:\\s*\"(?:Coins|Power|Honor|BonusSpin)\"",
+        "\"lastSpinUnchanged\"\\s*:\\s*true",
+        "\"feedbackDelta\"\\s*:\\s*1",
+        "\"terminalType\"\\s*:\\s*\"SpinResult\"",
+        "\"toastSequenceDelta\"\\s*:\\s*1",
+        "\"rewardSequenceDelta\"\\s*:\\s*0",
+        "\"bounded\"\\s*:\\s*true"
+      ],
+      "label": "real credit Spin emits one bounded result and applies exactly one reward path"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal result={lastSpinAt=p.RPGStats.LastSpinAt.Value,baselineLastSpinAt=p:GetAttribute('EconomyCreditBaselineLastSpinAt'),credits=p.RPGStats.SpinCredits.Value,coins=p.leaderstats.Coins.Value,power=p.leaderstats.Power.Value,honor=p.leaderstats.Honor.Value,pets=p.RPGStats.PetInventoryJSON.Value}\nlocal bonus=result.credits==1 and result.coins==0 and result.power==15 and result.honor==0 and result.pets=='[]'\nlocal coins=result.credits==0 and result.coins>0 and result.power==15 and result.honor==0 and result.pets=='[]'\nlocal power=result.credits==0 and result.coins==0 and result.power>15 and result.honor==0 and result.pets=='[]'\nlocal honor=result.credits==0 and result.coins==0 and result.power==15 and result.honor>0 and result.pets=='[]'\nlocal pathCount=(bonus and 1 or 0)+(coins and 1 or 0)+(power and 1 or 0)+(honor and 1 or 0)\nresult.authorityPath=bonus and 'BonusSpin' or coins and 'Coins' or power and 'Power' or honor and 'Honor' or ''\nresult.lastSpinUnchanged=result.lastSpinAt==result.baselineLastSpinAt\nresult.creditBounded=result.credits>=0 and result.credits<=1\nresult.rewardApplied=pathCount==1\nassert(result.lastSpinUnchanged and result.creditBounded and result.rewardApplied,'real credit Spin authority contract failed: '..H:JSONEncode(result))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"lastSpinUnchanged\"\\s*:\\s*true",
+        "\"creditBounded\"\\s*:\\s*true",
+        "\"rewardApplied\"\\s*:\\s*true",
+        "\"authorityPath\"\\s*:\\s*\"(?:Coins|Power|Honor|BonusSpin)\"",
+        "\"pets\"\\s*:\\s*\"\\[\\]\""
+      ],
+      "label": "server confirms credit path preserved cooldown and applied one bounded reward"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{WallLevel=54,Coins=1000000,Rebirths=0,Power=555})\nlocal levelLow=c:Invoke('Rebirth')\nassert(levelLow.ok==false and levelLow.reason=='requirements' and levelLow.Rebirths==0 and levelLow.Power==555,'rebirth level boundary mutated state')\nc:Invoke('SetStats',{WallLevel=55,Coins=999999})\nlocal coinLow=c:Invoke('Rebirth')\nassert(coinLow.ok==false and coinLow.reason=='requirements' and coinLow.Rebirths==0,'rebirth coin boundary mutated state')\nc:Invoke('SetStats',{WallLevel=55,Coins=1000000})\nlocal exact=c:Invoke('Rebirth')\nassert(exact.ok==true and exact.Rebirths==1 and exact.Coins==0 and exact.WallLevel==1 and exact.Power==25,'exact rebirth failed')\nreturn H:JSONEncode({levelLow=levelLow.reason,coinLow=coinLow.reason,exact=exact.ok,rebirths=exact.Rebirths,coins=exact.Coins,wallLevel=exact.WallLevel,power=exact.Power})"
+      },
+      "expectRegex": [
+        "\"levelLow\"\\s*:\\s*\"requirements\"",
+        "\"coinLow\"\\s*:\\s*\"requirements\"",
+        "\"exact\"\\s*:\\s*true",
+        "\"rebirths\"\\s*:\\s*1",
+        "\"coins\"\\s*:\\s*0",
+        "\"wallLevel\"\\s*:\\s*1",
+        "\"power\"\\s*:\\s*25"
+      ],
+      "label": "verify rebirth level, coin, and exact boundaries"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture boundary-suite console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "boundary-suite console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "label": "return boundary session to Edit"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup economy boundary session"
+    }
+  ]
+}

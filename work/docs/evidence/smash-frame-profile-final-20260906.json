@@ -1,0 +1,43 @@
+{
+  "ok": false,
+  "startedAt": "2026-09-06T13:44:38.111Z",
+  "kind": "Studio RenderStepped intervals including MCP/harness work",
+  "limitations": [
+    "Not physical-phone performance or ordinary client-input FPS.",
+    "Separate MCP Begin/Finish include command boundaries and transport scheduling.",
+    "Inventory automation computes diagnostic snapshots in addition to navigation.",
+    "Last target scan values are neither phase totals nor maxima.",
+    "Memory is total client-reported MB at boundaries, not game allocations or leak proof.",
+    "Initial focus remains unknown until an observed window event; native foreground identity/activation is separate execution evidence.",
+    "Viewport/camera or focus transitions invalidate phase context even when restored; raw interval metrics are retained."
+  ],
+  "phases": [],
+  "commands": [],
+  "error": "AssertionError [ERR_ASSERTION]: powershell.exe failed: Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable \r\nprogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.\r\nAt F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\verify-exact-rbxlx-sources.ps1:195 char:29\r\n+         sourceFileSha256 = (Get-FileHash -LiteralPath $sourcePath -Al ...\r\n+                             ~~~~~~~~~~~~\r\n    + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n\n\n1 !== 0\n\n    at commandJSON (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio-frame-profile.mjs:103:10)\n    at diskPreflight (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio-frame-profile.mjs:124:21)\n    at run (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio-frame-profile.mjs:324:14)\n    at file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio-frame-profile.mjs:705:16\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)",
+  "cleanup": [
+    {
+      "name": "destroyProfiler",
+      "ok": true,
+      "result": {
+        "skipped": true,
+        "reason": "Profiler was not attempted"
+      }
+    },
+    {
+      "name": "stopPlay",
+      "ok": true,
+      "result": {
+        "skipped": true,
+        "reason": "Play was not attempted"
+      }
+    },
+    {
+      "name": "closeMcp",
+      "ok": true,
+      "result": {
+        "ok": true
+      }
+    }
+  ],
+  "finishedAt": "2026-09-06T13:44:40.607Z"
+}

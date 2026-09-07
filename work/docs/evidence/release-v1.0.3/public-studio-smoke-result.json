@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "final-rbxlx-build-validation",
+      "selectedStudio": {
+        "id": "b33b91d3-2b51-45bb-904d-f108ef091d2d",
+        "name": "ชนกำแพง (placeId: 125255969070601)"
+      },
+      "selectedPlace": {
+        "name": "Place2",
+        "placeId": "125255969070601",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start rebuilt final copy",
+        "wait for embedded scripts to bootstrap",
+        "rebuilt final exposes the exact nine-module source map",
+        "cleanup rebuilt final copy"
+      ],
+      "error": "Timed out waiting for Studio MCP response 12",
+      "context": {}
+    }
+  ]
+}

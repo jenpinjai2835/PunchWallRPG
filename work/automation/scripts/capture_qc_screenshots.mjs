@@ -3,10 +3,20 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  assertPlaceIdentity,
+  inspectSelectedPlace,
+  selectStudioStrict,
+  waitForDataModels,
+} from "./studio_mcp_client.mjs";
+
+const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "..", "..", "..");
 
 function parseArgs(argv) {
   const args = {
-    outDir: "F:\\Roblox\\PuchWall\\work\\docs\\qc-screenshots\\kaiju-city",
+    outDir: path.join(REPOSITORY_ROOT, "work", "docs", "qc-screenshots", "kaiju-city"),
     studioName: "PunchWallRPGPlayable",
     waitMs: 7000,
     combatOnly: false,
@@ -25,6 +35,14 @@ function parseArgs(argv) {
       index += 1;
     } else if (key === "--combat-only") {
       args.combatOnly = true;
+    } else if (key === "--studio-instance-id") {
+      args.studioInstanceId = value;
+      index += 1;
+    } else if (key === "--place-name") {
+      args.placeName = value;
+      index += 1;
+    } else {
+      throw new Error(`Unknown argument: ${key}`);
     }
   }
   return args;
@@ -108,12 +126,14 @@ class McpClient {
 
   async callTool(name, args = {}, timeoutMs = 30000) {
     const response = await this.waitFor(this.send("tools/call", { name, arguments: args }), timeoutMs);
-    return {
+    const wrapped = {
       raw: response,
       text: textOf(response),
       content: response?.result?.content ?? [],
-      isError: response?.result?.isError === true,
+      isError: response?.error !== undefined || response?.result?.isError === true,
     };
+    if (wrapped.isError) throw new Error(`${name} failed: ${wrapped.text}`);
+    return wrapped;
   }
 
   close() {
@@ -137,25 +157,6 @@ async function captureStable(client, args) {
   return client.callTool("screen_capture", args, 60000);
 }
 
-async function selectStudio(client, studioName) {
-  let studios = [];
-  for (let attempt = 0; attempt < 15; attempt += 1) {
-    const list = await client.callTool("list_roblox_studios", {}, 15000);
-    try {
-      studios = JSON.parse(list.text).studios ?? [];
-    } catch {
-      studios = [];
-    }
-    if (studios.length) break;
-    await sleep(3000);
-  }
-  if (!studios.length) throw new Error("No Roblox Studio instances registered with MCP");
-  const matcher = new RegExp(studioName, "i");
-  const studio = studios.find((item) => matcher.test(item.name)) ?? studios[0];
-  await client.callTool("set_active_studio", { studio_id: studio.id });
-  return studio;
-}
-
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   fs.mkdirSync(args.outDir, { recursive: true });
@@ -174,11 +175,19 @@ async function main() {
   const summary = { captures: [], selectedStudio: null };
   try {
     await client.initialize();
-    summary.selectedStudio = await selectStudio(client, args.studioName);
+    summary.selectedStudio = await selectStudioStrict(client, {
+      studioInstanceId: args.studioInstanceId,
+      studioName: args.studioName,
+      pollAttempts: 15,
+      pollMs: 3000,
+    });
+    summary.selectedPlace = await inspectSelectedPlace(client);
+    assertPlaceIdentity(summary.selectedPlace, { placeName: args.placeName });
     const state = await client.callTool("get_studio_state");
     if (/Current Studio Mode:\s*Edit/i.test(state.text)) {
       await client.callTool("start_stop_play", { is_start: true }, 35000);
       playStarted = true;
+      await waitForDataModels(client, ["Server", "Client"], 60000);
       await sleep(args.waitMs);
     }
 

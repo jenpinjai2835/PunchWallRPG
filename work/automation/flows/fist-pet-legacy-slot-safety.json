@@ -1,0 +1,908 @@
+{
+  "name": "fist-pet-legacy-slot-safety",
+  "description": "Real-input regression of retained legacy pet callbacks through the existing Studio-only AutomationTab hook; duplicate exact-index equip/unequip, wrong-order rejection, locked Delete, first-click safety, timeout and exact second-click deletion. The public Pets route intentionally opens modern Inventory.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start play and wait for both runtime DataModels"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for gameplay bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1],'missing test player')\nlocal c=game.ServerStorage.PunchWallAutomation\nc:Invoke('Reset')\nc:Invoke('SetStats',{PetInventoryJSON='[\"Forest Pup\",\"Forest Pup\",\"Miner Cat\"]',EquippedPetsJSON='[\"Forest Pup\"]',DiscoveredPetsJSON='[\"Forest Pup\",\"Miner Cat\"]',LockedPetsJSON='[]'})\np:SetAttribute('Flow30RawPetRequestSequence',0)\np:SetAttribute('Flow30RawPetRequestJSON','')\np:SetAttribute('LegacyPetServerResultSequence',0)\np:SetAttribute('LegacyPetServerResultAction','')\np:SetAttribute('LegacyPetServerResultToken','')\np:SetAttribute('LegacyPetServerResultIndex',0)\np:SetAttribute('LegacyPetServerResultOK',false)\np:SetAttribute('LegacyPetServerResultReason','')\nlocal remote=game.ReplicatedStorage.PunchWallEvents.ActionRequest\nremote.OnServerEvent:Connect(function(sender,request)\n if sender~=p or typeof(request)~='table' then return end\n local action=tostring(request.action or '')\n if action~='EquipPet' and action~='UnequipPet' and action~='DeletePet' and action~='LockPet' then return end\n p:SetAttribute('Flow30RawPetRequestSequence',(p:GetAttribute('Flow30RawPetRequestSequence') or 0)+1)\n p:SetAttribute('Flow30RawPetRequestJSON',H:JSONEncode(request))\nend)\nreturn H:JSONEncode({hooked=true,equipped=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value),rawSequence=p:GetAttribute('Flow30RawPetRequestSequence'),resultSequence=p:GetAttribute('LegacyPetServerResultSequence')})"
+      },
+      "expectRegex": [
+        "\"hooked\"\\s*:\\s*true",
+        "\"rawSequence\"\\s*:\\s*0",
+        "\"resultSequence\"\\s*:\\s*0"
+      ],
+      "label": "seed duplicate pet occurrences with only slot one equipped"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal a=g.PunchWallClientAutomation\nassert(game:GetService('RunService'):IsStudio(),'legacy hook is Studio-only')\na:Invoke('CloseMenus')\ng:SetAttribute('AutomationTab','')\ng:SetAttribute('AutomationTab','Pets')\nlocal routeDeadline=os.clock()+3\nrepeat task.wait(.05) until g:GetAttribute('RenderedGenericTab')=='Pets' and g.GameMenu.Visible or os.clock()>=routeDeadline\nlocal modern=g.GameMenu:FindFirstChild('FunctionalInventory')\nassert(g:GetAttribute('RenderedGenericTab')=='Pets' and g.GameMenu.Visible and modern and not modern.Visible,'legacy hook did not expose the actual legacy surface')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal function verifyIdleControlState(e)\n assert(e.observedSnapshot==true,'no increasing real Playtime snapshot observed')\n assert(e.identityStable==true,'idle stats replaced the intended native button')\n assert(e.canvasStable==true,'idle stats moved the selected canvas')\n assert(type(e.structuralBefore)=='number' and type(e.structuralAfter)=='number' and e.structuralAfter==e.structuralBefore,'idle stats rebuilt generic content')\n assert(type(e.requestBefore)=='number' and e.requestAfter==e.requestBefore,'idle observation changed authoritative request count')\n assert(e.hittable==true,'current idle-stable button is not hittable')\n return true\nend\nlocal function observeIdleControl(currentButton,c,g,p,requestAttribute)\n -- Native selection navigation may finish scrolling after the focus callback.\n -- Establish the baseline only after that bounded motion has settled, then\n -- require a subsequent actual clock snapshot to preserve this exact canvas.\n local started=os.clock() local deadline=started+2\n local previous=c.CanvasPosition local stableSince=started local settled=false\n repeat\n  task.wait(.05)\n  local now=os.clock() local position=c.CanvasPosition\n  if (position-previous).Magnitude>.25 then stableSince=now end\n  previous=position\n  settled=now-started>=.5 and now-stableSince>=.2\n until settled or os.clock()>=deadline\n assert(settled,'native selection canvas failed to settle before idle baseline')\n local original=assert(currentButton(),'missing idle observation target')\n local startCanvas=c.CanvasPosition\n local startPlaytime=p.RPGStats.PlaytimeSeconds.Value\n local before=g:GetAttribute('GenericPanelStructuralRenderCount')\n local requestBefore=p:GetAttribute(requestAttribute) or 0\n local observed,destroyed=false,false\n local stats=game.ReplicatedStorage.PunchWallEvents.StatsChanged.OnClientEvent:Connect(function(payload)\n  if type(payload)=='table' and (tonumber(payload.PlaytimeSeconds) or 0)>startPlaytime then observed=true end\n end)\n local lifetime=original.Destroying:Connect(function()destroyed=true end)\n local ok,result=pcall(function()\n  local deadline=os.clock()+3\n  repeat task.wait(.05) until observed or os.clock()>=deadline\n  task.wait(.05)\n  local b=currentButton()\n  local live=b~=nil and b==original and b:IsDescendantOf(c) and not destroyed\n  local center=b and b.AbsolutePosition+b.AbsoluteSize*.5 or Vector2.zero\n  local hits=live and p.PlayerGui:GetGuiObjectsAtPosition(center.X,center.Y) or {}\n  local top=hits[1]\n  local ancestorVisible=true\n  local ancestor=b\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local contained=live and b.AbsolutePosition.X>=c.AbsolutePosition.X and b.AbsolutePosition.Y>=c.AbsolutePosition.Y and b.AbsolutePosition.X+b.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X and b.AbsolutePosition.Y+b.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y\n  local topmost=live and (top==b or top~=nil and top:IsDescendantOf(b))\n  local available,interactable=pcall(function()return b.Interactable end)\n  return {observedSnapshot=observed,identityStable=live,canvasStable=math.abs(c.CanvasPosition.Y-startCanvas.Y)<.5 and math.abs(c.CanvasPosition.X-startCanvas.X)<.5,\n   structuralBefore=before,structuralAfter=g:GetAttribute('GenericPanelStructuralRenderCount'),requestBefore=requestBefore,requestAfter=p:GetAttribute(requestAttribute) or 0,\n   hittable=live and contained and ancestorVisible and b.Visible and b.Active and b.Selectable and available and interactable and topmost and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44,\n   targetParent=b and b.Parent and b.Parent:GetFullName() or '',topPath=top and top:GetFullName() or '',canvasBeforeY=startCanvas.Y,canvasY=c.CanvasPosition.Y,destroyed=destroyed}\n end)\n stats:Disconnect()\n lifetime:Disconnect()\n if not ok then error(result) end\n local verified,reason=pcall(verifyIdleControlState,result)\n assert(verified,tostring(reason)..': '..H:JSONEncode(result))\n return result\nend\nlocal state=expose(\"#02  [Common] Forest Pup  *\",\"Equip2\",\"EQUIP\")\nlocal function currentIdleButton()\n local row=g.GameMenu.Content:FindFirstChild('#02  [Common] Forest Pup  *')\n return row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild('Equip2')\nend\nlocal idle=observeIdleControl(currentIdleButton,g.GameMenu.Content,g,p,'Flow30RawPetRequestSequence')\nstate.idleSnapshotObserved=idle.observedSnapshot\nstate.idleIdentityStable=idle.identityStable\nstate.idleCanvasStable=idle.canvasStable\nstate.idleStructuralDelta=idle.structuralAfter-idle.structuralBefore\n\ng:SetAttribute('Flow30ExpectedCallbackSequence',state.callbackSequence+1)\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"EQUIP\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true",
+        "\"row\"\\s*:\\s*true",
+        "\"button\"\\s*:\\s*true",
+        "\"idleSnapshotObserved\"\\s*:\\s*true",
+        "\"idleIdentityStable\"\\s*:\\s*true",
+        "\"idleCanvasStable\"\\s*:\\s*true",
+        "\"idleStructuralDelta\"\\s*:\\s*0"
+      ],
+      "label": "open legacy Pets and expose duplicate slot two action"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          }
+        ]
+      },
+      "label": "real click equips duplicate occurrence two"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal state={sequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0,expected=g:GetAttribute('Flow30ExpectedCallbackSequence'),action=g:GetAttribute('LegacyPetActionCallback'),index=g:GetAttribute('LegacyPetActionCallbackIndex'),token=g:GetAttribute('LegacyPetActionCallbackToken')}\nassert(state.sequence==state.expected and state.action=='EquipPet' and state.index==2 and state.token=='Forest Pup','slot two Equip callback marker failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"action\"\\s*:\\s*\"EquipPet\"",
+        "\"index\"\\s*:\\s*2",
+        "\"token\"\\s*:\\s*\"Forest Pup\""
+      ],
+      "label": "slot two real click reached fresh Equip callback exactly once"
+    },
+    {
+      "type": "wait",
+      "ms": 150,
+      "label": "allow slot two exact-index equip replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1],'missing test player')\nlocal started=os.clock()\nlocal deadline=started+2\nlocal attempts=0\nlocal state\nwhile true do\n attempts+=1\n local e=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value)\n local rawText=p:GetAttribute('Flow30RawPetRequestJSON') or '{}'\n local rawOK,raw=pcall(H.JSONDecode,H,rawText)\n raw=rawOK and raw or {}\n state={count=#e,first=e[1],second=e[2],rawSequence=p:GetAttribute('Flow30RawPetRequestSequence') or 0,requestAction=raw.action,requestIndex=raw.index,resultSequence=p:GetAttribute('LegacyPetServerResultSequence') or 0,resultAction=p:GetAttribute('LegacyPetServerResultAction'),resultIndex=p:GetAttribute('LegacyPetServerResultIndex'),resultOK=p:GetAttribute('LegacyPetServerResultOK'),reason=p:GetAttribute('LegacyPetServerResultReason'),attempts=attempts,elapsed=os.clock()-started}\n state.exact=state.count==2 and state.first=='Forest Pup' and state.second=='Forest Pup' and state.rawSequence==1 and state.requestAction=='EquipPet' and state.requestIndex==2 and state.resultSequence==1 and state.resultAction=='EquipPet' and state.resultIndex==2 and state.resultOK==true and state.reason=='ok'\n if state.exact or os.clock()>=deadline then break end\n task.wait(math.min(.05,math.max(0,deadline-os.clock())))\nend\nassert(state.exact,'slot two authoritative Equip/request/result did not converge: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*2",
+        "\"first\"\\s*:\\s*\"Forest Pup\"",
+        "\"second\"\\s*:\\s*\"Forest Pup\"",
+        "\"rawSequence\"\\s*:\\s*1",
+        "\"requestAction\"\\s*:\\s*\"EquipPet\"",
+        "\"requestIndex\"\\s*:\\s*2",
+        "\"resultSequence\"\\s*:\\s*1",
+        "\"resultOK\"\\s*:\\s*true",
+        "\"reason\"\\s*:\\s*\"ok\"",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "slot two became the second equipped occurrence"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal state=expose(\"#01  [Common] Forest Pup  *\",\"Equip1\",\"UNEQUIP\")\ng:SetAttribute('Flow30ExpectedCallbackSequence',state.callbackSequence+1)\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"UNEQUIP\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true"
+      ],
+      "label": "expose occurrence one invalid out-of-order unequip"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#01  [Common] Forest Pup  *",
+              "Actions",
+              "Equip1"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#01  [Common] Forest Pup  *",
+              "Actions",
+              "Equip1"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#01  [Common] Forest Pup  *",
+              "Actions",
+              "Equip1"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#01  [Common] Forest Pup  *",
+              "Actions",
+              "Equip1"
+            ]
+          }
+        ]
+      },
+      "label": "real click occurrence one is rejected by exact-index order"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal state={sequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0,expected=g:GetAttribute('Flow30ExpectedCallbackSequence'),action=g:GetAttribute('LegacyPetActionCallback'),index=g:GetAttribute('LegacyPetActionCallbackIndex'),token=g:GetAttribute('LegacyPetActionCallbackToken')}\nassert(state.sequence==state.expected and state.action=='UnequipPet' and state.index==1 and state.token=='Forest Pup','slot one rejected Unequip callback marker failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"action\"\\s*:\\s*\"UnequipPet\"",
+        "\"index\"\\s*:\\s*1",
+        "\"token\"\\s*:\\s*\"Forest Pup\""
+      ],
+      "label": "slot one real click reached fresh Unequip callback exactly once"
+    },
+    {
+      "type": "wait",
+      "ms": 150,
+      "label": "allow rejected exact-index unequip result replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1],'missing test player')\nlocal started=os.clock()\nlocal deadline=started+2\nlocal attempts=0\nlocal state\nwhile true do\n attempts+=1\n local e=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value)\n local rawText=p:GetAttribute('Flow30RawPetRequestJSON') or '{}'\n local rawOK,raw=pcall(H.JSONDecode,H,rawText)\n raw=rawOK and raw or {}\n state={count=#e,unchanged=#e==2,rawSequence=p:GetAttribute('Flow30RawPetRequestSequence') or 0,requestAction=raw.action,requestIndex=raw.index,resultSequence=p:GetAttribute('LegacyPetServerResultSequence') or 0,resultAction=p:GetAttribute('LegacyPetServerResultAction'),resultIndex=p:GetAttribute('LegacyPetServerResultIndex'),resultOK=p:GetAttribute('LegacyPetServerResultOK'),reason=p:GetAttribute('LegacyPetServerResultReason'),attempts=attempts,elapsed=os.clock()-started}\n state.exact=state.unchanged and state.rawSequence==2 and state.requestAction=='UnequipPet' and state.requestIndex==1 and state.resultSequence==2 and state.resultAction=='UnequipPet' and state.resultIndex==1 and state.resultOK==false and state.reason=='not_last_equipped'\n if state.exact or os.clock()>=deadline then break end\n task.wait(math.min(.05,math.max(0,deadline-os.clock())))\nend\nassert(state.exact,'slot one rejected Unequip/request/result did not converge: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*2",
+        "\"unchanged\"\\s*:\\s*true",
+        "\"rawSequence\"\\s*:\\s*2",
+        "\"requestAction\"\\s*:\\s*\"UnequipPet\"",
+        "\"requestIndex\"\\s*:\\s*1",
+        "\"resultSequence\"\\s*:\\s*2",
+        "\"resultOK\"\\s*:\\s*false",
+        "\"reason\"\\s*:\\s*\"not_last_equipped\"",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "out-of-order duplicate did not mutate equipped state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal state=expose(\"#02  [Common] Forest Pup  *\",\"Equip2\",\"UNEQUIP\")\ng:SetAttribute('Flow30ExpectedCallbackSequence',state.callbackSequence+1)\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"UNEQUIP\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true"
+      ],
+      "label": "expose last equipped duplicate occurrence"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Equip2"
+            ]
+          }
+        ]
+      },
+      "label": "real click unequips exact last occurrence"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal state={sequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0,expected=g:GetAttribute('Flow30ExpectedCallbackSequence'),action=g:GetAttribute('LegacyPetActionCallback'),index=g:GetAttribute('LegacyPetActionCallbackIndex'),token=g:GetAttribute('LegacyPetActionCallbackToken')}\nassert(state.sequence==state.expected and state.action=='UnequipPet' and state.index==2 and state.token=='Forest Pup','slot two Unequip callback marker failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"action\"\\s*:\\s*\"UnequipPet\"",
+        "\"index\"\\s*:\\s*2",
+        "\"token\"\\s*:\\s*\"Forest Pup\""
+      ],
+      "label": "slot two real click reached fresh Unequip callback exactly once"
+    },
+    {
+      "type": "wait",
+      "ms": 150,
+      "label": "allow slot two exact-index unequip replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1],'missing test player')\nlocal started=os.clock()\nlocal deadline=started+2\nlocal attempts=0\nlocal state\nwhile true do\n attempts+=1\n local e=H:JSONDecode(p.RPGStats.EquippedPetsJSON.Value)\n local rawText=p:GetAttribute('Flow30RawPetRequestJSON') or '{}'\n local rawOK,raw=pcall(H.JSONDecode,H,rawText)\n raw=rawOK and raw or {}\n state={count=#e,remaining=e[1],rawSequence=p:GetAttribute('Flow30RawPetRequestSequence') or 0,requestAction=raw.action,requestIndex=raw.index,resultSequence=p:GetAttribute('LegacyPetServerResultSequence') or 0,resultAction=p:GetAttribute('LegacyPetServerResultAction'),resultIndex=p:GetAttribute('LegacyPetServerResultIndex'),resultOK=p:GetAttribute('LegacyPetServerResultOK'),reason=p:GetAttribute('LegacyPetServerResultReason'),attempts=attempts,elapsed=os.clock()-started}\n state.exact=state.count==1 and state.remaining=='Forest Pup' and state.rawSequence==3 and state.requestAction=='UnequipPet' and state.requestIndex==2 and state.resultSequence==3 and state.resultAction=='UnequipPet' and state.resultIndex==2 and state.resultOK==true and state.reason=='ok'\n if state.exact or os.clock()>=deadline then break end\n task.wait(math.min(.05,math.max(0,deadline-os.clock())))\nend\nassert(state.exact,'slot two authoritative Unequip/request/result did not converge: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*1",
+        "\"remaining\"\\s*:\\s*\"Forest Pup\"",
+        "\"rawSequence\"\\s*:\\s*3",
+        "\"requestAction\"\\s*:\\s*\"UnequipPet\"",
+        "\"requestIndex\"\\s*:\\s*2",
+        "\"resultSequence\"\\s*:\\s*3",
+        "\"resultOK\"\\s*:\\s*true",
+        "\"reason\"\\s*:\\s*\"ok\"",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "exact duplicate unequip left one occurrence equipped"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{PetInventoryJSON='[\"Forest Pup\",\"Forest Pup\",\"Miner Cat\"]',EquippedPetsJSON='[]',LockedPetsJSON='[\"slot:1\"]'}) return true"
+      },
+      "label": "reset duplicates with slot one locked for Delete safety"
+    },
+    {
+      "type": "wait",
+      "ms": 400,
+      "label": "wait for locked inventory rerender"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local c=g.GameMenu.Content local row=c:FindFirstChild('#01  [Common] Forest Pup  *') local b=row and row.Actions:FindFirstChild('Delete1') return H:JSONEncode({text=b and b.Text,active=b and b.Active,firstMutates=b and b:GetAttribute('FirstClickMutatesServer')})"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"LOCKED\"",
+        "\"active\"\\s*:\\s*false",
+        "\"firstMutates\"\\s*:\\s*false"
+      ],
+      "label": "locked Delete is visibly inert"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal state=expose(\"#02  [Common] Forest Pup  *\",\"Delete2\",\"DEL\")\nstate.index=state.exactIndex\nassert(state.index==2,'fresh Delete2 exact-index precondition failed: '..H:JSONEncode(state))\ng:SetAttribute('Flow30DeleteArmBeforeScheduled',g:GetAttribute('LegacyPetDeleteConfirmationScheduled')==true)\ng:SetAttribute('Flow30DeleteArmBeforeKey',tostring(g:GetAttribute('LegacyPetDeleteConfirmationKey') or ''))\ng:SetAttribute('Flow30DeleteArmBeforeReason',tostring(g:GetAttribute('LegacyPetDeleteConfirmationReason') or ''))\ng:SetAttribute('Flow30DeleteArmBeforeIndex',tonumber(g:GetAttribute('LegacyPetDeleteConfirmationIndex')) or 0)\ng:SetAttribute('Flow30DeleteArmBeforeToken',tostring(g:GetAttribute('LegacyPetDeleteConfirmationToken') or ''))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"DEL\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true",
+        "\"index\"\\s*:\\s*2"
+      ],
+      "label": "expose unlocked duplicate slot two Delete"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          }
+        ]
+      },
+      "label": "first real Delete click arms exact slot two"
+    },
+    {
+      "type": "wait",
+      "ms": 150,
+      "label": "wait for legacy confirmation rerender"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local i=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value) return H:JSONEncode({count=#i,one=i[1],two=i[2],three=i[3]})"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*3",
+        "\"one\"\\s*:\\s*\"Forest Pup\"",
+        "\"two\"\\s*:\\s*\"Forest Pup\"",
+        "\"three\"\\s*:\\s*\"Miner Cat\""
+      ],
+      "label": "first click caused no authoritative mutation"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal before={scheduled=g:GetAttribute('Flow30DeleteArmBeforeScheduled')==true,key=tostring(g:GetAttribute('Flow30DeleteArmBeforeKey') or ''),reason=tostring(g:GetAttribute('Flow30DeleteArmBeforeReason') or ''),index=tonumber(g:GetAttribute('Flow30DeleteArmBeforeIndex')) or 0,token=tostring(g:GetAttribute('Flow30DeleteArmBeforeToken') or '')}\nlocal row=g.GameMenu.Content:FindFirstChild('#02  [Common] Forest Pup  *')\nlocal b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild('Delete2')\nlocal scheduled=g:GetAttribute('LegacyPetDeleteConfirmationScheduled')==true\nlocal key=tostring(g:GetAttribute('LegacyPetDeleteConfirmationKey') or '')\nlocal reason=tostring(g:GetAttribute('LegacyPetDeleteConfirmationReason') or '')\nlocal index=tonumber(g:GetAttribute('LegacyPetDeleteConfirmationIndex')) or 0\nlocal token=tostring(g:GetAttribute('LegacyPetDeleteConfirmationToken') or '')\nlocal transitioned=scheduled~=before.scheduled or key~=before.key or reason~=before.reason or index~=before.index or token~=before.token\nlocal phase=scheduled and 'armed' or transitioned and ('invalidated:'..reason) or 'callback_missed'\nlocal state={scheduled=scheduled,key=key,reason=reason,index=index,token=token,text=b and b.Text or '',armed=b and b:GetAttribute('ConfirmationArmed')==true or false,transitioned=transitioned,phase=phase,before=before}\nstate.exact=state.scheduled and state.key=='slot:2:Forest Pup' and state.reason=='armed' and state.index==2 and state.token=='Forest Pup' and state.text=='CONFIRM' and state.armed\nassert(state.exact,'first Delete2 gesture failed to arm exact confirmation: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"scheduled\"\\s*:\\s*true",
+        "\"key\"\\s*:\\s*\"slot:2:Forest Pup\"",
+        "\"reason\"\\s*:\\s*\"armed\"",
+        "\"index\"\\s*:\\s*2",
+        "\"token\"\\s*:\\s*\"Forest Pup\"",
+        "\"text\"\\s*:\\s*\"CONFIRM\"",
+        "\"armed\"\\s*:\\s*true",
+        "\"transitioned\"\\s*:\\s*true",
+        "\"phase\"\\s*:\\s*\"armed\"",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "legacy confirmation survives row rerender with exact key"
+    },
+    {
+      "type": "wait",
+      "ms": 3200,
+      "label": "wait past Delete confirmation timeout"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local row=g.GameMenu.Content:FindFirstChild('#02  [Common] Forest Pup  *') local b=row and row.Actions:FindFirstChild('Delete2') return H:JSONEncode({scheduled=g:GetAttribute('LegacyPetDeleteConfirmationScheduled'),text=b and b.Text,armed=b and b:GetAttribute('ConfirmationArmed')})"
+      },
+      "expectRegex": [
+        "\"scheduled\"\\s*:\\s*false",
+        "\"text\"\\s*:\\s*\"DEL\"",
+        "\"armed\"\\s*:\\s*false"
+      ],
+      "label": "expired confirmation safely disarms"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal state=expose(\"#02  [Common] Forest Pup  *\",\"Delete2\",\"DEL\")\nstate.index=state.exactIndex\nassert(state.index==2,'fresh Delete2 re-arm precondition failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"DEL\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true",
+        "\"index\"\\s*:\\s*2"
+      ],
+      "label": "re-expose slot two for confirmed Delete"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          }
+        ]
+      },
+      "label": "real click re-arms slot two Delete"
+    },
+    {
+      "type": "wait",
+      "ms": 120,
+      "label": "wait for confirmation button"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal GuiService=game:GetService('GuiService')\nlocal RunService=game:GetService('RunService')\nlocal function expose(rowName,buttonName,expectedText)\n local c=g.GameMenu.Content\n local deadline=os.clock()+1.5\n local row,b\n repeat\n  row=c:FindFirstChild(rowName)\n  b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n  if b and b.AbsoluteSize.X>0 and b.AbsoluteSize.Y>0 then break end\n  task.wait(.05)\n until os.clock()>=deadline\n assert(b,'missing fresh '..buttonName..': '..H:JSONEncode({rendered=tostring(g:GetAttribute('RenderedGenericTab') or ''),menu=g.GameMenu.Visible,row=row~=nil,children=#c:GetChildren()}))\n c.CanvasPosition=Vector2.zero\n task.wait(.12)\n row=c:FindFirstChild(rowName)\n b=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(b,'fresh '..buttonName..' vanished before layout settle')\n local desired=c.CanvasPosition.Y+(b.AbsolutePosition.Y+b.AbsoluteSize.Y*.5)-(c.AbsolutePosition.Y+c.AbsoluteSize.Y*.5)\n local maxY=math.max(0,c.AbsoluteCanvasSize.Y-c.AbsoluteSize.Y)\n c.CanvasPosition=Vector2.new(0,math.clamp(desired,0,maxY))\n local function inspect()\n  local currentRow=c:FindFirstChild(rowName)\n  local current=currentRow and currentRow:FindFirstChild('Actions') and currentRow.Actions:FindFirstChild(buttonName)\n  if not current then return {row=currentRow~=nil,button=false},nil end\n  local center=current.AbsolutePosition+current.AbsoluteSize*.5\n  local hits=p.PlayerGui:GetGuiObjectsAtPosition(math.floor(center.X),math.floor(center.Y))\n  local ancestorVisible=true\n  local ancestor=current\n  while ancestor and ancestor~=g do\n   if ancestor:IsA('GuiObject') and not ancestor.Visible then ancestorVisible=false break end\n   ancestor=ancestor.Parent\n  end\n  ancestorVisible=ancestorVisible and ancestor==g and g.Enabled\n  local inset=8\n  local visibleArea=current.AbsolutePosition.X>=c.AbsolutePosition.X+inset and current.AbsolutePosition.Y>=c.AbsolutePosition.Y+inset and current.AbsolutePosition.X+current.AbsoluteSize.X<=c.AbsolutePosition.X+c.AbsoluteSize.X-inset and current.AbsolutePosition.Y+current.AbsoluteSize.Y<=c.AbsolutePosition.Y+c.AbsoluteSize.Y-inset\n  local interactableAvailable,interactable=pcall(function() return current.Interactable end)\n  return {row=true,button=true,text=current.Text,active=current.Active,selectable=current.Selectable,visible=current.Visible,interactableAvailable=interactableAvailable,interactable=interactableAvailable and interactable==true,ancestorVisible=ancestorVisible,visibleArea=visibleArea,topmost=hits[1]==current,top=hits[1] and hits[1]:GetFullName() or '',exactIndex=current:GetAttribute('ExactInventoryIndex'),confirmationArmed=current:GetAttribute('ConfirmationArmed'),callbackSequence=g:GetAttribute('LegacyPetActionCallbackSequence') or 0},current\n end\n local state,current\n local hitDeadline=os.clock()+1.25\n repeat\n  task.wait(.05)\n  state,current=inspect()\n  if state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost then break end\n until os.clock()>=hitDeadline\n state=state or {row=false,button=false}\n assert(current and state.text==expectedText and state.active and state.selectable and state.visible and state.interactable and state.ancestorVisible and state.visibleArea and state.topmost,'fresh real-input precondition failed: '..H:JSONEncode(state))\n GuiService.SelectedObject=current\n local frames=0\n local frameConnection\n frameConnection=RunService.RenderStepped:Connect(function()\n  frames+=1\n  if frames>=2 and frameConnection then frameConnection:Disconnect() frameConnection=nil end\n end)\n local frameDeadline=os.clock()+.5\n while frames<2 and os.clock()<frameDeadline do task.wait(.01) end\n if frameConnection then frameConnection:Disconnect() frameConnection=nil end\n assert(frames>=2,'bounded focus settle missed two RenderStepped frames')\n row=c:FindFirstChild(rowName)\n current=row and row:FindFirstChild('Actions') and row.Actions:FindFirstChild(buttonName)\n assert(current,'focused target vanished before real input')\n if GuiService.SelectedObject~=current then GuiService.SelectedObject=current end\n local finalState,observed=inspect()\n finalState.frames=frames\n finalState.reacquired=observed==current\n finalState.selected=GuiService.SelectedObject==current\n assert(finalState.text==expectedText and finalState.active and finalState.selectable and finalState.visible and finalState.interactable and finalState.ancestorVisible and finalState.visibleArea and finalState.topmost and finalState.reacquired and finalState.selected,'post-focus real-input precondition failed: '..H:JSONEncode(finalState))\n return finalState\nend\nlocal state=expose(\"#02  [Common] Forest Pup  *\",\"Delete2\",\"CONFIRM\")\nstate.exists=state.button\nstate.armed=state.confirmationArmed\nstate.index=state.exactIndex\nassert(state.exists and state.armed==true and state.index==2,'fresh Delete2 confirmation precondition failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"text\"\\s*:\\s*\"CONFIRM\"",
+        "\"active\"\\s*:\\s*true",
+        "\"selectable\"\\s*:\\s*true",
+        "\"interactableAvailable\"\\s*:\\s*true",
+        "\"interactable\"\\s*:\\s*true",
+        "\"ancestorVisible\"\\s*:\\s*true",
+        "\"visibleArea\"\\s*:\\s*true",
+        "\"topmost\"\\s*:\\s*true",
+        "\"frames\"\\s*:\\s*2",
+        "\"reacquired\"\\s*:\\s*true",
+        "\"selected\"\\s*:\\s*true",
+        "\"exists\"\\s*:\\s*true",
+        "\"armed\"\\s*:\\s*true",
+        "\"index\"\\s*:\\s*2"
+      ],
+      "label": "reacquire fresh armed Delete2 immediately before confirm click"
+    },
+    {
+      "type": "call",
+      "tool": "user_mouse_input",
+      "args": {
+        "datamodel_type": "Client",
+        "actions": [
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 250
+          },
+          {
+            "action": "moveTo",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 120
+          },
+          {
+            "action": "mouseButtonDown",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          },
+          {
+            "action": "wait",
+            "wait_time_ms": 80
+          },
+          {
+            "action": "mouseButtonUp",
+            "mouse_button": "left",
+            "instance_path_segments": [
+              "LocalPlayer",
+              "PlayerGui",
+              "PunchWallHUD",
+              "GameMenu",
+              "Content",
+              "#02  [Common] Forest Pup  *",
+              "Actions",
+              "Delete2"
+            ]
+          }
+        ]
+      },
+      "label": "second real click confirms exact slot two Delete"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD\nlocal state={reason=g:GetAttribute('LegacyPetDeleteConfirmationReason'),scheduled=g:GetAttribute('LegacyPetDeleteConfirmationScheduled')}\nassert(state.reason=='confirmed' and state.scheduled==false,'Delete2 callback confirmation marker failed: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"reason\"\\s*:\\s*\"confirmed\"",
+        "\"scheduled\"\\s*:\\s*false"
+      ],
+      "label": "second click reached confirmed client callback exactly once"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1],'missing test player')\nlocal started=os.clock()\nlocal deadline=started+2\nlocal attempts=0\nlocal state\nwhile true do\n attempts+=1\n local i=H:JSONDecode(p.RPGStats.PetInventoryJSON.Value)\n local l=H:JSONDecode(p.RPGStats.LockedPetsJSON.Value)\n state={count=#i,one=i[1],two=i[2],lock=l[1],exact=#i==2 and i[1]=='Forest Pup' and i[2]=='Miner Cat' and l[1]=='slot:1',attempts=attempts,elapsed=os.clock()-started}\n if state.exact or os.clock()>=deadline then break end\n task.wait(math.min(.05,math.max(0,deadline-os.clock())))\nend\nassert(state.exact,'authoritative Delete2 did not converge within 2 seconds: '..H:JSONEncode(state))\nreturn H:JSONEncode(state)"
+      },
+      "expectRegex": [
+        "\"count\"\\s*:\\s*2",
+        "\"one\"\\s*:\\s*\"Forest Pup\"",
+        "\"two\"\\s*:\\s*\"Miner Cat\"",
+        "\"lock\"\\s*:\\s*\"slot:1\"",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "bounded authority poll proves only duplicate slot two deleted"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture fist and pet safety console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "fist and pet safety console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop play and wait for Edit"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup fist and pet safety regression"
+    }
+  ]
+}

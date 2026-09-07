@@ -1,0 +1,72 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "pets do not grow when hero Power grows",
+        "hero shrinks back at low Power and grows again independently of WallLevel",
+        "preserve camera visibility detail 1 before cleanup",
+        "preserve camera visibility detail 2 before cleanup",
+        "preserve camera visibility detail 3 before cleanup",
+        "preserve camera visibility detail 4 before cleanup",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nSomething unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "Something unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "Expected regex not found: \"growthCameraContractValid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.8878574371337891,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.026093482971191407,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":1.5638492107391358,\"maxGuardPublishedTravelPerCycle\":0.02609250880777836,\"maxBackTo\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"visibilityPhases\":{\"follow\":{\"maxGuardAge\":0.12373800000204938,\"samples\":48,\"rayMismatch\":0,\"obscured\":0},\"native\":{\"maxGuardAge\":0.01948419999826001,\"samples\":8,\"rayMismatch\":0,\"obscured\":0}},\"visualFailureReasons\":[\"motion_geometry_or_native_contract\"],\"finishDistance\":12.500587463378907,\"settledSamples\":7,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxBackFrom\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"maxGuardPublishedWritesPerCycle\":1,\"type\":\"Custom\",\"teleportRebaseCount\":1,\"unresolvedSafetyFrames\":0,\"selectedDistance\":12.474493980407715,\"sampledFrames\":56,\"userOrbitDistance\":12.474493980407715,\"lead\":0.6420499682426453,\"maxStepFrom\":\"-2.000030517578125, 8.684141159057617, -5.790571689605713\",\"lastGuardAge\":0.01656129999901168,\"maxStep\":0.4333325922489166,\"settledClearRatio\":1,\"maxCorrectionStep\":0.5034646987915039,\"maxEscapeStep\":0,\"maxStepTo\":\"-2.000030517578125, 8.683259963989258, -7.3544206619262695\",\"visibleRatio\":1},\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"heroMultiplier\":1.25,\"visualValid\":false,\"visibleCorners\":8,\"growthCameraContractValid\":false,\"settled\":true}",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nSomething unexpectedly tried to set the parent of PlayEmote to PunchWallLatePlayEmoteHooks while trying to set the parent of PlayEmote. Current parent is Animate.",
+        "growthMatrix": "{\"valid\":true,\"bossWallHeight\":18,\"grounded\":true,\"wallLevelIndependent\":true,\"rows\":[{\"applied\":1,\"directScale\":1,\"aura\":false,\"power\":15,\"bodyHeight\":4.712643806832382,\"expected\":1,\"bottomDelta\":0,\"visualHeight\":5.257658004760742},{\"applied\":1.0750000476837159,\"directScale\":1.0750000476837159,\"aura\":false,\"power\":1500,\"bodyHeight\":5.0229983306772729,\"expected\":1.075,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.297552108764648},{\"applied\":1.125,\"directScale\":1.125,\"aura\":true,\"power\":150000,\"bodyHeight\":5.361912895024084,\"expected\":1.125,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.75952672958374},{\"applied\":1.2000000476837159,\"directScale\":1.2000000476837159,\"aura\":true,\"power\":15000000,\"bodyHeight\":5.731996155702868,\"expected\":1.2000000000000002,\"bottomDelta\":2.384185791015625e-7,\"visualHeight\":6.173440456390381},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1500000000,\"bodyHeight\":5.919539513343212,\"expected\":1.25,\"bottomDelta\":-1.1920928955078126e-7,\"visualHeight\":6.533547878265381},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1000000000000000,\"bodyHeight\":5.904726606138505,\"expected\":1.25,\"bottomDelta\":0,\"visualHeight\":6.533547878265381}],\"version\":\"PowerLogWallCappedV1\",\"monotonic\":true,\"directScaleValid\":true,\"bounded\":true,\"passageHeight\":8,\"sourcePower\":1000000000000000,\"maximumHeight\":7.2}",
+        "petInvariant": "{\"valid\":true,\"policy\":\"IndependentFixedTarget\",\"identitiesStable\":true,\"observersCleaned\":true,\"count\":3,\"rows\":[{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Forest Pup\",\"afterHeight\":1.4500001668930054,\"afterScale\":0.8387129306793213,\"sameModel\":true,\"beforeHeight\":1.4500006437301636,\"beforeScale\":0.8387129306793213},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Miner Cat\",\"afterHeight\":1.0721973180770875,\"afterScale\":0.2411685585975647,\"sameModel\":true,\"beforeHeight\":1.0721968412399293,\"beforeScale\":0.2411685585975647},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Crystal Fox\",\"afterHeight\":1.6499992609024048,\"afterScale\":0.19778680801391602,\"sameModel\":true,\"beforeHeight\":1.6500002145767213,\"beforeScale\":0.19778680801391602}],\"baselinePresent\":true,\"fixed\":true,\"heroMultiplier\":1.25,\"exactIdentities\":true}",
+        "cameraGrowth": "{\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.8878574371337891,\"configuredOrbit\":12.474493980407715,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":0,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.026093482971191407,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleMaxStep\":1.5638492107391358,\"maxGuardPublishedTravelPerCycle\":0.02609250880777836,\"maxBackTo\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"visibilityPhases\":{\"follow\":{\"maxGuardAge\":0.12373800000204938,\"samples\":48,\"rayMismatch\":0,\"obscured\":0},\"native\":{\"maxGuardAge\":0.01948419999826001,\"samples\":8,\"rayMismatch\":0,\"obscured\":0}},\"visualFailureReasons\":[\"motion_geometry_or_native_contract\"],\"finishDistance\":12.500587463378907,\"settledSamples\":7,\"handoffActive\":false,\"settledReadableRatio\":1,\"initialOrbitSettled\":true,\"mode\":\"CustomPreserved\",\"maxBack\":0,\"maxBackFrom\":\"-2.000030517578125, 4.514997482299805, -17.999786376953125\",\"maxGuardPublishedWritesPerCycle\":1,\"type\":\"Custom\",\"teleportRebaseCount\":1,\"unresolvedSafetyFrames\":0,\"selectedDistance\":12.474493980407715,\"sampledFrames\":56,\"userOrbitDistance\":12.474493980407715,\"lead\":0.6420499682426453,\"maxStepFrom\":\"-2.000030517578125, 8.684141159057617, -5.790571689605713\",\"lastGuardAge\":0.01656129999901168,\"maxStep\":0.4333325922489166,\"settledClearRatio\":1,\"maxCorrectionStep\":0.5034646987915039,\"maxEscapeStep\":0,\"maxStepTo\":\"-2.000030517578125, 8.683259963989258, -7.3544206619262695\",\"visibleRatio\":1},\"totalCorners\":8,\"inside\":0,\"subjectCurrent\":true,\"cameraType\":\"Enum.CameraType.Custom\",\"heroMultiplier\":1.25,\"visualValid\":false,\"visibleCorners\":8,\"growthCameraContractValid\":false,\"settled\":true}",
+        "cameraVisibilityDetail1": "{\"page\":1,\"available\":false}",
+        "cameraVisibilityDetail2": "{\"page\":2,\"available\":false}",
+        "cameraVisibilityDetail3": "{\"page\":3,\"available\":false}",
+        "cameraVisibilityDetail4": "{\"page\":4,\"available\":false}"
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "inventory-persistence",
   "description": "Validate fist ownership and pet inventory survive rebirth while equipped fist state resets.",
-  "studioName": "PunchWallRPG",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -11,7 +11,7 @@
       "type": "call", "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=1000}) local fist=c:Invoke(\"BuyFist\",\"Boxing Glove\") local pet=c:Invoke(\"HatchPet\") c:Invoke(\"SetStats\",{WallLevel=55,Coins=1000000}) local rebirth=c:Invoke(\"Rebirth\") local owned=H:JSONDecode(rebirth.OwnedFistsJSON) local inventory=H:JSONDecode(rebirth.PetInventoryJSON) local equippedPets=H:JSONDecode(rebirth.EquippedPetsJSON) local reEquip=c:Invoke(\"EquipFist\",\"Boxing Glove\") return H:JSONEncode({fistBought=fist.ok,petHatched=pet.ok,rebirth=rebirth.ok,ownsBoxing=table.find(owned,\"Boxing Glove\")~=nil,petCount=#inventory,equippedPetCount=#equippedPets,resetFist=rebirth.EquippedFist==\"Starter Glove\",reEquip=reEquip.ok})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Coins=1000,Depth=1}) local fist=c:Invoke(\"BuyFist\",\"Boxing Glove\") local pet=c:Invoke(\"HatchPet\") c:Invoke(\"SetStats\",{WallLevel=55,Coins=1000000}) local rebirth=c:Invoke(\"Rebirth\") local owned=H:JSONDecode(rebirth.OwnedFistsJSON) local inventory=H:JSONDecode(rebirth.PetInventoryJSON) local equippedPets=H:JSONDecode(rebirth.EquippedPetsJSON) local reEquip=c:Invoke(\"EquipFist\",\"Boxing Glove\") return H:JSONEncode({fistBought=fist.ok,petHatched=pet.ok,rebirth=rebirth.ok,ownsBoxing=table.find(owned,\"Boxing Glove\")~=nil,petCount=#inventory,equippedPetCount=#equippedPets,resetFist=rebirth.EquippedFist==\"Starter Glove\",reEquip=reEquip.ok})"
       },
       "expectRegex": ["\"fistBought\"\\s*:\\s*true", "\"petHatched\"\\s*:\\s*true", "\"rebirth\"\\s*:\\s*true", "\"ownsBoxing\"\\s*:\\s*true", "\"petCount\"\\s*:\\s*1", "\"equippedPetCount\"\\s*:\\s*1", "\"resetFist\"\\s*:\\s*true", "\"reEquip\"\\s*:\\s*true"],
       "label": "inventory survives rebirth"

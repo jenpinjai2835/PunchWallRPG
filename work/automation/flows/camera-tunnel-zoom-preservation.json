@@ -1,6 +1,6 @@
 {
   "name": "camera-tunnel-zoom-preservation",
-  "description": "Verify enclosed tunnels preserve player zoom while obscuring objects remain fully opaque.",
+  "description": "Verify initial and late replicated Invisicam policy preserves player zoom and restores actual obscurer opacity without duplicate camera callbacks.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -38,6 +40,46 @@
       "type": "call",
       "tool": "execute_luau",
       "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] p.DevCameraOcclusionMode=Enum.DevCameraOcclusionMode.Zoom return true"
+      },
+      "timeoutMs": 30000,
+      "label": "replicate a different occlusion policy after client startup"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local deadline=os.clock()+5 repeat if p.DevCameraOcclusionMode==Enum.DevCameraOcclusionMode.Zoom and g:GetAttribute('PreservePlayerZoomInTunnels')==false and g:GetAttribute('CameraOcclusionOpaque')==false then return true end task.wait(.05) until os.clock()>deadline error('late Zoom policy did not reach live client')"
+      },
+      "timeoutMs": 30000,
+      "label": "late Zoom replication updates client policy"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local p=game.Players:GetPlayers()[1] p.DevCameraOcclusionMode=Enum.DevCameraOcclusionMode.Invisicam return true"
+      },
+      "timeoutMs": 30000,
+      "label": "replicate Invisicam again without restarting the client"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local deadline=os.clock()+5 repeat if p.DevCameraOcclusionMode==Enum.DevCameraOcclusionMode.Invisicam and g:GetAttribute('PreservePlayerZoomInTunnels')==true and g:GetAttribute('CameraOcclusionOpaque')==true and g:GetAttribute('CameraOcclusionMode')=='OpaqueInvisicam' then return true end task.wait(.05) until os.clock()>deadline error('late Invisicam policy did not reach live client')"
+      },
+      "timeoutMs": 30000,
+      "label": "late Invisicam replication reinstates zoom and opacity policy"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
         "datamodel_type": "Client",
         "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild(\"HumanoidRootPart\") local cam=workspace.CurrentCamera assert(root,\"missing root\") local oldMin,oldMax=p.CameraMinZoomDistance,p.CameraMaxZoomDistance p.CameraMinZoomDistance=14 p.CameraMaxZoomDistance=14 task.wait(1) local before=(cam.CFrame.Position-cam.Focus.Position).Magnitude local shell=Instance.new(\"Part\") shell.Name=\"Camera Occlusion Test Shell\" shell.Size=Vector3.new(8,8,8) shell.CFrame=root.CFrame shell.Anchored=true shell.CanCollide=false shell.CanTouch=false shell.CanQuery=true shell.Transparency=0 shell.Parent=workspace task.wait(1) local after=(cam.CFrame.Position-cam.Focus.Position).Magnitude local localTransparency=shell.LocalTransparencyModifier shell:Destroy() p.CameraMinZoomDistance=oldMin p.CameraMaxZoomDistance=oldMax return H:JSONEncode({before=before,after=after,zoomPreserved=math.abs(after-before)<=0.5,localTransparency=localTransparency,mode=p.DevCameraOcclusionMode.Name})"
       },
@@ -62,7 +104,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -71,7 +115,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

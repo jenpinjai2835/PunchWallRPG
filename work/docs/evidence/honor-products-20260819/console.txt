@@ -1,0 +1,12 @@
+[01_desktop_1366_honor_products runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[01_desktop_1366_honor_products post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_phone_844_honor_products runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_phone_844_honor_products post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_740_honor_products runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_740_honor_products post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "capturedAt": "2026-08-20T18:08:18.5123347Z",
+  "scope": "tutorial-action-notification-badges",
+  "studio": {
+    "instanceId": "bd53308d-6955-4500-8241-acee71f75085",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "placeId": "0",
+    "mode": "Edit",
+    "note": "Unpublished local Studio runtime; persistence was validated through migration and profile round-trip contracts, not a live DataStore rejoin."
+  },
+  "runtime": {
+    "flowPassed": true,
+    "checksPassed": 33,
+    "checksTotal": 33,
+    "bootConsoleClean": true,
+    "runtimeConsoleClean": true,
+    "postStopConsoleClean": true
+  },
+  "sourceHashes": {
+    "GameConfig.lua": "b1af9b2b2a4acf727d1ad6bc1c1c5ce4f566e095cf6c6c2e68af35b2cea7c242",
+    "ProfilePersistence.lua": "bfd2622b51bdcb2d1341a89b3f15b9191ed3b36d78cfcbb23acbde46f05d779f",
+    "PunchWallBootstrap.server.lua": "4fdc1d0fcd3d0b29d396fa14ddf804bcd1c2a4ba5b8c08b62e705e551c2abf0c",
+    "PunchWallClient.client.lua": "48e87614f96796ab69b02d1f64884e339dbdc3d1976ef7d2b36e1092b3f5d974",
+    "tutorial-action-notification-badges.json": "578043798b409d671e3e0d7bba4ab7369061a56779a74174cf347d25cdc3b444",
+    "tutorial-action-notification-badges-contract.mjs": "9aac1adbdbc7b9f887d6aa636d0ab7a0c57b769b43bbaa7a8d441cf46266ae6e",
+    "flow-result.json": "caf18df7d3b89ae418ec69d794bb1151fb33340a5bed8d77b532c3670c8469ca"
+  },
+  "runtimeSourceFingerprints": {
+    "GameConfig": { "length": 39036, "adler32": 3575473077, "matchesLocal": true },
+    "ProfilePersistence": { "length": 72504, "adler32": 2952145461, "matchesLocal": true },
+    "PunchWallBootstrap": { "length": 421285, "adler32": 3260333249, "matchesLocal": true },
+    "PunchWallClient": { "length": 555112, "adler32": 3134332921, "matchesLocal": true }
+  },
+  "staticValidation": {
+    "tutorialContract": "22/22 PASS",
+    "persistenceContract": "29/29 PASS",
+    "honorProductReceiptContract": "14/14 PASS",
+    "fullAggregate": "PASS: Node 50, PowerShell 19, Luau 27, flow JSON 116, 27 non-Studio contracts"
+  },
+  "visualEvidence": {
+    "captured": false,
+    "reason": "The badge is a code-native 18px red status dot and was verified through live UI instances, visibility transitions, attributes, and the existing responsive HUD contracts; no new bitmap asset was introduced."
+  }
+}

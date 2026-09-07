@@ -1,0 +1,52 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "honor-product-receipts",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set deterministic 740 phone viewport",
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "four Honor products and four existing world offers are exact",
+        "Honor receipt first replay mismatch overflow and reconcile are exact",
+        "four Honor cards resolve exact live prices and bind safe purchase actions",
+        "cleanup stop play",
+        "cleanup Honor flow device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "Expected regex not found: 740x339\nReceived: {\"ok\":true,\"viewport\":\"740, 339\",\"rows\":[{\"state\":\"Opening\",\"exact\":true,\"text\":\"OPEN\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"CheckoutOpen\",\"exact\":true,\"text\":\"ROBLOX\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"Verifying\",\"exact\":true,\"text\":\"VERIFY\",\"fits\":true,\"size\":\"112, 48\"},{\"state\":\"Granted\",\"exact\":true,\"text\":\"ADDED\",\"fits\":true,\"size\":\"112, 48\"}],\"canceled\":true,\"canceledText\":\"BUY\"}",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    }
+  ]
+}

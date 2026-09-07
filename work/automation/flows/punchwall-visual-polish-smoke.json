@@ -1,6 +1,6 @@
 {
   "name": "punchwall-visual-polish-smoke",
-  "description": "Validate Hero City visual polish: bright anime hero lighting, city decor, smashable building facade textures, and responsive HUD sizing.",
+  "description": "Validate the current forest/depth/Titan visual contracts, Hero City HUD styling, strict visual budgets, and responsive controls.",
   "studioName": "PunchWallRPG",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -41,25 +41,25 @@
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Lighting.Hero City Bloom"
+        "datamodel_type": "Server",
+        "code": "local x=game.Lighting['Hero City Bloom'] return game.HttpService:JSONEncode({ok=math.abs(x.Intensity-0.08)<.00001,value=x.Intensity,class=x.ClassName})"
       },
       "expectRegex": [
-        "BloomEffect",
-        "\"Intensity\"\\s*:\\s*0\\.1"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "kaiju bloom configured"
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Lighting.Hero City Color"
+        "datamodel_type": "Server",
+        "code": "local x=game.Lighting['Hero City Color'] return game.HttpService:JSONEncode({ok=math.abs(x.Contrast-0.16)<.00001,value=x.Contrast,class=x.ClassName})"
       },
       "expectRegex": [
-        "ColorCorrectionEffect",
-        "\"Contrast\"\\s*:\\s*0\\.2"
+        "\"ok\"\\s*:\\s*true"
       ],
       "label": "kaiju color correction configured"
     },
@@ -68,46 +68,53 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal root = workspace:WaitForChild(\"PunchWallRPG\", 10)\nlocal polish = root:WaitForChild(\"Polish\", 10)\nlocal city = polish:WaitForChild(\"City Decor\", 10)\nlocal tier = polish:WaitForChild(\"Wall Tier Frames\", 10)\nlocal guide = polish:WaitForChild(\"Guide Path\", 10)\nlocal vfx = polish:WaitForChild(\"VFX Anchors\", 10)\nlocal detailCount = 0\nlocal facadeCount = 0\nfor _, inst in ipairs(root:GetDescendants()) do\n if inst:GetAttribute(\"TextureStyle\") == \"ThreeDimensionalFacadeDetail\" then detailCount += 1 end\n if inst.Name == \"WindowFacade\" then facadeCount += 1 end\nend\nreturn HttpService:JSONEncode({ hasGuide = guide ~= nil, hasTier = tier ~= nil, hasCity = city ~= nil, hasVfx = vfx ~= nil, cityChildren = #city:GetChildren(), tierChildren = #tier:GetChildren(), detailBucket = detailCount >= 1000 and \"1000+\" or tostring(detailCount), facadeBucket = facadeCount >= 20 and \"20+\" or tostring(facadeCount) })"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal root = workspace:WaitForChild(\"PunchWallRPG\", 10)\nlocal polish = root:WaitForChild(\"Polish\", 10)\nlocal city = polish:WaitForChild(\"City Decor\", 10)\nlocal tier = polish:WaitForChild(\"Wall Tier Frames\", 10)\nlocal guide = polish:WaitForChild(\"Guide Path\", 10)\nlocal vfx = polish:WaitForChild(\"VFX Anchors\", 10)\nlocal forest = polish:WaitForChild(\"World 1 Forest\", 10)\nlocal landmarks = root:WaitForChild(\"Depth Tier Landmarks\", 10)\nlocal boss=root.Walls[\"Titan Server Wall\"] local facadeCount = 0\nfor _, inst in ipairs(boss:GetChildren()) do if inst.Name == \"WindowFacade\" and inst:IsA(\"SurfaceGui\") then local backing=inst:FindFirstChild(\"FacadeBacking\") local tiles=0 for _,tile in ipairs(backing and backing:GetChildren() or {}) do if tile.Name==\"WindowTile\" and tile:IsA(\"Frame\") then tiles+=1 end end assert(tiles==30,\"boss facade window grid missing\") facadeCount += 1 end end\nreturn HttpService:JSONEncode({ hasGuide = guide ~= nil, hasTier = tier ~= nil, hasCity = city ~= nil, hasVfx = vfx ~= nil, cityReady = #city:GetChildren() > 0, tierReady = #tier:GetChildren() > 0, depthBlocks = #root[\"Depth Blocks\"]:GetChildren(), landmarks = #landmarks:GetChildren(), forestBudget = forest:GetAttribute(\"ForestVisualBudgetValidated\"), forestParts = forest:GetAttribute(\"ForestVisualBasePartCount\"), facadeReady = facadeCount == 2 and boss:GetAttribute(\"FacadeDetailCount\")==177 and boss:GetAttribute(\"TextureStyle\")==\"TitanContainmentWall\" })"
       },
       "expectRegex": [
         "\"hasGuide\"\\s*:\\s*true",
         "\"hasTier\"\\s*:\\s*true",
         "\"hasCity\"\\s*:\\s*true",
         "\"hasVfx\"\\s*:\\s*true",
-        "\"detailBucket\"\\s*:\\s*\"688\"",
-        "\"facadeBucket\"\\s*:\\s*\"20\\+\""
+        "\"cityReady\"\\s*:\\s*true",
+        "\"tierReady\"\\s*:\\s*true",
+        "\"depthBlocks\"\\s*:\\s*5400",
+        "\"landmarks\"\\s*:\\s*10",
+        "\"forestBudget\"\\s*:\\s*true",
+        "\"forestParts\"\\s*:\\s*[1-9][0-9]*",
+        "\"facadeReady\"\\s*:\\s*true"
       ],
-      "label": "kaiju polish folders and 3d facade detail counts"
+      "label": "forest, depth, Titan, and polish budgets are present"
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG.Downtown Smash Block"
+        "datamodel_type": "Server",
+        "code": "local p=workspace.PunchWallRPG['World 1 Forest Ground'] return game.HttpService:JSONEncode({groundContractValid=p:IsA('BasePart') and p.Material==Enum.Material.Grass and p.Size==Vector3.new(190,3,150) and p.Anchored and p.CanCollide,material=p.Material.Name,size=tostring(p.Size)})"
       },
       "expectRegex": [
-        "Asphalt",
-        "\"Size\""
+        "\"groundContractValid\"\\s*:\\s*true"
       ],
-      "label": "asphalt city base exists"
+      "label": "forest ground has current material and full playable collision footprint"
     },
     {
       "type": "call",
-      "tool": "inspect_instance",
+      "tool": "execute_luau",
       "args": {
-        "path": "Workspace.PunchWallRPG.Walls.Brick Wall"
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local wall=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 return H:JSONEncode({role=wall:GetAttribute(\"VisualRole\"),isDepth=wall:GetAttribute(\"IsDepthBlock\"),damageStage=wall:GetAttribute(\"DamageStage\"),texture=wall:GetAttribute(\"TextureStyle\"),edge=wall:GetAttribute(\"EdgeTreatment\"),tier=wall:GetAttribute(\"TierName\"),hasOriginalColor=typeof(wall:GetAttribute(\"OriginalColor\"))==\"Color3\",contract=root:GetAttribute(\"DepthBlockContractValidated\")})"
       },
       "expectRegex": [
-        "\"Theme\"\\s*:\\s*\"Hero City\"",
-        "\"VisualRole\"\\s*:\\s*\"LayeredDestructionTarget\"",
-        "\"DamageStage\"\\s*:\\s*0",
-        "WallCombatBillboard",
-        "PhysicalCombatSign",
-        "Hit Spark Attachment",
-        "Break Burst Attachment"
+        "\"role\"\\s*:\\s*\"SharedExcavationBlock\"",
+        "\"isDepth\"\\s*:\\s*true",
+        "\"damageStage\"\\s*:\\s*0",
+        "\"texture\"\\s*:\\s*\"ConnectedDestructibleBrick Wall\"",
+        "\"edge\"\\s*:\\s*\"ConnectedCubeSeamTier01\"",
+        "\"tier\"\\s*:\\s*\"Forest Stone\"",
+        "\"hasOriginalColor\"\\s*:\\s*true",
+        "\"contract\"\\s*:\\s*true"
       ],
-      "label": "wall has kaiju building facade and vfx"
+      "label": "first depth block has connected material identity"
     },
     {
       "type": "call",
@@ -127,14 +134,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal mobile = gui:WaitForChild(\"MobileControls\", 5)\nmobile.Visible = true\nlocal punch = mobile:WaitForChild(\"ActionPunch\", 5)\nreturn HttpService:JSONEncode({ title = gui:FindFirstChild(\"StatsPanel\", true):FindFirstChild(\"Title\", true).Text, rewardPops = gui:FindFirstChild(\"RewardPops\") ~= nil, mobileWidth = mobile.AbsoluteSize.X, punchWidth = punch.AbsoluteSize.X, punchText = punch.Text })"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal player = game:GetService(\"Players\").LocalPlayer\nlocal gui = player:WaitForChild(\"PlayerGui\"):WaitForChild(\"PunchWallHUD\", 5)\nlocal reference = gui:WaitForChild(\"PixelPerfectHeroCityHUD\", 5)\nlocal punch = reference:WaitForChild(\"ActionPunch\", 5)\nlocal jump = reference:WaitForChild(\"ActionJump\", 5)\nlocal viewport=workspace.CurrentCamera.ViewportSize\nlocal contained=punch.AbsolutePosition.X>=0 and punch.AbsolutePosition.Y>=0 and punch.AbsolutePosition.X+punch.AbsoluteSize.X<=viewport.X and punch.AbsolutePosition.Y+punch.AbsoluteSize.Y<=viewport.Y and jump.AbsolutePosition.X>=0 and jump.AbsolutePosition.Y>=0 and jump.AbsolutePosition.X+jump.AbsoluteSize.X<=viewport.X and jump.AbsolutePosition.Y+jump.AbsoluteSize.Y<=viewport.Y\nreturn HttpService:JSONEncode({ title = gui:FindFirstChild(\"StatsPanel\", true):FindFirstChild(\"Title\", true).Text, rewardPops = gui:FindFirstChild(\"RewardPops\") ~= nil, referenceVisible=reference.Visible, legacyHidden=not gui.MobileControls.Visible, controlsContained=contained, punchMin=punch.AbsoluteSize.X>=44 and punch.AbsoluteSize.Y>=44, jumpMin=jump.AbsoluteSize.X>=44 and jump.AbsoluteSize.Y>=44 })"
       },
       "expectRegex": [
         "\"title\"\\s*:\\s*\"HERO STATUS\"",
         "\"rewardPops\"\\s*:\\s*true",
-        "\"punchText\"\\s*:\\s*\"PUNCH\"",
-        "\"mobileWidth\"\\s*:\\s*278",
-        "\"punchWidth\"\\s*:\\s*100"
+        "\"referenceVisible\"\\s*:\\s*true",
+        "\"legacyHidden\"\\s*:\\s*true",
+        "\"controlsContained\"\\s*:\\s*true",
+        "\"punchMin\"\\s*:\\s*true",
+        "\"jumpMin\"\\s*:\\s*true"
       ],
       "label": "mobile hud still readable"
     },

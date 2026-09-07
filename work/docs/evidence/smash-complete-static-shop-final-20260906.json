@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "error": "Static contract: long-run-content-contract.mjs failed:\nfile:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/long-run-content-contract.mjs:14\r\n  if (!condition) throw new Error(message);\r\n                        ^\r\n\r\nError: compact catalogs and the large fist catalog must activate scrolling\r\n    at check (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/long-run-content-contract.mjs:14:25)\r\n    at file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/long-run-content-contract.mjs:59:1\r\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\r\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)\r\n\r\nNode.js v22.12.0",
+  "stack": "at Invoke-CheckedNode, F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-automation-static-contracts.ps1: line 51\r\nat <ScriptBlock>, F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\run-automation-static-contracts.ps1: line 376\r\nat <ScriptBlock>, F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-full-static-safe.ps1: line 8\r\nat <ScriptBlock>, <No file>: line 2",
+  "recordedAt": "2026-09-06T05:09:51.4323287Z"
+}

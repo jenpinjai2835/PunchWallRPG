@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-free-aim-combat-polish",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for polished runtime",
+        "cubic field and clean forest environment",
+        "free aim keeps facing and wall rewards coins only",
+        "debris starts outside the wall and bursts toward open space",
+        "trigger one client punch",
+        "wait for action cooldown",
+        "animation follows the one-second action cooldown",
+        "wait for client feedback",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"musicId\"\\s*:\\s*\"rbxassetid://1837768013\"\nReceived: {\"musicPlaying\":true,\"wallMax\":27,\"freeAim\":true,\"soundMode\":\"SingleChannel\",\"musicLooped\":true,\"motionCount\":2,\"powerMax\":26,\"motionDuration\":0.72,\"musicId\":\"rbxassetid://1837768082\",\"hudSafe\":true,\"coinsMax\":26,\"punchChannels\":1}",
+      "context": {}
+    }
+  ]
+}

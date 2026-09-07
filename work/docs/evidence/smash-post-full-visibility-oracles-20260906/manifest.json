@@ -1,0 +1,30 @@
+[
+  {
+    "flow": "camera-long-tunnel-regression",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "4D47D130E1F2A9357163D2893D2C40FA9F1F8455541CA9E343E2643B4B6009F8"
+  },
+  {
+    "flow": "power-avatar-growth",
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:11: Power growth camera framing failed {\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.9975605010986328,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":2,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.025815963745117189,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleM"
+    ],
+    "flowSHA256": "65867A84504C8C49487F078163F49CF16464829156C911625A7D0873B387C820"
+  },
+  {
+    "flow": "pet-size-position-qc",
+    "ok": false,
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium screen separation failed {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.024500809030718316,\"minWorldPair\":2.4548165798187258},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.6451852321624756},\"6\":{\"valid\":false,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0.2798631440163821,\"minWorldPair\":2.0174715518951418}},\"formation\":\"BoundsAwarePremiumFormationV2\"}"
+    ],
+    "flowSHA256": "DBC623DDC1149132E0F3584EFBE14AB21E484C95C88A292F5D25C9E2B9DF9AA8"
+  },
+  {
+    "flow": "power-scaled-penetration",
+    "ok": true,
+    "errors": [],
+    "flowSHA256": "49A3A12961D037FD941A9ADD711F11DA13EB768C05D0E212BB16B38AD777E83E"
+  }
+]

@@ -1,0 +1,116 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "mobile-iphone17-layout",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 landscape",
+        "start iPhone 17 play",
+        "wait for responsive client",
+        "iPhone HUD is bounded sparse and touch safe",
+        "top information hierarchy is clear",
+        "premium pet equipped notice stays compact",
+        "Inventory All uses bounded phone drawer",
+        "Inventory Pets and Honor retain compact detail behavior",
+        "open Shop through the production menu path",
+        "Fists Shop rows have measured readable bounds and stable scroll",
+        "select Premium through the real Shop tab",
+        "Premium Shop rows have measured readable bounds and stable scroll",
+        "select Boosts through the real Shop tab",
+        "Boosts Shop rows have measured readable bounds and stable scroll",
+        "select Honor through the real Shop tab",
+        "Honor Shop rows have measured readable bounds and stable scroll",
+        "select Robux through the real Shop tab",
+        "Robux Shop rows have measured readable bounds and stable scroll",
+        "all five Shop pages fit iPhone 17",
+        "Missions surface is safe",
+        "Rebirth compact header and action fit",
+        "Settings rows stay contained",
+        "Hero Spin is isolated and touch safe",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 2)",
+        "stop iPhone 17 play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 2)",
+        "restore simulator default"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "runtimeConsole",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (29.4, 62.6) hits CoreGUI.\nStack Begin\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 286\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 164\nStack End\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (44.2, 64.9) hits CoreGUI.\nStack Begin\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 286\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 164\nStack End",
+          "identifiedToolWarningCount": 2,
+          "identifiedToolWarnings": [
+            {
+              "kind": "RobloxStudioAssistantVirtualInputCoreGui",
+              "startLine": 2,
+              "endLine": 6,
+              "frameCount": 2,
+              "header": "[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (29.4, 62.6) hits CoreGUI.",
+              "script": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils"
+            },
+            {
+              "kind": "RobloxStudioAssistantVirtualInputCoreGui",
+              "startLine": 7,
+              "endLine": 11,
+              "frameCount": 2,
+              "header": "[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (44.2, 64.9) hits CoreGUI.",
+              "script": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils"
+            }
+          ],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (29.4, 62.6) hits CoreGUI.\nStack Begin\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 286\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 164\nStack End\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (44.2, 64.9) hits CoreGUI.\nStack Begin\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 286\nScript 'sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils', Line 164\nStack End",
+          "identifiedToolWarningCount": 2,
+          "identifiedToolWarnings": [
+            {
+              "kind": "RobloxStudioAssistantVirtualInputCoreGui",
+              "startLine": 2,
+              "endLine": 6,
+              "frameCount": 2,
+              "header": "[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (29.4, 62.6) hits CoreGUI.",
+              "script": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils"
+            },
+            {
+              "kind": "RobloxStudioAssistantVirtualInputCoreGui",
+              "startLine": 7,
+              "endLine": 11,
+              "frameCount": 2,
+              "header": "[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils] VirtualInput::SendMousePosition: position (44.2, 64.9) hits CoreGUI.",
+              "script": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.TestAutomationUtils"
+            }
+          ],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

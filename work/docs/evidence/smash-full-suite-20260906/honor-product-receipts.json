@@ -1,0 +1,51 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "honor-product-receipts",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set deterministic 740 phone viewport",
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "four Honor products and four existing world offers are exact",
+        "Honor receipt first replay mismatch overflow and reconcile are exact",
+        "cleanup stop play",
+        "cleanup Honor flow device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Honor Shop live configured state failed {\"ok\":false,\"rows\":[{\"price\":25,\"exact\":false,\"pips\":1,\"productId\":3708804891,\"id\":\"HonorPouch25\",\"text\":\"BUY\",\"livePrice\":25,\"size\":\"112, 48\"},{\"price\":59,\"exact\":false,\"pips\":2,\"productId\":3708804911,\"id\":\"HonorCache90\",\"text\":\"BUY\",\"livePrice\":59,\"size\":\"112, 48\"},{\"price\":145,\"exact\":false,\"pips\":3,\"productId\":3708804933,\"id\":\"HonorVault300\",\"text\":\"BUY\",\"livePrice\":145,\"size\":\"112, 48\"},{\"price\":359,\"exact\":false,\"pips\":4,\"productId\":3708804944,\"id\":\"HonorTreasu",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+      }
+    }
+  ]
+}

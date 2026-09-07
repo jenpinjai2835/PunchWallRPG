@@ -1,0 +1,55 @@
+{
+  "at": "2026-09-06T04:42:35.736Z",
+  "observations": [
+    {
+      "label": "start",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "prepare affordable UI purchase",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "Fists use sixteen readable cards in a scrollable catalog",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "Premium companions use exact previews and configured Game Pass actions",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "two current coin-purchased Boosts use readable rows and truthful footer",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "Robux cards are equal and wired to configured products",
+      "text": "true",
+      "isError": false
+    },
+    {
+      "label": "visible and hidden text fit diagnostic",
+      "text": "{\"viewport\":[637,654],\"hud\":[637,654],\"bad\":[{\"path\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop.Crimson PhoenixShopCard.Name\",\"text\":\"CRIMSON PHOENIX\",\"scaled\":true,\"bounds\":[74,14],\"size\":[121.57600402832031,26.884000778198243],\"textSize\":17,\"wrapped\":true,\"effectivelyVisible\":true},{\"path\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop.Crimson PhoenixShopCard.Rarity\",\"text\":\"PREMIUM COMPANION\",\"scaled\":false,\"bounds\":[64,12],\"size\":[106.37899780273438,18.81879997253418],\"textSize\":12,\"wrapped\":false,\"effectivelyVisible\":true},{\"path\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop.Crimson PhoenixShopCard.Detail\",\"text\":\"Permanent sidekick  •  +280% Power  •  +20% Luck\",\"scaled\":false,\"bounds\":[109,24],\"size\":[115.49720001220703,30.91659927368164],\"textSize\":12,\"wrapped\":true,\"effectivelyVisible\":true},{\"path\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop.Storm WyvernShopCard.Rarity\",\"text\":\"PREMIUM COMPANION\",\"scaled\":false,\"bounds\":[64,12],\"size\":[106.37899780273438,18.81879997253418],\"textSize\":12,\"wrapped\":false,\"effectivelyVisible\":true},{\"path\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalHeroShop.Storm WyvernShopCard.Detail\",\"text\":\"Permanent sidekick  •  +650% Power  •  +40% Luck\",\"scaled\":false,\"bounds\":[109,24],\"size\":[115.49720001220703,30.91659927368164],\"textSize\":12,\"wrapped\":true,\"effectivelyVisible\":true}],\"layout\":\"DesktopCatalogV2\"}",
+      "isError": false
+    },
+    {
+      "label": "console",
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+      "isError": false
+    },
+    {
+      "label": "stop",
+      "text": "Game Stopped",
+      "isError": false
+    }
+  ],
+  "ok": true,
+  "selected": {
+    "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  }
+}

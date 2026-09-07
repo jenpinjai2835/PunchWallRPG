@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "shop-coin-and-music",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for music and shop art",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\":true\nReceived: {\"ok\":false,\"isLoaded\":true,\"timeLength\":122.7036507936508,\"advanced\":1.1090000000000018,\"musicOk\":true,\"isPlaying\":true,\"failures\":[\"Glacier ClawShopCard\",\"Toxic ReactorShopCard\",\"Void RipperShopCard\",\"Solar DominionShopCard\",\"Nebula CrusherShopCard\",\"Quantum BreakerShopCard\",\"Chrono SovereignShopCard\",\"Galaxy EmperorShopCard\",\"Infinity CoreShopCard\",\"Ascendant HeroShopCard\"],\"icons\":18,\"volume\":0.2199999988079071}",
+      "context": {}
+    }
+  ]
+}

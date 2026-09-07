@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "completed": 4,
+  "expected": 7,
+  "results": [
+    {
+      "ok": true,
+      "flow": "narrow-directional-controls",
+      "errors": [],
+      "seconds": 37.36
+    },
+    {
+      "ok": true,
+      "flow": "directional-punch-controls",
+      "errors": [],
+      "seconds": 15.51
+    },
+    {
+      "ok": true,
+      "flow": "hero-city-theme",
+      "errors": [],
+      "seconds": 14.1
+    },
+    {
+      "ok": false,
+      "flow": "hero-shop-reference-polish",
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: {\"ok\":false,\"tabs\":5,\"chrome\":true,\"allTextFits\":false,\"tabNames\":true}"
+      ],
+      "seconds": 15.87
+    }
+  ]
+}

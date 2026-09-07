@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "release-expansion-ui",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for client UI",
+        "mobile jump button action jumps",
+        "equip top fist",
+        "wait for fist visual",
+        "top fist is wrist aligned with tier aura",
+        "premium and Robux shop pages render",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"spin\":true,\"honor\":true,\"tasks\":true,\"pets\":false,\"masked\":true}",
+      "context": {}
+    }
+  ]
+}

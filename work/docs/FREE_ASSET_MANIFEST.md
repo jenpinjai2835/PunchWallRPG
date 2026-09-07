@@ -213,6 +213,49 @@ place has free-asset loading enabled; any load or sanitation failure immediately
 uses the procedural fallback. Decorative parts are anchored and non-colliding.
 Equipped fist parts are massless, non-colliding, and welded by project code.
 
+## Normal Pet Pack and Detailed Premium Companions - 2026-08-21
+
+Eight normal-pet visual families use selected children from the user-approved
+free Creator Store listing
+[pet pack pets animals cute furry bundle](https://create.roblox.com/store/asset/70715599928632/pet-pack-pets-animals-cute-furry-bundle)
+(`70715599928632`). The listing owner could not be confirmed by the automated
+page fetch, so the project does not invent an attribution; the URL and exact
+source-child names remain the provenance record.
+
+Edit-mode inspection found `3,003` BaseParts, `243` effects, five Scripts, and
+two Sounds in the raw pack. The raw pack is never shipped or loaded at runtime.
+Only the eight pack rows below are cloned into `PunchWallExternalAssets`; the strict
+visual allowlist removes all code, audio, prompts, remotes, tools, humanoids, and
+behavior containers. Parts are anchored/non-colliding and effect rates, beam
+segments, trail lifetimes, light range, and light shadows are bounded. A missing
+preloaded child fails closed to the existing procedural pet instead of loading
+the complete pack ID.
+
+| Game pet | Rarity / sale | Retained source child | Runtime template |
+| --- | --- | --- | --- |
+| Forest Pup | Common drop | `Dowodle` | `Sanitized_ForestPupPet` |
+| Miner Cat | Rare drop | `Catmouse` | `Sanitized_MinerCatPet` |
+| Crystal Fox | Epic drop | `Ocelot` | `Sanitized_CrystalFoxPet` |
+| Lava Dragon | Legendary drop | `Mythic Autumn Dragon` | `Sanitized_LavaDragonPet` |
+| Secret Titan Golem | Secret drop | `Dark Guardian` | `Sanitized_SecretTitanGolemPet` |
+| Thunder Roc | Legendary drop | `Enraged Phoenix` | `Sanitized_EnragedPhoenixPet` |
+| Frost Hydra | Legendary drop | `Electra Hydra` | `Sanitized_ElectraHydraPet` |
+| Solar Kirin | Secret drop | `Mythic Radiant One` | `Sanitized_MythicRadiantOnePet` |
+
+The three Premium companions deliberately use their earlier detailed standalone
+Creator Store models instead of those blocky pack children:
+
+| Premium pet | Creator Store asset | Creator | Runtime template |
+| --- | ---: | --- | --- |
+| Crimson Phoenix | `86478691482535` (`Mythical Phoenix pet`) | `IAmASwedishMale` | `Sanitized_CrimsonPhoenixPet` |
+| Storm Wyvern | `83562531232957` (`Adopt Me! Wyvern Dragon Pet Fantasy Roleplay`) | `XzG0ldeneJGlitchQJCy` | `Sanitized_StormWyvernPet` |
+| Celestial Guardian | `121956330907081` (`Innovation Robot Dog`) | `SirRioter` | `Sanitized_CelestialGuardianPet` |
+
+Inventory cards, Premium Shop cards, and equipped companions use a `ViewportFrame`
+or world clone from the same attested template, so the product preview and live
+companion cannot drift to a different species. Pack-candidate screenshots and the rejected raw-pack safety
+evidence are under `work/docs/evidence/pet-pack-70715599928632/`.
+
 `narwhal warrior upgraded` (`15949563425`) was rejected after in-game screenshot
 QC because its sanitized visual imported in a sprawled, sideways pose that did
 not read as a merchant. The upright bionic hero replaces it.
@@ -250,3 +293,20 @@ The Coin price icon is also copied into
 `F:\Roblox\PuchWall\work\assets\user-supplied\shop-coin-icon.png` and is
 preloaded during the client loading screen. It is rendered as a standalone
 transparent `ImageLabel`, so no square atlas frame or crop can overlap prices.
+
+# User-Supplied Inventory HUD Icon - 2026-07-18
+
+| Runtime use | Workspace source | Dimensions | SHA-256 | Roblox asset ID |
+| --- | --- | ---: | --- | --- |
+| Dedicated Inventory menu action beside Shop | `work/assets/user-supplied/inventory-hud-icon.png` | 500x500 ARGB PNG | `06E7F1F97D3EDBB9E5638D7CF2A72C4935BFBC8C299D8FCBBF6230E0573A497A` | `123409223461276` |
+
+The workspace file is an exact byte-for-byte copy of the user-supplied image
+from `C:\Temp\RMBG\ChatGPT Image 18 ก.ค. 2569 16_18_20.png`. It is raster art
+only and contains no scripts, prompts, remotes, sounds, or behavior objects.
+
+The exact source was uploaded through the authenticated project Studio as
+`rbxassetid://123409223461276`. Runtime records
+`IconSourceMode = "UploadedUserAsset"` and hides its native fallback label.
+If that configured ID is ever absent or invalid, the client fails visibly safe
+to the existing approved `MoreTool` image (`rbxassetid://103143983649151`) with
+an `INVENTORY` label instead of inventing or requesting an unapproved asset.

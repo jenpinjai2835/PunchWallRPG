@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "functional-hero-shop",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "functional shop renders all glove actions",
+        "glove and damage boost are charged and applied by server",
+        "coin boost doubles block reward and speed survives respawn",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

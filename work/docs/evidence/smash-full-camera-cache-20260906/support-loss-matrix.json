@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "support-loss-matrix",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for structure runtime",
+        "measure support-loss cases",
+        "support-loss cases behave physically (identified Studio input warnings: 0)",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "supportMatrix",
+          "label": "support-loss cases behave physically",
+          "ok": true,
+          "originalText": "{\"valid\":true,\"unsupportedAnchored\":0,\"settledAnchored\":10,\"punchable\":10,\"solid\":10,\"bridgeSupported\":true,\"cornerDropped\":true,\"columnCascade\":true,\"settled\":10,\"ceilingDropped\":true}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "{\"valid\":true,\"unsupportedAnchored\":0,\"settledAnchored\":10,\"punchable\":10,\"solid\":10,\"bridgeSupported\":true,\"cornerDropped\":true,\"columnCascade\":true,\"settled\":10,\"ceilingDropped\":true}"
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

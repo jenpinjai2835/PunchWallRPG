@@ -1,0 +1,67 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "pets do not grow when hero Power grows",
+        "hero shrinks back at low Power and grows again independently of WallLevel",
+        "preserve camera visibility detail 1 before cleanup",
+        "preserve camera visibility detail 2 before cleanup",
+        "preserve camera visibility detail 3 before cleanup",
+        "preserve camera visibility detail 4 before cleanup",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:11: Power growth camera framing failed {\"valid\":false,\"sampledResult\":{\"maxGuardEscapeTravelPerCycle\":0,\"geometryClamped\":false,\"clearRatio\":1,\"maxInheritedRootStep\":0.9975605010986328,\"configuredOrbit\":23.26280403137207,\"transientLineOfSightFrames\":0,\"inside\":0,\"maxBackPunch\":2,\"visualValid\":false,\"angle\":0,\"actions\":6,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.025815963745117189,\"physicalUnresolvedFrames\":0,\"readableRatio\":1,\"longestObscuredRun\":0,\"lastGuardPhase\":\"render\",\"overlapEscapes\":0,\"sampleM",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+        "growthMatrix": "{\"valid\":true,\"bossWallHeight\":18,\"grounded\":true,\"wallLevelIndependent\":true,\"rows\":[{\"applied\":1,\"directScale\":1,\"aura\":false,\"power\":15,\"bodyHeight\":4.696676991682285,\"expected\":1,\"bottomDelta\":0,\"visualHeight\":5.232573509216309},{\"applied\":1.0750000476837159,\"directScale\":1.0750000476837159,\"aura\":false,\"power\":1500,\"bodyHeight\":5.02249527187133,\"expected\":1.075,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.297552108764648},{\"applied\":1.125,\"directScale\":1.125,\"aura\":true,\"power\":150000,\"bodyHeight\":5.359082786932399,\"expected\":1.125,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.766138076782227},{\"applied\":1.2000000476837159,\"directScale\":1.2000000476837159,\"aura\":true,\"power\":15000000,\"bodyHeight\":5.730639973417194,\"expected\":1.2000000000000002,\"bottomDelta\":2.384185791015625e-7,\"visualHeight\":6.174720764160156},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1500000000,\"bodyHeight\":5.919539513343212,\"expected\":1.25,\"bottomDelta\":-1.1920928955078126e-7,\"visualHeight\":6.528737545013428},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1000000000000000,\"bodyHeight\":5.905861373739592,\"expected\":1.25,\"bottomDelta\":0,\"visualHeight\":6.528737545013428}],\"version\":\"PowerLogWallCappedV1\",\"monotonic\":true,\"directScaleValid\":true,\"bounded\":true,\"passageHeight\":8,\"sourcePower\":1000000000000000,\"maximumHeight\":7.2}",
+        "petInvariant": "{\"valid\":true,\"policy\":\"IndependentFixedTarget\",\"identitiesStable\":true,\"observersCleaned\":true,\"count\":3,\"rows\":[{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Forest Pup\",\"afterHeight\":1.4500001668930054,\"afterScale\":0.8387129306793213,\"sameModel\":true,\"beforeHeight\":1.4499996900558472,\"beforeScale\":0.8387129306793213},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Miner Cat\",\"afterHeight\":1.0721979141235352,\"afterScale\":0.2411685585975647,\"sameModel\":true,\"beforeHeight\":1.072197437286377,\"beforeScale\":0.2411685585975647},{\"notLarger\":true,\"targetFixed\":true,\"name\":\"Crystal Fox\",\"afterHeight\":1.649999737739563,\"afterScale\":0.19778680801391602,\"sameModel\":true,\"beforeHeight\":1.6500003337860108,\"beforeScale\":0.19778680801391602}],\"baselinePresent\":true,\"fixed\":true,\"heroMultiplier\":1.25,\"exactIdentities\":true}",
+        "cameraVisibilityDetail1": "{\"page\":1,\"available\":false}",
+        "cameraVisibilityDetail2": "{\"page\":2,\"available\":false}",
+        "cameraVisibilityDetail3": "{\"page\":3,\"available\":false}",
+        "cameraVisibilityDetail4": "{\"page\":4,\"available\":false}"
+      }
+    }
+  ]
+}

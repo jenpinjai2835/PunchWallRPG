@@ -1,0 +1,250 @@
+{
+  "ok": true,
+  "kind": "Native full-device vs safe-viewport area diagnostic; entitlement-bearing startup, NOT new-user fixture",
+  "startedAt": "2026-09-06T01:57:32.214Z",
+  "studio": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "editDevice": {
+    "ok": true,
+    "height": 402,
+    "name": "iPhone 17 Pro",
+    "orientation": "LandscapeLeft",
+    "id": "iphone_17_pro",
+    "scaling": "FitToWindow",
+    "custom": false,
+    "width": 874
+  },
+  "clientDevice": {
+    "ok": true,
+    "height": 402,
+    "name": "iPhone 17 Pro",
+    "orientation": "LandscapeLeft",
+    "id": "iphone_17_pro",
+    "scaling": "FitToWindow",
+    "custom": false,
+    "width": 874
+  },
+  "before": {
+    "ok": true,
+    "device": {
+      "form": "Enum.DeviceForm.Phone",
+      "custom": false,
+      "name": "iPhone 17 Pro",
+      "height": 402,
+      "id": "iphone_17_pro",
+      "resolutionScale": 3,
+      "pixelDensity": 460,
+      "width": 874
+    },
+    "resolution": {
+      "y": 402,
+      "x": 874
+    },
+    "gui": {
+      "screenInsets": "Enum.ScreenInsets.DeviceSafeInsets",
+      "position": {
+        "y": -58,
+        "x": 0
+      },
+      "safeAreaCompatibility": "Enum.SafeAreaCompatibility.FullscreenExtension",
+      "ignoreGuiInset": true,
+      "clipToDeviceSafeArea": true,
+      "size": {
+        "y": 361,
+        "x": 749
+      }
+    },
+    "hud": {
+      "visible": true,
+      "position": {
+        "y": -58,
+        "x": 0
+      },
+      "size": {
+        "y": 361,
+        "x": 749
+      }
+    },
+    "areas": {
+      "DeviceSafeInsets": {
+        "min": {
+          "y": -58,
+          "x": 0
+        },
+        "max": {
+          "y": 303,
+          "x": 749
+        },
+        "size": {
+          "y": 361,
+          "x": 749
+        }
+      },
+      "CoreUISafeInsets": {
+        "min": {
+          "y": 0,
+          "x": 0
+        },
+        "max": {
+          "y": 303,
+          "x": 749
+        },
+        "size": {
+          "y": 303,
+          "x": 749
+        }
+      },
+      "None": {
+        "min": {
+          "y": -78,
+          "x": -62
+        },
+        "max": {
+          "y": 323,
+          "x": 811
+        },
+        "size": {
+          "y": 401,
+          "x": 873
+        }
+      }
+    },
+    "cameraDeviceSafeSize": {
+      "y": 361,
+      "x": 749
+    },
+    "orientation": "Enum.ScreenOrientation.LandscapeLeft",
+    "scaling": "Enum.DeviceSimulatorScalingMode.FitToWindow",
+    "pixelDensity": 153.3333282470703,
+    "guiInset": {
+      "topLeft": {
+        "y": 58,
+        "x": 0
+      },
+      "bottomRight": {
+        "y": 0,
+        "x": 0
+      }
+    }
+  },
+  "image": {
+    "file": "work/docs/evidence/smash-phone-native-area-20260906.jpg",
+    "width": 1204,
+    "height": 553,
+    "sha256": "7EF2E53A7C1D824BFEE03D6C27DD4140637AE6E29DE2599E3E86E3971835BEB1",
+    "mimeType": "image/jpeg"
+  },
+  "after": {
+    "ok": true,
+    "device": {
+      "form": "Enum.DeviceForm.Phone",
+      "custom": false,
+      "name": "iPhone 17 Pro",
+      "height": 402,
+      "id": "iphone_17_pro",
+      "resolutionScale": 3,
+      "pixelDensity": 460,
+      "width": 874
+    },
+    "resolution": {
+      "y": 402,
+      "x": 874
+    },
+    "gui": {
+      "screenInsets": "Enum.ScreenInsets.DeviceSafeInsets",
+      "position": {
+        "y": -58,
+        "x": 0
+      },
+      "safeAreaCompatibility": "Enum.SafeAreaCompatibility.FullscreenExtension",
+      "ignoreGuiInset": true,
+      "clipToDeviceSafeArea": true,
+      "size": {
+        "y": 361,
+        "x": 749
+      }
+    },
+    "hud": {
+      "visible": true,
+      "position": {
+        "y": -58,
+        "x": 0
+      },
+      "size": {
+        "y": 361,
+        "x": 749
+      }
+    },
+    "areas": {
+      "DeviceSafeInsets": {
+        "min": {
+          "y": -58,
+          "x": 0
+        },
+        "max": {
+          "y": 303,
+          "x": 749
+        },
+        "size": {
+          "y": 361,
+          "x": 749
+        }
+      },
+      "CoreUISafeInsets": {
+        "min": {
+          "y": 0,
+          "x": 0
+        },
+        "max": {
+          "y": 303,
+          "x": 749
+        },
+        "size": {
+          "y": 303,
+          "x": 749
+        }
+      },
+      "None": {
+        "min": {
+          "y": -78,
+          "x": -62
+        },
+        "max": {
+          "y": 323,
+          "x": 811
+        },
+        "size": {
+          "y": 401,
+          "x": 873
+        }
+      }
+    },
+    "cameraDeviceSafeSize": {
+      "y": 361,
+      "x": 749
+    },
+    "orientation": "Enum.ScreenOrientation.LandscapeLeft",
+    "scaling": "Enum.DeviceSimulatorScalingMode.FitToWindow",
+    "pixelDensity": 153.3333282470703,
+    "guiInset": {
+      "topLeft": {
+        "y": 58,
+        "x": 0
+      },
+      "bottomRight": {
+        "y": 0,
+        "x": 0
+      }
+    }
+  },
+  "resetDevice": {
+    "ok": true,
+    "device": "default",
+    "name": "Studio desktop window",
+    "emulated": false
+  },
+  "cleanup": true,
+  "finishedAt": "2026-09-06T01:58:10.176Z"
+}

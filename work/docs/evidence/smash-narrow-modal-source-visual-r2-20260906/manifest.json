@@ -1,0 +1,533 @@
+{
+  "ok": true,
+  "kind": "Native integrated-source narrow modal visual inspection; not canonical artifact acceptance",
+  "startedAt": "2026-09-06T08:58:46.503Z",
+  "flowSHA256": "c8fb6a82a9c6fe779b0bcadf6a519dbec8406ccc19d986b023907dec0680a17c",
+  "captures": [
+    {
+      "name": "settings",
+      "file": "work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/settings.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "053FDA8E4B250041076CD772FD83CC2B1585BA4E911F8E073F20FD677CD224D5",
+      "before": {
+        "ok": true,
+        "window": "Settings",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          59,
+          613,
+          420
+        ]
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "window": "Settings",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          59,
+          613,
+          420
+        ]
+      }
+    },
+    {
+      "name": "rebirth",
+      "file": "work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/rebirth.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "E36B6DB3039671F4BEE2EDC860DB04EC13A24FCA9904FD37D01E51D007A641CC",
+      "before": {
+        "ok": true,
+        "window": "Rebirth",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          35,
+          613,
+          468
+        ]
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "window": "Rebirth",
+        "safe": [
+          0,
+          -58,
+          637,
+          654
+        ],
+        "bounds": [
+          12,
+          35,
+          613,
+          468
+        ]
+      }
+    },
+    {
+      "name": "selected-fist",
+      "file": "work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/selected-fist.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "32A0B4BED5241E577677CFC598B7009E8582FF351AB42F99BB1F06D15CB59648",
+      "before": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "fist:Starter Glove",
+          "previewCorners": true,
+          "category": "Fists",
+          "name": "STARTER FIST",
+          "actions": 1,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "fist:Starter Glove",
+          "previewCorners": true,
+          "category": "Fists",
+          "name": "STARTER FIST",
+          "actions": 1,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      }
+    },
+    {
+      "name": "selected-pet",
+      "file": "work/docs/evidence/smash-narrow-modal-source-visual-r2-20260906/selected-pet.jpg",
+      "width": 637,
+      "height": 654,
+      "sha256": "579CA2ED494BA44EE2A849A6D1A7AB0F7DD507648863F961AFA900F4389276E5",
+      "before": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "pet:slot:4",
+          "previewCorners": true,
+          "category": "Pets",
+          "name": "FOREST PUP",
+          "actions": 4,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      },
+      "verified": true,
+      "after": {
+        "ok": true,
+        "item": {
+          "targets44": true,
+          "noOverlap": true,
+          "previewIdentity": true,
+          "bounded": true,
+          "key": "pet:slot:4",
+          "previewCorners": true,
+          "category": "Pets",
+          "name": "FOREST PUP",
+          "actions": 4,
+          "tallHero": true,
+          "nameReadable": true
+        }
+      }
+    }
+  ],
+  "operations": [
+    {
+      "label": "create owned 637x654 ActualResolution desktop",
+      "text": "{\"ok\":true,\"previous\":{\"id\":\"default\",\"active\":false},\"name\":\"Smash Narrow Menu c05a96ab-4141-48d5-b198-f0b458d6ebfb\",\"id\":\"Smash Narrow Menu c05a96ab-4141-48d5-b198-f0b458d6ebfb\"}",
+      "isError": false
+    },
+    {
+      "label": "start play",
+      "text": "Game Started",
+      "isError": false
+    },
+    {
+      "label": "verify explicit narrow desktop before menu assertions",
+      "text": "{\"ok\":true,\"actualViewport\":[637,654],\"uiScale\":1,\"owned\":true,\"layout\":\"NarrowDesktopUniformIconGridV1\",\"full\":[637,654],\"resolution\":[637,654],\"profile\":\"Desktop\",\"deviceName\":\"Smash Narrow Menu c05a96ab-4141-48d5-b198-f0b458d6ebfb\",\"safe\":[0,-58,637,654],\"device\":\"Smash Narrow Menu c05a96ab-4141-48d5-b198-f0b458d6ebfb\"}",
+      "isError": false
+    },
+    {
+      "label": "settings state before",
+      "text": "{\"ok\":true,\"window\":\"Settings\",\"safe\":[0,-58,637,654],\"bounds\":[12,59,613,420]}",
+      "isError": false
+    },
+    {
+      "label": "settings state after",
+      "text": "{\"ok\":true,\"window\":\"Settings\",\"safe\":[0,-58,637,654],\"bounds\":[12,59,613,420]}",
+      "isError": false
+    },
+    {
+      "label": "rebirth state before",
+      "text": "{\"ok\":true,\"window\":\"Rebirth\",\"safe\":[0,-58,637,654],\"bounds\":[12,35,613,468]}",
+      "isError": false
+    },
+    {
+      "label": "rebirth state after",
+      "text": "{\"ok\":true,\"window\":\"Rebirth\",\"safe\":[0,-58,637,654],\"bounds\":[12,35,613,468]}",
+      "isError": false
+    },
+    {
+      "label": "seed one normal pet for narrow selected-detail geometry",
+      "text": "{\"ok\":true,\"pet\":\"Forest Pup\",\"stars\":1}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist state before",
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"fist:Starter Glove\",\"previewCorners\":true,\"category\":\"Fists\",\"name\":\"STARTER FIST\",\"actions\":1,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-fist state after",
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"fist:Starter Glove\",\"previewCorners\":true,\"category\":\"Fists\",\"name\":\"STARTER FIST\",\"actions\":1,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet state before",
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"pet:slot:4\",\"previewCorners\":true,\"category\":\"Pets\",\"name\":\"FOREST PUP\",\"actions\":4,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "selected-pet state after",
+      "text": "{\"ok\":true,\"item\":{\"targets44\":true,\"noOverlap\":true,\"previewIdentity\":true,\"bounded\":true,\"key\":\"pet:slot:4\",\"previewCorners\":true,\"category\":\"Pets\",\"name\":\"FOREST PUP\",\"actions\":4,\"tallHero\":true,\"nameReadable\":true}}",
+      "isError": false
+    },
+    {
+      "label": "console",
+      "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+      "isError": false
+    },
+    {
+      "label": "cleanup stop play",
+      "text": "Game Stopped",
+      "isError": false
+    },
+    {
+      "label": "restore previous simulator and remove owned narrow device",
+      "text": "{\"ok\":true,\"removed\":1,\"restored\":\"default\"}",
+      "isError": false
+    }
+  ],
+  "sourceCommit": "e69e586d5e84668aefda546ed3701f44ce55affd",
+  "sourceBefore": {
+    "ok": true,
+    "checkedAt": "2026-09-06T08:58:47.914Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+      "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "94c223efcddf28379b86a18cf3892cbb5c8857173bac3ba7cfd6e2433397a742",
+        "rawSHA256": "ddb551acae2657634953a16e7cbbdd24d3c862569de4a2259c501329bccbba7e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 663607,
+          "name": "PunchWallClient",
+          "actualBytes": 663607
+        }
+      }
+    ]
+  },
+  "selected": {
+    "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "console": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+  "cleanup": [
+    {
+      "label": "cleanup stop play",
+      "ok": true
+    },
+    {
+      "label": "restore previous simulator and remove owned narrow device",
+      "ok": true
+    }
+  ],
+  "sourceAfter": {
+    "ok": true,
+    "checkedAt": "2026-09-06T08:59:09.743Z",
+    "readOnly": true,
+    "selectedStudio": {
+      "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+      "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+    },
+    "placeId": 0,
+    "placeName": "PunchWallRPGPlayable_v1_final.rbxlx",
+    "globalCodeObjectCount": 9,
+    "sources": [
+      {
+        "name": "GameConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+        "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 38942,
+          "name": "GameConfig",
+          "actualBytes": 38942
+        }
+      },
+      {
+        "name": "PolishConfig",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+        "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 12834,
+          "name": "PolishConfig",
+          "actualBytes": 12834
+        }
+      },
+      {
+        "name": "ForestVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+        "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 34025,
+          "name": "ForestVisualBuilder",
+          "actualBytes": 34025
+        }
+      },
+      {
+        "name": "FistVisualBuilder",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+        "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 24885,
+          "name": "FistVisualBuilder",
+          "actualBytes": 24885
+        }
+      },
+      {
+        "name": "InventoryViewModel",
+        "parent": "ReplicatedStorage",
+        "class": "ModuleScript",
+        "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+        "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 29640,
+          "name": "InventoryViewModel",
+          "actualBytes": 29640
+        }
+      },
+      {
+        "name": "ProfilePersistence",
+        "parent": "ServerScriptService",
+        "class": "ModuleScript",
+        "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+        "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 72504,
+          "name": "ProfilePersistence",
+          "actualBytes": 72504
+        }
+      },
+      {
+        "name": "PunchWallBootstrap",
+        "parent": "ServerScriptService",
+        "class": "Script",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+        "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 434288,
+          "name": "PunchWallBootstrap",
+          "actualBytes": 434288
+        }
+      },
+      {
+        "name": "InventoryUI",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "ModuleScript",
+        "normalizedSHA256": "98a754415b272acd135587d854b3ca9c5ed14d7261d0420f7e6d2fc0913b3edb",
+        "rawSHA256": "4dbe5c2280276cf1818e4f74530b069da5b3e3dbb92eeb78bde69871b7fafe50",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 167898,
+          "name": "InventoryUI",
+          "actualBytes": 167898
+        }
+      },
+      {
+        "name": "PunchWallClient",
+        "parent": "StarterPlayer.StarterPlayerScripts",
+        "class": "LocalScript",
+        "disabled": false,
+        "runContext": "Legacy",
+        "normalizedSHA256": "94c223efcddf28379b86a18cf3892cbb5c8857173bac3ba7cfd6e2433397a742",
+        "rawSHA256": "ddb551acae2657634953a16e7cbbdd24d3c862569de4a2259c501329bccbba7e",
+        "exactByteComparison": {
+          "ok": true,
+          "expectedBytes": 663607,
+          "name": "PunchWallClient",
+          "actualBytes": 663607
+        }
+      }
+    ]
+  },
+  "sourceUnchanged": true,
+  "finishedAt": "2026-09-06T08:59:09.754Z"
+}

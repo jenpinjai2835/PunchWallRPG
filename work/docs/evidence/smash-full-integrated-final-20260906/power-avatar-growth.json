@@ -1,0 +1,56 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "power-avatar-growth",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean (identified Studio input warnings: 0)",
+        "R6 R15 and tall R15 obey the core-body growth cap",
+        "Power growth is monotonic grounded and shorter than every normal wall",
+        "Power growth waits for punch ownership and restores physics",
+        "prepare three fixed-size companion models",
+        "wait for companion formation",
+        "record pet size before hero growth",
+        "raise hero to maximum configured Power",
+        "wait for hero and pet presentation update",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "bootConsole",
+          "label": "boot console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Pet growth invariant failed {\"valid\":false,\"count\":3,\"rows\":[{\"notLarger\":false,\"name\":\"Forest Pup\",\"afterHeight\":1.4499996900558472,\"afterScale\":0.8387129306793213,\"targetFixed\":false,\"beforeHeight\":0,\"beforeScale\":0},{\"notLarger\":false,\"name\":\"Miner Cat\",\"afterHeight\":1.2047007083892823,\"afterScale\":0.22719381749629975,\"targetFixed\":false,\"beforeHeight\":0,\"beforeScale\":0},{\"notLarger\":false,\"name\":\"Crystal Fox\",\"afterHeight\":1.6500006914138795,\"afterScale\":0.19778680801391602,\"targetFixed\":false,\"beforeH",
+      "context": {
+        "bootConsole": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+        "growthMatrix": "{\"valid\":true,\"bossWallHeight\":18,\"grounded\":true,\"wallLevelIndependent\":true,\"rows\":[{\"applied\":1,\"directScale\":1,\"aura\":false,\"power\":15,\"bodyHeight\":4.673857278955685,\"expected\":1,\"bottomDelta\":0,\"visualHeight\":5.283008575439453},{\"applied\":1.0750000476837159,\"directScale\":1.0750000476837159,\"aura\":false,\"power\":1500,\"bodyHeight\":5.021833748837153,\"expected\":1.075,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.297828674316406},{\"applied\":1.125,\"directScale\":1.125,\"aura\":true,\"power\":150000,\"bodyHeight\":5.370659909168262,\"expected\":1.125,\"bottomDelta\":-1.7881393432617188e-7,\"visualHeight\":5.721700668334961},{\"applied\":1.2000000476837159,\"directScale\":1.2000000476837159,\"aura\":true,\"power\":15000000,\"bodyHeight\":5.733236516725366,\"expected\":1.2000000000000002,\"bottomDelta\":2.384185791015625e-7,\"visualHeight\":6.166746139526367},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1500000000,\"bodyHeight\":5.928247413092499,\"expected\":1.25,\"bottomDelta\":-1.1920928955078126e-7,\"visualHeight\":6.538206100463867},{\"applied\":1.25,\"directScale\":1.25,\"aura\":true,\"power\":1000000000000000,\"bodyHeight\":5.905714547793212,\"expected\":1.25,\"bottomDelta\":0,\"visualHeight\":6.538206100463867}],\"version\":\"PowerLogWallCappedV1\",\"monotonic\":true,\"directScaleValid\":true,\"bounded\":true,\"passageHeight\":8,\"sourcePower\":1000000000000000,\"maximumHeight\":7.2}"
+      }
+    }
+  ]
+}

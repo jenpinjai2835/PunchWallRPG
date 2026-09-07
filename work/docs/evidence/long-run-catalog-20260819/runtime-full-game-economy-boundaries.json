@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "full-game-economy-boundaries",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start authoritative economy boundary session",
+        "wait for profile-ready runtime",
+        "verify fist purchase and equip boundaries",
+        "verify shop boost cost and invalid-target boundaries",
+        "verify honor cost, repeat, and full-catalog boundaries",
+        "verify daily reward first and repeat claims",
+        "verify daily quest target and repeat boundaries",
+        "verify playtime target and repeat boundaries",
+        "seed authoritative spin cooldown boundary without invoking automation Spin",
+        "real cooldown Spin emits one bounded Fail and no reward mutation",
+        "real cooldown Spin leaves every authoritative reward field unchanged",
+        "seed one authoritative bonus spin credit",
+        "real credit Spin emits one bounded result and applies exactly one reward path",
+        "server confirms credit path preserved cooldown and applied one bounded reward",
+        "verify rebirth level, coin, and exact boundaries",
+        "capture boundary-suite console",
+        "boundary-suite console clean",
+        "return boundary session to Edit"
+      ]
+    }
+  ]
+}

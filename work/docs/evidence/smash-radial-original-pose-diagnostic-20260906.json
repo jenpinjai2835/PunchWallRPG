@@ -1,0 +1,31 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punchwall-radius-damage-shake",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "one body-directed punch damages a radius with falloff",
+        "facing away causes no damage and proves no target lock",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"shakeToken\"\\s*:\\s*[2-9][0-9]*\nReceived: {\"ok\":true,\"exactDamage\":false,\"maxHP\":8,\"poseBefore\":{\"y\":3,\"x\":-2,\"z\":-68},\"hp\":0,\"primary\":\"DepthBlock_L008_C06_R01\",\"targetSize\":{\"y\":4,\"x\":4,\"z\":4},\"targetPosition\":{\"y\":2.2420718669891359,\"x\":-4.0093278884887699,\"z\":-69.00714874267578},\"rootTravel\":1.266722559928894,\"shakeToken\":1,\"insideTargetBefore\":true,\"survived\":false,\"poseAfter\":{\"y\":2.948559045791626,\"x\":-2.774242401123047,\"z\":-66.9987564086914}}",
+      "context": {
+        "toughBlockDiagnostic": "{\"ok\":true,\"exactDamage\":false,\"maxHP\":8,\"poseBefore\":{\"y\":3,\"x\":-2,\"z\":-68},\"hp\":0,\"primary\":\"DepthBlock_L008_C06_R01\",\"targetSize\":{\"y\":4,\"x\":4,\"z\":4},\"targetPosition\":{\"y\":2.2420718669891359,\"x\":-4.0093278884887699,\"z\":-69.00714874267578},\"rootTravel\":1.266722559928894,\"shakeToken\":1,\"insideTargetBefore\":true,\"survived\":false,\"poseAfter\":{\"y\":2.948559045791626,\"x\":-2.774242401123047,\"z\":-66.9987564086914}}"
+      }
+    }
+  ]
+}

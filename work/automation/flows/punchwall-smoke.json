@@ -18,6 +18,8 @@
       "type": "call",
       "tool": "search_game_tree",
       "args": {
+        "datamodel_type": "Edit",
+        "datamodel_type": "Edit",
         "path": "Workspace.PunchWallRPG",
         "max_depth": 3,
         "head_limit": 120
@@ -80,6 +82,7 @@
       "type": "call",
       "tool": "inspect_instance",
       "args": {
+        "datamodel_type": "Server",
         "path": "Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L001_C06_R02"
       },
       "saveAs": "brickWall",
@@ -94,6 +97,7 @@
       "type": "call",
       "tool": "inspect_instance",
       "args": {
+        "datamodel_type": "Server",
         "path": "Workspace.PunchWallRPG.Walls.Titan Server Wall"
       },
       "saveAs": "titanWall",

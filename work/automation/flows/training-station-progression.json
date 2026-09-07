@@ -1,0 +1,293 @@
+{
+  "name": "training-station-progression",
+  "description": "Verify four authoritative Power training tiers, thresholds, exact recurring rates, safe switching, reset persistence, offline projection, cap safety, dynamic HUD, and leak-free stopping.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for profile and character"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "bootConsole",
+      "label": "capture boot console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "bootConsole",
+      "label": "boot console clean"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local expected={{'rookie_bag','Power Bag',0,4,-16},{'iron_dummy','Iron Impact Dummy',1500,40,-34},{'titan_reactor','Titan Reactor',150000,1200,-52},{'celestial_core','Celestial Power Core',15000000,50000,-70}} local root=workspace.PunchWallRPG local interact=root.Interactables local rows={} local ids={} local valid=#G.Training.Stations==4 and G.Training.TickSeconds==1 and G.Training.OfflineEfficiency==.35 and G.Training.MaxOfflineSeconds==28800 for i,e in ipairs(expected) do local d=G.Training.Stations[i] local part=interact:FindFirstChild(e[2]) local exact=d and d.id==e[1] and d.name==e[2] and d.minPower==e[3] and d.gain==e[4] and part and part:GetAttribute('TrainingStationId')==e[1] and part:GetAttribute('RequiredPower')==e[3] and part:GetAttribute('PowerPerSecond')==e[4] and math.abs(part.Position.X-e[5])<.01 and math.abs(part.Position.Z-24)<.01 ids[d and d.id or 'missing']=true valid=valid and exact rows[#rows+1]={id=d and d.id,name=d and d.name,min=d and d.minPower,gain=d and d.gain,x=part and part.Position.X,exact=exact==true} end local scientist=interact:FindFirstChild('Hero Sidekick Scientist Interaction') local egg=interact:FindFirstChild('Pet Egg Machine') local minOffer=math.huge for _,v in ipairs(interact:GetChildren()) do if v:IsA('BasePart') and v.Name:find(' Premium Offer',1,true) then minOffer=math.min(minOffer,(v.Position-scientist.Position).Magnitude) end end local spatial=scientist and egg and minOffer>=12 and (scientist.Position-egg.Position).Magnitude>=12 valid=valid and spatial and ids.rookie_bag and ids.iron_dummy and ids.titan_reactor and ids.celestial_core local result={ok=valid==true,rows=rows,spatial=spatial==true,minScientistOfferDistance=minOffer,scientist=scientist and tostring(scientist.Position),egg=egg and tostring(egg.Position)} assert(result.ok,'Training matrix/world failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"spatial\"\\s*:\\s*true",
+        "rookie_bag",
+        "iron_dummy",
+        "titan_reactor",
+        "celestial_core"
+      ],
+      "label": "four-station matrix and Pet Lab annex are exact and non-overlapping"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\nlocal function trainingBoundary(G, required)\n local multiplier=G.EffectivePower(1,1,0,0,1,0)\n assert(multiplier>0 and required>0,'invalid qualification boundary')\n local first=math.ceil(required/multiplier)\n assert(G.EffectivePower(first-1,1,0,0,1,0)<required and G.EffectivePower(first,1,0,0,1,0)>=required,'fixture does not straddle adjacent effective-Power qualification')\n return first-1,first\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') p:SetAttribute('TrainingBoostExpiresAt',0) local cases={{'Iron Impact Dummy',1500},{'Titan Reactor',150000},{'Celestial Power Core',15000000}} local rows={} local valid=true for _,case in ipairs(cases) do c:Invoke('StopTraining') c:Invoke('SetStats',{Power=0,FistMultiplier=1,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) local below,first=trainingBoundary(G,case[2]) c:Invoke('SetStats',{Power=below}) local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train',case[1]) task.wait(1.12) local after=c:Invoke('TrainingSnapshot') local exact=r.ok==false and r.reason=='power_required' and before.Power==below and math.abs(before.qualificationPower-G.EffectivePower(below,1,0,0,1,0))<1e-6 and before.qualificationPower<case[2] and after.Power==before.Power and after.active==false and after.payoutSerial==before.payoutSerial and after.sessionGeneration==before.sessionGeneration and after.movementLocked==false valid=valid and exact rows[#rows+1]={station=case[1],power=below,firstAcceptedRawPower=first,qualification=before.qualificationPower,required=case[2],reason=r.reason,exact=exact} end local result={ok=valid,rows=rows} assert(valid,'Training threshold rejection failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "power_required",
+        "\"exact\"\\s*:\\s*true"
+      ],
+      "label": "last rejected raw Power lies immediately below the effective-Power station threshold"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local function trainingBoundary(G, required)\n local multiplier=G.EffectivePower(1,1,0,0,1,0)\n assert(multiplier>0 and required>0,'invalid qualification boundary')\n local first=math.ceil(required/multiplier)\n assert(G.EffectivePower(first-1,1,0,0,1,0)<required and G.EffectivePower(first,1,0,0,1,0)>=required,'fixture does not straddle adjacent effective-Power qualification')\n return first-1,first\nend\nlocal H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') p:SetAttribute('TrainingBoostExpiresAt',0) local cases={{'Power Bag',0,4},{'Iron Impact Dummy',1500,40},{'Titan Reactor',150000,1200},{'Celestial Power Core',15000000,50000}} local rows={} local valid=true for _,case in ipairs(cases) do c:Invoke('StopTraining') local first=0 if case[2]>0 then local below; below,first=trainingBoundary(G,case[2]) end c:Invoke('SetStats',{Power=first,FistMultiplier=1,PetMultiplier=0,Rebirths=0,FistMastery=1,HonorPowerBonus=0}) local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train',case[1]) local immediate=c:Invoke('TrainingSnapshot') local deadline=os.clock()+2.6 local after=immediate repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=deadline local delta=after.Power-before.Power local ticks=after.sessionTickCount local normalized=ticks>0 and delta/ticks or -1 local exact=r.ok==true and r.gain==0 and before.Power==first and before.qualificationPower>=case[2] and immediate.Power==before.Power and after.payoutSerial==immediate.payoutSerial+1 and ticks>=1 and ticks<=2 and normalized==case[3] and after.gainPerSecond==case[3] and after.lastGrant==delta and after.lastTickBatch==ticks valid=valid and exact rows[#rows+1]={station=case[1],required=case[2],rawPower=first,qualification=before.qualificationPower,delta=delta,ticks=ticks,normalized=normalized,rate=after.gainPerSecond,serial=after.payoutSerial,exact=exact} c:Invoke('StopTraining') end local result={ok=valid,rows=rows} assert(valid,'Training exact rate failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"normalized\"\\s*:\\s*4",
+        "\"normalized\"\\s*:\\s*40",
+        "\"normalized\"\\s*:\\s*1200",
+        "\"normalized\"\\s*:\\s*50000"
+      ],
+      "label": "first qualifying raw Power starts without free payout and earns the exact station rate"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('SetStats',{Power=15000000}) p:SetAttribute('TrainingBoostExpiresAt',0) local start=c:Invoke('Train','Power Bag') local a=c:Invoke('TrainingSnapshot') local same=c:Invoke('Train','Power Bag') local b=c:Invoke('TrainingSnapshot') local switch=c:Invoke('Train','Iron Impact Dummy') local s=c:Invoke('TrainingSnapshot') local deadline=os.clock()+2.6 local t=s repeat task.wait(.04) t=c:Invoke('TrainingSnapshot') until t.payoutSerial>s.payoutSerial or os.clock()>=deadline local ticks=t.sessionTickCount local delta=t.Power-s.Power local nextRate=ticks>0 and delta/ticks or -1 local exact=start.ok and same.alreadyActive==true and b.Power==a.Power and b.payoutSerial==a.payoutSerial and b.sessionGeneration==a.sessionGeneration and switch.switched==true and s.Power==b.Power and s.payoutSerial==b.payoutSerial and s.sessionGeneration==b.sessionGeneration+1 and s.stationId=='iron_dummy' and ticks>=1 and ticks<=2 and nextRate==40 and t.payoutSerial==s.payoutSerial+1 and t.lastTickBatch==ticks local result={ok=exact==true,sameStationNoop=same.alreadyActive==true,switched=switch.switched==true,nextDelta=delta,nextTicks=ticks,nextRate=nextRate,generationBefore=b.sessionGeneration,generationAfter=s.sessionGeneration} assert(result.ok,'Training switch failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"sameStationNoop\"\\s*:\\s*true",
+        "\"switched\"\\s*:\\s*true",
+        "\"nextRate\"\\s*:\\s*40"
+      ],
+      "label": "same station is idempotent and active switch pays only the new station rate"
+    },
+    {
+      "type": "wait",
+      "ms": 350,
+      "label": "wait for switched training HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui:FindFirstChild('PunchWallHUD') local overlay=gui and gui:FindFirstChild('TrainingStateHUD',true) local label=overlay and overlay:FindFirstChild('TrainingStatus',true) local text=label and label.Text or '' local loops=gui and gui:GetAttribute('TrainingAnimationLoopStartCount') or 0 local ok=gui and gui:GetAttribute('ActiveTrainingStationId')=='iron_dummy' and gui:GetAttribute('ActiveTrainingPowerPerSecond')==40 and text:find('IRON IMPACT',1,true) and text:find('+40 POWER / SEC',1,true) and gui:GetAttribute('ContinuousTrainingAnimation')==true gui:SetAttribute('TrainingQCSwitchLoopBaseline',loops) local result={ok=ok==true,text=text,station=gui and gui:GetAttribute('ActiveTrainingStationId'),rate=gui and gui:GetAttribute('ActiveTrainingPowerPerSecond'),loops=loops} assert(result.ok,'Training HUD failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "iron_dummy",
+        "IRON IMPACT",
+        "\\+40 POWER / SEC"
+      ],
+      "label": "switched station HUD and continuous animation display the authoritative station and rate"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train','Celestial Power Core') local after=c:Invoke('TrainingSnapshot') local ok=r.ok and r.switched==true and before.active and after.active and after.stationId=='celestial_core' and after.Power==before.Power and after.payoutSerial==before.payoutSerial local result={ok=ok==true,station=after.stationId,rate=after.gainPerSecond,serial=after.payoutSerial} assert(result.ok,'Celestial switch failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "celestial_core",
+        "\"rate\"\\s*:\\s*50000"
+      ],
+      "label": "switch to Celestial preserves payout serial for compact HUD verification"
+    },
+    {
+      "type": "wait",
+      "ms": 350,
+      "label": "wait for compact Celestial training HUD"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local gui=p.PlayerGui.PunchWallHUD local overlay=gui:FindFirstChild('TrainingStateHUD',true) local label=overlay and overlay:FindFirstChild('TrainingStatus',true) local text=label and label.Text or '' local loops=gui:GetAttribute('TrainingAnimationLoopStartCount') or 0 local baseline=gui:GetAttribute('TrainingQCSwitchLoopBaseline') or -1 local ok=gui:GetAttribute('ActiveTrainingStationId')=='celestial_core' and gui:GetAttribute('ActiveTrainingPowerPerSecond')==50000 and text:find('CELESTIAL CORE',1,true) and text:find('+50.0K POWER / SEC',1,true) and loops==baseline and overlay.Visible local result={ok=ok==true,text=text,loops=loops,baseline=baseline,station=gui:GetAttribute('ActiveTrainingStationId')} assert(result.ok,'Compact Celestial HUD failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "CELESTIAL CORE",
+        "\\+50.0K POWER / SEC",
+        "\"station\"\\s*:\\s*\"celestial_core\""
+      ],
+      "label": "compact Celestial HUD keeps station and rate visible without restarting the animation loop"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('StopTraining') c:Invoke('SetStats',{Power=150000}) local r=c:Invoke('Train','Titan Reactor') local before=c:Invoke('TrainingSnapshot') local reset=c:Invoke('ResetWorld') local afterReset=c:Invoke('TrainingSnapshot') local deadline=os.clock()+2.6 local after=afterReset repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>afterReset.payoutSerial or os.clock()>=deadline local ticks=after.sessionTickCount-afterReset.sessionTickCount local delta=after.Power-afterReset.Power local nextRate=ticks>0 and delta/ticks or -1 local exact=r.ok and reset.ok and afterReset.active and afterReset.stationId=='titan_reactor' and afterReset.Power==before.Power and afterReset.payoutSerial==before.payoutSerial and ticks>=1 and ticks<=2 and nextRate==1200 and after.payoutSerial==afterReset.payoutSerial+1 and after.lastTickBatch==ticks local result={ok=exact==true,activeAfterReset=afterReset.active,station=afterReset.stationId,immediateDelta=afterReset.Power-before.Power,nextDelta=delta,nextTicks=ticks,nextRate=nextRate} assert(result.ok,'Training world reset failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"activeAfterReset\"\\s*:\\s*true",
+        "titan_reactor",
+        "\"immediateDelta\"\\s*:\\s*0",
+        "\"nextRate\"\\s*:\\s*1200"
+      ],
+      "label": "world reset preserves and reanchors active training without a duplicate payout"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local active=gui:GetAttribute('ContinuousTrainingAnimation')==true local loops=gui:GetAttribute('TrainingAnimationLoopStartCount') or 0 gui:SetAttribute('TrainingQCStopLoopBaseline',loops) return H:JSONEncode({ok=active,loops=loops,target=gui:GetAttribute('TrainingAnimationTarget')})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"loops\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "record the single active client loop before stopping"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local stopped=c:Invoke('StopTraining') local before=c:Invoke('TrainingSnapshot') task.wait(1.3) local after=c:Invoke('TrainingSnapshot') local ok=stopped.ok and after.active==false and after.Power==before.Power and after.payoutSerial==before.payoutSerial and after.movementLocked==false and after.walkSpeed>0 and after.tickAnchor==nil local result={ok=ok==true,power=after.Power,serial=after.payoutSerial,walk=after.walkSpeed,anchor=after.tickAnchor} assert(result.ok,'Training stop leak failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"walk\"\\s*:\\s*1[0-9]"
+      ],
+      "label": "stop clears movement lock and no server tick leaks afterward"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local overlay=gui:FindFirstChild('TrainingStateHUD',true) local loops=gui:GetAttribute('TrainingAnimationLoopStartCount') or 0 local baseline=gui:GetAttribute('TrainingQCStopLoopBaseline') or -1 local ok=gui:GetAttribute('ContinuousTrainingAnimation')==false and overlay and overlay.Visible==false and loops==baseline local result={ok=ok==true,loops=loops,baseline=baseline,active=gui:GetAttribute('ContinuousTrainingAnimation'),visible=overlay and overlay.Visible} assert(result.ok,'Client training loop leaked '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"active\"\\s*:\\s*false",
+        "\"visible\"\\s*:\\s*false"
+      ],
+      "label": "stop hides the training HUD without starting another client animation loop"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local offline={G.TrainingOfflineGain('rookie_bag',10),G.TrainingOfflineGain('iron_dummy',10),G.TrainingOfflineGain('titan_reactor',10),G.TrainingOfflineGain('celestial_core',10)} local capped=G.TrainingOfflineGain('celestial_core',999999)==math.floor(28800*50000*.35) c:Invoke('SetStats',{Power=15000000,TrainingStationId='celestial_core'}) local old=p.Character local respawn=c:Invoke('Respawn') local deadline=os.clock()+3 repeat task.wait(.05) until os.clock()>=deadline or (p.Character and p.Character~=old and p.Character:FindFirstChild('HumanoidRootPart')) local snapshot=c:Invoke('TrainingSnapshot') local exact=offline[1]==14 and offline[2]==140 and offline[3]==4200 and offline[4]==175000 and capped and respawn.ok and snapshot.stationId=='celestial_core' local result={ok=exact==true,offline=offline,capped=capped,station=snapshot.stationId,newCharacter=p.Character~=old} assert(result.ok,'Training offline/persistence failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"offline\"\\s*:\\s*\\[14,140,4200,175000\\]",
+        "\"capped\"\\s*:\\s*true",
+        "celestial_core",
+        "\"newCharacter\"\\s*:\\s*true"
+      ],
+      "label": "selected station survives respawn and canonical offline gains use its rate and eight-hour cap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('StopTraining') p:SetAttribute('TrainingBoostExpiresAt',0) local crossing for power=15,1499 do if G.PlayerGrowthMultiplier(power+4)>G.PlayerGrowthMultiplier(power) then crossing=power break end end assert(crossing,'No rookie growth crossing found') c:Invoke('SetStats',{Power=crossing,WallLevel=1}) task.wait(.25) local before=c:Invoke('TrainingSnapshot') local r=c:Invoke('Train','Power Bag') local deadline=os.clock()+2.6 local after=before repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>before.payoutSerial or os.clock()>=deadline task.wait(.25) after=c:Invoke('TrainingSnapshot') local character=p.Character local sourcePower=character and character:GetAttribute('PowerGrowthPower') local baseScale=character and character:GetAttribute('PowerGrowthBaseModelScale') or 1 local expected=G.PlayerGrowthMultiplier(after.Power) local actualMultiplier=after.directScale/baseScale local maxHeight=G.PlayerGrowth.GameplayClearanceHeightStuds-G.PlayerGrowth.GameplayClearanceMarginStuds local ticks=after.sessionTickCount local delta=after.Power-before.Power local normalized=ticks>0 and delta/ticks or -1 local ok=r.ok and ticks>=1 and ticks<=2 and normalized==4 and after.directScale>before.directScale+.001 and math.abs(actualMultiplier-expected)<=.003 and after.growthBodyHeight>0 and after.growthBodyHeight<=maxHeight+.05 and sourcePower==after.Power local result={ok=ok==true,crossing=crossing,delta=delta,ticks=ticks,normalized=normalized,beforeScale=before.directScale,afterScale=after.directScale,actualMultiplier=actualMultiplier,expectedMultiplier=expected,beforeHeight=before.growthBodyHeight,afterHeight=after.growthBodyHeight,sourcePower=sourcePower} c:Invoke('StopTraining') assert(result.ok,'Training growth crossing failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"normalized\"\\s*:\\s*4",
+        "\"sourcePower\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "a real rookie station tick crosses the canonical Power growth boundary"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local P=require(game.ServerScriptService.ProfilePersistence) c:Invoke('StopTraining') c:Invoke('SetStats',{Power=P.MaxAuthoritativeNumber-10}) p:SetAttribute('TrainingBoostExpiresAt',0) local r=c:Invoke('Train','Celestial Power Core') local before=c:Invoke('TrainingSnapshot') local deadline=os.clock()+2.4 local after=before repeat task.wait(.04) after=c:Invoke('TrainingSnapshot') until after.payoutSerial>before.payoutSerial or os.clock()>=deadline task.wait(.2) after=c:Invoke('TrainingSnapshot') local growthPower=p.Character and p.Character:GetAttribute('PowerGrowthPower') local ok=r.ok and after.Power==P.MaxAuthoritativeNumber and after.Power-before.Power==10 and after.directScale>0 and after.bodyHeight<=G.PlayerGrowth.GameplayClearanceHeightStuds-G.PlayerGrowth.GameplayClearanceMarginStuds+.05 and growthPower==after.Power local result={ok=ok==true,delta=after.Power-before.Power,power=after.Power,max=P.MaxAuthoritativeNumber,directScale=after.directScale,bodyHeight=after.bodyHeight,growthPower=growthPower} c:Invoke('StopTraining') assert(result.ok,'Training cap/growth failed '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"delta\"\\s*:\\s*10"
+      ],
+      "label": "training clamps at the persistence maximum while live growth stays under the gameplay opening"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "runtimeConsole",
+      "label": "capture runtime console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "runtimeConsole",
+      "label": "runtime console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture post-stop console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console clean"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}

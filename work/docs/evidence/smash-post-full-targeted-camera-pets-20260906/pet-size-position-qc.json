@@ -1,0 +1,43 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"safe\"\\s*:\\s*true\nReceived: {\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"18\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"6\":{\"valid\":true,\"samples\":20,\"inset\":7.8}},\"failures\":[],\"contractValid\":true}",
+      "context": {
+        "onePetMetrics": "{\"valid\":true,\"distance\":3.63118839263916,\"screen\":0.0013436400103100943,\"largest\":1.4499996900558472,\"x\":-3.085536479949951,\"count\":1,\"z\":1.5500011444091797,\"policy\":\"Normal\",\"y\":1.1236059665679932,\"name\":\"Forest Pup\"}",
+        "threeNormalMetrics": "{\"valid\":true,\"count\":3,\"formation\":true,\"minPair\":2.311211347579956,\"rows\":[{\"y\":1.1679003238677979,\"x\":-3.316166400909424,\"z\":1.5500011444091797,\"screen\":0.001336263804192106,\"largest\":1.4499996900558472},{\"y\":1.2002580165863038,\"x\":3.089262008666992,\"z\":1.5500011444091797,\"screen\":0.0017443892612284474,\"largest\":1.6500319242477418},{\"y\":1.4344589710235596,\"x\":-5.2418212890625,\"z\":2.8000001907348635,\"screen\":0.0018826065332327583,\"largest\":1.6500003337860108}],\"bounded\":true}",
+        "premiumCameraMatrix": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000011444091797,\"combined\":0.022251304276611818,\"maxScreen\":0.0077240221483725738,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.800000548362732,\"combined\":0.009878527321914306,\"maxScreen\":0.0033964920257794986,\"viewportY\":780,\"minAvatarSeparation\":96.12447357177735,\"visible\":3},\"6\":{\"valid\":true,\"culled\":0,\"viewportX\":1277,\"maxLargest\":1.8000006675720215,\"combined\":0.08153572643857919,\"maxScreen\":0.02906140574128069,\"viewportY\":780,\"minAvatarSeparation\":99,\"visible\":3}},\"count\":3,\"policy\":\"CameraSafeThreePetLOD1\"}",
+        "premiumScreenSeparation": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":2.5037899017333986},\"18\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.8046728372573853},\"6\":{\"valid\":true,\"maxPairOverlap\":0,\"maxAvatarOverlap\":0,\"minWorldPair\":1.6779444217681885}},\"formation\":\"BoundsAwarePremiumFormationV2\"}",
+        "premiumSafeFrame": "{\"valid\":true,\"matrix\":{\"12\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"18\":{\"valid\":true,\"samples\":20,\"inset\":7.8},\"6\":{\"valid\":true,\"samples\":20,\"inset\":7.8}},\"failures\":[],\"contractValid\":true}"
+      }
+    }
+  ]
+}

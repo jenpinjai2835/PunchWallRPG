@@ -1,12 +1,31 @@
 {
   "name": "final-rbxlx-build-validation",
   "description": "Open a byte-for-byte validation copy of the rebuilt final RBXLX and verify the embedded scripts bootstrap the complete player-facing release.",
-  "studioName": "PunchWallRPGPlayable_v1_final_validation.rbxlx",
+  "studioName": "^PunchWallRPGPlayable_v1_final_validation[.]rbxlx$",
   "pollAttempts": 20,
   "pollMs": 2500,
   "steps": [
     { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start rebuilt final copy" },
     { "type": "wait", "ms": 8000, "label": "wait for embedded scripts to bootstrap" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('ReplicatedStorage') local SSS=game:GetService('ServerScriptService') local SPS=game:GetService('StarterPlayer'):WaitForChild('StarterPlayerScripts') local specs={{RS,'GameConfig','ModuleScript'},{RS,'PolishConfig','ModuleScript'},{RS,'ForestVisualBuilder','ModuleScript'},{RS,'FistVisualBuilder','ModuleScript'},{RS,'InventoryViewModel','ModuleScript'},{SSS,'ProfilePersistence','ModuleScript'},{SSS,'PunchWallBootstrap','Script'},{SPS,'InventoryUI','ModuleScript'},{SPS,'PunchWallClient','LocalScript'}} local wanted={} for _,s in ipairs(specs) do wanted[s[2]]=true end local counts={} for _,d in ipairs(game:GetDescendants()) do if wanted[d.Name] then counts[d.Name]=(counts[d.Name] or 0)+1 end end local exactParents=true local exactClasses=true local unique=true for _,s in ipairs(specs) do local item=s[1]:FindFirstChild(s[2]) exactParents=exactParents and item~=nil and item.Parent==s[1] exactClasses=exactClasses and item~=nil and item.ClassName==s[3] unique=unique and counts[s[2]]==1 end return H:JSONEncode({ok=#specs==9 and exactParents and exactClasses and unique,moduleCount=#specs,exactParents=exactParents,exactClasses=exactClasses,uniqueNames=unique,profile=SSS:FindFirstChild('ProfilePersistence')~=nil,inventoryUI=SPS:FindFirstChild('InventoryUI')~=nil,viewModel=RS:FindFirstChild('InventoryViewModel')~=nil})"
+      },
+      "expectRegex": [
+        "\"ok\":true",
+        "\"moduleCount\":9",
+        "\"exactParents\":true",
+        "\"exactClasses\":true",
+        "\"uniqueNames\":true",
+        "\"profile\":true",
+        "\"inventoryUI\":true",
+        "\"viewModel\":true"
+      ],
+      "label": "rebuilt final exposes the exact nine-module source map"
+    },
     {
       "type": "call",
       "tool": "execute_luau",
@@ -22,20 +41,30 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD',5) local hud=g and g:FindFirstChild('PixelPerfectHeroCityHUD') local shop=g and g:FindFirstChild('FunctionalHeroShop',true) local spin=g and g:FindFirstChild('HeroSpinModal') local music=game:GetService('SoundService'):FindFirstChild('Hero Forest Music') return H:JSONEncode({ok=g~=nil and hud~=nil and shop~=nil and spin~=nil and music~=nil,music=music and music.SoundId,playing=music and music.IsPlaying,punch=hud and hud:FindFirstChild('ActionPunch')~=nil,jump=hud and hud:FindFirstChild('ActionJump')~=nil})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD',5) local hud=g and g:FindFirstChild('PixelPerfectHeroCityHUD') local shop=g and g:FindFirstChild('FunctionalHeroShop',true) local spin=g and g:FindFirstChild('HeroSpinModal') local music=game:GetService('SoundService'):FindFirstChild('Hero Forest Music') local inventory=hud and hud:FindFirstChild('InventoryButton') local inventoryImage=inventory and inventory.Image local inventoryAction=inventory and inventory:GetAttribute('ToolAction') local inventoryTarget=inventory and math.min(inventory.AbsoluteSize.X,inventory.AbsoluteSize.Y) or 0 return H:JSONEncode({ok=g~=nil and hud~=nil and shop~=nil and spin~=nil and music~=nil and inventory~=nil and inventoryImage=='rbxassetid://123409223461276' and inventoryAction=='OpenInventory' and inventoryTarget>=44,music=music and music.SoundId,playing=music and music.IsPlaying,punch=hud and hud:FindFirstChild('ActionPunch')~=nil,jump=hud and hud:FindFirstChild('ActionJump')~=nil,inventory=inventory~=nil,inventoryImage=inventoryImage,inventoryAction=inventoryAction,inventoryTarget=inventoryTarget})"
       },
-      "expectRegex": ["\"ok\":true", "\"music\":\"rbxassetid://1837768082\"", "\"playing\":true", "\"punch\":true", "\"jump\":true"],
-      "label": "embedded client release boots HUD shop spin and music"
+      "expectRegex": ["\"ok\":true", "\"music\":\"rbxassetid://1837768082\"", "\"playing\":true", "\"punch\":true", "\"jump\":true", "\"inventory\":true", "\"inventoryImage\":\"rbxassetid://123409223461276\"", "\"inventoryAction\":\"OpenInventory\"", "\"inventoryTarget\":(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})"],
+      "label": "embedded client release boots HUD Inventory shop spin and music"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService('HttpService') local root=workspace:WaitForChild('PunchWallRPG') local deadline=os.clock()+5 local bag,premium repeat bag=root:FindFirstChild('Creator Store Hero Power Bag',true) premium=root:FindFirstChild('Premium Hero Robot Merchant NPC',true) if bag and premium then break end task.wait(.1) until os.clock()>=deadline local minV=Vector3.new(math.huge,math.huge,math.huge) local maxV=Vector3.new(-math.huge,-math.huge,-math.huge) if bag then for _,d in ipairs(bag:GetDescendants()) do if d:IsA('BasePart') then for xs=-1,1,2 do for ys=-1,1,2 do for zs=-1,1,2 do local v=d.CFrame:PointToWorldSpace(Vector3.new(d.Size.X*xs*.5,d.Size.Y*ys*.5,d.Size.Z*zs*.5)) minV=Vector3.new(math.min(minV.X,v.X),math.min(minV.Y,v.Y),math.min(minV.Z,v.Z)) maxV=Vector3.new(math.max(maxV.X,v.X),math.max(maxV.Y,v.Y),math.max(maxV.Z,v.Z)) end end end end end end local size=maxV-minV local prices,stands=0,0 for _,d in ipairs(root:GetDescendants()) do if d:GetAttribute('VisualRole')=='PremiumPetRobuxStand' then stands+=1 end if d:IsA('SurfaceGui') and d.Parent and d.Parent.Name:find('Premium Pet Price') and d.AlwaysOnTop and d.LightInfluence==0 then prices+=1 end end local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') local before=p.leaderstats.Power.Value local train=a:Invoke('Train','Power Bag') task.wait(1.15) local trained=train.ok==true and p.RPGStats.TrainingActive.Value==1 and p.leaderstats.Power.Value>before local stopped=a:Invoke('StopTraining') return H:JSONEncode({ok=bag~=nil and bag:GetAttribute('AssetId')==140653091179998 and bag:GetAttribute('RuntimeVisualClone')==true and size.Y>size.X and size.Y>size.Z and math.abs(minV.Y-.35)<.05 and premium~=nil and premium:GetAttribute('AssetId')==3162411898 and premium:GetAttribute('RuntimeVisualClone')==true and prices==6 and stands==3 and trained and stopped.ok==true,bagAsset=bag and bag:GetAttribute('AssetId') or 0,bagVertical=size.Y>size.X and size.Y>size.Z,bagBottom=minV.Y,premiumAsset=premium and premium:GetAttribute('AssetId') or 0,prices=prices,stands=stands,trained=trained})"
+        "code": "local H=game:GetService('HttpService') local root=workspace:WaitForChild('PunchWallRPG') local deadline=os.clock()+5 local bag,premium repeat bag=root:FindFirstChild('Creator Store Hero Power Bag',true) premium=root:FindFirstChild('Premium Hero Robot Merchant NPC',true) if bag and premium then break end task.wait(.1) until os.clock()>=deadline local minV=Vector3.new(math.huge,math.huge,math.huge) local maxV=Vector3.new(-math.huge,-math.huge,-math.huge) if bag then for _,d in ipairs(bag:GetDescendants()) do if d:IsA('BasePart') then for xs=-1,1,2 do for ys=-1,1,2 do for zs=-1,1,2 do local v=d.CFrame:PointToWorldSpace(Vector3.new(d.Size.X*xs*.5,d.Size.Y*ys*.5,d.Size.Z*zs*.5)) minV=Vector3.new(math.min(minV.X,v.X),math.min(minV.Y,v.Y),math.min(minV.Z,v.Z)) maxV=Vector3.new(math.max(maxV.X,v.X),math.max(maxV.Y,v.Y),math.max(maxV.Z,v.Z)) end end end end end end local size=maxV-minV local prices,stands=0,0 for _,d in ipairs(root:GetDescendants()) do if d:GetAttribute('VisualRole')=='PremiumPetRobuxStand' then stands+=1 end if d:IsA('SurfaceGui') and d.Parent and d.Parent.Name:find('Premium Pet Price') and d.AlwaysOnTop and d.LightInfluence==0 then prices+=1 end end local a=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] a:Invoke('Reset') local before=p.leaderstats.Power.Value local train=a:Invoke('Train','Power Bag') local immediate=a:Invoke('TrainingSnapshot') local tickDeadline=os.clock()+2.6 local after=immediate repeat task.wait(.04) after=a:Invoke('TrainingSnapshot') until after.payoutSerial>immediate.payoutSerial or os.clock()>=tickDeadline local trained=train.ok==true and after.active==true and after.Power>before and after.payoutSerial==immediate.payoutSerial+1 local stopped=a:Invoke('StopTraining') return H:JSONEncode({ok=bag~=nil and bag:GetAttribute('AssetId')==140653091179998 and bag:GetAttribute('RuntimeVisualClone')==true and size.Y>size.X and size.Y>size.Z and math.abs(minV.Y-.35)<.05 and premium~=nil and premium:GetAttribute('AssetId')==3162411898 and premium:GetAttribute('RuntimeVisualClone')==true and prices==6 and stands==3 and trained and stopped.ok==true,bagAsset=bag and bag:GetAttribute('AssetId') or 0,bagVertical=size.Y>size.X and size.Y>size.Z,bagBottom=minV.Y,premiumAsset=premium and premium:GetAttribute('AssetId') or 0,prices=prices,stands=stands,trained=trained,trainingDelta=after.Power-before,trainingSerial=after.payoutSerial})"
       },
       "expectRegex": ["\"ok\":true", "\"bagAsset\":140653091179998", "\"bagVertical\":true", "\"premiumAsset\":3162411898", "\"prices\":6", "\"stands\":3", "\"trained\":true"],
       "label": "rebuilt final loads approved NPC bag training and premium pet displays"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local root=workspace.PunchWallRPG local folder=game.ReplicatedStorage:FindFirstChild('PunchWallExternalAssets') local names={'Sanitized_ForestPupPet','Sanitized_MinerCatPet','Sanitized_CrystalFoxPet','Sanitized_LavaDragonPet','Sanitized_SecretTitanGolemPet','Sanitized_EnragedPhoenixPet','Sanitized_ElectraHydraPet','Sanitized_MythicRadiantOnePet','Sanitized_CrimsonPhoenixPet','Sanitized_StormWyvernPet','Sanitized_CelestialGuardianPet'} local found,attested,unsafe=0,0,0 for _,name in ipairs(names) do local model=folder and folder:FindFirstChild(name) if model then found+=1 local petName=model:GetAttribute('PetDefinitionName') if model:GetAttribute('TemplateVisualAttested')==true and type(petName)=='string' and petName~='' then attested+=1 end for _,d in ipairs(model:GetDescendants()) do if d:IsA('LuaSourceContainer') then unsafe+=1 end end end end return H:JSONEncode({ok=found==11 and attested==11 and unsafe==0 and root:GetAttribute('PetVisualReleaseReady')==true and root:GetAttribute('PetVisualReadyTemplateCount')==11 and root:GetAttribute('PetVisualReleasePolicy')=='EightPackPlusThreeDetailedPremiumV3',found=found,attested=attested,unsafe=unsafe,releaseReady=root:GetAttribute('PetVisualReleaseReady'),readyCount=root:GetAttribute('PetVisualReadyTemplateCount'),policy=root:GetAttribute('PetVisualReleasePolicy')})"
+      },
+      "expectRegex": ["\"ok\":true", "\"found\":11", "\"attested\":11", "\"unsafe\":0", "\"releaseReady\":true", "\"readyCount\":11", "EightPackPlusThreeDetailedPremiumV3"],
+      "label": "rebuilt final attests all eleven sanitized pet templates"
     },
     {
       "type": "call",

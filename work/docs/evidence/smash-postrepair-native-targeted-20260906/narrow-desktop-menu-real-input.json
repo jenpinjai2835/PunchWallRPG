@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "narrow-desktop-menu-real-input",
+      "selectedStudio": {
+        "id": "be1067b9-90ed-414f-8f5c-12f467f114bc",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "create owned 637x654 ActualResolution desktop",
+        "start play",
+        "wait for right HUD",
+        "cleanup stop play",
+        "restore previous simulator and remove owned narrow device"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:3: strict ephemeral fixture required",
+      "context": {
+        "narrowDesktopSetup": "{\"ok\":true,\"previous\":{\"id\":\"default\",\"active\":false},\"name\":\"Smash Narrow Menu 8cb4cc3e-4601-4d9e-9a4e-0ad99cc1815d\",\"id\":\"Smash Narrow Menu 8cb4cc3e-4601-4d9e-9a4e-0ad99cc1815d\"}",
+        "narrowDesktopFailureRestore": "{\"ok\":true,\"removed\":1,\"restored\":\"default\"}"
+      }
+    }
+  ]
+}

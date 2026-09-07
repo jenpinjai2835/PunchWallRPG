@@ -1,0 +1,65 @@
+{
+  "name": "forest-pup-silhouette",
+  "description": "Verify actual retained Forest Pup meshes/OWO face plus eight safe authored features, normalized preview/follower geometry parity, native preview eight-corner fit and stable feature identity through twenty follower samples. Aesthetic acceptance requires actual captures. Runs only with settled ownership and ephemeral Studio fixture.",
+  "studioName": "PunchWall",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start Pup visual test"
+    },
+    {
+      "type": "wait",
+      "ms": 6500,
+      "label": "wait for player and visual templates"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nlocal world=workspace:WaitForChild('PunchWallRPG')\nassert(world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing non-ephemeral fixture')\nassert(game.ServerStorage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'profile must be ready ephemeral')\nlocal function ownershipSettled(player)\n local pending=player:GetAttribute('PendingGamePassGrantCount')\n return player:GetAttribute('GamePassOwnershipReconciled')==true\n  and player:GetAttribute('GamePassOwnershipReconciliationFailed')==false\n  and (pending==nil or pending==0)\nend\nlocal ownershipDeadline=os.clock()+20\nrepeat\n assert(p:GetAttribute('GamePassOwnershipReconciliationFailed')~=true,'GamePass ownership reconciliation failed; fixture not safe')\n if ownershipSettled(p) then break end\n task.wait(.05)\nuntil os.clock()>=ownershipDeadline\nassert(ownershipSettled(p),'GamePass ownership not settled before fixture: '..H:JSONEncode({reconciled=p:GetAttribute('GamePassOwnershipReconciled'),failed=p:GetAttribute('GamePassOwnershipReconciliationFailed'),pending=p:GetAttribute('PendingGamePassGrantCount')}))\nlocal c=game.ServerStorage.PunchWallAutomation\nassert(c:Invoke('Reset').ok==true,'reset failed')\nassert(c:Invoke('GrantPet',{name='Forest Pup',stars=1}).ok==true,'Pup grant failed')\nreturn H:JSONEncode({ok=true,seedMode='EphemeralStudio',ownershipSettled=ownershipSettled(p)})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"ownershipSettled\"\\s*:\\s*true"
+      ],
+      "timeoutMs": 30000,
+      "label": "seed one Pup after settled ownership in ephemeral Studio"
+    },
+    {
+      "type": "wait",
+      "ms": 1200,
+      "label": "wait for actual equipped Pup replication"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal player=game.Players.LocalPlayer\nlocal g=player.PlayerGui:WaitForChild('PunchWallHUD')\nlocal a=g:WaitForChild('PunchWallClientAutomation')\nlocal function awaitValue(fn,message)\n local deadline=os.clock()+8\n repeat local value=fn() if value then return value end task.wait(.05) until os.clock()>=deadline\n error(message)\nend\nlocal function verifyPupModel(model)\n assert(model and model:IsA('Model'),'actual Pup model missing')\n assert(model:GetAttribute('PetDefinitionName')=='Forest Pup' and model:GetAttribute('SourcePackModelName')=='Dowodle','retained Pup model identity')\n local face,meshes,features=nil,{},{}\n local actualParts=0\n local roles={EarLeft=true,EarRight=true,MuzzleLeft=true,MuzzleRight=true,PawLeft=true,PawRight=true,Collar=true,Tag=true}\n for _,x in ipairs(model:GetDescendants())do\n  if x:IsA('BasePart')then actualParts+=1 end\n  if x:IsA('Decal') and x.Face==Enum.NormalId.Front and x.Parent and x.Parent:IsA('BasePart') and x.Parent.Name=='AnimatedFace' then\n   assert(not face and x.Texture=='rbxassetid://2759037468' and x.Transparency==0,'actual retained face decal changed') face=x\n  end\n  if x:IsA('MeshPart')then\n   assert((x.MeshId=='rbxassetid://1461040253' or x.MeshId=='rbxassetid://1461041563') and not meshes[x.MeshId],'retained mesh identity changed or duplicated') meshes[x.MeshId]=x\n  end\n  local role=x:GetAttribute('ForestPupFeature')\n  if role then\n   assert(roles[role] and not features[role],'invalid or duplicate Pup role')\n   assert(x:IsA('Part') and x.Shape==Enum.PartType.Ball and x.Material==Enum.Material.SmoothPlastic,'Pup features must be matte native geometry')\n   assert(x.Anchored and not x.CanCollide and not x.CanTouch and not x.CanQuery and #x:GetDescendants()==0,'Pup feature physics/effects/joints unsafe')\n   features[role]=x\n  end\n end\n assert(actualParts==12,'actual total model parts must be four retained plus eight authored')\n assert(face and meshes['rbxassetid://1461040253'] and meshes['rbxassetid://1461041563'],'original face and both meshes required')\n local facePart=face.Parent\n assert(facePart.Transparency==1,'retained transparent face carrier became opaque')\n local count,rows=0,{}\n local size=facePart.Size\n for role in pairs(roles)do\n  local x=assert(features[role],'actual feature missing '..role) count+=1\n  local localPosition=facePart.CFrame:PointToObjectSpace(x.Position)\n  local look=facePart.CFrame:VectorToObjectSpace(x.CFrame.LookVector)\n  assert(x.Size.X>0 and x.Size.Y>0 and x.Size.Z>0 and x.Size.X<=size.X*.87 and x.Size.Y<=size.Y*.59 and x.Size.Z<=size.Z*.31,'unbounded Pup feature size')\n  local minX,minY,minZ=math.huge,math.huge,math.huge\n  local maxX,maxY=-math.huge,-math.huge\n  for sx=-1,1,2 do for sy=-1,1,2 do for sz=-1,1,2 do\n   local q=facePart.CFrame:PointToObjectSpace(x.CFrame:PointToWorldSpace(Vector3.new(x.Size.X*sx,x.Size.Y*sy,x.Size.Z*sz)*.5))\n   minX,minY,minZ=math.min(minX,q.X),math.min(minY,q.Y),math.min(minZ,q.Z)\n   maxX,maxY=math.max(maxX,q.X),math.max(maxY,q.Y)\n  end end end\n  assert(not(minX<size.X*.38 and maxX>-size.X*.38 and minY<size.Y*.30 and maxY>-size.Y*.23 and minZ<=-size.Z*.5),'Pup feature covers central OWO face zone')\n  if role:find('Ear',1,true)then assert(math.abs(localPosition.X)>=size.X*.59 and (minX<-size.X*.5 or maxX>size.X*.5),'ears do not extend silhouette')end\n  if role:find('Muzzle',1,true)then assert(localPosition.Z<-size.Z*.5 and maxY<-size.Y*.23,'muzzle is not below the front face')end\n  if role:find('Paw',1,true)then assert(minY<-size.Y*.72,'paws do not extend below body')end\n  rows[role]={size={x.Size.X/size.X,x.Size.Y/size.Y,x.Size.Z/size.Z},position={localPosition.X/size.X,localPosition.Y/size.Y,localPosition.Z/size.Z},look={look.X,look.Y,look.Z},color={x.Color.R,x.Color.G,x.Color.B}}\n end\n assert(count==8 and count<=9 and model:GetAttribute('ForestPupSilhouetteVersion')=='AuthoredPupV1' and model:GetAttribute('ForestPupSilhouettePartCount')==count,'actual Pup feature budget/version mismatch')\n local meshRows={}\n for uri,x in pairs(meshes)do meshRows[uri]={x.Size.X/size.X,x.Size.Y/size.Y,x.Size.Z/size.Z} end\n return {features=rows,meshSizes=meshRows,count=count,face=face.Texture},features\nend\nlocal function sameGeometry(expected,actual)\n assert(expected.count==actual.count and expected.face==actual.face,'preview/follower identity mismatch')\n for role,row in pairs(expected.features)do\n  for key,values in pairs(row)do for index,value in ipairs(values)do assert(math.abs(value-actual.features[role][key][index])<.004,'preview/follower normalized geometry mismatch '..role..' '..key)end end\n end\n for uri,values in pairs(expected.meshSizes)do for index,value in ipairs(values)do assert(math.abs(value-actual.meshSizes[uri][index])<.004,'retained mesh normalized size mismatch '..uri)end end\nend\nlocal function verifyPreview(viewport,model)\n assert(viewport and viewport.Visible and viewport.CurrentCamera,'native preview unavailable')\n local camera=viewport.CurrentCamera\n local face\n for _,x in ipairs(model:GetDescendants())do if x:IsA('Decal') and x.Texture=='rbxassetid://2759037468'then face=x.Parent break end end\n assert(face,'preview face missing')\n local plane=face.CFrame.Position+face.CFrame.LookVector*face.Size.Z*.5\n local signed=face.CFrame.LookVector:Dot(camera.CFrame.Position-plane)\n assert(signed>.05,'preview camera behind authored face')\n local cf,size=model:GetBoundingBox()\n local width,height=viewport.AbsoluteSize.X,viewport.AbsoluteSize.Y\n assert(width>0 and height>0,'preview dimensions missing')\n local tanV=math.tan(math.rad(camera.FieldOfView*.5))\n local maximum=0\n for x=-1,1,2 do for y=-1,1,2 do for z=-1,1,2 do\n  local q=camera.CFrame:PointToObjectSpace(cf:PointToWorldSpace(Vector3.new(size.X*x,size.Y*y,size.Z*z)*.5))\n  local depth=-q.Z\n  local nx,ny=math.abs(q.X)/(depth*tanV*width/height),math.abs(q.Y)/(depth*tanV)\n  assert(depth>.05 and nx<=1/1.12+.001 and ny<=1/1.12+.001,'new Pup silhouette clipped in native preview')\n  maximum=math.max(maximum,nx,ny)\n end end end\n return {width=width,height=height,faceDot=signed,maxNdc=maximum}\nend\nlocal before=a:Invoke('Snapshot')\nlocal setting=a:Invoke('SetSettings',{motion=true,persist=false})\nassert(setting.motion==true and a:Invoke('Snapshot').motion==true,'actual motion setting did not apply')\nlocal proof={}\nlocal ok,result=pcall(function()\n local world=awaitValue(function()\n  local folder=workspace:FindFirstChild(player.Name..' Client Companions')\n  if folder then for _,x in ipairs(folder:GetChildren())do if x:IsA('Model') and x:GetAttribute('PetDefinitionName')=='Forest Pup' then return x end end end\n end,'actual equipped Pup did not appear')\n local worldState,worldParts=verifyPupModel(world)\n a:Invoke('OpenInventory') a:Invoke('SelectInventoryCategory','Pets') a:Invoke('SetInventoryRarity','All') a:Invoke('SetInventorySearch','')\n local r=g.GameMenu.FunctionalInventory\n local body=r.InventoryWindow.InventoryBody\n local card=awaitValue(function()\n  for _,x in ipairs(body.InventoryGridPane.InventoryGrid:GetChildren())do\n   local v=x:FindFirstChild('ItemPetPreview',true)\n   if x:IsA('GuiObject') and x.Visible and v and v:GetAttribute('PreviewPetName')=='Forest Pup' then return x end\n  end\n end,'actual Pup card did not appear')\n task.wait(.3)\n local cv=card:FindFirstChild('ItemPetPreview',true)\n local cardWorld=cv:FindFirstChildWhichIsA('WorldModel')\n local cardModel=cardWorld and cardWorld:FindFirstChildWhichIsA('Model')\n local cardState=verifyPupModel(cardModel)\n sameGeometry(worldState,cardState)\n proof.card=verifyPreview(cv,cardModel)\n local key=card:GetAttribute('InventoryKey')\n a:Invoke('SelectInventoryItem',key) task.wait(.3)\n local dv=body.InventoryDetail:FindFirstChild('DetailPetPreview',true)\n local detailWorld=dv and dv:FindFirstChildWhichIsA('WorldModel')\n local detailModel=detailWorld and detailWorld:FindFirstChildWhichIsA('Model')\n local detailState=verifyPupModel(detailModel)\n sameGeometry(worldState,detailState)\n proof.detail=verifyPreview(dv,detailModel)\n a:Invoke('SelectInventoryItem',key) task.wait(.15)\n assert(cardModel.Parent==cardWorld and detailModel.Parent==detailWorld,'selection rebuilt actual previews')\n a:Invoke('CloseInventory')\n local firstPivot=world:GetPivot().Position\n local maximumMotion=0\n for index=1,20 do\n  task.wait(.1)\n  assert(world.Parent and worldParts.EarLeft.Parent==world and worldParts.Tag.Parent==world,'actual follower/features replaced during normal updates')\n  local current,parts=verifyPupModel(world)\n  sameGeometry(worldState,current)\n  assert(parts.EarLeft==worldParts.EarLeft and parts.Tag==worldParts.Tag,'actual feature instances changed')\n  maximumMotion=math.max(maximumMotion,(world:GetPivot().Position-firstPivot).Magnitude)\n end\n proof.world={count=worldState.count,samples=20,observedMotion=maximumMotion,source=world:GetAttribute('VisualSource'),scale=world:GetScale()}\n return {ok=true,proof=proof,geometryParity=true,aestheticApproval=false}\nend)\na:Invoke('CloseInventory')\nlocal restored=a:Invoke('SetSettings',{motion=before.motion,persist=false})\nassert(restored.motion==before.motion and a:Invoke('Snapshot').motion==before.motion,'failed to restore actual motion setting')\nassert(ok,'Forest Pup actual silhouette failed: '..tostring(result)..' '..H:JSONEncode(proof))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"geometryParity\"\\s*:\\s*true"
+      ],
+      "timeoutMs": 60000,
+      "label": "verify actual Pup feature geometry and preview follower parity"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop Pup visual test"
+    }
+  ]
+}

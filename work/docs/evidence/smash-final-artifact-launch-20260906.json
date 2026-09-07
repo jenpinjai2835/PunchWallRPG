@@ -1,0 +1,41 @@
+{
+  "launchTimeUtc": "2026-09-06T13:40:59.3261625Z",
+  "requestedProcessId": 7716,
+  "executablePath": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+  "placePath": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\PunchWallRPGPlayable_v1_final_validation.rbxlx",
+  "placeSHA256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781",
+  "priorProcesses": [
+    {
+      "Id": 11660,
+      "startUtc": "2026-09-06T12:22:08.6475610Z",
+      "Path": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+      "MainWindowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R4_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio"
+    },
+    {
+      "Id": 22388,
+      "startUtc": "2026-09-06T07:17:36.7479823Z",
+      "Path": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+      "MainWindowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R2_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio"
+    },
+    {
+      "Id": 22472,
+      "startUtc": "2026-09-06T08:14:11.6836440Z",
+      "Path": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+      "MainWindowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_R3_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio"
+    },
+    {
+      "Id": 22788,
+      "startUtc": "2026-09-06T04:37:29.5150686Z",
+      "Path": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\RobloxStudioBeta.exe",
+      "MainWindowTitle": "F:\\Roblox\\PuchWall-completion-20260906\\outputs\\SmashWall_SourceReview_20260906\\PunchWallRPGPlayable_v1_final.rbxlx - Roblox Studio"
+    }
+  ],
+  "priorStudioIds": [
+    "24528819-30cf-41f7-ba03-0006a355c7b8",
+    "be1067b9-90ed-414f-8f5c-12f467f114bc",
+    "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+    "450e00ec-0d7d-4d1b-858b-f11fabd13295"
+  ],
+  "recoveryFilesTouched": false,
+  "terminatedProcesses": []
+}

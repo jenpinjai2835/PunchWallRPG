@@ -1,7 +1,7 @@
 {
   "name": "punchwall-shop-and-pet",
   "description": "Validate the first fist purchase and one Studio-granted wall egg without charging Coins.",
-  "studioName": "PunchWallRPG",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -24,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nreturn HttpService:JSONEncode(command:Invoke(\"SetStats\", { Coins = 1000, FistMultiplier = 1, BreakSpeed = 1, Luck = 1, PetMultiplier = 0, EquippedFist = \"Starter Glove\", Pet = \"None\" }))"
+        "code": "local HttpService = game:GetService(\"HttpService\")\nlocal command = game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\", 5)\nassert(command, \"missing PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\nreturn HttpService:JSONEncode(command:Invoke(\"SetStats\", { Coins = 1000, Depth = 1, FistMultiplier = 1, BreakSpeed = 1, Luck = 1, PetMultiplier = 0, EquippedFist = \"Starter Glove\", Pet = \"None\" }))"
       },
       "expectRegex": [
         "\"Coins\"\\s*:\\s*1000",

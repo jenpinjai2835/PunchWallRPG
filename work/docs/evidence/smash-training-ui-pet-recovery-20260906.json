@@ -1,0 +1,81 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "training-ui-pet-recovery",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 and require eight pack plus three detailed Premium templates",
+        "wait for device simulator to settle",
+        "start focused play",
+        "wait for player UI and pet attestation",
+        "seed truly below-threshold displayed Power and prove pet release readiness",
+        "wait for exact training target scan",
+        "locked contextual action is exact compact and readable",
+        "wait for server rejection",
+        "below-threshold request never starts or switches training",
+        "reproduce public case where displayed effective Power exceeds Iron threshold",
+        "wait for eligible contextual state",
+        "exact eligible station starts through the production request path",
+        "wait for two fallback fist strikes",
+        "qualified player trains at the exact Iron rate",
+        "unsupported avatar visibly strikes with the equipped fist",
+        "stop training and seed exact pet preview catalog",
+        "wait for exact use target scan",
+        "nearest real non-training contextual Use stays active and follows the production path",
+        "compact Inventory shows all pet art without tag overlap",
+        "open Shop host before premium tab input",
+        "select Premium through the real Shop tab",
+        "premium Shop uses green Robux pricing and original detailed pet previews",
+        "capture runtime console",
+        "runtime console clean (identified Studio input warnings: 0)",
+        "stop focused play",
+        "capture post-stop console",
+        "post-stop console clean (identified Studio input warnings: 0)",
+        "restore simulator default"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "runtimeConsole",
+          "label": "runtime console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "postStopConsole",
+          "label": "post-stop console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

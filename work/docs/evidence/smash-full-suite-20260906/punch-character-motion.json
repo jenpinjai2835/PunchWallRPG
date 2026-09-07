@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punch-character-motion",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and runtime",
+        "prepare a valid Brick Wall punch",
+        "wait for motion settings sync",
+        "punch visibly moves the hand through windup contact and recovery",
+        "enable reduced camera motion",
+        "wait for reduced-motion sync",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"suppressed\"\\s*:\\s*false\nReceived: {\"visible\":false,\"maxRelativeDelta\":0.0014235045528039337,\"suppressed\":true,\"samples\":4,\"recovered\":false,\"count\":1,\"reduced\":true,\"active\":false,\"invoked\":true,\"cameraFollow\":false,\"timedOut\":false}",
+      "context": {
+        "motionDiagnostics": "{\"active\":false,\"class\":\"AnimationConstraint\",\"maxPosition\":1.6520591974258423,\"contact\":true,\"recovery\":true,\"invoked\":true,\"maxRelativeDelta\":3.0759453773498537,\"samples\":45,\"peak\":0.999914299014586,\"rig\":\"R15\",\"timedOut\":false,\"count\":1,\"renderOverride\":true,\"recovered\":true,\"windup\":true,\"maxAngle\":3.1346662044525148,\"dramatic\":true}"
+      }
+    }
+  ]
+}

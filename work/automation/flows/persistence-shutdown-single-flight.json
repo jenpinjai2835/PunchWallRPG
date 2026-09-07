@@ -1,0 +1,90 @@
+{
+  "name": "persistence-shutdown-single-flight",
+  "description": "Verify every default Studio lifecycle, including a linked published place, reaches a ready ephemeral profile without touching live DataStore state, then stops cleanly.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": true },
+      "timeoutMs": 35000,
+      "label": "start one shutdown lifecycle cycle"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "saveAs": "ephemeralProfileReady",
+      "timeoutMs": 30000,
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal Players=game:GetService('Players')\nlocal deadline=os.clock()+20\nlocal player=Players:GetPlayers()[1]\nrepeat\n task.wait(.05)\n player=Players:GetPlayers()[1]\nuntil os.clock()>=deadline or (player and player:GetAttribute('ProfileReady')==true)\nlocal root=workspace:FindFirstChild('PunchWallRPG')\nlocal mode=root and root:GetAttribute('PersistenceMode') or ''\nlocal defaultEphemeral=root and root:GetAttribute('PersistenceStudioDefaultEphemeral')==true\nlocal liveOptIn=root and root:GetAttribute('PersistenceStudioLiveDataOptIn')==true\nlocal ready=player and player:GetAttribute('ProfileReady')==true\nlocal writable=player and player:GetAttribute('ProfileWritable')==true\nlocal state=player and player:GetAttribute('ProfilePersistenceState') or ''\nlocal ok=mode=='EphemeralStudio' and defaultEphemeral and not liveOptIn and ready and not writable and state=='EphemeralStudio'\nreturn H:JSONEncode({ok=ok,mode=mode,defaultEphemeral=defaultEphemeral,liveOptIn=liveOptIn,ready=ready,writable=writable,state=state})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"mode\"\\s*:\\s*\"EphemeralStudio\"",
+        "\"defaultEphemeral\"\\s*:\\s*true",
+        "\"liveOptIn\"\\s*:\\s*false",
+        "\"ready\"\\s*:\\s*true",
+        "\"writable\"\\s*:\\s*false",
+        "\"state\"\\s*:\\s*\"EphemeralStudio\""
+      ],
+      "label": "wait boundedly for the ready non-writable ephemeral profile"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "label": "stop play and run the shutdown lifecycle"
+    },
+    {
+      "type": "wait",
+      "ms": 250,
+      "label": "allow Studio output to flush after the Edit transition"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "postStopConsole",
+      "label": "capture console after shutdown completed"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "label": "post-stop console has no runtime errors"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "postStopConsole",
+      "patterns": [
+        "Shutdown drain incomplete",
+        "PlayerRemoving save did not complete",
+        "PlayerRemoving lease release did not complete",
+        "PlayerRemoving persistence remains in flight",
+        "Persistence (?:save|release) failed",
+        "profile_not_loaded"
+      ],
+      "label": "post-stop console has no persistence lifecycle warnings"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "leave Studio in Edit mode"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": { "is_start": false },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup leave Studio in Edit mode"
+    }
+  ]
+}

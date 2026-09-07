@@ -1,0 +1,76 @@
+{
+  "ok": true,
+  "at": "2026-09-06T05:15:39.3527014Z",
+  "head": "24644d20641835b43f7b6b56b14c01afe7c628ae",
+  "independentAudit": {
+    "originalUnreachable": 7,
+    "distinctRefs": 27,
+    "literalOccurrences": 36,
+    "files": 237
+  },
+  "pairs": [
+    {
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "replacement": "1164ca9b8196c9c8e3c5c562c358dfa8afddd596",
+      "sameBlob": true,
+      "oldBlob": "10931497c8537b81e55d748a414f273fa2025285",
+      "old": "07e4009",
+      "newBlob": "10931497c8537b81e55d748a414f273fa2025285",
+      "reachable": true
+    },
+    {
+      "file": "work/automation/flows/pet-size-position-qc.json",
+      "replacement": "6aebfed0a01263bd124f5325313d77736e8b0f94",
+      "sameBlob": true,
+      "oldBlob": "59c6251c3032871a4115d52a4421519e7405714d",
+      "old": "a49221b",
+      "newBlob": "59c6251c3032871a4115d52a4421519e7405714d",
+      "reachable": true
+    },
+    {
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "replacement": "2c684765b18f25cf3400c2e1301b8a5dd09b6080",
+      "sameBlob": true,
+      "oldBlob": "7fbd3fee5b7051b346b54b3b3c73f8b776a71a06",
+      "old": "521711b",
+      "newBlob": "7fbd3fee5b7051b346b54b3b3c73f8b776a71a06",
+      "reachable": true
+    },
+    {
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "replacement": "5763f7992673248383b6304dbfcd3a0680b61b3d",
+      "sameBlob": true,
+      "oldBlob": "f4f0d0254326dc514c154b3d97b896989ea84539",
+      "old": "2ddecc6",
+      "newBlob": "f4f0d0254326dc514c154b3d97b896989ea84539",
+      "reachable": true
+    },
+    {
+      "file": "work/automation/flows/power-avatar-growth.json",
+      "replacement": "39d3c409c7c4a619f244bb463a3da0942883af85",
+      "sameBlob": true,
+      "oldBlob": "01a2bd9ac73777b03378a2e31d75f63f56ae51ff",
+      "old": "40d9390",
+      "newBlob": "01a2bd9ac73777b03378a2e31d75f63f56ae51ff",
+      "reachable": true
+    },
+    {
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "replacement": "d97bbad4f669c61e2f9c0ee29ef5255ef508861f",
+      "sameBlob": true,
+      "oldBlob": "9471d97e2a2e06b6171f737cfd93759e50cc428d",
+      "old": "f10dfc5",
+      "newBlob": "9471d97e2a2e06b6171f737cfd93759e50cc428d",
+      "reachable": true
+    },
+    {
+      "file": "work/automation/flows/hero-shop-reference-polish.json",
+      "replacement": "72b36c94d86a5f57f18703de86f809e86ef6f79f",
+      "sameBlob": true,
+      "oldBlob": "673630e03eaa22763b20a6ee993dfdc1ada1c077",
+      "old": "c668b9c",
+      "newBlob": "673630e03eaa22763b20a6ee993dfdc1ada1c077",
+      "reachable": true
+    }
+  ]
+}

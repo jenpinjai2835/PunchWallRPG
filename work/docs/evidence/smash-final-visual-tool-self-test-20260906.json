@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "checks": 26,
+  "compiledSnippets": 13,
+  "executedStateAssertions": 42,
+  "sharedProfilerContract": {
+    "ok": true,
+    "checks": 52,
+    "compiledSnippets": 8,
+    "executedLuauAssertions": 31,
+    "studioUsed": false
+  },
+  "studioUsed": false
+}

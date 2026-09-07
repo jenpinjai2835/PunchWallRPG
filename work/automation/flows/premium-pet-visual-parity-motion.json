@@ -1,7 +1,7 @@
 {
   "name": "premium-pet-visual-parity-motion",
   "description": "Verify every equipped premium pet uses the exact Creator Store template shown on its Robux stand and follows the player with damped motion instead of frame-snapping.",
-  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "studioName": "^(?:PunchWallRPGPlayable_v1_final|PunchWallRPG_ManualPlaytest_20260818_FistAuraV10)\\.rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -27,14 +27,16 @@
       "expectRegex": ["\"ok\"\\s*:\\s*true", "\"matched\"\\s*:\\s*3", "\"motion\"\\s*:\\s*\"DampedFollowV2\"", "Sanitized_CrimsonPhoenixPet", "Sanitized_StormWyvernPet", "Sanitized_CelestialGuardianPet"],
       "label": "equipped pets match all three showcase models"
     },
+    { "type": "call", "tool": "screen_capture", "args": { "capture_id": "VQC_Premium_Pet_Pack_Formation" }, "label": "capture three premium pack pets in formation" },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local pet for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and m:GetAttribute('PetDefinitionName')=='Celestial Guardian' then pet=m break end end task.wait(.2) local before=pet:GetBoundingBox().Position root.Anchored=true root.CFrame=root.CFrame+root.CFrame.RightVector*10 task.wait() local early=pet:GetBoundingBox().Position task.wait(.75) local late=pet:GetBoundingBox().Position root.Anchored=false local earlyMove=(early-before).Magnitude local lateMove=(late-before).Magnitude return H:JSONEncode({ok=pet:GetAttribute('SmoothFollowReady')==true and pet:GetAttribute('MotionSystem')=='DampedFollowV2' and earlyMove>0.05 and earlyMove<8.5 and lateMove>earlyMove+1 and lateMove<13,earlyMove=earlyMove,lateMove=lateMove,ready=pet:GetAttribute('SmoothFollowReady'),motion=pet:GetAttribute('MotionSystem')})"
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') local folder=workspace:FindFirstChild(p.Name..' Client Companions') local pet for _,m in ipairs(folder:GetChildren()) do if m:IsA('Model') and m:GetAttribute('PetDefinitionName')=='Celestial Guardian' then pet=m break end end task.wait(.2) local before=pet:GetBoundingBox().Position root.Anchored=true root.CFrame=root.CFrame+root.CFrame.RightVector*10 task.wait(.12) local early=pet:GetBoundingBox().Position task.wait(.65) local late=pet:GetBoundingBox().Position root.Anchored=false local earlyMove=(early-before).Magnitude local lateMove=(late-before).Magnitude return H:JSONEncode({ok=pet:GetAttribute('SmoothFollowReady')==true and pet:GetAttribute('MotionSystem')=='DampedFollowV2' and earlyMove>0.02 and earlyMove<8.5 and lateMove>earlyMove+1 and lateMove<13,earlyMove=earlyMove,lateMove=lateMove,ready=pet:GetAttribute('SmoothFollowReady'),motion=pet:GetAttribute('MotionSystem')})"
       },
       "expectRegex": ["\"ok\"\\s*:\\s*true", "\"ready\"\\s*:\\s*true", "\"motion\"\\s*:\\s*\"DampedFollowV2\""],
+      "saveAs": "motionProbe",
       "label": "premium pet follows with visible interpolation"
     },
     { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },

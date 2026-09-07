@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punchwall-smoke",
+      "selectedStudio": {
+        "id": "755197e7-2ac8-4676-8158-a1ccd9578fb9",
+        "name": "ชนกำแพง (placeId: 125255969070601)"
+      },
+      "selectedPlace": {
+        "name": "Place1",
+        "placeId": "125255969070601",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "edit mode detected",
+        "capture edit preview tree",
+        "edit preview folders detected",
+        "start play",
+        "wait for runtime bootstrap",
+        "play mode detected",
+        "runtime folders and key objects detected",
+        "front excavation block attributes",
+        "titan wall attributes",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

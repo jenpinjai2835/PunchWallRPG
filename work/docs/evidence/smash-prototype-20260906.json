@@ -1,0 +1,53 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "width": 320,
+      "colorScheme": "light",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "width": 320,
+      "colorScheme": "dark",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "width": 360,
+      "colorScheme": "light",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "width": 360,
+      "colorScheme": "dark",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "width": 736,
+      "colorScheme": "light",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "width": 736,
+      "colorScheme": "dark",
+      "purchase": true,
+      "petCap": true,
+      "noOverflow": true,
+      "errors": []
+    }
+  ]
+}

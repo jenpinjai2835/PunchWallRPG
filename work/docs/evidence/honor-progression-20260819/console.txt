@@ -1,0 +1,28 @@
+[01_desktop_honor_locked runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[01_desktop_honor_locked post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_phone_844_honor_catalog runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[02_phone_844_honor_catalog post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_740_honor_equipped runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[03_phone_740_honor_equipped post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[04_desktop_honor_world runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[04_desktop_honor_world post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[05_phone_740_honor_bottom_selected runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[05_phone_740_honor_bottom_selected post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[06_phone_844_honor_world runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[06_phone_844_honor_world post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[07_phone_740_honor_world runtime]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.
+[07_phone_740_honor_world post-stop]
+[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.

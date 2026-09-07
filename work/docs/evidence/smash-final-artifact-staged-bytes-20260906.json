@@ -1,0 +1,868 @@
+{
+  "ok": true,
+  "kind": "Exact working-file to staged Git blob comparison",
+  "count": 172,
+  "jsonParsed": 156,
+  "files": [
+    {
+      "path": "outputs/PunchWallRPGPlayable_v1_final.build.json",
+      "bytes": 2976,
+      "sha256": "F06521B6D714479C271C2C6C194B3E422A3E944EE9FB61A937F9E553A09EA5F2"
+    },
+    {
+      "path": "outputs/PunchWallRPGPlayable_v1_final.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+    },
+    {
+      "path": "outputs/PunchWallRPGPlayable_v1_final_validation.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-desktop-20260906.json",
+      "bytes": 2357,
+      "sha256": "5A3C561756292E9DC825BC2B2AB080F0542262AEDDE912771B33EBC672771E61"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-live-source-before-20260906.json",
+      "bytes": 4686,
+      "sha256": "EA8C892E369B30507BA28A33D5808C9E2FB7195F41816C12C965D5A3547B0AA8"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-native-input-profile-20260906.json",
+      "bytes": 78632,
+      "sha256": "90C33047B83FFF6A91DB48A1AC53CB356E7BB5554634FAA38237CA2C1B7B72E6"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-native-input-profile-r2-20260906.json",
+      "bytes": 85590,
+      "sha256": "D413CBC4BA5F904315A2F31B6530F037645E7ACCAAAF5230E1FDDED71DB5BD35"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-native-open-20260906.json",
+      "bytes": 1166,
+      "sha256": "3F86718B63F02BB566B18E512210823557F2414A05CF8437F5735B52EA9E69E7"
+    },
+    {
+      "path": "work/docs/evidence/smash-artifact-runtime-20260906.json",
+      "bytes": 6077,
+      "sha256": "D46C7F44DD417EB36D1DB9C3E48D324A18C7666047FD88943C2D1B920D89F5BF"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-build-20260906.json",
+      "bytes": 9953,
+      "sha256": "E98AE0A2B1DE1D7D8775B0742D215DBD6A5E97D6C549C30D67886B27D7FE9040"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-launch-20260906.json",
+      "bytes": 2246,
+      "sha256": "72768774AB462E32BB567FA6275138D3EB783DA542E2F2DBEDEDF37DE074749A"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-peer-reviews-20260906.json",
+      "bytes": 1344,
+      "sha256": "748D70EDEBCC063B3EA8AA85FAB4C3B2B153D08F6424B11A1FDF5A9F9FD51521"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-tunnel-20260906/camera-tunnel-frame-profile.json",
+      "bytes": 3978,
+      "sha256": "B92B6A479A54FE4D057AF562B17C18257365FC65DCF4541B96F9E88459F73D64"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-tunnel-20260906/manifest.json",
+      "bytes": 73159,
+      "sha256": "A1E97342B5500E4100937C3F043BDDF0DB1EA3E6E4C1B9E62E6C34D41F3DDA98"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/desktop-fresh-hud.jpg",
+      "bytes": 433283,
+      "sha256": "FA67AFD28712C71B4CA57CFCEC00A5D43C5ED6DAEA609DA3C5EC2B61C5716D9D"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/desktop-inventory-fists.jpg",
+      "bytes": 238848,
+      "sha256": "ED52751D3AC93B7D4E5503F6F89DC3B1E383487A450D9918D52982EF219298A1"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/desktop-inventory-pets.jpg",
+      "bytes": 240967,
+      "sha256": "EDBE363892405730AAF477BB4BB29B1FB73AAC4DCA4C8050690E4EED9C4BBB3B"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/desktop-settings.jpg",
+      "bytes": 205659,
+      "sha256": "378D7A13378981FE0124E696063EBF413353FBADB57B399D5F5C4EEFD6C8D7EB"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/desktop-shop.jpg",
+      "bytes": 201649,
+      "sha256": "23A9AAAD4AFC2DF8FCF07E88FB4BAE381931B4393D6E2C52DBFF320329773B5C"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/iphone17pro-landscape-fresh-hud.jpg",
+      "bytes": 275579,
+      "sha256": "D181A4204C99E41C0E3DFBA97C90D7E893B3074C67B5CFEEF3B4BC5510C134A8"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/iphone17pro-landscape-inventory-fists.jpg",
+      "bytes": 129565,
+      "sha256": "4C4429EB255122261EAC22FB1464D6473EE64C83E0DDDF1857C707EC19F0E8E4"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/iphone17pro-landscape-inventory-pets.jpg",
+      "bytes": 123665,
+      "sha256": "EAAFED3A9113FB7042553D55B7E2E6F57BF24AD319CBD3420066FFB5F000FC49"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/iphone17pro-landscape-settings.jpg",
+      "bytes": 119375,
+      "sha256": "2835EC700DF6A522893964BE8D0697373144FB6EF7B7B8B9160D0EE556B36FCF"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/iphone17pro-landscape-shop.jpg",
+      "bytes": 114362,
+      "sha256": "547426FDF720D358AB4B7032C81CE5576457334F144FD85AA650737DE33C4A2E"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-artifact-visuals-20260906/manifest.json",
+      "bytes": 232243,
+      "sha256": "ACED1E80F90422AA0CB626814F1B98D87F89BD96C72D4637EEDCF510D14074CB"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/manifest.json",
+      "bytes": 98396,
+      "sha256": "A302FF13CEF8C3E52E39265F6E21C637EB2BBDEBCE79CFEE22ECD79CAC70115E"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/rebirth.jpg",
+      "bytes": 95164,
+      "sha256": "42C16BA81D02CE47EF771567C9347DE5931E64CF82BABDF6250D5AE233D9AB79"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/selected-fist.jpg",
+      "bytes": 58377,
+      "sha256": "82C7D399D0FF997B8573ED65DA3C54C63B60492CB024BD2BFED9BE955A1E0FA1"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/selected-pet.jpg",
+      "bytes": 63696,
+      "sha256": "C8407B896997943DDCBE93B98A1908068FA768EBC31655B04D46445566DA4A57"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-narrow-artifact-visuals-20260906/settings.jpg",
+      "bytes": 95515,
+      "sha256": "4E3E50AB9E3406085AE3276DC9835C0C3798DE6E82648784C188C60B303552D7"
+    },
+    {
+      "path": "work/docs/evidence/smash-final-performance-peer-review-20260906.json",
+      "bytes": 1286,
+      "sha256": "0DFDC1F315940B36FAA88CE545170112C95DDA869984FF7B5E55BB0126EA732A"
+    },
+    {
+      "path": "work/docs/evidence/smash-frame-profile-final-20260906.json",
+      "bytes": 2779,
+      "sha256": "860A652FACFD2291BA6D08C096DC8853BAA5690D9D9563FD73801DEEF103FB01"
+    },
+    {
+      "path": "work/docs/evidence/smash-frame-profile-final-r2-20260906.json",
+      "bytes": 131566,
+      "sha256": "C62AB9D4E355506A0959009544A64533396F9F66D26134B8D5766C50A826A0A7"
+    },
+    {
+      "path": "work/docs/evidence/smash-frame-profile-final-single-studio-20260906.json",
+      "bytes": 131583,
+      "sha256": "CEAAA3719792022C288F459816DC8D0D6F30C8778BF2151B4503AD71BE1938CA"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/ai-material-assets.json",
+      "bytes": 1433,
+      "sha256": "EE7561828405122850915484B5865732DAE6A376D8ECC386ED79EAABBE9B1452"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/authoritative-progression-hud.json",
+      "bytes": 1636,
+      "sha256": "FF340885BB8F50280DEF476B7F715CFCC69E115D19A562DDF0A106E1199F8099"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/boss-depth-authority.json",
+      "bytes": 1445,
+      "sha256": "0750F64D9C31297F5AD9C825BFF0378BAEBB63419F9FA4B0EA99591B4BAC7F6B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/branded-loading-onboarding.json",
+      "bytes": 1592,
+      "sha256": "BDA12787D9172C30C71A656EB8F07FC78589A49D58406BC04038421273B6BFE3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/camera-long-tunnel-regression.json",
+      "bytes": 1455,
+      "sha256": "F52E3F13BE8D7D9E56FAF188A5D5F649A4AB821235DC52C2D2E0104CFF3C307C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/camera-shop-stability.json",
+      "bytes": 3262,
+      "sha256": "77DB1BA897C9C20BA0AEFC4883FFAE731A7F75047F4A36D621A6D6D0FE7B39A7"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/camera-teleport-scriptable-visibility.json",
+      "bytes": 1514,
+      "sha256": "96A7300C0B773A357523BA15761943E6C9F295CF7F148C321D253A0B181C0DB6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/camera-tunnel-frame-profile.json",
+      "bytes": 3936,
+      "sha256": "0F8CE3454F0FDE9D80834C2A3178BC68E12532DF1838728936EE11AF90DF87AA"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/camera-tunnel-zoom-preservation.json",
+      "bytes": 1723,
+      "sha256": "424BAE249B76D677194A9789702648C437C851011FA887001B92775D7A4C198D"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/center-feedback-suppression.json",
+      "bytes": 1530,
+      "sha256": "56BB167B973AE3E81CF0A9ECBA7CEE37ED9622A923FDABC77528D89E83545001"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/coin-burst-reward-feedback.json",
+      "bytes": 1503,
+      "sha256": "71DC3CB4196F808B19D02028724DBD88378F5961CACE4AAFC7FC78CC65F8CE70"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/combat-target-boss-hud.json",
+      "bytes": 2340,
+      "sha256": "787350A27A7985DB9099B77EB8F9765080C8671E58DD2349811F87497DD850D9"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/contextual-actions-settings-authority.json",
+      "bytes": 2512,
+      "sha256": "924D77A523F388439EE18A2EC22397498C77CEE15158BD53083489641ED6FB70"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/creator-store-commerce-npcs.json",
+      "bytes": 1391,
+      "sha256": "E5E7B62C2BA4E8F0D873969C4A603007BE40E34B18F0D756E4A42E7B01A324F6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/creator-store-fist-visuals.json",
+      "bytes": 1671,
+      "sha256": "51095983FF0D443295671420A5B9F643D8AC9E21F6E5324C33B9E68E2117A7FF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/creator-store-pet-pack-visuals.json",
+      "bytes": 2627,
+      "sha256": "A7133494718E70DE7198C31D8B346E2BBEB23E032A00B1E1833053923FEE8C5C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/depth-tier-materials.json",
+      "bytes": 1408,
+      "sha256": "18C100BECF3834198B6BA71D8D1BF9CA3E3282EB9DADEABD4A0C1B096613AEC6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/destruction-boss-phases.json",
+      "bytes": 1656,
+      "sha256": "313CD3F3584C9CB1244C42E8AED84A09795A612409039F53C07C162A8D29B6FA"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/developer-product-configuration.json",
+      "bytes": 2444,
+      "sha256": "223C87F34920E892B6D37EB97D9A6BAF0153C29977D8A1AEF79DE424E471C75E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/device-matrix-hud-shop.json",
+      "bytes": 2677,
+      "sha256": "D6A4FEBE8379D3330313A82981A03AC223EDEAD1CE0E974812AEEA3064053356"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/directional-punch-controls.json",
+      "bytes": 1536,
+      "sha256": "80E2D907C9DEB39C1621FB230C095D24E281E0C2CAEFCF9754DBDB992C44D882"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/feedback-holder-presentation.json",
+      "bytes": 1957,
+      "sha256": "DA0A8486EB87FD2BA1463CBFEC1C5DB9667490F0532144FD7B3F76005B7AA200"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/final-rbxlx-build-validation.json",
+      "bytes": 1849,
+      "sha256": "6133EA3EB15A64F82ED97E9E376874BA8D5C138161D0ECE7D37D155F9BF01BEA"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/first-five-fist-presentation.json",
+      "bytes": 1915,
+      "sha256": "3C9DC9721D9197D4898F90984DDFA190AF8597A8E1D7923604C79EA400E168AF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/first-five-rig-parity.json",
+      "bytes": 2111,
+      "sha256": "A4E090FFECEBE0FA57F87F83F44AE899CE93270EF3CED2E47BDAAE2858D392D8"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/first-hit-forest-stone.json",
+      "bytes": 1401,
+      "sha256": "53073D1561F48E08D7F73C2BAD56C8A6B05EBB41096D48191C2C391BFB749C18"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/fist-arm-alignment-qc.json",
+      "bytes": 1581,
+      "sha256": "6ADB3F79DF6D8C94F1EDFAF6FC6E124F3FA9093924A0B86F77D53F8A09F83715"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/fist-items-icon-ui.json",
+      "bytes": 1912,
+      "sha256": "FF4CE2819DDA6799AE1BF0BD40A640965562006A12DB778456B02EB7395DDC78"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/fist-pet-legacy-slot-safety.json",
+      "bytes": 3414,
+      "sha256": "EE5D2BDB4328C80FB0348029236518ED748680F3EC6BCE956AD488E46878265F"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/forest-pup-silhouette.json",
+      "bytes": 883,
+      "sha256": "BCF021FF1F22A709B300BCA98C0C94849CF30F1C42CF82610A95E352C9A4AA76"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/forest-world-visual-qc.json",
+      "bytes": 1474,
+      "sha256": "0F368A7D362A19386D2749BB2B6ABB4783C16DF20370C5EBA42649D9043962C0"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/full-game-economy-boundaries.json",
+      "bytes": 2339,
+      "sha256": "9DDE6CE463AFBA293284FBA49DF6E3C9EC057D5D9BEA94B4B7A55C23FB3B43C1"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/full-game-real-ui-controls.json",
+      "bytes": 4819,
+      "sha256": "C23060EBEF5DD3C5B9153F5B671901D52B58A811C508E0E539818A2E0A2116BD"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/full-game-tester-critical-ui-and-models.json",
+      "bytes": 1577,
+      "sha256": "06D8F22AA4BB480BAAF7049BBDFD0466F378563F30C908A49E3F782BEDC0117F"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/functional-hero-shop.json",
+      "bytes": 1520,
+      "sha256": "274B450AAAC09DAF3261607D25D79FC47DF5C3AF05A228525B8BAB5F7E3CF044"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/generic-phone-game-menu-accessibility.json",
+      "bytes": 1627,
+      "sha256": "67AEFD54D39B4CBBB5317E032FDBDEBD6D36A0087F29EF39F8768F57A850D792"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/hero-city-design-alignment.json",
+      "bytes": 1666,
+      "sha256": "12C2DA830D6D7365FA3A46BB1D6C5822A2A1B2F343D7326B53CC1E467882DCDF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/hero-city-pixel-perfect-hud.json",
+      "bytes": 1769,
+      "sha256": "7B36D22C591D8FC9AE7C92D3D75601967E31E50A3D71B0D25A310C5412E3732A"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/hero-city-reference-ui.json",
+      "bytes": 1488,
+      "sha256": "B7430702CA1CADDC633B2326458D79F0FA62F68CC164EF1A9E4933162F3EF98D"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/hero-city-theme.json",
+      "bytes": 1444,
+      "sha256": "749277FCD0312A21825010F0F5C7646EA1E85596E8CE44AFCD19207A7A71DA44"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/hero-shop-reference-polish.json",
+      "bytes": 2827,
+      "sha256": "8D5CFBFF5B8F45FB0C102885048709FC7928924FBAA92093B7B23A0E84222635"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/honor-product-receipts.json",
+      "bytes": 3176,
+      "sha256": "92449FDF0E13FDCE1BA16B4DF93A63D6533E4FAFF24361609F2B3D1AC2F4ECB8"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/honor-progression.json",
+      "bytes": 4833,
+      "sha256": "5AF5E09ABC3B3EFFDCF5DBF7FF7AEBCA682518933B8619F9C5AFFF8CC2A53FF2"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/impact-destruction-feedback.json",
+      "bytes": 1457,
+      "sha256": "1BA03F67ACFC7D6AC679D265E46FF3A5295259ECFC7C4B195EEB28214A73C506"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-category-icon-cohesion.json",
+      "bytes": 2278,
+      "sha256": "4E494B9E44F8B391B93106C9852F97F7F81A741B9ECCDDE17A410308C345AB99"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-delete-real-input.json",
+      "bytes": 1858,
+      "sha256": "A19BC559846ACF0B2D5E320B108BFB789932D6A170BA3D661FF37AD8020B927F"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-menu-ui.json",
+      "bytes": 4726,
+      "sha256": "FCDAEC103E71E0F5B243F5D67759A7DDBFBB11455198AC4433BBDCD2928393B6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-persistence.json",
+      "bytes": 1405,
+      "sha256": "49C2AF4D786000EBE09784C4E122F211FD20CD91D655F1F60AB8B8AF0F49CE4B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-pet-icons-fusion.json",
+      "bytes": 1962,
+      "sha256": "FE5A99F697D7778B3E64C7D4F45554EE25E1390DF617019B10207CC72193CF1C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-premium-readability.json",
+      "bytes": 943,
+      "sha256": "20DFE14FA493CF6DF9D7DEC20674A8F0A6878729F5E9AF467A25BC5BF6DB92BF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/inventory-visual-responsive.json",
+      "bytes": 2875,
+      "sha256": "29DB04D07F0FD4F17AD69C8C5615F19009C3264BE6D41C3719B26CA9B4FB7B48"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/item-matched-fist-visuals.json",
+      "bytes": 1686,
+      "sha256": "54187BC37A6D192D557C96EED4398E8ED8B8D2EAED3CD5FE80541F40EC7F2947"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/iteration01-complete-polish.json",
+      "bytes": 1875,
+      "sha256": "585D7BCC0B1B2FCA5FA9A42608C4A69B089F0B3CE8A4A4B37730EC257C51F3EE"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/iteration02-companion-tasks-boss.json",
+      "bytes": 2438,
+      "sha256": "E05E469C5CA9176489359580DB64ED1BB1BFEB5CA6BFF56ABF1FA847C6005187"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/iteration03-safearea-destruction.json",
+      "bytes": 2387,
+      "sha256": "79873912315962878B9EB47612590F1D4E348BEAA6BC6D10C69A34C7D6027031"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/iteration04-armory-pets-feedback.json",
+      "bytes": 3012,
+      "sha256": "134F0EB7E1AD3B96ACB927AE787925119E1CAD59371894258B906CCD1A82746B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/iteration05-final-depth-motion.json",
+      "bytes": 1852,
+      "sha256": "B74E2736EEDA4B1753AAEE920DB74468BC0E1071ACF823302C1903D227C64917"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/layered-spin-reference-ui.json",
+      "bytes": 1402,
+      "sha256": "35089DA115876F9EEAE7E58603782C57F1C9B57DF3EDA5D6DFA21A8EDB3AA903"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/long-run-catalog-progression.json",
+      "bytes": 2986,
+      "sha256": "EEE3EBF6B3505F4EDDF0C842C9BD5D49BA9B80DD5A210A17D18FA39FF522FADE"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/luck-distribution.json",
+      "bytes": 1401,
+      "sha256": "88785AC01EBFF306CA9E9996B0B7DD7FC1AE0731863B72952869B6FA6B69B366"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/manifest.json",
+      "bytes": 117123,
+      "sha256": "143CBC63F308C3B14123B7C7FFE382765BEB3461665F3B04FB8A189176917DC5"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/milestone-world-transition.json",
+      "bytes": 1684,
+      "sha256": "692FDA9A371DC46C7AD0CDCD2C3D639FE3277D60713C40DFDC29F7DBF23761CF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/mobile-iphone17-layout.json",
+      "bytes": 7152,
+      "sha256": "0500467FF20BEE0D59781DB3F3C2562F69B983B39D74C8A471737777ECF06394"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/narrow-desktop-menu-real-input.json",
+      "bytes": 2631,
+      "sha256": "C332C9053DFE263D820CA943868AACCE3167F643D116EC661091F2D0B987628C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/narrow-directional-controls.json",
+      "bytes": 4003,
+      "sha256": "84B7A50A2CB586E631B174FB21BADCBADC720E85F37A97BB7CC156913E0F228B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/natural-progression.json",
+      "bytes": 1438,
+      "sha256": "7592B00AC55283872E0D5F8ED7F8E5ACC85BFE5EF4F531749B7B5FA738928D12"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/normal-pet-visual-models.json",
+      "bytes": 2071,
+      "sha256": "436131F9C468540473E64797DC3102C63446ED9041743684CEB511C0FA78141E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/onboarding-waypoint.json",
+      "bytes": 2393,
+      "sha256": "25230C7222ACD3B217DD20DBDD26B86997DFBA08271A9643FF88C8F6F5AF21A4"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/persistence-shutdown-single-flight.json",
+      "bytes": 2351,
+      "sha256": "A4C1D71DAA41CE1EF4D307DCFAFC528CD1D8DE7877A40D34E54DFAA32CB172C2"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/pet-egg-world-pickup.json",
+      "bytes": 1954,
+      "sha256": "D798AF78E1F9D35DB6B902C98619B0E247149DE6FB04CB0340DE6E9EEF13B859"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/pet-size-position-qc.json",
+      "bytes": 11096,
+      "sha256": "C8BBF41A1622E2281591C0D22447EDC3C219C380B7109336AFD226453278BC1E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/pet-wall-drops-and-fusion.json",
+      "bytes": 1446,
+      "sha256": "4BCFFACCF0F885AC475B47E55F1A21E35A44594A516631D9EB893DD46A70AA32"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/power-avatar-growth.json",
+      "bytes": 3850,
+      "sha256": "01DBB0F3CB78CC9D73D6C91B58814911AFC765F78D7F7BE775DEB6F76E73A14E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/power-scaled-penetration.json",
+      "bytes": 6285,
+      "sha256": "2E4EAA06306AD5D63A956C4FB16A43AE2B757F8DF3A396289216F8630966F881"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/premium-hud-shop-readability.json",
+      "bytes": 1525,
+      "sha256": "22C0EEC29E54013B778EC2F85455B1AEFAC653E6826F1C8D51429A3328AA5D21"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/premium-pet-gamepass-configuration.json",
+      "bytes": 2354,
+      "sha256": "FBA5474F6D77239A3FC958F165DFBFD1D17582426B8F8C8BAF45D537C45C374C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/premium-pet-studio-test-mode.json",
+      "bytes": 1534,
+      "sha256": "2416CFF641707046B7343EDD51F228310666E6DD5AE9FEAFD0D908B1119BC22C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/premium-pet-visual-parity-motion.json",
+      "bytes": 1553,
+      "sha256": "A171B037A0495781FC88DFE3C2EA93F94123AC64F4F0A79FF92ADAD5891CE864"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/product-completeness-purchase-availability.json",
+      "bytes": 2371,
+      "sha256": "E97B4B7FC8A585C46FFB6A0CE389134E2DB8619B8FF9D6BB0700884E6E5F021B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/profile-load-hotfix-public-linked-studio.json",
+      "bytes": 2392,
+      "sha256": "2079A23CA71CE8C2E5A2B72A861990B24F6BDA3C65FBBDDA2D0E6ABDE7796D35"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-200-stress.json",
+      "bytes": 1399,
+      "sha256": "C3040A7A314DA40393165DCFDC5473E40E8B0202608BEE293804F8DD5A43E09B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-action-timing.json",
+      "bytes": 1414,
+      "sha256": "8E60D300ED86B3A5D12B6D67611A8E500C9014D78A248DAA73B726E2FA20DFF3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-camera-device-20.json",
+      "bytes": 2109,
+      "sha256": "78A21177FCB6AE9816A32975179552BFEA819464CBB989C7FF07B6B3354A4042"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-camera-smooth-follow.json",
+      "bytes": 1557,
+      "sha256": "BFC04E37004A22E019C4F8230E3BB49F08118434578DF97C0AF9B2DDC8AF88AC"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-character-motion.json",
+      "bytes": 1849,
+      "sha256": "B585AEC2082C878F08FCECA8F9C5F2A72A71B918F9EA3F2146362F49D911484E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-collision-recovery.json",
+      "bytes": 1399,
+      "sha256": "626647F59F43D4C96DAAAC911336602CC61EB146F910361E896A0545FDCC647F"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-collision-state-restoration.json",
+      "bytes": 1395,
+      "sha256": "7CEA7D502FFFCE44CF68C12E816A700F1E9E17C3E861E19999288D350F72F32C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-interruption-stability.json",
+      "bytes": 1771,
+      "sha256": "44BC7EC4E3EE38B7D47E5B1354E54D6FA1DD276A599FED48CDF7FB078C219E4B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-lunge-collision-filter.json",
+      "bytes": 1423,
+      "sha256": "0E19DA1C5CC3D7DD9CBD492857F0F4544EED0AEA085BE3FB34FDCB284438D91E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-no-snapback.json",
+      "bytes": 2343,
+      "sha256": "EB103A3F16A1718140EE8275C7810B7E6BA51650C8F6302084CCC33D32C69DCF"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punch-safe-endpoint.json",
+      "bytes": 1362,
+      "sha256": "0624261302981E28C7C72A72328E0067928C50799FDE4E26D97E594F8EEA4D8C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punched-route-navigability.json",
+      "bytes": 1388,
+      "sha256": "728CD63DD3B92AF67211E56EC80B0E64C914CA517EBFCC1E5567949556AAD48E"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-depth-corridor.json",
+      "bytes": 1528,
+      "sha256": "B4A64A963BD358EF795FC8D6B6516D056D796BF517706EB47A1D86F01A8F83AB"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-free-aim-combat-polish.json",
+      "bytes": 2021,
+      "sha256": "20FAA098406993D72A5406970920447E1968F17D1FEF5E7EFCDC20CF93D3FD60"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-hybrid-physics-lunge.json",
+      "bytes": 2007,
+      "sha256": "8BFE1ED3BC60567259C7A25078BD2B9554E5BA64AB70DB00F3B1010BEAB734C7"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-map-progression.json",
+      "bytes": 1679,
+      "sha256": "BE336B101AD0B911A012F396BBDFC2FF9AFED1E9494EEFAFE79D4ED56F4D0140"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-mobile-controls.json",
+      "bytes": 1828,
+      "sha256": "D12F28D4E24E58CC38C3CA167D1C833FB109FB7AAAABC1CBE48AC3C1220F259C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-motion-feedback.json",
+      "bytes": 2426,
+      "sha256": "B35D28E53390CFD865E40339A606B25DAC1B15296AAF07585279BF0F0EDB928B"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-player-state.json",
+      "bytes": 1541,
+      "sha256": "12367B527C0EEC11C440AC941C49070E78DA777B9220C2BEBE266825D2C08DAD"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-radius-damage-shake.json",
+      "bytes": 1637,
+      "sha256": "0BD53220127E943934B7E249133DDDA68E6208D0F610E6494D946148F7985FB4"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-rebirth-boss.json",
+      "bytes": 1540,
+      "sha256": "B5D30E30D9A0880CF4B54EB91C2494B3D158CE2CD5633A8BB62FEBCD4E4DA8D3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-shared-excavation-field.json",
+      "bytes": 1817,
+      "sha256": "DEA613F785CD6631637B92D71465DF1D9858AD653381940BF9C637797854A4C3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-shop-and-pet.json",
+      "bytes": 1480,
+      "sha256": "C0C1F79D09CA4E3311F5EC59A514AE41F79B622BFC5A95C427F7F5CD943B2FB6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-smoke.json",
+      "bytes": 1592,
+      "sha256": "9220818546B30822B0C57580C3CFBBE48287A49255C7DC0D11535CE3FEAF9D70"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-train-and-break.json",
+      "bytes": 1573,
+      "sha256": "7691712003FF10339BD61719EA42E5438E0C46047910823C4AD817EC74525693"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/punchwall-visual-polish-smoke.json",
+      "bytes": 1769,
+      "sha256": "E73B6F7977757C983AF7F4CCE102FCE3A7E80B6A85A897A7B3F2ECCDC9520431"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/rebirth-progression.json",
+      "bytes": 4565,
+      "sha256": "358C6045FECB00E549B622A4392E8FC9A4EFE37170FD6D6617678A79C5960178"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/reduced-motion-performance.json",
+      "bytes": 1735,
+      "sha256": "BB587A10261858E53B37B025CC48C4F6D56756F10CE884A69198B72371ECE076"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/release-expansion-economy.json",
+      "bytes": 1579,
+      "sha256": "E2D04617D595F1D234297F0692888724143FD53AF2EB963CBE7B429A2DF056A6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/release-expansion-ui.json",
+      "bytes": 1582,
+      "sha256": "05F930240558E949F45FF6140E73FE05045880F52693596EEF7F01F703D8D3EE"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/release-expansion-world.json",
+      "bytes": 1497,
+      "sha256": "9795793B1DB1F9B4FCD1E2441555E70F40BDA59C605CF4F26293A9503A53F43A"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/responsive-ui-inputs.json",
+      "bytes": 1413,
+      "sha256": "2A37AD511CDCD93EA82122AC9E4A7801D528F2C3976420767815AE33421ADDFD"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/right-hud-menu-uniform-grid.json",
+      "bytes": 2211,
+      "sha256": "0982154735F05658BA5431221976A60521018DCBEE1BEF6D45710EEEFD601FE6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/server-snapshot-coalescing.json",
+      "bytes": 1568,
+      "sha256": "27FF2E5E7B39BD36F20B52AB16075903C27BF71C4B186B9FC51E5427B316C6CD"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/shop-coin-and-music.json",
+      "bytes": 1389,
+      "sha256": "8494338F13FD359614B4F5CCA9B26584D7E960587D49814A4BD8B723621FB5F3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/source-after.json",
+      "bytes": 4664,
+      "sha256": "D9C268A7563F5569811378BD279BC82B0D9A9CB6D1400D2CEB4B6B6140A98F64"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/source-before.json",
+      "bytes": 4664,
+      "sha256": "673FBC614020A7902E91526F0EFC66C2EBEE093109B8B3FF6847C2A26FF5C6BE"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/standalone-player-windows.json",
+      "bytes": 3867,
+      "sha256": "F7C461F7CD0DBA8E2DFEEDBEC26376D115134F2163100764D0843A4A94FAA7D8"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/structural-character-clearance.json",
+      "bytes": 1453,
+      "sha256": "C016DB82720B9D30A3C91A8771D2AD5A04A2FB9CCF8AB4D7B605E5225A269ABA"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/structural-overlap-ejection.json",
+      "bytes": 1496,
+      "sha256": "2989E324BE342AB3FFE484E35F88E4D6B272CA5EBC32C502B0813EF26E7CB11C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/structural-rubble-solidity.json",
+      "bytes": 1475,
+      "sha256": "17F605368B9CF1F5AD617EDF0A9B3EE627678E3472DA4C48D0784D11E4B006A5"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/studio-high-power-test-mode.json",
+      "bytes": 1619,
+      "sha256": "DBAA27790F33DD126AEFE6497D056D53F3DD9544B3C2896643F1E1D4E4F16394"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/studio-test-harness-control.json",
+      "bytes": 1583,
+      "sha256": "15A4482E68E7F193DAFA605C475583C1FEB119A7F11E162AD4253DE3E5CCF681"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/studio-test-harness-full-control.json",
+      "bytes": 1558,
+      "sha256": "EFDFFFBA8B45CC295090CB5C2BA892CC48059EF6F174A346A9A68F6887516C9C"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/support-loss-matrix.json",
+      "bytes": 2272,
+      "sha256": "0897DA446CD83177D80E20187D266420FB538A63DB47BF20918CB02A9A59BFE9"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/tall-multiplayer-depth-wall.json",
+      "bytes": 1368,
+      "sha256": "4C5DBAFF40293E553C645807FCCC69AA71595A50819995A1CD2B845541FC7433"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/titan-hq-tonal-readability.json",
+      "bytes": 1541,
+      "sha256": "EE5CD174720C1C69944BEEC76CC797D44F5B62989A121393F449581F4E052CB6"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/training-lock-motion-feedback.json",
+      "bytes": 1489,
+      "sha256": "919250B262866D63EA2E3605934133FA9E753D1F3F69CDC05CDE93F4F4A0CD41"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/training-station-progression.json",
+      "bytes": 4106,
+      "sha256": "C5E8B844B793608C01B38F80ED0DFB75B693545661E3E96FDE1FA633224CE0DC"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/training-ui-pet-recovery.json",
+      "bytes": 5355,
+      "sha256": "53B96968AA833EED4A2767B78A14FAF0B801F873FFAC83AC23F0C8B2EDE0D300"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/tutorial-action-notification-badges.json",
+      "bytes": 4325,
+      "sha256": "AB6F07F730E66983145168277C97FBE1E6E411A0E5AECF5D9E75E73DC88129A3"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/vertical-depth-race-hud.json",
+      "bytes": 1397,
+      "sha256": "312F57CFC9FDEE214E3E196045A06AA903433D07D8FFCAB6F8576BD546988CE2"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/world-boost-showcases.json",
+      "bytes": 6486,
+      "sha256": "7F2A43D6E90823FA28741A25CDA522BDAA9BB8787822D4D194322D34142B45CE"
+    },
+    {
+      "path": "work/docs/evidence/smash-full-emote-readiness-r4-20260906/world-wall-reset.json",
+      "bytes": 8502,
+      "sha256": "7FA54D1520430AC9BFB182FB96CF178D309A1AE1886A93A9B0588C15BDC65AC8"
+    },
+    {
+      "path": "work/docs/evidence/smash-native-input-helper-corrections-20260906.json",
+      "bytes": 1532,
+      "sha256": "1CC9A8A72D2A2C3347611B1F563CBBEB0D186531DCC0351672461C81E1BF0C8D"
+    },
+    {
+      "path": "work/docs/evidence/smash-user-authorized-studio-cleanup-20260906.json",
+      "bytes": 5260,
+      "sha256": "6174C41221B7E416E3D49BA38B15888EE16F19FE1C0DF5ED6F9C776D8B664343"
+    },
+    {
+      "path": "work/docs/evidence/smash-user-authorized-studio-cleanup-verified-20260906.json",
+      "bytes": 826,
+      "sha256": "5E9820F0E0B907A1B2F7824F1791CF867FE6D1932373F21B2F43BECC0675DBCE"
+    },
+    {
+      "path": "work/docs/evidence/smash-windows-powershell-launch-context-20260906.json",
+      "bytes": 527,
+      "sha256": "666F04322218E008429CBD1C3D7778E9C016C8435C6A71949B66A4DA803F7010"
+    }
+  ]
+}

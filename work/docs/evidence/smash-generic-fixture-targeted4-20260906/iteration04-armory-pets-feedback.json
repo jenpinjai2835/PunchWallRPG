@@ -1,0 +1,50 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "iteration04-armory-pets-feedback",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for iteration runtime",
+        "current PremiumFist catalog has stands, showcases, graphics, and both-face labels",
+        "Armory and current Forest training guidance are separated",
+        "prepare duplicate pets and combat profile",
+        "wait for profile sync",
+        "actual Inventory equipment and visible power HUD match server profile",
+        "lock only duplicate slot two",
+        "wait for slot lock sync",
+        "duplicate cards expose independent actual slot lock states",
+        "delete unlocked duplicate slot one",
+        "wait for lock index shift",
+        "deletion selects row and shifts later slot lock",
+        "prepare isolated wall-drop-only pet economy",
+        "paid Hatch x3 is rejected with real wall-drop guidance",
+        "wait for paid hatch rejection sync",
+        "observe each real Pet event and visible presentation before pickups",
+        "three actual hidden-egg pickups grant one companion each",
+        "all three real pickup events have matching visible feedback in one non-overlapping channel",
+        "move to actual qualified training station",
+        "one real training start acknowledges continuous TrainingState",
+        "wait for training feedback",
+        "continuous training presents authoritative rate and exit action",
+        "leave training and observe the actual Iron top face without intervening blocks",
+        "wait for regular target HUD",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:47: bounded HUD target observation timed out",
+      "context": {}
+    }
+  ]
+}

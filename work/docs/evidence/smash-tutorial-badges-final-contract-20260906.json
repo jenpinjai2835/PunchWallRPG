@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "passed": 22,
+  "total": 22,
+  "checks": {
+    "data_version_and_tutorial_policy_are_current": true,
+    "tutorial_is_short_action_led_journey": true,
+    "legacy_long_tutorial_removed": true,
+    "completion_is_persisted_separately": true,
+    "legacy_migration_preserves_only_true_completers": true,
+    "server_sends_authoritative_tutorial_state": true,
+    "server_progresses_only_named_real_actions": true,
+    "punch_routes_are_hooked": true,
+    "shop_open_and_exact_fist_purchase_are_hooked": true,
+    "completion_is_saved_immediately": true,
+    "completed_or_already_owned_players_never_reopen": true,
+    "shop_ui_reports_open_step": true,
+    "red_dot_is_reusable_and_nonblocking": true,
+    "pet_dot_uses_exact_unlocked_fusion_policy": true,
+    "spin_dot_uses_credit_or_cooldown": true,
+    "shop_dot_excludes_robux_and_consumables": true,
+    "daily_dot_uses_claimable_actions": true,
+    "dots_follow_action_state_not_dismissal": true,
+    "runtime_flow_uses_exact_studio_and_production_actions": true,
+    "runtime_flow_covers_tutorial_persistence": true,
+    "runtime_flow_covers_all_badge_transitions": true,
+    "runtime_flow_has_clean_lifecycle": true
+  }
+}

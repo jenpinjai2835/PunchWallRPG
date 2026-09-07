@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "checkedAt": "2026-09-06T10:36:04.9343679Z",
+  "sourceCommit": "77d4b791ad48389e94df8c51990e7164d77d7190",
+  "helperSHA256": "D0084CF0C14ADA2A7F495FE6DC09B983A695D3939630871F622EE064D511901C",
+  "exactHelperFunctionsExecuted": true,
+  "liveFileCount": 257,
+  "sourceManifestCount": 9,
+  "controls": [
+    {
+      "name": "changed_hash",
+      "rejected": true
+    },
+    {
+      "name": "missing_file",
+      "rejected": true
+    },
+    {
+      "name": "added_file",
+      "rejected": true
+    },
+    {
+      "name": "renamed_file",
+      "rejected": true
+    },
+    {
+      "name": "manifest_changed_source",
+      "rejected": true
+    },
+    {
+      "name": "manifest_missing_source",
+      "rejected": true
+    },
+    {
+      "name": "manifest_extra_source",
+      "rejected": true
+    }
+  ],
+  "buildExecuted": false,
+  "filesystemMutatedByControls": false
+}

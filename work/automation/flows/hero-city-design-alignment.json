@@ -1,7 +1,7 @@
 {
   "name": "hero-city-design-alignment",
-  "description": "Validate reference-aligned HUD, wall combat billboard, combat camera, and hero action controls.",
-  "studioName": "PunchWallRPG",
+  "description": "Validate reference-aligned HUD, shared depth structure, config-aware performance-mode city overlays, player-controlled combat camera, and hero action controls.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -22,16 +22,19 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\") local left=g:FindFirstChild(\"LeftHeroNavigation\") local right=g:FindFirstChild(\"RightHeroNavigation\") local controls=g:FindFirstChild(\"MobileControls\") return H:JSONEncode({status=g:FindFirstChild(\"HeroStatusDeck\")~=nil,statusCards=g.HeroStatusDeck and #g.HeroStatusDeck:GetChildren() or 0,leftButtons=left and #left:GetChildren() or 0,rightButtons=right and #right:GetChildren() or 0,nextWorld=g:FindFirstChild(\"NextWorldProgress\")~=nil,quest=g:FindFirstChild(\"ObjectiveCard\")~=nil,punch=controls and controls:FindFirstChild(\"ActionPunch\")~=nil,jump=controls and controls:FindFirstChild(\"ActionJump\")~=nil,spawnReveal=g:GetAttribute(\"SpawnRevealPlayed\")==true})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui:WaitForChild(\"PunchWallHUD\") local r=g:WaitForChild(\"PixelPerfectHeroCityHUD\") local inventory=r:FindFirstChild(\"InventoryButton\") local shop=r:FindFirstChild(\"ShopButton\") return H:JSONEncode({referenceVisible=r.Visible,status=g:FindFirstChild(\"HeroStatusDeck\")~=nil,nextWorld=r:FindFirstChild(\"NextWorldCard\")~=nil,quest=r:FindFirstChild(\"QuestCard\")~=nil,punch=r:FindFirstChild(\"ActionPunch\")~=nil,jump=r:FindFirstChild(\"ActionJump\")~=nil,inventory=inventory~=nil,shop=shop~=nil,sameMenuRow=inventory and shop and inventory:GetAttribute(\"MenuRow\")==\"Shop\",legacyControlsHidden=not g.MobileControls.Visible,spawnReveal=g:GetAttribute(\"SpawnRevealPlayed\")==true})"
       },
       "expectRegex": [
+        "\"referenceVisible\"\\s*:\\s*true",
         "\"status\"\\s*:\\s*true",
-        "\"leftButtons\"\\s*:\\s*5",
-        "\"rightButtons\"\\s*:\\s*5",
         "\"nextWorld\"\\s*:\\s*true",
         "\"quest\"\\s*:\\s*true",
         "\"punch\"\\s*:\\s*true",
         "\"jump\"\\s*:\\s*true",
+        "\"inventory\"\\s*:\\s*true",
+        "\"shop\"\\s*:\\s*true",
+        "\"sameMenuRow\"\\s*:\\s*true",
+        "\"legacyControlsHidden\"\\s*:\\s*true",
         "\"spawnReveal\"\\s*:\\s*true"
       ],
       "label": "reference HUD composition exists"
@@ -41,26 +44,31 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local wall=root.Walls:FindFirstChild(\"Brick Wall\") local bricks,vehicles,road=0,0,0 for _,d in ipairs(root.Polish:GetDescendants()) do if d:GetAttribute(\"PolishRole\")==\"ModularDestructionBrick\" and string.find(d.Name,\"Brick Wall\",1,true) then bricks+=1 elseif d:GetAttribute(\"VisualRole\")==\"StreetVehicle\" then vehicles+=1 elseif d:GetAttribute(\"VisualRole\")==\"HeroCityRoadDetail\" then road+=1 end end local board=wall and wall:FindFirstChild(\"WallCombatBillboard\") local physical=wall and wall:FindFirstChild(\"PhysicalCombatSign\") return H:JSONEncode({bricks=bricks,vehicles=vehicles,road=road,billboard=board~=nil,physical=physical~=nil,level=board and board:FindFirstChild(\"WallLevel\",true)~=nil,hp=board and board:FindFirstChild(\"HPText\",true)~=nil,role=wall and wall:GetAttribute(\"VisualRole\")})"
+        "code": "local H=game:GetService(\"HttpService\") local R=game:GetService(\"ReplicatedStorage\") local configModule=R:WaitForChild(\"PolishConfig\") local polishConfig=require(configModule) local overlaySetting=polishConfig.Environment and polishConfig.Environment.CityGroundOverlays local configLoaded=configModule:IsA(\"ModuleScript\") and type(polishConfig)==\"table\" and type(polishConfig.Environment)==\"table\" and type(overlaySetting)==\"boolean\" local cityGroundOverlays=overlaySetting==true local root=workspace.PunchWallRPG local blocks=root[\"Depth Blocks\"] local first=blocks.DepthBlock_L001_C06_R02 local transitions,vehicles,road=0,0,0 for _,d in ipairs(blocks:GetChildren()) do if d:GetAttribute(\"TierTransitionStart\")==true then transitions+=1 end end for _,d in ipairs(root.Polish:GetDescendants()) do if d:GetAttribute(\"VisualRole\")==\"StreetVehicle\" then vehicles+=1 elseif d:GetAttribute(\"VisualRole\")==\"HeroCityRoadDetail\" then road+=1 end end local environmentConsistent=configLoaded and ((not cityGroundOverlays and vehicles==0 and road==0) or (cityGroundOverlays and vehicles>=3 and road>=8)) local landmarks=root:FindFirstChild(\"Depth Tier Landmarks\") return H:JSONEncode({blocks=#blocks:GetChildren(),transitions=transitions,landmarks=landmarks and #landmarks:GetChildren() or 0,configLoaded=configLoaded,cityGroundOverlays=cityGroundOverlays,vehicles=vehicles,road=road,environmentConsistent=environmentConsistent,role=first:GetAttribute(\"VisualRole\"),edge=first:GetAttribute(\"EdgeTreatment\"),tier=first:GetAttribute(\"TierName\"),contract=root:GetAttribute(\"DepthBlockContractValidated\")})"
       },
+      "saveAs": "heroCityEnvironmentResponse",
       "expectRegex": [
-        "\"bricks\"\\s*:\\s*50",
-        "\"vehicles\"\\s*:\\s*3",
-        "\"road\"\\s*:\\s*8",
-        "\"billboard\"\\s*:\\s*true",
-        "\"physical\"\\s*:\\s*true",
-        "\"level\"\\s*:\\s*true",
-        "\"hp\"\\s*:\\s*true",
-        "\"role\"\\s*:\\s*\"LayeredDestructionTarget\""
+        "\"blocks\"\\s*:\\s*5400",
+        "\"transitions\"\\s*:\\s*720",
+        "\"landmarks\"\\s*:\\s*10",
+        "\"configLoaded\"\\s*:\\s*true",
+        "\"cityGroundOverlays\"\\s*:\\s*false",
+        "\"vehicles\"\\s*:\\s*0",
+        "\"road\"\\s*:\\s*0",
+        "\"environmentConsistent\"\\s*:\\s*true",
+        "\"role\"\\s*:\\s*\"SharedExcavationBlock\"",
+        "\"edge\"\\s*:\\s*\"ConnectedCubeSeamTier01\"",
+        "\"tier\"\\s*:\\s*\"Forest Stone\"",
+        "\"contract\"\\s*:\\s*true"
       ],
-      "label": "layered wall target and in-world HP exist"
+      "label": "shared depth remains complete while config disables redundant city ground overlays"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local wall=workspace.PunchWallRPG.Walls:FindFirstChild(\"Brick Wall\") local root=game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild(\"HumanoidRootPart\") if wall and root then root.CFrame=CFrame.new(wall.Position+Vector3.new(0,0,14),wall.Position) end task.wait(.6) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({autoFocus=gui:GetAttribute(\"CombatCameraActive\"),cameraType=workspace.CurrentCamera.CameraType.Name})"
+        "code": "local H=game:GetService(\"HttpService\") local wall=workspace.PunchWallRPG[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local root=game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild(\"HumanoidRootPart\") if wall and root then root.CFrame=CFrame.lookAt(wall.Position+Vector3.new(0,0,8),wall.Position) end task.wait(.6) local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD return H:JSONEncode({autoFocus=gui:GetAttribute(\"CombatCameraActive\"),cameraType=workspace.CurrentCamera.CameraType.Name})"
       },
       "expectRegex": [ "\"autoFocus\"\\s*:\\s*false", "\"cameraType\"\\s*:\\s*\"Custom\"" ],
       "label": "camera remains player controlled near wall"
@@ -70,7 +78,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local function overlap(a,b) return a.Visible and b.Visible and a.AbsolutePosition.X<a.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X>b.AbsolutePosition.X and a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y end return H:JSONEncode({questClear=not overlap(g.TargetWallHUD,g.ObjectiveCard),actionsClear=not overlap(g.TargetWallHUD,g.MobileControls),statusClear=not overlap(g.TargetWallHUD,g.HeroStatusDeck)})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local r=g.PixelPerfectHeroCityHUD local function overlap(a,b) return a.Visible and b.Visible and a.AbsolutePosition.X<b.AbsolutePosition.X+b.AbsoluteSize.X and a.AbsolutePosition.X+a.AbsoluteSize.X>b.AbsolutePosition.X and a.AbsolutePosition.Y<b.AbsolutePosition.Y+b.AbsoluteSize.Y and a.AbsolutePosition.Y+a.AbsoluteSize.Y>b.AbsolutePosition.Y end return H:JSONEncode({questClear=not overlap(g.TargetWallHUD,r.QuestCard),actionsClear=not overlap(g.TargetWallHUD,r.ActionPunch) and not overlap(g.TargetWallHUD,r.ActionJump),statusClear=not overlap(g.TargetWallHUD,r.PowerCard) and not overlap(g.TargetWallHUD,r.CoinsCard) and not overlap(g.TargetWallHUD,r.WallCard)})"
       },
       "expectRegex": [
         "\"questClear\"\\s*:\\s*true",
@@ -84,13 +92,18 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local command=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") local result=command:Invoke(\"Spin\") return H:JSONEncode(result)"
+        "code": "local H=game:GetService(\"HttpService\") local player=game:GetService(\"Players\"):GetPlayers()[1] local command=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") local function read(name) for _,folderName in ipairs({\"RPGStats\",\"leaderstats\"}) do local folder=player and player:FindFirstChild(folderName) local value=folder and folder:FindFirstChild(name) if value and (value:IsA(\"NumberValue\") or value:IsA(\"IntValue\")) then return value.Value end end return 0 end local before={Coins=read(\"Coins\"),Power=read(\"Power\"),Honor=read(\"Honor\"),SpinCredits=read(\"SpinCredits\")} local result=command:Invoke(\"Spin\") local after={Coins=read(\"Coins\"),Power=read(\"Power\"),Honor=read(\"Honor\"),SpinCredits=read(\"SpinCredits\")} local kind=result and result.kind or \"\" local amount=tonumber(result and result.amount) or 0 local reward=result and result.reward or \"\" local known={Coins=true,Power=true,Honor=true,BonusSpin=true} local rewardValid=result~=nil and result.ok==true and type(reward)==\"string\" and reward~=\"\" and known[kind]==true and amount>0 local expectedCredits=math.max(0,before.SpinCredits-1) local stateMutation=false if rewardValid then if kind==\"Coins\" then stateMutation=after.Coins==before.Coins+amount and after.Power==before.Power and after.Honor==before.Honor and after.SpinCredits==expectedCredits and tonumber(result.coins)==amount elseif kind==\"Power\" then stateMutation=after.Power==before.Power+amount and after.Coins==before.Coins and after.Honor==before.Honor and after.SpinCredits==expectedCredits and tonumber(result.power)==amount elseif kind==\"Honor\" then stateMutation=after.Honor==before.Honor+amount and after.Coins==before.Coins and after.Power==before.Power and after.SpinCredits==expectedCredits and tonumber(result.honor)==amount elseif kind==\"BonusSpin\" then stateMutation=after.Coins==before.Coins and after.Power==before.Power and after.Honor==before.Honor and after.SpinCredits==expectedCredits+amount and after.SpinCredits>=1 and tonumber(result.credits)==after.SpinCredits end end return H:JSONEncode({ok=result and result.ok==true,reward=reward,kind=kind,amount=amount,rewardValid=rewardValid,stateMutation=stateMutation,beforeCredits=before.SpinCredits,afterCredits=after.SpinCredits})"
       },
+      "saveAs": "spinAuthorityResponse",
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
-        "\"Coins\"\\s*:\\s*[2-9][0-9][0-9]"
+        "\"reward\"\\s*:\\s*\"[^\"]+\"",
+        "\"kind\"\\s*:\\s*\"(Coins|Power|Honor|BonusSpin)\"",
+        "\"amount\"\\s*:\\s*[1-9][0-9]*",
+        "\"rewardValid\"\\s*:\\s*true",
+        "\"stateMutation\"\\s*:\\s*true"
       ],
-      "label": "hero spin grants a real reward"
+      "label": "weighted hero spin mutates the exact authoritative reward state"
     },
     {
       "type": "call",

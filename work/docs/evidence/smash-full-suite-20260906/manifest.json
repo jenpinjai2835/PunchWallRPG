@@ -1,0 +1,1325 @@
+﻿{
+    "startedAt":  "2026-09-05T19:52:53.3565420Z",
+    "completedAt":  "2026-09-05T20:41:08.3402381Z",
+    "sourceCommit":  "20f34cd",
+    "sourceSync":  "smash-source-sync-20260906.json",
+    "discovered":  123,
+    "excluded":  [
+                     "first-five-rig-parity",
+                     "fist-items-icon-ui",
+                     "creator-store-fist-visuals",
+                     "hero-city-reference-ui"
+                 ],
+    "results":  [
+                    {
+                        "flow":  "ai-material-assets",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  14.8,
+                        "flowSHA256":  "115FD23114DFA06D59F095187B2071E084491BF19FF91D9D64EDF35ED6932E75",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\ai-material-assets.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "authoritative-progression-hud",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  24.9,
+                        "flowSHA256":  "4F332C832E510A0CC6A6515F5CFFF26BF3C5F5EF982E14DB88898B60249F2D1C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\authoritative-progression-hud.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "boss-depth-authority",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  15.1,
+                        "flowSHA256":  "A53A6CB4487214FD85494DF42C94E21D7877172DB7EB1424D7B821F030DD371B",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\boss-depth-authority.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "branded-loading-onboarding",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  17.9,
+                        "flowSHA256":  "CB0F0A9BF6D417B6E9EF435B963F817202C8828962CF79B85956A9E6A1E52752",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\branded-loading-onboarding.json",
+                        "errors":  [
+                                       "Expected regex not found: \"target\"[ ]*:[ ]*\"Power Bag\""
+                                   ]
+                    },
+                    {
+                        "flow":  "camera-long-tunnel-regression",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  34.1,
+                        "flowSHA256":  "CC2D0A09D2E80D864B4F5767EC482083B5AE489FDFAAB1B138C70416F52AB17C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\camera-long-tunnel-regression.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: AssistantCommand:1: self-contained long-tunnel camera contract failed: {\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"freshValid\":true,\"freshInside\":0,\"inside\":2,\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"zoomRestored\":true,\"settleTimedOut\":false,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"freshReadable\":true}\nAssistantCommand:1\nAssistantCommand:1\n"
+                                   ]
+                    },
+                    {
+                        "flow":  "camera-shop-stability",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  31,
+                        "flowSHA256":  "834565E144FACD66A29F62E44B0F999F4791A3429D74FBC0FC42CDD8BFBCEB76",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\camera-shop-stability.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "camera-teleport-scriptable-visibility",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  1.6,
+                        "flowSHA256":  "28A8797625149A2AFBE72132D96A1E48F928B4B4E7A53C55B91C0E21F99404EC",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\camera-teleport-scriptable-visibility.json",
+                        "errors":  [
+                                       "search_game_tree failed: datamodel_type is required"
+                                   ]
+                    },
+                    {
+                        "flow":  "camera-tunnel-zoom-preservation",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  15.3,
+                        "flowSHA256":  "354E505FBED12EE634AF0F92398F3FD909F2ADA12EA28C61A9CDF52B86643F0C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\camera-tunnel-zoom-preservation.json",
+                        "errors":  [
+                                       "Expected regex not found: \"preserve\"\\s*:\\s*true"
+                                   ]
+                    },
+                    {
+                        "flow":  "center-feedback-suppression",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  18.5,
+                        "flowSHA256":  "5394952BEBFD3A555028A64013FFE54FA9731B2703B44FB376F30E7BF2B42DF1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\center-feedback-suppression.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "coin-burst-reward-feedback",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  17.4,
+                        "flowSHA256":  "E5F602EAA516216445C4D12A4AA776458A71DD9CA996275196DF9E1336B420DB",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\coin-burst-reward-feedback.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "contextual-actions-settings-authority",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  14.8,
+                        "flowSHA256":  "8FF23A7B681186710AF484501CFF2EF7CB8E1649A051E78B5ED10B880E7F10C5",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\contextual-actions-settings-authority.json",
+                        "errors":  [
+                                       "Expected regex not found: \"kind\"\\s*:\\s*\"Fail\""
+                                   ]
+                    },
+                    {
+                        "flow":  "creator-store-commerce-npcs",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.6,
+                        "flowSHA256":  "E58C6F9A923715336DD5B99530CCC8907F84993437CD6509422ADDA2625669BE",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\creator-store-commerce-npcs.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "creator-store-pet-pack-visuals",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  1.7,
+                        "flowSHA256":  "CA415DFCC2E9AA440A74B5EEB68564E84AEFBD30D25D5ECCAF04B4A78CE0F763",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\creator-store-pet-pack-visuals.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true"
+                                   ]
+                    },
+                    {
+                        "flow":  "depth-tier-materials",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.2,
+                        "flowSHA256":  "D996184E26AD05B4BBFC06BAA1BA0D24424CC4E33C969AB1C2B6DA8BE92BA95A",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\depth-tier-materials.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "destruction-boss-phases",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  27.9,
+                        "flowSHA256":  "7F31EDD6E964DE431934E5A8391200DCD8F79BE54230AF1A8613F069A0F90C8C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\destruction-boss-phases.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "developer-product-configuration",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  21.4,
+                        "flowSHA256":  "017DC8E4EA0372E45664744539137F82A206F798FA34EFABD8C3B9565E093F7D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\developer-product-configuration.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "device-matrix-hud-shop",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  97.7,
+                        "flowSHA256":  "D23FE63200F4BA06A3874AECF10E1190EF24C27CCD525350DB68B8AD96B328F6",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\device-matrix-hud-shop.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "directional-punch-controls",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  17.7,
+                        "flowSHA256":  "C2B70C0C88D0E804C90FDDCEFD88D7A228487445B53E2CF327A6AE5C7A375B7B",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\directional-punch-controls.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "feedback-holder-presentation",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  17,
+                        "flowSHA256":  "798212F972425BD7BAAA6DD4D43BCECBDF8C0032FB31F947CB360A8D31C55207",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\feedback-holder-presentation.json",
+                        "errors":  [
+                                       "Expected regex not found: \"delta\"\\s*:\\s*1\nReceived: {\"toastHolder\":true,\"type\":\"Fail\",\"toasts\":1,\"rewardHolder\":false,\"target\":\"Rebirth\",\"rewards\":0,\"delta\":0,\"presented\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "final-rbxlx-build-validation",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.1,
+                        "flowSHA256":  "DC9B16C421B97A7ED3CD777010DE1816619552716B096C533E6D148F78DF104D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\final-rbxlx-build-validation.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "first-five-fist-presentation",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  36.6,
+                        "flowSHA256":  "B042DA6272560028F247229D772BEE340953AE5654F883621E76938610374929",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\first-five-fist-presentation.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "first-hit-forest-stone",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  14.9,
+                        "flowSHA256":  "0299331B153099298BA9F4A6E4B3FFD2CA848F1E762FC8601B4A781B2147541E",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\first-hit-forest-stone.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "fist-arm-alignment-qc",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  22.2,
+                        "flowSHA256":  "F348CE9773674E9E930B6D5C69B6291007F857C06426F55698631C885DAFD86D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\fist-arm-alignment-qc.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "fist-pet-legacy-slot-safety",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.1,
+                        "flowSHA256":  "A17DA777AA059D725225F8DE26BEAA9003A05F398E6AE2F5442D07491F820FA2",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\fist-pet-legacy-slot-safety.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:19: missing fresh Equip2"
+                                   ]
+                    },
+                    {
+                        "flow":  "forest-world-visual-qc",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  18.3,
+                        "flowSHA256":  "E7B3FD91B5261EFA50F4944BD08499E3A5ADEC546D96BCBD0E559FFD1249721E",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\forest-world-visual-qc.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "full-game-economy-boundaries",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.6,
+                        "flowSHA256":  "B1F315F7B075C151E15DCB63C0B5B88635669F9B1698D8D37944242004239F5D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\full-game-economy-boundaries.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "full-game-real-ui-controls",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  26.4,
+                        "flowSHA256":  "2165998D7788D4088BCBD37E7FB82F818B80893D498C7AF241B0E5FA204DC0F7",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\full-game-real-ui-controls.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: ItemCard_fist_Boxing_Glove is not a valid member of ScrollingFrame \"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.FunctionalInventory.InventoryWindow.InventoryBody.InventoryGridPane.InventoryGrid\""
+                                   ]
+                    },
+                    {
+                        "flow":  "full-game-tester-critical-ui-and-models",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.2,
+                        "flowSHA256":  "9EC58715EB4D1C1240170EF8924B772812ECBAEA252A2D9DF695655C416D490B",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\full-game-tester-critical-ui-and-models.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "functional-hero-shop",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  18.1,
+                        "flowSHA256":  "883CA9CCF1D707C435C9E6238CC70BAFE736C45264B1BDB7DA09E70D0A11B131",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\functional-hero-shop.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "generic-phone-game-menu-accessibility",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.1,
+                        "flowSHA256":  "2EBDB520FE568141428495EE318739B539D02A3E1C49D0867CF8C7D418B8B895",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\generic-phone-game-menu-accessibility.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "hero-city-design-alignment",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.8,
+                        "flowSHA256":  "880B210A792C6B61D90B37F02C39F8D3C88D70B18858F9D5FB66963E028A18C1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\hero-city-design-alignment.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "hero-city-pixel-perfect-hud",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.9,
+                        "flowSHA256":  "C402B38DBC42755653B700903DEAF42C0C8C99AE4ABF2D71A24F19DA543BEF06",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\hero-city-pixel-perfect-hud.json",
+                        "errors":  [
+                                       "Expected regex not found: \"cards\"\\s*:\\s*5\nReceived: {\"visible\":true,\"tabs\":5,\"close\":true,\"minTouch\":true,\"art\":16,\"actions\":16,\"cards\":16}"
+                                   ]
+                    },
+                    {
+                        "flow":  "hero-city-theme",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.2,
+                        "flowSHA256":  "0E8D24ABC37BB2E760949558212BF53655CFEC7B7B6BF7C14961E868DF5E0CE4",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\hero-city-theme.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "hero-shop-reference-polish",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.4,
+                        "flowSHA256":  "A89E8499FC15662E921C1432B237FDB4EEC12EA4730FB13C8092D2898FC8DE93",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\hero-shop-reference-polish.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: {\"standard\":true,\"minHeight\":154,\"cards\":16}"
+                                   ]
+                    },
+                    {
+                        "flow":  "honor-product-receipts",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  19.4,
+                        "flowSHA256":  "F9CC2ABE53F23D58D7F9DA9A2075E15226B948D86E2AD9741650D437DDFB0E5D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\honor-product-receipts.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Honor Shop live configured state failed {\"ok\":false,\"rows\":[{\"price\":25,\"exact\":false,\"pips\":1,\"productId\":3708804891,\"id\":\"HonorPouch25\",\"text\":\"BUY\",\"livePrice\":25,\"size\":\"112, 48\"},{\"price\":59,\"exact\":false,\"pips\":2,\"productId\":3708804911,\"id\":\"HonorCache90\",\"text\":\"BUY\",\"livePrice\":59,\"size\":\"112, 48\"},{\"price\":145,\"exact\":false,\"pips\":3,\"productId\":3708804933,\"id\":\"HonorVault300\",\"text\":\"BUY\",\"livePrice\":145,\"size\":\"112, 48\"},{\"price\":359,\"exact\":false,\"pips\":4,\"productId\":3708804944,\"id\":\"HonorTreasu"
+                                   ]
+                    },
+                    {
+                        "flow":  "honor-progression",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  31.3,
+                        "flowSHA256":  "CA030C2EBB5C8A4CACBB132C9F6F3E314E8A690B94BCB5CA2AD2E6E4EAB8AD8C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\honor-progression.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "impact-destruction-feedback",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.4,
+                        "flowSHA256":  "08EA1ADD7CF7BAEC9EF6D8502C87CC56A2A963E5F9A5A5453DE8FDACAD93DE13",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\impact-destruction-feedback.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-category-icon-cohesion",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  17.4,
+                        "flowSHA256":  "299D5BB6D899F37A5F9D3FC59C01335C9321AD07800D2DB113F7B0C8A3C62ADF",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-category-icon-cohesion.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-delete-real-input",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  17.1,
+                        "flowSHA256":  "F3D1A93D434993C27260FFD35F9295C67E762DBE07A0FC7FD03FB483C113C96B",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-delete-real-input.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-menu-ui",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  61.3,
+                        "flowSHA256":  "C809E047FF2CDFC7E4C1CFDF4BBECF328D493E89A687D7C4EF55AE655743D85C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-menu-ui.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"heightRatio\":0.9292035398230089,\"safe\":true,\"sizing\":\"PhoneSafeFill12V1\",\"widthRatio\":0.9675675675675676}"
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-persistence",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.2,
+                        "flowSHA256":  "0AAE6010FEC24E509F122B6475783739E4977C62FD19081C144DC04862B0EFD6",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-persistence.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-pet-icons-fusion",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  21.3,
+                        "flowSHA256":  "B13D3C7CCA84DE840A76F77F027656A16EE77F91AD32B3C10B88E8CB5FF7DBC1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-pet-icons-fusion.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "inventory-visual-responsive",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  37.2,
+                        "flowSHA256":  "97510EF4E0F51DA9AC11F2D5A517D31B0C12D1E1E1CAE66AE8B1937D864196F3",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\inventory-visual-responsive.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "item-matched-fist-visuals",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  34.4,
+                        "flowSHA256":  "E86ABDB66EDD9819633643680EBE385DFB423AEA49EFE754A87089AD50C55F24",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\item-matched-fist-visuals.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "iteration01-complete-polish",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.8,
+                        "flowSHA256":  "498C5A9515FD660A0AA33B2EB2D4B75BC596C795D672B8AF628853C65AD024C2",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\iteration01-complete-polish.json",
+                        "errors":  [
+                                       "Expected regex not found: \"graphics\"\\s*:\\s*1\nReceived: {\"spawnGraphics\":0,\"hazard\":true,\"rebirthSign\":true,\"eggText\":true,\"worldDecals\":0,\"titanCore\":true,\"barricades\":0,\"graphics\":0,\"rebirthText\":true,\"dnaSign\":true,\"titanPylons\":true,\"parts\":6692}"
+                                   ]
+                    },
+                    {
+                        "flow":  "iteration02-companion-tasks-boss",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.6,
+                        "flowSHA256":  "543A61CF975FAAA32B71C82F63A37886355A51F9A6F7CF622159ABFEE552722A",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\iteration02-companion-tasks-boss.json",
+                        "errors":  [
+                                       "Expected regex not found: \"images\"\\s*:\\s*1\nReceived: {\"hasNextAttribute\":true,\"images\":2,\"decals\":2,\"nextAttack\":0,\"parts\":6692}"
+                                   ]
+                    },
+                    {
+                        "flow":  "iteration03-safearea-destruction",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  17.3,
+                        "flowSHA256":  "FA365CFE2D7990163B07838877D90A9F62A8CB464FB093E169EA4481DA179B11",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\iteration03-safearea-destruction.json",
+                        "errors":  [
+                                       "Expected regex not found: \"armoryStands\"\\s*:\\s*4\nReceived: {\"armoryClear\":false,\"depthBlocks\":5400,\"debrisCap\":120,\"armoryStands\":0,\"parts\":6692}"
+                                   ]
+                    },
+                    {
+                        "flow":  "iteration04-armory-pets-feedback",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.6,
+                        "flowSHA256":  "E5EE99F8D657ED3299E57DAAFD318A7045EBA18D37660B47BED9F2DC447E28D9",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\iteration04-armory-pets-feedback.json",
+                        "errors":  [
+                                       "Expected regex not found: \"valid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"catalog\":3,\"images\":1,\"stands\":3,\"tiers\":3,\"showcases\":3,\"decals\":1,\"faces\":true,\"plates\":3}"
+                                   ]
+                    },
+                    {
+                        "flow":  "iteration05-final-depth-motion",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  16.2,
+                        "flowSHA256":  "DEF60781D8CA4B1E396745B0BE14E3A33B38CEBDE12EC6993F57A2139AAF0612",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\iteration05-final-depth-motion.json",
+                        "errors":  [
+                                       "Expected regex not found: \"plates\"\\s*:\\s*4\nReceived: {\"plates\":0,\"legacyWalls\":0,\"depthContract\":true,\"ribs\":2,\"presentationReady\":true,\"ambientReady\":true,\"blocks\":5400,\"landmarks\":10,\"images\":2,\"decals\":2,\"bossDepth\":22,\"faces\":false,\"parts\":6692}"
+                                   ]
+                    },
+                    {
+                        "flow":  "layered-spin-reference-ui",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  17.7,
+                        "flowSHA256":  "D744E840AC55584944F14B2928DAA7D9C7B25FCD0EA41EA1B8AB5FBFCD91FCEF",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\layered-spin-reference-ui.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "long-run-catalog-progression",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  24.7,
+                        "flowSHA256":  "5E7101DD397FC79998E4B73FCAD74A774C1BA79EF5C62B5B50DB3C5A47DCFE53",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\long-run-catalog-progression.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: {\"ok\":false,\"canvas\":0,\"minHeight\":154,\"viewport\":0,\"cards\":16,\"locked\":0,\"mode\":\"FixedReadableCardsV1\",\"actions\":16,\"statesValid\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "luck-distribution",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  16.9,
+                        "flowSHA256":  "62C8CB9BDB684B76CB458DE4B6E17D8D88D91A75D62F960D5E7940F2B467E0FD",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\luck-distribution.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "milestone-world-transition",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.7,
+                        "flowSHA256":  "25A9AF4065C02E16D03C90239A846A09912935324413DE82E2F1346B8E5A8CCF",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\milestone-world-transition.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "mobile-iphone17-layout",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  41.2,
+                        "flowSHA256":  "AC7EB58140DC4EB9426DC2320005563BF45E84441FE453010BA05F1725663725",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\mobile-iphone17-layout.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "natural-progression",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  38,
+                        "flowSHA256":  "2394CC5EE7030FF30B743B6999CAA51FF4B8A3D87BA1927A20839FE97656A8E7",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\natural-progression.json",
+                        "errors":  [
+                                       "Expected regex not found: \"trainingGain\"[ ]*:[ ]*(?:5[2-9]|[6-9][0-9]|[1-9][0-9]{2,})\nReceived: {\"trainingStarted\":true,\"buyOk\":true,\"coinsBeforePet\":151,\"powerAfterWalls\":63,\"afterBuyCoins\":84,\"firstBroken\":1,\"testMode\":false,\"claimOk\":true,\"preBuyCoins\":264,\"concreteHits\":8,\"valid\":false,\"trainedPower\":63,\"pending\":true,\"petDropped\":true,\"preBuyDepth\":6,\"initialPower\":15,\"depthBeforePet\":9,\"routeBreaks\":3,\"fistMultiplier\":1.8,\"petMultiplier\":0.22,\"trainingGain\":48,\"trainingStopped\":true,\"preBuyLevel\":5,\"petOk\":true,\"firstCoins\":11,\"starterPowerStable\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "normal-pet-visual-models",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  31.4,
+                        "flowSHA256":  "5772DBF1B56C92D6D4AC9144A5A48A949F3993BA36E6D3D94068D647FAD9FC5B",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\normal-pet-visual-models.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "onboarding-waypoint",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  17,
+                        "flowSHA256":  "0AC9921B7FBA195CA22269A7D862602858AE75149CE0BB6AA32146B172F195ED",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\onboarding-waypoint.json",
+                        "errors":  [
+                                       "Expected regex not found: \"enabled\"\\s*:\\s*true\nReceived: {\"enabled\":false,\"objective\":\"OBJECTIVE  |  Punch The Wall\\nFollow the arrow and punch a front wall block  |  7 studs\",\"target\":\"Depth Course Entrance\",\"context\":\"Move near a target\",\"contextVisible\":false}"
+                                   ]
+                    },
+                    {
+                        "flow":  "persistence-shutdown-single-flight",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  11.4,
+                        "flowSHA256":  "2680A4A8E0713D7FCEB550AB46744E9C48A848A7656692903D893D9E6771C09C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\persistence-shutdown-single-flight.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "pet-egg-world-pickup",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  45.5,
+                        "flowSHA256":  "FF857F189D82177DBAB3D8CBC9F1CE7B5212DF5C254315DC7DB9180714DFF57D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\pet-egg-world-pickup.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "pet-size-position-qc",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  32.5,
+                        "flowSHA256":  "6D4A0549CA5940EAEDBD885CA3DDD56704577C84FAE0797B8CA0AA41A9FAA0F1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\pet-size-position-qc.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "pet-wall-drops-and-fusion",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.6,
+                        "flowSHA256":  "F6BAC362F6A91087F6F4E02C8DDF5E2BDC601D8BF97EE0630D6C7710067B7084",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\pet-wall-drops-and-fusion.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"dropped\":true,\"fused2\":true,\"fused3\":true,\"pending\":true,\"pity\":0,\"blocked\":true,\"depth62Pool\":11,\"depth1Pool\":1,\"inventory\":\"[\\\"Forest Pup#3\\\"]\"}"
+                                   ]
+                    },
+                    {
+                        "flow":  "power-avatar-growth",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  33,
+                        "flowSHA256":  "8C6EC2692B71A6094A4AE78F2D29F99AABB0CA8745067C8A8EEA1F24765EF0D6",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\power-avatar-growth.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "power-scaled-penetration",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  21,
+                        "flowSHA256":  "0F33714740A325717E6AAA06E3B7AAAC6C2A782DB398FF4828FBB4E69463ABDC",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\power-scaled-penetration.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "premium-pet-gamepass-configuration",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  27.9,
+                        "flowSHA256":  "BB379DE3D4F8EE21F01A005D327F6FE02F2E950C889283D0EDC405B80058FB2E",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\premium-pet-gamepass-configuration.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium pet regional UI configuration mismatch {\"ok\":false,\"rows\":[{\"livePrice\":59,\"id\":1948233870,\"actionText\":\"\",\"price\":false,\"found\":false,\"name\":\"Crimson Phoenix\",\"displayed\":0,\"world\":true},{\"livePrice\":125,\"id\":1948851823,\"actionText\":\"\",\"price\":false,\"found\":false,\"name\":\"Storm Wyvern\",\"displayed\":0,\"world\":true},{\"livePrice\":255,\"id\":1947471788,\"actionText\":\"\",\"price\":false,\"found\":false,\"name\":\"Celestial Guardian\",\"displayed\":0,\"world\":true}],\"count\":3}"
+                                   ]
+                    },
+                    {
+                        "flow":  "premium-pet-studio-test-mode",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.8,
+                        "flowSHA256":  "761133CF754F5D102C1884C074FE01903DF9CDCD087EE7D0BED839F38260C454",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\premium-pet-studio-test-mode.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "premium-pet-visual-parity-motion",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.6,
+                        "flowSHA256":  "8861FAA8B29636DB5455811847FC83F6386B8083B75AB5750F0D943A379FE9C0",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\premium-pet-visual-parity-motion.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "product-completeness-purchase-availability",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  26.1,
+                        "flowSHA256":  "533F1187840BFE7695D5B67B6A94AA62F161C4BD89EC99A435A3268B31AEDF1C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\product-completeness-purchase-availability.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "profile-load-hotfix-public-linked-studio",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  10.4,
+                        "flowSHA256":  "C56197F7F7816B36C2F2267A90CE235EB24D8B4BE5A2399CC02948644B32B451",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\profile-load-hotfix-public-linked-studio.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-200-stress",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  158,
+                        "flowSHA256":  "CA6C26C559EC471AD3F627C94B470BE069423D6D46D8E61E80750BB44CC04005",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-200-stress.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-action-timing",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  21,
+                        "flowSHA256":  "882A2C7ECECC61210091BF0A33A65F974AECBE7A1866A42C0FFBB3497686A9E1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-action-timing.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-camera-device-20",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  90.6,
+                        "flowSHA256":  "BA79F7CF1A7EB147DE5A7BED6EF6827D867317BD990455512E9EA94C8A947124",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-camera-device-20.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-camera-smooth-follow",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  27,
+                        "flowSHA256":  "489BD76D2CF66ED0B31543F28ADDFAD60A797B8940880F7B651D5AE332CA32DD",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-camera-smooth-follow.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-character-motion",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.2,
+                        "flowSHA256":  "DD5A337C51AF70AC1997EF87E73F0D72D54D16C96826E20FF3025382B0D6D75F",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-character-motion.json",
+                        "errors":  [
+                                       "Expected regex not found: \"suppressed\"\\s*:\\s*false\nReceived: {\"visible\":false,\"maxRelativeDelta\":0.0014235045528039337,\"suppressed\":true,\"samples\":4,\"recovered\":false,\"count\":1,\"reduced\":true,\"active\":false,\"invoked\":true,\"cameraFollow\":false,\"timedOut\":false}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-collision-recovery",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.5,
+                        "flowSHA256":  "B3DEAADFB5AC3FCD4949818BD4C50910B4DD3B2BD0CFD184BE36F4793FF9A817",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-collision-recovery.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-collision-state-restoration",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.9,
+                        "flowSHA256":  "EA77048041BF6A85FF0C73A013AEFA9A7BC2F454BEB727DEA42CBE64794933DF",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-collision-state-restoration.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punched-route-navigability",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  24.3,
+                        "flowSHA256":  "32C7A4D2FAFB13E85297E71C1BE2425C6AA71909DB4805078176CDF324E439D2",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punched-route-navigability.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-interruption-stability",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  24.3,
+                        "flowSHA256":  "2B490B7FB8CDC52CDEB4E2243AB7C0B2EDAEB0CAED9FFA12ECAB8C7858E13A69",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-interruption-stability.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-no-snapback",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  32.1,
+                        "flowSHA256":  "E46E9F9758AD2C6872AAFA24C2C238F1FE8381D37D275811FDAA0E52F3D4F07D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-no-snapback.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punch-safe-endpoint",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  26.9,
+                        "flowSHA256":  "EA6B27181E8966829FF748D3E65AE4B3CA93ECF52BC52E495C7A331EC39A3EAB",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punch-safe-endpoint.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-depth-corridor",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.3,
+                        "flowSHA256":  "056A7D7FEC8D69141960C2205D5B50E67AAF55B8C1F12E58E10D5DC5F571274A",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-depth-corridor.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-free-aim-combat-polish",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  21.4,
+                        "flowSHA256":  "69C82F682078F5EF4EA5C18BBFD610DE0A70454B36E1133899AA9834768C4912",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-free-aim-combat-polish.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: attempt to index nil with \u0027Position\u0027"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-hybrid-physics-lunge",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  27.3,
+                        "flowSHA256":  "97A8C3AF43BBC6A15E3E1125AB23009D7310E0B9C8AA01A60D3E8E06075BC2AE",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-hybrid-physics-lunge.json",
+                        "errors":  [
+                                       "Expected regex not found: \"unanchored\"\\s*:\\s*true\nReceived: {\"unanchored\":false,\"moved\":2.5664124488830568}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-map-progression",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.7,
+                        "flowSHA256":  "38AF24D14739AC7FCB5F6695A3C66DD583AFD04D4BFCEE3DDC32E137DB95DA40",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-map-progression.json",
+                        "errors":  [
+                                       "Expected regex not found: \"spawnNearTraining\"\\s*:\\s*true\nReceived: {\"mapExists\":true,\"hasCharacter\":true,\"spawnDistance\":42,\"spawnNearTraining\":false}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-mobile-controls",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.6,
+                        "flowSHA256":  "4E2007F31F0DFBC79EE6F1F86C91320DBF9700EA442E7A29DAB009F9A3715A1E",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-mobile-controls.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ValidContinuousTraining\"\\s*:\\s*true\nReceived: {\"DailyBreaks\":0,\"BrickWallBroken\":false,\"OwnedHonorItemsJSON\":\"[]\",\"FistMastery\":1,\"HonorMilestoneMask\":0,\"DailyQuestClaimed\":0,\"DailyQuestDate\":\"2026-09-05\",\"ok\":true,\"EffectivePower\":15.014999999999999,\"PlaytimeSeconds\":1,\"FistMultiplier\":1,\"LockedPetsJSON\":\"[]\",\"TrainingUpdatedAt\":0,\"CritChance\":5,\"OwnedPremiumFistsJSON\":\"[]\",\"BrickWallHP\":8,\"TitanBroken\":false,\"SpeedBoostExpiresAt\":0,\"TrainingStationId\":\"rookie_bag\",\"ValidContinuousTraining\":false,\"HonorClearDate\":\"\",\"EquippedFist\":\"Starter Glove\",\"Honor\":0,\"LastDailyDate\":\"\",\"LastHonorClearAt\":0,\"TutorialCompleted\":0,\"OwnedPremiumPetsJSON\":\"[]\",\"PlaytimeClaimed\":0,\"PetInventoryJSON\":\"[]\",\"TitanHP\":800000000,\"HonorPowerBonus\":0,\"PhysicsFragments\":0,\"HonorClearsToday\":0,\"Power\":15,\"TutorialStep\":1,\"DetachedDepthBlocks\":0,\"CoinBoostExpiresAt\":0,\"EquippedHonorItem\":\"None\",\"action\":\"Snapshot\",\"HonorRebirthMilestoneMask\":0,\"PetDropPity\":0,\"LastHonorClearId\":\"\",\"Pet\":\"None\",\"EquippedPetsJSON\":\"[]\",\"Luck\":1,\"DamageBoostExpiresAt\":0,\"WallLevel\":1,\"SpinCredits\":0,\"WallXP\":0,\"Score\":0,\"TrainingActive\":0,\"DataVersion\":8,\"SettingsJSON\":\"{\\\"motion\\\":true,\\\"sound\\\":true,\\\"uiScale\\\":1}\",\"DiscoveredPetsJSON\":\"[]\",\"TutorialVersion\":2,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\"]\",\"Rebirths\":0,\"LastHonorCycle\":-1,\"TrainingBoostExpiresAt\":0,\"PetMultiplier\":0,\"Coins\":0,\"IntactDepthBlocks\":5400,\"BreakSpeed\":1,\"Depth\":0,\"LastSpinAt\":0,\"BrokenDepthBlocks\":0}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-motion-feedback",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  17.9,
+                        "flowSHA256":  "6207DF3A85C1CCE06EA781048E58EDA2A131D18860DBC5831A34B0E30ED6371D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-motion-feedback.json",
+                        "errors":  [
+                                       "Expected regex not found: \"Power\"\\s*:\\s*19\nReceived: {\"DailyBreaks\":0,\"BrickWallBroken\":false,\"OwnedHonorItemsJSON\":\"[]\",\"FistMastery\":1,\"HonorMilestoneMask\":0,\"DailyQuestClaimed\":0,\"stat\":\"Power\",\"DailyQuestDate\":\"2026-09-05\",\"ok\":true,\"EffectivePower\":15.014999999999999,\"PlaytimeSeconds\":1,\"FistMultiplier\":1,\"LockedPetsJSON\":\"[]\",\"TrainingUpdatedAt\":1788640107,\"CritChance\":5,\"OwnedPremiumFistsJSON\":\"[]\",\"BrickWallHP\":8,\"TitanBroken\":false,\"SpeedBoostExpiresAt\":0,\"TrainingStationId\":\"rookie_bag\",\"HonorClearDate\":\"\",\"EquippedFist\":\"Starter Glove\",\"Honor\":0,\"LastDailyDate\":\"\",\"LastHonorClearAt\":0,\"TutorialCompleted\":0,\"OwnedPremiumPetsJSON\":\"[]\",\"PlaytimeClaimed\":0,\"PetInventoryJSON\":\"[]\",\"TitanHP\":800000000,\"HonorPowerBonus\":0,\"value\":15,\"PhysicsFragments\":0,\"HonorClearsToday\":0,\"Power\":15,\"TutorialStep\":1,\"DetachedDepthBlocks\":0,\"CoinBoostExpiresAt\":0,\"Pet\":\"None\",\"EquippedHonorItem\":\"None\",\"WallXP\":0,\"BreakSpeed\":1,\"active\":true,\"HonorRebirthMilestoneMask\":0,\"PetDropPity\":0,\"WallLevel\":1,\"LastHonorClearId\":\"\",\"Score\":0,\"EquippedPetsJSON\":\"[]\",\"Luck\":1,\"DamageBoostExpiresAt\":0,\"IntactDepthBlocks\":5400,\"SpinCredits\":0,\"LastSpinAt\":0,\"TrainingActive\":1,\"SettingsJSON\":\"{\\\"motion\\\":true,\\\"sound\\\":true,\\\"uiScale\\\":1}\",\"DataVersion\":8,\"TutorialVersion\":2,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\"]\",\"TrainingBoostExpiresAt\":0,\"gain\":0,\"Rebirths\":0,\"LastHonorCycle\":-1,\"Coins\":0,\"PetMultiplier\":0,\"gainPerSecond\":4,\"qualificationPower\":15.014999999999999,\"stationId\":\"rookie_bag\",\"Depth\":0,\"DiscoveredPetsJSON\":\"[]\",\"BrokenDepthBlocks\":0}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-player-state",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  19.4,
+                        "flowSHA256":  "59C0337514B057C6286EF10D74077BB54B81E76924CDB321B71B9BF87B505E13",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-player-state.json",
+                        "errors":  [
+                                       "Expected regex not found: \"valid\"\\s*:\\s*true\nReceived: {\"valid\":false,\"power\":\"321\",\"marker\":\"ItimDad D7\",\"legacyFist\":\"Fist: Starter Fist\",\"coins\":\"654\",\"legacyExact\":true,\"rank\":\"DEPTH 7  |  SCORE 987\",\"heroExact\":false,\"stateExact\":false,\"legacyPet\":\"Pets: None  x1.00\",\"depth\":\"7\",\"quest\":\"0 / 10\",\"world\":\"9%  |  D7/75\"}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-radius-damage-shake",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.6,
+                        "flowSHA256":  "B459F005CF1F152D28370341BE48DA6CEB6EC54FD1D85F8494618579FA624D10",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-radius-damage-shake.json",
+                        "errors":  [
+                                       "Expected regex not found: \"outcome\"\\s*:\\s*\"radius\"\nReceived: {\"ok\":true,\"affected\":4,\"score\":40,\"surviving\":3,\"outcome\":\"penetration\",\"primaryBroken\":true,\"broken\":1,\"maxScale\":1,\"hitCount\":4,\"minScale\":0.43550269460154109}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-rebirth-boss",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.1,
+                        "flowSHA256":  "8E2E1126804DED3AD8898DFDCA966021EE57DC39DB840988849ED56899869AAA",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-rebirth-boss.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-shared-excavation-field",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.2,
+                        "flowSHA256":  "E243B39FA021D8C00CBE152520709A8F12F8FE96D2F0C4E6751680DEF5251929",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-shared-excavation-field.json",
+                        "errors":  [
+                                       "Expected regex not found: \"firstHP\"\\s*:\\s*15\nReceived: {\"uniform\":true,\"layersOK\":true,\"bossDepth\":76,\"width\":48,\"uniqueMaterials\":10,\"lastTier\":10,\"count\":5400,\"firstTier\":1,\"height\":24,\"length\":300,\"lastHP\":220000000,\"firstHP\":8}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-shop-and-pet",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.4,
+                        "flowSHA256":  "172522895A0C8ABA06668DD2AD90E576D7B6CC4668BF742B8588E9FC111C7FD3",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-shop-and-pet.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-smoke",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  18.1,
+                        "flowSHA256":  "4DA632E695A9FBAB8668E3CFE5BB052936A047D1D3A6D3FA6CED35ACABF436FB",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-smoke.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-train-and-break",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.3,
+                        "flowSHA256":  "FCD86FC48EFF118AF1548F27734352828745E2171A1F8F7B75CF5BDD84112769",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-train-and-break.json",
+                        "errors":  [
+                                       "Expected regex not found: \"gain\"\\s*:\\s*4\nReceived: {\"DailyBreaks\":0,\"BrickWallBroken\":false,\"OwnedHonorItemsJSON\":\"[]\",\"FistMastery\":1,\"HonorMilestoneMask\":0,\"DailyQuestClaimed\":0,\"stat\":\"Power\",\"DailyQuestDate\":\"\",\"ok\":true,\"EffectivePower\":15.014999999999999,\"PlaytimeSeconds\":0,\"FistMultiplier\":1,\"LockedPetsJSON\":\"[]\",\"TrainingUpdatedAt\":1788640241,\"CritChance\":5,\"OwnedPremiumFistsJSON\":\"[]\",\"BrickWallHP\":8,\"TitanBroken\":false,\"SpeedBoostExpiresAt\":0,\"TrainingStationId\":\"rookie_bag\",\"HonorClearDate\":\"\",\"EquippedFist\":\"Starter Glove\",\"Honor\":0,\"LastDailyDate\":\"\",\"LastHonorClearAt\":0,\"TutorialCompleted\":0,\"OwnedPremiumPetsJSON\":\"[]\",\"PlaytimeClaimed\":0,\"PetInventoryJSON\":\"[]\",\"TitanHP\":800000000,\"HonorPowerBonus\":0,\"value\":15,\"PhysicsFragments\":0,\"HonorClearsToday\":0,\"Power\":15,\"TutorialStep\":1,\"DetachedDepthBlocks\":0,\"CoinBoostExpiresAt\":0,\"Pet\":\"None\",\"EquippedHonorItem\":\"None\",\"WallXP\":0,\"BreakSpeed\":1,\"active\":true,\"HonorRebirthMilestoneMask\":0,\"PetDropPity\":0,\"WallLevel\":1,\"LastHonorClearId\":\"\",\"Score\":0,\"EquippedPetsJSON\":\"[]\",\"Luck\":1,\"DamageBoostExpiresAt\":0,\"IntactDepthBlocks\":5400,\"SpinCredits\":0,\"LastSpinAt\":0,\"TrainingActive\":1,\"SettingsJSON\":\"{\\\"motion\\\":true,\\\"sound\\\":true,\\\"uiScale\\\":1}\",\"DataVersion\":8,\"TutorialVersion\":2,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\"]\",\"TrainingBoostExpiresAt\":0,\"gain\":0,\"Rebirths\":0,\"LastHonorCycle\":-1,\"Coins\":0,\"PetMultiplier\":0,\"gainPerSecond\":4,\"qualificationPower\":15.014999999999999,\"stationId\":\"rookie_bag\",\"Depth\":0,\"DiscoveredPetsJSON\":\"[]\",\"BrokenDepthBlocks\":0}"
+                                   ]
+                    },
+                    {
+                        "flow":  "punchwall-visual-polish-smoke",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.9,
+                        "flowSHA256":  "531A1359F81C414B87347D39E0E83B08D23889E72CEF9100FDA22EA1E1B6C39C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\punchwall-visual-polish-smoke.json",
+                        "errors":  [
+                                       "Expected regex not found: \"Intensity\"\\s*:\\s*0\\.1\nReceived: {\"path\":\"Lighting.Hero City Bloom\",\"name\":\"Hero City Bloom\",\"className\":\"BloomEffect\",\"uniqueId\":\"00000000-0000-0000-0000-000000000000\",\"children\":{\"immediateChildren\":[],\"totalDescendants\":0,\"childrenCount\":0},\"properties\":{\"Enabled\":true,\"Capabilities\":\"\",\"Intensity\":0.07999999821186066,\"Threshold\":1.75,\"Sandboxed\":false,\"UniqueId\":\"00000000-0000-0000-0000-000000000000\",\"Archivable\":true,\"Size\":16}}"
+                                   ]
+                    },
+                    {
+                        "flow":  "rebirth-progression",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  31.2,
+                        "flowSHA256":  "33EA192FE74096D7C51E413F524D9614CF1D0E5D9622E7C531EDBEB9A8158EAB",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\rebirth-progression.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "reduced-motion-performance",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.6,
+                        "flowSHA256":  "6F41EE6EEDAA0A77D9B902E47022FB85AB64C886AD971051B0D3B7A694AEB6EB",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\reduced-motion-performance.json",
+                        "errors":  [
+                                       "Expected regex not found: \"BrickWallBroken\"\\s*:\\s*false\nReceived: {\"DailyBreaks\":1,\"BrickWallBroken\":true,\"OwnedHonorItemsJSON\":\"[]\",\"FistMastery\":1,\"Tier\":1,\"HonorMilestoneMask\":0,\"DailyQuestClaimed\":0,\"DailyQuestDate\":\"2026-09-05\",\"ok\":true,\"EffectivePower\":60.059999999999998,\"PlaytimeSeconds\":1,\"FistMultiplier\":1,\"LockedPetsJSON\":\"[]\",\"TrainingUpdatedAt\":0,\"TrainingActive\":0,\"OwnedPremiumFistsJSON\":\"[]\",\"BrickWallHP\":0,\"TitanBroken\":false,\"SpeedBoostExpiresAt\":0,\"TrainingStationId\":\"rookie_bag\",\"HonorClearDate\":\"\",\"EquippedFist\":\"Starter Glove\",\"Honor\":0,\"LastDailyDate\":\"\",\"LastHonorClearAt\":0,\"TutorialCompleted\":0,\"OwnedPremiumPetsJSON\":\"[]\",\"PlaytimeClaimed\":0,\"PetInventoryJSON\":\"[]\",\"TitanHP\":800000000,\"HonorPowerBonus\":0,\"PhysicsFragments\":6,\"HonorClearsToday\":0,\"Power\":60,\"detached\":false,\"TutorialStep\":2,\"DetachedDepthBlocks\":0,\"CoinBoostExpiresAt\":0,\"EquippedHonorItem\":\"None\",\"Pet\":\"None\",\"HonorRebirthMilestoneMask\":0,\"PetDropPity\":1,\"WallXP\":10,\"LastHonorClearId\":\"\",\"DiscoveredPetsJSON\":\"[]\",\"EquippedPetsJSON\":\"[]\",\"Luck\":1,\"DamageBoostExpiresAt\":0,\"WallLevel\":1,\"SpinCredits\":0,\"LastSpinAt\":0,\"damage\":60.059999999999998,\"Score\":40,\"DataVersion\":8,\"SettingsJSON\":\"{\\\"uiScale\\\":1,\\\"sound\\\":true,\\\"motion\\\":false}\",\"TutorialVersion\":2,\"OwnedFistsJSON\":\"[\\\"Starter Glove\\\"]\",\"TrainingBoostExpiresAt\":0,\"Rebirths\":0,\"LastHonorCycle\":-1,\"Coins\":11,\"PetMultiplier\":0,\"IntactDepthBlocks\":5399,\"outcome\":\"broken\",\"BreakSpeed\":1,\"Depth\":1,\"CritChance\":0,\"BrokenDepthBlocks\":1}"
+                                   ]
+                    },
+                    {
+                        "flow":  "release-expansion-economy",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  22.8,
+                        "flowSHA256":  "8604A678A67117CD5C1A1ACC3F5AA55F51F25F98E5FDB94F3D86D8B024C35877",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\release-expansion-economy.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "release-expansion-ui",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.7,
+                        "flowSHA256":  "629AED2B408F3098F887CD0D05C39E4755EE6BDD0631303BFE6EA84D73C13488",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\release-expansion-ui.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"spin\":true,\"honor\":true,\"tasks\":true,\"pets\":false,\"masked\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "release-expansion-world",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  18.7,
+                        "flowSHA256":  "024A80E7188FD4871AE8C29A8CB441A2584DCF17B51147DE083C738CBE0E9292",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\release-expansion-world.json",
+                        "errors":  [
+                                       "Expected regex not found: \"honorStands\"\\s*:\\s*4\nReceived: {\"ok\":true,\"honorStands\":8,\"noFuturePortal\":true,\"honorNpc\":true,\"premium\":3,\"armory\":true,\"pets\":true,\"rank\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "responsive-ui-inputs",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.8,
+                        "flowSHA256":  "C2F1B441A4649BA2C49DA3C696BB6DF70FA817DB686CD5D708C3F810B924B453",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\responsive-ui-inputs.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "right-hud-menu-uniform-grid",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.7,
+                        "flowSHA256":  "CE8B5B447D1024F90ACBD3033C7C38EA7E613C09F26BBADBD501B8CBBFF67079",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\right-hud-menu-uniform-grid.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "server-snapshot-coalescing",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  19.4,
+                        "flowSHA256":  "5AB4899112F84EC8CA63BAB175D5F44A5353BDB57B32F4B6A8B0D42A99ED845A",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\server-snapshot-coalescing.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "shop-coin-and-music",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  26.8,
+                        "flowSHA256":  "174571C962A1DF896FF9AF374BA0877E4C4DDBBE27553C0DA08295C9DF72516C",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\shop-coin-and-music.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\":true\nReceived: {\"ok\":false,\"isLoaded\":true,\"timeLength\":122.7036507936508,\"advanced\":1.1090000000000018,\"musicOk\":true,\"isPlaying\":true,\"failures\":[],\"icons\":2,\"volume\":0.2199999988079071}"
+                                   ]
+                    },
+                    {
+                        "flow":  "standalone-player-windows",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  25.5,
+                        "flowSHA256":  "D58B6973ED1BCD2B317BF0BC0381A99B239E1D05CA284B346B56DB3479638362",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\standalone-player-windows.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "structural-character-clearance",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  22.1,
+                        "flowSHA256":  "6E3086AD28AE89876A41755C35B9244EFC0E59A5ABABB50A6B023F7A4E829C6D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\structural-character-clearance.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "structural-overlap-ejection",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  23.5,
+                        "flowSHA256":  "7D33D479FB3BC396B43591F4FFE1358726820172733137FF4C34D8A6B3CBC4B8",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\structural-overlap-ejection.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "structural-rubble-solidity",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  24.6,
+                        "flowSHA256":  "FE0404BD2F4688B8F32EB86DECF004BB506312D81CCAA0874869AB169FA49A01",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\structural-rubble-solidity.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "studio-high-power-test-mode",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  23.1,
+                        "flowSHA256":  "958C7CE9716C47E3EF8900649BC95F0881A2E6941985A1AF566D86E7BCBD7B5D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\studio-high-power-test-mode.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "studio-test-harness-control",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.8,
+                        "flowSHA256":  "A943A20DF9B60AB593728E9D47F01089FB6D9943E2CD664940E22CBE5016BB49",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\studio-test-harness-control.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"spin\":2,\"petInventory\":\"[\\\"Crystal Fox\\\"]\",\"power\":25000,\"pending\":true,\"coins\":500000,\"worldReset\":false,\"position\":\"-16.000244140625, 3.410208225250244, 30.999496459960938\",\"depth\":25,\"claim\":true}"
+                                   ]
+                    },
+                    {
+                        "flow":  "studio-test-harness-full-control",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  20.6,
+                        "flowSHA256":  "F221F4FFD8BD984762F32F5210DF49DA2603F83AC05CD16154E4D8E7FCEEA013",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\studio-test-harness-full-control.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "support-loss-matrix",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  25.4,
+                        "flowSHA256":  "B2CE0DA51835638B7532F8ECD18694EAC7BE16D3BEACD09B73F95331799FE3F1",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\support-loss-matrix.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "tall-multiplayer-depth-wall",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  18.6,
+                        "flowSHA256":  "355C886BF37A35EBA70C3D5B0FA85F91D6FB9CDFAD779EA077F07BF8138CADB3",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\tall-multiplayer-depth-wall.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "titan-hq-tonal-readability",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.6,
+                        "flowSHA256":  "49F6965C0A0158C92433C5C07236E32C5BF7C04C212D789C8DB40308941C6364",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\titan-hq-tonal-readability.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: attempt to perform arithmetic (sub) on Color3"
+                                   ]
+                    },
+                    {
+                        "flow":  "training-lock-motion-feedback",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  20.6,
+                        "flowSHA256":  "2CE96ED1CAE38693FF82F95FA1CD146CF401DF42D80EE6E5B9A150CFDF225271",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\training-lock-motion-feedback.json",
+                        "errors":  [
+                                       "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"bagWidth\":2.454085350036621,\"impact\":\"rbxassetid://132504023010884\",\"bagDepth\":2.042327880859375,\"bagHeight\":7.200000762939453,\"bagBottom\":0.3500000238418579,\"powerAfter\":15,\"shake\":0,\"bagAsset\":140653091179998,\"powerBefore\":15,\"walk\":0}"
+                                   ]
+                    },
+                    {
+                        "flow":  "training-station-progression",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  23.1,
+                        "flowSHA256":  "84E4EECF046DA3491EA2ED581D2273912DC8B6B0708E8BD899A6BD69BC94BCCD",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\training-station-progression.json",
+                        "errors":  [
+                                       "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: Training threshold rejection failed {\"ok\":false,\"rows\":[{\"exact\":false,\"required\":1500,\"power\":1499,\"qualification\":1500.4989999999999,\"station\":\"Iron Impact Dummy\"},{\"exact\":false,\"required\":150000,\"power\":149999,\"qualification\":150148.99899999999,\"station\":\"Titan Reactor\"},{\"exact\":false,\"required\":15000000,\"power\":14999999,\"qualification\":15014998.998999998,\"station\":\"Celestial Power Core\"}]}"
+                                   ]
+                    },
+                    {
+                        "flow":  "training-ui-pet-recovery",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  38.4,
+                        "flowSHA256":  "BDADAF25DB41E8E31086E4379CA04DB842CFE64502568A865AA0E1F605180420",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\training-ui-pet-recovery.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "tutorial-action-notification-badges",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  27.1,
+                        "flowSHA256":  "4C1D19E1EFF6F0F286A7B7DF896E1F1E6E4BBDB6391CFA4CD6FD360584499C4D",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\tutorial-action-notification-badges.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "vertical-depth-race-hud",
+                        "ok":  true,
+                        "exitCode":  0,
+                        "seconds":  22.3,
+                        "flowSHA256":  "B056DEB0371A4E99BBB2802840D7B644BED491B4DC7345A0B8FC7CC3563F0691",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\vertical-depth-race-hud.json",
+                        "errors":  [
+
+                                   ]
+                    },
+                    {
+                        "flow":  "world-boost-showcases",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  24.4,
+                        "flowSHA256":  "A0FCB9C8AD1912A3928A26DAEE598BAD79058E3B174BB2ED0286A565AD9BCBC3",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\world-boost-showcases.json",
+                        "errors":  [
+                                       "Expected regex not found: true:true:true:true:3:world-commerce-showcase\nReceived: false:true:true:true:2:world-commerce-showcase"
+                                   ]
+                    },
+                    {
+                        "flow":  "world-wall-reset",
+                        "ok":  false,
+                        "exitCode":  1,
+                        "seconds":  24,
+                        "flowSHA256":  "8D19A9108CEF2186C29D63048E1CF1D3999EBF3B286C378E278ED7200440DF9A",
+                        "evidence":  "F:\\Roblox\\PuchWall-completion-20260906\\work\\docs\\evidence\\smash-full-suite-20260906\\world-wall-reset.json",
+                        "errors":  [
+                                       "Expected regex not found: \"invokeCompleted\"\\s*:\\s*true\nReceived: {\"playEmoteClass\":\"BindableFunction\",\"invokeOk\":false,\"animate\":true,\"repaired\":true,\"playEmoteCount\":1,\"duplicateRemoved\":false,\"children\":[\"PlayEmote:BindableFunction\",\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"mood:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"playEmote\":true,\"classMismatch\":\"\",\"invokeCompleted\":false,\"invokeAttempts\":1}"
+                                   ]
+                    }
+                ],
+    "ok":  false
+}

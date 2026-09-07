@@ -1,0 +1,292 @@
+<div id="smash-armory-preview" aria-label="Smash Wall mobile Shop and Inventory proposal">
+  <div class="sw-preview-label">DESIGN PREVIEW <span>LOCAL DEMO</span></div>
+  <section class="sw-shell" aria-label="Smash Wall armory">
+    <header class="sw-header">
+      <div class="sw-brand"><span class="sw-wordmark">SMASH WALL</span><h2>Armory</h2></div>
+      <div class="sw-wallet" aria-label="Demo coin balance"><i data-lucide="coins" aria-hidden="true"></i><span data-wallet>500</span><span>Coins</span></div>
+    </header>
+    <nav class="sw-navigation" aria-label="Armory sections">
+      <button type="button" class="sw-nav" data-page="shop" aria-pressed="true"><i data-lucide="store" aria-hidden="true"></i>Shop</button>
+      <button type="button" class="sw-nav" data-page="inventory" aria-pressed="false"><i data-lucide="backpack" aria-hidden="true"></i>Inventory</button>
+    </nav>
+    <div class="sw-content">
+      <div class="sw-collection-head">
+        <div><h3 data-collection-title>Fists</h3><span class="sw-subtitle" data-collection-description>Choose your next upgrade</span></div>
+        <div class="sw-inventory-tabs" data-categories hidden aria-label="Inventory categories">
+          <button type="button" data-category="fists" aria-pressed="false">Fists</button>
+          <button type="button" data-category="pets" aria-pressed="true">Pets</button>
+        </div>
+      </div>
+      <div class="sw-workspace" data-workspace>
+        <div class="sw-list" data-item-list aria-label="Available fists"></div>
+        <section class="sw-detail" data-detail aria-label="Selected item">
+          <button type="button" class="sw-back" data-back><i data-lucide="arrow-left" aria-hidden="true"></i>Back to items</button>
+          <div class="sw-stage" data-stage aria-label="Reserved model preview space">
+            <span class="sw-stage-tier" data-stage-tier>02</span>
+            <span class="sw-stage-caption">MODEL PREVIEW SPACE</span>
+            <span class="sw-stage-ring" aria-hidden="true"></span>
+          </div>
+          <div class="sw-detail-body">
+            <div class="sw-detail-meta"><span data-rarity>COMMON</span><span data-tier>TIER 02</span></div>
+            <h3 data-item-title>Street Boxing Fist</h3>
+            <div class="sw-comparison" data-comparison><span>Fist power</span><div><span class="sw-previous" data-current-power>1×</span><i data-lucide="arrow-right" aria-hidden="true"></i><span data-item-power>1.8×</span></div></div>
+            <div class="sw-detail-price" data-price-row><span>Price</span><span data-price>180 Coins</span></div>
+            <button type="button" class="sw-primary" data-primary>Buy &amp; Equip</button>
+            <div class="sw-action-note" data-action-note>320 Coins after purchase</div>
+          </div>
+        </section>
+      </div>
+      <div class="sw-status" data-status role="status" aria-live="polite">Select an item to see its details.</div>
+    </div>
+    <footer class="sw-footer"><span data-equipped-summary>Equipped: Starter Fist</span><span>WORLD 1</span></footer>
+  </section>
+</div>
+<style>
+  #smash-armory-preview { --sw-bg:#071321; --sw-surface:#0e2033; --sw-raised:#152d43; --sw-ink:#edf7ff; --sw-muted:#b6c7d6; --sw-line:#2c4a61; --sw-cyan:#60def6; --sw-gold:#ffd46c; --sw-gap:10px; --sw-stage-size:150px; color:var(--sw-ink); font-family:"Segoe UI",Arial,sans-serif; font-size:14px; line-height:1.4; width:100%; color-scheme:dark; container-type:inline-size; }
+  #smash-armory-preview * { box-sizing:border-box; }
+  #smash-armory-preview [hidden] { display:none !important; }
+  #smash-armory-preview button { font:inherit; color:inherit; cursor:pointer; }
+  #smash-armory-preview button:disabled { cursor:default; }
+  #smash-armory-preview h2,#smash-armory-preview h3 { padding:0; margin:0; color:var(--sw-ink); font-weight:500; }
+  #smash-armory-preview .sw-preview-label { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:11px; font-weight:500; letter-spacing:.1em; color:#64839a; padding:0 3px 7px; }
+  #smash-armory-preview .sw-shell { border:1px solid var(--sw-line); border-radius:20px; background:var(--sw-bg); overflow:hidden; box-shadow:0 12px 30px #03102026; }
+  #smash-armory-preview .sw-header { padding:18px 20px 14px; display:flex; gap:12px; align-items:center; justify-content:space-between; background:linear-gradient(115deg,#132c43,#0a1a2a); border-bottom:1px solid var(--sw-line); }
+  #smash-armory-preview .sw-wordmark { font-size:11px; font-weight:500; letter-spacing:.14em; color:var(--sw-cyan); }
+  #smash-armory-preview .sw-brand h2 { font-size:26px; letter-spacing:-.04em; line-height:1.1; }
+  #smash-armory-preview .sw-wallet { display:flex; align-items:center; gap:6px; background:#2d291b; border:1px solid #73603a; border-radius:12px; padding:10px 12px; color:var(--sw-gold); font-variant-numeric:tabular-nums; flex-wrap:wrap; justify-content:center; }
+  #smash-armory-preview .sw-wallet [data-wallet] { font-size:20px; font-weight:500; }
+  #smash-armory-preview .sw-wallet span:last-child { font-size:12px; }
+  #smash-armory-preview .sw-navigation { display:grid; grid-template-columns:1fr 1fr; background:#0c1a28; padding:6px; gap:6px; border-bottom:1px solid var(--sw-line); }
+  #smash-armory-preview .sw-nav { min-height:48px; border:1px solid transparent; border-radius:10px; background:transparent; display:flex; gap:9px; align-items:center; justify-content:center; font-size:15px; font-weight:500; color:var(--sw-muted); }
+  #smash-armory-preview .sw-nav[aria-pressed="true"] { background:#14354a; color:var(--sw-cyan); border-color:#2e748a; }
+  #smash-armory-preview .sw-content { padding:18px; }
+  #smash-armory-preview .sw-collection-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  #smash-armory-preview .sw-collection-head h3 { font-size:18px; }
+  #smash-armory-preview .sw-subtitle { font-size:12px; color:var(--sw-muted); }
+  #smash-armory-preview .sw-inventory-tabs { display:flex; gap:5px; border-radius:10px; background:#142638; padding:3px; }
+  #smash-armory-preview .sw-inventory-tabs button { min-height:44px; padding:6px 15px; border:0; border-radius:7px; background:transparent; color:var(--sw-muted); }
+  #smash-armory-preview .sw-inventory-tabs button[aria-pressed="true"] { background:#284960; color:var(--sw-ink); }
+  #smash-armory-preview .sw-workspace { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:14px; align-items:start; }
+  #smash-armory-preview .sw-list { display:grid; gap:var(--sw-gap); min-width:0; }
+  #smash-armory-preview .sw-item { width:100%; display:grid; grid-template-columns:46px minmax(0,1fr); align-items:center; gap:12px; min-height:78px; text-align:left; padding:12px; background:var(--sw-surface); border:1px solid var(--sw-line); border-radius:12px; }
+  #smash-armory-preview .sw-item[aria-pressed="true"] { background:#133044; border-color:var(--sw-cyan); }
+  #smash-armory-preview .sw-item-mark { display:grid; place-items:center; width:46px; height:48px; font-size:22px; font-weight:500; color:var(--sw-cyan); background:#092337; border:1px solid #36556a; border-radius:9px; font-variant-numeric:tabular-nums; }
+  #smash-armory-preview .sw-item-copy { min-width:0; }
+  #smash-armory-preview .sw-item-name { display:block; font-weight:500; font-size:14px; overflow-wrap:anywhere; }
+  #smash-armory-preview .sw-item-facts { display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px 10px; margin-top:6px; font-size:12px; color:var(--sw-muted); }
+  #smash-armory-preview .sw-item-state { color:var(--sw-gold); }
+  #smash-armory-preview .sw-item-state.sw-is-equipped { color:#8ee6ba; }
+  #smash-armory-preview .sw-detail { min-width:0; border:1px solid var(--sw-line); border-radius:14px; background:var(--sw-surface); overflow:hidden; }
+  #smash-armory-preview .sw-back { display:none; min-height:44px; align-items:center; gap:6px; border:0; border-bottom:1px solid var(--sw-line); border-radius:0; width:100%; text-align:left; padding:8px 14px; background:#183347; color:var(--sw-cyan); }
+  #smash-armory-preview .sw-stage { height:var(--sw-stage-size); position:relative; background:radial-gradient(ellipse at 50% 90%,#236480 0,#142f46 38%,#102234 73%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; border-bottom:1px solid var(--sw-line); }
+  #smash-armory-preview .sw-stage-tier { font-size:52px; letter-spacing:-.05em; font-weight:500; color:#91b1c7; line-height:1.1; z-index:1; }
+  #smash-armory-preview .sw-stage-caption { font-size:10px; font-weight:500; letter-spacing:.12em; color:#c0d2df; z-index:1; }
+  #smash-armory-preview .sw-stage-ring { position:absolute; bottom:12px; width:110px; height:20px; border:1px solid #58b1c2; border-radius:50%; background:#102b3f; }
+  #smash-armory-preview .sw-detail-body { padding:16px; }
+  #smash-armory-preview .sw-detail-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; font-size:11px; font-weight:500; letter-spacing:.07em; color:var(--sw-cyan); margin-bottom:5px; }
+  #smash-armory-preview .sw-detail-meta span:last-child { color:var(--sw-muted); }
+  #smash-armory-preview .sw-detail-body h3 { font-size:20px; line-height:1.2; margin-bottom:18px; overflow-wrap:anywhere; }
+  #smash-armory-preview .sw-comparison { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; padding:12px 0; border-top:1px solid var(--sw-line); border-bottom:1px solid var(--sw-line); color:var(--sw-muted); }
+  #smash-armory-preview .sw-comparison > div { display:flex; align-items:center; gap:7px; color:var(--sw-cyan); font-size:20px; font-weight:500; }
+  #smash-armory-preview .sw-previous { font-size:14px; color:var(--sw-muted); }
+  #smash-armory-preview .sw-detail-price { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:16px 0; color:var(--sw-muted); }
+  #smash-armory-preview .sw-detail-price span:last-child { color:var(--sw-gold); font-weight:500; }
+  #smash-armory-preview .sw-primary { display:flex; align-items:center; justify-content:center; width:100%; min-height:48px; border:1px solid #ffe0a0; border-radius:10px; padding:10px 12px; background:var(--sw-gold); color:#2d240c; font-size:15px; font-weight:500; }
+  #smash-armory-preview .sw-primary:disabled { background:#203a4b; border-color:#456176; color:#c1d1dd; }
+  #smash-armory-preview .sw-action-note { min-height:18px; text-align:center; color:var(--sw-muted); font-size:12px; margin-top:9px; }
+  #smash-armory-preview .sw-status { font-size:12px; color:var(--sw-muted); margin-top:15px; min-height:17px; }
+  #smash-armory-preview .sw-footer { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 18px; border-top:1px solid var(--sw-line); background:#0c1b29; color:var(--sw-muted); font-size:12px; }
+  #smash-armory-preview .sw-footer span:last-child { letter-spacing:.08em; font-size:11px; white-space:nowrap; }
+  #smash-armory-preview .sw-empty { padding:20px 12px; color:var(--sw-muted); background:var(--sw-surface); border-radius:12px; }
+  @container (max-width:560px) {
+    #smash-armory-preview .sw-content { padding:14px; }
+    #smash-armory-preview .sw-header { padding:16px 16px 12px; }
+    #smash-armory-preview .sw-workspace { display:block; }
+    #smash-armory-preview .sw-detail { display:none; }
+    #smash-armory-preview .sw-workspace.sw-detail-open .sw-detail { display:block; }
+    #smash-armory-preview .sw-workspace.sw-detail-open .sw-list { display:none; }
+    #smash-armory-preview .sw-back { display:flex; }
+    #smash-armory-preview .sw-stage { height:calc(var(--sw-stage-size) - 20px); }
+    #smash-armory-preview .sw-item { grid-template-columns:46px minmax(0,1fr); }
+  }
+  @media (max-height:450px) and (min-width:561px) {
+    #smash-armory-preview .sw-workspace { display:block; }
+    #smash-armory-preview .sw-detail { display:none; }
+    #smash-armory-preview .sw-workspace.sw-detail-open .sw-detail { display:grid; grid-template-columns:minmax(120px,.7fr) minmax(0,1fr); }
+    #smash-armory-preview .sw-workspace.sw-detail-open .sw-list { display:none; }
+    #smash-armory-preview .sw-back { display:flex; grid-column:1 / -1; }
+    #smash-armory-preview .sw-stage { height:100%; min-height:140px; border-bottom:0; border-right:1px solid var(--sw-line); }
+  }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('smash-armory-preview');
+  const q = selector => root.querySelector(selector);
+  const qa = selector => Array.from(root.querySelectorAll(selector));
+  const format = value => new Intl.NumberFormat('en-US').format(value);
+  const fists = [
+    { id:'Starter Glove', name:'Starter Fist', rarity:'Common', tier:1, cost:0, power:1 },
+    { id:'Boxing Glove', name:'Street Boxing Fist', rarity:'Common', tier:2, cost:180, power:1.8 },
+    { id:'Iron Knuckle', name:'Iron Crusher Fist', rarity:'Rare', tier:3, cost:1100, power:4.5 },
+    { id:'Thunder Fist', name:'Thunder Core Fist', rarity:'Epic', tier:4, cost:8200, power:13 },
+    { id:'Titan Gauntlet', name:'Titan Siege Fist', rarity:'Legendary', tier:5, cost:90000, power:45 }
+  ];
+  const pets = [
+    { id:'Forest Pup', name:'Forest Pup', rarity:'Common', tier:1, power:.15 },
+    { id:'Meadow Bunny', name:'Meadow Bunny', rarity:'Common', tier:2, power:.22 },
+    { id:'Miner Cat', name:'Miner Cat', rarity:'Rare', tier:3, power:.35 },
+    { id:'Crystal Fox', name:'Crystal Fox', rarity:'Epic', tier:4, power:.75 }
+  ];
+  const state = {
+    page:'shop', category:'pets', selected:'Boxing Glove', detailOpen:false,
+    coins:500, owned:new Set(['Starter Glove']), equipped:'Starter Glove',
+    equippedPets:new Set(['Forest Pup']), message:'Select an item to see its details.'
+  };
+  const design = { density:'Comfortable', artStage:150 };
+  function currentKind() { return state.page === 'shop' ? 'fists' : state.category; }
+  function visibleItems() {
+    if (currentKind() === 'pets') return pets;
+    return state.page === 'shop' ? fists : fists.filter(item => state.owned.has(item.id));
+  }
+  function equippedFist() { return fists.find(item => item.id === state.equipped); }
+  function isEquipped(item) { return currentKind() === 'pets' ? state.equippedPets.has(item.id) : state.equipped === item.id; }
+  function itemState(item) {
+    if (isEquipped(item)) return 'Equipped';
+    if (currentKind() === 'pets' || state.owned.has(item.id)) return 'Owned';
+    return format(item.cost) + ' Coins';
+  }
+  function powerText(item) { return currentKind() === 'pets' ? '+' + Math.round(item.power * 100) + '% power' : item.power + '× power'; }
+  function render() {
+    root.style.setProperty('--sw-gap', design.density === 'Compact' ? '6px' : '10px');
+    root.style.setProperty('--sw-stage-size', design.artStage + 'px');
+    q('[data-wallet]').textContent = format(state.coins);
+    qa('[data-page]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.page === state.page)));
+    qa('[data-category]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.category === state.category)));
+    q('[data-categories]').hidden = state.page !== 'inventory';
+    const isPet = currentKind() === 'pets';
+    const items = visibleItems();
+    if (!items.some(item => item.id === state.selected)) state.selected = items[0]?.id || '';
+    const selected = items.find(item => item.id === state.selected);
+    q('[data-collection-title]').textContent = state.page === 'shop' ? 'Fists' : 'Your collection';
+    q('[data-collection-description]').textContent = state.page === 'shop' ? 'Choose your next upgrade' : isPet ? state.equippedPets.size + ' / 3 pets equipped · 4 / 150 owned' : state.owned.size + ' fists owned · 1 equipped';
+    const list = q('[data-item-list]');
+    list.replaceChildren();
+    list.setAttribute('aria-label', isPet ? 'Owned pets' : state.page === 'shop' ? 'Available fists' : 'Owned fists');
+    for (const item of items) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'sw-item';
+      button.dataset.item = item.id;
+      button.setAttribute('aria-pressed', String(item.id === state.selected));
+      button.setAttribute('aria-label', item.name + ', ' + powerText(item) + ', ' + itemState(item));
+      const mark = document.createElement('span');
+      mark.className = 'sw-item-mark';
+      mark.setAttribute('aria-hidden', 'true');
+      mark.textContent = String(item.tier).padStart(2, '0');
+      const copy = document.createElement('span');
+      copy.className = 'sw-item-copy';
+      const name = document.createElement('span');
+      name.className = 'sw-item-name';
+      name.textContent = item.name;
+      const facts = document.createElement('span');
+      facts.className = 'sw-item-facts';
+      const power = document.createElement('span');
+      power.textContent = powerText(item);
+      const status = document.createElement('span');
+      status.className = 'sw-item-state' + (isEquipped(item) ? ' sw-is-equipped' : '');
+      status.textContent = itemState(item);
+      facts.append(power, status);
+      copy.append(name, facts);
+      button.append(mark, copy);
+      button.addEventListener('click', () => {
+        state.selected = item.id;
+        state.detailOpen = true;
+        state.message = item.name + ' selected.';
+        render();
+        if (getComputedStyle(q('[data-back]')).display !== 'none') q('[data-back]').focus({preventScroll:true});
+      });
+      list.append(button);
+    }
+    q('[data-workspace]').classList.toggle('sw-detail-open', state.detailOpen);
+    q('[data-detail]').hidden = !selected;
+    if (selected) {
+      q('[data-stage-tier]').textContent = String(selected.tier).padStart(2, '0');
+      q('[data-rarity]').textContent = selected.rarity.toUpperCase();
+      q('[data-tier]').textContent = isPet ? 'COMPANION' : 'TIER ' + String(selected.tier).padStart(2, '0');
+      q('[data-item-title]').textContent = selected.name;
+      q('[data-comparison] > span').textContent = isPet ? 'Pet power bonus' : 'Fist power';
+      q('[data-current-power]').hidden = isPet;
+      q('[data-comparison] i, [data-comparison] svg')?.toggleAttribute('hidden', isPet);
+      q('[data-current-power]').textContent = equippedFist().power + '×';
+      q('[data-item-power]').textContent = isPet ? '+' + Math.round(selected.power * 100) + '%' : selected.power + '×';
+      q('[data-price-row]').hidden = isPet;
+      q('[data-price]').textContent = state.owned.has(selected.id) ? 'Owned' : format(selected.cost) + ' Coins';
+      const action = q('[data-primary]');
+      action.disabled = false;
+      if (isPet) {
+        const equipped = state.equippedPets.has(selected.id);
+        const full = state.equippedPets.size >= 3;
+        action.textContent = equipped ? 'Unequip' : full ? '3 / 3 Equipped' : 'Equip Pet';
+        action.disabled = !equipped && full;
+        q('[data-action-note]').textContent = !equipped && full ? 'Unequip a pet to make room.' : 'Pets equipped: ' + state.equippedPets.size + ' / 3';
+      } else if (state.owned.has(selected.id)) {
+        action.textContent = selected.id === state.equipped ? 'Equipped' : 'Equip Fist';
+        action.disabled = selected.id === state.equipped;
+        q('[data-action-note]').textContent = 'Ready for your next wall.';
+      } else {
+        const missing = Math.max(0, selected.cost - state.coins);
+        action.textContent = missing ? 'Need ' + format(missing) + ' Coins' : 'Buy & Equip';
+        action.disabled = missing > 0;
+        q('[data-action-note]').textContent = missing ? 'Break walls to earn more Coins.' : format(state.coins - selected.cost) + ' Coins after purchase';
+      }
+    }
+    q('[data-equipped-summary]').textContent = isPet ? state.equippedPets.size + ' / 3 pets equipped' : 'Equipped: ' + equippedFist().name;
+    q('[data-status]').textContent = state.message;
+  }
+  qa('[data-page]').forEach(button => button.addEventListener('click', () => {
+    state.page = button.dataset.page;
+    state.detailOpen = false;
+    state.message = state.page === 'inventory' ? 'Select an owned item to manage equipment.' : 'Select an item to see its details.';
+    render();
+  }));
+  qa('[data-category]').forEach(button => button.addEventListener('click', () => {
+    state.category = button.dataset.category;
+    state.detailOpen = false;
+    state.message = 'Select an item to manage equipment.';
+    render();
+  }));
+  q('[data-back]').addEventListener('click', () => {
+    state.detailOpen = false;
+    render();
+    qa('[data-item]').find(button => button.dataset.item === state.selected)?.focus({preventScroll:true});
+  });
+  q('[data-primary]').addEventListener('click', () => {
+    const selected = visibleItems().find(item => item.id === state.selected);
+    if (!selected) return;
+    if (currentKind() === 'pets') {
+      if (state.equippedPets.has(selected.id)) {
+        state.equippedPets.delete(selected.id);
+        state.message = selected.name + ' unequipped.';
+      } else if (state.equippedPets.size < 3) {
+        state.equippedPets.add(selected.id);
+        state.message = selected.name + ' equipped.';
+      }
+    } else if (state.owned.has(selected.id)) {
+      state.equipped = selected.id;
+      state.message = selected.name + ' equipped.';
+    } else if (state.coins >= selected.cost) {
+      state.coins -= selected.cost;
+      state.owned.add(selected.id);
+      state.equipped = selected.id;
+      state.message = selected.name + ' purchased and equipped.';
+    }
+    render();
+  });
+  render();
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({container:root, onChange:render});
+    tweak.addSelect(design, 'density', {label:'Item spacing', options:['Comfortable','Compact'], reference:'sw-gap'});
+    tweak.addSlider(design, 'artStage', {label:'Model stage height', min:120, max:190, step:10, unit:'px', reference:'sw-stage-size'});
+  }
+})();
+</script>

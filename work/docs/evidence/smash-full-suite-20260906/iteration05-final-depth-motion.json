@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "iteration05-final-depth-motion",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for Iteration 05 runtime",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"plates\"\\s*:\\s*4\nReceived: {\"plates\":0,\"legacyWalls\":0,\"depthContract\":true,\"ribs\":2,\"presentationReady\":true,\"ambientReady\":true,\"blocks\":5400,\"landmarks\":10,\"images\":2,\"decals\":2,\"bossDepth\":22,\"faces\":false,\"parts\":6692}",
+      "context": {}
+    }
+  ]
+}

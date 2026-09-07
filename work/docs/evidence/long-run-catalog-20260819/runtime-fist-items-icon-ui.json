@@ -1,0 +1,30 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "fist-items-icon-ui",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for fist shop and HUD",
+        "sixteen Shop fists have unique bounded item-matched icon identities",
+        "cleanup stop play"
+      ],
+      "error": "Expected regex not found: \"knuckles\"\\s*:\\s*4",
+      "context": {
+        "shopFistChromePresentation": "{\"cards\":16,\"baseCount\":3,\"variantCount\":16,\"runtimePartBudget\":true,\"runtime\":true,\"bounded\":16,\"badges\":16,\"features\":16,\"tinted\":16,\"uniqueIdentity\":16}",
+        "hudAtlasCoverage": "{\"titleResponsive\":true,\"actionIcons\":5,\"title\":\"HERO STATUS\",\"targetIcon\":true,\"knuckles\":0,\"objectiveIcon\":true,\"tails\":0,\"closed\":true,\"menuIcon\":true,\"tabIcons\":5,\"rowIcons\":0,\"tier\":1,\"display\":\"Starter Fist\",\"mutations\":0,\"atlasIcons\":45,\"wedges\":0}"
+      }
+    }
+  ]
+}

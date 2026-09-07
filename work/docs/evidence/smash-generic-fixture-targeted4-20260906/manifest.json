@@ -1,0 +1,44 @@
+[
+  {
+    "flowSHA256": "920256415BA94648F6B6A3123DABDC3BC158B5A2A2D08C346E5B9D4A765F3AD3",
+    "errors": [],
+    "flow": "fist-pet-legacy-slot-safety",
+    "ok": true
+  },
+  {
+    "flowSHA256": "9B3F25B9ED8CAB840A41ED8AA64ED1AB9ADF09E1F2876B81A509306938CC6967",
+    "errors": [
+      "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"active\":true,\"selectable\":true,\"min\":48.8803825378418,\"menu\":false,\"hittable\":false,\"visible\":true,\"topmost\":false,\"activated\":true,\"visibleArea\":false}"
+    ],
+    "flow": "full-game-real-ui-controls",
+    "ok": false
+  },
+  {
+    "flowSHA256": "D53501CC5C48A83473268F40E487D613B9C79CF144F38B8B104071E752486A53",
+    "errors": [
+      "Expected regex not found: \"pops\"\\s*:\\s*[2-9]\nReceived: {\"pops\":0,\"layout\":true,\"toasts\":1,\"nonoverlap\":true}"
+    ],
+    "flow": "iteration03-safearea-destruction",
+    "ok": false
+  },
+  {
+    "flowSHA256": "C9D66439D8E4FFCD93FB970C77A6BB5F0CDF1079DC628321157EFEB15040EEA6",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:47: bounded HUD target observation timed out"
+    ],
+    "flow": "iteration04-armory-pets-feedback",
+    "ok": false
+  },
+  {
+    "flowSHA256": "6AFFC50A58D81FB4A7C2E70BF9B89C94C1562B61AB0E5058E2B895D7432D1A5A",
+    "errors": [],
+    "flow": "punchwall-free-aim-combat-polish",
+    "ok": true
+  },
+  {
+    "flowSHA256": "240C9CCDBF50AA0E3C38B9B7E5CCB76395FB25AA5848273EDB8E425BB19D3D5C",
+    "errors": [],
+    "flow": "contextual-actions-settings-authority",
+    "ok": true
+  }
+]

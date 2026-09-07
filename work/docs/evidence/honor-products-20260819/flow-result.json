@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "honor-product-receipts",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set deterministic 740 phone viewport",
+        "start play",
+        "wait for profile and character",
+        "capture boot console",
+        "boot console clean",
+        "four Honor products and four existing world offers are exact",
+        "Honor receipt first replay mismatch overflow and reconcile are exact",
+        "four Honor cards resolve exact live prices and bind safe purchase actions",
+        "compact transient purchase states and cancel recovery fit",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean",
+        "restore default viewport and remove Honor flow device"
+      ]
+    }
+  ]
+}

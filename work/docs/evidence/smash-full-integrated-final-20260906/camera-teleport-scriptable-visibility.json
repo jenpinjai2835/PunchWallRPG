@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "camera-teleport-scriptable-visibility",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "edit mode detected",
+        "capture edit tree",
+        "start play",
+        "wait for runtime bootstrap",
+        "play mode detected",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: AssistantCommand:1: self-contained camera teleport contract failed: {\"valid\":false,\"type\":\"Custom\",\"zoomDelta\":0,\"rebaseCount\":1,\"inside\":0,\"teleportStuds\":63.259037017822269,\"faded\":0,\"rebaseBefore\":0,\"distance\":30.164321899414064,\"baselineDistance\":30.164321899414064,\"bypass\":false,\"scriptError\":0,\"scriptValid\":true}\nAssistantCommand:1\nAssistantCommand:1\n",
+      "context": {
+        "stateBefore": "- Current Studio Mode: Edit\n- Available DataModels: Edit\n- Focused DataModel in the viewport: Edit",
+        "editTree": "[{\"parentName\":\"Workspace\",\"fullPath\":\"Workspace.PunchWallRPG\",\"name\":\"PunchWallRPG\",\"className\":\"Folder\"},{\"parentName\":\"PunchWallRPG\",\"fullPath\":\"Workspace.PunchWallRPG.Main Training Island\",\"name\":\"Main Training Island\",\"className\":\"Part\"},{\"parentName\":\"PunchWallRPG\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables\",\"name\":\"Preview Interactables\",\"className\":\"Folder\"},{\"parentName\":\"PunchWallRPG\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls\",\"name\":\"Preview Walls\",\"className\":\"Folder\"},{\"parentName\":\"PunchWallRPG\",\"fullPath\":\"Workspace.PunchWallRPG.Spawn Pad Preview\",\"name\":\"Spawn Pad Preview\",\"className\":\"SpawnLocation\"},{\"parentName\":\"Preview Interactables\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables.Focus Stone Preview\",\"name\":\"Focus Stone Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Interactables\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables.Pet Egg Preview\",\"name\":\"Pet Egg Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Interactables\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables.Power Bag Preview\",\"name\":\"Power Bag Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Interactables\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables.Rebirth Shrine Preview\",\"name\":\"Rebirth Shrine Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Interactables\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Interactables.Speed Dummy Preview\",\"name\":\"Speed Dummy Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Brick Wall Preview\",\"name\":\"Brick Wall Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Concrete Wall Preview\",\"name\":\"Concrete Wall Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Crystal Wall Preview\",\"name\":\"Crystal Wall Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Cyber Gate Preview\",\"name\":\"Cyber Gate Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Iron Wall Preview\",\"name\":\"Iron Wall Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Lava Wall Preview\",\"name\":\"Lava Wall Preview\",\"className\":\"Part\"},{\"parentName\":\"Preview Walls\",\"fullPath\":\"Workspace.PunchWallRPG.Preview Walls.Titan Server Wall Preview\",\"name\":\"Titan Server Wall Preview\",\"className\":\"Part\"}]",
+        "statePlay": "- Current Studio Mode: Play\n- Available DataModels: Client, Server\n- Focused DataModel in the viewport: Client"
+      }
+    }
+  ]
+}

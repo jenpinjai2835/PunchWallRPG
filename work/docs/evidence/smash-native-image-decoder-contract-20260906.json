@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "checks": 55,
+  "compiledSnippets": 13,
+  "executedStateAssertions": 42,
+  "sharedProfilerContract": {
+    "ok": true,
+    "checks": 66,
+    "compiledSnippets": 8,
+    "executedLuauAssertions": 53,
+    "mutationsRejected": [
+      "trust_only_current_property_value",
+      "ignore_resize_events",
+      "fabricate_initial_foreground",
+      "waive_viewport_context",
+      "waive_focus_context",
+      "leak_context_listeners",
+      "unbounded_resize_trace"
+    ],
+    "studioUsed": false
+  },
+  "studioUsed": false
+}

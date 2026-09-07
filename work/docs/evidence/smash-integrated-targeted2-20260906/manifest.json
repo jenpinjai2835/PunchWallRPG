@@ -1,0 +1,90 @@
+[
+  {
+    "flowSHA256": "D5FB83696F9C17F484A5EF92DAB5F63F622FFA90D77FC7870DCEC768D54BE378",
+    "flow": "camera-long-tunnel-regression",
+    "errors": [
+      "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 7.11745023727417, -201.1031494140625\",\"contractValid\":false,\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.9850136041641235, 4.680371284484863, -212.84901428222656\",\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8509063720703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":true,\"clearRatio\":0.9126637554585153,\"maxInheritedRootStep\":13.187446594238282,\"inside\":7,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L006_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L015_C07_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L024_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L042_C07_R05\"],\"maxBackPunch\":9,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":10.627585411071778,\"finishDistance\":11.99340534210205,\"readableRatio\":1,\"sampleMaxStep\":21.69731903076172,\"selectedDistance\":22.620990753173829,\"settledSamples\":0,\"settledReadableRatio\":0,\"insideNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\"],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.256492614746094, -31.204627990722656\",\"maxBackTo\":\"-2.000030517578125, 3.1974802017211914, -164.8501739501953\",\"sampledFrames\":229,\"userOrbitDistance\":22.620990753173829,\"lead\":20.629924774169923,\"insideSamples\":[{\"renderAge\":0.03099219999967\n... <truncated 513 chars> ...\n993465423584, -120.85926818847656\",\"clamped\":true},{\"renderAge\":0.06483870000010939,\"camera\":\"-2.000030517578125, 7.116944789886475, -109.11150360107422\",\"follow\":true,\"punch\":6,\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"handoff\":true,\"root\":\"-2.000030517578125, 3.201993465423584, -120.85926818847656\",\"clamped\":true},{\"renderAge\":0.04859270000088145,\"camera\":\"-2.000030517578125, 7.116944789886475, -109.11150360107422\",\"follow\":true,\"punch\":6,\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"handoff\":true,\"root\":\"-2.000030517578125, 3.201993465423584, -120.85926818847656\",\"clamped\":true},{\"renderAge\":0.017660499999692548,\"camera\":\"-2.000030517578125, 7.116944789886475, -109.11150360107422\",\"follow\":true,\"punch\":6,\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"handoff\":true,\"root\":\"-2.000030517578125, 3.201993465423584, -120.85926818847656\",\"clamped\":true},{\"renderAge\":0.09702260000085517,\"camera\":\"-2.000030517578125, 7.116944789886475, -109.11150360107422\",\"follow\":true,\"punch\":6,\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"handoff\":true,\"root\":\"-2.000030517578125, 3.201993465423584, -120.85926818847656\",\"clamped\":true},{\"renderAge\":0.06006100000013248,\"camera\":\"-2.000030517578125, 7.116944789886475, -109.11150360107422\",\"follow\":true,\"punch\":6,\"part\":\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L019_C07_R04\",\"handoff\":true,\"root\":\"-2.000030517578125, 3.202498435974121, -121.83491516113281\",\"clamped\":true}],\"mode\":\"CustomPreserved\",\"settledClearRatio\":0,\"handoffActive\":true,\"maxCorrectionStep\":2.4000003337860109,\"maxBackFrom\":\"-2.000030517578125, 3.203173875808716, -164.85018920898438\",\"maxStepTo\":\"-2.000030517578125, 7.117955684661865, -52.90150451660156\",\"visibleRatio\":1},\"cleanupRestored\":true,\"freshObscurers\":[],\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"freshValid\":false,\"settleTimedOut\":true,\"inside\":7}"
+    ],
+    "ok": false
+  },
+  {
+    "flowSHA256": "20BC11A2DFCDBF8D864CC3006AD7D853A6BB4CC08068A2E9899130ECDD7A8396",
+    "flow": "combat-target-boss-hud",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:16: HUD countdown disagrees with replicated deadline"
+    ],
+    "ok": false
+  },
+  {
+    "flowSHA256": "F135EE8934BA74AE9F23F7CB4F453286D31524ED0407DA2C0135762EE5C82A4E",
+    "flow": "world-wall-reset",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "6FDFF029C4D22E0C89FB6DCC3E6A1544A2648E9DFCF70DABE977B1B28136D424",
+    "flow": "punchwall-map-progression",
+    "errors": [
+      "Expected regex not found: \"RequiredLevel\"\\s*:\\s*48\nReceived: Error: Could not find any instances at path 'Workspace.PunchWallRPG.Walls.Cyber Gate'"
+    ],
+    "ok": false
+  },
+  {
+    "flowSHA256": "E394CFEB021034191F2B51C1F728CF58C75381EFD925D6691100D58CF63F5F54",
+    "flow": "world-boost-showcases",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "1EF90C1F1D7368A705A65500660D0331F79B068B52D947097D19F64D765969F7",
+    "flow": "punchwall-visual-polish-smoke",
+    "errors": [
+      "Expected regex not found: Asphalt\nReceived: Error: Could not find any instances at path 'Workspace.PunchWallRPG.Downtown Smash Block'"
+    ],
+    "ok": false
+  },
+  {
+    "flowSHA256": "FE283F9FDF026C3C81537696E37B24C2C4BCE127ABA27F1FAF47603887E74069",
+    "flow": "shop-coin-and-music",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: catalog card missing scroll host"
+    ],
+    "ok": false
+  },
+  {
+    "flowSHA256": "2F738BA1D1BF69095876FBBC71D191796DBF218EE4EEA50E6D1F14A7DAB21B56",
+    "flow": "punchwall-radius-damage-shake",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "97B0E9C53D513DB97B9C051FD095FFD55769B2166E2419B9437479AEE5F3B09B",
+    "flow": "premium-pet-gamepass-configuration",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "3CDA61B0CB2993ECF35AB603496646EF42CA6F25CE4BD5B1705220DE6B003362",
+    "flow": "creator-store-fist-visuals",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "D156428E49BBE15F01EDD7702B2823A83467A09938045ACF097FDF9D023E686D",
+    "flow": "first-five-rig-parity",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "4A26270081339F9D97FED8A270A89A321BF62126FABA04AE1524219222A4F524",
+    "flow": "fist-items-icon-ui",
+    "errors": [],
+    "ok": true
+  },
+  {
+    "flowSHA256": "4B024460EA2AFB590F4C4079AE3D77DE6BDC3F5100300C529E38C7D1289B60A3",
+    "flow": "hero-city-reference-ui",
+    "errors": [],
+    "ok": true
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "punched-route-navigability",
+      "selectedStudio": null,
+      "selectedPlace": null,
+      "checks": [
+        "cleanup stop play"
+      ],
+      "error": "Studio id 6d29b2d4-41ab-41fb-838f-3dfd8727c725 is \"PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx\", which does not match \"PunchWallRPGPlayable_v1_final.rbxlx\"",
+      "context": {}
+    }
+  ]
+}

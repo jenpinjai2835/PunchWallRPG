@@ -1,0 +1,111 @@
+{
+  "observedAtUtc": "2026-09-07T00:58:00.899Z",
+  "transport": "Chrome CDP 127.0.0.1:9222; same browser authenticated fetch",
+  "url": "https://develop.roblox.com/v1/assets/125255969070601/saved-versions?limit=10&cursor=",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "latestSavedVersion": 22,
+  "latestPublishedVersion": 20,
+  "versions": [
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 22,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-21T06:53:48.863Z",
+      "isPublished": false
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 21,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-21T06:45:46.664Z",
+      "isPublished": false
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 20,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-21T06:41:39.022Z",
+      "isPublished": true
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 19,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-21T05:12:54.754Z",
+      "isPublished": true
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 18,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-21T02:58:49.744Z",
+      "isPublished": true
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 17,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-20T17:26:16.916Z",
+      "isPublished": false
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 16,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-20T17:22:08.377Z",
+      "isPublished": true
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 15,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-20T17:20:57.19Z",
+      "isPublished": false
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 14,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-20T15:36:06.991Z",
+      "isPublished": true
+    },
+    {
+      "Id": 0,
+      "assetId": 125255969070601,
+      "assetVersionNumber": 13,
+      "creatorType": "User",
+      "creatorTargetId": 9158952231,
+      "creatingUniverseId": null,
+      "created": "2026-08-20T15:10:50.602Z",
+      "isPublished": false
+    }
+  ]
+}

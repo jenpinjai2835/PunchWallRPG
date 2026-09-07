@@ -1,0 +1,64 @@
+{
+  "before": "{\"button\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.SettingsWindow.Body.MOTIONSetting.Options.MotionCalm\",\"size\":\"78, 44\",\"position\":\"774.5, 300\"}",
+  "label": "real click Settings Motion control",
+  "mouseArgs": {
+    "datamodel_type": "Client",
+    "actions": [
+      {
+        "action": "moveTo",
+        "x": 814,
+        "y": 322
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 80
+      },
+      {
+        "action": "moveTo",
+        "x": 814,
+        "y": 322
+      },
+      {
+        "action": "mouseButtonDown",
+        "mouse_button": "left",
+        "x": 814,
+        "y": 322
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 60
+      },
+      {
+        "action": "mouseButtonUp",
+        "mouse_button": "left",
+        "x": 814,
+        "y": 322
+      }
+    ]
+  },
+  "mouse": {
+    "raw": {
+      "jsonrpc": "2.0",
+      "id": 12,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Success"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "text": "Success",
+    "content": [
+      {
+        "type": "text",
+        "text": "Success"
+      }
+    ],
+    "isError": false
+  },
+  "after": "{\"newMotion\":\"CALM\",\"snapshot\":{\"inventory\":{\"ok\":false,\"rarity\":\"All\",\"visibleNames\":[],\"layout\":{\"searchReadable\":true,\"rarityEntryHeight\":44,\"rarityMenuBounded\":true,\"renderedWindowHeight\":408,\"rarityMenuHeight\":212,\"noOverlap\":true,\"viewportWidth\":677,\"minTouchTarget\":44,\"rarityMenuZLayer\":170,\"boundsSafe\":true,\"searchWidth\":290,\"allTextFits\":true,\"detailMode\":\"Drawer\",\"columns\":2,\"compact\":true,\"toolbarNoOverlap\":true,\"renderedWindowWidth\":677,\"capacityMode\":\"Full\",\"hoveredCategory\":\"\",\"viewportHeight\":408,\"searchMinimum\":44,\"rarityMenuOpen\":false,\"capacityText\":\"ITEMS 0  |  PETS 0/150\",\"capacityFullText\":\"ITEMS 0  |  PETS 0/150\",\"capacityReadable\":true,\"uiScale\":1,\"insideSafeArea\":true},\"visibleKeys\":[],\"visible\":false,\"hudHidden\":true,\"search\":\"\",\"category\":\"All\",\"performance\":{\"sparseSlotsBounded\":true,\"actionCallbacks\":0,\"sparseSlots\":0,\"deleteConfirmationScheduled\":false,\"cardConnections\":0,\"activeActions\":0,\"timedRefreshMode\":\"Stopped\",\"cardReuses\":0,\"gridRebuilds\":0,\"sparseSlotCreates\":0,\"diagnosticSnapshots\":5,\"actionControls\":0,\"cardCreates\":0,\"timedExpiryRebuilds\":0,\"activeCards\":0,\"liveCards\":0,\"cardConnectionBounded\":true,\"actionConnectionBounded\":true,\"selectionVisualUpdates\":0,\"sparseSlotListeners\":0,\"diagnosticSnapshotSkips\":0,\"detailRenders\":0,\"detailRendersCoalesced\":0,\"timedDetailUpdates\":0,\"actionConnections\":0,\"pooledCards\":0},\"accessibility\":{\"textGradientPolicy\":\"NeutralMultiplierV1\",\"actionVisuals\":[],\"actionContrastTarget\":4.5,\"enabledActionContrastPass\":true,\"minimumEnabledActionContrast\":0,\"auditedTextGradientControls\":8},\"capacity\":{\"used\":0,\"max\":150},\"art\":{\"chromeMode\":\"ReferenceNativeV3\",\"detailChromeMode\":\"LayeredNativeV3\",\"emptyTreatment\":\"Hidden\",\"magentaFree\":true,\"mode\":\"NativeFallback\",\"checkerboardFree\":true,\"cardChromeMode\":\"LayeredNativeV3\"}},\"rebirthVisible\":false,\"uiScale\":1,\"cameraType\":\"Custom\",\"feedbackCount\":6,\"activeWindow\":\"Settings\",\"ok\":true,\"lastFeedbackTarget\":\"Celestial Titan\",\"shopVisible\":false,\"position\":{\"y\":3.839998960494995,\"x\":-2,\"z\":-18},\"settingsVisible\":true,\"lastFeedbackType\":\"PremiumPurchase\",\"motion\":false,\"sound\":true,\"trainingVisible\":false,\"shopPage\":\"Fists\",\"activeTab\":\"Fists\",\"viewport\":{\"y\":780,\"x\":1277},\"spinVisible\":false,\"inventoryVisible\":false,\"menuVisible\":true},\"events\":[{\"parent\":\"Options\",\"event\":\"Armed\",\"time\":15821.1854129,\"motion\":true},{\"parent\":\"Options\",\"event\":\"Down\",\"time\":15821.777533499999,\"motion\":true},{\"parent\":\"Options\",\"event\":\"Up\",\"time\":15822.1115721,\"motion\":true},{\"parent\":\"Options\",\"event\":\"Activated\",\"time\":15822.1117441,\"motion\":true}]}",
+  "ok": true
+}

@@ -1,0 +1,207 @@
+{
+  "name": "rebirth-progression",
+  "description": "Verify the scalable server-authoritative Rebirth economy, real HUD review-confirm input, exact reset/retain policy, training shutdown, respawn state, Honor headroom, compact layout, and clean lifecycle.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Rebirth Flow Phone 740x360' local id for _,x in ipairs(S:GetDeviceListAsync()) do if S:GetDeviceInfoAsync(x).Name==n then id=x break end end local d={Name=n,Width=740,Height=360,PixelDensity=326,DeviceForm=Enum.DeviceForm.Phone} if id then S:UpdateDeviceAsync(id,d) else id=S:CreateDeviceAsync(d) end S:SetDeviceAsync(id) S:SetOrientationAsync(Enum.ScreenOrientation.LandscapeLeft) S:SetScalingModeAsync(Enum.DeviceSimulatorScalingMode.FitToWindow) task.wait(.4) local r=S:GetResolutionAsync() return H:JSONEncode({active=S:GetDeviceAsync()==id,width=r.X,height=r.Y})"
+      },
+      "expectRegex": ["\"active\"\\s*:\\s*true", "\"width\"\\s*:\\s*740", "\"height\"\\s*:\\s*360"],
+      "label": "lock exact phone 740 viewport"
+    },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start play" },
+    { "type": "wait", "ms": 6500, "label": "wait for profile and character" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture boot console" },
+    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "boot console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig) local expected={{0,55,1000000,1.25},{4,55,1939000,2.25},{5,60,2288000,2.5},{9,60,4436000,3.5},{10,65,5234000,3.75},{24,75,53110000,7.25},{25,80,62669000,7.5},{49,99,3328269000,13.5},{50,99,3927357000,13.75},{100,99,19636785000,26.25},{249,99,66450879000,63.5}} local rows={} local ok=G.Rebirth.Version=='ScaledRebirthV1' and G.Rebirth.MaxRebirths==250 for _,e in ipairs(expected) do local q=G.RebirthRequirement(e[1]) local exact=q.currentRebirths==e[1] and q.nextRebirths==e[1]+1 and q.requiredLevel==e[2] and q.requiredCoins==e[3] and math.abs(q.permanentMultiplier-e[4])<.0001 and q.maxed==false and q.requiredCoins==math.floor(q.requiredCoins) and q.requiredCoins<9e15 ok=ok and exact rows[#rows+1]={r=e[1],level=q.requiredLevel,coins=q.requiredCoins,bonus=q.permanentMultiplier,exact=exact} end local cap=G.RebirthRequirement(250) ok=ok and cap.maxed==true and cap.nextRebirths==250 and G.RebirthBonus(1e99)==63.5 assert(ok,'Rebirth formula mismatch '..H:JSONEncode(rows)) return H:JSONEncode({ok=ok,rows=rows,cap=cap.maxed,maxBonus=G.RebirthBonus(250)})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"cap\"\\s*:\\s*true", "\"maxBonus\"\\s*:\\s*63.5"],
+      "label": "canonical scalable Rebirth checkpoints are exact and finite"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') return c:Invoke('SetStats',{Rebirths=0,WallLevel=54,Coins=1000000,Power=777})"
+      },
+      "expectRegex": ["\"Rebirths\"\\s*:\\s*0", "\"WallLevel\"\\s*:\\s*54", "\"Coins\"\\s*:\\s*1000000"],
+      "label": "seed one-level-short Rebirth state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local b=g.PixelPerfectHeroCityHUD.RebirthButton local a=g.PunchWallClientAutomation local ok=b.Visible and b.Active and b.Selectable and math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y)>=44 and a:Invoke('OpenRebirth','flow_locked')==true assert(ok,'standalone Rebirth route is unavailable') task.wait(.15) local w=g.RebirthWindow assert(w.Visible and g.GameMenu.Tabs.Visible==false,'legacy combined tabs are visible') return H:JSONEncode({ok=ok,hit=math.min(b.AbsoluteSize.X,b.AbsoluteSize.Y),window=w.Visible})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"hit\"\\s*:\\s*(?:4[4-9]|[5-9][0-9])"],
+      "label": "standalone Rebirth route opens without legacy combined tabs"
+    },
+    { "type": "wait", "ms": 450, "label": "wait for locked Rebirth row" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local w=g.RebirthWindow local b=w:FindFirstChild('RebirthLocked',true) local level=w.Body:FindFirstChild('WallLevelRequirement') local coins=w.Body:FindFirstChild('CoinsRequirement') local rb=h.RebirthButton local ok=w.Visible and w:GetAttribute('RebirthState')=='LOCKED' and w:GetAttribute('RequiredLevel')==55 and w:GetAttribute('RequiredCoins')==1000000 and b and b.Text=='NOT READY' and b.Active==false and level and coins and level:GetAttribute('Met')==false and coins:GetAttribute('Met')==true and rb and math.min(rb.AbsoluteSize.X,rb.AbsoluteSize.Y)>=44 and rb:GetAttribute('MinimumTouchTarget')==44 assert(ok,'locked standalone Rebirth UI failed '..H:JSONEncode({window=w.Visible,state=w:GetAttribute('RebirthState'),button=b and b.Text,hit=rb and math.min(rb.AbsoluteSize.X,rb.AbsoluteSize.Y)})) return H:JSONEncode({ok=ok,state=w:GetAttribute('RebirthState'),button=b.Text,hit=math.min(rb.AbsoluteSize.X,rb.AbsoluteSize.Y),level=level:GetAttribute('Met'),coins=coins:GetAttribute('Met')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "LOCKED", "\"hit\"\\s*:\\s*(?:4[4-9]|[5-9][0-9])"],
+      "label": "locked row shows exact progress and compact hit targets"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=777,Coins=1000000,WallLevel=55,WallXP=123,Depth=65,Score=12345,Rebirths=0,Honor=100,FistMastery=44,CritChance=17,Luck=9,FistMultiplier=45,BreakSpeed=3,EquippedFist='Titan Siege Fist',OwnedFistsJSON='[\"Starter Glove\",\"Boxing Glove\"]',OwnedPremiumFistsJSON='[\"Crimson Vanguard\"]',OwnedPremiumPetsJSON='[\"Crimson Phoenix\"]',OwnedHonorItemsJSON='[\"Vanguard Trail\"]',EquippedHonorItem='Vanguard Trail',HonorPowerBonus=.02,SettingsJSON='{\"motion\":false,\"sound\":true,\"uiScale\":1}'}) c:Invoke('GrantPet','Forest Pup',2) c:Invoke('EquipPet','Forest Pup') local t=c:Invoke('Train','Power Bag') local p=game.Players:GetPlayers()[1] p:SetAttribute('CoinBoostExpiresAt',workspace:GetServerTimeNow()+600) p:SetAttribute('DamageBoostExpiresAt',workspace:GetServerTimeNow()+600) return c:Invoke('Snapshot')"
+      },
+      "expectRegex": ["\"WallLevel\"\\s*:\\s*55", "\"Coins\"\\s*:\\s*1000000", "\"TrainingActive\"\\s*:\\s*1"],
+      "label": "seed ready state with training and permanent progression"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for ready Rebirth row" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke('OpenRebirth','flow_ready')==true,'standalone Rebirth route unavailable') task.wait(.15) local w=g.RebirthWindow local hint=w:FindFirstChild('ReadyHint',true) local reset=w:FindFirstChild('ContractValue',true) assert(w.Visible and w:GetAttribute('RebirthState')=='READY','ready standalone Rebirth state missing') assert(hint and hint.Text=='READY • REVIEW BEFORE RESET','ready hint is stale or misleading') assert(reset and string.find(reset.Text,'WALL LV 1',1,true) and string.find(reset.Text,'TRAINING STOPS',1,true),'reset contract is ambiguous') return true" },
+      "label": "ready standalone Rebirth route restores visibility"
+    },
+    { "type": "wait", "ms": 300, "label": "wait for focused ready row" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke('InvokeRebirthAction','Review')==true,'Review callback unavailable') return true" },
+      "label": "review uses the bound Rebirth callback without mutation"
+    },
+    { "type": "wait", "ms": 250, "label": "wait for confirmation render" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local w=g.RebirthWindow local cancel=w:FindFirstChild('CancelRebirth',true) local confirm=w:FindFirstChild('ConfirmRebirth',true) local ok=w.Visible and w:GetAttribute('RebirthState')=='CONFIRM' and cancel and confirm and g:GetAttribute('RebirthConfirmationState')=='Armed' and g:GetAttribute('RebirthFirstActivationMutationGuard')==true and (g:GetAttribute('RebirthRequestCount') or 0)==0 and math.min(cancel.AbsoluteSize.X,cancel.AbsoluteSize.Y)>=44 and math.min(confirm.AbsoluteSize.X,confirm.AbsoluteSize.Y)>=44 assert(ok,'standalone Rebirth confirm UI failed') return H:JSONEncode({ok=ok,state=g:GetAttribute('RebirthConfirmationState'),requests=g:GetAttribute('RebirthRequestCount') or 0,cancel=math.min(cancel.AbsoluteSize.X,cancel.AbsoluteSize.Y),confirm=math.min(confirm.AbsoluteSize.X,confirm.AbsoluteSize.Y)})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Armed", "\"requests\"\\s*:\\s*0"],
+      "label": "confirmation exposes safe cancel and confirm targets"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke('InvokeRebirthAction','Cancel')==true,'Cancel callback unavailable') return true" },
+      "label": "cancel uses the bound Rebirth callback"
+    },
+    { "type": "wait", "ms": 250, "label": "wait for canceled row" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local w=g.RebirthWindow local review=w:FindFirstChild('ReviewRebirth',true) local ok=g:GetAttribute('RebirthConfirmationState')=='Canceled' and w.Visible and w:GetAttribute('RebirthState')=='READY' and review and (g:GetAttribute('RebirthRequestCount') or 0)==0 assert(ok,'real cancel did not restore standalone ready state') return H:JSONEncode({ok=ok,state=g:GetAttribute('RebirthConfirmationState'),requests=g:GetAttribute('RebirthRequestCount') or 0})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "Canceled", "\"requests\"\\s*:\\s*0"],
+      "label": "cancel visibly disarms without a server request"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local ok=s.Rebirths==0 and s.Power>=777 and s.Coins==1000000 and s.WallLevel==55 and s.Depth==65 and s.Score==12345 and s.TrainingActive==1 assert(ok,'cancel mutated server state '..H:JSONEncode(s)) return H:JSONEncode({ok=ok,rebirths=s.Rebirths,coins=s.Coins,level=s.WallLevel,training=s.TrainingActive})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rebirths\"\\s*:\\s*0", "\"training\"\\s*:\\s*1"],
+      "label": "cancel leaves server state unchanged"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke('InvokeRebirthAction','Review')==true,'Review callback unavailable') return true" },
+      "label": "review callback re-arms confirmation after cancel"
+    },
+    { "type": "wait", "ms": 220, "label": "wait for rebuilt confirm target" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke('InvokeRebirthAction','Confirm')==true,'Confirm callback unavailable') return true" },
+      "label": "confirm uses the bound Rebirth callback exactly once"
+    },
+    { "type": "wait", "ms": 650, "label": "wait for authoritative Rebirth sync" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local s=c:Invoke('Snapshot') local p=game.Players:GetPlayers()[1] local inv=H:JSONDecode(s.PetInventoryJSON) local pets=H:JSONDecode(s.EquippedPetsJSON) local owned=H:JSONDecode(s.OwnedFistsJSON) local premium=H:JSONDecode(s.OwnedPremiumFistsJSON) local ok=s.Rebirths==1 and s.Power==25 and s.Coins==0 and s.WallLevel==1 and s.WallXP==0 and s.FistMultiplier==1 and s.BreakSpeed==1 and s.EquippedFist=='Starter Glove' and s.TrainingActive==0 and s.TrainingStationId=='rookie_bag' and s.Depth==65 and s.Score==12345 and s.Honor==105 and s.HonorRebirthMilestoneMask==1 and s.FistMastery==44 and s.CritChance==17 and math.abs(s.Luck-9.03)<.001 and table.find(owned,'Boxing Glove')~=nil and table.find(premium,'Crimson Vanguard')~=nil and #inv==1 and #pets==1 and s.EquippedHonorItem=='Vanguard Trail' and math.abs(s.HonorPowerBonus-.02)<.001 and s.SettingsJSON:find('motion',1,true)~=nil and (p:GetAttribute('CoinBoostExpiresAt') or 0)>workspace:GetServerTimeNow() and (p:GetAttribute('DamageBoostExpiresAt') or 0)>workspace:GetServerTimeNow() assert(ok,'Rebirth reset/retain mismatch '..H:JSONEncode(s)) return H:JSONEncode({ok=ok,rebirths=s.Rebirths,power=s.Power,coins=s.Coins,level=s.WallLevel,depth=s.Depth,score=s.Score,honor=s.Honor,luck=s.Luck,training=s.TrainingActive,station=s.TrainingStationId,pets=#pets})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rebirths\"\\s*:\\s*1", "\"power\"\\s*:\\s*25", "\"honor\"\\s*:\\s*105", "\"station\"\\s*:\\s*\"rookie_bag\""],
+      "label": "Rebirth resets the exact prestige fields and retains permanent progression"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local before=c:Invoke('Snapshot') task.wait(1.25) local after=c:Invoke('Snapshot') local ok=before.Power==25 and after.Power==25 and after.TrainingActive==0 and after.Rebirths==1 assert(ok,'training leaked after Rebirth') return H:JSONEncode({ok=ok,before=before.Power,after=after.Power,training=after.TrainingActive})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"before\"\\s*:\\s*25", "\"after\"\\s*:\\s*25"],
+      "label": "stopped training cannot pay after Rebirth"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Rebirth',value={confirmed=true,expectedRebirths=0}}) return true" },
+      "label": "stale confirmed replay uses production remote"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for stale replay rejection" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local ok=s.Rebirths==1 and s.Power==25 and s.Coins==0 and s.Honor==105 assert(ok,'stale replay mutated state') return H:JSONEncode({ok=ok,rebirths=s.Rebirths,power=s.Power,honor=s.Honor})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rebirths\"\\s*:\\s*1"],
+      "label": "stale duplicate cannot create a second Rebirth"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local c=game.ServerStorage.PunchWallAutomation local before=c:Invoke('Snapshot') local r=c:Invoke('Respawn') task.wait(.8) local after=c:Invoke('Snapshot') return game.HttpService:JSONEncode({ok=r.ok==true and after.Rebirths==1 and after.Power==25 and after.Depth==65 and after.Honor==105,rebirths=after.Rebirths,power=after.Power,depth=after.Depth,honor=after.Honor})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rebirths\"\\s*:\\s*1", "\"depth\"\\s*:\\s*65"],
+      "label": "respawn retains authoritative Rebirth state and rebuilt UI"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local P=require(game.ServerScriptService.ProfilePersistence) local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Rebirths=0,WallLevel=55,Coins=1000000,Power=888,Honor=P.MaxAuthoritativeNumber-4,HonorRebirthMilestoneMask=0}) return c:Invoke('Snapshot')" },
+      "expectRegex": ["\"Rebirths\"\\s*:\\s*0", "\"Power\"\\s*:\\s*888"],
+      "label": "seed insufficient Honor headroom state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Rebirth',value={confirmed=true,expectedRebirths=0}}) return true" },
+      "label": "production confirmation reaches Honor headroom guard"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for headroom rejection" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local P=require(game.ServerScriptService.ProfilePersistence) local s=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local ok=s.Rebirths==0 and s.Power==888 and s.Coins==1000000 and s.WallLevel==55 and s.Honor==P.MaxAuthoritativeNumber-4 and s.HonorRebirthMilestoneMask==0 assert(ok,'Honor headroom rejection mutated state') return H:JSONEncode({ok=ok,rebirths=s.Rebirths,power=s.Power,coins=s.Coins,mask=s.HonorRebirthMilestoneMask})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"rebirths\"\\s*:\\s*0", "\"mask\"\\s*:\\s*0"],
+      "label": "insufficient Honor headroom rejects the whole Rebirth"
+    },
+    { "type": "call", "tool": "execute_luau", "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local w=g.RebirthWindow local vw=tonumber(g:GetAttribute('ResponsiveViewportWidth')) or 0 local ok=w:GetAttribute('ResponsiveProfile')=='StandaloneCompactSafeV1' and vw>=740 and w.AbsoluteSize.X>=700 assert(ok,'compact Rebirth diagnostic failed') return H:JSONEncode({ok=ok,visible=w.Visible,state=w:GetAttribute('RebirthState'),profile=w:GetAttribute('ResponsiveProfile'),viewportWidth=vw,viewportHeight=g:GetAttribute('ResponsiveViewportHeight')})" }, "expectRegex": ["\"ok\"\\s*:\\s*true", "\"profile\"\\s*:\\s*\"StandaloneCompactSafeV1\""], "label": "record compact Rebirth diagnostics" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop play" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "post-stop console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Edit", "code": "local H=game:GetService('HttpService') local S=game:GetService('StudioDeviceSimulatorService') local n='PunchWall Rebirth Flow Phone 740x360' S:StopSimulationAsync() local removed=0 for _,id in ipairs(S:GetDeviceListAsync()) do local info=S:GetDeviceInfoAsync(id) if info.Name==n and info.IsCustom then S:RemoveDeviceAsync(id) removed+=1 end end return H:JSONEncode({default=S:GetDeviceAsync()=='default',removed=removed})" },
+      "expectRegex": ["\"default\"\\s*:\\s*true", "\"removed\"\\s*:\\s*1"],
+      "label": "restore default simulator and remove Rebirth device"
+    }
+  ]
+}

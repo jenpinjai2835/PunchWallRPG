@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "camera-tunnel-frame-profile",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for gameplay runtime",
+        "prepare long high-power tunnel run",
+        "arm bounded whole-workload frame observer",
+        "sample and freshly verify eighteen high-power tunnel punches",
+        "finish frame observation and export tagged console evidence",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_CAMERA_TUNNEL_FRAME_PROFILE_V1]{\"contract\":\"CameraTunnelFrameProfileV1\",\"over50Ms\":2,\"watchdogExpired\":false,\"viewportStart\":{\"y\":801,\"x\":1277},\"recoveryCountersAvailable\":true,\"measurement\":\"whole-workload RenderStepped intervals; not isolated camera algorithm cost\",\"p95Ms\":19.316399469971658,\"initialWindowFocus\":\"unknown; this observer does not establish foreground state\",\"sampleLimitHit\":false,\"available\":true,\"recovery\":{\"lastSearchCandidates\":10,\"cacheHitsSinceReset\":183,\"lastSearchSweeps\":1,\"lastReason\":\"clear-route\",\"searchesSinceReset\":17,\"remaining\":0.0009441375732421875},\"watchdogCancelled\":true,\"runId\":\"8b7feeba-55ad-4805-9234-e59167ccae28\",\"disconnectFailures\":0,\"maxMs\":82.2732001543045,\"complete\":true,\"sampleCap\":16384,\"p99Ms\":40.14249891042709,\"over100Ms\":0,\"viewportEnd\":{\"y\":801,\"x\":1277},\"frameCount\":1143,\"disconnected\":true,\"watchdogSeconds\":95,\"wallSeconds\":19.41716070000257,\"timedOut\":false,\"observedCount\":1143,\"sampledSeconds\":19.417114585638048,\"p50Ms\":16.70989952981472,\"reason\":\"complete\",\"droppedSamples\":0}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "[SMASH_CAMERA_TUNNEL_FRAME_PROFILE_V1]{\"contract\":\"CameraTunnelFrameProfileV1\",\"over50Ms\":2,\"watchdogExpired\":false,\"viewportStart\":{\"y\":801,\"x\":1277},\"recoveryCountersAvailable\":true,\"measurement\":\"whole-workload RenderStepped intervals; not isolated camera algorithm cost\",\"p95Ms\":19.316399469971658,\"initialWindowFocus\":\"unknown; this observer does not establish foreground state\",\"sampleLimitHit\":false,\"available\":true,\"recovery\":{\"lastSearchCandidates\":10,\"cacheHitsSinceReset\":183,\"lastSearchSweeps\":1,\"lastReason\":\"clear-route\",\"searchesSinceReset\":17,\"remaining\":0.0009441375732421875},\"watchdogCancelled\":true,\"runId\":\"8b7feeba-55ad-4805-9234-e59167ccae28\",\"disconnectFailures\":0,\"maxMs\":82.2732001543045,\"complete\":true,\"sampleCap\":16384,\"p99Ms\":40.14249891042709,\"over100Ms\":0,\"viewportEnd\":{\"y\":801,\"x\":1277},\"frameCount\":1143,\"disconnected\":true,\"watchdogSeconds\":95,\"wallSeconds\":19.41716070000257,\"timedOut\":false,\"observedCount\":1143,\"sampledSeconds\":19.417114585638048,\"p50Ms\":16.70989952981472,\"reason\":\"complete\",\"droppedSamples\":0}"
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

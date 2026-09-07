@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "power-scaled-penetration",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for penetration runtime",
+        "fixed cadence and penetration contract",
+        "client hold cadence matches server",
+        "server rejects sub-second repeat regardless of break speed",
+        "starter power breaks front block with short lunge",
+        "high power carves a long server-physics tunnel",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\nPENETRATION_OBSERVATION {\"deltaValid\":true,\"scale\":1,\"observedPhysicalLaunch\":true,\"outcome\":\"penetration\",\"requested\":48,\"force\":3.4,\"worldBroken\":44,\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"maxInitial\":137.36000061035157,\"travel\":48,\"maxSpeed\":202.20758056640626,\"hit\":44,\"broken\":44,\"observation\":{\"observedFragments\":120,\"sampleCapReached\":false,\"elapsed\":0.8155169999954524,\"postSimulationMaxSpeed\":202.20758056640626,\"immediateMaxSpeed\":0,\"ownershipFailures\":0,\"deferredMaxSpeed\":0,\"postSimulationSteps\":29,\"trace\":[{\"moved\":11.003263473510743,\"parts\":120,\"t\":0.30057819999638016,\"peak\":202.20758056640626,\"dt\":0.05833333730697632},{\"moved\":17.38048553466797,\"parts\":120,\"t\":0.31532789999619129,\"peak\":202.20758056640626,\"dt\":0.03333333507180214},{\"moved\":20.54128074645996,\"parts\":120,\"t\":0.3229393000001437,\"peak\":202.20758056640626,\"dt\":0.01666666753590107},{\"moved\":22.100563049316408,\"parts\":120,\"t\":0.3309551999991527,\"peak\":202.20758056640626,\"dt\":0.008333333767950535},{\"moved\":25.503244400024415,\"parts\":120,\"t\":0.3513318999976036,\"peak\":202.20758056640626,\"dt\":0.01666666753590107}],\"lastStep\":{\"moved\":30.69589614868164,\"parts\":120,\"t\":0.815366199996788,\"peak\":202.20758056640626,\"dt\":0.01666666753590107},\"firstFragmentAt\":0.2116502999997465,\"fragments\":120,\"returnToReadSeconds\":0.18790160000207835,\"anchoredFailures\":0,\"peakAt\":0.3004586999959429,\"timedOut\":false,\"fastMaxDisplacement\":30.69589614868164,\"fastFragmentsMoved\":120,\"minPostReads\":29,\"maxSpeed\":202.20758056640626,\"postSimulationReads\":3480,\"maxInitial\":137.36000061035157,\"serverOwned\":120,\"peakFragment\":\"DepthBlock_L002_C06_R02 Server Physics Chunk 6\",\"observationError\":\"\"},\"delta\":{\"valid\":true,\"total\":5400,\"after\":44,\"collateral\":0,\"before\":0,\"startedAt\":1788674610.774719,\"examples\":{\"direct\":[\"DepthBlock_L011_C06_R01\",\"DepthBlock_L006_C06_R01\",\"DepthBlock_L011_C07_R02\",\"DepthBlock_L006_C07_R01\",\"DepthBlock_L002_C06_R02\",\"DepthBlock_L007_C07_R02\",\"DepthBlock_L005_C06_R01\",\"DepthBlock_L003_C06_R01\"],\"collateral\":[]},\"direct\":44,\"returnedAt\":1788674611.428635,\"newBroken\":44,\"hits\":44},\"limit\":48}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "PENETRATION_OBSERVATION {\"deltaValid\":true,\"scale\":1,\"observedPhysicalLaunch\":true,\"outcome\":\"penetration\",\"requested\":48,\"force\":3.4,\"worldBroken\":44,\"ok\":true,\"fragments\":120,\"serverOwned\":120,\"maxInitial\":137.36000061035157,\"travel\":48,\"maxSpeed\":202.20758056640626,\"hit\":44,\"broken\":44,\"observation\":{\"observedFragments\":120,\"sampleCapReached\":false,\"elapsed\":0.8155169999954524,\"postSimulationMaxSpeed\":202.20758056640626,\"immediateMaxSpeed\":0,\"ownershipFailures\":0,\"deferredMaxSpeed\":0,\"postSimulationSteps\":29,\"trace\":[{\"moved\":11.003263473510743,\"parts\":120,\"t\":0.30057819999638016,\"peak\":202.20758056640626,\"dt\":0.05833333730697632},{\"moved\":17.38048553466797,\"parts\":120,\"t\":0.31532789999619129,\"peak\":202.20758056640626,\"dt\":0.03333333507180214},{\"moved\":20.54128074645996,\"parts\":120,\"t\":0.3229393000001437,\"peak\":202.20758056640626,\"dt\":0.01666666753590107},{\"moved\":22.100563049316408,\"parts\":120,\"t\":0.3309551999991527,\"peak\":202.20758056640626,\"dt\":0.008333333767950535},{\"moved\":25.503244400024415,\"parts\":120,\"t\":0.3513318999976036,\"peak\":202.20758056640626,\"dt\":0.01666666753590107}],\"lastStep\":{\"moved\":30.69589614868164,\"parts\":120,\"t\":0.815366199996788,\"peak\":202.20758056640626,\"dt\":0.01666666753590107},\"firstFragmentAt\":0.2116502999997465,\"fragments\":120,\"returnToReadSeconds\":0.18790160000207835,\"anchoredFailures\":0,\"peakAt\":0.3004586999959429,\"timedOut\":false,\"fastMaxDisplacement\":30.69589614868164,\"fastFragmentsMoved\":120,\"minPostReads\":29,\"maxSpeed\":202.20758056640626,\"postSimulationReads\":3480,\"maxInitial\":137.36000061035157,\"serverOwned\":120,\"peakFragment\":\"DepthBlock_L002_C06_R02 Server Physics Chunk 6\",\"observationError\":\"\"},\"delta\":{\"valid\":true,\"total\":5400,\"after\":44,\"collateral\":0,\"before\":0,\"startedAt\":1788674610.774719,\"examples\":{\"direct\":[\"DepthBlock_L011_C06_R01\",\"DepthBlock_L006_C06_R01\",\"DepthBlock_L011_C07_R02\",\"DepthBlock_L006_C07_R01\",\"DepthBlock_L002_C06_R02\",\"DepthBlock_L007_C07_R02\",\"DepthBlock_L005_C06_R01\",\"DepthBlock_L003_C06_R01\"],\"collateral\":[]},\"direct\":44,\"returnedAt\":1788674611.428635,\"newBroken\":44,\"hits\":44},\"limit\":48}"
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

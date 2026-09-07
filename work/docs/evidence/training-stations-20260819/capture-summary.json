@@ -1,0 +1,113 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_desktop_four_station_overview",
+      "activeStation": false,
+      "device": {
+        "name": "PunchWallTrainingDesktop1366",
+        "width": 1366,
+        "height": 768,
+        "form": "Desktop"
+      },
+      "cameraState": "{\"rate\":4,\"viewportY\":767,\"station\":\"rookie_bag\",\"viewportX\":1366}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\training-stations-20260819\\01_desktop_four_station_overview.jpg",
+      "sha256": "5ede5421608a193ff508ff770e51b0a3d06488b7b7e1b1a711cfc551015f6a3b"
+    },
+    {
+      "id": "02_phone_844_starter_route",
+      "activeStation": false,
+      "device": {
+        "name": "PunchWallTrainingPhone844",
+        "width": 844,
+        "height": 390,
+        "form": "Phone"
+      },
+      "cameraState": "{\"rate\":4,\"viewportY\":369,\"station\":\"rookie_bag\",\"viewportX\":844}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\training-stations-20260819\\02_phone_844_starter_route.jpg",
+      "sha256": "c13271fc567bc31eb060602dc07314a2c7718b6057fa35e7f1f45e0419508962"
+    },
+    {
+      "id": "03_phone_740_celestial_active",
+      "activeStation": true,
+      "device": {
+        "name": "PunchWallTrainingPhone740",
+        "width": 740,
+        "height": 360,
+        "form": "Phone"
+      },
+      "cameraState": "{\"rate\":50000,\"viewportY\":339,\"station\":\"celestial_core\",\"viewportX\":740}",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\training-stations-20260819\\03_phone_740_celestial_active.jpg",
+      "sha256": "a31992c87a3406a1d2d26c1bc870c9f3642b2fe1d724231f2f63b257fb2ae135"
+    }
+  ],
+  "runs": [
+    {
+      "id": "01_desktop_four_station_overview",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "02_phone_844_starter_route",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "03_phone_740_celestial_active",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "c4cfffe243c0246a80ad0d0d7c52810253990e56f40f189de710dd348d39faa4",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "50706063d02c0d37c67206aff7c058cf6667a30de273636cc454dc6112f32dbd",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "5501091d2434169b6cb5e2f8cb9bb67c1cb7b1a3904ec58d4fb9085b2323dd4b",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "5d43ab031f52c2a92e780ed33ddea6d72863deabce854e36c6d88da79fee4529",
+    "work/automation/flows/training-station-progression.json": "03cd9fe096cc737afa119b8cc0924e86fe9bad2029e918508d5f55c23cc09445",
+    "work/automation/scripts/training-station-progression-contract.mjs": "55e46c4bc16a7bc2a07971dbffbcb68ba0d036e5d706d0f3cf3e6d17459efd56",
+    "work/automation/scripts/capture-training-stations.mjs": "d338b163108e4f8f8243bf15ab458a93fd418eb8204c94c35f51c7a3605dc97a"
+  },
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "GameConfig": {
+      "adler32": 1996122644,
+      "length": 33526,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "matchesLocal": true
+    },
+    "PunchWallClient": {
+      "adler32": 2211303480,
+      "length": 444281,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "matchesLocal": true
+    },
+    "PunchWallBootstrap": {
+      "adler32": 1461284663,
+      "length": 394638,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "matchesLocal": true
+    },
+    "ProfilePersistence": {
+      "adler32": 365330522,
+      "length": 65942,
+      "file": "work/punch-wall-rpg/src/server/ProfilePersistence.lua",
+      "matchesLocal": true
+    }
+  },
+  "console": {
+    "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\training-stations-20260819\\console.txt",
+    "clean": true
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 3
+  }
+}

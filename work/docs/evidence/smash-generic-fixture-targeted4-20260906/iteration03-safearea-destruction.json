@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "iteration03-safearea-destruction",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for iteration runtime",
+        "configured premium Armory stands are outside shared depth structure",
+        "actual HUD and standalone Settings fit safe area with touch targets",
+        "focus the live Brick wall",
+        "wait for wall focus",
+        "live depth block owns title, HP, hit estimate and outline",
+        "break depth block with bounded camera-safe physics",
+        "wait for stacked reward feedback",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"pops\"\\s*:\\s*[2-9]\nReceived: {\"pops\":0,\"layout\":true,\"toasts\":1,\"nonoverlap\":true}",
+      "context": {}
+    }
+  ]
+}

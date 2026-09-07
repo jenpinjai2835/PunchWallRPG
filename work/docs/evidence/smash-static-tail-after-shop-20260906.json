@@ -1,0 +1,78 @@
+{
+  "at": "2026-09-06T05:18:26.3325603Z",
+  "ok": true,
+  "results": [
+    {
+      "exitCode": 0,
+      "output": "Long-run content contract passed (30 checks, 16 fists, 16 normal pets).",
+      "name": "long-run-content-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"passed\": 46,\r\n  \"total\": 46,\r\n  \"staticChecks\": 28,\r\n  \"measurementChecks\": 18,\r\n  \"helperCopies\": 13,\r\n  \"checks\": {\r\n    \"responsive_profiles_are_dimension_driven\": true,\r\n    \"iphone_reference_is_exact\": true,\r\n    \"punch_and_jump_share_balanced_action_size\": true,\r\n    \"active_joystick_is_ten_percent_tighter\": true,\r\n    \"active_directions_are_compact\": true,\r\n    \"phone_menu_is_sparse_and_tighter\": true,\r\n    \"phone_information_has_aligned_four_stat_row\": true,\r\n    \"downtown_card_is_disabled_until_feature_release\": true,\r\n    \"settings_is_the_top_right_utility\": true,\r\n    \"settings_window_uses_the_gear_asset\": true,\r\n    \"inventory_uses_readable_rows_and_single_lock_state\": true,\r\n    \"shop_uses_full_width_readable_mobile_rows\": true,\r\n    \"coin_boost_is_not_in_coin_shop\": true,\r\n    \"phone_context_lane_is_clear\": true,\r\n    \"compact_modals_share_safe_margin\": true,\r\n    \"settings_options_render_above_row_chrome\": true,\r\n    \"spin_is_isolated_and_safe\": true,\r\n    \"runtime_diagnostics_fail_closed\": true,\r\n    \"flow_targets_named_artifact_without_stale_session_id\": true,\r\n    \"flow_covers_every_surface\": true,\r\n    \"flow_checks_hud_hierarchy\": true,\r\n    \"flow_has_clean_lifecycle\": true,\r\n    \"flow_checks_real_shop_tab_input_without_claiming_screenshots\": true,\r\n    \"runtime_measures_actual_safe_viewport\": true,\r\n    \"runtime_checks_rendered_font_and_bounds\": true,\r\n    \"runtime_requires_measured_controls_and_scroll\": true,\r\n    \"runtime_uses_real_open_tab_path\": true,\r\n    \"no_dense_mobile_acceptance_remains\": true\r\n  }\r\n}",
+      "name": "mobile-iphone17-layout-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"baseline\": \"1529b7d\",\r\n  \"sourceGeometryAssertions\": 338,\r\n  \"oracleControls\": 17,\r\n  \"semanticMutations\": 5,\r\n  \"compiledFlowChunks\": 20,\r\n  \"clientCompile\": [\r\n    \"O0\",\r\n    \"O1\",\r\n    \"O2\"\r\n  ],\r\n  \"runtime\": \"Coordinator pending; no Studio calls\"\r\n}",
+      "name": "narrow-directional-controls-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"production\": \"PASS 1761 extracted Shop geometry/semantic assertions\",\r\n  \"baseline\": \"361d13b\",\r\n  \"historicalFailures\": 2,\r\n  \"mutations\": 11,\r\n  \"compiledPrograms\": 30,\r\n  \"clientOptimizationLevels\": [\r\n    0,\r\n    1,\r\n    2\r\n  ],\r\n  \"nativeTypography\": \"PENDING Coordinator runtime; no mocked TextFits claim\"\r\n}",
+      "name": "narrow-shop-readability-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"passed\": 29,\r\n  \"total\": 29,\r\n  \"checks\": {\r\n    \"premium_fist_catalog_matches_creator_dashboard\": true,\r\n    \"developer_product_catalog_matches_creator_dashboard\": true,\r\n    \"developer_product_regional_price_runtime_is_bounded_and_covered\": true,\r\n    \"purchase_helpers_do_not_add_top_level_register_pressure\": true,\r\n    \"game_pass_configuration_is_unique_across_fists_and_pets\": true,\r\n    \"disabled_purchase_controls_are_noninteractive\": true,\r\n    \"legacy_fist_and_pet_offers_respect_configuration\": true,\r\n    \"bonus_spin_purchase_respects_product_configuration\": true,\r\n    \"functional_shop_marks_unconfigured_offers\": true,\r\n    \"functional_shop_purchase_unavailable_is_always_boolean\": true,\r\n    \"contextual_use_excludes_unconfigured_stands\": true,\r\n    \"world_offer_detectors_exist_only_when_configured\": true,\r\n    \"server_rejects_unconfigured_ids\": true,\r\n    \"normal_studio_purchase_requests_cannot_auto_grant\": true,\r\n    \"explicit_studio_automation_grants_remain_available\": true,\r\n    \"availability_flow_probes_all_catalogs_without_opening_purchase\": true,\r\n    \"availability_flow_matches_all_three_live_premium_fists\": true,\r\n    \"studio_purchase_id_override_is_bounded_vm_local_and_restorable\": true,\r\n    \"availability_ui_flow_uses_harness_only_and_covers_all_catalogs\": true,\r\n    \"availability_ui_flow_restores_on_failure_and_cleanup\": true,\r\n    \"configured_marketplace_paths_are_preserved\": true,\r\n    \"world_gamepass_prices_survive_slow_bootstrap\": true,\r\n    \"honor_copy_describes_current_release_only\": true,\r\n    \"external_template_workers_finalize_on_every_path\": true,\r\n    \"external_template_bootstrap_has_bounded_deadline\": true,\r\n    \"late_external_template_workers_cannot_mutate_finalized_world\": true,\r\n    \"gauntlet_retry_is_single_flight_and_bounded\": true,\r\n    \"gauntlet_retry_uses_character_event_not_polling\": true,\r\n    \"gauntlet_retry_cancels_on_success_and_character_change\": true\r\n  },\r\n  \"failures\": [],\r\n  \"files\": [\r\n    \"work\\\\punch-wall-rpg\\\\src\\\\client\\\\PunchWallClient.client.lua\",\r\n    \"work\\\\punch-wall-rpg\\\\src\\\\server\\\\PunchWallBootstrap.server.lua\",\r\n    \"work\\\\punch-wall-rpg\\\\src\\\\shared\\\\GameConfig.lua\",\r\n    \"work\\\\automation\\\\flows\\\\product-completeness-purchase-availability.json\"\r\n  ]\r\n}",
+      "name": "product-completeness-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"studioUsed\": false,\r\n  \"structuralChecks\": 13,\r\n  \"compiledPrograms\": 67,\r\n  \"executedPrograms\": 63,\r\n  \"controls\": [\r\n    \"catalog-prerequisites-meet-actual-server-gates\",\r\n    \"historical-fixture-leaves-actual-depth-locked\",\r\n    \"actual-server-rejects-one-coin-short\",\r\n    \"prerequisite-missing-depth\",\r\n    \"prerequisite-walllevel-is-not-depth\",\r\n    \"prerequisite-missing-coins\",\r\n    \"prerequisite-one-coin-short\",\r\n    \"prerequisite-already-owned\",\r\n    \"prerequisite-accidental-grant\",\r\n    \"prerequisite-accidental-equip\",\r\n    \"prerequisite-set-failed\",\r\n    \"prerequisite-snapshot-failed\",\r\n    \"prerequisite-seed-receipt-disagrees\",\r\n    \"prerequisite-readback-disagrees\",\r\n    \"prerequisite-missing-catalog-depth\",\r\n    \"prerequisite-live-profile\",\r\n    \"prerequisite-live-optin\",\r\n    \"missing-depth-in-fixture\",\r\n    \"missing-funding-in-fixture\",\r\n    \"excess-funding-in-fixture\",\r\n    \"current-objective-real-route\",\r\n    \"historical-objective-fails-title-only-producer\",\r\n    \"wrong-primary-title\",\r\n    \"old-duplicated-primary\",\r\n    \"wrong-step\",\r\n    \"completed-tutorial\",\r\n    \"unready-objective\",\r\n    \"wrong-published-step\",\r\n    \"hidden-primary\",\r\n    \"clipped-primary\",\r\n    \"offscreen-primary\",\r\n    \"wrong-price\",\r\n    \"clipped-price\",\r\n    \"hidden-price\",\r\n    \"wrong-card-title\",\r\n    \"hidden-card-title\",\r\n    \"offscreen-card-title\",\r\n    \"wrong-shop-route\",\r\n    \"wrong-shop-snapshot\",\r\n    \"owned-instead-of-buy\",\r\n    \"unbound-action\",\r\n    \"disabled-buy\",\r\n    \"small-buy-target\",\r\n    \"wrong-buy-state\",\r\n    \"clipped-card\",\r\n    \"accidental-purchase\",\r\n    \"current-chrome-hides-decorative-rails\",\r\n    \"current-chrome-rejects-modal-outside-safe-viewport\",\r\n    \"wrong-shop-title-rejected\",\r\n    \"wrong-shop-title-historical-false-pass\",\r\n    \"duplicate-close-rejected\",\r\n    \"duplicate-close-historical-false-pass\",\r\n    \"missing-close\",\r\n    \"missing-rail\",\r\n    \"clipped-shop-title\",\r\n    \"missing-tab\",\r\n    \"extra-tab\",\r\n    \"PASS 31\",\r\n    \"weak-chrome-demonstrably-admits-wrong-title\",\r\n    \"weak-price-demonstrably-admits-wrong-cost\",\r\n    \"weak-step-demonstrably-admits-wrong-state\",\r\n    \"weak-bounds-demonstrably-admits-offscreen-objective\"\r\n  ],\r\n  \"mutationControls\": 8\r\n}",
+      "name": "quiet-visual-oracle-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"snapshotChecks\": 16,\r\n  \"bossGateChecks\": 17,\r\n  \"flowSnippetsCompiled\": 31,\r\n  \"executedProductionLuau\": true,\r\n  \"luau\": \"C:\\\\Users\\\\JENNAR~1\\\\AppData\\\\Local\\\\Temp\\\\codex-luau-smash-0.737\\\\luau.exe\",\r\n  \"output\": \"snapshot_checks\\t16\\r\\nboss_gate_checks\\t17\\r\\nSERVER_SNAPSHOT_AND_BOSS_CONTRACT_PASS\"\r\n}",
+      "name": "server-snapshot-coalescing-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"passed\": 28,\r\n  \"total\": 28,\r\n  \"actualWarningCount\": 1,\r\n  \"checks\": {\r\n    \"actual_tool_warning_with_game_notice\": true,\r\n    \"complete_known_block\": true,\r\n    \"crlf_keeps_original_bytes\": true,\r\n    \"two_known_blocks_preserve_surrounding_messages\": true,\r\n    \"ordinary_console\": true,\r\n    \"empty_console\": true,\r\n    \"appended_game_error_still_fails\": true,\r\n    \"prepended_game_error_still_fails\": true,\r\n    \"mixed_game_frame_is_not_classified\": true,\r\n    \"only_game_frames_are_not_classified\": true,\r\n    \"similar_helper_suffix_is_not_classified\": true,\r\n    \"unknown_helper_frame_is_not_classified\": true,\r\n    \"different_header_is_not_classified\": true,\r\n    \"unrelated_stack_is_not_classified\": true,\r\n    \"missing_stack_end_is_not_classified\": true,\r\n    \"missing_stack_begin_is_not_classified\": true,\r\n    \"empty_stack_is_not_classified\": true,\r\n    \"lone_known_header_fails_closed\": true,\r\n    \"interleaved_blank_line_is_not_classified\": true,\r\n    \"unrecognized_frame_annotation_is_not_classified\": true,\r\n    \"extra_header_message_is_not_classified\": true,\r\n    \"different_virtual_input_method_is_not_classified\": true,\r\n    \"non_numeric_position_is_not_classified\": true,\r\n    \"unrelated_trailing_stack_end_is_retained\": true,\r\n    \"nested_warning_inside_game_stack_is_not_classified\": true,\r\n    \"unknown_incomplete_stack_owns_following_lines\": true,\r\n    \"long_console_preserved_without_summary_truncation\": true,\r\n    \"existing_custom_error_patterns_are_applied\": true\r\n  }\r\n}",
+      "name": "studio-console-classification-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"checks\": {\r\n    \"transient_execution_bridge_retried\": true,\r\n    \"non_readiness_errors_fail_immediately\": true,\r\n    \"persistent_unreachable_bridge_remains_failure\": true\r\n  }\r\n}",
+      "name": "studio-readiness-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\"ok\":true,\"contractVersion\":2,\"budget\":128,\"checks\":23,\"luminance\":{\"wall\":0.23120392156862746,\"inset\":0.14631372549019606,\"panel\":0.2390470588235294,\"metal\":0.3365356862745098,\"seam\":0.42142588235294115,\"edge\":0.5497207843137255,\"accent\":0.40326274509803917,\"weakPoint\":0.7367003921568628}}",
+      "name": "titan-hq-visual-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"passed\": 23,\r\n  \"total\": 23,\r\n  \"petTemplates\": 11,\r\n  \"checks\": {\r\n    \"selected_training_station_validates_its_own_range\": true,\r\n    \"training_unlock_uses_displayed_effective_power\": true,\r\n    \"context_scan_only_compares_actionable_targets\": true,\r\n    \"context_action_is_compact_two_line\": true,\r\n    \"context_action_uses_dark_readable_panel\": true,\r\n    \"context_action_preserves_exact_station_identity\": true,\r\n    \"contextual_use_is_active_without_training_eligibility\": true,\r\n    \"inventory_compact_cards_reserve_art_from_tags\": true,\r\n    \"inventory_compact_typography_is_readable_at_effective_scale\": true,\r\n    \"robux_prices_use_non_coin_palette\": true,\r\n    \"unsupported_rigs_use_equipped_fist_strike\": true,\r\n    \"fallback_is_visual_only_bounded_and_cleaned\": true,\r\n    \"training_loop_uses_fallback_only_without_character_animation\": true,\r\n    \"pet_pack_policy_has_exact_eight_preloaded_templates\": true,\r\n    \"premium_policy_restores_three_original_detailed_assets\": true,\r\n    \"invisible_pet_rig_helpers_do_not_distort_visual_bounds\": true,\r\n    \"wide_wyvern_preview_prioritizes_creature_identity\": true,\r\n    \"pet_release_gate_requires_eight_pack_plus_three_premium_templates\": true,\r\n    \"pet_runtime_flow_checks_real_templates_and_no_unsafe_descendants\": true,\r\n    \"final_artifact_contains_all_eleven_pet_models\": true,\r\n    \"all_pet_definitions_reference_correct_template_families\": true,\r\n    \"focused_flow_is_exact_and_covers_runtime_lifecycle\": true,\r\n    \"capture_bundle_is_source_bound_and_has_four_distinct_views\": true\r\n  },\r\n  \"geometryAssertions\": 8,\r\n  \"useAssertions\": 17,\r\n  \"trainingAssertions\": 6,\r\n  \"rigAssertions\": 16,\r\n  \"placementAssertions\": 18,\r\n  \"rejectedMutations\": [\r\n    \"drop_original_joint_name\",\r\n    \"do_not_restore_original_endpoint\",\r\n    \"ignore_colliding_core\",\r\n    \"ignore_stability_motion\",\r\n    \"ignore_competitor_margin\",\r\n    \"ignore_actual_ticks\",\r\n    \"reduce_two_tick_power_gate\",\r\n    \"request_before_exact_ready\",\r\n    \"skip_stable_physics\",\r\n    \"accept_wrong_server_menu\",\r\n    \"accept_wrong_visible_page\",\r\n    \"leak_feedback_observer\"\r\n  ],\r\n  \"compiledPayloads\": 16\r\n}",
+      "name": "training-ui-pet-recovery-contract.mjs",
+      "ok": true
+    },
+    {
+      "exitCode": 0,
+      "output": "{\r\n  \"ok\": true,\r\n  \"passed\": 22,\r\n  \"total\": 22,\r\n  \"checks\": {\r\n    \"data_version_and_tutorial_policy_are_current\": true,\r\n    \"tutorial_is_short_action_led_journey\": true,\r\n    \"legacy_long_tutorial_removed\": true,\r\n    \"completion_is_persisted_separately\": true,\r\n    \"legacy_migration_preserves_only_true_completers\": true,\r\n    \"server_sends_authoritative_tutorial_state\": true,\r\n    \"server_progresses_only_named_real_actions\": true,\r\n    \"punch_routes_are_hooked\": true,\r\n    \"shop_open_and_exact_fist_purchase_are_hooked\": true,\r\n    \"completion_is_saved_immediately\": true,\r\n    \"completed_or_already_owned_players_never_reopen\": true,\r\n    \"shop_ui_reports_open_step\": true,\r\n    \"red_dot_is_reusable_and_nonblocking\": true,\r\n    \"pet_dot_uses_exact_unlocked_fusion_policy\": true,\r\n    \"spin_dot_uses_credit_or_cooldown\": true,\r\n    \"shop_dot_excludes_robux_and_consumables\": true,\r\n    \"daily_dot_uses_claimable_actions\": true,\r\n    \"dots_follow_action_state_not_dismissal\": true,\r\n    \"runtime_flow_uses_exact_studio_and_production_actions\": true,\r\n    \"runtime_flow_covers_tutorial_persistence\": true,\r\n    \"runtime_flow_covers_all_badge_transitions\": true,\r\n    \"runtime_flow_has_clean_lifecycle\": true\r\n  }\r\n}",
+      "name": "tutorial-action-notification-badges-contract.mjs",
+      "ok": true
+    }
+  ]
+}

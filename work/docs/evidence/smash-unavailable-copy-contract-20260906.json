@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "passed": 29,
+  "total": 29,
+  "checks": {
+    "premium_fist_catalog_matches_creator_dashboard": true,
+    "developer_product_catalog_matches_creator_dashboard": true,
+    "developer_product_regional_price_runtime_is_bounded_and_covered": true,
+    "purchase_helpers_do_not_add_top_level_register_pressure": true,
+    "game_pass_configuration_is_unique_across_fists_and_pets": true,
+    "disabled_purchase_controls_are_noninteractive": true,
+    "legacy_fist_and_pet_offers_respect_configuration": true,
+    "bonus_spin_purchase_respects_product_configuration": true,
+    "functional_shop_marks_unconfigured_offers": true,
+    "functional_shop_purchase_unavailable_is_always_boolean": true,
+    "contextual_use_excludes_unconfigured_stands": true,
+    "world_offer_detectors_exist_only_when_configured": true,
+    "server_rejects_unconfigured_ids": true,
+    "normal_studio_purchase_requests_cannot_auto_grant": true,
+    "explicit_studio_automation_grants_remain_available": true,
+    "availability_flow_probes_all_catalogs_without_opening_purchase": true,
+    "availability_flow_matches_all_three_live_premium_fists": true,
+    "studio_purchase_id_override_is_bounded_vm_local_and_restorable": true,
+    "availability_ui_flow_uses_harness_only_and_covers_all_catalogs": true,
+    "availability_ui_flow_restores_on_failure_and_cleanup": true,
+    "configured_marketplace_paths_are_preserved": true,
+    "world_gamepass_prices_survive_slow_bootstrap": true,
+    "honor_copy_describes_current_release_only": true,
+    "external_template_workers_finalize_on_every_path": true,
+    "external_template_bootstrap_has_bounded_deadline": true,
+    "late_external_template_workers_cannot_mutate_finalized_world": true,
+    "gauntlet_retry_is_single_flight_and_bounded": true,
+    "gauntlet_retry_uses_character_event_not_polling": true,
+    "gauntlet_retry_cancels_on_success_and_character_change": true
+  },
+  "failures": [],
+  "files": [
+    "work\\punch-wall-rpg\\src\\client\\PunchWallClient.client.lua",
+    "work\\punch-wall-rpg\\src\\server\\PunchWallBootstrap.server.lua",
+    "work\\punch-wall-rpg\\src\\shared\\GameConfig.lua",
+    "work\\automation\\flows\\product-completeness-purchase-availability.json"
+  ]
+}

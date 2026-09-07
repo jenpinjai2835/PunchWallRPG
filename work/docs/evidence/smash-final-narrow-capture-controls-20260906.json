@@ -1,0 +1,205 @@
+{
+  "ok": true,
+  "kind": "Offline exact generated narrow-capture validator controls; no native capture or artifact acceptance",
+  "startedAt": "2026-09-06T11:55:18.148Z",
+  "helperPath": "F:\\Roblox\\PuchWall-completion-20260906\\work\\tools\\smash-final-narrow-modal-capture.mjs",
+  "helperSHA256": "C3382D1FBFD9B4870351B98797E2AB08120BBEF20B29B9093288F675B39F0101",
+  "flowPath": "F:\\Roblox\\PuchWall-completion-20260906\\work\\automation\\flows\\narrow-desktop-menu-real-input.json",
+  "flowSHA256": "C8FB6A82A9C6FE779B0BCADF6A519DBEC8406CCC19D986B023907DEC0680A17C",
+  "runnerSHA256": "0F16B50C14360B2014EE2ACF526452BD2143E6F2C923B46F54D23F9B3692134A",
+  "declarationSectionSHA256": "AA25CE0C5B52C72D4C1F295C9512B481254130A0FC5CF33C5CA8BFEC97296C44",
+  "studioUsed": false,
+  "captureExecuted": false,
+  "artifactAcceptance": false,
+  "cases": [
+    {
+      "name": "Settings/unchanged",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/hidden_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/wrong_route",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/replacement_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/replacement_close",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/replacement_hud",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/disabled_hud",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/close_43px",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/outside_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/outside_close",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Settings/wrong_safe_size",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/unchanged",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/hidden_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/wrong_route",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/replacement_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/replacement_close",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/replacement_hud",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/disabled_hud",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/close_43px",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/outside_window",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/outside_close",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Rebirth/wrong_safe_size",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Model/same_model",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Model/replacement_model",
+      "passed": true,
+      "mutationCalls": 0
+    },
+    {
+      "name": "Model/wrong_reference_type",
+      "passed": true,
+      "mutationCalls": 0
+    }
+  ],
+  "mutations": [
+    {
+      "name": "mutant-hidden-window",
+      "rejected": true,
+      "status": 1,
+      "diagnostic": "CONTROL|Settings/unchanged|PASS|zero-effects\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-hidden-window.luau:82: expected exact rejection Settings/hidden_window: table: 0x000002464a2391d0\r\nstacktrace:\r\n[C] function assert\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-hidden-window.luau:82\r\n"
+    },
+    {
+      "name": "mutant-window-reference",
+      "rejected": true,
+      "status": 1,
+      "diagnostic": "CONTROL|Settings/unchanged|PASS|zero-effects\r\nCONTROL|Settings/hidden_window|PASS|zero-effects\r\nCONTROL|Settings/wrong_route|PASS|zero-effects\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-window-reference.luau:96: expected exact rejection Settings/replacement_window: table: 0x000002375a9cbae0\r\nstacktrace:\r\n[C] function assert\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-window-reference.luau:96\r\n"
+    },
+    {
+      "name": "mutant-model-reference",
+      "rejected": true,
+      "status": 1,
+      "diagnostic": "CONTROL|Model/same_model|PASS|zero-effects\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-model-reference.luau:77: changed model/reference accepted: replacement_model\r\nstacktrace:\r\n[C] function assert\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-model-reference.luau:77\r\n"
+    },
+    {
+      "name": "mutant-navigation",
+      "rejected": true,
+      "status": 1,
+      "diagnostic": "C:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-navigation.luau:57: navigation/mutation was attempted: Settings/unchanged\r\nstacktrace:\r\n[C] function assert\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-navigation.luau:57 function noEffects\r\nC:/Users/JENNAR~1/AppData/Local/Temp/smash-narrow-capture-controls-QO57YN/mutant-navigation.luau:73\r\n"
+    }
+  ],
+  "compiled": [
+    {
+      "name": "window-Settings",
+      "sha256": "FEBB8EA95A8FAEE701D48F254BCACDAD04844E4E11C9F6408EE83DF55E6388D0"
+    },
+    {
+      "name": "window-Rebirth",
+      "sha256": "DC06BD1F181F5DB0D52720190E7CA467547AEB23D989A997EA0A2B50999CDCDB"
+    },
+    {
+      "name": "model-identity",
+      "sha256": "5CEEF7A57E800EE74720240FF325202FBAB07EF70FB172587024FFCE26A36682"
+    },
+    {
+      "name": "detail-read-only-exact",
+      "sha256": "A967C5D3CD49D700212BB4D2ED7EB63DFEAB59F2A44D93C926EA19567918022F"
+    },
+    {
+      "name": "mutant-hidden-window",
+      "sha256": "D39F19C94A315FB7B2DC65A1F1405C207DFAA7A05E6FA502424B2A3DC9666CCB"
+    },
+    {
+      "name": "mutant-window-reference",
+      "sha256": "77AAB1EF81A1DFC55977642CFC4E52EA6EDB925C82ED6198E8EBF1D1BAE4AFA0"
+    },
+    {
+      "name": "mutant-model-reference",
+      "sha256": "2539FB3B78D1E6FDC209CC6D3E4695CC65A5FFFE3DE80B6B1D2B2804CB19D4FD"
+    },
+    {
+      "name": "mutant-navigation",
+      "sha256": "8CADE1EF38523B22DE9C3F2E4BC6F96692C57B3B470316FD18193F0A1A5E4E9E"
+    }
+  ],
+  "runtime": "C:\\Users\\JENNAR~1\\AppData\\Local\\Temp\\codex-luau-smash-0.737\\luau.exe",
+  "compiler": "C:\\Users\\JENNAR~1\\AppData\\Local\\Temp\\codex-luau-smash-0.737\\luau-compile.exe",
+  "helperAndFlowUnchanged": true,
+  "finishedAt": "2026-09-06T11:55:18.565Z"
+}

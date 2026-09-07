@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "kind": "Ephemeral Studio camera property isolation; original pose restored and play cleaned",
+  "startedAt": "2026-09-06T01:35:18.881Z",
+  "studio": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "probe": {
+    "ok": true,
+    "rows": [
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 0,
+        "activeFocusDistance": 7.000000953674316,
+        "phase": "immediate",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      },
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 12.999999046325684,
+        "activeFocusDistance": 20,
+        "phase": "one_render",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      },
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 12.999999046325684,
+        "activeFocusDistance": 20,
+        "phase": "settled_100ms",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      },
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 0,
+        "activeFocusDistance": 7.000000953674316,
+        "phase": "focus_reassigned",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      },
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 12.999999046325684,
+        "activeFocusDistance": 20,
+        "phase": "reassigned_one_render",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      },
+      {
+        "tempFocusDelta": 0,
+        "activeFocusDelta": 12.999999046325684,
+        "activeFocusDistance": 20,
+        "phase": "reassigned_200ms",
+        "tempFocusDistance": 7.000000953674316,
+        "positionDelta": 0,
+        "scriptable": true
+      }
+    ],
+    "restored": true
+  },
+  "cleanup": true,
+  "finishedAt": "2026-09-06T01:36:04.731Z"
+}

@@ -1,0 +1,417 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "id": "01_desktop_1366_locked",
+      "name": "PunchWallRebirthDesktopLocked",
+      "width": 1366,
+      "height": 768,
+      "form": "Desktop",
+      "state": "LOCKED",
+      "diagnostics": {
+        "ok": true,
+        "state": "LOCKED",
+        "actions": [
+          {
+            "name": "RebirthLocked",
+            "active": false,
+            "selectable": false,
+            "text": "LOCKED",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          }
+        ],
+        "dock": {
+          "w": 66.83740997314453,
+          "h": 90.47502899169922
+        },
+        "viewport": {
+          "y": 767,
+          "x": 1366
+        },
+        "row": {
+          "y": 428.8399658203125,
+          "x": 366.5,
+          "w": 629,
+          "h": 94
+        },
+        "labels": [
+          {
+            "fits": true,
+            "text": "HERO REBIRTH • LOCKED",
+            "wrapped": false,
+            "size": {
+              "y": 23,
+              "x": 312
+            }
+          },
+          {
+            "fits": true,
+            "text": "WALL LV 54/55 • COINS 1.0M/1.0M\nNEED 1 LEVEL + 0 COINS • NEXT POWER x1.25",
+            "wrapped": true,
+            "size": {
+              "y": 48,
+              "x": 312
+            }
+          }
+        ]
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\rebirth-20260819\\01_desktop_1366_locked.jpg",
+      "sha256": "95a11c30dbd28ba7c40e934f9a637baa392cf395e5441db95f6478af9cd2c2d5"
+    },
+    {
+      "id": "02_desktop_1366_confirm",
+      "name": "PunchWallRebirthDesktopConfirm",
+      "width": 1366,
+      "height": 768,
+      "form": "Desktop",
+      "state": "CONFIRM",
+      "diagnostics": {
+        "ok": true,
+        "state": "CONFIRM",
+        "actions": [
+          {
+            "name": "CancelRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CANCEL",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          },
+          {
+            "name": "ConfirmRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CONFIRM",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          }
+        ],
+        "dock": {
+          "w": 66.83740997314453,
+          "h": 90.47502899169922
+        },
+        "viewport": {
+          "y": 767,
+          "x": 1366
+        },
+        "row": {
+          "y": 428.8399658203125,
+          "x": 366.5,
+          "w": 629,
+          "h": 94
+        },
+        "labels": [
+          {
+            "fits": true,
+            "text": "HERO REBIRTH • CONFIRM",
+            "wrapped": false,
+            "size": {
+              "y": 23,
+              "x": 312
+            }
+          },
+          {
+            "fits": true,
+            "text": "GAIN REBIRTH 1 • PERMANENT POWER x1.25\nRESET POWER→25 • COINS→0 • WALL LV→1 • FIST→STARTER | KEEP DEPTH • GEAR • PETS • HONOR",
+            "wrapped": true,
+            "size": {
+              "y": 48,
+              "x": 312
+            }
+          }
+        ]
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\rebirth-20260819\\02_desktop_1366_confirm.jpg",
+      "sha256": "c4f7a98569fc99d62ce12094991922d5e05b7b6e17808ba52773df75fd1d944f"
+    },
+    {
+      "id": "03_phone_844_confirm",
+      "name": "PunchWallRebirthPhone844",
+      "width": 844,
+      "height": 390,
+      "form": "Phone",
+      "state": "CONFIRM",
+      "diagnostics": {
+        "ok": true,
+        "state": "CONFIRM",
+        "actions": [
+          {
+            "name": "CancelRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CANCEL",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          },
+          {
+            "name": "ConfirmRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CONFIRM",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          }
+        ],
+        "dock": {
+          "w": 53.189186096191406,
+          "h": 72
+        },
+        "viewport": {
+          "y": 369,
+          "x": 844
+        },
+        "row": {
+          "y": 135,
+          "x": 149.5,
+          "w": 541,
+          "h": 148
+        },
+        "labels": [
+          {
+            "fits": true,
+            "text": "HERO REBIRTH • CONFIRM",
+            "wrapped": false,
+            "size": {
+              "y": 23,
+              "x": 469
+            }
+          },
+          {
+            "fits": true,
+            "text": "GAIN REBIRTH 1 • PERMANENT POWER x1.25\nRESET POWER→25 • COINS→0 • WALL LV→1 • FIST→STARTER | KEEP DEPTH • GEAR • PETS • HONOR",
+            "wrapped": true,
+            "size": {
+              "y": 62,
+              "x": 469
+            }
+          }
+        ]
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\rebirth-20260819\\03_phone_844_confirm.jpg",
+      "sha256": "e90afb1aa0da1707e09270d44d753872d43542984259389be686860d1c108c60"
+    },
+    {
+      "id": "04_phone_740_confirm",
+      "name": "PunchWallRebirthPhone740",
+      "width": 740,
+      "height": 360,
+      "form": "Phone",
+      "state": "CONFIRM",
+      "diagnostics": {
+        "ok": true,
+        "state": "CONFIRM",
+        "actions": [
+          {
+            "name": "CancelRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CANCEL",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          },
+          {
+            "name": "ConfirmRebirth",
+            "active": true,
+            "selectable": true,
+            "text": "CONFIRM",
+            "fits": true,
+            "size": {
+              "y": 44,
+              "x": 112
+            }
+          }
+        ],
+        "dock": {
+          "w": 53.189186096191406,
+          "h": 72
+        },
+        "viewport": {
+          "y": 339,
+          "x": 740
+        },
+        "row": {
+          "y": 105,
+          "x": 122.5,
+          "w": 491,
+          "h": 148
+        },
+        "labels": [
+          {
+            "fits": true,
+            "text": "HERO REBIRTH • CONFIRM",
+            "wrapped": false,
+            "size": {
+              "y": 23,
+              "x": 419
+            }
+          },
+          {
+            "fits": true,
+            "text": "GAIN REBIRTH 1 • PERMANENT POWER x1.25\nRESET POWER→25 • COINS→0 • WALL LV→1 • FIST→STARTER | KEEP DEPTH • GEAR • PETS • HONOR",
+            "wrapped": true,
+            "size": {
+              "y": 62,
+              "x": 419
+            }
+          }
+        ]
+      },
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\rebirth-20260819\\04_phone_740_confirm.jpg",
+      "sha256": "f474872617a7389d14a7120ad5462ecdd5d74bf9f39dd7d7bd1843ad1bb2df77"
+    }
+  ],
+  "runs": [
+    {
+      "id": "01_desktop_1366_locked",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "02_desktop_1366_confirm",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "03_phone_844_confirm",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    },
+    {
+      "id": "04_phone_740_confirm",
+      "runtime": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled.",
+      "postStop": "[PunchWallRPG] Unpublished Studio session is EPHEMERAL; profile reads and writes are disabled."
+    }
+  ],
+  "sources": {
+    "work/punch-wall-rpg/src/shared/GameConfig.lua": "b728643b41f09664dfbf829898d3f545e1f95c097f7b2a5e647a71a41bb045e1",
+    "work/punch-wall-rpg/src/server/ProfilePersistence.lua": "daf08cfaf0bb3bfb3a913203896fda4924bb72fe2c28342df8614471ef323aab",
+    "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua": "706389eecdac736a4db2fb9977da6522a33be0d2f362fb18067715d2d7f3e2d5",
+    "work/punch-wall-rpg/src/client/PunchWallClient.client.lua": "8cb73ef6fc747be9e4fd381759f4b3782325abaa8cdfa443a710895fd9858146",
+    "work/automation/flows/rebirth-progression.json": "7a89e77acf7ea1a5b526eddeb9d3781ff820531e17c8b7f1c0349d9e8f542754",
+    "work/automation/scripts/rebirth-progression-contract.mjs": "ebf161244a4363f6aafbad28bc4890bafd0bd1278aeba02cec1dea22a362ad47",
+    "work/automation/scripts/studio_mcp_client.mjs": "27fa8c557f051b468b20b78e3ddbf2e74e124d593678c8377ce3fdeefc8e48c3",
+    "work/automation/scripts/flow_runner.mjs": "3e9abe63db643092fe5e4bbd40e2fa3d0cb7b41a5d46cb22dc6e079dc8ac756c",
+    "work/automation/scripts/capture-rebirth-progression.mjs": "ca734a58df6df586e762f879b1e572214b43a88e28a2d8e272265a49a506200d"
+  },
+  "inputAttempts": [
+    {
+      "id": "01_desktop_1366_locked",
+      "action": "Open",
+      "attempts": 1
+    },
+    {
+      "id": "02_desktop_1366_confirm",
+      "action": "Open",
+      "attempts": 1
+    },
+    {
+      "id": "02_desktop_1366_confirm",
+      "action": "Review",
+      "attempts": 1
+    },
+    {
+      "id": "03_phone_844_confirm",
+      "action": "Open",
+      "attempts": 1
+    },
+    {
+      "id": "03_phone_844_confirm",
+      "action": "Review",
+      "attempts": 1
+    },
+    {
+      "id": "04_phone_740_confirm",
+      "action": "Open",
+      "attempts": 1
+    },
+    {
+      "id": "04_phone_740_confirm",
+      "action": "Review",
+      "attempts": 1
+    }
+  ],
+  "realInputProof": {
+    "device": "04_phone_740_confirm",
+    "path": "HUD mouse click -> REVIEW mouse click -> CANCEL mouse click -> REVIEW mouse click -> CONFIRM mouse click",
+    "attempts": {
+      "cancel": 2,
+      "reviewAfterCancel": 1,
+      "confirm": 1
+    },
+    "canceled": {
+      "ok": true,
+      "level": 55,
+      "rebirths": 0,
+      "coins": 1000000
+    },
+    "confirmed": {
+      "ok": true,
+      "power": 25,
+      "level": 1,
+      "rebirths": 1,
+      "coins": 0
+    }
+  },
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  },
+  "runtimeSources": {
+    "GameConfig": {
+      "adler32": 1218924435,
+      "length": 38972,
+      "file": "work/punch-wall-rpg/src/shared/GameConfig.lua",
+      "matchesLocal": true
+    },
+    "PunchWallClient": {
+      "adler32": 3595272978,
+      "length": 466840,
+      "file": "work/punch-wall-rpg/src/client/PunchWallClient.client.lua",
+      "matchesLocal": true
+    },
+    "PunchWallBootstrap": {
+      "adler32": 1835852023,
+      "length": 413780,
+      "file": "work/punch-wall-rpg/src/server/PunchWallBootstrap.server.lua",
+      "matchesLocal": true
+    },
+    "ProfilePersistence": {
+      "adler32": 2695979586,
+      "length": 69670,
+      "file": "work/punch-wall-rpg/src/server/ProfilePersistence.lua",
+      "matchesLocal": true
+    }
+  },
+  "console": {
+    "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\rebirth-20260819\\console.txt",
+    "clean": true
+  },
+  "cleanup": {
+    "default": true,
+    "removed": 4
+  }
+}

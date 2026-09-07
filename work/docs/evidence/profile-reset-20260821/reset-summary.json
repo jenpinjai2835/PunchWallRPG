@@ -1,0 +1,43 @@
+{
+  "capturedAt": "2026-08-21T08:27:00+07:00",
+  "universeId": "10490793155",
+  "dataStore": "PunchWallRPG_PlayerStats_v2",
+  "scope": "global",
+  "entryKey": "9158952231",
+  "target": {
+    "username": "jennarong2835",
+    "displayName": "ItimDad",
+    "userId": 9158952231,
+    "presenceBeforeReset": "Offline"
+  },
+  "before": {
+    "Power": 417,
+    "Coins": 292796,
+    "Depth": 31,
+    "Rebirths": 0,
+    "WallLevel": 99,
+    "processedReceiptCount": 0
+  },
+  "after": {
+    "Power": 15,
+    "Coins": 0,
+    "Honor": 0,
+    "Depth": 0,
+    "Rebirths": 0,
+    "WallLevel": 1,
+    "TutorialStep": 1,
+    "TutorialCompleted": 0,
+    "EquippedFist": "Starter Glove",
+    "TrainingStationId": "rookie_bag",
+    "processedReceiptCount": 0,
+    "ProfileRevision": 14
+  },
+  "method": "Roblox Open Cloud Data Stores v2 PATCH",
+  "receiptLedgerPreserved": true,
+  "verificationReadPassed": true,
+  "temporaryApiKeyDeleted": true,
+  "notes": [
+    "No API key secret, cookie, or credential is stored in this evidence.",
+    "Permanent Roblox Game Pass ownership is platform-level and is intentionally reconciled again when the player joins."
+  ]
+}

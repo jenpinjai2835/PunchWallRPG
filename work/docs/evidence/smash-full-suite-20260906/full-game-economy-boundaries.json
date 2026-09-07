@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "full-game-economy-boundaries",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start authoritative economy boundary session",
+        "wait for profile-ready runtime",
+        "verify fist purchase and equip boundaries",
+        "verify Coin x2 coin route removed and remaining boost boundaries",
+        "verify honor cost, repeat, and full-catalog boundaries",
+        "verify daily reward first and repeat claims",
+        "verify daily quest target and repeat boundaries",
+        "verify playtime target and repeat boundaries",
+        "seed authoritative spin cooldown boundary without invoking automation Spin",
+        "real cooldown Spin emits one bounded Fail and no reward mutation",
+        "real cooldown Spin leaves every authoritative reward field unchanged",
+        "seed one authoritative bonus spin credit",
+        "real credit Spin emits one bounded result and applies exactly one reward path",
+        "server confirms credit path preserved cooldown and applied one bounded reward",
+        "verify rebirth level, coin, and exact boundaries",
+        "capture boundary-suite console",
+        "boundary-suite console clean (identified Studio input warnings: 0)",
+        "return boundary session to Edit"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "boundary-suite console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

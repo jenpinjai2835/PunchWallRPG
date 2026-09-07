@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=60,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nreturn true"
+        "code": "local players=game.Players:GetPlayers() assert(game:GetService('RunService'):IsStudio() and #players==1,'requires one isolated Studio player')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'profile must be ready ephemeral and non-writable')\n return true\nend\nverifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=1,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\nreturn true"
       },
       "label": "prepare deterministic state"
     },
@@ -69,17 +71,37 @@
     {
       "type": "call",
       "tool": "execute_luau",
+      "timeoutMs": 60000,
+      "saveAs": "reducedCameraDiagnostics",
       "args": {
-        "datamodel_type": "Server",
-        "code": "local HttpService=game:GetService(\"HttpService\")\nlocal command=game.ServerStorage:WaitForChild(\"PunchWallAutomation\")\ncommand:Invoke(\"Reset\")\ncommand:Invoke(\"SetStats\",{Power=500,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0})\ncommand:Invoke(\"BreakWallCycles\",\"Brick Wall\",20)\nlocal root=workspace.PunchWallRPG\nlocal result={parts=0,sounds=0,loaded=0,particles=0}\nfor _,d in ipairs(root:GetDescendants()) do if d:IsA(\"BasePart\") then result.parts+=1 elseif d:IsA(\"Sound\") then result.sounds+=1 if d.IsLoaded then result.loaded+=1 end elseif d:IsA(\"ParticleEmitter\") then result.particles+=1 end end\nreturn HttpService:JSONEncode(result)"
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation a:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) local result=a:Invoke(\"__RunCamera\",3) a:Invoke(\"SetSettings\",{motion=true,sound=true,uiScale=1,persist=false}) result.reducedValid=result.actions==3 and result.initialOrbitSettled==true and result.settleTimedOut~=true and (result.maxStep or math.huge)<=.05 and (result.zoomDelta or math.huge)<.08 and (result.angle or math.huge)<.25 and (result.visibleRatio or 0)>=.9 and result.inside==0 and (result.maxBack or math.huge)<.5 and result.type==\"Custom\" and result.handoffActive~=true and (result.lead or math.huge)<.2 return H:JSONEncode(result)"
       },
       "expectRegex": [
-        "\"parts\"\\s*:\\s*1297",
-        "\"sounds\"\\s*:\\s*15",
-        "\"loaded\"\\s*:\\s*15",
-        "\"particles\"\\s*:\\s*26"
+        "\"reducedValid\"\\s*:\\s*true",
+        "\"actions\"\\s*:\\s*3",
+        "\"inside\"\\s*:\\s*0",
+        "\"type\"\\s*:\\s*\"Custom\""
       ],
-      "label": "scene cost stable after repeated destruction"
+      "label": "reduced camera is judged by suppressed-motion invariants without an unconditional lead requirement"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal G=require(game.ReplicatedStorage.GameConfig)\nlocal players=game.Players:GetPlayers() assert(game:GetService('RunService'):IsStudio() and #players==1,'requires one isolated Studio player')\nlocal player=players[1] local root=workspace:WaitForChild('PunchWallRPG')\nlocal command=game.ServerStorage:WaitForChild('PunchWallAutomation')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'profile must be ready ephemeral and non-writable')\n return true\nend\nlocal function finite(value)return type(value)=='number' and value==value and math.abs(value)<math.huge end\nlocal function captureScene(root,at)\n local sample={at=at,counts={parts=0,sounds=0,loaded=0,particles=0,debris=#root['Depth Physics Debris']:GetChildren()},parts={}}\n for _,object in ipairs(root:GetDescendants())do\n  if object:IsA('BasePart')then sample.counts.parts+=1 sample.parts[object]=true\n  elseif object:IsA('Sound')then sample.counts.sounds+=1 if object.IsLoaded then sample.counts.loaded+=1 end\n  elseif object:IsA('ParticleEmitter')then sample.counts.particles+=1 end\n end\n return sample\nend\nlocal function sceneDelta(before,after,allowed)\n local delta={added=0,missing=0,unexpected=0,allowedMissing=0,addedNames={},missingNames={}}\n for object in pairs(after.parts)do if not before.parts[object]then\n  delta.added+=1 if not allowed[object]then delta.unexpected+=1 end\n  if #delta.addedNames<12 then table.insert(delta.addedNames,object:GetFullName())end\n end end\n for object in pairs(before.parts)do if not after.parts[object]then delta.missing+=1 if #delta.missingNames<12 then table.insert(delta.missingNames,object.Name)end end end\n for object in pairs(allowed)do if not after.parts[object]then delta.allowedMissing+=1 end end\n table.sort(delta.addedNames)table.sort(delta.missingNames)\n return delta\nend\nlocal function verifyScene(before,after,expectedAdded,delta)\n local a,b=before.counts,after.counts\n assert(delta.missing==0 and delta.unexpected==0 and delta.allowedMissing==0 and delta.added==expectedAdded,'scene instance identity changed beyond the verified egg')\n assert(b.parts==a.parts+expectedAdded and b.sounds==a.sounds and b.particles==a.particles and b.debris==0,'scene composition did not return to expected counts')\n assert(a.sounds>0 and a.loaded==a.sounds and b.loaded==b.sounds,'scene audio is not fully loaded')\n return true\nend\nlocal function verifyEgg(model,folder,player,startedAt,finishedAt,config)\n assert(model and model:IsA('Model') and model.Parent==folder and #folder:GetChildren()==1,'requires exactly one real spawned egg')\n assert(model.Name=='Mystery Pet Egg '..player.UserId and model:GetAttribute('VisualRole')=='PetDropEgg' and model:GetAttribute('ServerAuthoritative')==true,'wrong egg identity')\n local id=model:GetAttribute('DropId') local owner=model:GetAttribute('OwnerUserId')\n local spawnedAt=model:GetAttribute('SpawnedAt')local expiresAt=model:GetAttribute('ExpiresAt')\n assert(type(id)=='string' and #id>0 and owner==player.UserId and id==player:GetAttribute('ActivePetEggDropId'),'egg ownership and active drop identity disagree')\n assert(finite(spawnedAt) and finite(expiresAt) and spawnedAt>=startedAt-.001 and spawnedAt<=finishedAt+.001,'egg did not originate in the observed destruction')\n assert(finite(config.LifetimeSeconds) and config.LifetimeSeconds==24 and config.LifetimeSeconds<=30 and config.MaxActivePerPlayer==1,'pet lifetime or owner cap contract changed')\n assert(math.abs(expiresAt-spawnedAt-config.LifetimeSeconds)<.001 and expiresAt==player:GetAttribute('ActivePetEggExpiresAt'),'expiry disagrees with authoritative lifetime')\n assert(model:GetAttribute('Claimed')==false,'egg was already claimed')\n local parts={}local names={}local count=0\n for _,object in ipairs(model:GetDescendants())do if object:IsA('BasePart')then\n  assert(object.Parent==model and not names[object.Name],'egg parts must be unique direct children')\n  names[object.Name]=object parts[object]=true count+=1\n end end\n assert(count==7,'actual egg must have exactly seven parts')\n local function part(name,size,shape,query)\n  local object=names[name]\n  assert(object and object:IsA('Part') and object.Shape==shape and (object.Size-size).Magnitude<.00001,'actual egg shape or size does not match '..name)\n  assert(object.Anchored and not object.CanCollide and not object.CanTouch and object.CanQuery==query,'egg collision flags do not match '..name)\n  return object\n end\n part('Egg Ground Glow',Vector3.new(.12,2.85,2.85),Enum.PartType.Cylinder,false)\n local body=part('Mystery Pet Egg',Vector3.new(2.05,2.8,2.05),Enum.PartType.Ball,true)\n for index=1,5 do part('Egg Spot '..index,Vector3.new(.46,.58,.18),Enum.PartType.Ball,false)end\n assert(model.PrimaryPart==body,'egg primary part is not its actual body')\n return {id=id,owner=owner,spawnedAt=spawnedAt,expiresAt=expiresAt,parts=parts,partCount=count,name=model.Name}\nend\nlocal function verifyExpiry(record,model,folder,player,at)\n assert(finite(at) and at>=record.expiresAt and at<=record.expiresAt+1.1,'expiry observation is early or exceeded its bound')\n assert(model.Parent==nil and model:GetAttribute('RemovalReason')=='expired','original egg did not expire naturally')\n assert(#folder:GetChildren()==0 and player:GetAttribute('ActivePetEggDropId')==nil and player:GetAttribute('ActivePetEggExpiresAt')==nil and player:GetAttribute('ActivePetEggDepth')==nil,'expired drop retained scene or owner state')\n return true\nend\nlocal diagnostics={contract='NaturalPetEggExpiryV1'}\nlocal ok,result=pcall(function()\n verifyEphemeralSeed(player,root,game.ServerStorage)\n assert(command:Invoke('Reset').ok==true,'reset failed')\n local config=G.PetDrops\n assert(finite(config.PityBreaks) and config.PityBreaks>=1 and config.PityBreaks%1==0,'invalid pity configuration')\n assert(command:Invoke('SetStats',{Power=500,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0,PetDropPity=config.PityBreaks-1}).ok==true,'seed failed')\n local folder=root:FindFirstChild('Pet Egg Drops',true)\n assert(folder and #folder:GetChildren()==0 and player:GetAttribute('ActivePetEggDropId')==nil,'baseline contains a prior egg')\n local before=captureScene(root,workspace:GetServerTimeNow())diagnostics.before=before.counts diagnostics.beforeAt=before.at\n assert(before.counts.debris==0,'baseline physics debris is not empty')\n local startedAt=workspace:GetServerTimeNow()\n local cycles=command:Invoke('BreakWallCycles','Brick Wall',20)\n local finishedAt=workspace:GetServerTimeNow()diagnostics.breakStartedAt=startedAt diagnostics.breakFinishedAt=finishedAt diagnostics.completed=cycles.completed\n assert(cycles.ok==true and cycles.completed==20,'original twenty destruction cycles did not complete')\n local model=folder:FindFirstChildWhichIsA('Model')\n local record=verifyEgg(model,folder,player,startedAt,finishedAt,config)\n diagnostics.egg={id=record.id,owner=record.owner,name=record.name,spawnedAt=record.spawnedAt,expiresAt=record.expiresAt,partCount=record.partCount,lifetime=config.LifetimeSeconds}\n task.wait(5)\n local five=captureScene(root,workspace:GetServerTimeNow())diagnostics.fiveSeconds=five.counts diagnostics.fiveAt=five.at\n assert(five.at>=finishedAt+5-.01 and five.at<record.expiresAt,'five-second observation missed the active egg window')\n local current=verifyEgg(model,folder,player,startedAt,finishedAt,config)\n assert(current.id==record.id and current.expiresAt==record.expiresAt,'active egg identity changed')\n local fiveDelta=sceneDelta(before,five,record.parts)diagnostics.fiveDelta=fiveDelta\n verifyScene(before,five,7,fiveDelta)\n local deadline=record.expiresAt+1\n while model.Parent and workspace:GetServerTimeNow()<deadline do task.wait(math.min(.1,math.max(.001,deadline-workspace:GetServerTimeNow())))end\n local final=captureScene(root,workspace:GetServerTimeNow())diagnostics.after=final.counts diagnostics.afterAt=final.at diagnostics.removalReason=model:GetAttribute('RemovalReason')\n verifyExpiry(record,model,folder,player,final.at)\n local finalDelta=sceneDelta(before,final,{})diagnostics.finalDelta=finalDelta\n verifyScene(before,final,0,finalDelta)\n diagnostics.stable=true diagnostics.loadedAll=true diagnostics.naturalExpiry=true diagnostics.originalCycles=20\n return diagnostics\nend)\nassert(ok,'reduced scene lifetime failed: '..tostring(result)..' '..H:JSONEncode(diagnostics))\nreturn H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"stable\"\\s*:\\s*true",
+        "\"loadedAll\"\\s*:\\s*true",
+        "\"naturalExpiry\"\\s*:\\s*true",
+        "\"originalCycles\"\\s*:\\s*20",
+        "\"debris\"\\s*:\\s*0"
+      ],
+      "label": "scene composition returns to its own deterministic baseline after repeated destruction",
+      "timeoutMs": 60000,
+      "saveAs": "reducedSceneDiagnostics"
     },
     {
       "type": "call",
@@ -95,7 +117,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -104,10 +128,13 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"
     }
-  ]
+  ],
+  "sceneContractVersion": "NaturalPetEggExpiryV1"
 }

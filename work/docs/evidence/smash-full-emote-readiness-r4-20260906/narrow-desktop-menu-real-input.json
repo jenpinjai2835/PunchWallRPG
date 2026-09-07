@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "narrow-desktop-menu-real-input",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "create owned 637x654 ActualResolution desktop",
+        "start play",
+        "wait for right HUD",
+        "verify explicit narrow desktop before menu assertions",
+        "right HUD actions share one uniform icon grid",
+        "right HUD art uses equal optical bounds without stretching",
+        "precheck actual InventoryButton hitbox",
+        "native click InventoryButton",
+        "verify actual InventoryButton route",
+        "precheck actual ShopButton hitbox",
+        "native click ShopButton",
+        "verify actual ShopButton route",
+        "precheck actual PetsButton hitbox",
+        "native click PetsButton",
+        "verify actual PetsButton route",
+        "precheck actual QuestsButton hitbox",
+        "native click QuestsButton",
+        "verify actual QuestsButton route",
+        "precheck actual RebirthButton hitbox",
+        "native click RebirthButton",
+        "verify actual RebirthButton route",
+        "precheck actual MoreTool hitbox",
+        "native click MoreTool",
+        "verify actual MoreTool route",
+        "seed one normal pet for narrow selected-detail geometry",
+        "verify selected fist and pet detail lanes at explicit narrow desktop",
+        "actual HUD and standalone Settings fit safe area with touch targets",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "restore previous simulator and remove owned narrow device"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "name": "center-feedback-suppression",
-  "description": "Verify combat and action feedback does not create central text, icons, or world damage numbers while preserving action feedback events.",
-  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "description": "Verify combat feedback avoids unbounded center-screen and world-damage overlays while rejected actions remain visible in the current bounded feedback-holder queue.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
   "pollAttempts": 15,
   "pollMs": 3000,
   "steps": [
@@ -22,9 +22,14 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=15,WallLevel=99,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-80)) p:SetAttribute(\"LastWallHit\",0) return c:Invoke(\"PunchRadius\")"
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset') c:Invoke('SetStats',{Power=15,Coins=0,WallLevel=1,Rebirths=0,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local p=game.Players:GetPlayers()[1] p.Character.HumanoidRootPart.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-80)) p:SetAttribute('LastWallHit',0) local punch=c:Invoke('PunchRadius') local rejected=c:Invoke('Rebirth') return H:JSONEncode({punch=punch.ok==true,rejection=rejected.reason,rejected=rejected.ok==false})"
       },
-      "label": "trigger a punch feedback event"
+      "expectRegex": [
+        "\"punch\"\\s*:\\s*true",
+        "\"rejection\"\\s*:\\s*\"requirements\"",
+        "\"rejected\"\\s*:\\s*true"
+      ],
+      "label": "trigger combat feedback and an authoritative rejected action"
     },
     {
       "type": "wait",
@@ -36,18 +41,28 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local center,damage=0,0 for _,d in ipairs(gui:GetDescendants()) do if d.Name==\"FeedbackPop\" or d.Name==\"CombatDamageBurst\" or d.Name==\"CombatImpactCore\" or d.Name==\"CombatSparkRays\" then center+=1 end end for _,d in ipairs(workspace:GetDescendants()) do if d.Name==\"LocalDamageNumber\" then damage+=1 end end local lastType=gui:GetAttribute(\"LastFeedbackType\") return H:JSONEncode({enabled=gui:GetAttribute(\"CenterActionFeedbackEnabled\"),toasts=gui.Toasts.Visible,rewards=gui.RewardPops.Visible,center=center,damage=damage,feedback=gui:GetAttribute(\"FeedbackCount\") or 0,lastType=lastType,lastTypeValid=type(lastType)==\"string\" and lastType~=\"\"})"
+        "code": "local H=game:GetService('HttpService') local gui=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local function inspect(holder) local visible=0 local bounded=true local left,top=holder.AbsolutePosition.X,holder.AbsolutePosition.Y local right,bottom=left+holder.AbsoluteSize.X,top+holder.AbsoluteSize.Y for _,d in ipairs(holder:GetChildren()) do if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then visible+=1 local dl,dt=d.AbsolutePosition.X,d.AbsolutePosition.Y local dr,db=dl+d.AbsoluteSize.X,dt+d.AbsoluteSize.Y bounded=bounded and dl>=left-2 and dt>=top-2 and dr<=right+2 and db<=bottom+2 end end local limit=tonumber(holder:GetAttribute('MaxVisibleItems')) or 0 local tracked=holder:GetAttribute('VisibleItemCount') local countSynced=(tracked==nil and visible==0) or tracked==visible return visible,bounded and visible<=limit,countSynced,holder:GetAttribute('PresentationMode'),limit end local toasts,toastBounded,toastCountSynced,toastMode,toastLimit=inspect(gui.Toasts) local rewards,rewardBounded,rewardCountSynced,rewardMode,rewardLimit=inspect(gui.RewardPops) local center,damage=0,0 for _,d in ipairs(gui:GetDescendants()) do if d.Name=='CombatDamageBurst' or d.Name=='CombatImpactCore' or d.Name=='CombatSparkRays' then center+=1 end end for _,d in ipairs(workspace:GetDescendants()) do if d.Name=='LocalDamageNumber' then damage+=1 end end local lastType=gui:GetAttribute('LastFeedbackType') local presented=gui.Toasts.Visible and toasts>0 local valid=gui:GetAttribute('CenterActionFeedbackEnabled')==false and presented and toastBounded and rewardBounded and toastCountSynced and rewardCountSynced and toastMode=='BoundedVisibleQueueV1' and rewardMode=='BoundedVisibleQueueV1' and toastLimit==3 and rewardLimit==3 and center==0 and damage==0 and lastType=='Fail' return H:JSONEncode({valid=valid,enabled=gui:GetAttribute('CenterActionFeedbackEnabled'),toastHolder=gui.Toasts.Visible,toasts=toasts,toastBounded=toastBounded,toastCountSynced=toastCountSynced,rewardHolder=gui.RewardPops.Visible,rewards=rewards,rewardBounded=rewardBounded,rewardCountSynced=rewardCountSynced,toastMode=toastMode,rewardMode=rewardMode,toastLimit=toastLimit,rewardLimit=rewardLimit,center=center,damage=damage,feedback=gui:GetAttribute('FeedbackCount') or 0,lastType=lastType,presented=presented})"
       },
       "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
         "\"enabled\"\\s*:\\s*false",
-        "\"toasts\"\\s*:\\s*false",
-        "\"rewards\"\\s*:\\s*false",
+        "\"toastHolder\"\\s*:\\s*true",
+        "\"toasts\"\\s*:\\s*[1-3]",
+        "\"toastBounded\"\\s*:\\s*true",
+        "\"toastCountSynced\"\\s*:\\s*true",
+        "\"rewardBounded\"\\s*:\\s*true",
+        "\"rewardCountSynced\"\\s*:\\s*true",
+        "\"toastMode\"\\s*:\\s*\"BoundedVisibleQueueV1\"",
+        "\"rewardMode\"\\s*:\\s*\"BoundedVisibleQueueV1\"",
+        "\"toastLimit\"\\s*:\\s*3",
+        "\"rewardLimit\"\\s*:\\s*3",
         "\"center\"\\s*:\\s*0",
         "\"damage\"\\s*:\\s*0",
         "\"feedback\"\\s*:\\s*[1-9][0-9]*",
-        "\"lastTypeValid\"\\s*:\\s*true"
+        "\"lastType\"\\s*:\\s*\"Fail\"",
+        "\"presented\"\\s*:\\s*true"
       ],
-      "label": "no text or icon feedback appears over gameplay"
+      "label": "bounded feedback remains visible without unbounded center overlays"
     },
     {
       "type": "call",

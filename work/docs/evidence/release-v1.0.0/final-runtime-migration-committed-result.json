@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-dcbeee682ce74ee0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "final-rbxlx-build-validation",
+      "selectedStudio": {
+        "id": "f0d00f18-dc07-40d5-a747-05e8c1c692a9",
+        "name": "SmashWall_v1.0.0_validation.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "SmashWall_v1.0.0_validation.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start rebuilt final copy",
+        "wait for embedded scripts to bootstrap",
+        "rebuilt final exposes the exact nine-module source map",
+        "embedded server release boots complete world",
+        "embedded client release boots HUD Inventory shop spin and music",
+        "rebuilt final loads approved NPC bag training and premium pet displays",
+        "rebuilt final uses supplied Spin vertical race and directional controls",
+        "capture rebuilt final console",
+        "rebuilt final console clean",
+        "stop rebuilt final copy"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "ok": false,
+    "flow": "camera-long-tunnel-regression",
+    "flowSHA256": "CBBC26C2A9F4849665923304E779635F16EF546382D892B1C7633EE16A6A8F54",
+    "errors": [
+      "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.000030517578125, 7.214224815368652, -200.6503448486328\",\"contractValid\":false,\"cleanupRestored\":true,\"freshLineOfSightClear\":true,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.9811975955963135, 4.676042079925537, -212.85501098632812\",\"valid\":false,\"type\":\"Custom\",\"freshObscurers\":[],\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.7987804878048781,\"maxInheritedRootStep\":23.480607986450197,\"configuredOrbit\":12.474493980407715,\"maxEscapeStep\":3.6,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Interactables.Pet Egg Drops.Mystery Pet Egg 9158952231.Mystery Pet Egg\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L011_C06_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L020_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L030_C06_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L036_C07_R03\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L042_C07_R04\"],\"maxBackPunch\":11,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":false,\"zoomDelta\":0.0065937042236328129,\"finishDistance\":12.467900276184082,\"readableRatio\":1,\"overlapEscapes\":22,\"sampleMaxStep\":23.98865509033203,\"selectedDistance\":12.474493980407715,\"settledSamples\":11,\"settledReadableRatio\":1,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.213592052459717, -108.64893341064453\",\"unresolvedSafetyFrames\":25,\"maxBackTo\":\"-2.000030517578125, 3.181673765182495, -192.8544921875\",\"sampledFrames\":164,\"userOrbitDistance\":12.474493980407715,\"lead\":21.10581398010254,\"insideSamples\":[],\"mode\":\"CustomPreserved\",\"settledClearRatio\":1,\"handoffActive\":false,\"maxCorrectionStep\":2.3999996185302736,\"maxBackFrom\":\"-2.000030517578125, 3.1992361545562744, -192.85450744628906\",\"maxStepTo\":\"-2.000030517578125, 7.214900016784668, -132.63758850097656\",\"visibleRatio\":1},\"selectedOrbitPreserved\":true,\"freshValid\":true,\"correctionBounded\":true,\"freshReadable\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshObscurerCount\":0,\"safetyBounded\":false,\"settleTimedOut\":false,\"inside\":0}"
+    ]
+  },
+  {
+    "ok": true,
+    "flow": "combat-target-boss-hud",
+    "flowSHA256": "4D0CE24F5929ACFD71072EA184DC2DF849BF56ABA5491B9ACFE0A7A9A6D7FED6",
+    "errors": []
+  },
+  {
+    "ok": true,
+    "flow": "iteration01-complete-polish",
+    "flowSHA256": "C9C2EBCFEDAF150B7ED0894ECA71D4CD6CADB876822FE9AC76DEC9585A537F5B",
+    "errors": []
+  },
+  {
+    "ok": true,
+    "flow": "iteration02-companion-tasks-boss",
+    "flowSHA256": "4CC206691265F0CD510847C2B04C043CD0883D3DA2D93410955BEBC9071355CD",
+    "errors": []
+  },
+  {
+    "ok": false,
+    "flow": "iteration03-safearea-destruction",
+    "flowSHA256": "A30DCCE5BB49D8FF861851F7B72F7849D42D2FC31C4E92B8773E77D2F690819C",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:10: safe insets incorrect"
+    ]
+  },
+  {
+    "ok": false,
+    "flow": "iteration04-armory-pets-feedback",
+    "flowSHA256": "6770B72492CE8C24E3235B9B2AD82A3336C4B74E28065E6830C1EF9124FB68F2",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:2: pickup feedback missing"
+    ]
+  },
+  {
+    "ok": false,
+    "flow": "punchwall-free-aim-combat-polish",
+    "flowSHA256": "12ED46B9F0F9CCBA7F9C4D355EBA11ED9243AC61EB306D26F5C76B296A917BE8",
+    "errors": [
+      "Expected regex not found: \"musicId\"\\s*:\\s*\"rbxassetid://1837768013\"\nReceived: {\"musicPlaying\":true,\"wallMax\":27,\"freeAim\":true,\"soundMode\":\"SingleChannel\",\"musicLooped\":true,\"motionCount\":2,\"powerMax\":26,\"motionDuration\":0.72,\"musicId\":\"rbxassetid://1837768082\",\"hudSafe\":true,\"coinsMax\":26,\"punchChannels\":1}"
+    ]
+  },
+  {
+    "ok": false,
+    "flow": "contextual-actions-settings-authority",
+    "flowSHA256": "8D64E647CC597F2B66FC34002E704E90DCF22917DC4EDBD12EBCB3803155848D",
+    "errors": [
+      "Expected regex not found: \"tab\"\\s*:\\s*\"Pets\"\nReceived: {\"menu\":true,\"tab\":\"Inventory\"}"
+    ]
+  },
+  {
+    "ok": true,
+    "flow": "inventory-menu-ui",
+    "flowSHA256": "C4A739EE307EBD788CC0F07468AC7795BE2D6130EB72B1ECFD45D53E9F4008D7",
+    "errors": []
+  }
+]

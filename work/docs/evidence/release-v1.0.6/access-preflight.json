@@ -1,0 +1,47 @@
+{
+  "recordedAtUtc": "2026-09-06T15:05:51.8166360Z",
+  "ok": false,
+  "status": "BLOCKED",
+  "kind": "Live publication access preflight",
+  "userAuthorizedPublish": true,
+  "userAuthorizedSeparateChromeCdpLaunch": true,
+  "releasePullRequest": "https://github.com/jenpinjai2835/PunchWallRPG/pull/2",
+  "independentlyReviewedPackageHead": "dcee9ce0ef7b9b9a997ee5abcff90d57a10e4d4a",
+  "chromeLaunchAttempt": {
+    "requestedPort": 9222,
+    "separateProfile": true,
+    "result": "REJECTED_BEFORE_EXECUTION",
+    "reportedReason": "blocked by policy",
+    "processCreatedByAttempt": false,
+    "alternateLaunchAttempted": false
+  },
+  "developmentPushed": true,
+  "developmentCommit": "aebbb2b409ca77be2367881f1b55e7936fd6a9b1",
+  "intendedUniverseId": 10490793155,
+  "intendedPlaceId": 125255969070601,
+  "lastRecordedVersion": 19,
+  "currentLiveVersionVerified": false,
+  "chromeProviderObserved": "extension",
+  "chromeDebugFlagProcessCount": 0,
+  "endpointProbes": [
+    {
+      "available": false,
+      "result": "2-second request timeout",
+      "url": "http://127.0.0.1:9222/json/version"
+    },
+    {
+      "available": false,
+      "result": "2-second request timeout",
+      "url": "http://127.0.0.1:9223/json/version"
+    }
+  ],
+  "studioPublishSaveExportToolCount": 0,
+  "previousTemporaryKeyDeleted": true,
+  "currentPublishAuthenticationEstablished": false,
+  "sourceAuthorityAudit": "No introduced blocker against actual v1.0.5 source; GameConfig/ProfilePersistence identical",
+  "uploaded": false,
+  "newApiKeyCreated": false,
+  "browserCookiesAccessed": false,
+  "restrictionSource": "AGENTS.md: Roblox Creator Dashboard Browser Rule",
+  "blocker": "No Chrome CDP endpoint is available. After explicit user authorization, automatic approval review rejected the separate Chrome CDP launch before execution with only 'blocked by policy'. User must establish the permitted CDP connection before publication can resume."
+}

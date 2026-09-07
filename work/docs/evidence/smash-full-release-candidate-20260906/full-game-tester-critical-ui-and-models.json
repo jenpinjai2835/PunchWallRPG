@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "full-game-tester-critical-ui-and-models",
+      "selectedStudio": {
+        "id": "450e00ec-0d7d-4d1b-858b-f11fabd13295",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "lock critical mobile viewport",
+        "start play",
+        "wait for world, client UI, and media",
+        "cleanup stop play",
+        "cleanup viewport"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\":true\nReceived: {\"ok\":false,\"spinOk\":true,\"onOk\":true,\"jumpOk\":false,\"musicId\":\"rbxassetid://1837768082\",\"offOk\":true,\"soundClass\":\"ImageButton\",\"moreClass\":\"ImageButton\",\"modalOk\":true,\"spinLayers\":8}",
+      "context": {}
+    }
+  ]
+}

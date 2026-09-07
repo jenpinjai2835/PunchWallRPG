@@ -1,0 +1,1260 @@
+{
+  "scope": "Read-only published20 comparison. Only ignored v20-audit scratch files written. No Studio/network or original artifact serialization.",
+  "inputs": [
+    {
+      "path": "outputs/releases/v1.0.6/rollback-place-v20.rbxl",
+      "bytes": 755367,
+      "sha256": "4E7BDADE10DFECB5F0548CD91178FD191B9BF91DD0868D6894E7E3E24930FB8F"
+    },
+    {
+      "path": "outputs/releases/v1.0.5/SmashWall_v1.0.5_studio_serialized.rbxl",
+      "bytes": 1115965,
+      "sha256": "0681883022FA98C1F7C132C215E9BE629AC789D5F4834A90E7D58E6B63CC07C8"
+    },
+    {
+      "path": "outputs/PunchWallRPGPlayable_v1_final.rbxlx",
+      "bytes": 6492145,
+      "sha256": "F61B80E722041A526FB965CC6173CEB1BE37BE35E5F9FD1310B5E4CA503D5781"
+    }
+  ],
+  "sources": [
+    {
+      "name": "PunchWallClient",
+      "class": "LocalScript",
+      "path": "v20-audit-uncompressed/StarterPlayer/StarterPlayerScripts/PunchWallClient",
+      "live20NormalizedSHA256": "84028703223E5434968C445D94E4C30FF8B186DCBAFC2F625CD378A26561F567",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": false
+    },
+    {
+      "name": "InventoryUI",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/StarterPlayer/StarterPlayerScripts/InventoryUI",
+      "live20NormalizedSHA256": "F94A46E30832968F4744D57D1B868716EF3394F2424B21607FBD6CCD57E81117",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": false
+    },
+    {
+      "name": "GameConfig",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ReplicatedStorage/GameConfig",
+      "live20NormalizedSHA256": "641B1FF8A2B2F8AFB6A199A323CD6E94A2285313CE1DD326B9149ECD5B03AEC2",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": true
+    },
+    {
+      "name": "PolishConfig",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ReplicatedStorage/PolishConfig",
+      "live20NormalizedSHA256": "5B2DBE380E7A803EE4EABB4C9F828B51E15946D13D81F5122F769B5662C0DD81",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": true
+    },
+    {
+      "name": "ForestVisualBuilder",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ReplicatedStorage/ForestVisualBuilder",
+      "live20NormalizedSHA256": "E7ADD19CF6E9C20D081F9B08471B9F2E2EBF38C6ED348C6265B3996DC2977BA1",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": true
+    },
+    {
+      "name": "FistVisualBuilder",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ReplicatedStorage/FistVisualBuilder",
+      "live20NormalizedSHA256": "C37886B22E2FDF174E23E51B8275CEB0B04F2EDBBF5454CBCB119CD118ECE3A3",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": false
+    },
+    {
+      "name": "InventoryViewModel",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ReplicatedStorage/InventoryViewModel",
+      "live20NormalizedSHA256": "C805F8814FFA9FA8543B529092B6534B76227445AF7FFF4617A085797B871E56",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": false
+    },
+    {
+      "name": "PunchWallBootstrap",
+      "class": "Script",
+      "path": "v20-audit-uncompressed/ServerScriptService/PunchWallBootstrap",
+      "live20NormalizedSHA256": "0B111EB39D0DE068D46639A23201EFDC55E624C04EBBBF34230652087DE40818",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": false
+    },
+    {
+      "name": "ProfilePersistence",
+      "class": "ModuleScript",
+      "path": "v20-audit-uncompressed/ServerScriptService/ProfilePersistence",
+      "live20NormalizedSHA256": "36D21C0389A97BD213EBC4C31AE2BED7F3BCC51B7A6A632E6148CC6B9808F4E9",
+      "sameAsRetained19": true,
+      "sameAsAcceptedF61": true
+    }
+  ],
+  "classCounts": {
+    "v19": {
+      "UnionOperation": 42,
+      "SurfaceAppearance": 7
+    },
+    "v20": {
+      "UnionOperation": 42,
+      "SurfaceAppearance": 7
+    },
+    "accepted": {
+      "UnionOperation": 42,
+      "SurfaceAppearance": 7
+    }
+  },
+  "visualComparison": {
+    "shared19": 30,
+    "shared20": 44,
+    "sharedPoolMultisetEqual": false,
+    "targets": [
+      {
+        "key": "UnionOperation.AeroMeshData",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": true,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.Anchored",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.AssetId",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.AttributesSerialize",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.AudioCanCollide",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.BackParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BackParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BackSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BackSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BottomParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BottomParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BottomSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.BottomSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.CFrame",
+        "type19": 16,
+        "type20": 16,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 2058,
+        "bytes20": 2058
+      },
+      {
+        "key": "UnionOperation.CanCollide",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.CanQuery",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.CanTouch",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.CastShadow",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.ChildData",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.ChildData2",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": true,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.CollisionGroup",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 462,
+        "bytes20": 462
+      },
+      {
+        "key": "UnionOperation.CollisionGroupId",
+        "type19": 3,
+        "type20": 3,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.Color3uint8",
+        "type19": 26,
+        "type20": 26,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 126,
+        "bytes20": 126
+      },
+      {
+        "key": "UnionOperation.ComponentIndex",
+        "type19": 3,
+        "type20": 3,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.CustomPhysicalProperties",
+        "type19": 25,
+        "type20": 25,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.DefinesCapabilities",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.EnableFluidForces",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.FluidFidelityInternal",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.FormFactor",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.FrontParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.FrontParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.FrontSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.FrontSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.HistoryId",
+        "type19": 31,
+        "type20": 31,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 672,
+        "bytes20": 672
+      },
+      {
+        "key": "UnionOperation.InertiaMigrated",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.InitialSize",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.LeftParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.LeftParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.LeftSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.LeftSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.Locked",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.Massless",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.Material",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.MaterialVariantSerialized",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.MeshData",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.MeshData2",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": true,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.Name",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 378,
+        "bytes20": 378
+      },
+      {
+        "key": "UnionOperation.OffCentered",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.PhysicalConfigData",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": true,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.PhysicsData",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.PivotOffset",
+        "type19": 16,
+        "type20": 16,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 546,
+        "bytes20": 546
+      },
+      {
+        "key": "UnionOperation.Reflectance",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RenderFidelity",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RightParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RightParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RightSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RightSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RootPriority",
+        "type19": 3,
+        "type20": 3,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.RotVelocity",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.SmoothingAngle",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.SourceAssetId",
+        "type19": 27,
+        "type20": 27,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 336,
+        "bytes20": 336
+      },
+      {
+        "key": "UnionOperation.Tags",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": true,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.TopParamA",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.TopParamB",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.TopSurface",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.TopSurfaceInput",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.Transparency",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.TriangleCount",
+        "type19": 3,
+        "type20": 3,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.UniqueId",
+        "type19": 31,
+        "type20": 31,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 672,
+        "bytes20": 672
+      },
+      {
+        "key": "UnionOperation.UnscaledCofm",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.UnscaledVolInertiaDiags",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.UnscaledVolInertiaOffDiags",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.UnscaledVolume",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 168,
+        "bytes20": 168
+      },
+      {
+        "key": "UnionOperation.UsePartColor",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 42,
+        "bytes20": 42
+      },
+      {
+        "key": "UnionOperation.Velocity",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.size",
+        "type19": 14,
+        "type20": 14,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 504,
+        "bytes20": 504
+      },
+      {
+        "key": "UnionOperation.Capabilities",
+        "type20": 33,
+        "present19": false,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes20": 336
+      },
+      {
+        "key": "UnionOperation.SolidMeshHolder",
+        "type20": 28,
+        "present19": false,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes20": 168
+      },
+      {
+        "key": "SurfaceAppearance.AlphaMode",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.AttributesSerialize",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.Color",
+        "type19": 12,
+        "type20": 12,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 84,
+        "bytes20": 84
+      },
+      {
+        "key": "SurfaceAppearance.ColorMap",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 195,
+        "bytes20": 195
+      },
+      {
+        "key": "SurfaceAppearance.DefinesCapabilities",
+        "type19": 2,
+        "type20": 2,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 7,
+        "bytes20": 7
+      },
+      {
+        "key": "SurfaceAppearance.EmissiveMaskContent",
+        "type19": 1,
+        "type20": 34,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 40
+      },
+      {
+        "key": "SurfaceAppearance.EmissiveStrength",
+        "type19": 4,
+        "type20": 4,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.EmissiveTint",
+        "type19": 12,
+        "type20": 12,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 84,
+        "bytes20": 84
+      },
+      {
+        "key": "SurfaceAppearance.HistoryId",
+        "type19": 31,
+        "type20": 31,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 112,
+        "bytes20": 112
+      },
+      {
+        "key": "SurfaceAppearance.MetalnessMap",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.Name",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 147,
+        "bytes20": 147
+      },
+      {
+        "key": "SurfaceAppearance.NormalMap",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.ResampleMode",
+        "type19": 18,
+        "type20": 18,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.RoughnessMap",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.SourceAssetId",
+        "type19": 27,
+        "type20": 27,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 56,
+        "bytes20": 56
+      },
+      {
+        "key": "SurfaceAppearance.Tags",
+        "type19": 28,
+        "type20": 28,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": true,
+        "bytes19": 28,
+        "bytes20": 28
+      },
+      {
+        "key": "SurfaceAppearance.TexturePack",
+        "type19": 1,
+        "type20": 1,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes19": 51,
+        "bytes20": 213
+      },
+      {
+        "key": "SurfaceAppearance.UniqueId",
+        "type19": 31,
+        "type20": 31,
+        "present19": true,
+        "present20": true,
+        "sameRawValue": true,
+        "sameResolvedShared": null,
+        "bytes19": 112,
+        "bytes20": 112
+      },
+      {
+        "key": "SurfaceAppearance.Capabilities",
+        "type20": 33,
+        "present19": false,
+        "present20": true,
+        "sameRawValue": false,
+        "sameResolvedShared": null,
+        "bytes20": 56
+      }
+    ],
+    "details": {
+      "UnionOperation.SolidMeshHolder": {
+        "v20": {
+          "type": 28,
+          "bytes": 168,
+          "hex": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "sharedSizes": [
+            0
+          ],
+          "uniqueShared": 1
+        }
+      },
+      "UnionOperation.CustomPhysicalProperties": {
+        "v19": {
+          "type": 25,
+          "bytes": 42,
+          "hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "v20": {
+          "type": 25,
+          "bytes": 42,
+          "hex": "020202020202020202020202020202020202020202020202020202020202020202020202020202020202"
+        }
+      },
+      "SurfaceAppearance.TexturePack": {
+        "v19": {
+          "type": 1,
+          "bytes": 51,
+          "hex": "17000000726278617373657469643a2f2f38363531323330373538000000000000000000000000000000000000000000000000",
+          "strings": [
+            "rbxassetid://8651230758",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        "v20": {
+          "type": 1,
+          "bytes": 213,
+          "hex": "17000000726278617373657469643a2f2f383635313233303735381b000000726278617373657469643a2f2f39373233353832313134303831391b000000726278617373657469643a2f2f3937323335",
+          "strings": [
+            "rbxassetid://8651230758",
+            "rbxassetid://97235821140819",
+            "rbxassetid://97235821140819",
+            "rbxassetid://97235821140819",
+            "rbxassetid://97235821140819",
+            "rbxassetid://97235821140819",
+            "rbxassetid://97235821140819"
+          ]
+        }
+      },
+      "SurfaceAppearance.EmissiveMaskContent": {
+        "v19": {
+          "type": 1,
+          "bytes": 28,
+          "hex": "00000000000000000000000000000000000000000000000000000000",
+          "strings": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        "v20": {
+          "type": 34,
+          "bytes": 40,
+          "hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Not native visual equivalence proof.",
+    "Modern type0x22 EmissiveMaskContent is preserved opaque, not interpreted by legacy rbxmk.",
+    "Six live20 SurfaceAppearance.TexturePack entries changed from empty to rbxassetid://97235821140819; unchanged explicit maps do not prove whether this new pack is a cache or a meaningful appearance change.",
+    "CustomPhysicalProperties default flag00->02 has no scalar body; semantics not independently established.",
+    "All42 Union ChildData2/MeshData2/PhysicalConfigData shared payloads match19; new SolidMeshHolder resolves empty.",
+    "No key/upload or official-API visual suitability acceptance."
+  ]
+}

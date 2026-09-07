@@ -1,0 +1,64 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punch-camera-device-20",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "settle any prior play session",
+        "wait for edit datamodel",
+        "clear prior device simulation",
+        "set desktop camera viewport",
+        "start desktop play",
+        "wait desktop runtime",
+        "prepare desktop punches",
+        "sample eight desktop punches",
+        "stop desktop play",
+        "wait for desktop edit datamodel",
+        "set tablet camera viewport",
+        "start tablet play",
+        "wait tablet runtime",
+        "prepare tablet punches",
+        "sample six tablet punches",
+        "stop tablet play",
+        "wait for tablet edit datamodel",
+        "set phone camera viewport",
+        "start phone play",
+        "wait phone runtime",
+        "prepare phone punches",
+        "sample six phone punches",
+        "capture camera console",
+        "camera console clean (identified Studio input warnings: 0)",
+        "stop phone play",
+        "restore default camera viewport"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "camera console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

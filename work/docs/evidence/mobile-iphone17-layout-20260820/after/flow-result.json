@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "mobile-iphone17-layout",
+      "selectedStudio": {
+        "id": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
+        "name": "SmashWall_v1.0.1.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "SmashWall_v1.0.1.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 landscape",
+        "start iPhone 17 play",
+        "wait for responsive client",
+        "iPhone HUD is bounded sparse and touch safe",
+        "top information hierarchy is clear",
+        "premium pet equipped notice stays compact",
+        "Inventory All uses bounded phone drawer",
+        "Inventory Pets and Honor retain compact detail behavior",
+        "all five Shop pages fit iPhone 17",
+        "Missions surface is safe",
+        "Rebirth compact header and action fit",
+        "Settings rows stay contained",
+        "Hero Spin is isolated and touch safe",
+        "capture runtime console",
+        "runtime console clean",
+        "stop iPhone 17 play",
+        "capture post-stop console",
+        "post-stop console clean",
+        "restore simulator default"
+      ]
+    }
+  ]
+}

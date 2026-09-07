@@ -1,0 +1,8 @@
+{
+  "errors": [
+    "Expected regex not found: \"text\"\\s*:\\s*\"ON\"\nReceived: {\"tab\":\"Settings\",\"screenX\":813.5,\"active\":true,\"selectable\":true,\"hittable\":true,\"insetX\":0,\"ok\":true,\"settingsVisible\":true,\"visible\":true,\"inputX\":813.5,\"text\":\"CALM\",\"motion\":true,\"min\":44,\"topmost\":true,\"menu\":true,\"insetY\":58,\"screenY\":380,\"inputY\":322,\"activated\":true,\"visibleArea\":true}"
+  ],
+  "flowSHA256": "2BFDE73A1D052D24C885DB6926BFE0F84C8B20077F3B0F7D5253EA52640C635F",
+  "ok": false,
+  "flow": "full-game-real-ui-controls"
+}

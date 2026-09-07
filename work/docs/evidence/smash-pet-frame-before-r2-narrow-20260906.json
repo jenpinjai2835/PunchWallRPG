@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "kind": "Integrated-source pet framing diagnostic before correction",
+  "mode": "narrow",
+  "expectedViewport": [
+    637,
+    654
+  ],
+  "sourceCommit": "bc30bac2f60955ea4940c84bb95cee5460cd9478",
+  "startedAt": "2026-09-06T01:08:15.593Z",
+  "error": "Error: Command failed: C:\\Program Files\\nodejs\\node.exe work/automation/scripts/verify-studio-source.mjs 0103740f-e1f7-4401-978a-bf2c80d66bde ^PunchWallRPGPlayable_v1_final[.]rbxlx$\nfile:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio_mcp_client.mjs:11\r\n  if (!value) throw new Error(message);\r\n                    ^\r\n\r\nError: Timed out waiting for DataModel(s) Edit: Edit=Edit datamodel is not available in Play mode\r\n    at assertCondition (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio_mcp_client.mjs:11:21)\r\n    at waitForDataModels (file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/studio_mcp_client.mjs:265:3)\r\n    at async file:///F:/Roblox/PuchWall-completion-20260906/work/automation/scripts/verify-studio-source.mjs:28:112\r\n\r\nNode.js v22.12.0\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:882:11)\n    at execFileSync (node:child_process:918:15)\n    at live (file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-pet-frame-diagnostic-r2.mjs:13:36)\n    at file:///F:/Roblox/PuchWall-completion-20260906/work/tools/smash-pet-frame-diagnostic-r2.mjs:23:20",
+  "finishedAt": "2026-09-06T01:09:07.215Z"
+}

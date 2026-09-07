@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,11 +24,13 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild(\"PunchWallHUD\",5) local r=g:WaitForChild(\"PixelPerfectHeroCityHUD\",5) local assets={PowerCard=\"rbxassetid://116369277219209\",CoinsCard=\"rbxassetid://129024701441116\",WallCard=\"rbxassetid://71796534980277\",QuestCard=\"rbxassetid://98132697706518\",DailyButton=\"rbxassetid://140223386174801\",SpinButton=\"rbxassetid://107739720698002\",RebirthButton=\"rbxassetid://129503393018469\",ShopButton=\"rbxassetid://104281527974467\",PetsButton=\"rbxassetid://94981950804472\",QuestsButton=\"rbxassetid://130173685908715\",ActionPunch=\"rbxassetid://86102957745205\",ActionJump=\"rbxassetid://113344820616843\",MovementJoystick=\"rbxassetid://105237841705957\",SoundTool=\"rbxassetid://91707047961392\",SettingsTool=\"rbxassetid://98048887733214\",MoreTool=\"rbxassetid://103143983649151\"} local exact=true for name,id in pairs(assets) do local item=r:FindFirstChild(name) exact=exact and item~=nil and item.Image==id and item:FindFirstChildOfClass(\"UIAspectRatioConstraint\")~=nil end local noShells=r:FindFirstChild(\"BottomShellLeft\")==nil and r:FindFirstChild(\"BottomShellRight\")==nil local touch=p.PlayerGui:FindFirstChild(\"TouchGui\") local controls=touch and touch:FindFirstChild(\"TouchControlFrame\") return H:JSONEncode({visible=r.Visible,exact=exact,noShells=noShells,powerValue=r.PowerCard:FindFirstChild(\"PowerValue\")~=nil,coinsValue=r.CoinsCard:FindFirstChild(\"CoinsValue\")~=nil,depthValue=r.WallCard:FindFirstChild(\"DepthValue\")~=nil,oldStatus=g.HeroStatusDeck.Visible,oldControls=g.MobileControls.Visible,touchControls=controls~=nil and controls.Visible or false})"
+        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild(\"PunchWallHUD\",5) local r=g:WaitForChild(\"PixelPerfectHeroCityHUD\",5) local assets={PowerCard=\"rbxassetid://116369277219209\",CoinsCard=\"rbxassetid://129024701441116\",WallCard=\"rbxassetid://71796534980277\",QuestCard=\"rbxassetid://98132697706518\",DailyButton=\"rbxassetid://140223386174801\",SpinButton=\"rbxassetid://107739720698002\",RebirthButton=\"rbxassetid://129503393018469\",ShopButton=\"rbxassetid://104281527974467\",InventoryButton=\"rbxassetid://123409223461276\",PetsButton=\"rbxassetid://94981950804472\",QuestsButton=\"rbxassetid://130173685908715\",ActionPunch=\"rbxassetid://86102957745205\",ActionJump=\"rbxassetid://113344820616843\",MovementJoystick=\"rbxassetid://105237841705957\",SoundTool=\"rbxassetid://91707047961392\",SettingsTool=\"rbxassetid://98048887733214\",MoreTool=\"rbxassetid://103143983649151\"} local exact=true for name,id in pairs(assets) do local item=r:FindFirstChild(name) exact=exact and item~=nil and item.Image==id and item:FindFirstChildOfClass(\"UIAspectRatioConstraint\")~=nil end local inventory=r:FindFirstChild(\"InventoryButton\") local inventoryAction=inventory and inventory:GetAttribute(\"ToolAction\") local inventoryTarget=inventory and math.min(inventory.AbsoluteSize.X,inventory.AbsoluteSize.Y) or 0 local noShells=r:FindFirstChild(\"BottomShellLeft\")==nil and r:FindFirstChild(\"BottomShellRight\")==nil local touch=p.PlayerGui:FindFirstChild(\"TouchGui\") local controls=touch and touch:FindFirstChild(\"TouchControlFrame\") return H:JSONEncode({visible=r.Visible,exact=exact,inventoryAction=inventoryAction,inventoryTarget=inventoryTarget,noShells=noShells,powerValue=r.PowerCard:FindFirstChild(\"PowerValue\")~=nil,coinsValue=r.CoinsCard:FindFirstChild(\"CoinsValue\")~=nil,depthValue=r.WallCard:FindFirstChild(\"DepthValue\")~=nil,oldStatus=g.HeroStatusDeck.Visible,oldControls=g.MobileControls.Visible,touchControls=controls~=nil and controls.Visible or false})"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
         "\"exact\"\\s*:\\s*true",
+        "\"inventoryAction\"\\s*:\\s*\"OpenInventory\"",
+        "\"inventoryTarget\"\\s*:\\s*(4[4-9]|[5-9][0-9]|[1-9][0-9]{2,})",
         "\"noShells\"\\s*:\\s*true",
         "\"powerValue\"\\s*:\\s*true",
         "\"coinsValue\"\\s*:\\s*true",
@@ -35,7 +39,7 @@
         "\"oldControls\"\\s*:\\s*false",
         "\"touchControls\"\\s*:\\s*false"
       ],
-      "label": "pixel HUD is exact and draft controls are hidden"
+      "label": "pixel HUD including the dedicated Inventory action is exact"
     },
     {
       "type": "call",
@@ -89,16 +93,18 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD g:SetAttribute(\"AutomationTab\",\"Fists\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"FunctionalHeroShop\",true) assert(shop,\"functional shop missing\") local cards,actions,art,tabs,minTouch=0,0,0,0,true for _,d in ipairs(shop:GetDescendants()) do if d:IsA(\"Frame\") and string.find(d.Name,\"ShopCard\",1,true) then cards+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"Action\",1,true) then actions+=1 elseif d:IsA(\"ImageLabel\") and d.Name==\"ProductArt\" and d.Image~=\"\" then art+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"ShopTab\",1,true) then tabs+=1 end if d:IsA(\"TextButton\") and (string.find(d.Name,\"Action\",1,true) or d.Name==\"CloseShop\" or string.find(d.Name,\"ShopTab\",1,true)) then minTouch=minTouch and d:FindFirstChildOfClass(\"UISizeConstraint\")~=nil end end return H:JSONEncode({visible=shop.Visible,cards=cards,actions=actions,art=art,tabs=tabs,close=shop:FindFirstChild(\"CloseShop\",true)~=nil,minTouch=minTouch})"
+        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD assert(g.PunchWallClientAutomation:Invoke(\"OpenTab\",\"Fists\")==true,\"ordinary Shop route failed\") task.wait(.35) local shop=g.GameMenu:FindFirstChild(\"FunctionalHeroShop\",true) assert(shop,\"functional shop missing\") local cards,actions,art,tabs,minTouch=0,0,0,0,true for _,d in ipairs(shop:GetDescendants()) do if d:IsA(\"Frame\") and string.find(d.Name,\"ShopCard\",1,true) then cards+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"Action\",1,true) then actions+=1 elseif d:IsA(\"ImageLabel\") and d.Name==\"ProductArt\" and d.Image~=\"\" then art+=1 elseif d:IsA(\"TextButton\") and string.find(d.Name,\"ShopTab\",1,true) then tabs+=1 end if d:IsA(\"TextButton\") and (string.find(d.Name,\"Action\",1,true) or d.Name==\"CloseShop\" or string.find(d.Name,\"ShopTab\",1,true)) then minTouch=minTouch and math.min(d.AbsoluteSize.X,d.AbsoluteSize.Y)>=44 end end local cfg=require(game.ReplicatedStorage.GameConfig) local catalogExact=true for _,item in ipairs(cfg.Fists) do local card=shop:FindFirstChild(item.name..'ShopCard',true) catalogExact=catalogExact and card~=nil and card:FindFirstChild(item.name..'Action')~=nil and card:FindFirstChild('ProductArt')~=nil end local tabsExact=true for _,name in ipairs({'Fists','Premium','Boosts','Honor','Robux'}) do tabsExact=tabsExact and shop.ShopTabs:FindFirstChild(name..'ShopTab')~=nil end return H:JSONEncode({catalogExact=catalogExact,tabsExact=tabsExact,visible=shop.Visible,cards=cards,actions=actions,art=art,tabs=tabs,close=shop:FindFirstChild(\"CloseShop\",true)~=nil,minTouch=minTouch})"
       },
       "expectRegex": [
         "\"visible\"\\s*:\\s*true",
-        "\"cards\"\\s*:\\s*5",
-        "\"actions\"\\s*:\\s*5",
-        "\"art\"\\s*:\\s*5",
-        "\"tabs\"\\s*:\\s*4",
+        "\"cards\"\\s*:\\s*16",
+        "\"actions\"\\s*:\\s*16",
+        "\"art\"\\s*:\\s*16",
+        "\"tabs\"\\s*:\\s*5",
         "\"close\"\\s*:\\s*true",
-        "\"minTouch\"\\s*:\\s*true"
+        "\"minTouch\"\\s*:\\s*true",
+        "\"catalogExact\"\\s*:\\s*true",
+        "\"tabsExact\"\\s*:\\s*true"
       ],
       "label": "fist shop is fully assembled and interactive"
     },
@@ -145,7 +151,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -154,7 +162,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

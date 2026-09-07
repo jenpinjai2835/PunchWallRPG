@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "hero-shop-reference-polish",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime shop assets and regional prices",
+        "prepare affordable UI purchase",
+        "Fists use sixteen readable cards in a scrollable catalog",
+        "Premium companions use exact previews and configured Game Pass actions",
+        "Boosts use a balanced feature card and truthful footer",
+        "Robux cards are equal and wired to configured products",
+        "header tabs footer and typography form one coherent system",
+        "invoke visible boxing glove button handler",
+        "wait for authoritative shop update",
+        "UI purchase reaches authoritative economy",
+        "close shop through header close handler",
+        "shop and dimmer close together",
+        "capture console",
+        "console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

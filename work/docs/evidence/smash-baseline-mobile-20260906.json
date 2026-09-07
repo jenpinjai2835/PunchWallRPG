@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "mobile-iphone17-layout",
+      "selectedStudio": {
+        "id": "e6017159-6ed1-4eb1-b6e7-0f65a9c93467",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "configure iPhone 17 landscape",
+        "start iPhone 17 play",
+        "wait for responsive client",
+        "cleanup stop play",
+        "cleanup simulator"
+      ],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:154: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: iPhone HUD contract {\"contract\":\"PhoneLandscapeV5\",\"overlapPair\":\"\",\"order\":true,\"targets\":true,\"actionOrder\":\"PunchThenJump\",\"targetFailures\":\"\",\"jump\":78,\"joystick\":92,\"coverage\":true,\"punch\":78,\"width\":800,\"profile\":\"PhoneLandscape\",\"bounds\":true,\"questHidden\":true,\"joystickMax\":true,\"height\":580,\"pairwise\":true,\"punchMax\":true,\"equalActions\":true}",
+      "context": {}
+    }
+  ]
+}

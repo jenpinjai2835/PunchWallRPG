@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "baseline": "06b0e9f3d369ed2b001d26856066bab7c9156c06",
+  "unchangedFlowOutsideObserver": true,
+  "compiled": 56,
+  "executedAssertions": 35093,
+  "compilingMutationsRejected": 30,
+  "phaseCases": 880,
+  "scope": "Exact production cadence/smoothing plus extracted observer and full flow lifecycle; no native runtime claim."
+}

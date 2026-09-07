@@ -1,0 +1,5 @@
+DataStoreService: StudioAccessToApisNotAllowed: Cannot write to DataStore from studio if API access is not enabled. API: UpdateAsync, Data Store: PunchWallRPG_PlayerStats_v2
+[PunchWallRPG] Profile load failed closed for jennarong2835: current_profile_lease_failed: current_lease_update_failed: 403: Cannot write to DataStore from studio if API access is not enabled.
+Server Kick Message: Your saved data could not be loaded safely. Please rejoin and try again.
+
+Classification: expected fail-closed behavior for a published cloud Studio Play session while StudioAccessToApisAllowed=false. This run is BLOCKED and is not counted as a gameplay PASS.

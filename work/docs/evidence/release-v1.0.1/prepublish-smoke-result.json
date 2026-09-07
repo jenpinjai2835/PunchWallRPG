@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-b6a4437e621c45aa\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "punchwall-smoke",
+      "selectedStudio": {
+        "id": "03d68549-ed19-438d-bb8c-922b03f9d7b1",
+        "name": "SmashWall_v1.0.1.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "SmashWall_v1.0.1.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "edit mode detected",
+        "capture edit preview tree",
+        "edit preview folders detected",
+        "start play",
+        "wait for runtime bootstrap",
+        "play mode detected",
+        "runtime folders and key objects detected",
+        "front excavation block attributes",
+        "titan wall attributes",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

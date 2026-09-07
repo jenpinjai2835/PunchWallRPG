@@ -1,6 +1,14 @@
+param(
+    [string]$StudioInstanceId = "",
+    [string]$ExpectedPlaceName = ""
+)
+
 $ErrorActionPreference = "Stop"
 
-$script = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
-$flow = "F:\Roblox\PuchWall\work\automation\flows\punchwall-smoke.json"
+$script = Join-Path $PSScriptRoot "scripts\flow_runner.mjs"
+$flow = Join-Path $PSScriptRoot "flows\punchwall-smoke.json"
+$invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 
-node $script --flow $flow
+$result = & $invokeFlow -FlowPath $flow -Runner $script -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
+$result | ConvertTo-Json -Depth 8
+if (-not $result.ok) { exit 1 }

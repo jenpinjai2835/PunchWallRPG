@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "training-lock-motion-feedback",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"bagWidth\":2.454085350036621,\"impact\":\"rbxassetid://132504023010884\",\"bagDepth\":2.042327880859375,\"bagHeight\":7.200000762939453,\"bagBottom\":0.3500000238418579,\"powerAfter\":15,\"shake\":0,\"bagAsset\":140653091179998,\"powerBefore\":15,\"walk\":0}",
+      "context": {}
+    }
+  ]
+}

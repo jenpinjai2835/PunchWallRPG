@@ -1,0 +1,58 @@
+{
+  "ok": true,
+  "captures": [
+    {
+      "page": "Fists",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\shop-visual-qc-20260819\\fists.jpg",
+      "diagnostics": {
+        "cards": 5,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Fists"
+      }
+    },
+    {
+      "page": "Premium",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\shop-visual-qc-20260819\\premium.jpg",
+      "diagnostics": {
+        "cards": 3,
+        "previewFits": 3,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Premium"
+      }
+    },
+    {
+      "page": "Boosts",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\shop-visual-qc-20260819\\boosts.jpg",
+      "diagnostics": {
+        "cards": 3,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Boosts"
+      }
+    },
+    {
+      "page": "Robux",
+      "file": "F:\\Roblox\\PuchWall-inventory-integration\\work\\docs\\evidence\\shop-visual-qc-20260819\\robux.jpg",
+      "diagnostics": {
+        "cards": 4,
+        "previewFits": 0,
+        "textFailures": [],
+        "modalSizing": "DesktopSafeMarginV2",
+        "page": "Robux"
+      }
+    }
+  ],
+  "selectedStudio": {
+    "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+  },
+  "selectedPlace": {
+    "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+    "placeId": "0",
+    "datamodelType": "Edit"
+  }
+}

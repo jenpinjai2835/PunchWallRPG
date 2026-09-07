@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "world-wall-reset",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "capture Animate bootstrap snapshot",
+        "capture bootstrap console",
+        "reset blocks and return player without wiping stats",
+        "client receives reset feedback",
+        "capture Animate post-reset snapshot",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.\n[SMASH_WORLD_RESET_EMOTE_V1]{\"contract\":\"WorldResetEmoteReadinessV1\",\"invokeOk\":true,\"animate\":true,\"idleReady\":true,\"playEmoteCount\":1,\"stableSamples\":5,\"invokeCleanup\":true,\"idleReadyAt\":0.23011319999932312,\"finalIdentity\":true,\"duplicateRemoved\":false,\"children\":[\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"animateEnabled\":true,\"probeTimeouts\":0,\"invokeAttempts\":1,\"classMismatch\":\"\",\"valid\":true,\"repaired\":false,\"waveElapsed\":0.00019200000679120421,\"idleSamples\":5,\"phase\":\"bootstrap\",\"idleElapsed\":0.2301446999917971,\"playEmote\":true,\"nativeHookReady\":true,\"lastReturn\":{\"firstValue\":\"true\",\"firstKind\":\"boolean\",\"returnCount\":2,\"secondKind\":\"Instance\",\"at\":0.2303088999906322,\"trackAnimationId\":\"http://www.roblox.com/asset/?id=507770239\",\"pcallOk\":true,\"trackPlaying\":true,\"secondClass\":\"AnimationTrack\"},\"repairState\":\"EngineHookReady\",\"adoptedLate\":false,\"playEmoteClass\":\"BindableFunction\",\"lastState\":{\"move\":0,\"grounded\":true,\"sameIdentity\":true,\"unanchored\":true,\"alive\":true,\"speed\":0.0000064763175942061938,\"floor\":\"Slate\",\"state\":\"Running\",\"running\":true},\"hookOwned\":false,\"stableSeconds\":0.23010950000025333,\"invokeCompleted\":true}\n[SMASH_WORLD_RESET_EMOTE_V1]{\"contract\":\"WorldResetEmoteReadinessV1\",\"invokeOk\":true,\"animate\":true,\"idleReady\":true,\"playEmoteCount\":1,\"stableSamples\":5,\"invokeCleanup\":true,\"idleReadyAt\":0.23055079999903684,\"finalIdentity\":true,\"duplicateRemoved\":false,\"children\":[\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"animateEnabled\":true,\"probeTimeouts\":0,\"invokeAttempts\":1,\"classMismatch\":\"\",\"valid\":true,\"repaired\":false,\"waveElapsed\":0.0001635999942664057,\"idleSamples\":5,\"phase\":\"post-reset\",\"idleElapsed\":0.23058129999844824,\"playEmote\":true,\"nativeHookReady\":true,\"lastReturn\":{\"firstValue\":\"true\",\"firstKind\":\"boolean\",\"returnCount\":2,\"secondKind\":\"Instance\",\"at\":0.2307206999976188,\"trackAnimationId\":\"http://www.roblox.com/asset/?id=507770239\",\"pcallOk\":true,\"trackPlaying\":true,\"secondClass\":\"AnimationTrack\"},\"repairState\":\"EngineHookReady\",\"adoptedLate\":false,\"playEmoteClass\":\"BindableFunction\",\"lastState\":{\"move\":0,\"grounded\":true,\"sameIdentity\":true,\"unanchored\":true,\"alive\":true,\"speed\":0.000006551681963173905,\"floor\":\"Slate\",\"state\":\"Running\",\"running\":true},\"hookOwned\":false,\"stableSeconds\":0.23054669999692124,\"invokeCompleted\":true}",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            },
+            {
+              "lineNumber": 2,
+              "text": "[SMASH_WORLD_RESET_EMOTE_V1]{\"contract\":\"WorldResetEmoteReadinessV1\",\"invokeOk\":true,\"animate\":true,\"idleReady\":true,\"playEmoteCount\":1,\"stableSamples\":5,\"invokeCleanup\":true,\"idleReadyAt\":0.23011319999932312,\"finalIdentity\":true,\"duplicateRemoved\":false,\"children\":[\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"animateEnabled\":true,\"probeTimeouts\":0,\"invokeAttempts\":1,\"classMismatch\":\"\",\"valid\":true,\"repaired\":false,\"waveElapsed\":0.00019200000679120421,\"idleSamples\":5,\"phase\":\"bootstrap\",\"idleElapsed\":0.2301446999917971,\"playEmote\":true,\"nativeHookReady\":true,\"lastReturn\":{\"firstValue\":\"true\",\"firstKind\":\"boolean\",\"returnCount\":2,\"secondKind\":\"Instance\",\"at\":0.2303088999906322,\"trackAnimationId\":\"http://www.roblox.com/asset/?id=507770239\",\"pcallOk\":true,\"trackPlaying\":true,\"secondClass\":\"AnimationTrack\"},\"repairState\":\"EngineHookReady\",\"adoptedLate\":false,\"playEmoteClass\":\"BindableFunction\",\"lastState\":{\"move\":0,\"grounded\":true,\"sameIdentity\":true,\"unanchored\":true,\"alive\":true,\"speed\":0.0000064763175942061938,\"floor\":\"Slate\",\"state\":\"Running\",\"running\":true},\"hookOwned\":false,\"stableSeconds\":0.23010950000025333,\"invokeCompleted\":true}"
+            },
+            {
+              "lineNumber": 3,
+              "text": "[SMASH_WORLD_RESET_EMOTE_V1]{\"contract\":\"WorldResetEmoteReadinessV1\",\"invokeOk\":true,\"animate\":true,\"idleReady\":true,\"playEmoteCount\":1,\"stableSamples\":5,\"invokeCleanup\":true,\"idleReadyAt\":0.23055079999903684,\"finalIdentity\":true,\"duplicateRemoved\":false,\"children\":[\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"animateEnabled\":true,\"probeTimeouts\":0,\"invokeAttempts\":1,\"classMismatch\":\"\",\"valid\":true,\"repaired\":false,\"waveElapsed\":0.0001635999942664057,\"idleSamples\":5,\"phase\":\"post-reset\",\"idleElapsed\":0.23058129999844824,\"playEmote\":true,\"nativeHookReady\":true,\"lastReturn\":{\"firstValue\":\"true\",\"firstKind\":\"boolean\",\"returnCount\":2,\"secondKind\":\"Instance\",\"at\":0.2307206999976188,\"trackAnimationId\":\"http://www.roblox.com/asset/?id=507770239\",\"pcallOk\":true,\"trackPlaying\":true,\"secondClass\":\"AnimationTrack\"},\"repairState\":\"EngineHookReady\",\"adoptedLate\":false,\"playEmoteClass\":\"BindableFunction\",\"lastState\":{\"move\":0,\"grounded\":true,\"sameIdentity\":true,\"unanchored\":true,\"alive\":true,\"speed\":0.000006551681963173905,\"floor\":\"Slate\",\"state\":\"Running\",\"running\":true},\"hookOwned\":false,\"stableSeconds\":0.23054669999692124,\"invokeCompleted\":true}"
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

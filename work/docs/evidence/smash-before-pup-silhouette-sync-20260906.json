@@ -1,0 +1,135 @@
+{
+  "ok": true,
+  "checkedAt": "2026-09-06T02:39:58.769Z",
+  "readOnly": true,
+  "selectedStudio": {
+    "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+    "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+  },
+  "placeId": 0,
+  "placeName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "globalCodeObjectCount": 9,
+  "sources": [
+    {
+      "name": "GameConfig",
+      "parent": "ReplicatedStorage",
+      "class": "ModuleScript",
+      "normalizedSHA256": "641b1ff8a2b2f8afb6a199a323cd6e94a2285313ce1dd326b9149ecd5b03aec2",
+      "rawSHA256": "083d3b49645a906cb5a45a80462311dd826521b2ef3eac7b4cc2af850ec3597e",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 38942,
+        "name": "GameConfig",
+        "actualBytes": 38942
+      }
+    },
+    {
+      "name": "PolishConfig",
+      "parent": "ReplicatedStorage",
+      "class": "ModuleScript",
+      "normalizedSHA256": "5b2dbe380e7a803ee4eabb4c9f828b51e15946d13d81f5122f769b5662c0dd81",
+      "rawSHA256": "1e584ca6843ac23ea23ef728c5ae33a24f3fe1adcd2ac2f8d86cde661d472941",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 12834,
+        "name": "PolishConfig",
+        "actualBytes": 12834
+      }
+    },
+    {
+      "name": "ForestVisualBuilder",
+      "parent": "ReplicatedStorage",
+      "class": "ModuleScript",
+      "normalizedSHA256": "e7add19cf6e9c20d081f9b08471b9f2e2ebf38c6ed348c6265b3996dc2977ba1",
+      "rawSHA256": "7c48f59b9f5cab5f53320284b033177ab9acc1bf085572a340e36499eaf37e85",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 34025,
+        "name": "ForestVisualBuilder",
+        "actualBytes": 34025
+      }
+    },
+    {
+      "name": "FistVisualBuilder",
+      "parent": "ReplicatedStorage",
+      "class": "ModuleScript",
+      "normalizedSHA256": "634170d5fd2a0827c4c2144d9feaac3ac916783fc83ce7dc658d5734a56d81be",
+      "rawSHA256": "0c1a3389cb3f3f4b4f1b729050016d22363796bfe2eef17cbb984403cc5ceeef",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 24885,
+        "name": "FistVisualBuilder",
+        "actualBytes": 24885
+      }
+    },
+    {
+      "name": "InventoryViewModel",
+      "parent": "ReplicatedStorage",
+      "class": "ModuleScript",
+      "normalizedSHA256": "a696c37178f9a582276a5953df798757862912b36b0ff0e5beebe028235f2d1c",
+      "rawSHA256": "89b9ea4422dad55006092efcc0fcd39dc44cc238716b706d77c2aad668a4962b",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 29640,
+        "name": "InventoryViewModel",
+        "actualBytes": 29640
+      }
+    },
+    {
+      "name": "ProfilePersistence",
+      "parent": "ServerScriptService",
+      "class": "ModuleScript",
+      "normalizedSHA256": "36d21c0389a97bd213ebc4c31ae2bed7f3bcc51b7a6a632e6148cc6b9808f4e9",
+      "rawSHA256": "b4a674304346253d2b1a570a0e01ad842995d1423f52ae78bb1c7839bd25ddd5",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 72504,
+        "name": "ProfilePersistence",
+        "actualBytes": 72504
+      }
+    },
+    {
+      "name": "PunchWallBootstrap",
+      "parent": "ServerScriptService",
+      "class": "Script",
+      "disabled": false,
+      "runContext": "Legacy",
+      "normalizedSHA256": "d426339d4265a8cc34e4d75217d6ce39c203a50e1b2c334ef8574234d819ad85",
+      "rawSHA256": "d1c390936de058e2a098c657211c3cb9fd20c838d40bf0efc60a5d067df87d20",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 434288,
+        "name": "PunchWallBootstrap",
+        "actualBytes": 434288
+      }
+    },
+    {
+      "name": "InventoryUI",
+      "parent": "StarterPlayer.StarterPlayerScripts",
+      "class": "ModuleScript",
+      "normalizedSHA256": "64de2702cd527ee6be13889fe1b8df7750325cac4db2031c6738e3f70c027f33",
+      "rawSHA256": "20147d8eb71af5a1ba008df88201b51ed1fe93f0602ce7527c6fe098e9579e86",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 162060,
+        "name": "InventoryUI",
+        "actualBytes": 162060
+      }
+    },
+    {
+      "name": "PunchWallClient",
+      "parent": "StarterPlayer.StarterPlayerScripts",
+      "class": "LocalScript",
+      "disabled": false,
+      "runContext": "Legacy",
+      "normalizedSHA256": "500f7c56a55d3389ddd5525f732629409846c331c01751c39a8e1b24f362d014",
+      "rawSHA256": "8f384ad7ecae7bb6ec145bbfd0575cc752195d6b931bb1be510dffd1af119526",
+      "exactByteComparison": {
+        "ok": true,
+        "expectedBytes": 642135,
+        "name": "PunchWallClient",
+        "actualBytes": 642135
+      }
+    }
+  ]
+}

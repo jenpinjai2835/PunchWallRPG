@@ -1,0 +1,28 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "camera-long-tunnel-regression",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for gameplay runtime",
+        "prepare long high-power tunnel run",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: AssistantCommand:1: self-contained long-tunnel camera contract failed: {\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"freshValid\":true,\"freshInside\":0,\"inside\":2,\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"zoomRestored\":true,\"settleTimedOut\":false,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"freshReadable\":true}\nAssistantCommand:1\nAssistantCommand:1\n",
+      "context": {}
+    }
+  ]
+}

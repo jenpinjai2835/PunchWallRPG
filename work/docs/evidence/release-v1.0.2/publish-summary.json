@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "releaseVersion": "1.0.2",
+  "releaseChannel": "public",
+  "publishedAtUtc": "2026-08-20T15:44:00Z",
+  "verifiedAtUtc": "2026-08-20T15:48:10.4082703Z",
+  "universeId": 10490793155,
+  "placeId": 125255969070601,
+  "publicUrl": "https://www.roblox.com/games/125255969070601/Smash-Wall",
+  "previousPublishedVersion": 11,
+  "publishedVersion": 14,
+  "sourceCommit": "45b3a045f3cf2256f30c254d631f2ca4ba7cdbf6",
+  "artifact": {
+    "path": "outputs/releases/v1.0.2/SmashWall_v1.0.2.rbxlx",
+    "validationPath": "outputs/releases/v1.0.2/SmashWall_v1.0.2_validation.rbxlx",
+    "bytes": 6108085,
+    "sha256": "CC26C8387B171A67F656B5FE00EB1331397F5D3DB18EEFE262E9F80BCB2A644C",
+    "validationSha256": "CC26C8387B171A67F656B5FE00EB1331397F5D3DB18EEFE262E9F80BCB2A644C",
+    "canonicalCodeObjects": 9,
+    "extraCodeObjects": 0
+  },
+  "studio": {
+    "name": "ชนกำแพง",
+    "placeId": 125255969070601,
+    "dataModelType": "Edit",
+    "publishMethod": "Roblox Studio Publish to Roblox action",
+    "sourceFingerprints": {
+      "GameConfig": { "length": 39088, "adler32": 3358682012 },
+      "PolishConfig": { "length": 11571, "adler32": 1228663865 },
+      "ForestVisualBuilder": { "length": 34025, "adler32": 4192181038 },
+      "FistVisualBuilder": { "length": 14040, "adler32": 662893888 },
+      "InventoryViewModel": { "length": 29362, "adler32": 1787416496 },
+      "ProfilePersistence": { "length": 70720, "adler32": 1951779809 },
+      "PunchWallBootstrap": { "length": 418141, "adler32": 45581774 },
+      "InventoryUI": { "length": 155275, "adler32": 1003831652 },
+      "PunchWallClient": { "length": 542078, "adler32": 3725837487 }
+    }
+  },
+  "checks": {
+    "cloudPrepublishSmoke": "PASS_12_OF_12",
+    "cloudIphone17Rerun": "BLOCKED_STUDIO_MCP_START_PLAY_TIMEOUT",
+    "artifactExactSource": "PASS_9_OF_9",
+    "artifactGlobalCodeAllowlist": "PASS_9_CANONICAL_0_EXTRA",
+    "publishedVersionVerified": true,
+    "publicExperienceVerified": true,
+    "activePublicServersAtVerification": 0,
+    "forcedServerRestartRequired": false
+  },
+  "cleanup": {
+    "studioAccessToApisAllowed": false,
+    "temporaryApiKeyDeleted": true,
+    "temporaryApiKeyName": "Codex SmashWall v1.0.2 Publish 20260820",
+    "autoRecoveryFilesDeleted": false,
+    "autoRecoveryBackup": "C:/Users/Jennarong Pinjai/AppData/Local/Roblox/RobloxStudio/AutoSaves_CodexBackup_20260820_2235"
+  },
+  "waivers": {
+    "paidRobuxUat": "WAIVED_BY_USER",
+    "publishedCrossSessionDatastoreUat": "NOT_RUN"
+  }
+}

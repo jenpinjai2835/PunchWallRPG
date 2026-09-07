@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "checks": 506,
+  "mutations": [
+    "wrong_detail_consumer_case",
+    "wrong_card_lookup_case",
+    "stale_alias_identity",
+    "historical_b7_standalone",
+    "uncapped_settings",
+    "lost_margin",
+    "overlap_cancel",
+    "overlap_hint",
+    "settings_helper_overlap",
+    "collapsed_nan",
+    "old_inventory_host",
+    "missing_rebirth_bounds",
+    "missing_detail_overlap",
+    "missing_ephemeral_guard"
+  ],
+  "compiled": 38,
+  "actualInventoryProducer": true,
+  "callbacksAndCompactUnchanged": true,
+  "native": "pending"
+}

@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-a81df5431d244cc0\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "creator-store-pet-pack-visuals",
+      "selectedStudio": {
+        "active": true,
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "eight extracted pack templates are exact safe and bounded",
+        "start play",
+        "wait for runtime templates and Inventory",
+        "runtime keeps all preloaded children and never loads the complete pack",
+        "all eight Inventory cards render the exact equipped-model source",
+        "capture eight model-matched Inventory previews",
+        "equip all three premium pack pets",
+        "wait for premium formation",
+        "premium companions keep exact pack identities and non-overlapping formation",
+        "capture premium pack companions",
+        "capture runtime console",
+        "runtime console clean",
+        "stop play",
+        "capture post-stop console",
+        "post-stop console clean"
+      ]
+    }
+  ]
+}

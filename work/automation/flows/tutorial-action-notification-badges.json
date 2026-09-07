@@ -1,0 +1,142 @@
+{
+  "name": "tutorial-action-notification-badges",
+  "description": "Verify persistent three-action onboarding and action-driven red notification dots for pet fusion, spin, affordable fist upgrades, and claimable daily rewards.",
+  "studioInstanceId": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+  "studioName": "^PunchWallRPG_ManualPlaytest_20260818_FistAuraV10[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": true }, "timeoutMs": 35000, "label": "start tutorial badge playtest" },
+    { "type": "wait", "ms": 6500, "label": "wait for tutorial badge bootstrap" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "bootConsole", "label": "capture tutorial badge boot console" },
+    { "type": "assertNoConsoleErrors", "source": "bootConsole", "label": "tutorial badge boot console clean" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] c:Invoke('Reset') c:Invoke('SetStats',{TutorialVersion=2,TutorialStep=1,TutorialCompleted=0,Coins=0,Depth=0,LastSpinAt=0,SpinCredits=0,DailyBreaks=0,DailyQuestClaimed=0,PlaytimeSeconds=0,PlaytimeClaimed=0,LastDailyDate='',PetInventoryJSON='[]',LockedPetsJSON='[]'}) local wall=nil for _,candidate in ipairs(workspace:GetDescendants()) do if candidate:IsA('BasePart') and candidate:GetAttribute('IsDepthBlock') and candidate:GetAttribute('Depth')==1 and candidate:GetAttribute('Broken')~=true then wall=candidate break end end assert(wall,'front depth wall block missing') local root=p.Character and p.Character:FindFirstChild('HumanoidRootPart') assert(root,'character root missing') local approach=Vector3.new(wall.Position.X,root.Position.Y,wall.Position.Z+5.5) root.CFrame=CFrame.lookAt(approach,Vector3.new(wall.Position.X,approach.Y,wall.Position.Z)) local s=c:Invoke('Snapshot') local ok=s.TutorialVersion==2 and s.TutorialStep==1 and s.TutorialCompleted==0 and s.OwnedFistsJSON=='[\"Starter Glove\"]' assert(ok,'fresh tutorial state mismatch '..H:JSONEncode(s)) return H:JSONEncode({ok=ok,step=s.TutorialStep,completed=s.TutorialCompleted,wall=wall.Name})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"step\"\\s*:\\s*1", "\"completed\"\\s*:\\s*0", "Depth"],
+      "label": "fresh profile starts punch-first tutorial"
+    },
+    { "type": "wait", "ms": 500, "label": "wait for punch tutorial HUD" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local function b(n) return h:FindFirstChild(n,true) end local pets,shop,spin,daily=b('PetsButton'),b('ShopButton'),b('SpinButton'),b('DailyButton') local objective=h:FindFirstChild('TutorialObjectiveHUD',true) local ok=objective and objective.Visible and objective.ObjectiveText.Text:find('PUNCH THE WALL',1,true) and pets:GetAttribute('NotificationActionCount')==0 and shop:GetAttribute('NotificationActionCount')==0 and spin:GetAttribute('NotificationActionCount')==1 and daily:GetAttribute('NotificationActionCount')==1 assert(ok,'initial tutorial/badges mismatch') return H:JSONEncode({ok=ok,objective=objective.ObjectiveText.Text,pets=pets:GetAttribute('NotificationActionCount'),shop=shop:GetAttribute('NotificationActionCount'),spin=spin:GetAttribute('NotificationActionCount'),daily=daily:GetAttribute('NotificationActionCount')})"
+      },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "PUNCH THE WALL", "\"pets\"\\s*:\\s*0", "\"shop\"\\s*:\\s*0", "\"spin\"\\s*:\\s*1", "\"daily\"\\s*:\\s*1"],
+      "label": "punch objective and initial action dots are exact"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Punch',value='Forward'}) return true" },
+      "expectRegex": ["true"],
+      "label": "production punch action advances onboarding"
+    },
+    { "type": "wait", "ms": 700, "label": "wait for open-shop tutorial step" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local s=game.ServerStorage.PunchWallAutomation:Invoke('Snapshot') local ok=s.TutorialStep==2 and s.TutorialCompleted==0 assert(ok,'punch did not advance tutorial '..H:JSONEncode(s)) return H:JSONEncode({ok=ok,step=s.TutorialStep,completed=s.TutorialCompleted})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"step\"\\s*:\\s*2"],
+      "label": "server accepts one successful punch outcome"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='TutorialShopOpened'}) return true" },
+      "expectRegex": ["true"],
+      "label": "shop-open route advances onboarding"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for buy-fist tutorial step" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local s=c:Invoke('Snapshot') assert(s.TutorialStep==3 and s.TutorialCompleted==0,'shop step mismatch '..H:JSONEncode(s)) c:Invoke('SetStats',{Coins=180,Depth=1}) return H:JSONEncode({ok=true,step=s.TutorialStep})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"step\"\\s*:\\s*3"],
+      "label": "authoritative tutorial waits for exact starter fist purchase"
+    },
+    { "type": "wait", "ms": 350, "label": "wait for affordable shop dot" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local shop=h:FindFirstChild('ShopButton',true) local objective=h:FindFirstChild('TutorialObjectiveHUD',true) local ok=shop:GetAttribute('NotificationActionCount')==1 and shop:FindFirstChild('ShopNotificationDot').Visible and objective.ObjectiveText.Text:find('BUY YOUR FIRST FIST',1,true)~=nil assert(ok,'affordable shop badge/tutorial copy mismatch') game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='BuyFist',target='Boxing Glove'}) return H:JSONEncode({ok=ok,count=shop:GetAttribute('NotificationActionCount'),objective=objective.ObjectiveText.Text})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*1", "BUY YOUR FIRST FIST"],
+      "label": "affordable fist shows shop dot and production purchase completes tutorial"
+    },
+    { "type": "wait", "ms": 650, "label": "wait for tutorial completion persistence state" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation local s=c:Invoke('Snapshot') local owned=H:JSONDecode(s.OwnedFistsJSON) local ok=s.TutorialStep==4 and s.TutorialCompleted==1 and table.find(owned,'Boxing Glove')~=nil and s.Coins==0 local P=require(game.ServerScriptService.ProfilePersistence) local legacy=P.Migrate({DataVersion=7,TutorialStep=8},8) local unfinished=P.Migrate({DataVersion=7,TutorialStep=3},8) ok=ok and legacy and legacy.TutorialCompleted==1 and legacy.TutorialStep==4 and unfinished and unfinished.TutorialCompleted==0 and unfinished.TutorialStep==1 assert(ok,'tutorial completion/migration mismatch '..H:JSONEncode({snapshot=s,legacy=legacy,unfinished=unfinished})) return H:JSONEncode({ok=ok,step=s.TutorialStep,completed=s.TutorialCompleted,legacyComplete=legacy.TutorialCompleted,unfinishedStep=unfinished.TutorialStep})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"completed\"\\s*:\\s*1", "\"legacyComplete\"\\s*:\\s*1", "\"unfinishedStep\"\\s*:\\s*1"],
+      "label": "tutorial completion persists and legacy completion migrates once"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{PetInventoryJSON='[\"Forest Pup\",\"Forest Pup\"]',LockedPetsJSON='[]',LastDailyDate=os.date('!%Y-%m-%d'),DailyBreaks=0,DailyQuestClaimed=0,PlaytimeSeconds=0,PlaytimeClaimed=0,LastSpinAt=os.time(),SpinCredits=0}) return H:JSONEncode({ok=true})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "seed one fuse action with other notifications inactive"
+    },
+    { "type": "wait", "ms": 500, "label": "wait for pet fuse notification dot" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local pets,spin,daily=h:FindFirstChild('PetsButton',true),h:FindFirstChild('SpinButton',true),h:FindFirstChild('DailyButton',true) local ok=pets:GetAttribute('NotificationActionCount')==1 and pets.PetsNotificationDot.Visible and spin:GetAttribute('NotificationActionCount')==0 and daily:GetAttribute('NotificationActionCount')==0 assert(ok,'pet-only badge state mismatch') game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='FusePet',target='Forest Pup'}) return H:JSONEncode({ok=ok,pets=pets:GetAttribute('NotificationActionCount'),spin=spin:GetAttribute('NotificationActionCount'),daily=daily:GetAttribute('NotificationActionCount')})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"pets\"\\s*:\\s*1", "\"spin\"\\s*:\\s*0", "\"daily\"\\s*:\\s*0"],
+      "label": "pet icon dot appears only when an unlocked fusion is possible"
+    },
+    { "type": "wait", "ms": 500, "label": "wait for fused pet notification clear" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local h=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD local pets=h:FindFirstChild('PetsButton',true) local ok=pets:GetAttribute('NotificationActionCount')==0 and pets.PetsNotificationDot.Visible==false assert(ok,'pet badge did not clear after fuse') return H:JSONEncode({ok=ok,count=pets:GetAttribute('NotificationActionCount')})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"count\"\\s*:\\s*0"],
+      "label": "pet dot clears after the fusion action is exhausted"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{SpinCredits=1,LastSpinAt=os.time(),DailyBreaks=10,DailyQuestClaimed=0}) return H:JSONEncode({ok=true})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "seed spin credit and claimable quest actions"
+    },
+    { "type": "wait", "ms": 450, "label": "wait for spin and daily notification dots" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local h=game.Players.LocalPlayer.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD local spin,daily,quests=h:FindFirstChild('SpinButton',true),h:FindFirstChild('DailyButton',true),h:FindFirstChild('QuestsButton',true) local ok=spin:GetAttribute('NotificationActionCount')==1 and daily:GetAttribute('NotificationActionCount')==1 and quests:GetAttribute('NotificationActionCount')==1 assert(ok,'spin/daily actionable dots missing') local r=game.ReplicatedStorage.PunchWallEvents.ActionRequest r:FireServer({action='ClaimQuest'}) task.wait(.2) r:FireServer({action='Spin'}) return H:JSONEncode({ok=ok,spin=spin:GetAttribute('NotificationActionCount'),daily=daily:GetAttribute('NotificationActionCount'),quests=quests:GetAttribute('NotificationActionCount')})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "spin and claimable quest dots appear on their exact icons"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService('HttpService') local c=game.ServerStorage.PunchWallAutomation c:Invoke('SetStats',{SpinCredits=0,LastSpinAt=os.time(),DailyQuestClaimed=1,LastDailyDate=os.date('!%Y-%m-%d'),PlaytimeClaimed=0,PlaytimeSeconds=0}) return H:JSONEncode({ok=true})" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true"],
+      "label": "exhaust every spin and daily claim action"
+    },
+    { "type": "wait", "ms": 450, "label": "wait for exhausted notification dots to clear" },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": { "datamodel_type": "Client", "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local h=g.PixelPerfectHeroCityHUD local names={'PetsButton','ShopButton','SpinButton','DailyButton','QuestsButton'} local state={} local ok=true for _,name in ipairs(names) do local b=h:FindFirstChild(name,true) state[name]=b:GetAttribute('NotificationActionCount') ok=ok and state[name]==0 and b:GetAttribute('NotificationBadgeVisible')==false end local objective=h:FindFirstChild('TutorialObjectiveHUD',true) ok=ok and objective.Visible==false and g:GetAttribute('OnboardingTutorialCompleted')==true assert(ok,'completed UI did not clear '..H:JSONEncode(state)) state.ok=ok state.tutorialHidden=objective.Visible==false return H:JSONEncode(state)" },
+      "expectRegex": ["\"ok\"\\s*:\\s*true", "\"PetsButton\"\\s*:\\s*0", "\"ShopButton\"\\s*:\\s*0", "\"SpinButton\"\\s*:\\s*0", "\"DailyButton\"\\s*:\\s*0", "\"tutorialHidden\"\\s*:\\s*true"],
+      "label": "all dots and tutorial disappear when no action remains"
+    },
+    { "type": "call", "tool": "get_console_output", "saveAs": "runtimeConsole", "label": "capture tutorial badge runtime console" },
+    { "type": "assertNoConsoleErrors", "source": "runtimeConsole", "label": "tutorial badge runtime console clean" },
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "label": "stop tutorial badge playtest" },
+    { "type": "call", "tool": "get_console_output", "saveAs": "postStopConsole", "label": "capture tutorial badge post-stop console" },
+    { "type": "assertNoConsoleErrors", "source": "postStopConsole", "label": "tutorial badge post-stop console clean" }
+  ],
+  "cleanup": [
+    { "type": "call", "tool": "start_stop_play", "args": { "is_start": false }, "timeoutMs": 35000, "allowError": true, "label": "cleanup tutorial badge playtest" }
+  ]
+}

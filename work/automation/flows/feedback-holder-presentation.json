@@ -1,0 +1,157 @@
+{
+  "name": "feedback-holder-presentation",
+  "description": "Require exactly one real Feedback event, one count increment, and one visible presentation for a gated Rebirth and an ephemeral Studio premium grant. Numeric baselines are captured before triggers; commerce prompts are not used as grants.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start play and wait for runtime DataModels"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for feedback UI bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal c=game.ServerStorage.PunchWallAutomation assert(c:Invoke('Reset').ok==true,'reset failed') c:Invoke('SetStats',{WallLevel=1,Coins=0,Rebirths=0,OwnedPremiumPetsJSON='[]',PetInventoryJSON='[]',EquippedPetsJSON='[]'}) return true"
+      },
+      "label": "prepare rejected rebirth and fresh premium state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal events=game.ReplicatedStorage.PunchWallEvents\nlocal function captureFeedbackView()\n local function count(holder)\n  local n=0 local texts={}\n  if not g.Enabled or not holder.Visible then return n,texts end\n  for _,d in ipairs(holder:GetChildren()) do\n   if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n    n+=1 if d:IsA('TextLabel') or d:IsA('TextButton') then table.insert(texts,d.Text) end\n   end\n  end\n  return n,texts\n end\n local toasts,toastTexts=count(g.Toasts)\n local rewards,rewardTexts=count(g.RewardPops)\n local channels=(toasts>0 and 1 or 0)+(rewards>0 and 1 or 0)\n return {toasts=toasts,rewards=rewards,channels=channels,presented=channels==1,toastHolder=g.Toasts.Visible,rewardHolder=g.RewardPops.Visible,toastTexts=toastTexts,rewardTexts=rewardTexts}\nend\nlocal function verifyFeedbackEvidence(e,expectedType,expectedTarget)\n assert(e.presentationCaptured==true,'actual visible presentation was not captured')\n assert(e.baselineVisualCount==0,'feedback fixture was not visually empty')\n assert(type(e.before)=='number' and type(e.after)=='number' and e.after-e.before==1 and e.delta==1,'expected exactly one counted feedback')\n assert(e.eventCount==1 and #e.events==1,'expected exactly one actual Feedback event')\n assert(e.events[1].type==expectedType and e.events[1].target==expectedTarget,'wrong Feedback event identity')\n assert(e.type==expectedType and e.target==expectedTarget,'wrong last displayed feedback identity')\n assert(e.channels==1 and e.toasts+e.rewards==1 and e.presented==true,'expected exactly one visible feedback instance/channel')\n return true\nend\ng.PunchWallClientAutomation:Invoke('ClearToasts')\nlocal emptyDeadline=os.clock()+4\nlocal initial\nrepeat initial=captureFeedbackView() if initial.toasts+initial.rewards==0 then break end task.wait(.05) until os.clock()>=emptyDeadline\nassert(initial.toasts+initial.rewards==0,'feedback fixture did not clear')\nlocal before=tonumber(g:GetAttribute('FeedbackCount')) or 0\nlocal evidence={before=before,baselineVisualCount=initial.toasts+initial.rewards,eventCount=0,events={}}\nlocal connection=events.Feedback.OnClientEvent:Connect(function(payload)\n evidence.eventCount+=1 table.insert(evidence.events,{type=tostring(payload.type or ''),target=tostring(payload.target or '')})\nend)\nevents.ActionRequest:FireServer({action='Rebirth'})\nlocal deadline=os.clock()+4\nrepeat task.wait(.05) until evidence.eventCount>0 or os.clock()>=deadline\ntask.wait(.3)\nconnection:Disconnect()\nlocal view=captureFeedbackView()\nfor key,value in pairs(view)do evidence[key]=value end\nevidence.presentationCaptured=true\nevidence.after=tonumber(g:GetAttribute('FeedbackCount')) or 0\nevidence.delta=evidence.after-evidence.before\nevidence.type=tostring(g:GetAttribute('LastFeedbackType') or '')\nevidence.target=tostring(g:GetAttribute('LastFeedbackTarget') or '')\nlocal encoded=H:JSONEncode(evidence)\nlocal ok,reason=pcall(verifyFeedbackEvidence,evidence,'Fail','Rebirth')\nassert(ok,'Rebirth feedback evidence failed: '..tostring(reason)..' '..encoded)\ng:SetAttribute('FeedbackContractRebirthJSON',encoded)\nreturn encoded"
+      },
+      "label": "request a gated rebirth through the player remote",
+      "timeoutMs": 15000,
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"channels\"\\s*:\\s*1",
+        "\"presented\"\\s*:\\s*true"
+      ]
+    },
+    {
+      "type": "wait",
+      "ms": 220,
+      "label": "wait for rejection feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local result=assert(g:GetAttribute('FeedbackContractRebirthJSON'),'missing same-call Rebirth evidence') return result"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"type\"\\s*:\\s*\"Fail\"",
+        "\"target\"\\s*:\\s*\"Rebirth\"",
+        "\"presented\"\\s*:\\s*true",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"channels\"\\s*:\\s*1"
+      ],
+      "label": "gated action renders visible rejection feedback"
+    },
+    {
+      "type": "wait",
+      "ms": 1800,
+      "label": "let rejection presentation clear"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal events=game.ReplicatedStorage.PunchWallEvents\nlocal function captureFeedbackView()\n local function count(holder)\n  local n=0 local texts={}\n  if not g.Enabled or not holder.Visible then return n,texts end\n  for _,d in ipairs(holder:GetChildren()) do\n   if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n    n+=1 if d:IsA('TextLabel') or d:IsA('TextButton') then table.insert(texts,d.Text) end\n   end\n  end\n  return n,texts\n end\n local toasts,toastTexts=count(g.Toasts)\n local rewards,rewardTexts=count(g.RewardPops)\n local channels=(toasts>0 and 1 or 0)+(rewards>0 and 1 or 0)\n return {toasts=toasts,rewards=rewards,channels=channels,presented=channels==1,toastHolder=g.Toasts.Visible,rewardHolder=g.RewardPops.Visible,toastTexts=toastTexts,rewardTexts=rewardTexts}\nend\nlocal function verifyFeedbackEvidence(e,expectedType,expectedTarget)\n assert(e.presentationCaptured==true,'actual visible presentation was not captured')\n assert(e.baselineVisualCount==0,'feedback fixture was not visually empty')\n assert(type(e.before)=='number' and type(e.after)=='number' and e.after-e.before==1 and e.delta==1,'expected exactly one counted feedback')\n assert(e.eventCount==1 and #e.events==1,'expected exactly one actual Feedback event')\n assert(e.events[1].type==expectedType and e.events[1].target==expectedTarget,'wrong Feedback event identity')\n assert(e.type==expectedType and e.target==expectedTarget,'wrong last displayed feedback identity')\n assert(e.channels==1 and e.toasts+e.rewards==1 and e.presented==true,'expected exactly one visible feedback instance/channel')\n return true\nend\ng.PunchWallClientAutomation:Invoke('ClearToasts')\nlocal emptyDeadline=os.clock()+4\nlocal initial\nrepeat initial=captureFeedbackView() if initial.toasts+initial.rewards==0 then break end task.wait(.05) until os.clock()>=emptyDeadline\nassert(initial.toasts+initial.rewards==0,'feedback fixture did not clear')\nlocal token=H:GenerateGUID(false)\nlocal before=tonumber(g:GetAttribute('FeedbackCount')) or 0\nlocal evidence={token=token,before=before,baselineVisualCount=initial.toasts+initial.rewards,eventCount=0,events={}}\ng:SetAttribute('FeedbackContractPremiumToken',token)\ng:SetAttribute('FeedbackContractPremiumJSON',H:JSONEncode(evidence))\nlocal connection=events.Feedback.OnClientEvent:Connect(function(payload)\n if g:GetAttribute('FeedbackContractPremiumToken')~=token then return end\n evidence.eventCount+=1 table.insert(evidence.events,{type=tostring(payload.type or ''),target=tostring(payload.target or '')})\n g:SetAttribute('FeedbackContractPremiumJSON',H:JSONEncode(evidence))\n task.spawn(function()\n  local displayDeadline=os.clock()+2\n  local view\n  repeat\n   task.wait(.03)\n   view=captureFeedbackView()\n   if view.toasts+view.rewards>0 then break end\n  until os.clock()>=displayDeadline\n  if g:GetAttribute('FeedbackContractPremiumToken')~=token then return end\n  for key,value in pairs(view)do evidence[key]=value end\n  evidence.after=tonumber(g:GetAttribute('FeedbackCount')) or 0\n  evidence.delta=evidence.after-evidence.before\n  evidence.type=tostring(g:GetAttribute('LastFeedbackType') or '')\n  evidence.target=tostring(g:GetAttribute('LastFeedbackTarget') or '')\n  evidence.presentationCaptured=true\n  evidence.observedAt=os.clock()\n  g:SetAttribute('FeedbackContractPremiumJSON',H:JSONEncode(evidence))\n end)\nend)\ntask.delay(30,function()connection:Disconnect()end)\nreturn H:JSONEncode({armed=true,token=token,before=before,baselineVisualCount=evidence.baselineVisualCount})"
+      },
+      "label": "arm exact premium Feedback observation before server grant",
+      "expectRegex": [
+        "\"armed\"\\s*:\\s*true",
+        "\"baselineVisualCount\"\\s*:\\s*0"
+      ],
+      "timeoutMs": 10000
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "assert(game:GetService('RunService'):IsStudio(),'fixture is Studio-only')\nlocal function verifyEphemeralSeed(player,world,storage)\n assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','refusing fixture Reset outside EphemeralStudio')\n assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'refusing live-data Studio fixture')\n assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'live DataStore opt-in forbids fixture Reset')\n assert(player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture profile must be ready, ephemeral and non-writable')\n return true\nend\nassert(#game.Players:GetPlayers()==1,'requires one isolated player')\nverifyEphemeralSeed(game.Players:GetPlayers()[1],workspace:FindFirstChild('PunchWallRPG'),game.ServerStorage)\nlocal H=game:GetService('HttpService')\nlocal p=game.Players:GetPlayers()[1]\nassert(not table.find(H:JSONDecode(p.RPGStats.OwnedPremiumPetsJSON.Value),'Crimson Phoenix'),'premium grant fixture already owned')\nlocal result=game.ServerStorage.PunchWallAutomation:Invoke('GrantPremiumPet','Crimson Phoenix')\nassert(result.ok==true,'deterministic premium grant failed')\nassert(table.find(H:JSONDecode(p.RPGStats.OwnedPremiumPetsJSON.Value),'Crimson Phoenix') and table.find(H:JSONDecode(p.RPGStats.PetInventoryJSON.Value),'Crimson Phoenix'),'premium authority did not grant exact pet')\nreturn H:JSONEncode({ok=true,source='StudioAutomation',pet='Crimson Phoenix'})"
+      },
+      "label": "request the deterministic Studio premium pet grant",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"source\"\\s*:\\s*\"StudioAutomation\""
+      ]
+    },
+    {
+      "type": "wait",
+      "ms": 250,
+      "label": "wait for premium grant feedback"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal events=game.ReplicatedStorage.PunchWallEvents\nlocal function captureFeedbackView()\n local function count(holder)\n  local n=0 local texts={}\n  if not g.Enabled or not holder.Visible then return n,texts end\n  for _,d in ipairs(holder:GetChildren()) do\n   if d:IsA('GuiObject') and d.Visible and d.AbsoluteSize.X>0 and d.AbsoluteSize.Y>0 then\n    n+=1 if d:IsA('TextLabel') or d:IsA('TextButton') then table.insert(texts,d.Text) end\n   end\n  end\n  return n,texts\n end\n local toasts,toastTexts=count(g.Toasts)\n local rewards,rewardTexts=count(g.RewardPops)\n local channels=(toasts>0 and 1 or 0)+(rewards>0 and 1 or 0)\n return {toasts=toasts,rewards=rewards,channels=channels,presented=channels==1,toastHolder=g.Toasts.Visible,rewardHolder=g.RewardPops.Visible,toastTexts=toastTexts,rewardTexts=rewardTexts}\nend\nlocal function verifyFeedbackEvidence(e,expectedType,expectedTarget)\n assert(e.presentationCaptured==true,'actual visible presentation was not captured')\n assert(e.baselineVisualCount==0,'feedback fixture was not visually empty')\n assert(type(e.before)=='number' and type(e.after)=='number' and e.after-e.before==1 and e.delta==1,'expected exactly one counted feedback')\n assert(e.eventCount==1 and #e.events==1,'expected exactly one actual Feedback event')\n assert(e.events[1].type==expectedType and e.events[1].target==expectedTarget,'wrong Feedback event identity')\n assert(e.type==expectedType and e.target==expectedTarget,'wrong last displayed feedback identity')\n assert(e.channels==1 and e.toasts+e.rewards==1 and e.presented==true,'expected exactly one visible feedback instance/channel')\n return true\nend\nlocal token=assert(g:GetAttribute('FeedbackContractPremiumToken'),'premium observer not armed')\nlocal evidence\nlocal deadline=os.clock()+4\nrepeat\n evidence=H:JSONDecode(g:GetAttribute('FeedbackContractPremiumJSON') or '{}')\n if evidence.token==token and tonumber(evidence.eventCount) and evidence.eventCount>0 and evidence.presentationCaptured==true then break end\n task.wait(.05)\nuntil os.clock()>=deadline\ntask.wait(.3)\nevidence=H:JSONDecode(g:GetAttribute('FeedbackContractPremiumJSON') or '{}')\nassert(evidence.token==token,'wrong premium observation token')\nassert(evidence.presentationCaptured==true,'no event-time premium presentation: '..H:JSONEncode(evidence))\nlocal encoded=H:JSONEncode(evidence)\nlocal ok,reason=pcall(verifyFeedbackEvidence,evidence,'Pet','Crimson Phoenix')\nassert(ok,'premium feedback evidence failed: '..tostring(reason)..' '..encoded)\ng:SetAttribute('FeedbackContractPremiumToken','')\nreturn encoded"
+      },
+      "expectRegex": [
+        "\"delta\"\\s*:\\s*1",
+        "\"target\"\\s*:\\s*\"Crimson Phoenix\"",
+        "\"presented\"\\s*:\\s*true",
+        "\"type\"\\s*:\\s*\"Pet\"",
+        "\"eventCount\"\\s*:\\s*1",
+        "\"channels\"\\s*:\\s*1"
+      ],
+      "label": "premium grant renders one visible feedback channel",
+      "timeoutMs": 10000
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture feedback presentation console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "feedback presentation console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "stop play and wait for Edit"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup feedback regression"
+    }
+  ]
+}

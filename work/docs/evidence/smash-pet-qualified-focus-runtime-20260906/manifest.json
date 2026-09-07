@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "flowSHA256": "99AD6EF202DFFE1F3A570DBEF5262E8331A69735A8ACAB3A49C21DB65FE4A096",
+  "flow": "pet-size-position-qc",
+  "errors": [
+    "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium camera/size matrix failed {\"valid\":false,\"matrix\":{\"12\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000006675720215,\"combined\":0.0374799916331769,\"maxScreen\":0.013085392394639071,\"viewportY\":654,\"minAvatarSeparation\":99,\"visible\":3},\"18\":{\"valid\":true,\"culled\":0,\"viewportX\":636,\"maxLargest\":1.8000013828277588,\"combined\":0.016632742291385877,\"maxScreen\":0.005737739227245094,\"viewportY\":654,\"minAvatarSeparation\":84.79045104980469,\"visible\":3},\"6\":{\"valid\":false,\"culled\":0,\"viewportX\":636"
+  ]
+}

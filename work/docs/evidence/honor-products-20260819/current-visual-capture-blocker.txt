@@ -1,0 +1,24 @@
+Honor Developer Products current visual recapture blocker
+Recorded: 2026-08-19
+
+Required capture set:
+- Desktop 1366x768
+- Phone 844x390
+- Phone 740x360
+
+Attempted current capture path:
+- Studio MCP screen_capture repeatedly timed out while the configured live-ID UI was open.
+- The alternate Windows capture path failed with:
+  SetIsBorderRequired failed: No such interface supported (0x80004002)
+
+Impact:
+- The existing JPG files and capture-summary.json in this directory predate the live
+  Developer Product IDs and still show UNAVAILABLE / NOT READY.
+- They are stale and must not be used as current release evidence.
+- This is a tooling/evidence blocker, not a known product-code failure.
+
+Current non-image evidence:
+- honor-product-receipts flow PASS 15/15 at deterministic 740x360, including live
+  regional prices, BUY binding, OPEN/ROBLOX/VERIFY/ADDED TextFits, 44px target,
+  cancel recovery, clean runtime/post-stop console, and checked device cleanup.
+- Published private/UAT real-commerce testing remains separately NOT RUN.

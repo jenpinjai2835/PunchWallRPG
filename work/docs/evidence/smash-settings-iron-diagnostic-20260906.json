@@ -1,0 +1,62 @@
+{
+  "settingsBefore": "{\"top\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD.SettingsTool\",\"center\":\"1236.52087, -13.6945419\",\"button\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.PixelPerfectHeroCityHUD.SettingsTool\",\"root\":\"0, -58\",\"viewport\":\"1277, 780\",\"inset\":\"0, 58\",\"rawCenter\":\"1236.52087, 44.3054581\"}",
+  "mouseArgs": {
+    "datamodel_type": "Client",
+    "actions": [
+      {
+        "action": "moveTo",
+        "x": 1237,
+        "y": -14
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 80
+      },
+      {
+        "action": "moveTo",
+        "x": 1237,
+        "y": -14
+      },
+      {
+        "action": "mouseButtonDown",
+        "mouse_button": "left",
+        "x": 1237,
+        "y": -14
+      },
+      {
+        "action": "wait",
+        "wait_time_ms": 60
+      },
+      {
+        "action": "mouseButtonUp",
+        "mouse_button": "left",
+        "x": 1237,
+        "y": -14
+      }
+    ]
+  },
+  "mouseResult": {
+    "text": "Success",
+    "error": false
+  },
+  "settingsAfter": "{\"settingsVisible\":true,\"nativeActivated\":true,\"activeWindow\":\"Settings\"}",
+  "ironSetup": [
+    {
+      "label": "move to actual qualified training station",
+      "text": "{\"ok\":true}"
+    },
+    {
+      "label": "one real training start acknowledges continuous TrainingState",
+      "text": "{\"ok\":true,\"acknowledgements\":1,\"type\":\"TrainingState\",\"active\":true}"
+    },
+    {
+      "label": "continuous training presents authoritative rate and exit action",
+      "text": "{\"ok\":true,\"trainingVisible\":true,\"label\":\"ROOKIE BAG\\n+4 POWER / SEC\"}"
+    },
+    {
+      "label": "leave training and observe the actual Iron top face without intervening blocks",
+      "text": "{\"ok\":true,\"clearTopFace\":true,\"target\":\"DepthBlock_L020_C06_R06\"}"
+    }
+  ],
+  "iron": "{\"layoutReady\":true,\"training\":0,\"anchored\":true,\"queryCount\":400,\"trainingAnimation\":false,\"target\":\"DepthBlock_L020_C06_R05\",\"look\":\"-0, -1, 0\",\"layoutReason\":\"VisibleControlSafeLaneV1\",\"root\":\"-4, 30.25, -113\",\"standalone\":false,\"nearest\":[{\"name\":\"DepthBlock_L020_C06_R05\",\"facing\":1,\"distance\":12,\"level\":8,\"pos\":\"-4, 18.25, -113\"},{\"name\":\"DepthBlock_L021_C06_R05\",\"facing\":0.9486832618713379,\"distance\":12.649110794067383,\"level\":8,\"pos\":\"-4, 18.25, -117\"},{\"name\":\"DepthBlock_L020_C07_R05\",\"facing\":0.9486832618713379,\"distance\":12.649110794067383,\"level\":8,\"pos\":\"0, 18.25, -113\"},{\"name\":\"DepthBlock_L020_C05_R05\",\"facing\":0.9486832618713379,\"distance\":12.649110794067383,\"level\":8,\"pos\":\"-8, 18.25, -113\"},{\"name\":\"DepthBlock_L021_C05_R05\",\"facing\":0.9045340418815613,\"distance\":13.266499519348145,\"level\":8,\"pos\":\"-8, 18.25, -117\"},{\"name\":\"DepthBlock_L021_C07_R05\",\"facing\":0.9045340418815613,\"distance\":13.266499519348145,\"level\":8,\"pos\":\"0, 18.25, -117\"}],\"health\":100,\"included\":false,\"expectedPosition\":\"-4, 22.25, -113\",\"kind\":\"Wall\",\"expected\":\"DepthBlock_L020_C06_R06\",\"menu\":false}"
+}

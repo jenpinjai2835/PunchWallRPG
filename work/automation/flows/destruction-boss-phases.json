@@ -1,6 +1,6 @@
 {
   "name": "destruction-boss-phases",
-  "description": "Validate staged cracks, collapse chunks, audio, reconstruction, boss phases, and danger-zone telegraph.",
+  "description": "Validate depth-block damage stages, bounded physics debris, world reconstruction, boss phases, and danger-zone telegraph.",
   "studioName": "PunchWallRPG",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -11,32 +11,38 @@
       "type": "call", "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=30,CritChance=0}) c:Invoke(\"HitWall\",\"Brick Wall\") local w=workspace.PunchWallRPG.Walls[\"Brick Wall\"] local cracks=0 for _,d in ipairs(workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Facade Crack\") and d.Transparency<1 then cracks+=1 end end return H:JSONEncode({stage=w:GetAttribute(\"DamageStage\"),hp=w:GetAttribute(\"HP\"),cracks=cracks,sounds=#w:GetChildren()})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\"):WaitForChild(\"PunchWallAutomation\") c:Invoke(\"Reset\") c:Invoke(\"ResetWorld\") c:Invoke(\"SetStats\",{Power=2,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local w=workspace.PunchWallRPG[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local maxHP=w:GetAttribute(\"MaxHP\") c:Invoke(\"HitWall\",\"Brick Wall\") local damage=maxHP-w:GetAttribute(\"HP\") return H:JSONEncode({stage=w:GetAttribute(\"DamageStage\"),singleHitDamage=damage>=1.9 and damage<=2.1,hpBelowMax=w:GetAttribute(\"HP\")<maxHP,broken=w:GetAttribute(\"Broken\"),changedColor=w.Color~=w:GetAttribute(\"OriginalColor\"),canCollide=w.CanCollide,transparency=w.Transparency})"
       },
-      "expectRegex": ["\"stage\"\\s*:\\s*1", "\"hp\"\\s*:\\s*8[89]", "\"cracks\"\\s*:\\s*1"],
-      "label": "wall damage stage visible"
+      "expectRegex": ["\"stage\"\\s*:\\s*1", "\"singleHitDamage\"\\s*:\\s*true", "\"hpBelowMax\"\\s*:\\s*true", "\"broken\"\\s*:\\s*false", "\"changedColor\"\\s*:\\s*true", "\"canCollide\"\\s*:\\s*true", "\"transparency\"\\s*:\\s*0"],
+      "label": "depth-block damage stage visible"
     },
     {
       "type": "call", "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation c:Invoke(\"SetStats\",{Power=120,CritChance=0}) c:Invoke(\"HitWall\",\"Brick Wall\") local w=workspace.PunchWallRPG.Walls[\"Brick Wall\"] local visible=0 for _,d in ipairs(workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\") and d.Transparency<1 then visible+=1 end end return H:JSONEncode({broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),visibleChunks=visible,hasPunch=w:FindFirstChild(\"Punch Impact\")~=nil,hasCollapse=w:FindFirstChild(\"Building Collapse\")~=nil})"
+        "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation c:Invoke(\"SetStats\",{Power=120,CritChance=0}) c:Invoke(\"HitWall\",\"Brick Wall\") local root=workspace.PunchWallRPG local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 local debris=root[\"Depth Physics Debris\"] local targetChunks=0 local frontSafe=true for _,chunk in ipairs(debris:GetChildren()) do if string.find(chunk.Name,w.Name,1,true)==1 then targetChunks+=1 if (chunk:GetAttribute(\"InitialForwardSpeed\") or 0)<=0 or (chunk:GetAttribute(\"SpawnFrontOffset\") or 0)<=0 then frontSafe=false end end end return H:JSONEncode({broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),stage=w:GetAttribute(\"DamageStage\"),targetChunks=targetChunks,debrisCount=#debris:GetChildren(),withinBudget=#debris:GetChildren()<=120,frontSafe=frontSafe,canCollide=w.CanCollide,canQuery=w.CanQuery,transparency=w.Transparency})"
       },
-      "expectRegex": ["\"broken\"\\s*:\\s*true", "\"hp\"\\s*:\\s*0", "\"visibleChunks\"\\s*:\\s*7", "\"hasPunch\"\\s*:\\s*true", "\"hasCollapse\"\\s*:\\s*true"],
-      "label": "wall collapse feedback visible"
+      "expectRegex": ["\"broken\"\\s*:\\s*true", "\"hp\"\\s*:\\s*0", "\"stage\"\\s*:\\s*3", "\"targetChunks\"\\s*:\\s*6", "\"withinBudget\"\\s*:\\s*true", "\"frontSafe\"\\s*:\\s*true", "\"canCollide\"\\s*:\\s*false", "\"canQuery\"\\s*:\\s*false", "\"transparency\"\\s*:\\s*1"],
+      "label": "depth-block collapse feedback and debris budget"
     },
-    { "type": "wait", "ms": 4500, "label": "wait for reconstruction" },
+    { "type": "wait", "ms": 4750, "label": "wait for bounded debris cleanup" },
     {
       "type": "call", "tool": "execute_luau",
-      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local w=workspace.PunchWallRPG.Walls[\"Brick Wall\"] local visible=0 for _,d in ipairs(workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"]:GetChildren()) do if string.find(d.Name,\"Brick Wall Collapse Chunk\") and d.Transparency<1 then visible+=1 end end return H:JSONEncode({broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),visibleChunks=visible})" },
-      "expectRegex": ["\"broken\"\\s*:\\s*false", "\"hp\"\\s*:\\s*120", "\"visibleChunks\"\\s*:\\s*0"],
-      "label": "wall reconstructs cleanly"
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 return H:JSONEncode({broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),debrisCount=#root[\"Depth Physics Debris\"]:GetChildren()})" },
+      "expectRegex": ["\"broken\"\\s*:\\s*true", "\"hp\"\\s*:\\s*0", "\"debrisCount\"\\s*:\\s*0"],
+      "label": "physics debris cleans up without hidden auto-respawn"
     },
     {
       "type": "call", "tool": "execute_luau",
-      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=20,Power=1000000,CritChance=0,FistMultiplier=1,PetMultiplier=0}) c:Invoke(\"HitBoss\") c:Invoke(\"HitBoss\") local b=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"] local zone=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"]:FindFirstChild(\"Titan Danger Zone\") return H:JSONEncode({phase=b:GetAttribute(\"BossPhase\"),participants=b:GetAttribute(\"ParticipantCount\"),weakPoints=b:GetAttribute(\"WeakPointCount\"),dangerZone=zone~=nil,roar=b:FindFirstChild(\"Boss Roar\")~=nil})" },
-      "expectRegex": ["\"phase\"\\s*:\\s*[234]", "\"participants\"\\s*:\\s*1", "\"weakPoints\"\\s*:\\s*3", "\"dangerZone\"\\s*:\\s*true", "\"roar\"\\s*:\\s*true"],
-      "label": "boss phase and telegraph configured"
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation c:Invoke(\"ResetWorld\") local root=workspace.PunchWallRPG local w=root[\"Depth Blocks\"].DepthBlock_L001_C06_R02 return H:JSONEncode({broken=w:GetAttribute(\"Broken\"),hp=w:GetAttribute(\"HP\"),stage=w:GetAttribute(\"DamageStage\"),transparency=w.Transparency,anchored=w.Anchored,canCollide=w.CanCollide,canQuery=w.CanQuery,collisionGroup=w.CollisionGroup,resetBlocks=root:GetAttribute(\"LastWorldResetDepthBlocks\")})" },
+      "expectRegex": ["\"broken\"\\s*:\\s*false", "\"hp\"\\s*:\\s*8", "\"stage\"\\s*:\\s*0", "\"transparency\"\\s*:\\s*0", "\"anchored\"\\s*:\\s*true", "\"canCollide\"\\s*:\\s*true", "\"canQuery\"\\s*:\\s*true", "\"collisionGroup\"\\s*:\\s*\"DepthStructure\"", "\"resetBlocks\"\\s*:\\s*[1-9][0-9]*"],
+      "label": "world reset reconstructs depth structure cleanly"
+    },
+    {
+      "type": "call", "tool": "execute_luau",
+      "args": { "datamodel_type": "Server", "code": "local H=game:GetService(\"HttpService\") local c=game:GetService(\"ServerStorage\").PunchWallAutomation c:Invoke(\"SetStats\",{WallLevel=99,Depth=75,Power=200000000,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local result=c:Invoke(\"HitBoss\") local b=workspace.PunchWallRPG.Walls[\"Titan Server Wall\"] local zone=workspace.PunchWallRPG.Polish[\"Wall Tier Frames\"]:FindFirstChild(\"Titan Danger Zone\") local deadline=os.clock()+11 repeat if zone and zone.Transparency<1 then break end task.wait(0.25) until os.clock()>=deadline return H:JSONEncode({resultOk=result.ok,phase=b:GetAttribute(\"BossPhase\"),participants=b:GetAttribute(\"ParticipantCount\"),weakPoints=b:GetAttribute(\"WeakPointCount\"),dangerZone=zone~=nil,telegraphVisible=zone and zone.Transparency<1 or false,roar=b:FindFirstChild(\"Boss Roar\")~=nil})" },
+      "expectRegex": ["\"resultOk\"\\s*:\\s*true", "\"phase\"\\s*:\\s*2", "\"participants\"\\s*:\\s*1", "\"weakPoints\"\\s*:\\s*3", "\"dangerZone\"\\s*:\\s*true", "\"telegraphVisible\"\\s*:\\s*true", "\"roar\"\\s*:\\s*true"],
+      "label": "boss phase and timed danger-zone telegraph"
     },
     { "type": "call", "tool": "get_console_output", "saveAs": "console", "label": "capture console" },
     { "type": "assertNoConsoleErrors", "source": "console", "label": "console clean" },

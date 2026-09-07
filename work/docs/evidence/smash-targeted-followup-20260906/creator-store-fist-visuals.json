@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "creator-store-fist-visuals",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character visual",
+        "prepare owned regular and premium Creator Store fallbacks",
+        "actual imported normal and premium fist matrix",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:154: idle native preview rotates/rebuilds",
+      "context": {
+        "fallbackSeed": "{\"ok\":true,\"regularOwned\":true,\"count\":4,\"premiumOwned\":true,\"equipped\":\"Celestial Titan Fist\"}",
+        "fistTierMatrix": "{\"ok\":true,\"count\":4,\"regularFallbacks\":1,\"rows\":[{\"cuff\":true,\"anchored\":0,\"plates\":3,\"welds\":9,\"localZ\":-0.08253777772188187,\"source\":\"SanitizedCreatorStoreMesh\",\"unsafe\":0,\"tier\":6,\"expectedPlates\":3,\"gripAxis\":\"LocalYToDistalForearm\",\"mesh\":\"rbxassetid://65322375\",\"parts\":9,\"valid\":true,\"expectedCore\":true,\"template\":\"CreatorStore_ArmoredClosedHeroFist\",\"collidable\":0,\"minParts\":9,\"expectedFins\":2,\"fins\":2,\"system\":\"ItemMatchedClosedFistV3\",\"core\":true,\"localX\":1.043081283569336e-7,\"name\":\"Magma Breaker\",\"materialMatched\":true,\"colorMatched\":true,\"style\":\"Titan\",\"axisDot\":-0.9999999403953552,\"localY\":-0.02268720045685768},{\"cuff\":true,\"anchored\":0,\"plates\":3,\"welds\":7,\"localZ\":-0.07878386229276657,\"source\":\"SanitizedCreatorStoreMesh\",\"unsafe\":0,\"tier\":6,\"expectedPlates\":3,\"gripAxis\":\"LocalYToDistalForearm\",\"mesh\":\"rbxassetid://65322375\",\"parts\":7,\"valid\":true,\"expectedCore\":true,\"template\":\"CreatorStore_ArmoredClosedHeroFist\",\"collidable\":0,\"minParts\":7,\"expectedFins\":0,\"fins\":0,\"system\":\"ItemMatchedClosedFistV3\",\"core\":true,\"localX\":2.1921005100011826e-7,\"name\":\"Crimson Vanguard Fist\",\"materialMatched\":true,\"colorMatched\":true,\"style\":\"Vanguard\",\"axisDot\":-1.0000001192092896,\"localY\":-0.02268712967634201},{\"cuff\":true,\"anchored\":0,\"plates\":3,\"welds\":9,\"localZ\":-0.08122625946998596,\"source\":\"SanitizedCreatorStoreMesh\",\"unsafe\":0,\"tier\":7,\"expectedPlates\":3,\"gripAxis\":\"LocalYToDistalForearm\",\"mesh\":\"rbxassetid://65322375\",\"parts\":9,\"valid\":true,\"expectedCore\":true,\"template\":\"CreatorStore_ArmoredClosedHeroFist\",\"collidable\":0,\"minParts\":9,\"expectedFins\":2,\"fins\":2,\"system\":\"ItemMatchedClosedFistV3\",\"core\":true,\"localX\":-1.6111880540847779e-7,\"name\":\"Stormbreaker Fist\",\"materialMatched\":true,\"colorMatched\":true,\"style\":\"Storm\",\"axisDot\":-1.000000238418579,\"localY\":-0.022687938064336778},{\"cuff\":true,\"anchored\":0,\"plates\":4,\"welds\":10,\"localZ\":-0.08460430800914765,\"source\":\"SanitizedCreatorStoreMesh\",\"unsafe\":0,\"tier\":8,\"expectedPlates\":4,\"gripAxis\":\"LocalYToDistalForearm\",\"mesh\":\"rbxassetid://65322375\",\"parts\":10,\"valid\":true,\"expectedCore\":true,\"template\":\"CreatorStore_ArmoredClosedHeroFist\",\"collidable\":0,\"minParts\":10,\"expectedFins\":2,\"fins\":2,\"system\":\"ItemMatchedClosedFistV3\",\"core\":true,\"localX\":-4.2957253754138949e-8,\"name\":\"Celestial Titan Fist\",\"materialMatched\":true,\"colorMatched\":true,\"style\":\"Celestial\",\"axisDot\":-0.9999998211860657,\"localY\":-0.022688034921884538}],\"premiumFallbacks\":3}"
+      }
+    }
+  ]
+}

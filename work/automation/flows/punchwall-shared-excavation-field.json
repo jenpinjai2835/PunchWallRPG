@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -22,7 +24,7 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "game.ServerStorage:WaitForChild(\"PunchWallAutomation\"):Invoke(\"Reset\") return true"
+        "code": "do\n local function verifyEphemeralSeed(player, world, storage)\n  assert(world and world:GetAttribute('PersistenceMode')=='EphemeralStudio','fixture requires an ephemeral Studio world')\n  assert(world:GetAttribute('PersistenceStudioDefaultEphemeral')==true and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false,'world allows live profile access')\n  assert(storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'ServerStorage opts into live data')\n  assert(player and player:GetAttribute('ProfileReady')==true and player:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and player:GetAttribute('ProfileWritable')==false,'fixture requires a ready nonwritable ephemeral player')\n  return true\n end\n assert(game:GetService('RunService'):IsStudio(),'combat QA is Studio-only')\n local players=game:GetService('Players'):GetPlayers() assert(#players==1,'combat QA requires exactly one isolated player')\n verifyEphemeralSeed(players[1],workspace:FindFirstChild('PunchWallRPG'),game:GetService('ServerStorage'))\nend\ngame.ServerStorage:WaitForChild(\"PunchWallAutomation\"):Invoke(\"Reset\") return true"
       },
       "label": "reset shared field before geometry assertions"
     },
@@ -31,20 +33,20 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local f=root[\"Depth Blocks\"] local count=#f:GetChildren() local perLayer={} local minX,maxX,minY,maxY,minZ,maxZ=math.huge,-math.huge,math.huge,-math.huge,math.huge,-math.huge local materials={} local uniform=true for _,b in ipairs(f:GetChildren()) do local layer=b:GetAttribute(\"Depth\") perLayer[layer]=(perLayer[layer] or 0)+1 minX=math.min(minX,b.Position.X-b.Size.X/2) maxX=math.max(maxX,b.Position.X+b.Size.X/2) minY=math.min(minY,b.Position.Y-b.Size.Y/2) maxY=math.max(maxY,b.Position.Y+b.Size.Y/2) minZ=math.min(minZ,b.Position.Z-b.Size.Z/2) maxZ=math.max(maxZ,b.Position.Z+b.Size.Z/2) materials[b.Material.Name]=true uniform=uniform and (b.Size-Vector3.new(4,4,4)).Magnitude<0.01 and b.CanCollide and b.Anchored end local layersOK=true for i=1,75 do layersOK=layersOK and perLayer[i]==36 end local unique=0 for _ in pairs(materials) do unique+=1 end local first=f.DepthBlock_L001_C06_R02 local last=f.DepthBlock_L075_C06_R02 return H:JSONEncode({count=count,layersOK=layersOK,uniform=uniform,width=maxX-minX,height=maxY-minY,length=maxZ-minZ,firstHP=first:GetAttribute(\"MaxHP\"),lastHP=last:GetAttribute(\"MaxHP\"),firstTier=first:GetAttribute(\"Tier\"),lastTier=last:GetAttribute(\"Tier\"),uniqueMaterials=unique,bossDepth=root.Walls[\"Titan Server Wall\"]:GetAttribute(\"Depth\")})"
+        "code": "local H=game:GetService(\"HttpService\") local root=workspace.PunchWallRPG local f=root[\"Depth Blocks\"] local count=#f:GetChildren() local perLayer={} local minX,maxX,minY,maxY,minZ,maxZ=math.huge,-math.huge,math.huge,-math.huge,math.huge,-math.huge local materials={} local uniform=true for _,b in ipairs(f:GetChildren()) do local layer=b:GetAttribute(\"Depth\") perLayer[layer]=(perLayer[layer] or 0)+1 minX=math.min(minX,b.Position.X-b.Size.X/2) maxX=math.max(maxX,b.Position.X+b.Size.X/2) minY=math.min(minY,b.Position.Y-b.Size.Y/2) maxY=math.max(maxY,b.Position.Y+b.Size.Y/2) minZ=math.min(minZ,b.Position.Z-b.Size.Z/2) maxZ=math.max(maxZ,b.Position.Z+b.Size.Z/2) materials[b.Material.Name]=true uniform=uniform and (b.Size-Vector3.new(4,4,4)).Magnitude<0.01 and b.CanCollide and b.Anchored end local layersOK=true for i=1,75 do layersOK=layersOK and perLayer[i]==72 end local unique=0 for _ in pairs(materials) do unique+=1 end local first=f.DepthBlock_L001_C06_R02 local last=f.DepthBlock_L075_C06_R02 return H:JSONEncode({count=count,layersOK=layersOK,uniform=uniform,width=maxX-minX,height=maxY-minY,length=maxZ-minZ,firstHP=first:GetAttribute(\"MaxHP\"),lastHP=last:GetAttribute(\"MaxHP\"),firstTier=first:GetAttribute(\"Tier\"),lastTier=last:GetAttribute(\"Tier\"),uniqueMaterials=unique,bossDepth=root.Walls[\"Titan Server Wall\"]:GetAttribute(\"Depth\")})"
       },
       "expectRegex": [
         "\"count\"\\s*:\\s*5400",
         "\"layersOK\"\\s*:\\s*true",
         "\"uniform\"\\s*:\\s*true",
         "\"width\"\\s*:\\s*48",
-        "\"height\"\\s*:\\s*12",
+        "\"height\"\\s*:\\s*24",
         "\"length\"\\s*:\\s*300",
-        "\"firstHP\"\\s*:\\s*15",
+        "\"firstHP\"\\s*:\\s*8",
         "\"lastHP\"\\s*:\\s*220000000",
         "\"firstTier\"\\s*:\\s*1",
         "\"lastTier\"\\s*:\\s*10",
-        "\"uniqueMaterials\"\\s*:\\s*[6-9]",
+        "\"uniqueMaterials\"\\s*:\\s*10",
         "\"bossDepth\"\\s*:\\s*76"
       ],
       "label": "solid field dimensions and tier materials"
@@ -71,15 +73,16 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Server",
-        "code": "local H=game:GetService(\"HttpService\") local c=game.ServerStorage.PunchWallAutomation c:Invoke(\"Reset\") c:Invoke(\"SetStats\",{Power=7,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0}) local r=c:Invoke(\"HitDepthBlock\",{layer=1,column=6,row=2}) local f=workspace.PunchWallRPG[\"Depth Blocks\"] local b=f.DepthBlock_L001_C06_R02 local n=f.DepthBlock_L001_C07_R02 return H:JSONEncode({ok=r.ok,outcome=r.outcome,targetHP=b:GetAttribute(\"HP\"),neighborHP=n:GetAttribute(\"HP\"),targetBroken=b:GetAttribute(\"Broken\"),neighborBroken=n:GetAttribute(\"Broken\")})"
+        "code": "local H=game:GetService('HttpService') local G=require(game.ReplicatedStorage.GameConfig)\nlocal c=game.ServerStorage.PunchWallAutomation c:Invoke('Reset')\nc:Invoke('SetStats',{Power=7,WallLevel=1,CritChance=0,FistMultiplier=1,PetMultiplier=0,FistMastery=1,Rebirths=0,HonorPowerBonus=0})\nlocal p=game.Players:GetPlayers()[1] p:SetAttribute('DamageBoostExpiresAt',0)\nlocal folder=workspace.PunchWallRPG['Depth Blocks'] local b=folder.DepthBlock_L001_C06_R02 local neighbor=folder.DepthBlock_L001_C07_R02\nlocal beforeHP,neighborHP=b:GetAttribute('HP'),neighbor:GetAttribute('HP')\nassert(beforeHP==G.Walls[1].hp and beforeHP==8 and neighborHP==beforeHP,'current starter HP contract')\nlocal expectedDamage=G.EffectivePower(7,1,0,0,1,0) local expectedHP=math.max(0,beforeHP-expectedDamage)\nassert(expectedHP>0 and expectedHP<beforeHP,'fixture must damage without breaking')\nlocal r=c:Invoke('HitDepthBlock',{layer=1,column=6,row=2})\nlocal exactDamage=r.ok==true and r.outcome=='hit' and math.abs(r.damage-expectedDamage)<1e-6 and math.abs(b:GetAttribute('HP')-expectedHP)<1e-6\nlocal neighborUntouched=neighbor:GetAttribute('HP')==neighborHP and neighbor:GetAttribute('Broken')~=true\nassert(exactDamage and neighborUntouched and b:GetAttribute('Broken')~=true,'single block damage or neighbor authority drifted')\nreturn H:JSONEncode({ok=r.ok,outcome=r.outcome,targetHP=b:GetAttribute('HP'),expectedHP=expectedHP,exactDamage=exactDamage,neighborHP=neighbor:GetAttribute('HP'),neighborUntouched=neighborUntouched,targetBroken=b:GetAttribute('Broken'),neighborBroken=neighbor:GetAttribute('Broken')})"
       },
       "expectRegex": [
         "\"ok\"\\s*:\\s*true",
         "\"outcome\"\\s*:\\s*\"hit\"",
-        "\"targetHP\"\\s*:\\s*7(?:\\.\\d+)?",
-        "\"neighborHP\"\\s*:\\s*15",
+        "\"neighborHP\"\\s*:\\s*8",
         "\"targetBroken\"\\s*:\\s*false",
-        "\"neighborBroken\"\\s*:\\s*false"
+        "\"neighborBroken\"\\s*:\\s*false",
+        "\"exactDamage\"\\s*:\\s*true",
+        "\"neighborUntouched\"\\s*:\\s*true"
       ],
       "label": "damage affects only one shared block"
     },
@@ -95,8 +98,8 @@
         "\"outcome\"\\s*:\\s*\"broken\"",
         "\"broken\"\\s*:\\s*true",
         "\"passable\"\\s*:\\s*true",
-        "\"neighborHP\"\\s*:\\s*15",
-        "\"fragments\"\\s*:\\s*4",
+        "\"neighborHP\"\\s*:\\s*8",
+        "\"fragments\"\\s*:\\s*6",
         "\"depth\"\\s*:\\s*1",
         "\"score\"\\s*:\\s*40",
         "\"playerInside\"\\s*:\\s*true"
@@ -166,7 +169,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -175,7 +180,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

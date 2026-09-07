@@ -1,6 +1,6 @@
 {
   "name": "punch-character-motion",
-  "description": "Verify punch input drives a visible full-body pose on modern AnimationConstraint rigs and legacy Motor6D rigs, recovers cleanly, and honors Motion Feedback off.",
+  "description": "Verify full motion visibly moves the avatar arm on AnimationConstraint or Motor6D rigs and recovers, while reduced motion emits StaticFeedback then Idle and still reaches authoritative combat without an authored arm pose or camera follow.",
   "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
   "pollAttempts": 15,
   "pollMs": 3000,
@@ -8,7 +8,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": true },
+      "args": {
+        "is_start": true
+      },
       "timeoutMs": 35000,
       "label": "start play"
     },
@@ -34,27 +36,43 @@
     {
       "type": "call",
       "tool": "execute_luau",
+      "saveAs": "motionDiagnostics",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local joint for _,d in ipairs(p.Character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(joint,\"right shoulder joint missing\") local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") local maxAngle,maxPosition=0,0 for _=1,32 do task.wait(1/30) local x,y,z=joint.Transform:ToOrientation() maxAngle=math.max(maxAngle,math.abs(x),math.abs(y),math.abs(z)) maxPosition=math.max(maxPosition,joint.Transform.Position.Magnitude) end task.wait(.2) local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local dramatic=maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and not active return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,active=active,dramatic=dramatic})"
+        "code": "local H=game:GetService(\"HttpService\") local RS=game:GetService(\"RunService\") local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local character=p.Character local root=character:FindFirstChild(\"HumanoidRootPart\") local hand=character:FindFirstChild(\"RightHand\") or character:FindFirstChild(\"Right Arm\") local joint for _,d in ipairs(character:GetDescendants()) do if (d:IsA(\"Motor6D\") or d:IsA(\"AnimationConstraint\")) and (d.Name==\"RightShoulder\" or d.Name==\"Right Shoulder\") then joint=d break end end assert(root and hand and joint,\"punch rig parts missing\") local startLocal=root.CFrame:PointToObjectSpace(hand.Position) local maxRelativeDelta=0 local phases={} local samples=0 local before=g:GetAttribute(\"CharacterPunchCount\") or 0 local function capturePhase() phases[g:GetAttribute(\"PunchMotionPhase\") or \"nil\"]=true end local function sampleHand() samples+=1 local currentLocal=root.CFrame:PointToObjectSpace(hand.Position) maxRelativeDelta=math.max(maxRelativeDelta,(currentLocal-startLocal).Magnitude) capturePhase() end local phaseConnection=g:GetAttributeChangedSignal(\"PunchMotionPhase\"):Connect(capturePhase) local simulationConnection=RS.PostSimulation:Connect(sampleHand) capturePhase() local invoked=g.PunchWallClientAutomation:Invoke(\"Punch\") local deadline=os.clock()+3 repeat task.wait(1/30) until g:GetAttribute(\"CharacterPunchMotionActive\")~=true or os.clock()>=deadline local timedOut=g:GetAttribute(\"CharacterPunchMotionActive\")==true sampleHand() simulationConnection:Disconnect() phaseConnection:Disconnect() local maxAngle=g:GetAttribute(\"CharacterPunchAppliedMaxAngle\") or 0 local maxPosition=g:GetAttribute(\"CharacterPunchAppliedMaxOffset\") or 0 local peak=g:GetAttribute(\"CharacterPunchMotionPeak\") or 0 local active=g:GetAttribute(\"CharacterPunchMotionActive\") local finalAngle=g:GetAttribute(\"CharacterPunchAppliedAngle\") or 0 local finalOffset=g:GetAttribute(\"CharacterPunchAppliedOffset\") or 0 local recovered=not active and g:GetAttribute(\"PunchMotionPhase\")==\"Idle\" and finalAngle<.001 and finalOffset<.001 local dramatic=invoked and not timedOut and samples>0 and maxRelativeDelta>.75 and maxAngle>1 and maxAngle<=math.pi and maxPosition>1.2 and maxPosition<2.2 and peak>.9 and phases.Windup and phases.Contact and phases.Recovery and recovered return H:JSONEncode({class=joint.ClassName,rig=g:GetAttribute(\"CharacterPunchRig\"),invoked=invoked,count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,samples=samples,timedOut=timedOut,peak=peak,maxAngle=maxAngle,maxPosition=maxPosition,maxRelativeDelta=maxRelativeDelta,windup=phases.Windup==true,contact=phases.Contact==true,recovery=phases.Recovery==true,recovered=recovered,renderOverride=g:GetAttribute(\"CharacterPunchRenderOverride\"),active=active,dramatic=dramatic})"
       },
       "expectRegex": [
         "\"class\"\\s*:\\s*\"(AnimationConstraint|Motor6D)\"",
         "\"rig\"\\s*:\\s*\"R(6|15)\"",
         "\"count\"\\s*:\\s*1",
+        "\"windup\"\\s*:\\s*true",
+        "\"contact\"\\s*:\\s*true",
+        "\"recovery\"\\s*:\\s*true",
+        "\"recovered\"\\s*:\\s*true",
+        "\"timedOut\"\\s*:\\s*false",
+        "\"renderOverride\"\\s*:\\s*true",
         "\"active\"\\s*:\\s*false",
         "\"dramatic\"\\s*:\\s*true"
       ],
-      "label": "punch produces and recovers a visible character pose"
+      "label": "punch visibly moves the hand through windup contact and recovery"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation local p=game.Players:GetPlayers()[1] local previousSettings=p.RPGStats.SettingsJSON.Value c:Invoke('ResetWorld') c:Invoke('SetStats',{Coins=0,Power=15,Depth=0,WallLevel=1,FistMultiplier=1,PetMultiplier=0,CritChance=0,SettingsJSON=game:GetService('HttpService'):JSONEncode({motion=false,sound=true,uiScale=1})}) c:Invoke('ClearCooldowns') local r=p.Character.HumanoidRootPart r.AssemblyLinearVelocity=Vector3.zero r.AssemblyAngularVelocity=Vector3.zero r.CFrame=CFrame.lookAt(Vector3.new(-2,3,-20),Vector3.new(-2,3,-200)) local block=workspace.PunchWallRPG['Depth Blocks'].DepthBlock_L001_C06_R02 shared.SmashReducedMotionProbe={block=block,hp=block:GetAttribute('HP'),coins=p.leaderstats.Coins.Value,settings=previousSettings} return true"
+      },
+      "label": "prepare authoritative reduced-motion setting and a fresh damage target"
     },
     {
       "type": "call",
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=false,sound=true,uiScale=1}}) return true"
+        "code": "local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local snapshot=g.PunchWallClientAutomation:Invoke(\"SetSettings\",{motion=false,sound=true,uiScale=1,persist=false}) return snapshot and snapshot.motion==false"
       },
-      "label": "disable motion feedback"
+      "label": "enable reduced camera motion"
     },
     {
       "type": "wait",
@@ -66,14 +84,36 @@
       "tool": "execute_luau",
       "args": {
         "datamodel_type": "Client",
-        "code": "local H=game:GetService(\"HttpService\") local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local before=g:GetAttribute(\"CharacterPunchCount\") or 0 g.PunchWallClientAutomation:Invoke(\"Punch\") task.wait(.25) local result=H:JSONEncode({count=(g:GetAttribute(\"CharacterPunchCount\") or 0)-before,suppressed=g:GetAttribute(\"CharacterPunchMotionSuppressed\"),active=g:GetAttribute(\"CharacterPunchMotionActive\")}) game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action=\"UpdateSettings\",value={motion=true,sound=true,uiScale=1}}) return result"
+        "code": "local H=game:GetService('HttpService') local RS=game:GetService('RunService') local p=game.Players.LocalPlayer local g=p.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local root=p.Character.HumanoidRootPart local hand=p.Character:FindFirstChild('RightHand') or p.Character:FindFirstChild('Right Arm') assert(hand,'reduced-motion rig hand missing')\na:Invoke('SetSettings',{motion=false,sound=true,uiScale=1,persist=false}) local interval=tonumber(g:GetAttribute('PunchAttackInterval')) or 1 local remaining=interval+.03-(os.clock()-(g:GetAttribute('LastPunchActionAt') or 0)) if remaining>0 then task.wait(remaining) end\nlocal startLocal=root.CFrame:PointToObjectSpace(hand.Position) local maxRelativeDelta=0 local samples=0 local sawStatic,sawIdleAfterStatic=false,false local maxAuthoredAngle,maxAuthoredOffset=0,0 local before=g:GetAttribute('CharacterPunchCount') or 0\nlocal function capturePhase() local phase=g:GetAttribute('PunchMotionPhase') if phase=='StaticFeedback' then sawStatic=true elseif phase=='Idle' and sawStatic then sawIdleAfterStatic=true end end\nlocal function sampleHand() samples+=1 maxRelativeDelta=math.max(maxRelativeDelta,(root.CFrame:PointToObjectSpace(hand.Position)-startLocal).Magnitude) maxAuthoredAngle=math.max(maxAuthoredAngle,g:GetAttribute('CharacterPunchAppliedMaxAngle') or 0) maxAuthoredOffset=math.max(maxAuthoredOffset,g:GetAttribute('CharacterPunchAppliedMaxOffset') or 0) capturePhase() end\nlocal function reducedValid(d) return d.invoked==true and d.count==1 and d.samples>0 and d.staticFeedback==true and d.idleAfterStatic==true and d.timedOut==false and d.recovered==true and d.suppressed==true and d.reduced==true and d.cameraFollow==false and d.cameraActive==false and d.active==false and d.maxAuthoredAngle<.001 and d.maxAuthoredOffset<.001 end\nlocal phaseConnection=g:GetAttributeChangedSignal('PunchMotionPhase'):Connect(capturePhase) local simulationConnection=RS.PostSimulation:Connect(sampleHand) local result local ok,err=xpcall(function() local invoked=a:Invoke('Punch') capturePhase() local deadline=os.clock()+3 repeat task.wait(1/30) until (sawIdleAfterStatic and g:GetAttribute('PunchMotionPhase')=='Idle' and g:GetAttribute('CharacterPunchMotionActive')~=true) or os.clock()>=deadline sampleHand() local active=g:GetAttribute('CharacterPunchMotionActive') local timedOut=not sawIdleAfterStatic or g:GetAttribute('PunchMotionPhase')~='Idle' or active==true local recovered=active==false and g:GetAttribute('PunchMotionPhase')=='Idle' and (g:GetAttribute('CharacterPunchAppliedAngle') or 0)<.001 and (g:GetAttribute('CharacterPunchAppliedOffset') or 0)<.001 result={invoked=invoked,count=(g:GetAttribute('CharacterPunchCount') or 0)-before,samples=samples,timedOut=timedOut,recovered=recovered,suppressed=g:GetAttribute('CharacterPunchMotionSuppressed'),reduced=g:GetAttribute('CharacterPunchReducedMotion'),cameraFollow=g:GetAttribute('PunchCameraFollowEnabled'),cameraActive=g:GetAttribute('PunchCameraFollowActive'),maxRelativeDelta=maxRelativeDelta,maxAuthoredAngle=maxAuthoredAngle,maxAuthoredOffset=maxAuthoredOffset,staticFeedback=sawStatic,idleAfterStatic=sawIdleAfterStatic,active=active} result.valid=reducedValid(result) assert(result.valid,'reduced motion presentation failed: '..H:JSONEncode(result)) end,debug.traceback) simulationConnection:Disconnect() phaseConnection:Disconnect() if not ok then error(err) end return H:JSONEncode(result)"
       },
       "expectRegex": [
-        "\"count\"\\s*:\\s*0",
+        "\"valid\"\\s*:\\s*true",
+        "\"count\"\\s*:\\s*1",
         "\"suppressed\"\\s*:\\s*true",
+        "\"reduced\"\\s*:\\s*true",
+        "\"cameraFollow\"\\s*:\\s*false",
+        "\"cameraActive\"\\s*:\\s*false",
+        "\"timedOut\"\\s*:\\s*false",
+        "\"recovered\"\\s*:\\s*true",
+        "\"staticFeedback\"\\s*:\\s*true",
+        "\"idleAfterStatic\"\\s*:\\s*true",
         "\"active\"\\s*:\\s*false"
       ],
-      "label": "reduced motion suppresses character pose"
+      "label": "reduced motion emits static feedback and returns to Idle without authored pose or camera follow"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local probe=assert(shared.SmashReducedMotionProbe,'reduced-motion damage fixture missing') local deadline=os.clock()+4 local damaged=false repeat damaged=probe.block:GetAttribute('Broken')==true or (probe.block:GetAttribute('HP') or probe.hp)>=0 and (probe.block:GetAttribute('HP') or probe.hp)<probe.hp if damaged and p.leaderstats.Coins.Value>probe.coins then break end task.wait(.05) until os.clock()>=deadline local settings=H:JSONDecode(p.RPGStats.SettingsJSON.Value) local result={ok=damaged and p.leaderstats.Coins.Value>probe.coins and settings.motion==false,damaged=damaged,coinsBefore=probe.coins,coinsAfter=p.leaderstats.Coins.Value,motion=settings.motion} game.ServerStorage.PunchWallAutomation:Invoke('SetStats',{SettingsJSON=probe.settings}) shared.SmashReducedMotionProbe=nil assert(result.ok,'reduced-motion action did not reach authoritative combat: '..H:JSONEncode(result)) return H:JSONEncode(result)"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"damaged\"\\s*:\\s*true",
+        "\"motion\"\\s*:\\s*false"
+      ],
+      "label": "reduced-motion punch damages the real wall and awards server-owned coins"
     },
     {
       "type": "call",
@@ -89,7 +129,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "label": "stop play"
     }
@@ -98,7 +140,9 @@
     {
       "type": "call",
       "tool": "start_stop_play",
-      "args": { "is_start": false },
+      "args": {
+        "is_start": false
+      },
       "timeoutMs": 35000,
       "allowError": true,
       "label": "cleanup stop play"

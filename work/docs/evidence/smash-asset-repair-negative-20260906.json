@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "name": "canonical-output-forbidden",
+      "rejected": true,
+      "outputUnchanged": true,
+      "canonicalUnchanged": true
+    },
+    {
+      "name": "missing-template",
+      "rejected": true,
+      "outputUnchanged": true,
+      "canonicalUnchanged": true
+    },
+    {
+      "name": "reference-to-discarded-wrapper",
+      "rejected": true,
+      "outputUnchanged": true,
+      "canonicalUnchanged": true
+    }
+  ],
+  "ok": true
+}

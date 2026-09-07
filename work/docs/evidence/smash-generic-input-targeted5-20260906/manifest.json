@@ -1,0 +1,18 @@
+[
+  {
+    "ok": false,
+    "flowSHA256": "2C7BF9ECF43C1539AB2ABD97D5598C9AFBC92470EF76DFD0418C346AEADB5FED",
+    "flow": "full-game-real-ui-controls",
+    "errors": [
+      "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"visible\":true,\"active\":true,\"selectable\":true,\"buttonCenter\":\"1236.52087, -13.6945419\",\"hittable\":false,\"rootVisible\":true,\"insets\":\"Enum.ScreenInsets.DeviceSafeInsets\",\"ok\":false,\"buttonSize\":\"48.8803825, 52.1390762\",\"camera\":\"Camera\",\"compatibility\":\"Enum.SafeAreaCompatibility.FullscreenExtension\",\"rootPosition\":\"0, -58\",\"min\":48.8803825378418,\"rootSize\":\"1277, 780\",\"menu\":false,\"buttonPosition\":\"1212.08069, -39.76408\",\"viewport\":\"1277, 780\",\"topmost\":false,\"activated\":true,\"visibleArea\":false}"
+    ]
+  },
+  {
+    "ok": false,
+    "flowSHA256": "BC1900945C52EAF0E7FCFA6ED5917D7DCB4902D01046A4F3A903644E100A5F7C",
+    "flow": "fist-pet-legacy-slot-safety",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:131: AssistantCommand:86: idle stats moved the selected canvas: {\"requestBefore\":0,\"canvasStable\":false,\"structuralBefore\":1,\"targetParent\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions\",\"structuralAfter\":1,\"observedSnapshot\":true,\"requestAfter\":0,\"hittable\":true,\"destroyed\":false,\"identityStable\":true,\"topPath\":\"Players.jennarong2835.PlayerGui.PunchWallHUD.GameMenu.Content.#02  [Common] Forest Pup  *.Actions.Equip2\",\"canvasY\":1509}"
+    ]
+  }
+]

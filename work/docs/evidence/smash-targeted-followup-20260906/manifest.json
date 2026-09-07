@@ -1,0 +1,56 @@
+[
+  {
+    "ok": false,
+    "flow": "camera-long-tunnel-regression",
+    "errors": [
+      "Expected regex not found: \"contractValid\"\\s*:\\s*true\nReceived: {\"initialOrbitSettled\":true,\"freshOnScreen\":true,\"finalCamera\":\"-2.0873730182647705, 7.214125633239746, -91.6467514038086\",\"contractValid\":false,\"visualValid\":false,\"mode\":\"CustomPreserved\",\"actions\":18,\"finalHead\":\"-1.986548662185669, 4.678402900695801, -212.872802734375\",\"valid\":false,\"type\":\"Custom\",\"freshFaded\":0,\"finalRoot\":\"-2.000030517578125, 3.2024991512298584, -212.8626251220703\",\"sampledResult\":{\"initialOrbitSettled\":true,\"geometryClamped\":false,\"clearRatio\":0.07423580786026202,\"inside\":0,\"obscurerNames\":[\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L007_C06_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L015_C07_R04\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L023_C07_R05\",\"Workspace.PunchWallRPG.Depth Blocks.DepthBlock_L016_C06_R05\"],\"maxBackPunch\":18,\"visualValid\":false,\"angle\":0,\"actions\":18,\"valid\":false,\"settleTimedOut\":true,\"zoomDelta\":108.76742649078369,\"finishDistance\":121.2419204711914,\"readableRatio\":0.9694323144104804,\"sampleMaxStep\":16.60483741760254,\"selectedDistance\":12.474493980407715,\"settledSamples\":0,\"settledReadableRatio\":0,\"insideNames\":[],\"maxBack\":0.0000152587890625,\"maxStep\":2.40000057220459,\"type\":\"Custom\",\"maxStepFrom\":\"-2.000030517578125, 7.424670219421387, -28.257205963134766\",\"sampledFrames\":229,\"userOrbitDistance\":12.474493980407715,\"lead\":20.571725845336915,\"insideSamples\":[],\"maxBackTo\":\"-2.000030517578125, 3.1892192363739014, -212.86260986328125\",\"settledClearRatio\":0,\"handoffActive\":true,\"mode\":\"CustomPreserved\",\"maxBackFrom\":\"-2.000030517578125, 3.2024452686309814, -212.8626251220703\",\"maxStepTo\":\"-2.000030517578125, 6.334606170654297, -44.82622528076172\",\"visibleRatio\":1},\"cleanupRestored\":true,\"zoomRestored\":true,\"freshInside\":0,\"freshReadable\":true,\"freshValid\":false,\"settleTimedOut\":true,\"inside\":0}"
+    ],
+    "flowSHA256": "E4D7581C33EE0485B55F8AC051D2D214A7478F9D05443E747A7F95A832480852"
+  },
+  {
+    "ok": false,
+    "flow": "premium-pet-gamepass-configuration",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1: premium pet regional UI configuration mismatch {\"ok\":false,\"rows\":[{\"livePrice\":59,\"selectable\":false,\"identity\":true,\"priceText\":\"59\",\"renderedPrice\":true,\"actionText\":\"EQUIPPED\",\"id\":1948233870,\"world\":true,\"resolved\":true,\"price\":true,\"found\":true,\"name\":\"Crimson Phoenix\",\"card\":true,\"configured\":true,\"bound\":false,\"active\":false,\"displayed\":59},{\"livePrice\":125,\"selectable\":false,\"identity\":true,\"priceText\":\"125\",\"renderedPrice\":true,\"actionText\":\"EQUIPPED\",\"id\":1948851823,\"world\":true,\"resolved\":true,"
+    ],
+    "flowSHA256": "27E11BB16186D8151C476F11A4B7BD281FD24DBC286D69EA577B3F164A397994"
+  },
+  {
+    "ok": true,
+    "flow": "punch-character-motion",
+    "errors": [],
+    "flowSHA256": "2997E7B04AAF7E49EB2C6A48E8F2576E832A4E18291E722D33DCFF1750D3CDDA"
+  },
+  {
+    "ok": true,
+    "flow": "first-five-rig-parity",
+    "errors": [],
+    "flowSHA256": "28B2425DC282EA2616F152C424BD6A55A3FCB57FCF8547CA2780B8A81104D721"
+  },
+  {
+    "ok": true,
+    "flow": "fist-items-icon-ui",
+    "errors": [],
+    "flowSHA256": "5A76FBBCAA9B9DA1E22C3BDAA36EC10B107BF34D42C11AE408D73787C47427B6"
+  },
+  {
+    "ok": false,
+    "flow": "creator-store-fist-visuals",
+    "errors": [
+      "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:154: idle native preview rotates/rebuilds"
+    ],
+    "flowSHA256": "638891971179DB2C27B112CB93A37E3E70036E51D2A58D33C7147C01BA3845B3"
+  },
+  {
+    "ok": true,
+    "flow": "hero-city-reference-ui",
+    "errors": [],
+    "flowSHA256": "E60AF94B73580C134E43C15510107BF4A75D66ECB2AEB1F48BD42A0A6119D4AB"
+  },
+  {
+    "ok": true,
+    "flow": "honor-product-receipts",
+    "errors": [],
+    "flowSHA256": "B4900C37DFE5C183A07A0FE5FB8D335781DAF7D9FF650EEA1916EFCC2AA1FCDD"
+  }
+]

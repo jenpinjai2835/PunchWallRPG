@@ -1,0 +1,73 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "inventory-visual-responsive",
+      "selectedStudio": {
+        "id": "24528819-30cf-41f7-ba03-0006a355c7b8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "set the reported desktop viewport",
+        "start desktop play",
+        "wait for player UI",
+        "seed two normal pets for deterministic composition",
+        "desktop search stays readable and every toolbar control is bounded",
+        "category focus feedback works and selected state has precedence",
+        "Pets view uses quiet filtering and balanced wide composition",
+        "capture corrected desktop Inventory",
+        "capture visual regression console",
+        "visual regression console clean (identified Studio input warnings: 0)",
+        "stop desktop play",
+        "set narrow phone viewport",
+        "start narrow phone play",
+        "wait for narrow phone UI",
+        "narrow phone stays bounded and touch safe across every supported UI scale",
+        "capture narrow Inventory at 120 percent scale",
+        "capture narrow visual regression console",
+        "narrow visual regression console clean (identified Studio input warnings: 0)",
+        "stop narrow phone play",
+        "restore default viewport and remove both custom devices"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "visual regression console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "phoneConsole",
+          "label": "narrow visual regression console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

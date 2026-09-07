@@ -1,0 +1,176 @@
+{
+  "ok": true,
+  "compiled": 34,
+  "checks": [
+    {
+      "flow": "pet-size-position-qc",
+      "label": "equip one normal pet",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "one pet stays compact and beside avatar",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "equip three normal pets",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "three normal pets preserve readable formation",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "equip all three premium pets",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium pets remain visible and bounded at near mid far cameras",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium formation clears avatar and each pet at near mid far cameras",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium models stay fully inside near mid far safe frame",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium pet follows smoothly after player movement",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "reduced motion keeps stable 20 Hz pet formation",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "select exact narrow pet framing device",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "equip exact premium pets for narrow framing",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "verify actual narrow safe camera viewport",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium pets remain visible and bounded at near mid far cameras (narrow)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium formation clears avatar and each pet at near mid far cameras (narrow)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium models stay fully inside near mid far safe frame (narrow)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "select exact landscape pet framing device",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "equip exact premium pets for landscape framing",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "verify actual landscape safe camera viewport",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium pets remain visible and bounded at near mid far cameras (landscape)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium formation clears avatar and each pet at near mid far cameras (landscape)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "premium models stay fully inside near mid far safe frame (landscape)",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "restore simulator and remove only pet framing presets",
+      "ok": true
+    },
+    {
+      "flow": "pet-size-position-qc",
+      "label": "cleanup pet framing simulator presets",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "create owned visual fixture device",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "seed owned and equipped action states",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "audit rendered objective and catalog controls across device sizes",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "remove owned device",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "preserve actual premium native area before cleanup",
+      "ok": true
+    },
+    {
+      "flow": "premium-hud-shop-readability",
+      "label": "cleanup owned device",
+      "ok": true
+    },
+    {
+      "flow": "product-completeness-purchase-availability",
+      "label": "catalog IDs and world purchase availability are truthful",
+      "ok": true
+    },
+    {
+      "flow": "product-completeness-purchase-availability",
+      "label": "premium and Robux controls are configured, priced, and wired",
+      "ok": true
+    },
+    {
+      "flow": "product-completeness-purchase-availability",
+      "label": "premium fist live Marketplace metadata matches configured passes",
+      "ok": true
+    },
+    {
+      "flow": "product-completeness-purchase-availability",
+      "label": "catalog and metadata inspection cause no authoritative mutation",
+      "ok": true
+    }
+  ]
+}

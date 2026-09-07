@@ -1,0 +1,47 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "world-wall-reset",
+      "selectedStudio": {
+        "id": "1cb6d64a-f1c3-4c7a-90c4-bff91af224f8",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime bootstrap",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"invokeOk\"\\s*:\\s*true\nReceived: {\"playEmoteClass\":\"BindableFunction\",\"invokeOk\":false,\"animate\":true,\"repaired\":false,\"playEmoteCount\":1,\"children\":[\"PlayEmote:BindableFunction\",\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"mood:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"classMismatch\":\"\",\"duplicateRemoved\":false,\"invokeAttempts\":19,\"adoptedLate\":false,\"animateEnabled\":true,\"playEmote\":true,\"hookOwned\":false,\"invokeCompleted\":true,\"repairState\":\"EngineHookReady\"}",
+      "cleanup": {
+        "attempted": true,
+        "actions": [
+          {
+            "label": "cleanup stop play",
+            "tool": "start_stop_play",
+            "ok": true
+          }
+        ],
+        "stopAcknowledged": true,
+        "editVerified": true,
+        "restored": true,
+        "edit": {
+          "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+          "placeId": "0",
+          "datamodelType": "Edit"
+        }
+      },
+      "context": {
+        "animateBootstrap": "{\"playEmoteClass\":\"BindableFunction\",\"invokeOk\":false,\"animate\":true,\"repaired\":false,\"playEmoteCount\":1,\"children\":[\"PlayEmote:BindableFunction\",\"ScaleDampeningPercent:NumberValue\",\"cheer:StringValue\",\"climb:StringValue\",\"dance2:StringValue\",\"dance3:StringValue\",\"dance:StringValue\",\"fall:StringValue\",\"idle:StringValue\",\"jump:StringValue\",\"laugh:StringValue\",\"mood:StringValue\",\"point:StringValue\",\"run:StringValue\",\"sit:StringValue\",\"swim:StringValue\",\"swimidle:StringValue\",\"toollunge:StringValue\",\"toolnone:StringValue\",\"toolslash:StringValue\",\"walk:StringValue\",\"wave:StringValue\"],\"classMismatch\":\"\",\"duplicateRemoved\":false,\"invokeAttempts\":19,\"adoptedLate\":false,\"animateEnabled\":true,\"playEmote\":true,\"hookOwned\":false,\"invokeCompleted\":true,\"repairState\":\"EngineHookReady\"}"
+      }
+    }
+  ]
+}

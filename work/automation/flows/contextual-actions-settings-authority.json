@@ -1,0 +1,254 @@
+{
+  "name": "contextual-actions-settings-authority",
+  "description": "Verify player-facing Train, StopTraining, contextual Use, and Settings remotes reach authoritative validation and normalize unsafe payloads.",
+  "studioName": "^PunchWallRPGPlayable_v1_final[.]rbxlx$",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 60000,
+      "label": "start contextual action session"
+    },
+    {
+      "type": "wait",
+      "ms": 5500,
+      "label": "wait for profile-ready runtime"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService')\nlocal p=assert(game.Players:GetPlayers()[1])\nlocal world=assert(workspace:FindFirstChild('PunchWallRPG'))\nlocal storage=game:GetService('ServerStorage')\nassert(game:GetService('RunService'):IsStudio() and world:GetAttribute('PersistenceMode')=='EphemeralStudio' and world:GetAttribute('PersistenceStudioLiveDataOptIn')==false and storage:GetAttribute('PunchWallAllowLiveDataStoreAccess')~=true,'fixture requires ephemeral Studio without live data opt-in')\nassert(p:GetAttribute('ProfileReady')==true and p:GetAttribute('ProfilePersistenceState')=='EphemeralStudio' and p:GetAttribute('ProfileWritable')==false,'fixture profile is not ephemeral and ready')\nlocal c=storage.PunchWallAutomation\nassert(c:Invoke('Reset').ok==true,'reset failed')\nlocal maximumDistance=38 -- Current authoritative MOBILE_ACTION_DISTANCE; checked against production source offline.\nlocal G=require(game.ReplicatedStorage.GameConfig)\nlocal interactions=assert(world:FindFirstChild('Interactables'))\nlocal targets={}\nfor _,def in ipairs(G.PremiumFists) do table.insert(targets,(assert(interactions:FindFirstChild(def.name..' Stand'),'configured fist stand missing '..def.name))) end\nfor _,name in ipairs({'Pet Egg Machine','Rebirth Shrine','Hero Armory Merchant Interaction','Hero Sidekick Scientist Interaction','Honor Keeper Interaction'}) do table.insert(targets,(assert(interactions:FindFirstChild(name),'contextual target missing '..name))) end\nlocal function assertOutsideUseRange(position,parts,range)\n assert(#parts>0 and range>0,'Use target set/range is empty')\n local minimum=math.huge\n for _,part in ipairs(parts) do\n  assert(part and part:IsA('BasePart') and part.Parent,'invalid Use target')\n  minimum=math.min(minimum,(position-part.Position).Magnitude)\n end\n assert(minimum>range+2,'fixture is inside an authoritative Use range')\n return minimum\nend\n-- This grounded point is away from every Use target; Spawn is near a configured Premium stand.\nlocal destination=Vector3.new(0,3,70)\nassertOutsideUseRange(destination,targets,maximumDistance)\nassert(c:Invoke('Teleport',{position={x=destination.X,y=destination.Y,z=destination.Z}}).ok==true,'out-of-range teleport failed')\nlocal actual=assert(p.Character and p.Character:FindFirstChild('HumanoidRootPart')).Position\nlocal minimum=assertOutsideUseRange(actual,targets,maximumDistance)\nc:Invoke('ClearCooldowns')\nreturn H:JSONEncode({ok=true,range=maximumDistance,minimumDistance=minimum,targets=#targets,outsideUseRange=true})"
+      },
+      "label": "place player away from contextual Use targets",
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"outsideUseRange\"\\s*:\\s*true"
+      ],
+      "saveAs": "outOfRangeFixture"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 12000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService')\nlocal p=game.Players.LocalPlayer\nlocal g=p.PlayerGui.PunchWallHUD\nlocal events=game.ReplicatedStorage.PunchWallEvents\ng.PunchWallClientAutomation:Invoke('CloseMenus')\nlocal response\nlocal connection=events.Feedback.OnClientEvent:Connect(function(payload)\n if typeof(payload)=='table' and payload.target=='Use' then response={kind=tostring(payload.type or ''),target=tostring(payload.target or '')} end\nend)\nlocal ok,err=pcall(function()\n events.ActionRequest:FireServer({action='Use'})\n local deadline=os.clock()+4\n repeat task.wait(.05) until response or os.clock()>=deadline\n assert(response,'no authoritative Use feedback arrived')\n assert(response.kind=='Fail' and response.target=='Use','out-of-range Use was not rejected')\nend)\nconnection:Disconnect()\nassert(ok,err)\nreturn H:JSONEncode({ok=true,kind=response.kind,target=response.target,actualRemoteFeedback=true})"
+      },
+      "expectRegex": [
+        "\"ok\"\\s*:\\s*true",
+        "\"kind\"\\s*:\\s*\"Fail\"",
+        "\"target\"\\s*:\\s*\"Use\""
+      ],
+      "saveAs": "outOfRangeUseFeedback",
+      "label": "single real out-of-range Use returns authoritative failure"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Teleport','Training') c:Invoke('ClearCooldowns') return true"
+      },
+      "label": "place player beside current training station"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Train'}) return true"
+      },
+      "label": "send real Train request"
+    },
+    {
+      "type": "wait",
+      "ms": 650,
+      "label": "settle training lock and gain state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=p.RPGStats local leaderstats=p.leaderstats return H:JSONEncode({active=s.TrainingActive.Value,locked=p:GetAttribute('TrainingMovementLocked')==true,auto=p:GetAttribute('AutoTrainingActive')==true,power=leaderstats.Power.Value})"
+      },
+      "expectRegex": [
+        "\"active\"\\s*:\\s*1",
+        "\"locked\"\\s*:\\s*true",
+        "\"auto\"\\s*:\\s*true",
+        "\"power\"\\s*:\\s*[1-9][0-9]*"
+      ],
+      "label": "training becomes authoritative and movement-locked"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='StopTraining'}) return true"
+      },
+      "label": "send real StopTraining request"
+    },
+    {
+      "type": "wait",
+      "ms": 400,
+      "label": "settle training release"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] return H:JSONEncode({active=p.RPGStats.TrainingActive.Value,locked=p:GetAttribute('TrainingMovementLocked')==true,auto=p:GetAttribute('AutoTrainingActive')==true})"
+      },
+      "expectRegex": [
+        "\"active\"\\s*:\\s*0",
+        "\"locked\"\\s*:\\s*false",
+        "\"auto\"\\s*:\\s*false"
+      ],
+      "label": "StopTraining releases authoritative movement state"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local c=game.ServerStorage.PunchWallAutomation c:Invoke('Teleport','PetLab') c:Invoke('ClearCooldowns') return true"
+      },
+      "label": "place player beside Pet Lab interaction"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "game.ReplicatedStorage.PunchWallEvents.ActionRequest:FireServer({action='Use'}) return true"
+      },
+      "label": "send real in-range contextual Use request"
+    },
+    {
+      "type": "wait",
+      "ms": 650,
+      "label": "settle server-opened contextual menu"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local g=game.Players.LocalPlayer.PlayerGui.PunchWallHUD local a=g.PunchWallClientAutomation local s=a:Invoke('Snapshot') local inv=a:Invoke('InventorySnapshot') local root=g.GameMenu:FindFirstChild('FunctionalInventory') return H:JSONEncode({menu=s.menuVisible,tab=s.activeTab,category=inv.category,inventoryVisible=inv.visible==true and root~=nil and root.Visible==true and g.GameMenu.Visible==true})"
+      },
+      "expectRegex": [
+        "\"menu\"\\s*:\\s*true",
+        "\"tab\"\\s*:\\s*\"Inventory\"",
+        "\"category\"\\s*:\\s*\"Pets\"",
+        "\"inventoryVisible\"\\s*:\\s*true"
+      ],
+      "label": "in-range Use opens the correct player menu"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local r=game.ReplicatedStorage.PunchWallEvents.ActionRequest r:FireServer({action='UpdateSettings',value={motion=false,sound=false,uiScale=2}}) return true"
+      },
+      "label": "send valid settings with out-of-range scale"
+    },
+    {
+      "type": "wait",
+      "ms": 450,
+      "label": "settle normalized settings save"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=H:JSONDecode(p.RPGStats.SettingsJSON.Value) return H:JSONEncode(s)"
+      },
+      "expectRegex": [
+        "\"motion\"\\s*:\\s*false",
+        "\"sound\"\\s*:\\s*false",
+        "\"uiScale\"\\s*:\\s*1\\.2"
+      ],
+      "label": "settings clamp high scale and preserve valid booleans"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "game.ServerStorage.PunchWallAutomation:Invoke('ClearCooldowns') return true"
+      },
+      "label": "clear action throttle before malformed settings probe"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local r=game.ReplicatedStorage.PunchWallEvents.ActionRequest r:FireServer({action='UpdateSettings',value={motion='bad',sound=0,uiScale=-9}}) return true"
+      },
+      "label": "send malformed settings payload"
+    },
+    {
+      "type": "wait",
+      "ms": 450,
+      "label": "settle fail-safe settings normalization"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Server",
+        "code": "local H=game:GetService('HttpService') local p=game.Players:GetPlayers()[1] local s=H:JSONDecode(p.RPGStats.SettingsJSON.Value) return H:JSONEncode(s)"
+      },
+      "expectRegex": [
+        "\"motion\"\\s*:\\s*true",
+        "\"sound\"\\s*:\\s*true",
+        "\"uiScale\"\\s*:\\s*0\\.8"
+      ],
+      "label": "malformed setting types fail closed to safe values"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture contextual-action console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "contextual-action console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "label": "return contextual action session to Edit"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 60000,
+      "allowError": true,
+      "label": "cleanup contextual action session"
+    }
+  ]
+}

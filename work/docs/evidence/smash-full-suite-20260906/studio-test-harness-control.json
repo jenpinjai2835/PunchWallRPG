@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": false,
+      "flow": "studio-test-harness-control",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for runtime",
+        "describe secure server harness",
+        "run deterministic server sequence",
+        "cleanup stop play"
+      ],
+      "consoleClassifications": [],
+      "error": "Expected regex not found: \"ok\"\\s*:\\s*true\nReceived: {\"ok\":false,\"spin\":2,\"petInventory\":\"[\\\"Crystal Fox\\\"]\",\"power\":25000,\"pending\":true,\"coins\":500000,\"worldReset\":false,\"position\":\"-16.000244140625, 3.410208225250244, 30.999496459960938\",\"depth\":25,\"claim\":true}",
+      "context": {}
+    }
+  ]
+}

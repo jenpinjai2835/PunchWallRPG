@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "completed": 3,
+  "expected": 3,
+  "results": [
+    {
+      "ok": false,
+      "flow": "iteration01-complete-polish",
+      "seconds": 20.74,
+      "errors": [
+        "execute_luau failed: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:35: first-fist visible purchase guidance did not settle: AssistantCommand:23: first-fist Shop guidance is not actually visible"
+      ]
+    },
+    {
+      "ok": true,
+      "flow": "world-wall-reset",
+      "seconds": 15.47,
+      "errors": []
+    },
+    {
+      "ok": true,
+      "flow": "device-matrix-hud-shop",
+      "seconds": 89.54,
+      "errors": []
+    }
+  ]
+}

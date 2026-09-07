@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "passed": 18,
+  "total": 18,
+  "curve": "PowerLogWallCappedV1",
+  "maxScaleMultiplier": 1.25,
+  "fullGrowthPower": 1500000000,
+  "checks": {
+    "shared_logarithmic_power_curve": true,
+    "canonical_geometry_scale_function": true,
+    "bounded_scale_contract": true,
+    "power_not_wall_level_drives_growth": true,
+    "server_owned_coalesced_updates": true,
+    "core_body_bounds_enforce_wall_cap": true,
+    "feet_preserved_during_resize": true,
+    "appearance_and_generation_safe_respawn": true,
+    "punch_and_network_ownership_serialized": true,
+    "r6_r15_accessory_contract": true,
+    "pet_scale_path_is_independent": true,
+    "runtime_matrix_covers_progression_punch_and_respawn": true,
+    "runtime_pet_invariant_and_post_stop_console": true,
+    "runtime_downscale_restores_baseline": true,
+    "runtime_camera_frames_maximum_body": true,
+    "runtime_reads_direct_model_scale": true,
+    "runtime_proves_exact_pet_set_and_separation": true,
+    "runtime_rebinds_camera_and_pets_after_respawn": true
+  },
+  "actualFlowAssertions": 18,
+  "actualObservationAssertions": 15,
+  "compiledFlowSnippets": 22,
+  "rejectedMutations": [
+    "unbounded_server_observation",
+    "unbounded_client_observation",
+    "skip_readiness",
+    "ignore_destroyed_original",
+    "ignore_measured_growth",
+    "leak_lifetime_observers"
+  ]
+}

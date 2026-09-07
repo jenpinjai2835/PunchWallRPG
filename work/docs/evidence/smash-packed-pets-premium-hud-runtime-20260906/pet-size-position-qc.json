@@ -1,0 +1,111 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-9fe94fb0e9d84c25\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "pet-size-position-qc",
+      "selectedStudio": {
+        "id": "0103740f-e1f7-4401-978a-bf2c80d66bde",
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPGPlayable_v1_final.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for character and companion runtime",
+        "equip one normal pet",
+        "wait for one-pet formation",
+        "one pet stays compact and beside avatar",
+        "equip three normal pets",
+        "wait for three-pet formation",
+        "three normal pets preserve readable formation",
+        "equip all three premium pets",
+        "wait for premium formation",
+        "premium pets remain visible and bounded at near mid far cameras",
+        "premium formation clears avatar and each pet at near mid far cameras",
+        "premium models stay fully inside near mid far safe frame",
+        "premium pet follows smoothly after player movement",
+        "reduced motion keeps stable 20 Hz pet formation",
+        "capture console",
+        "console clean (identified Studio input warnings: 0)",
+        "stop play",
+        "select exact narrow pet framing device",
+        "start narrow pet framing play",
+        "wait for narrow companion runtime",
+        "equip exact premium pets for narrow framing",
+        "wait for narrow premium formation",
+        "verify actual narrow safe camera viewport",
+        "premium pets remain visible and bounded at near mid far cameras (narrow)",
+        "premium formation clears avatar and each pet at near mid far cameras (narrow)",
+        "premium models stay fully inside near mid far safe frame (narrow)",
+        "capture narrow console",
+        "narrow console clean (identified Studio input warnings: 0)",
+        "stop narrow pet framing play",
+        "select exact landscape pet framing device",
+        "start landscape pet framing play",
+        "wait for landscape companion runtime",
+        "equip exact premium pets for landscape framing",
+        "wait for landscape premium formation",
+        "verify actual landscape safe camera viewport",
+        "premium pets remain visible and bounded at near mid far cameras (landscape)",
+        "premium formation clears avatar and each pet at near mid far cameras (landscape)",
+        "premium models stay fully inside near mid far safe frame (landscape)",
+        "capture landscape console",
+        "landscape console clean (identified Studio input warnings: 0)",
+        "stop landscape pet framing play",
+        "restore simulator and remove only pet framing presets"
+      ],
+      "consoleClassifications": [
+        {
+          "source": "console",
+          "label": "console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleNarrow",
+          "label": "narrow console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        },
+        {
+          "source": "consoleLandscape",
+          "label": "landscape console clean",
+          "ok": true,
+          "originalText": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled.",
+          "identifiedToolWarningCount": 0,
+          "identifiedToolWarnings": [],
+          "retainedLines": [
+            {
+              "lineNumber": 1,
+              "text": "[PunchWallRPG] Studio session is EPHEMERAL by default; live profile reads and writes are disabled."
+            }
+          ],
+          "suspiciousLines": []
+        }
+      ]
+    }
+  ]
+}

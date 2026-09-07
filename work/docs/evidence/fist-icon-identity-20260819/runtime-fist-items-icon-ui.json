@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-c7a1c2ae7c4a45f4\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "fist-items-icon-ui",
+      "selectedStudio": {
+        "id": "6d29b2d4-41ab-41fb-838f-3dfd8727c725",
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx"
+      },
+      "selectedPlace": {
+        "name": "PunchWallRPG_ManualPlaytest_20260818_FistAuraV10.rbxlx",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "start play",
+        "wait for fist shop and HUD",
+        "sixteen Shop fists have unique bounded item-matched icon identities",
+        "starter fist and scalable themed mobile HUD preserve original avatar",
+        "reference shop behaves as a clean modal and restores the current HUD",
+        "coins purchase and auto-equip the next fist tier",
+        "wait for equipped fist visuals",
+        "equipped item updates fist model and HUD icon",
+        "emit shop feedback",
+        "wait for icon feedback",
+        "shop notification uses visible bounded themed toast icon",
+        "capture console",
+        "console clean",
+        "stop play"
+      ]
+    }
+  ]
+}

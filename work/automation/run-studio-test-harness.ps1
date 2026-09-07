@@ -1,12 +1,15 @@
 param(
     [ValidateSet("Control", "Full", "All")]
-    [string]$Suite = "All"
+    [string]$Suite = "All",
+    [string]$StudioInstanceId = "",
+    [string]$ExpectedPlaceName = ""
 )
 
 $ErrorActionPreference = "Stop"
 
-$runner = "C:\Users\Jennarong Pinjai\.codex\skills\roblox-studio-mcp-automation\scripts\flow_runner.mjs"
+$runner = Join-Path $PSScriptRoot "scripts\flow_runner.mjs"
 $flowDirectory = Join-Path $PSScriptRoot "flows"
+$invokeFlow = Join-Path $PSScriptRoot "invoke-recorded-flow.ps1"
 $flows = switch ($Suite) {
     "Control" { @("studio-test-harness-control.json") }
     "Full" { @("studio-test-harness-full-control.json") }
@@ -21,8 +24,8 @@ $flows = switch ($Suite) {
 $results = @()
 foreach ($flowName in $flows) {
     $flowPath = Join-Path $flowDirectory $flowName
-    & node $runner --flow $flowPath
-    if ($LASTEXITCODE -ne 0) {
+    $run = & $invokeFlow -FlowPath $flowPath -Runner $runner -StudioInstanceId $StudioInstanceId -ExpectedPlaceName $ExpectedPlaceName -MaxAttempts 2
+    if (-not $run.ok) {
         throw "Studio test harness flow failed: $flowName"
     }
     $results += $flowName

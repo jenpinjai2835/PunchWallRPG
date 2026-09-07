@@ -1,0 +1,104 @@
+{
+  "name": "camera-teleport-scriptable-visibility",
+  "description": "Verify Scriptable camera ownership, long-distance teleport rebasing, and player visibility without zoom or transparency.",
+  "studioName": "PunchWallRPGPlayable_v1_final.rbxlx",
+  "pollAttempts": 15,
+  "pollMs": 3000,
+  "steps": [
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "stateBefore",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Edit"
+      ],
+      "label": "edit mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "search_game_tree",
+      "args": {
+        "datamodel_type": "Edit",
+        "path": "Workspace.PunchWallRPG",
+        "max_depth": 3,
+        "head_limit": 120
+      },
+      "saveAs": "editTree",
+      "label": "capture edit tree"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": true
+      },
+      "timeoutMs": 35000,
+      "label": "start play"
+    },
+    {
+      "type": "wait",
+      "ms": 6000,
+      "label": "wait for runtime bootstrap"
+    },
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "saveAs": "statePlay",
+      "expectRegex": [
+        "Current Studio Mode:\\s*Play"
+      ],
+      "label": "play mode detected"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "timeoutMs": 45000,
+      "args": {
+        "datamodel_type": "Client",
+        "code": "local H=game:GetService('HttpService') local p=game.Players.LocalPlayer local g=p.PlayerGui:WaitForChild('PunchWallHUD') local cam=workspace.CurrentCamera local character=p.Character or p.CharacterAdded:Wait() local root=character:WaitForChild('HumanoidRootPart') local humanoid=character:FindFirstChildOfClass('Humanoid') local oldMinZoom,oldMaxZoom=p.CameraMinZoomDistance,p.CameraMaxZoomDistance local oldRootCFrame,oldLinear,oldAngular=root.CFrame,root.AssemblyLinearVelocity,root.AssemblyAngularVelocity local oldType,oldSubject,oldCameraCFrame,oldFocus=cam.CameraType,cam.CameraSubject,cam.CFrame,cam.Focus local diagnostics local ok,runError=xpcall(function() local desired=CFrame.lookAt(root.Position+Vector3.new(18,12,18),root.Position+Vector3.new(0,1.5,0)) cam.CameraType=Enum.CameraType.Scriptable cam.CFrame=desired cam.Focus=CFrame.new(root.Position+Vector3.new(0,1.5,0)) task.wait(.6) local scriptError=(cam.CFrame.Position-desired.Position).Magnitude local scriptValid=cam.CameraType==Enum.CameraType.Scriptable and scriptError<.05 and g:GetAttribute('PunchCameraScriptableBypass')==true p.CameraMaxZoomDistance=12 p.CameraMinZoomDistance=12 cam.CameraType=Enum.CameraType.Custom if humanoid then cam.CameraSubject=humanoid end task.wait(.8) local baselineDistance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude local rebaseBefore=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 root.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero root.CFrame=CFrame.lookAt(Vector3.new(-42,3,31),Vector3.new(-42,3,20)) local teleportStuds=(root.Position-oldRootCFrame.Position).Magnitude local deadline=os.clock()+4 repeat local count=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 local distance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude if count>rebaseBefore and distance<20 then break end task.wait(.05) until os.clock()>=deadline local distance=(cam.CFrame.Position-(root.Position+Vector3.new(0,1.5,0))).Magnitude local rebaseCount=g:GetAttribute('PunchCameraTeleportRebaseCount') or 0 local overlap=OverlapParams.new() overlap.FilterType=Enum.RaycastFilterType.Exclude overlap.FilterDescendantsInstances={character} local inside=0 for _,part in ipairs(workspace:GetPartBoundsInBox(CFrame.new(cam.CFrame.Position),Vector3.new(.4,.4,.4),overlap)) do if part:IsA('BasePart') and part.CanCollide and part.Transparency<.95 then inside+=1 end end local faded=0 for _,part in ipairs(workspace:GetDescendants()) do if part:IsA('BasePart') and part.LocalTransparencyModifier>.01 then faded+=1 end end local zoomDelta=math.abs(distance-baselineDistance) local valid=scriptValid and teleportStuds>40 and cam.CameraType==Enum.CameraType.Custom and rebaseCount>rebaseBefore and distance<20 and zoomDelta<.25 and inside==0 and faded==0 diagnostics={valid=valid,scriptValid=scriptValid,scriptError=scriptError,bypass=g:GetAttribute('PunchCameraScriptableBypass'),teleportStuds=teleportStuds,rebaseBefore=rebaseBefore,rebaseCount=rebaseCount,baselineDistance=baselineDistance,distance=distance,zoomDelta=zoomDelta,inside=inside,faded=faded,type=cam.CameraType.Name} assert(valid,'self-contained camera teleport contract failed: '..H:JSONEncode(diagnostics)) end,debug.traceback) local cleanupOk,cleanupError=pcall(function() root.AssemblyLinearVelocity=Vector3.zero root.AssemblyAngularVelocity=Vector3.zero root.CFrame=oldRootCFrame p.CameraMaxZoomDistance=oldMaxZoom p.CameraMinZoomDistance=oldMinZoom cam.CameraType=oldType if oldSubject then cam.CameraSubject=oldSubject end cam.CFrame=oldCameraCFrame cam.Focus=oldFocus root.AssemblyLinearVelocity=oldLinear root.AssemblyAngularVelocity=oldAngular end) local cleanupRestored=cleanupOk and math.abs(p.CameraMinZoomDistance-oldMinZoom)<.001 and math.abs(p.CameraMaxZoomDistance-oldMaxZoom)<.001 and (root.Position-oldRootCFrame.Position).Magnitude<.1 and cam.CameraType==oldType diagnostics=diagnostics or {valid=false,scriptValid=false} diagnostics.cleanupRestored=cleanupRestored diagnostics.cleanupError=cleanupOk and nil or tostring(cleanupError) if not ok then error(runError) end assert(cleanupRestored,'camera teleport cleanup failed: '..H:JSONEncode(diagnostics)) return H:JSONEncode(diagnostics)"
+      },
+      "expectRegex": [
+        "\"valid\"\\s*:\\s*true",
+        "\"scriptValid\"\\s*:\\s*true",
+        "\"teleportStuds\"\\s*:\\s*(?:4[1-9]|[5-9][0-9]|[1-9][0-9]{2,})",
+        "\"type\"\\s*:\\s*\"Custom\"",
+        "\"inside\"\\s*:\\s*0",
+        "\"faded\"\\s*:\\s*0",
+        "\"cleanupRestored\"\\s*:\\s*true"
+      ],
+      "label": "scriptable ownership teleport rebase and cleanup are self-contained"
+    },
+    {
+      "type": "call",
+      "tool": "get_console_output",
+      "saveAs": "console",
+      "label": "capture console"
+    },
+    {
+      "type": "assertNoConsoleErrors",
+      "source": "console",
+      "label": "console clean"
+    },
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "label": "stop play"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "call",
+      "tool": "start_stop_play",
+      "args": {
+        "is_start": false
+      },
+      "timeoutMs": 35000,
+      "allowError": true,
+      "label": "cleanup stop play"
+    }
+  ]
+}
