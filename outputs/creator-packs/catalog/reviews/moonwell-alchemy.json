@@ -1,0 +1,297 @@
+{
+  "status": "PASS",
+  "reviewer": "Worker2 / merchant_stalls",
+  "slug": "moonwell-alchemy",
+  "recorded_utc": "2026-09-11T01:36:54.583067+07:00",
+  "method": "Read-only delivered Blender source reopen; evaluated mesh descendants under 12 Editable roots; exact asset bounds and triangles; independent packed PNG decoder checking chunk CRCs and all authored RGB pixels; ZIP CRC plus each member hash versus on-disk counterpart.",
+  "blender": "4.5.9 LTS",
+  "threads": 2,
+  "source": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\source\\moonwell-alchemy-editable.blend",
+    "sha256": "28e03ee0b9153a99bd00dcba90d626c8ccc1742a5b40d7fb3061d0686e4fbddd",
+    "asset_roots": 12,
+    "triangles_excluding_stage": 9268,
+    "assets": [
+      {
+        "id": "01_Crescent_Workbench",
+        "triangles": 1392,
+        "bounds_min": [
+          -2.065000057220459,
+          -1.1299999952316284,
+          0.0
+        ],
+        "bounds_max": [
+          2.065000057220459,
+          1.1949995756149292,
+          3.159450054168701
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "02_Tripod_Cauldron",
+        "triangles": 792,
+        "bounds_min": [
+          -1.4299999475479126,
+          -1.090000033378601,
+          0.0
+        ],
+        "bounds_max": [
+          1.4299999475479126,
+          1.0139250755310059,
+          1.5929999351501465
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "03_Copper_Distiller",
+        "triangles": 1396,
+        "bounds_min": [
+          -1.6749999523162842,
+          -0.8849999904632568,
+          0.0
+        ],
+        "bounds_max": [
+          1.6749999523162842,
+          0.8849999904632568,
+          2.3318772315979004
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "04_Specimen_Stand",
+        "triangles": 944,
+        "bounds_min": [
+          -1.215000033378601,
+          -0.4699999988079071,
+          0.0
+        ],
+        "bounds_max": [
+          1.215000033378601,
+          0.4699999988079071,
+          3.252664804458618
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "05_Apothecary_Balance",
+        "triangles": 572,
+        "bounds_min": [
+          -1.4900004863739014,
+          -0.4469965696334839,
+          0.0
+        ],
+        "bounds_max": [
+          1.4900004863739014,
+          0.4469965696334839,
+          2.0399999618530273
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "06_Open_Tome_Stand",
+        "triangles": 396,
+        "bounds_min": [
+          -0.8849999904632568,
+          -0.5904413461685181,
+          0.0
+        ],
+        "bounds_max": [
+          0.8849999904632568,
+          0.5904413461685181,
+          1.5792127847671509
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "07_Reagent_Caddy",
+        "triangles": 1236,
+        "bounds_min": [
+          -1.179999828338623,
+          -0.75,
+          0.0
+        ],
+        "bounds_max": [
+          1.179999828338623,
+          0.75,
+          1.06125009059906
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "08_Mortar_and_Pestle",
+        "triangles": 264,
+        "bounds_min": [
+          -0.6499999761581421,
+          -0.6499999761581421,
+          0.0
+        ],
+        "bounds_max": [
+          0.6499999761581421,
+          0.6499999761581421,
+          1.0192323923110962
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "09_Scroll_Cradle",
+        "triangles": 736,
+        "bounds_min": [
+          -0.8399999737739563,
+          -0.5222439765930176,
+          0.0
+        ],
+        "bounds_max": [
+          0.8399999737739563,
+          0.5222439765930176,
+          0.8059999942779541
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "10_Herb_Drying_Frame",
+        "triangles": 1020,
+        "bounds_min": [
+          -1.0499999523162842,
+          -0.7299998998641968,
+          0.0
+        ],
+        "bounds_max": [
+          1.0499999523162842,
+          0.9899996519088745,
+          2.655062198638916
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "11_Prism_Focus",
+        "triangles": 248,
+        "bounds_min": [
+          -0.9449999928474426,
+          -0.5199999809265137,
+          0.0
+        ],
+        "bounds_max": [
+          0.9449999928474426,
+          0.5199999809265137,
+          1.1339999437332153
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "12_Wax_Seal_Set",
+        "triangles": 272,
+        "bounds_min": [
+          -0.6899999976158142,
+          -0.5,
+          0.0
+        ],
+        "bounds_max": [
+          0.6899999976158142,
+          0.5,
+          0.7199999690055847
+        ],
+        "status": "PASS"
+      }
+    ],
+    "packed_palettes": [
+      {
+        "name": "Classic",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "2d5c62191243fdd3796199a1a8b2e608ddb40f64fb76e94b141811bbf8dc36d0",
+        "status": "PASS"
+      },
+      {
+        "name": "Warm",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "bb0b0cc18bc74ddd60eda23f759486e1a1df336d1f2be0c069eaea595ed72f33",
+        "status": "PASS"
+      },
+      {
+        "name": "Twilight",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "1b5a2d8efaebe0663541f5b6e132b088f53976eb2ae29582bcc024caa0dad75d",
+        "status": "PASS"
+      }
+    ]
+  },
+  "manifest": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\manifest.json",
+    "sha256": "e271b6be6e6941091d5085836016a74da99db0c4dda5d6dd7e4869d00412feac"
+  },
+  "evidence": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\evidence\\export-roundtrip.json",
+      "sha256": "b3f790d82ccab5688afee15351e933bc1e0c074ba792bcf1431ce985f978fb66",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\evidence\\native-roundtrip.json",
+      "sha256": "5055dbcfbef306664e61956317b84be93372944fda0e1b6f16109819d4eeb73a",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\evidence\\source-reopen.json",
+      "sha256": "8e7fd70cbad43e27ee325db631eec946691910aa871f92ac419f881a40cee40c",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\evidence\\package-validation.json",
+      "sha256": "38cd46378832a9c4e0bbd7c8e629befb96e9fa680d0b14d9a431e41edc24339e",
+      "recorded_status": "PASS"
+    }
+  ],
+  "archive": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\moonwell-alchemy-source-and-exports.zip",
+    "sha256": "16568241618ef1035164d403b8ad0a4cc76cacaa6d42c713c7d6da140de42bf9",
+    "members": 39,
+    "crc": "PASS",
+    "all_member_hashes_match": "PASS"
+  },
+  "images": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Classic.png",
+      "sha256": "a5d1c231277d5cbedb6418dd5b304cb1c9732fd95436e6e91d17b21d027fbec3"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Twilight.png",
+      "sha256": "2c682e4a9521eb8af35b123321ebc6d067e6241cf1775325de2ce38b104b5363"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Warm.png",
+      "sha256": "8a15d992151cdc4c51f86c4b62d9664357a7cc99b5cc3bce50a66575e48da0b5"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\detail.png",
+      "sha256": "82a11d87e38efd1f2d9082b17aefbaf9eefd6d1b16f7feef1e9230ed2ad69083"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\icon.png",
+      "sha256": "2e7d2e4996502a7384c74112b1ce3b7d668198f512ffd70ae8cb902b07159188"
+    }
+  ],
+  "visual_review": {
+    "status": "PASS",
+    "actual_images_inspected": 5,
+    "checks": [
+      "All 12 collection models and captions visible and inside frame",
+      "All inspected support feet remain grounded",
+      "Fixed cauldron detail has clean inner wall with no gold handle sliver",
+      "Both outward handles retain attached lugs",
+      "Classic Warm Twilight retain complete silhouettes and distinct palettes"
+    ],
+    "previous_findings": {
+      "CAULDRON_HANDLE_INTERIOR_SLIVER": "CLOSED: final Cycles detail confirms clean interior after +/-1.10 adjustment",
+      "BREW_NOTE": "CLOSED: delivered manifest explicitly limits removal to Blender source and describes joined export"
+    },
+    "remaining_findings": []
+  },
+  "limits": [
+    "No Studio or browser actions. Native Roblox publication and listing are separate gates."
+  ]
+}

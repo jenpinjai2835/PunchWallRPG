@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 33846,
+  "sha256": "2a589a7fed92025e901de6d0c657def0d058e37e2697b14c63b4b14a2cce5905",
+  "authoredRoot": "tidewatch_harbor_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

@@ -1,0 +1,176 @@
+{
+  "status": "PASS_LOCAL_ARTIFACT_REVIEW_STUDIO_REFRESH_PENDING",
+  "slug": "sunbeam-cafe",
+  "checked_at_utc": "2026-09-10T18:36:52.397441+00:00",
+  "scope": "Read-only final corrected output/ZIP/image review; direct GLB contact triangles",
+  "asset_count": 12,
+  "palette_count": 3,
+  "base_triangles": 8180,
+  "source_module_sha256": "bbdd966b92805d0df7c7994d75747688274a51bae6ce6fb6761e39fa62279f65",
+  "editable_blend_sha256": "88368c1f68b507a57250ae30cac065af9e1367da0f63328126caaf3efcf69d35",
+  "aggregate_glb_sha256": "eaaecc04a82b1b6d5e63f45f546fc7ac6fabf993a4511eab5dd01ae7a8b19a90",
+  "zip": {
+    "file": "sunbeam-cafe-source-and-exports.zip",
+    "bytes": 9101888,
+    "members": 39,
+    "crc": "PASS",
+    "payload_files_compared": 39,
+    "sha256": "00fabf9f1010da32c9468a040d897cec84124d31bb360acf49fb0fc48adb384b"
+  },
+  "export_files_compared": 24,
+  "recorded_export_checks_all_true": 420,
+  "aggregate_embedded_palette_sha256": {
+    "Classic_Palette": "a919b3e95e8cfedaa6f03e7994f0a6400b9c17569ff84403f52fc92bd7447f2c",
+    "Twilight_Palette": "abf0746a0de54b0b2db2470d763702b591e6e7fe06c186269437dc9f9c9bba9c",
+    "Warm_Palette": "d1e275fd9b9539a832db9ee556f2fa36e34d07ef2f9550a5536c901024cf7bb9"
+  },
+  "aggregate_material_binding": "36 roles each references matching variant embedded palette",
+  "images": {
+    "collection-Classic": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "2b27efaae15aed688a8c1260078faa137e9bb890ea15b02ff5e59c3accacdad6",
+      "visual_review": "PASS"
+    },
+    "collection-Warm": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "eb1f88ee49693b96b0f222a010bc6b661f3e6cfa086f4779a278582d5058e7f3",
+      "visual_review": "PASS"
+    },
+    "collection-Twilight": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "808985888d3a44f1e57a7822cdaa4b133f2fda99cc70b745f1d00f40651e0d83",
+      "visual_review": "PASS"
+    },
+    "icon": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "45c27592c1650e6f57709079e1eea823b264d0ce29330eeba4a058f272f9a970",
+      "visual_review": "PASS"
+    },
+    "detail": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "731bc77b2522d5c0d6c020d4848ad61677be8ee8411e5ea2c820fb696d21193d",
+      "visual_review": "PASS"
+    }
+  },
+  "corrected_ground_contacts": {
+    "05_Slatted_Cafe_Chair": {
+      "actual_glb_sha256": "18bca3dadf0c9dd0bf6034ff985e505f586045f9a48230c5e4e88019e352946a",
+      "minimumY": -1.5832483768463135e-08,
+      "flatFootContacts": [
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.046655999999999996,
+          "centerXZ": [
+            -0.598,
+            0.529
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.046655999999999996,
+          "centerXZ": [
+            -0.598,
+            -0.529
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.046655999999999996,
+          "centerXZ": [
+            0.598,
+            0.529
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.046655999999999996,
+          "centerXZ": [
+            0.598,
+            -0.529
+          ],
+          "triangles": 2
+        }
+      ],
+      "status": "PASS"
+    },
+    "06_Menu_Easel": {
+      "actual_glb_sha256": "bc6b38cca75287675954228bf613f553c0d98ab7f7342de1bf9e8c1cee243b50",
+      "minimumY": -2.9802322387695312e-08,
+      "flatFootContacts": [
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.030875999999999987,
+          "centerXZ": [
+            -0.63,
+            0.5
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.030875999999999994,
+          "centerXZ": [
+            -0.63,
+            -0.79
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.030875999999999987,
+          "centerXZ": [
+            0.63,
+            0.5
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.030875999999999994,
+          "centerXZ": [
+            0.63,
+            -0.79
+          ],
+          "triangles": 2
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "visual_notes": [
+    "All five new actual renders inspected; complete 12-prop collections and distinct palette variants.",
+    "Changed standing props show proportional foot pads resting at ground; no new crop, gap or unsupported part seen."
+  ],
+  "findings": [],
+  "limitations": [
+    "Old pre-fix Studio screenshots/flows excluded. Final Studio evidence awaits root notification.",
+    "Native persistent uploads and paid listings remain BLOCKED.",
+    "No Blender, Studio, browser, account or root/source writes performed during this review."
+  ]
+}

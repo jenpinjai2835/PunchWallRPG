@@ -1,0 +1,294 @@
+{
+  "status": "PASS",
+  "reviewer": "Worker2 / merchant_stalls",
+  "slug": "emberforge-smithy",
+  "recorded_utc": "2026-09-11T01:07:31.451273+07:00",
+  "method": "Read-only delivered Blender source reopen; evaluated mesh descendants under 12 Editable roots; exact asset bounds and triangles; independent packed PNG decoder checking chunk CRCs and all authored RGB pixels; ZIP CRC plus each member hash versus on-disk counterpart.",
+  "blender": "4.5.9 LTS",
+  "threads": 2,
+  "source": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\source\\emberforge-smithy-editable.blend",
+    "sha256": "9a8926326cfac537ee7d7857e3220627cf4e0caf300db92ba77a72a773570c83",
+    "asset_roots": 12,
+    "triangles_excluding_stage": 6044,
+    "assets": [
+      {
+        "id": "01_Hearth_Forge",
+        "triangles": 1314,
+        "bounds_min": [
+          -2.299999952316284,
+          -1.7899999618530273,
+          0.0
+        ],
+        "bounds_max": [
+          2.299999952316284,
+          1.600000023841858,
+          5.255000114440918
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "02_Horn_Anvil",
+        "triangles": 556,
+        "bounds_min": [
+          -1.2550004720687866,
+          -0.8797272443771362,
+          0.0
+        ],
+        "bounds_max": [
+          1.850000023841858,
+          0.8797272443771362,
+          2.234999895095825
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "03_Quench_Tank",
+        "triangles": 752,
+        "bounds_min": [
+          -1.4399999380111694,
+          -0.8700000047683716,
+          0.0
+        ],
+        "bounds_max": [
+          1.4399999380111694,
+          0.8700000047683716,
+          1.565000057220459
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "04_Foot_Bellows",
+        "triangles": 228,
+        "bounds_min": [
+          -0.8528000116348267,
+          -1.0,
+          0.0
+        ],
+        "bounds_max": [
+          0.8528000116348267,
+          1.5,
+          0.875
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "05_Treadle_Grindstone",
+        "triangles": 1004,
+        "bounds_min": [
+          -1.0740000009536743,
+          -1.1399999856948853,
+          0.0
+        ],
+        "bounds_max": [
+          1.0739997625350952,
+          1.0800000429153442,
+          3.1100001335144043
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "06_Ingot_Stack",
+        "triangles": 60,
+        "bounds_min": [
+          -0.9700002670288086,
+          -0.6200000047683716,
+          0.0
+        ],
+        "bounds_max": [
+          0.9700002670288086,
+          0.6200000047683716,
+          0.5399999618530273
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "07_Smith_Tongs",
+        "triangles": 388,
+        "bounds_min": [
+          -0.453054815530777,
+          -1.4642901420593262,
+          0.0
+        ],
+        "bounds_max": [
+          0.453054815530777,
+          1.0436346530914307,
+          0.1899999976158142
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "08_Smith_Tool_Rack",
+        "triangles": 612,
+        "bounds_min": [
+          -1.2450000047683716,
+          -0.6299999952316284,
+          0.0
+        ],
+        "bounds_max": [
+          1.2450000047683716,
+          0.6299999952316284,
+          2.7699999809265137
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "09_Casting_Mould",
+        "triangles": 308,
+        "bounds_min": [
+          -1.2799999713897705,
+          -0.550000011920929,
+          0.0
+        ],
+        "bounds_max": [
+          1.2799999713897705,
+          0.550000011920929,
+          0.5
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "10_Coal_Scuttle",
+        "triangles": 298,
+        "bounds_min": [
+          -0.8299999833106995,
+          -0.7893769145011902,
+          0.0
+        ],
+        "bounds_max": [
+          0.8299999833106995,
+          0.7893769145011902,
+          1.844271183013916
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "11_Forge_Heat_Shield",
+        "triangles": 420,
+        "bounds_min": [
+          -0.9699996709823608,
+          -0.5899999737739563,
+          0.0
+        ],
+        "bounds_max": [
+          0.9699996709823608,
+          0.5899999737739563,
+          2.2249999046325684
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "12_Forged_Blade_Blank",
+        "triangles": 104,
+        "bounds_min": [
+          -0.574999988079071,
+          -1.4949997663497925,
+          0.0
+        ],
+        "bounds_max": [
+          0.574999988079071,
+          1.2799999713897705,
+          0.30000001192092896
+        ],
+        "status": "PASS"
+      }
+    ],
+    "packed_palettes": [
+      {
+        "name": "Classic",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "175641b87afb630538e03b408d3986d0ba8dc716e65ca7d2bb58610f8fc63f3d",
+        "status": "PASS"
+      },
+      {
+        "name": "Warm",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "cd648ee3ca671b2ade20b1c6828ef33499181accb4505b24789354755ea2eb05",
+        "status": "PASS"
+      },
+      {
+        "name": "Twilight",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "ccfeeabc7016578e4eacac8611819770624930ce5ac59fe60660858c1032e14b",
+        "status": "PASS"
+      }
+    ]
+  },
+  "manifest": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\manifest.json",
+    "sha256": "ffa00f2d6aa694a99dcff5118b525d73819974b2ae26facc2dfd5788ec389ed0"
+  },
+  "evidence": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\evidence\\export-roundtrip.json",
+      "sha256": "cdb8d458dd59031ba6fdfcb9ab075ee0ee5b81920511fdc6d03e5884b467672d",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\evidence\\native-roundtrip.json",
+      "sha256": "b3a38adf4aaedc20a0e6e58b97d2dfe18bbeca70de5939377b311ffd9c611847",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\evidence\\source-reopen.json",
+      "sha256": "a3e00f512445ea40a398cc4b1789840041e6f5fe55dc20d2b5e0d68e8b5d7cc6",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\evidence\\package-validation.json",
+      "sha256": "bb48ce8637355e26b5b08ece464dfe58094938c95da69fa5374a1f9f6c9fc2da",
+      "recorded_status": "PASS"
+    }
+  ],
+  "archive": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\emberforge-smithy-source-and-exports.zip",
+    "sha256": "bab4cf625e779b15de44afb2f92097525130674abd56d7e2234eb33791d0f172",
+    "members": 53,
+    "crc": "PASS",
+    "all_member_hashes_match": "PASS"
+  },
+  "images": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Classic.png",
+      "sha256": "85b23c7d6729d55db1cde156938e32a5be70e441ed992f1294e9111b9aa64b15"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Twilight.png",
+      "sha256": "4f338e104dcaded1d41376f30a13828d313b3f51be5c1bd9bcb3940a66453213"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Warm.png",
+      "sha256": "b10e767b070701687038fd3fe33845d6503b0854ecf61bd0f436f379d3c1a100"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\detail.png",
+      "sha256": "3a26cad0361351533c800a0c8d1c935d3463475722fd0d6b6f20ea3f462c661d"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\icon.png",
+      "sha256": "e818884462d201764a0cfc9fc28390b4fc41570de1672092c7d4aa61d21b6a75"
+    }
+  ],
+  "visual_review": {
+    "status": "PASS",
+    "actual_images_inspected": 5,
+    "checks": [
+      "All 12 collection models inside frame",
+      "All captions fit and remain unobstructed",
+      "Grounding and supported mechanisms visually coherent",
+      "Classic Warm Twilight correspond to distinct rendered palettes",
+      "Icon and detail retain complete silhouettes"
+    ],
+    "previous_caption_issue": "CLOSED: new height order and higher camera angle prevent forge occluding grindstone caption",
+    "remaining_findings": []
+  },
+  "limits": [
+    "No Studio or browser actions. Native Roblox publication and listing are separate gates."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "scope": "Synthetic scratch-only negative test, not real delivery evidence",
+  "packager_sha256": "9b1b1ccaa8140e9b392492cfecbbd15d166e0efd2ed9d956a97e24eaedd7297e",
+  "returncode": 0,
+  "stdout": "{\"status\": \"PASS\", \"archive\": \"emberforge-smithy-source-and-exports.zip\", \"members\": 7, \"bytes\": 4568, \"sha256\": \"77ca86d6438be384f06075e4b599bd9f3c9c4ca566796aa32b1d74ef851fdcd9\", \"listing\": \"PENDING_NATIVE_PUBLICATION\"}\n",
+  "stderr": "",
+  "source_manifest_declared_assets": 12,
+  "actual_fbx_files": 0,
+  "actual_glb_files": 0,
+  "actual_blend_files": 0,
+  "zip_entries": [
+    "diagnostic-probe.txt",
+    "evidence/export-roundtrip.json",
+    "evidence/native-roundtrip.json",
+    "evidence/source-reopen.json",
+    "manifest.json",
+    "README.md",
+    "STORE-DRAFT.md"
+  ],
+  "accepts_missing_declared_deliverables": true,
+  "includes_diagnostic_probe": true
+}

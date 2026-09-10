@@ -1,0 +1,142 @@
+{
+  "status": "PASS",
+  "reviewer": "Worker2 / merchant_stalls",
+  "recorded_utc": "2026-09-10T18:38:39.800966+00:00",
+  "checklist": "3/3",
+  "scope": "Final delivered fantasy pack images, editable sources, palette persistence, export evidence bindings and 39-file archives.",
+  "models": 36,
+  "source_triangles": 21604,
+  "images_inspected": 15,
+  "source_roots_checked": 36,
+  "packed_palettes_checked": 9,
+  "zip_members_checked": 117,
+  "remaining_in_scope_findings": [],
+  "closed_findings": [
+    "Emberforge collection caption occlusion",
+    "Moonwell brew-removal wording",
+    "Moonwell handle inner-wall sliver"
+  ],
+  "packs": [
+    {
+      "slug": "emberforge-smithy",
+      "status": "PASS",
+      "review_file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-final-review\\emberforge-smithy.json",
+      "review_sha256": "56fa6ac44ff5f77e32e54545686a34ed0d910402db8c918ab401a1b116df29e0",
+      "supplemental": [
+        {
+          "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-final-review\\emberforge-smithy-zip-refresh.json",
+          "sha256": "9935a9777f7605334fc17b5fa46631bcfc78f25d83796757a18946c82fa54ea3"
+        }
+      ],
+      "models": 12,
+      "triangles": 6044,
+      "source_sha256": "9a8926326cfac537ee7d7857e3220627cf4e0caf300db92ba77a72a773570c83",
+      "manifest_sha256": "ffa00f2d6aa694a99dcff5118b525d73819974b2ae26facc2dfd5788ec389ed0",
+      "archive_sha256": "02fad409028ee0dd7aa43ec35a87343c15bab247f7f079d5131b11bda9a0a969",
+      "archive_members": 39,
+      "images": [
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Classic.png",
+          "sha256": "85b23c7d6729d55db1cde156938e32a5be70e441ed992f1294e9111b9aa64b15"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Twilight.png",
+          "sha256": "4f338e104dcaded1d41376f30a13828d313b3f51be5c1bd9bcb3940a66453213"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\collection-Warm.png",
+          "sha256": "b10e767b070701687038fd3fe33845d6503b0854ecf61bd0f436f379d3c1a100"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\detail.png",
+          "sha256": "3a26cad0361351533c800a0c8d1c935d3463475722fd0d6b6f20ea3f462c661d"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\images\\icon.png",
+          "sha256": "e818884462d201764a0cfc9fc28390b4fc41570de1672092c7d4aa61d21b6a75"
+        }
+      ],
+      "export_roundtrips": 24,
+      "packed_palettes_checked": 3
+    },
+    {
+      "slug": "moonwell-alchemy",
+      "status": "PASS",
+      "review_file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-final-review\\moonwell-alchemy.json",
+      "review_sha256": "0818c258bd1793211fb7800d00ca57a56b18ee72e9a1d3ae67c6a556bc03c46c",
+      "supplemental": [],
+      "models": 12,
+      "triangles": 9268,
+      "source_sha256": "28e03ee0b9153a99bd00dcba90d626c8ccc1742a5b40d7fb3061d0686e4fbddd",
+      "manifest_sha256": "e271b6be6e6941091d5085836016a74da99db0c4dda5d6dd7e4869d00412feac",
+      "archive_sha256": "16568241618ef1035164d403b8ad0a4cc76cacaa6d42c713c7d6da140de42bf9",
+      "archive_members": 39,
+      "images": [
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Classic.png",
+          "sha256": "a5d1c231277d5cbedb6418dd5b304cb1c9732fd95436e6e91d17b21d027fbec3"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Twilight.png",
+          "sha256": "2c682e4a9521eb8af35b123321ebc6d067e6241cf1775325de2ce38b104b5363"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\collection-Warm.png",
+          "sha256": "8a15d992151cdc4c51f86c4b62d9664357a7cc99b5cc3bce50a66575e48da0b5"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\detail.png",
+          "sha256": "82a11d87e38efd1f2d9082b17aefbaf9eefd6d1b16f7feef1e9230ed2ad69083"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\moonwell-alchemy\\images\\icon.png",
+          "sha256": "2e7d2e4996502a7384c74112b1ce3b7d668198f512ffd70ae8cb902b07159188"
+        }
+      ],
+      "export_roundtrips": 24,
+      "packed_palettes_checked": 3
+    },
+    {
+      "slug": "runestone-dungeon",
+      "status": "PASS",
+      "review_file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-final-review\\runestone-dungeon.json",
+      "review_sha256": "f04f481d6fe41c52f3b18f2ce1ec44062ac3102953996e4ac639f08298efd5c2",
+      "supplemental": [],
+      "models": 12,
+      "triangles": 6292,
+      "source_sha256": "69edb43a3f6d2aa029d9a115025ed2a53803f2df2ed1696c6dde22f64cf7a638",
+      "manifest_sha256": "25d69556b8fbb5861af636602ac44f262d790f3b0e4a1db845ca68d02be1a21b",
+      "archive_sha256": "db07e0e6bf64a48b1397b63eeee00b6be4e36f477ab55ad0618a260883edb0d7",
+      "archive_members": 39,
+      "images": [
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Classic.png",
+          "sha256": "e9d7289f3e2612d6043f4ee4d18e9672e8cbcf6c626bed49ba10a6a509938ee1"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Twilight.png",
+          "sha256": "62422ae019c72ac45669bac76b334135065ccb51c8d6a1b66b72d9cf81033c8e"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Warm.png",
+          "sha256": "8df5bf74f0b4fa91e8568ae7dc53bd5042666229afe5e8cdb51e28ff45f45cb2"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\detail.png",
+          "sha256": "586e7856f652c7ad269cbfe1865697ed8a40159ace1b80ef0cf3d8d44cc8f872"
+        },
+        {
+          "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\icon.png",
+          "sha256": "69221435ad8005d8585babb4eae622bd278f2fba1d2c7a0e0123e6d161eb8863"
+        }
+      ],
+      "export_roundtrips": 24,
+      "packed_palettes_checked": 3
+    }
+  ],
+  "limits": [
+    "Native Studio previews, play flows, persistent asset uploads and Store listings remain Coordinator-owned gates; this worker did not operate Studio or browser.",
+    "The original Emberforge 53-member archive audit is historical; its ZIP refresh report binds the final 39-member archive."
+  ],
+  "worker_correction_commit": "c3d76d7ba411936a1269e57a7523ac2c0c6f05aa"
+}

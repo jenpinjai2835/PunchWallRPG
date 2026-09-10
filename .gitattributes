@@ -15,6 +15,7 @@ outputs/creator-packs/catalog/** -text whitespace=blank-at-eol,blank-at-eof,spac
 outputs/creator-packs/catalog/**/*.blend binary
 outputs/creator-packs/catalog/**/*.fbx binary
 outputs/creator-packs/catalog/**/*.glb binary
+outputs/creator-packs/catalog/**/studio-geometry/*.json -diff
 work/automation/flows/creator-packs/** text eol=lf
 work/automation/scripts/validate_gilded_source.py text eol=lf
 outputs/creator-packs/gilded-grove/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

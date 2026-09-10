@@ -1,0 +1,525 @@
+{
+  "status": "PASS",
+  "scope": "Three corrected props; twelve individually proved flat floor contacts",
+  "engine": "Blender 4.5.9 Workbench, one thread",
+  "assets": [
+    {
+      "asset": "02_Orbit_Pinball_Table",
+      "module": "starfall_arcade",
+      "status": "PASS",
+      "source_sha256": "88d8fdbf5996833c221a081ab183394f174995d6c073c057f0704c587655763a",
+      "bounds_min": [
+        -1.125,
+        -2.0250000953674316,
+        0.0
+      ],
+      "bounds_max": [
+        1.125,
+        1.8350000381469727,
+        3.5
+      ],
+      "triangles": 1376,
+      "feet": [
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.060516003519296646,
+          "supportConnection": {
+            "leg": "02_Orbit_Pinball_Table__Splayed leg",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.001",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.060516003519296646,
+          "supportConnection": {
+            "leg": "02_Orbit_Pinball_Table__Splayed leg.001",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.002",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.060516003519296646,
+          "supportConnection": {
+            "leg": "02_Orbit_Pinball_Table__Splayed leg.002",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.003",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.060516003519296646,
+          "supportConnection": {
+            "leg": "02_Orbit_Pinball_Table__Splayed leg.003",
+            "verticesInsideFootCore": 12
+          }
+        }
+      ],
+      "objects": [
+        {
+          "name": "02_Orbit_Pinball_Table__Splayed leg",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0642763420211813
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008567136481925726
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Splayed leg.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.06427295243391075
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008567136481925726
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Splayed leg.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0642763420211813
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008567136481925726
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Splayed leg.003",
+          "triangles": 44,
+          "closedPositiveVolume": 0.06427295243391075
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Pinball level foot.003",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008567136481925726
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Playing cabinet",
+          "triangles": 44,
+          "closedPositiveVolume": 4.2323658861465985
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Playing field",
+          "triangles": 44,
+          "closedPositiveVolume": 0.4947196330343876
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Side rail",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0905033340211708
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Side rail.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0905033340211708
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__End rail",
+          "triangles": 44,
+          "closedPositiveVolume": 0.05313083488722632
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__End rail.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.05313083488722632
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper foot",
+          "triangles": 44,
+          "closedPositiveVolume": 0.015599999380261121
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper cap",
+          "triangles": 44,
+          "closedPositiveVolume": 0.02775299822358712
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper foot.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.015599999380261121
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper cap.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.02775299822358712
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper foot.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.015599999380261121
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Bumper cap.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.02775299822358712
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Flipper",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006495297346098444
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Flipper pivot",
+          "triangles": 36,
+          "closedPositiveVolume": 0.0009522122271416183
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Flipper.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006495297346098444
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Flipper pivot.001",
+          "triangles": 36,
+          "closedPositiveVolume": 0.0009522122271416183
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Ball",
+          "triangles": 44,
+          "closedPositiveVolume": 0.00561599948715586
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Backbox",
+          "triangles": 44,
+          "closedPositiveVolume": 0.938501979081988
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Score bezel",
+          "triangles": 44,
+          "closedPositiveVolume": 0.1042493817388514
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Score face",
+          "triangles": 44,
+          "closedPositiveVolume": 0.06088191949716588
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Orbit score emblem",
+          "triangles": 36,
+          "closedPositiveVolume": 0.0025675002215554345
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Score dash",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0007633333172897493
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Score dash.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0007633333172897493
+        },
+        {
+          "name": "02_Orbit_Pinball_Table__Launch plunger",
+          "triangles": 36,
+          "closedPositiveVolume": 0.005308435673019231
+        }
+      ],
+      "render": "02_Orbit_Pinball_Table.png",
+      "render_sha256": "744c6acb9180f1b4c42134d566b1c4cb1aea21d81bfe091925db99d2112ba658"
+    },
+    {
+      "asset": "05_Slatted_Cafe_Chair",
+      "module": "sunbeam_cafe",
+      "status": "PASS",
+      "source_sha256": "bbdd966b92805d0df7c7994d75747688274a51bae6ce6fb6761e39fa62279f65",
+      "bounds_min": [
+        -0.7179999947547913,
+        -0.6499999761581421,
+        0.0
+      ],
+      "bounds_max": [
+        0.7179999947547913,
+        0.7665984630584717,
+        2.7799999713897705
+      ],
+      "triangles": 748,
+      "feet": [
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.04665599763393402,
+          "supportConnection": {
+            "leg": "05_Slatted_Cafe_Chair__Chair leg",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.001",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.04665599763393402,
+          "supportConnection": {
+            "leg": "05_Slatted_Cafe_Chair__Chair leg.001",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.002",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.04665599763393402,
+          "supportConnection": {
+            "leg": "05_Slatted_Cafe_Chair__Chair leg.002",
+            "verticesInsideFootCore": 12
+          }
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.003",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.04665599763393402,
+          "supportConnection": {
+            "leg": "05_Slatted_Cafe_Chair__Chair leg.003",
+            "verticesInsideFootCore": 12
+          }
+        }
+      ],
+      "objects": [
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair leg",
+          "triangles": 44,
+          "closedPositiveVolume": 0.030244639760640048
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006748415528314602
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair leg.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.030244639760640048
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006748415528314602
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair leg.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.030244639760640048
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006748415528314602
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair leg.003",
+          "triangles": 44,
+          "closedPositiveVolume": 0.030244639760640048
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Chair level foot.003",
+          "triangles": 44,
+          "closedPositiveVolume": 0.006748415528314602
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Seat base",
+          "triangles": 44,
+          "closedPositiveVolume": 0.2789664721638326
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Seat cushion",
+          "triangles": 44,
+          "closedPositiveVolume": 0.18532242398613258
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Back upright",
+          "triangles": 44,
+          "closedPositiveVolume": 0.03594780164026591
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Back upright.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.03594780164026591
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Back slat",
+          "triangles": 44,
+          "closedPositiveVolume": 0.029826440736563816
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Back slat.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.029826440736563816
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Back slat.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.029826440736563816
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Side stretcher",
+          "triangles": 44,
+          "closedPositiveVolume": 0.007674114417550655
+        },
+        {
+          "name": "05_Slatted_Cafe_Chair__Side stretcher.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.007674114417550655
+        }
+      ],
+      "render": "05_Slatted_Cafe_Chair.png",
+      "render_sha256": "f680d7efc1684373b36a262f6588251e40baf30ee1670894b86a421cca376297"
+    },
+    {
+      "asset": "06_Menu_Easel",
+      "module": "sunbeam_cafe",
+      "status": "PASS",
+      "source_sha256": "bbdd966b92805d0df7c7994d75747688274a51bae6ce6fb6761e39fa62279f65",
+      "bounds_min": [
+        -0.8349999785423279,
+        -0.6050000190734863,
+        0.0
+      ],
+      "bounds_max": [
+        0.8349999785423279,
+        0.8950000405311584,
+        2.6354241371154785
+      ],
+      "triangles": 704,
+      "feet": [
+        {
+          "name": "06_Menu_Easel__Easel front level foot",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.030875997617840767,
+          "supportConnection": {
+            "leg": "06_Menu_Easel__Front easel leg",
+            "verticesInsideFootCore": 8
+          }
+        },
+        {
+          "name": "06_Menu_Easel__Easel rear level foot",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.030875997617840767,
+          "supportConnection": {
+            "leg": "06_Menu_Easel__Rear easel leg",
+            "verticesInsideFootCore": 8
+          }
+        },
+        {
+          "name": "06_Menu_Easel__Easel front level foot.001",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.030875997617840767,
+          "supportConnection": {
+            "leg": "06_Menu_Easel__Front easel leg.001",
+            "verticesInsideFootCore": 8
+          }
+        },
+        {
+          "name": "06_Menu_Easel__Easel rear level foot.001",
+          "minimumZ": 0.0,
+          "maximumZ": 0.11999999731779099,
+          "flatContactArea": 0.030875997617840767,
+          "supportConnection": {
+            "leg": "06_Menu_Easel__Rear easel leg.001",
+            "verticesInsideFootCore": 8
+          }
+        }
+      ],
+      "objects": [
+        {
+          "name": "06_Menu_Easel__Front easel leg",
+          "triangles": 44,
+          "closedPositiveVolume": 0.061308788585074214
+        },
+        {
+          "name": "06_Menu_Easel__Rear easel leg",
+          "triangles": 44,
+          "closedPositiveVolume": 0.058718066475292804
+        },
+        {
+          "name": "06_Menu_Easel__Easel front level foot",
+          "triangles": 44,
+          "closedPositiveVolume": 0.004647455675095805
+        },
+        {
+          "name": "06_Menu_Easel__Easel rear level foot",
+          "triangles": 44,
+          "closedPositiveVolume": 0.004647455675095805
+        },
+        {
+          "name": "06_Menu_Easel__Easel side brace",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008789536629703526
+        },
+        {
+          "name": "06_Menu_Easel__Front easel leg.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.061308788585074214
+        },
+        {
+          "name": "06_Menu_Easel__Rear easel leg.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.058718066475292804
+        },
+        {
+          "name": "06_Menu_Easel__Easel front level foot.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.004647455675095805
+        },
+        {
+          "name": "06_Menu_Easel__Easel rear level foot.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.004647455675095805
+        },
+        {
+          "name": "06_Menu_Easel__Easel side brace.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.008789536629703526
+        },
+        {
+          "name": "06_Menu_Easel__Menu backing",
+          "triangles": 44,
+          "closedPositiveVolume": 0.46791414425658756
+        },
+        {
+          "name": "06_Menu_Easel__Menu face",
+          "triangles": 44,
+          "closedPositiveVolume": 0.13500561320065296
+        },
+        {
+          "name": "06_Menu_Easel__Menu row",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0012332419737234555
+        },
+        {
+          "name": "06_Menu_Easel__Menu row.001",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0012202119879020595
+        },
+        {
+          "name": "06_Menu_Easel__Menu row.002",
+          "triangles": 44,
+          "closedPositiveVolume": 0.001063851980099364
+        },
+        {
+          "name": "06_Menu_Easel__Menu row.003",
+          "triangles": 44,
+          "closedPositiveVolume": 0.0011811220285305232
+        }
+      ],
+      "render": "06_Menu_Easel.png",
+      "render_sha256": "fc737049dbf7a25df5f7bbffeefe4133a4667b96bb3ef3f2578089a359231ee0"
+    }
+  ],
+  "visual_review": "PASS: viewed all three actual Workbench renders; level pads remain proportional and touch floor; no crop or unsupported feet.",
+  "commit": "334e41b9a181fd47d8be39df583077f7d40d537e",
+  "tracked_diff": "Exactly starfall_arcade.py and sunbeam_cafe.py; 7 insertions, 3 deletions; tracked tree clean.",
+  "integration_gate": "Worker correction eligible for integration; root must rebuild final exports, images, Studio preview and ZIPs."
+}

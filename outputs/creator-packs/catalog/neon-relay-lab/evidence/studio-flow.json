@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-neon-relay-lab-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "abc4514bdf11ddae9d746e7174d784b62f29e33b3a4d6688a523c8fe54ad6ce0",
+  "manifest_sha256": "846ace713b9764ac9b274ff12e204590dfa60e311e89899e078176c80bd14399",
+  "executed_at": "2026-09-10T18:36:31.730Z"
+}

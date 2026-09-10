@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "owner": "Agent1 natural packs",
+  "source_modules": 3,
+  "base_models": 36,
+  "blender_threads": 2,
+  "checks": "Actual build; sequential IDs; finite vertices; no zero-area polygons; closed manifold component edges; ground and bounds; role pivots; role and triangle budgets; three palette metadata variants and two samples; actual contact-sheet inspection.",
+  "packs": [
+    {
+      "pack": "mossvale_camp",
+      "status": "PASS",
+      "source_sha256": "BBF008F4D6EF3E9266AD4092AC5B124D13A039B7F780DCAD2055C723580BAA73",
+      "qa_file": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\mossvale_camp-qa.json",
+      "qa_sha256": "62DC64B9084C6E90F3730DE487364F7A4FED441E1699B58D6D7144B06231BFF8",
+      "contact_sheet": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\mossvale_camp-contact.png",
+      "contact_sha256": "C88CBB5A857E033B3AE57A2C030D7BA1D1D921B5BA035BDEA0153ADF2A9D017E",
+      "visual_inspection": "Actual Blender contact sheet viewed. All twelve models visible, correctly colored and supported; no clipping.",
+      "assets": 12,
+      "roles": 12,
+      "triangles": 6760,
+      "max_asset_triangles": 1176
+    },
+    {
+      "pack": "harvest_homestead",
+      "status": "PASS",
+      "source_sha256": "05799D4FDAE505D4EC569DF691288236E7BE1379831BCCBAB96B6533A287A1E9",
+      "qa_file": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\harvest_homestead-qa.json",
+      "qa_sha256": "30D3D7BC500BE5337F01E972CE3709FAA027E9266B0CBAD5732D114282C60495",
+      "contact_sheet": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\harvest_homestead-contact.png",
+      "contact_sha256": "9A98C341671A9BAF2DC141EBAA4078874A19CC078D9DAD51F7D49A698E52F352",
+      "visual_inspection": "Actual Blender contact sheet viewed. All twelve models visible, correctly colored and supported; no clipping.",
+      "assets": 12,
+      "roles": 13,
+      "triangles": 8808,
+      "max_asset_triangles": 1490
+    },
+    {
+      "pack": "tidewatch_harbor",
+      "status": "PASS",
+      "source_sha256": "ECC1E9B5EDF034C2A4E76CB4BB55048E66C6FB59A93D652F3D8AB24D815109D8",
+      "qa_file": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\tidewatch_harbor-qa.json",
+      "qa_sha256": "DB0A5E06BE3B25CC5185AA8F6FA3D73CE749E18C3DEF32FF7488DEE9E1929600",
+      "contact_sheet": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-catalog-qa\\tidewatch_harbor-contact.png",
+      "contact_sha256": "31653A9BBBABA3D286303039225D48A5CB5F6B2780D12B0D1238AF9C56329887",
+      "visual_inspection": "Actual Blender contact sheet viewed. All twelve models visible, correctly colored and supported; no clipping.",
+      "assets": 12,
+      "roles": 12,
+      "triangles": 11282,
+      "max_asset_triangles": 2656
+    }
+  ],
+  "limitations": "Coordinator integration, exported-palette/mesh roundtrip, native Roblox upload and paid-listing checks remain separate gates."
+}

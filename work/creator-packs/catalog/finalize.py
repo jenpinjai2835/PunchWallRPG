@@ -30,6 +30,11 @@ def main():
         slug = module.stem.replace('_', '-')
         pack = catalog/slug
         manifest = read(pack/'manifest.json')
+        for asset in manifest['assets']:
+            z = asset['bounds_min'][2]
+            documented_tip_clearance = (slug == 'harvest-homestead' and
+                                        asset['id'] == '09_Carrot_Bundle' and abs(z-.01) < .001)
+            assert -.005 <= z <= .005 or documented_tip_clearance, f"Unsupported floor gap: {slug}/{asset['id']}"
         members = verified_members(pack, manifest)
         archive_report = read(pack/'evidence/package-validation.json')
         archive = pack/archive_report['archive']
@@ -53,7 +58,9 @@ def main():
         source_manifest = re.search(r'H:JSONDecode\(\[==\[(.*?)\]==\]\)', flow['steps'][0]['args']['code'], re.S)
         assert source_manifest and json.loads(source_manifest[1]) == manifest, 'Stale Studio manifest'
         execution = read(pack/'evidence/studio-flow.json')
-        assert execution['ok'] and execution['results'][0]['flow'] == flow['name']
+        assert execution['ok'] and execution['results'][0]['ok'] and execution['results'][0]['flow'] == flow['name']
+        assert execution['flow_sha256'] == sha(flow_path), 'Stale executed Studio flow'
+        assert execution['manifest_sha256'] == sha(pack/'manifest.json'), 'Stale executed Studio manifest'
         capture = pack/'evidence/studio-preview.png'
         assert capture.stat().st_size > 10000
         reports.append({'slug': slug, 'title': manifest['product'], 'localChecks': 'PASS',
@@ -73,6 +80,7 @@ def main():
     (catalog/'final-validation.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     lines = ['# Creator model catalog', '',
              'One paid listing is live: [Gilded Grove — Merchant & Loot](https://create.roblox.com/store/asset/122456766146790/Gilded-Grove-Merchant-Loot), US$5.99 (24 original models, three palettes).', '',
+             '[Gilded Grove local source ZIP](../gilded-grove/delivery/GildedGrove_Full.zip)', '',
              'The nine collections below contain 108 further original models. Local source, exports, images, Studio previews and ZIP checks passed. Persistent uploads and paid listings remain blocked by the recorded Studio automation approval rejection. Intended price: US$4.99 per new collection.', '',
              'These local ZIP deliveries include Blender source and portable FBX/GLB files. Creator Store purchases do not automatically include the ZIP. All assets are visual props without gameplay systems.', '',
              '| Collection | Models | Triangles per palette | Files |', '| --- | ---: | ---: | --- |']

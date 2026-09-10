@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 20280,
+  "sha256": "858165199f6eb490628d3d9be721401cf862abe7c4e62ac1d6b9fbab9299c335",
+  "authoredRoot": "mossvale_camp_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

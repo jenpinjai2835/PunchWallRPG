@@ -1,0 +1,58 @@
+{
+  "status": "CHANGES_REQUESTED",
+  "created_utc": "2026-09-10T18:33:09.842693+00:00",
+  "scope": "Read-only audit of finalizer, packager, contract, delivery claims and referenced evidence schema. Did not repeat image/ZIP QA or run/mutate finalizer, Studio, browser, root outputs or source.",
+  "audited_file_sha256": {
+    "work/creator-packs/catalog/finalize.py": "bd6195ff7822b4534deb9057f853132a4cc50f2d0534a13b9f2de0d50fbc3d18",
+    "work/creator-packs/catalog/package.py": "efeb78de637f9f678bb6380f9f0f20718dfcefbc4fd47667f88aea422893a493",
+    "work/creator-packs/catalog/CONTRACT.md": "6f785ca7fd42353fbc8c19300defbbe9466add890d29e3d30e1a240a9ce08f96",
+    "work/docs/CREATOR_CATALOG_DELIVERY_20260911.md": "2cf841b620629240ea759edac4965ffc806bd59dcabbc0d570f847220f1a7f9a"
+  },
+  "checks": {
+    "source_current_linkage": "PASS: finalize.verified_members invokes package.py source module SHA equals manifest source_module_sha256; per-export/native/editable source report hashes bind delivered bytes.",
+    "artifact_links": "PASS: doc relative ../../outputs resolves to repository outputs; finalize ROOT=HERE.parents[2] correctly resolves repository root; flow path resolves work/automation/flows/creator-packs.",
+    "counts_and_scope": "PASS: 9 x 12 + 24 first-pack = 132 distinct base models; palette placements counted separately; local previews distinguished from persistent upload and paid publication.",
+    "pending_work": "Known pending corrected pack builds and final-index generation were not treated as defects.",
+    "final_acceptance": "FAIL: executed Studio flow revision is not bound to the current flow revision; aggregate-report claim overstates recorded schema."
+  },
+  "findings": [
+    {
+      "priority": "P2",
+      "file": "work/creator-packs/catalog/finalize.py",
+      "line": 61,
+      "title": "Bind execution evidence to the flow revision actually run",
+      "trigger": "Regenerate or modify a same-name flow while leaving its prior successful studio-flow.json in place.",
+      "actual": "The finalizer accepts execution.ok and matching flow name, then records the current flow SHA. The execution report contains neither executed-flow SHA nor manifest SHA, so it can accept stale execution evidence for a new flow revision. It also omits results[0].ok.",
+      "recommendation": "At successful execution, record SHA256 of the exact flow payload executed plus manifest SHA; finalizer must compare those to current files and require successful inner execution. Use a fail-before-run or immutable payload to avoid a generation/run race.",
+      "proof": {
+        "method": "Pure in-memory perturbation; no files or actual flow execution changed.",
+        "current_flow_payload_sha256": "62c414bd32a124fb552a286ee0931f464cf9f70a167bf3957aa7ead8bb139da3",
+        "modified_flow_payload_sha256": "6f96ebf31e2401c47d09f68ddf9dd75dcc853e262a558fb958e66a85d274157a",
+        "flow_bytes_changed": true,
+        "embedded_manifest_unchanged": true,
+        "existing_execution_passes_current_finalizer_predicate_for_modified_flow": true,
+        "execution_evidence_fields": [
+          "ok",
+          "studioMcp",
+          "results"
+        ],
+        "inner_result_fields": [
+          "ok",
+          "flow",
+          "selectedStudio",
+          "checks"
+        ]
+      }
+    },
+    {
+      "priority": "P2",
+      "file": "work/docs/CREATOR_CATALOG_DELIVERY_20260911.md",
+      "line": 17,
+      "title": "Describe aggregate evidence at its actual scope",
+      "actual": "The row says native-roundtrip.json records exact authored bounds/pivots. Actual final report keys are status, placements, meshParts, triangles, sha256, authoredRoot, layoutStep, bankWidth, scope; no bounds/pivot assertion results are recorded there.",
+      "recommendation": "State the report proves isolated aggregate reload/counts/hash, and cite separate verified bounds/pivot evidence if applicable; alternatively record and gate actual bounds/pivot checks."
+    }
+  ],
+  "product_geometry_findings": [],
+  "worker_tree_mutations": "Only this ignored JSON report."
+}

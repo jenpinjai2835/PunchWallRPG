@@ -1,0 +1,5140 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\textures\\Classic_Palette.png",
+      "sha256": "5A196848708E9BBD6B2B1143B83257EB22B91FF1A776E23F871F37A633668CB2",
+      "reference_rgb": [
+        [
+          81,
+          97,
+          117
+        ],
+        [
+          32,
+          42,
+          59
+        ],
+        [
+          141,
+          157,
+          173
+        ],
+        [
+          24,
+          166,
+          173
+        ],
+        [
+          142,
+          247,
+          229
+        ],
+        [
+          232,
+          174,
+          78
+        ],
+        [
+          255,
+          230,
+          168
+        ],
+        [
+          52,
+          66,
+          83
+        ],
+        [
+          102,
+          122,
+          140
+        ],
+        [
+          188,
+          203,
+          210
+        ],
+        [
+          232,
+          238,
+          241
+        ],
+        [
+          234,
+          104,
+          90
+        ],
+        [
+          118,
+          206,
+          159
+        ],
+        [
+          158,
+          134,
+          221
+        ],
+        [
+          83,
+          102,
+          122
+        ],
+        [
+          16,
+          25,
+          38
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          81,
+          97,
+          117
+        ],
+        [
+          32,
+          42,
+          59
+        ],
+        [
+          141,
+          157,
+          173
+        ],
+        [
+          24,
+          166,
+          173
+        ],
+        [
+          142,
+          247,
+          229
+        ],
+        [
+          232,
+          174,
+          78
+        ],
+        [
+          255,
+          230,
+          168
+        ],
+        [
+          52,
+          66,
+          83
+        ],
+        [
+          102,
+          122,
+          140
+        ],
+        [
+          188,
+          203,
+          210
+        ],
+        [
+          232,
+          238,
+          241
+        ],
+        [
+          234,
+          104,
+          90
+        ],
+        [
+          118,
+          206,
+          159
+        ],
+        [
+          158,
+          134,
+          221
+        ],
+        [
+          83,
+          102,
+          122
+        ],
+        [
+          16,
+          25,
+          38
+        ]
+      ],
+      "blender_rgb": [
+        [
+          81,
+          97,
+          117
+        ],
+        [
+          32,
+          42,
+          59
+        ],
+        [
+          141,
+          157,
+          173
+        ],
+        [
+          24,
+          166,
+          173
+        ],
+        [
+          142,
+          247,
+          229
+        ],
+        [
+          232,
+          174,
+          78
+        ],
+        [
+          255,
+          230,
+          168
+        ],
+        [
+          52,
+          66,
+          83
+        ],
+        [
+          102,
+          122,
+          140
+        ],
+        [
+          188,
+          203,
+          210
+        ],
+        [
+          232,
+          238,
+          241
+        ],
+        [
+          234,
+          104,
+          90
+        ],
+        [
+          118,
+          206,
+          159
+        ],
+        [
+          158,
+          134,
+          221
+        ],
+        [
+          83,
+          102,
+          122
+        ],
+        [
+          16,
+          25,
+          38
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\textures\\Warm_Palette.png",
+      "sha256": "9FBF42EC788C9DB40AB68FA63C618D380C08ABDB781BFF1481E88AAD60D5533B",
+      "reference_rgb": [
+        [
+          103,
+          89,
+          90
+        ],
+        [
+          48,
+          41,
+          50
+        ],
+        [
+          177,
+          156,
+          143
+        ],
+        [
+          198,
+          91,
+          63
+        ],
+        [
+          255,
+          199,
+          144
+        ],
+        [
+          215,
+          172,
+          89
+        ],
+        [
+          255,
+          230,
+          180
+        ],
+        [
+          65,
+          56,
+          69
+        ],
+        [
+          128,
+          112,
+          121
+        ],
+        [
+          214,
+          194,
+          182
+        ],
+        [
+          245,
+          234,
+          220
+        ],
+        [
+          223,
+          120,
+          96
+        ],
+        [
+          154,
+          179,
+          136
+        ],
+        [
+          187,
+          134,
+          199
+        ],
+        [
+          116,
+          94,
+          99
+        ],
+        [
+          32,
+          28,
+          42
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          103,
+          89,
+          90
+        ],
+        [
+          48,
+          41,
+          50
+        ],
+        [
+          177,
+          156,
+          143
+        ],
+        [
+          198,
+          91,
+          63
+        ],
+        [
+          255,
+          199,
+          144
+        ],
+        [
+          215,
+          172,
+          89
+        ],
+        [
+          255,
+          230,
+          180
+        ],
+        [
+          65,
+          56,
+          69
+        ],
+        [
+          128,
+          112,
+          121
+        ],
+        [
+          214,
+          194,
+          182
+        ],
+        [
+          245,
+          234,
+          220
+        ],
+        [
+          223,
+          120,
+          96
+        ],
+        [
+          154,
+          179,
+          136
+        ],
+        [
+          187,
+          134,
+          199
+        ],
+        [
+          116,
+          94,
+          99
+        ],
+        [
+          32,
+          28,
+          42
+        ]
+      ],
+      "blender_rgb": [
+        [
+          103,
+          89,
+          90
+        ],
+        [
+          48,
+          41,
+          50
+        ],
+        [
+          177,
+          156,
+          143
+        ],
+        [
+          198,
+          91,
+          63
+        ],
+        [
+          255,
+          199,
+          144
+        ],
+        [
+          215,
+          172,
+          89
+        ],
+        [
+          255,
+          230,
+          180
+        ],
+        [
+          65,
+          56,
+          69
+        ],
+        [
+          128,
+          112,
+          121
+        ],
+        [
+          214,
+          194,
+          182
+        ],
+        [
+          245,
+          234,
+          220
+        ],
+        [
+          223,
+          120,
+          96
+        ],
+        [
+          154,
+          179,
+          136
+        ],
+        [
+          187,
+          134,
+          199
+        ],
+        [
+          116,
+          94,
+          99
+        ],
+        [
+          32,
+          28,
+          42
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\textures\\Twilight_Palette.png",
+      "sha256": "83046418B19054CE114DD208D2162DA532F0D463B9F86F4EF949B16724CB5992",
+      "reference_rgb": [
+        [
+          81,
+          82,
+          112
+        ],
+        [
+          37,
+          34,
+          61
+        ],
+        [
+          144,
+          152,
+          186
+        ],
+        [
+          115,
+          91,
+          204
+        ],
+        [
+          197,
+          168,
+          255
+        ],
+        [
+          224,
+          168,
+          89
+        ],
+        [
+          255,
+          225,
+          172
+        ],
+        [
+          53,
+          50,
+          77
+        ],
+        [
+          104,
+          106,
+          145
+        ],
+        [
+          182,
+          186,
+          218
+        ],
+        [
+          230,
+          228,
+          243
+        ],
+        [
+          236,
+          125,
+          156
+        ],
+        [
+          112,
+          206,
+          179
+        ],
+        [
+          165,
+          139,
+          232
+        ],
+        [
+          92,
+          82,
+          121
+        ],
+        [
+          23,
+          21,
+          42
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          81,
+          82,
+          112
+        ],
+        [
+          37,
+          34,
+          61
+        ],
+        [
+          144,
+          152,
+          186
+        ],
+        [
+          115,
+          91,
+          204
+        ],
+        [
+          197,
+          168,
+          255
+        ],
+        [
+          224,
+          168,
+          89
+        ],
+        [
+          255,
+          225,
+          172
+        ],
+        [
+          53,
+          50,
+          77
+        ],
+        [
+          104,
+          106,
+          145
+        ],
+        [
+          182,
+          186,
+          218
+        ],
+        [
+          230,
+          228,
+          243
+        ],
+        [
+          236,
+          125,
+          156
+        ],
+        [
+          112,
+          206,
+          179
+        ],
+        [
+          165,
+          139,
+          232
+        ],
+        [
+          92,
+          82,
+          121
+        ],
+        [
+          23,
+          21,
+          42
+        ]
+      ],
+      "blender_rgb": [
+        [
+          81,
+          82,
+          112
+        ],
+        [
+          37,
+          34,
+          61
+        ],
+        [
+          144,
+          152,
+          186
+        ],
+        [
+          115,
+          91,
+          204
+        ],
+        [
+          197,
+          168,
+          255
+        ],
+        [
+          224,
+          168,
+          89
+        ],
+        [
+          255,
+          225,
+          172
+        ],
+        [
+          53,
+          50,
+          77
+        ],
+        [
+          104,
+          106,
+          145
+        ],
+        [
+          182,
+          186,
+          218
+        ],
+        [
+          230,
+          228,
+          243
+        ],
+        [
+          236,
+          125,
+          156
+        ],
+        [
+          112,
+          206,
+          179
+        ],
+        [
+          165,
+          139,
+          232
+        ],
+        [
+          92,
+          82,
+          121
+        ],
+        [
+          23,
+          21,
+          42
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Command_Console",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Command_Console__Body"
+            ],
+            "expected": [
+              "01_Command_Console__Body"
+            ]
+          }
+        },
+        "01_Command_Console__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Command_Console__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 808,
+            "total_faces": 808
+          }
+        },
+        "01_Command_Console__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 808,
+            "expected": 808
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.850000023841858,
+              -1.4049997329711914,
+              -1.7624758186229883e-07
+            ],
+            "max": [
+              1.850000023841858,
+              1.125,
+              3.199793577194214
+            ],
+            "size": [
+              3.700000047683716,
+              2.5299997329711914,
+              3.1997937534417957
+            ],
+            "expected_size": [
+              3.700000047683716,
+              2.5299999713897705,
+              3.199793577194214
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\01_Command_Console.fbx",
+      "tolerance": 0.0001,
+      "sha256": "3B3EF4045571ED1E1969BE3F0D4C4418171F4AFDC6823B3E51C86A25AC7A691C",
+      "bytes": 36668,
+      "triangles": 808,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Command_Console__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Command_Console__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2424,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 808
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Command_Console",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Command_Console__Body"
+            ],
+            "expected": [
+              "01_Command_Console__Body"
+            ]
+          }
+        },
+        "01_Command_Console__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Command_Console__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 808,
+            "total_faces": 808
+          }
+        },
+        "01_Command_Console__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Command_Console__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 808,
+            "expected": 808
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.850000023841858,
+              -1.4049999713897705,
+              0.0
+            ],
+            "max": [
+              1.850000023841858,
+              1.125,
+              3.199793577194214
+            ],
+            "size": [
+              3.700000047683716,
+              2.5299999713897705,
+              3.199793577194214
+            ],
+            "expected_size": [
+              3.700000047683716,
+              2.5299999713897705,
+              3.199793577194214
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\01_Command_Console.glb",
+      "tolerance": 0.0001,
+      "sha256": "BCDB45708D6BC0F85F9D1A345778115C5B846AE5FB7929229E896E9E55D6EB25",
+      "bytes": 62212,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 808,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Command_Console__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Command_Console__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2424,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 808
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Reactor_Cell",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Reactor_Cell__Body"
+            ],
+            "expected": [
+              "02_Reactor_Cell__Body"
+            ]
+          }
+        },
+        "02_Reactor_Cell__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Reactor_Cell__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 816,
+            "total_faces": 816
+          }
+        },
+        "02_Reactor_Cell__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 816,
+            "expected": 816
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.1799999475479126,
+              -1.1799999475479126,
+              -1.922463894743487e-07
+            ],
+            "max": [
+              1.1799999475479126,
+              1.1799999475479126,
+              3.819999933242798
+            ],
+            "size": [
+              2.359999895095825,
+              2.359999895095825,
+              3.8200001254891873
+            ],
+            "expected_size": [
+              2.359999895095825,
+              2.359999895095825,
+              3.819999933242798
+            ],
+            "max_error": 1.922463894743487e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\02_Reactor_Cell.fbx",
+      "tolerance": 0.0001,
+      "sha256": "442BA88934857A8B27BBDF34D7474D31F8D4D9298054BD8AB4ACE9FC54DF94C4",
+      "bytes": 37212,
+      "triangles": 816,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Reactor_Cell__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Reactor_Cell__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2448,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 816
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Reactor_Cell",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Reactor_Cell__Body"
+            ],
+            "expected": [
+              "02_Reactor_Cell__Body"
+            ]
+          }
+        },
+        "02_Reactor_Cell__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Reactor_Cell__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 816,
+            "total_faces": 816
+          }
+        },
+        "02_Reactor_Cell__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Reactor_Cell__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 816,
+            "expected": 816
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.1799999475479126,
+              -1.1799999475479126,
+              0.0
+            ],
+            "max": [
+              1.1799999475479126,
+              1.1799999475479126,
+              3.819999933242798
+            ],
+            "size": [
+              2.359999895095825,
+              2.359999895095825,
+              3.819999933242798
+            ],
+            "expected_size": [
+              2.359999895095825,
+              2.359999895095825,
+              3.819999933242798
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\02_Reactor_Cell.glb",
+      "tolerance": 0.0001,
+      "sha256": "A4B8BA726DC3452957B241F5520D9FDAFF62FEB49F87F2E639CC8A9F2D31BA80",
+      "bytes": 58228,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 816,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Reactor_Cell__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Reactor_Cell__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2448,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 816
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Server_Tower",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Server_Tower__Body"
+            ],
+            "expected": [
+              "03_Server_Tower__Body"
+            ]
+          }
+        },
+        "03_Server_Tower__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Server_Tower__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1012,
+            "total_faces": 1012
+          }
+        },
+        "03_Server_Tower__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1012,
+            "expected": 1012
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.1749999523162842,
+              -1.0074999332427979,
+              -1.5180948764736968e-07
+            ],
+            "max": [
+              1.1749999523162842,
+              0.9750000238418579,
+              3.950000047683716
+            ],
+            "size": [
+              2.3499999046325684,
+              1.9824999570846558,
+              3.9500001994932035
+            ],
+            "expected_size": [
+              2.3499999046325684,
+              1.9825000762939453,
+              3.9499998092651367
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\03_Server_Tower.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C6259622F509675863EB8EC5122E112C9FE2C95240FC164608B9AED280A852FC",
+      "bytes": 39772,
+      "triangles": 1012,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Server_Tower__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Server_Tower__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3036,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1012
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Server_Tower",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Server_Tower__Body"
+            ],
+            "expected": [
+              "03_Server_Tower__Body"
+            ]
+          }
+        },
+        "03_Server_Tower__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Server_Tower__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1012,
+            "total_faces": 1012
+          }
+        },
+        "03_Server_Tower__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Server_Tower__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1012,
+            "expected": 1012
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.1749999523162842,
+              -1.0075000524520874,
+              0.0
+            ],
+            "max": [
+              1.1749999523162842,
+              0.9750000238418579,
+              3.9499998092651367
+            ],
+            "size": [
+              2.3499999046325684,
+              1.9825000762939453,
+              3.9499998092651367
+            ],
+            "expected_size": [
+              2.3499999046325684,
+              1.9825000762939453,
+              3.9499998092651367
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\03_Server_Tower.glb",
+      "tolerance": 0.0001,
+      "sha256": "E86D8945431924354AE2322DE54FD81CC2F8D1666B7B886CC380C7E40A190B19",
+      "bytes": 78612,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1012,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Server_Tower__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Server_Tower__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3036,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1012
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Signal_Beacon",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Signal_Beacon__Body"
+            ],
+            "expected": [
+              "04_Signal_Beacon__Body"
+            ]
+          }
+        },
+        "04_Signal_Beacon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Signal_Beacon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 372,
+            "total_faces": 372
+          }
+        },
+        "04_Signal_Beacon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 372,
+            "expected": 372
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9750000238418579,
+              -1.1386364698410034,
+              -1.3766796769232315e-07
+            ],
+            "max": [
+              0.9750000238418579,
+              0.8999999761581421,
+              3.9635050296783447
+            ],
+            "size": [
+              1.9500000476837158,
+              2.0386364459991455,
+              3.9635051673463124
+            ],
+            "expected_size": [
+              1.9500000476837158,
+              2.0386369228363037,
+              3.9635050296783447
+            ],
+            "max_error": 4.76837158203125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\04_Signal_Beacon.fbx",
+      "tolerance": 0.0001,
+      "sha256": "9FBC2E00341D2C96DAC06F63111FFF0E52B38777E150E980A6B821F402838228",
+      "bytes": 29004,
+      "triangles": 372,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Signal_Beacon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Signal_Beacon__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1116,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 372
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Signal_Beacon",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Signal_Beacon__Body"
+            ],
+            "expected": [
+              "04_Signal_Beacon__Body"
+            ]
+          }
+        },
+        "04_Signal_Beacon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Signal_Beacon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 372,
+            "total_faces": 372
+          }
+        },
+        "04_Signal_Beacon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Signal_Beacon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 372,
+            "expected": 372
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9750000238418579,
+              -1.1386369466781616,
+              0.0
+            ],
+            "max": [
+              0.9750000238418579,
+              0.8999999761581421,
+              3.9635050296783447
+            ],
+            "size": [
+              1.9500000476837158,
+              2.0386369228363037,
+              3.9635050296783447
+            ],
+            "expected_size": [
+              1.9500000476837158,
+              2.0386369228363037,
+              3.9635050296783447
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\04_Signal_Beacon.glb",
+      "tolerance": 0.0001,
+      "sha256": "47235B00780A315AB2C585046E6083BF755858F14AD9896D69BD55E708CFF130",
+      "bytes": 26828,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 372,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Signal_Beacon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Signal_Beacon__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1116,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 372
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Specimen_Scanner",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Specimen_Scanner__Body"
+            ],
+            "expected": [
+              "05_Specimen_Scanner__Body"
+            ]
+          }
+        },
+        "05_Specimen_Scanner__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Specimen_Scanner__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 462,
+            "total_faces": 462
+          }
+        },
+        "05_Specimen_Scanner__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 462,
+            "expected": 462
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.350000023841858,
+              -1.024999976158142,
+              -1.5839147238239093e-07
+            ],
+            "max": [
+              1.350000023841858,
+              1.024999976158142,
+              2.630000114440918
+            ],
+            "size": [
+              2.700000047683716,
+              2.049999952316284,
+              2.6300002728323904
+            ],
+            "expected_size": [
+              2.700000047683716,
+              2.049999952316284,
+              2.630000114440918
+            ],
+            "max_error": 1.5839147238239093e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\05_Specimen_Scanner.fbx",
+      "tolerance": 0.0001,
+      "sha256": "7F839CF8B642009F80E34E564CDA9DB02BD4C85BB47B43D37DD4A73E3EFAF81F",
+      "bytes": 29500,
+      "triangles": 462,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Specimen_Scanner__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Specimen_Scanner__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1386,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 462
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Specimen_Scanner",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Specimen_Scanner__Body"
+            ],
+            "expected": [
+              "05_Specimen_Scanner__Body"
+            ]
+          }
+        },
+        "05_Specimen_Scanner__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Specimen_Scanner__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 462,
+            "total_faces": 462
+          }
+        },
+        "05_Specimen_Scanner__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Specimen_Scanner__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 462,
+            "expected": 462
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.350000023841858,
+              -1.024999976158142,
+              0.0
+            ],
+            "max": [
+              1.350000023841858,
+              1.024999976158142,
+              2.630000114440918
+            ],
+            "size": [
+              2.700000047683716,
+              2.049999952316284,
+              2.630000114440918
+            ],
+            "expected_size": [
+              2.700000047683716,
+              2.049999952316284,
+              2.630000114440918
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\05_Specimen_Scanner.glb",
+      "tolerance": 0.0001,
+      "sha256": "44AB131EACBAD218B7ED46E72EF8D018BE0EE809ED43C35256E1285A2B200CDC",
+      "bytes": 34604,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 462,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Specimen_Scanner__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Specimen_Scanner__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1386,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 462
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Service_Vent",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Service_Vent__Body"
+            ],
+            "expected": [
+              "06_Service_Vent__Body"
+            ]
+          }
+        },
+        "06_Service_Vent__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Service_Vent__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 552,
+            "total_faces": 552
+          }
+        },
+        "06_Service_Vent__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 552,
+            "expected": 552
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2699999809265137,
+              -0.23849999904632568,
+              -2.7696513527075695e-08
+            ],
+            "max": [
+              1.2699999809265137,
+              0.2100004404783249,
+              2.6500000953674316
+            ],
+            "size": [
+              2.5399999618530273,
+              0.4485004395246506,
+              2.650000123063945
+            ],
+            "expected_size": [
+              2.5399999618530273,
+              0.44850002229213715,
+              2.6500000953674316
+            ],
+            "max_error": 4.3213367462158203e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\06_Service_Vent.fbx",
+      "tolerance": 0.0001,
+      "sha256": "268EE93482F8E67348E8237F46CB0302A08A37D71F791859F0902393B09B529F",
+      "bytes": 31788,
+      "triangles": 552,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Service_Vent__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Service_Vent__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1656,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 552
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Service_Vent",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Service_Vent__Body"
+            ],
+            "expected": [
+              "06_Service_Vent__Body"
+            ]
+          }
+        },
+        "06_Service_Vent__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Service_Vent__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 552,
+            "total_faces": 552
+          }
+        },
+        "06_Service_Vent__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Service_Vent__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 552,
+            "expected": 552
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2699999809265137,
+              -0.23850001394748688,
+              0.0
+            ],
+            "max": [
+              1.2699999809265137,
+              0.21000000834465027,
+              2.6500000953674316
+            ],
+            "size": [
+              2.5399999618530273,
+              0.44850002229213715,
+              2.6500000953674316
+            ],
+            "expected_size": [
+              2.5399999618530273,
+              0.44850002229213715,
+              2.6500000953674316
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\06_Service_Vent.glb",
+      "tolerance": 0.0001,
+      "sha256": "8E1F22038F5663F3709A811DA436AD6AE178CA4E6F7CC527EA90D6BB0F3F8415",
+      "bytes": 42048,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 552,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Service_Vent__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Service_Vent__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1656,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 552
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Data_Tablet",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Data_Tablet__Body"
+            ],
+            "expected": [
+              "07_Data_Tablet__Body"
+            ]
+          }
+        },
+        "07_Data_Tablet__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Data_Tablet__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "07_Data_Tablet__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.44999998807907104,
+              -6.86221852674862e-08
+            ],
+            "max": [
+              0.6899999976158142,
+              0.44999998807907104,
+              1.335028886795044
+            ],
+            "size": [
+              1.3799999952316284,
+              0.8999999761581421,
+              1.3350289554172292
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              0.8999999761581421,
+              1.335028886795044
+            ],
+            "max_error": 6.86221852674862e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\07_Data_Tablet.fbx",
+      "tolerance": 0.0001,
+      "sha256": "7E9D1CEC9EDA187414CC35070B2B605F0167FC03E94BC53694B569FAF536ECCA",
+      "bytes": 27372,
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Data_Tablet__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Data_Tablet__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Data_Tablet",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Data_Tablet__Body"
+            ],
+            "expected": [
+              "07_Data_Tablet__Body"
+            ]
+          }
+        },
+        "07_Data_Tablet__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Data_Tablet__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "07_Data_Tablet__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Data_Tablet__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.44999998807907104,
+              0.0
+            ],
+            "max": [
+              0.6899999976158142,
+              0.44999998807907104,
+              1.335028886795044
+            ],
+            "size": [
+              1.3799999952316284,
+              0.8999999761581421,
+              1.335028886795044
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              0.8999999761581421,
+              1.335028886795044
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\07_Data_Tablet.glb",
+      "tolerance": 0.0001,
+      "sha256": "5B208B54B0ABF1D8FA16D89210B1B219B09FAC4935D90A54C775CAE6D22DDF00",
+      "bytes": 25220,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Data_Tablet__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Data_Tablet__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Battery_Canister",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Battery_Canister__Body"
+            ],
+            "expected": [
+              "08_Battery_Canister__Body"
+            ]
+          }
+        },
+        "08_Battery_Canister__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Battery_Canister__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 588,
+            "total_faces": 588
+          }
+        },
+        "08_Battery_Canister__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 588,
+            "expected": 588
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.49000000953674316,
+              -0.49000000953674316,
+              -7.983113192722158e-08
+            ],
+            "max": [
+              0.49000000953674316,
+              0.49000027775764465,
+              1.9499999284744263
+            ],
+            "size": [
+              0.9800000190734863,
+              0.9800002872943878,
+              1.9500000083055582
+            ],
+            "expected_size": [
+              0.9800000190734863,
+              0.9800000190734863,
+              1.9499999284744263
+            ],
+            "max_error": 2.682209014892578e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\08_Battery_Canister.fbx",
+      "tolerance": 0.0001,
+      "sha256": "58F624E7D4864AEF5539D8AB56021B865B77DB4B839E6178DDCCA0CA99D7FDA6",
+      "bytes": 32796,
+      "triangles": 588,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Battery_Canister__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Battery_Canister__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1764,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 588
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Battery_Canister",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Battery_Canister__Body"
+            ],
+            "expected": [
+              "08_Battery_Canister__Body"
+            ]
+          }
+        },
+        "08_Battery_Canister__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Battery_Canister__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 588,
+            "total_faces": 588
+          }
+        },
+        "08_Battery_Canister__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Battery_Canister__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 588,
+            "expected": 588
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.49000000953674316,
+              -0.49000000953674316,
+              0.0
+            ],
+            "max": [
+              0.49000000953674316,
+              0.49000000953674316,
+              1.9499999284744263
+            ],
+            "size": [
+              0.9800000190734863,
+              0.9800000190734863,
+              1.9499999284744263
+            ],
+            "expected_size": [
+              0.9800000190734863,
+              0.9800000190734863,
+              1.9499999284744263
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\08_Battery_Canister.glb",
+      "tolerance": 0.0001,
+      "sha256": "B436C7E7E38F156DA02C9B688489528A25C23B57A6901A941F684AAE08126842",
+      "bytes": 41968,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 588,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Battery_Canister__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Battery_Canister__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1764,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 588
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Cable_Spool",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Cable_Spool__Body"
+            ],
+            "expected": [
+              "09_Cable_Spool__Body"
+            ]
+          }
+        },
+        "09_Cable_Spool__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Cable_Spool__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 956,
+            "total_faces": 956
+          }
+        },
+        "09_Cable_Spool__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 956,
+            "expected": 956
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0,
+              -0.75,
+              -1.1515232500869388e-07
+            ],
+            "max": [
+              1.0,
+              0.75,
+              1.6399999856948853
+            ],
+            "size": [
+              2.0,
+              1.5,
+              1.6400001008472103
+            ],
+            "expected_size": [
+              2.0,
+              1.5,
+              1.6399999856948853
+            ],
+            "max_error": 1.1515232500869388e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\09_Cable_Spool.fbx",
+      "tolerance": 0.0001,
+      "sha256": "387ADF6F031DC817E837F5142430CBAB0541132B30C1F187145E94AE13E5B603",
+      "bytes": 41356,
+      "triangles": 956,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Cable_Spool__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Cable_Spool__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2868,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 956
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Cable_Spool",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Cable_Spool__Body"
+            ],
+            "expected": [
+              "09_Cable_Spool__Body"
+            ]
+          }
+        },
+        "09_Cable_Spool__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Cable_Spool__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 956,
+            "total_faces": 956
+          }
+        },
+        "09_Cable_Spool__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cable_Spool__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 956,
+            "expected": 956
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0,
+              -0.75,
+              0.0
+            ],
+            "max": [
+              1.0,
+              0.75,
+              1.6399999856948853
+            ],
+            "size": [
+              2.0,
+              1.5,
+              1.6399999856948853
+            ],
+            "expected_size": [
+              2.0,
+              1.5,
+              1.6399999856948853
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\09_Cable_Spool.glb",
+      "tolerance": 0.0001,
+      "sha256": "0C430754804BA0AD76EBA6F02955E0D7B16098EC84BC13599CFBDD58CC919A21",
+      "bytes": 67308,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 956,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Cable_Spool__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Cable_Spool__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2868,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 956
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Floor_Conduit",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Floor_Conduit__Body"
+            ],
+            "expected": [
+              "10_Floor_Conduit__Body"
+            ]
+          }
+        },
+        "10_Floor_Conduit__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Floor_Conduit__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 396,
+            "total_faces": 396
+          }
+        },
+        "10_Floor_Conduit__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 396,
+            "expected": 396
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -1.100000023841858,
+              -1.7373861282976577e-07
+            ],
+            "max": [
+              1.5,
+              1.100000023841858,
+              0.5155000686645508
+            ],
+            "size": [
+              3.0,
+              2.200000047683716,
+              0.5155002424031636
+            ],
+            "expected_size": [
+              3.0,
+              2.200000047683716,
+              0.515500009059906
+            ],
+            "max_error": 1.7373861282976577e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\10_Floor_Conduit.fbx",
+      "tolerance": 0.0001,
+      "sha256": "FE119CE851682C61EDE0295781533ED76C236864887442B1E9426766DA79B3F4",
+      "bytes": 27724,
+      "triangles": 396,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Floor_Conduit__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Floor_Conduit__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1188,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 396
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Floor_Conduit",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Floor_Conduit__Body"
+            ],
+            "expected": [
+              "10_Floor_Conduit__Body"
+            ]
+          }
+        },
+        "10_Floor_Conduit__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Floor_Conduit__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 396,
+            "total_faces": 396
+          }
+        },
+        "10_Floor_Conduit__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Floor_Conduit__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 396,
+            "expected": 396
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -1.100000023841858,
+              0.0
+            ],
+            "max": [
+              1.5,
+              1.100000023841858,
+              0.515500009059906
+            ],
+            "size": [
+              3.0,
+              2.200000047683716,
+              0.515500009059906
+            ],
+            "expected_size": [
+              3.0,
+              2.200000047683716,
+              0.515500009059906
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\10_Floor_Conduit.glb",
+      "tolerance": 0.0001,
+      "sha256": "20A4257D0451EFCB3C2E272F8227E0BB17ABFF53129C54DF7F231777D3BB2438",
+      "bytes": 31872,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 396,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Floor_Conduit__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Floor_Conduit__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1188,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 396
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Technician_Dock",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Technician_Dock__Body"
+            ],
+            "expected": [
+              "11_Technician_Dock__Body"
+            ]
+          }
+        },
+        "11_Technician_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Technician_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 492,
+            "total_faces": 492
+          }
+        },
+        "11_Technician_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 492,
+            "expected": 492
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0,
+              -0.5699999928474426,
+              -8.660862960141458e-08
+            ],
+            "max": [
+              1.0,
+              0.5699999928474426,
+              1.909999966621399
+            ],
+            "size": [
+              2.0,
+              1.1399999856948853,
+              1.9100000532300285
+            ],
+            "expected_size": [
+              2.0,
+              1.1399999856948853,
+              1.909999966621399
+            ],
+            "max_error": 8.660862960141458e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\11_Technician_Dock.fbx",
+      "tolerance": 0.0001,
+      "sha256": "EC89589868B0315767EA5004644807129673DF87F71149E35AFC20BB80C95155",
+      "bytes": 30396,
+      "triangles": 492,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Technician_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Technician_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1476,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 492
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Technician_Dock",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Technician_Dock__Body"
+            ],
+            "expected": [
+              "11_Technician_Dock__Body"
+            ]
+          }
+        },
+        "11_Technician_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Technician_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 492,
+            "total_faces": 492
+          }
+        },
+        "11_Technician_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Technician_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 492,
+            "expected": 492
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0,
+              -0.5699999928474426,
+              0.0
+            ],
+            "max": [
+              1.0,
+              0.5699999928474426,
+              1.909999966621399
+            ],
+            "size": [
+              2.0,
+              1.1399999856948853,
+              1.909999966621399
+            ],
+            "expected_size": [
+              2.0,
+              1.1399999856948853,
+              1.909999966621399
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\11_Technician_Dock.glb",
+      "tolerance": 0.0001,
+      "sha256": "34BE344C2AFDD508654E5F4A7FAA3949D9B1079386F62B569A2D18B5B8B82520",
+      "bytes": 36280,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 492,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Technician_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Technician_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1476,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 492
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Status_Pylon",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Status_Pylon__Body"
+            ],
+            "expected": [
+              "12_Status_Pylon__Body"
+            ]
+          }
+        },
+        "12_Status_Pylon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Status_Pylon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 396,
+            "total_faces": 396
+          }
+        },
+        "12_Status_Pylon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 396,
+            "expected": 396
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6299999952316284,
+              -0.5249999761581421,
+              -7.849516947544544e-08
+            ],
+            "max": [
+              0.6299999952316284,
+              0.5249999761581421,
+              2.9549996852874756
+            ],
+            "size": [
+              1.2599999904632568,
+              1.0499999523162842,
+              2.954999763782645
+            ],
+            "expected_size": [
+              1.2599999904632568,
+              1.0499999523162842,
+              2.9549996852874756
+            ],
+            "max_error": 7.849516947544544e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\fbx\\12_Status_Pylon.fbx",
+      "tolerance": 0.0001,
+      "sha256": "E073A3E98DDE513F4D019737F024210F0177184C2C72DC77FCECD61F27CB0C6B",
+      "bytes": 27756,
+      "triangles": 396,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Status_Pylon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Status_Pylon__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1188,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 396
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Status_Pylon",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Status_Pylon__Body"
+            ],
+            "expected": [
+              "12_Status_Pylon__Body"
+            ]
+          }
+        },
+        "12_Status_Pylon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Status_Pylon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 396,
+            "total_faces": 396
+          }
+        },
+        "12_Status_Pylon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Status_Pylon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 396,
+            "expected": 396
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6299999952316284,
+              -0.5249999761581421,
+              0.0
+            ],
+            "max": [
+              0.6299999952316284,
+              0.5249999761581421,
+              2.9549996852874756
+            ],
+            "size": [
+              1.2599999904632568,
+              1.0499999523162842,
+              2.9549996852874756
+            ],
+            "expected_size": [
+              1.2599999904632568,
+              1.0499999523162842,
+              2.9549996852874756
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\neon-relay-lab\\glb\\12_Status_Pylon.glb",
+      "tolerance": 0.0001,
+      "sha256": "209BCDB1AAFEA923CCF20608DCF0EE4CC7C54B198486B808ABF56A172D179EA0",
+      "bytes": 31868,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 396,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Status_Pylon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Status_Pylon__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1188,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 396
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

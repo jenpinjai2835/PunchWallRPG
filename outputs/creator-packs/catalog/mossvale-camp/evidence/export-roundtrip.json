@@ -1,0 +1,5140 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\textures\\Classic_Palette.png",
+      "sha256": "EBFCDD6F8672DC1FD552423C4DCE351D0A35707E257A08FFA5878717294C466C",
+      "reference_rgb": [
+        [
+          120,
+          83,
+          57
+        ],
+        [
+          58,
+          53,
+          45
+        ],
+        [
+          183,
+          138,
+          84
+        ],
+        [
+          100,
+          123,
+          69
+        ],
+        [
+          160,
+          182,
+          109
+        ],
+        [
+          191,
+          141,
+          70
+        ],
+        [
+          234,
+          206,
+          135
+        ],
+        [
+          71,
+          83,
+          82
+        ],
+        [
+          123,
+          128,
+          116
+        ],
+        [
+          172,
+          175,
+          154
+        ],
+        [
+          231,
+          217,
+          179
+        ],
+        [
+          205,
+          103,
+          69
+        ],
+        [
+          129,
+          156,
+          81
+        ],
+        [
+          138,
+          118,
+          157
+        ],
+        [
+          167,
+          109,
+          66
+        ],
+        [
+          38,
+          51,
+          45
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          120,
+          83,
+          57
+        ],
+        [
+          58,
+          53,
+          45
+        ],
+        [
+          183,
+          138,
+          84
+        ],
+        [
+          100,
+          123,
+          69
+        ],
+        [
+          160,
+          182,
+          109
+        ],
+        [
+          191,
+          141,
+          70
+        ],
+        [
+          234,
+          206,
+          135
+        ],
+        [
+          71,
+          83,
+          82
+        ],
+        [
+          123,
+          128,
+          116
+        ],
+        [
+          172,
+          175,
+          154
+        ],
+        [
+          231,
+          217,
+          179
+        ],
+        [
+          205,
+          103,
+          69
+        ],
+        [
+          129,
+          156,
+          81
+        ],
+        [
+          138,
+          118,
+          157
+        ],
+        [
+          167,
+          109,
+          66
+        ],
+        [
+          38,
+          51,
+          45
+        ]
+      ],
+      "blender_rgb": [
+        [
+          120,
+          83,
+          57
+        ],
+        [
+          58,
+          53,
+          45
+        ],
+        [
+          183,
+          138,
+          84
+        ],
+        [
+          100,
+          123,
+          69
+        ],
+        [
+          160,
+          182,
+          109
+        ],
+        [
+          191,
+          141,
+          70
+        ],
+        [
+          234,
+          206,
+          135
+        ],
+        [
+          71,
+          83,
+          82
+        ],
+        [
+          123,
+          128,
+          116
+        ],
+        [
+          172,
+          175,
+          154
+        ],
+        [
+          231,
+          217,
+          179
+        ],
+        [
+          205,
+          103,
+          69
+        ],
+        [
+          129,
+          156,
+          81
+        ],
+        [
+          138,
+          118,
+          157
+        ],
+        [
+          167,
+          109,
+          66
+        ],
+        [
+          38,
+          51,
+          45
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\textures\\Warm_Palette.png",
+      "sha256": "E14D3BE6EEF01B560F39078A64620BF0C15B690E1B09293567F5D8640DC4D378",
+      "reference_rgb": [
+        [
+          135,
+          86,
+          56
+        ],
+        [
+          70,
+          49,
+          40
+        ],
+        [
+          206,
+          155,
+          96
+        ],
+        [
+          163,
+          106,
+          62
+        ],
+        [
+          217,
+          170,
+          105
+        ],
+        [
+          198,
+          147,
+          72
+        ],
+        [
+          240,
+          214,
+          156
+        ],
+        [
+          91,
+          81,
+          72
+        ],
+        [
+          139,
+          124,
+          105
+        ],
+        [
+          188,
+          175,
+          144
+        ],
+        [
+          240,
+          220,
+          183
+        ],
+        [
+          179,
+          77,
+          54
+        ],
+        [
+          132,
+          150,
+          77
+        ],
+        [
+          163,
+          123,
+          141
+        ],
+        [
+          168,
+          115,
+          76
+        ],
+        [
+          53,
+          43,
+          39
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          135,
+          86,
+          56
+        ],
+        [
+          70,
+          49,
+          40
+        ],
+        [
+          206,
+          155,
+          96
+        ],
+        [
+          163,
+          106,
+          62
+        ],
+        [
+          217,
+          170,
+          105
+        ],
+        [
+          198,
+          147,
+          72
+        ],
+        [
+          240,
+          214,
+          156
+        ],
+        [
+          91,
+          81,
+          72
+        ],
+        [
+          139,
+          124,
+          105
+        ],
+        [
+          188,
+          175,
+          144
+        ],
+        [
+          240,
+          220,
+          183
+        ],
+        [
+          179,
+          77,
+          54
+        ],
+        [
+          132,
+          150,
+          77
+        ],
+        [
+          163,
+          123,
+          141
+        ],
+        [
+          168,
+          115,
+          76
+        ],
+        [
+          53,
+          43,
+          39
+        ]
+      ],
+      "blender_rgb": [
+        [
+          135,
+          86,
+          56
+        ],
+        [
+          70,
+          49,
+          40
+        ],
+        [
+          206,
+          155,
+          96
+        ],
+        [
+          163,
+          106,
+          62
+        ],
+        [
+          217,
+          170,
+          105
+        ],
+        [
+          198,
+          147,
+          72
+        ],
+        [
+          240,
+          214,
+          156
+        ],
+        [
+          91,
+          81,
+          72
+        ],
+        [
+          139,
+          124,
+          105
+        ],
+        [
+          188,
+          175,
+          144
+        ],
+        [
+          240,
+          220,
+          183
+        ],
+        [
+          179,
+          77,
+          54
+        ],
+        [
+          132,
+          150,
+          77
+        ],
+        [
+          163,
+          123,
+          141
+        ],
+        [
+          168,
+          115,
+          76
+        ],
+        [
+          53,
+          43,
+          39
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\textures\\Twilight_Palette.png",
+      "sha256": "E73ECB7BC0A9807A828D60BD0BF4C081262AC827672F92E8E32C521AA039F88C",
+      "reference_rgb": [
+        [
+          102,
+          84,
+          72
+        ],
+        [
+          48,
+          48,
+          59
+        ],
+        [
+          160,
+          138,
+          114
+        ],
+        [
+          82,
+          106,
+          125
+        ],
+        [
+          146,
+          181,
+          198
+        ],
+        [
+          181,
+          153,
+          105
+        ],
+        [
+          230,
+          215,
+          169
+        ],
+        [
+          65,
+          78,
+          98
+        ],
+        [
+          114,
+          125,
+          145
+        ],
+        [
+          166,
+          177,
+          191
+        ],
+        [
+          221,
+          220,
+          203
+        ],
+        [
+          179,
+          108,
+          107
+        ],
+        [
+          114,
+          148,
+          137
+        ],
+        [
+          155,
+          131,
+          182
+        ],
+        [
+          141,
+          112,
+          96
+        ],
+        [
+          37,
+          46,
+          59
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          102,
+          84,
+          72
+        ],
+        [
+          48,
+          48,
+          59
+        ],
+        [
+          160,
+          138,
+          114
+        ],
+        [
+          82,
+          106,
+          125
+        ],
+        [
+          146,
+          181,
+          198
+        ],
+        [
+          181,
+          153,
+          105
+        ],
+        [
+          230,
+          215,
+          169
+        ],
+        [
+          65,
+          78,
+          98
+        ],
+        [
+          114,
+          125,
+          145
+        ],
+        [
+          166,
+          177,
+          191
+        ],
+        [
+          221,
+          220,
+          203
+        ],
+        [
+          179,
+          108,
+          107
+        ],
+        [
+          114,
+          148,
+          137
+        ],
+        [
+          155,
+          131,
+          182
+        ],
+        [
+          141,
+          112,
+          96
+        ],
+        [
+          37,
+          46,
+          59
+        ]
+      ],
+      "blender_rgb": [
+        [
+          102,
+          84,
+          72
+        ],
+        [
+          48,
+          48,
+          59
+        ],
+        [
+          160,
+          138,
+          114
+        ],
+        [
+          82,
+          106,
+          125
+        ],
+        [
+          146,
+          181,
+          198
+        ],
+        [
+          181,
+          153,
+          105
+        ],
+        [
+          230,
+          215,
+          169
+        ],
+        [
+          65,
+          78,
+          98
+        ],
+        [
+          114,
+          125,
+          145
+        ],
+        [
+          166,
+          177,
+          191
+        ],
+        [
+          221,
+          220,
+          203
+        ],
+        [
+          179,
+          108,
+          107
+        ],
+        [
+          114,
+          148,
+          137
+        ],
+        [
+          155,
+          131,
+          182
+        ],
+        [
+          141,
+          112,
+          96
+        ],
+        [
+          37,
+          46,
+          59
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Ridge_Tent",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Ridge_Tent__Body"
+            ],
+            "expected": [
+              "01_Ridge_Tent__Body"
+            ]
+          }
+        },
+        "01_Ridge_Tent__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Ridge_Tent__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 664,
+            "total_faces": 664
+          }
+        },
+        "01_Ridge_Tent__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 664,
+            "expected": 664
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.7200000286102295,
+              -2.2200000286102295,
+              -3.304682820726157e-07
+            ],
+            "max": [
+              2.7200000286102295,
+              2.1800010204315186,
+              3.120000123977661
+            ],
+            "size": [
+              5.440000057220459,
+              4.400001049041748,
+              3.120000454445943
+            ],
+            "expected_size": [
+              5.440000057220459,
+              4.400001049041748,
+              3.119999885559082
+            ],
+            "max_error": 4.76837158203125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\01_Ridge_Tent.fbx",
+      "tolerance": 0.0001,
+      "sha256": "779F8D9D4DED54FB534CAD9C0884556563273183E1A265F0D5197433089EE783",
+      "bytes": 35292,
+      "triangles": 664,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Ridge_Tent__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Ridge_Tent__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1992,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 664
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Ridge_Tent",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Ridge_Tent__Body"
+            ],
+            "expected": [
+              "01_Ridge_Tent__Body"
+            ]
+          }
+        },
+        "01_Ridge_Tent__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Ridge_Tent__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 664,
+            "total_faces": 664
+          }
+        },
+        "01_Ridge_Tent__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Ridge_Tent__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 664,
+            "expected": 664
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.7200000286102295,
+              -2.2200005054473877,
+              0.0
+            ],
+            "max": [
+              2.7200000286102295,
+              2.1800005435943604,
+              3.119999885559082
+            ],
+            "size": [
+              5.440000057220459,
+              4.400001049041748,
+              3.119999885559082
+            ],
+            "expected_size": [
+              5.440000057220459,
+              4.400001049041748,
+              3.119999885559082
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\01_Ridge_Tent.glb",
+      "tolerance": 0.0001,
+      "sha256": "A04371F4E5F70FCB8B6348A8873A9D59DDCB102A0816BD9329B7A9B899B756DC",
+      "bytes": 53912,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 664,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Ridge_Tent__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Ridge_Tent__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1992,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 664
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Field_Kitchen",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Field_Kitchen__Body"
+            ],
+            "expected": [
+              "02_Field_Kitchen__Body"
+            ]
+          }
+        },
+        "02_Field_Kitchen__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Field_Kitchen__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1176,
+            "total_faces": 1176
+          }
+        },
+        "02_Field_Kitchen__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1176,
+            "expected": 1176
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.6799999475479126,
+              -0.8249996304512024,
+              -1.1485906270536361e-07
+            ],
+            "max": [
+              1.679999828338623,
+              0.9600003957748413,
+              3.5900001525878906
+            ],
+            "size": [
+              3.3599997758865356,
+              1.7850000262260437,
+              3.5900002674469533
+            ],
+            "expected_size": [
+              3.3599997758865356,
+              1.7849999070167542,
+              3.5900001525878906
+            ],
+            "max_error": 4.76837158203125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\02_Field_Kitchen.fbx",
+      "tolerance": 0.0001,
+      "sha256": "9746AA74A62089327D5684394803F41ABD1B59CAE51751D210E65F1330BD2D51",
+      "bytes": 46124,
+      "triangles": 1176,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Field_Kitchen__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Field_Kitchen__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3528,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1176
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Field_Kitchen",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Field_Kitchen__Body"
+            ],
+            "expected": [
+              "02_Field_Kitchen__Body"
+            ]
+          }
+        },
+        "02_Field_Kitchen__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Field_Kitchen__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1176,
+            "total_faces": 1176
+          }
+        },
+        "02_Field_Kitchen__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Field_Kitchen__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1176,
+            "expected": 1176
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.6799999475479126,
+              -0.824999988079071,
+              0.0
+            ],
+            "max": [
+              1.679999828338623,
+              0.9599999189376831,
+              3.5900001525878906
+            ],
+            "size": [
+              3.3599997758865356,
+              1.7849999070167542,
+              3.5900001525878906
+            ],
+            "expected_size": [
+              3.3599997758865356,
+              1.7849999070167542,
+              3.5900001525878906
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\02_Field_Kitchen.glb",
+      "tolerance": 0.0001,
+      "sha256": "2CD4E26FE4460D66BB34A92E86847CB94C19EE9FD19A1A4B07C8D0EF36221FDA",
+      "bytes": 88620,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1176,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Field_Kitchen__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Field_Kitchen__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3528,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1176
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Stone_Campfire",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Stone_Campfire__Body"
+            ],
+            "expected": [
+              "03_Stone_Campfire__Body"
+            ]
+          }
+        },
+        "03_Stone_Campfire__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Stone_Campfire__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 548,
+            "total_faces": 548
+          }
+        },
+        "03_Stone_Campfire__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 548,
+            "expected": 548
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.46999990940094,
+              -1.4700000286102295,
+              -2.2352715234319476e-07
+            ],
+            "max": [
+              1.4700000286102295,
+              1.4700000286102295,
+              1.4800000190734863
+            ],
+            "size": [
+              2.9399999380111694,
+              2.940000057220459,
+              1.4800002426006387
+            ],
+            "expected_size": [
+              2.9399999380111694,
+              2.940000057220459,
+              1.4800000190734863
+            ],
+            "max_error": 2.2352715234319476e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\03_Stone_Campfire.fbx",
+      "tolerance": 0.0001,
+      "sha256": "9D1DBA306B4983620EDB0AF637A04FC39359B8224AF02614AD91FA322CCF64C5",
+      "bytes": 34028,
+      "triangles": 548,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Stone_Campfire__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Stone_Campfire__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1644,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 548
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Stone_Campfire",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Stone_Campfire__Body"
+            ],
+            "expected": [
+              "03_Stone_Campfire__Body"
+            ]
+          }
+        },
+        "03_Stone_Campfire__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Stone_Campfire__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 548,
+            "total_faces": 548
+          }
+        },
+        "03_Stone_Campfire__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Stone_Campfire__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 548,
+            "expected": 548
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.46999990940094,
+              -1.4700000286102295,
+              0.0
+            ],
+            "max": [
+              1.4700000286102295,
+              1.4700000286102295,
+              1.4800000190734863
+            ],
+            "size": [
+              2.9399999380111694,
+              2.940000057220459,
+              1.4800000190734863
+            ],
+            "expected_size": [
+              2.9399999380111694,
+              2.940000057220459,
+              1.4800000190734863
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\03_Stone_Campfire.glb",
+      "tolerance": 0.0001,
+      "sha256": "7A39076A097093FD6184321ADD190F71D48E71F205B0A5917F3AD43C3E8A32FE",
+      "bytes": 41284,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 548,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Stone_Campfire__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Stone_Campfire__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1644,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 548
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Rolled_Bedroll",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Rolled_Bedroll__Body"
+            ],
+            "expected": [
+              "04_Rolled_Bedroll__Body"
+            ]
+          }
+        },
+        "04_Rolled_Bedroll__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Rolled_Bedroll__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 604,
+            "total_faces": 604
+          }
+        },
+        "04_Rolled_Bedroll__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 604,
+            "expected": 604
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.001670002937317,
+              -1.225000023841858,
+              -7.758281839187475e-08
+            ],
+            "max": [
+              1.001670002937317,
+              0.9620000720024109,
+              0.9239999055862427
+            ],
+            "size": [
+              2.003340005874634,
+              2.187000095844269,
+              0.9239999831690611
+            ],
+            "expected_size": [
+              2.003340005874634,
+              2.187000036239624,
+              0.9239999651908875
+            ],
+            "max_error": 7.758281839187475e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\04_Rolled_Bedroll.fbx",
+      "tolerance": 0.0001,
+      "sha256": "AC54EF839543FEC73489BFB2DD1EBAB58F7CE423139EB4ACF73915D998793F8E",
+      "bytes": 33756,
+      "triangles": 604,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Rolled_Bedroll__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Rolled_Bedroll__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1812,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 604
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Rolled_Bedroll",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Rolled_Bedroll__Body"
+            ],
+            "expected": [
+              "04_Rolled_Bedroll__Body"
+            ]
+          }
+        },
+        "04_Rolled_Bedroll__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Rolled_Bedroll__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 604,
+            "total_faces": 604
+          }
+        },
+        "04_Rolled_Bedroll__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Rolled_Bedroll__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 604,
+            "expected": 604
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.001670002937317,
+              -1.225000023841858,
+              0.0
+            ],
+            "max": [
+              1.001670002937317,
+              0.9620000123977661,
+              0.9239999651908875
+            ],
+            "size": [
+              2.003340005874634,
+              2.187000036239624,
+              0.9239999651908875
+            ],
+            "expected_size": [
+              2.003340005874634,
+              2.187000036239624,
+              0.9239999651908875
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\04_Rolled_Bedroll.glb",
+      "tolerance": 0.0001,
+      "sha256": "82C8F4C14188C47FAE5085F78C0914B78A0BF6A61E4F43F38441B2DE6B0230B1",
+      "bytes": 43192,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 604,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Rolled_Bedroll__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Rolled_Bedroll__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1812,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 604
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Trail_Backpack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Trail_Backpack__Body"
+            ],
+            "expected": [
+              "05_Trail_Backpack__Body"
+            ]
+          }
+        },
+        "05_Trail_Backpack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Trail_Backpack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 720,
+            "total_faces": 720
+          }
+        },
+        "05_Trail_Backpack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 720,
+            "expected": 720
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7099999785423279,
+              -0.559999942779541,
+              -3.502794498899675e-08
+            ],
+            "max": [
+              0.7099999785423279,
+              0.66549152135849,
+              2.0399999618530273
+            ],
+            "size": [
+              1.4199999570846558,
+              1.225491464138031,
+              2.0399999968809723
+            ],
+            "expected_size": [
+              1.4199999570846558,
+              1.2254914045333862,
+              2.0399999618530273
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\05_Trail_Backpack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "5C73AE0ED963F43D09DE8067419E74796EB4429E8473372A237E3790E50AB78F",
+      "bytes": 36300,
+      "triangles": 720,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Trail_Backpack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Trail_Backpack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2160,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 720
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Trail_Backpack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Trail_Backpack__Body"
+            ],
+            "expected": [
+              "05_Trail_Backpack__Body"
+            ]
+          }
+        },
+        "05_Trail_Backpack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Trail_Backpack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 720,
+            "total_faces": 720
+          }
+        },
+        "05_Trail_Backpack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Trail_Backpack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 720,
+            "expected": 720
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7099999785423279,
+              -0.5600000023841858,
+              0.0
+            ],
+            "max": [
+              0.7099999785423279,
+              0.6654914021492004,
+              2.0399999618530273
+            ],
+            "size": [
+              1.4199999570846558,
+              1.2254914045333862,
+              2.0399999618530273
+            ],
+            "expected_size": [
+              1.4199999570846558,
+              1.2254914045333862,
+              2.0399999618530273
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\05_Trail_Backpack.glb",
+      "tolerance": 0.0001,
+      "sha256": "91A96BEC2535FB798DEAEC087ECDA128A1B7B4DFD922EBF87F6CA9DBC21B8B19",
+      "bytes": 55220,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 720,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Trail_Backpack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Trail_Backpack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2160,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 720
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Woodpile_Rack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Woodpile_Rack__Body"
+            ],
+            "expected": [
+              "06_Woodpile_Rack__Body"
+            ]
+          }
+        },
+        "06_Woodpile_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Woodpile_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 912,
+            "total_faces": 912
+          }
+        },
+        "06_Woodpile_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 912,
+            "expected": 912
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4249999523162842,
+              -0.7350000143051147,
+              -1.1485907691621833e-07
+            ],
+            "max": [
+              1.4249999523162842,
+              0.7350000143051147,
+              1.53000009059906
+            ],
+            "size": [
+              2.8499999046325684,
+              1.4700000286102295,
+              1.530000205458137
+            ],
+            "expected_size": [
+              2.8499999046325684,
+              1.4700000286102295,
+              1.5299999713897705
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\06_Woodpile_Rack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "2820CFA39C06BCD340CAE96A233B3DC2ECFC2CD46552440938FFF7B8B7BCF671",
+      "bytes": 36796,
+      "triangles": 912,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Woodpile_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Woodpile_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2736,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.6449999809265137,
+              0.14499999582767487
+            ]
+          ],
+          "palette_faces": 912
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Woodpile_Rack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Woodpile_Rack__Body"
+            ],
+            "expected": [
+              "06_Woodpile_Rack__Body"
+            ]
+          }
+        },
+        "06_Woodpile_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Woodpile_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 912,
+            "total_faces": 912
+          }
+        },
+        "06_Woodpile_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Woodpile_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 912,
+            "expected": 912
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4249999523162842,
+              -0.7350000143051147,
+              0.0
+            ],
+            "max": [
+              1.4249999523162842,
+              0.7350000143051147,
+              1.5299999713897705
+            ],
+            "size": [
+              2.8499999046325684,
+              1.4700000286102295,
+              1.5299999713897705
+            ],
+            "expected_size": [
+              2.8499999046325684,
+              1.4700000286102295,
+              1.5299999713897705
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\06_Woodpile_Rack.glb",
+      "tolerance": 0.0001,
+      "sha256": "00D11D20361D0BD7FFD44EC4A62ECA96F875D49A3AF0168B95171423677480BB",
+      "bytes": 60320,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 912,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Woodpile_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Woodpile_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2736,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.6449999809265137,
+              0.14499998092651367
+            ]
+          ],
+          "palette_faces": 912
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Trail_Signpost",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Trail_Signpost__Body"
+            ],
+            "expected": [
+              "07_Trail_Signpost__Body"
+            ]
+          }
+        },
+        "07_Trail_Signpost__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Trail_Signpost__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 198,
+            "total_faces": 198
+          }
+        },
+        "07_Trail_Signpost__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 198,
+            "expected": 198
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.4416729509830475,
+              -5.180950779504201e-08
+            ],
+            "max": [
+              1.159999966621399,
+              0.4416729509830475,
+              3.299999952316284
+            ],
+            "size": [
+              2.1799999475479126,
+              0.883345901966095,
+              3.300000004125792
+            ],
+            "expected_size": [
+              2.1799999475479126,
+              0.883345901966095,
+              3.299999952316284
+            ],
+            "max_error": 5.180950779504201e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\07_Trail_Signpost.fbx",
+      "tolerance": 0.0001,
+      "sha256": "DD30A75BB853ED2EDE8A04F3A8FB96C32C468886E6EB1ADB8A05FBF4F0230844",
+      "bytes": 24476,
+      "triangles": 198,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Trail_Signpost__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Trail_Signpost__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 594,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 198
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Trail_Signpost",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Trail_Signpost__Body"
+            ],
+            "expected": [
+              "07_Trail_Signpost__Body"
+            ]
+          }
+        },
+        "07_Trail_Signpost__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Trail_Signpost__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 198,
+            "total_faces": 198
+          }
+        },
+        "07_Trail_Signpost__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Trail_Signpost__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 198,
+            "expected": 198
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.4416729509830475,
+              0.0
+            ],
+            "max": [
+              1.159999966621399,
+              0.4416729509830475,
+              3.299999952316284
+            ],
+            "size": [
+              2.1799999475479126,
+              0.883345901966095,
+              3.299999952316284
+            ],
+            "expected_size": [
+              2.1799999475479126,
+              0.883345901966095,
+              3.299999952316284
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\07_Trail_Signpost.glb",
+      "tolerance": 0.0001,
+      "sha256": "93CA1D281932DEF0930561038C8C4866EFF3066B9FB491DF0E26C8D3BC3D1337",
+      "bytes": 16528,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 198,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Trail_Signpost__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Trail_Signpost__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 594,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 198
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Split_Log_Bench",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Split_Log_Bench__Body"
+            ],
+            "expected": [
+              "08_Split_Log_Bench__Body"
+            ]
+          }
+        },
+        "08_Split_Log_Bench__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Split_Log_Bench__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 172,
+            "total_faces": 172
+          }
+        },
+        "08_Split_Log_Bench__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 172,
+            "expected": 172
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4800000190734863,
+              -0.41999998688697815,
+              -6.028064092333807e-08
+            ],
+            "max": [
+              1.4800001382827759,
+              0.4200001060962677,
+              0.7900000214576721
+            ],
+            "size": [
+              2.960000157356262,
+              0.8400000929832458,
+              0.790000081738313
+            ],
+            "expected_size": [
+              2.960000157356262,
+              0.8399999737739563,
+              0.7899999618530273
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\08_Split_Log_Bench.fbx",
+      "tolerance": 0.0001,
+      "sha256": "9F5D630D5A6CC1E5619F9B3D6586E0FAFA9D130ADE14A0914378B03018799673",
+      "bytes": 23372,
+      "triangles": 172,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Split_Log_Bench__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Split_Log_Bench__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 516,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.6449999809265137,
+              0.14499999582767487
+            ]
+          ],
+          "palette_faces": 172
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Split_Log_Bench",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Split_Log_Bench__Body"
+            ],
+            "expected": [
+              "08_Split_Log_Bench__Body"
+            ]
+          }
+        },
+        "08_Split_Log_Bench__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Split_Log_Bench__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 172,
+            "total_faces": 172
+          }
+        },
+        "08_Split_Log_Bench__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Split_Log_Bench__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 172,
+            "expected": 172
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4800000190734863,
+              -0.41999998688697815,
+              0.0
+            ],
+            "max": [
+              1.4800001382827759,
+              0.41999998688697815,
+              0.7899999618530273
+            ],
+            "size": [
+              2.960000157356262,
+              0.8399999737739563,
+              0.7899999618530273
+            ],
+            "expected_size": [
+              2.960000157356262,
+              0.8399999737739563,
+              0.7899999618530273
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\08_Split_Log_Bench.glb",
+      "tolerance": 0.0001,
+      "sha256": "0A91A50D108AB882B79559542A4E7CFDD97A482A79D94EFF0790D63B59D06F2E",
+      "bytes": 14224,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 172,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Split_Log_Bench__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Split_Log_Bench__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 516,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.6449999809265137,
+              0.14499998092651367
+            ]
+          ],
+          "palette_faces": 172
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Camp_Lantern",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Camp_Lantern__Body"
+            ],
+            "expected": [
+              "09_Camp_Lantern__Body"
+            ]
+          }
+        },
+        "09_Camp_Lantern__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Camp_Lantern__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 476,
+            "total_faces": 476
+          }
+        },
+        "09_Camp_Lantern__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 476,
+            "expected": 476
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.44999998807907104,
+              -0.44999995827674866,
+              -6.516827255609314e-08
+            ],
+            "max": [
+              0.44999998807907104,
+              0.45000001788139343,
+              1.475000023841858
+            ],
+            "size": [
+              0.8999999761581421,
+              0.8999999761581421,
+              1.4750000890101305
+            ],
+            "expected_size": [
+              0.8999999761581421,
+              0.8999999761581421,
+              1.475000023841858
+            ],
+            "max_error": 6.516827255609314e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\09_Camp_Lantern.fbx",
+      "tolerance": 0.0001,
+      "sha256": "E40B48DD8369DED4CFC953085212BDE0D956E4B6586BB3659F1616DF14F139FE",
+      "bytes": 30988,
+      "triangles": 476,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Camp_Lantern__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Camp_Lantern__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1428,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 476
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Camp_Lantern",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Camp_Lantern__Body"
+            ],
+            "expected": [
+              "09_Camp_Lantern__Body"
+            ]
+          }
+        },
+        "09_Camp_Lantern__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Camp_Lantern__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 476,
+            "total_faces": 476
+          }
+        },
+        "09_Camp_Lantern__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Camp_Lantern__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 476,
+            "expected": 476
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.44999998807907104,
+              -0.44999998807907104,
+              0.0
+            ],
+            "max": [
+              0.44999998807907104,
+              0.44999998807907104,
+              1.475000023841858
+            ],
+            "size": [
+              0.8999999761581421,
+              0.8999999761581421,
+              1.475000023841858
+            ],
+            "expected_size": [
+              0.8999999761581421,
+              0.8999999761581421,
+              1.475000023841858
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\09_Camp_Lantern.glb",
+      "tolerance": 0.0001,
+      "sha256": "FB82F9F504062B72E9B32F04B1D4F7A7D7AE3890B527FB6C65ADDCC9CBB3D98A",
+      "bytes": 34704,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 476,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Camp_Lantern__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Camp_Lantern__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1428,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 476
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Trail_Canteen",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Trail_Canteen__Body"
+            ],
+            "expected": [
+              "10_Trail_Canteen__Body"
+            ]
+          }
+        },
+        "10_Trail_Canteen__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Trail_Canteen__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "10_Trail_Canteen__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7050000429153442,
+              -0.19750000536441803,
+              -1.8931382683717857e-08
+            ],
+            "max": [
+              0.7050000429153442,
+              0.1900002360343933,
+              1.4649999141693115
+            ],
+            "size": [
+              1.4100000858306885,
+              0.38750024139881134,
+              1.4649999331006942
+            ],
+            "expected_size": [
+              1.4100000858306885,
+              0.3875000327825546,
+              1.4649999141693115
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\10_Trail_Canteen.fbx",
+      "tolerance": 0.0001,
+      "sha256": "847A92E2C306D83816D63C25DB0EA80513A329F581038BB2A8DA17B465F2A99D",
+      "bytes": 27244,
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Trail_Canteen__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Trail_Canteen__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Trail_Canteen",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Trail_Canteen__Body"
+            ],
+            "expected": [
+              "10_Trail_Canteen__Body"
+            ]
+          }
+        },
+        "10_Trail_Canteen__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Trail_Canteen__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "10_Trail_Canteen__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Trail_Canteen__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7050000429153442,
+              -0.19750003516674042,
+              0.0
+            ],
+            "max": [
+              0.7050000429153442,
+              0.1899999976158142,
+              1.4649999141693115
+            ],
+            "size": [
+              1.4100000858306885,
+              0.3875000327825546,
+              1.4649999141693115
+            ],
+            "expected_size": [
+              1.4100000858306885,
+              0.3875000327825546,
+              1.4649999141693115
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\10_Trail_Canteen.glb",
+      "tolerance": 0.0001,
+      "sha256": "3AD21D50148FBA0EF1AC90E7301B254BE72C984EE893CE4CE3484A21A4F5FDC0",
+      "bytes": 22536,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Trail_Canteen__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Trail_Canteen__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Supply_Sack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Supply_Sack__Body"
+            ],
+            "expected": [
+              "11_Supply_Sack__Body"
+            ]
+          }
+        },
+        "11_Supply_Sack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Supply_Sack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 314,
+            "total_faces": 314
+          }
+        },
+        "11_Supply_Sack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 314,
+            "expected": 314
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.5899999737739563,
+              -0.5899998545646667,
+              -5.539302705415139e-08
+            ],
+            "max": [
+              0.5899999737739563,
+              0.5900000929832458,
+              1.4900000095367432
+            ],
+            "size": [
+              1.1799999475479126,
+              1.1799999475479126,
+              1.4900000649297702
+            ],
+            "expected_size": [
+              1.1799999475479126,
+              1.1799999475479126,
+              1.4900000095367432
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\11_Supply_Sack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "EE489DCA4A9A44827E759ADC8DB33AD8120C39B7A15888A7788221E772E36850",
+      "bytes": 28268,
+      "triangles": 314,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Supply_Sack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Supply_Sack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 942,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.6449999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 314
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Supply_Sack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Supply_Sack__Body"
+            ],
+            "expected": [
+              "11_Supply_Sack__Body"
+            ]
+          }
+        },
+        "11_Supply_Sack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Supply_Sack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 314,
+            "total_faces": 314
+          }
+        },
+        "11_Supply_Sack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Supply_Sack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 314,
+            "expected": 314
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.5899999737739563,
+              -0.5899999737739563,
+              0.0
+            ],
+            "max": [
+              0.5899999737739563,
+              0.5899999737739563,
+              1.4900000095367432
+            ],
+            "size": [
+              1.1799999475479126,
+              1.1799999475479126,
+              1.4900000095367432
+            ],
+            "expected_size": [
+              1.1799999475479126,
+              1.1799999475479126,
+              1.4900000095367432
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\11_Supply_Sack.glb",
+      "tolerance": 0.0001,
+      "sha256": "D2B93CFEC0530A6FE1AFE90689A833E453378DB598BAE1933D3DDF859BFFAE46",
+      "bytes": 24044,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 314,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Supply_Sack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Supply_Sack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 942,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.6449999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 314
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Round_Camp_Mat",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Round_Camp_Mat__Body"
+            ],
+            "expected": [
+              "12_Round_Camp_Mat__Body"
+            ]
+          }
+        },
+        "12_Round_Camp_Mat__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Round_Camp_Mat__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 668,
+            "total_faces": 668
+          }
+        },
+        "12_Round_Camp_Mat__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 668,
+            "expected": 668
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -1.0199999809265137,
+              -1.661790776097405e-07
+            ],
+            "max": [
+              1.0199999809265137,
+              1.0199999809265137,
+              0.08700015395879745
+            ],
+            "size": [
+              2.0399999618530273,
+              2.0399999618530273,
+              0.08700032013787506
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              2.0399999618530273,
+              0.08699999749660492
+            ],
+            "max_error": 1.661790776097405e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\fbx\\12_Round_Camp_Mat.fbx",
+      "tolerance": 0.0001,
+      "sha256": "E98097D43EDA27E122AAFFB068D9CCCF82A1A28A159283DB19ACC17657F11489",
+      "bytes": 36012,
+      "triangles": 668,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Round_Camp_Mat__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Round_Camp_Mat__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2004,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 668
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Round_Camp_Mat",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Round_Camp_Mat__Body"
+            ],
+            "expected": [
+              "12_Round_Camp_Mat__Body"
+            ]
+          }
+        },
+        "12_Round_Camp_Mat__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Round_Camp_Mat__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 668,
+            "total_faces": 668
+          }
+        },
+        "12_Round_Camp_Mat__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Round_Camp_Mat__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 668,
+            "expected": 668
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -1.0199999809265137,
+              0.0
+            ],
+            "max": [
+              1.0199999809265137,
+              1.0199999809265137,
+              0.08699999749660492
+            ],
+            "size": [
+              2.0399999618530273,
+              2.0399999618530273,
+              0.08699999749660492
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              2.0399999618530273,
+              0.08699999749660492
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\mossvale-camp\\glb\\12_Round_Camp_Mat.glb",
+      "tolerance": 0.0001,
+      "sha256": "50ECAA0035726B63E08BDAB40467082897B21DDF5EFB3068AFA2920930C091DA",
+      "bytes": 47340,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 668,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Round_Camp_Mat__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Round_Camp_Mat__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2004,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 668
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

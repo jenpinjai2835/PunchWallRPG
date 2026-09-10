@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-moonwell-alchemy-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "9b97dea7cf978d3bb11b195f203a2adb48baed613027493c5099cd7dd9b2a60f",
+  "manifest_sha256": "e271b6be6e6941091d5085836016a74da99db0c4dda5d6dd7e4869d00412feac",
+  "executed_at": "2026-09-10T18:36:25.653Z"
+}

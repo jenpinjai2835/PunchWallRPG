@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:17.304Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "emberforge-smithy",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Hearth_Forge",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a6589aa2e36a077aebf8e1c547d729f8132518058befb324e72b58fa8bcf4511\",\"status\":\"PASS\",\"id\":\"01_Hearth_Forge\",\"mesh_count\":1,\"triangles\":1314}"
+    },
+    {
+      "id": "02_Horn_Anvil",
+      "isError": false,
+      "text": "{\"source_sha256\":\"fc4edfaf66ac6294087813082d4cf1528b5fd8f45be007b485ecce29b813e155\",\"status\":\"PASS\",\"id\":\"02_Horn_Anvil\",\"mesh_count\":1,\"triangles\":556}"
+    },
+    {
+      "id": "03_Quench_Tank",
+      "isError": false,
+      "text": "{\"source_sha256\":\"6b5856d7e93d07fdc8f77dbceff20f1d886abdc3902b18f778074f7c8fc6b5ed\",\"status\":\"PASS\",\"id\":\"03_Quench_Tank\",\"mesh_count\":1,\"triangles\":752}"
+    },
+    {
+      "id": "04_Foot_Bellows",
+      "isError": false,
+      "text": "{\"source_sha256\":\"519945e2162e255dc6d997b06ae62f12ece6bfcf2dcf74972a14a784e040f4e5\",\"status\":\"PASS\",\"id\":\"04_Foot_Bellows\",\"mesh_count\":1,\"triangles\":228}"
+    },
+    {
+      "id": "05_Treadle_Grindstone",
+      "isError": false,
+      "text": "{\"source_sha256\":\"3cdb0b939e182a265e43268031c0988139febc7567682885397fcf1af0dfd0ea\",\"status\":\"PASS\",\"id\":\"05_Treadle_Grindstone\",\"mesh_count\":1,\"triangles\":1004}"
+    },
+    {
+      "id": "06_Ingot_Stack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"900f62a8db12c9b9bcf12a5b5eac57f4c811698689ef4181db9398d23f9f954e\",\"status\":\"PASS\",\"id\":\"06_Ingot_Stack\",\"mesh_count\":1,\"triangles\":60}"
+    },
+    {
+      "id": "07_Smith_Tongs",
+      "isError": false,
+      "text": "{\"source_sha256\":\"22be68784fdf8ac868ff74fbaa924559db7172daf43a2f0121b2c7b3d495208f\",\"status\":\"PASS\",\"id\":\"07_Smith_Tongs\",\"mesh_count\":1,\"triangles\":388}"
+    },
+    {
+      "id": "08_Smith_Tool_Rack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"03f773d36bcca4d5a00e20df34aafe4476b42fb5fb96574b6e17956a3017ba60\",\"status\":\"PASS\",\"id\":\"08_Smith_Tool_Rack\",\"mesh_count\":1,\"triangles\":612}"
+    },
+    {
+      "id": "09_Casting_Mould",
+      "isError": false,
+      "text": "{\"source_sha256\":\"774fec97564699fcbe04c6144048791215f1f8972ce9a56e9f4fb1946fbf27fa\",\"status\":\"PASS\",\"id\":\"09_Casting_Mould\",\"mesh_count\":1,\"triangles\":308}"
+    },
+    {
+      "id": "10_Coal_Scuttle",
+      "isError": false,
+      "text": "{\"source_sha256\":\"3e55261435105874f39f20634b0111d5db6f450b001ce5c44409d8adb9725d02\",\"status\":\"PASS\",\"id\":\"10_Coal_Scuttle\",\"mesh_count\":1,\"triangles\":298}"
+    },
+    {
+      "id": "11_Forge_Heat_Shield",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7e6304e83417baea89038a70316b5dbaa8a34eee8b5e97405468c107929e25cc\",\"status\":\"PASS\",\"id\":\"11_Forge_Heat_Shield\",\"mesh_count\":1,\"triangles\":420}"
+    },
+    {
+      "id": "12_Forged_Blade_Blank",
+      "isError": false,
+      "text": "{\"source_sha256\":\"f1adac8901162258488f0745733d52222c4474d7277eff62f54c69df201c5ebc\",\"status\":\"PASS\",\"id\":\"12_Forged_Blade_Blank\",\"mesh_count\":1,\"triangles\":104}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-emberforge-smithy-local-preview.json"
+}

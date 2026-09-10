@@ -1,0 +1,293 @@
+{
+  "status": "PASS",
+  "reviewer": "Worker2 / merchant_stalls",
+  "slug": "runestone-dungeon",
+  "recorded_utc": "2026-09-11T01:13:23.720752+07:00",
+  "method": "Read-only delivered Blender source reopen; evaluated mesh descendants under 12 Editable roots; exact asset bounds and triangles; independent packed PNG decoder checking chunk CRCs and all authored RGB pixels; ZIP CRC plus each member hash versus on-disk counterpart.",
+  "blender": "4.5.9 LTS",
+  "threads": 2,
+  "source": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\source\\runestone-dungeon-editable.blend",
+    "sha256": "69edb43a3f6d2aa029d9a115025ed2a53803f2df2ed1696c6dde22f64cf7a638",
+    "asset_roots": 12,
+    "triangles_excluding_stage": 6292,
+    "assets": [
+      {
+        "id": "01_Pointed_Gateway",
+        "triangles": 1096,
+        "bounds_min": [
+          -2.494999885559082,
+          -0.6600000262260437,
+          0.0
+        ],
+        "bounds_max": [
+          2.494999885559082,
+          0.6600000262260437,
+          6.045000076293945
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "02_Masonry_Wall",
+        "triangles": 880,
+        "bounds_min": [
+          -2.0,
+          -0.4050000011920929,
+          0.0
+        ],
+        "bounds_max": [
+          2.0,
+          0.4050000011920929,
+          4.0
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "03_Flagstone_Tile",
+        "triangles": 440,
+        "bounds_min": [
+          -2.0,
+          -2.0,
+          0.0
+        ],
+        "bounds_max": [
+          2.0,
+          2.0,
+          0.28999999165534973
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "04_Octagonal_Pillar",
+        "triangles": 380,
+        "bounds_min": [
+          -0.824999988079071,
+          -0.824999988079071,
+          0.0
+        ],
+        "bounds_max": [
+          0.824999988079071,
+          0.824999988079071,
+          3.7699999809265137
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "05_Tripod_Brazier",
+        "triangles": 656,
+        "bounds_min": [
+          -0.875,
+          -0.875,
+          0.0
+        ],
+        "bounds_max": [
+          0.875,
+          0.875,
+          2.259999990463257
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "06_Stone_Sarcophagus",
+        "triangles": 216,
+        "bounds_min": [
+          -1.0191999673843384,
+          -1.7640000581741333,
+          0.0
+        ],
+        "bounds_max": [
+          1.0191999673843384,
+          1.6169999837875366,
+          1.590000033378601
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "07_Ritual_Altar",
+        "triangles": 800,
+        "bounds_min": [
+          -1.7300000190734863,
+          -0.9350000023841858,
+          0.0
+        ],
+        "bounds_max": [
+          1.7300000190734863,
+          0.9350000023841858,
+          1.9100000858306885
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "08_Iron_Grate",
+        "triangles": 654,
+        "bounds_min": [
+          -1.5000001192092896,
+          -0.11999999731779099,
+          0.0
+        ],
+        "bounds_max": [
+          1.5000001192092896,
+          0.11999999731779099,
+          3.4850001335144043
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "09_Wall_Sconce",
+        "triangles": 310,
+        "bounds_min": [
+          -0.3499999940395355,
+          -0.7228697538375854,
+          0.0
+        ],
+        "bounds_max": [
+          0.3499999940395355,
+          0.36000001430511475,
+          1.880000114440918
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "10_Broken_Column",
+        "triangles": 142,
+        "bounds_min": [
+          -1.0099999904632568,
+          -0.9065002202987671,
+          0.0
+        ],
+        "bounds_max": [
+          1.265745759010315,
+          0.8065003156661987,
+          1.2000000476837158
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "11_Three_Stone_Steps",
+        "triangles": 264,
+        "bounds_min": [
+          -1.5,
+          -1.304999828338623,
+          0.0
+        ],
+        "bounds_max": [
+          1.5,
+          1.2549998760223389,
+          1.0199999809265137
+        ],
+        "status": "PASS"
+      },
+      {
+        "id": "12_Rune_Obelisk",
+        "triangles": 454,
+        "bounds_min": [
+          -0.5899999737739563,
+          -0.5600000023841858,
+          0.0
+        ],
+        "bounds_max": [
+          0.5899999737739563,
+          0.5600000023841858,
+          2.6700000762939453
+        ],
+        "status": "PASS"
+      }
+    ],
+    "packed_palettes": [
+      {
+        "name": "Classic",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "90924cbc15dbd70b40b1f9c2a6f4413acb28f2135cee5877c9344e42bf07d8c9",
+        "status": "PASS"
+      },
+      {
+        "name": "Warm",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "e4c583e3d5ac557338f8d1f3578a0f850378671db02389fbbe5915e73619c289",
+        "status": "PASS"
+      },
+      {
+        "name": "Twilight",
+        "packed": true,
+        "fake_user": true,
+        "authored_rgb_pixels_checked": 4096,
+        "png_sha256": "ddb7eb1e5d9d63d375a704067058b401117988b20da5f4d8d235eff1b4f5d5f9",
+        "status": "PASS"
+      }
+    ]
+  },
+  "manifest": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\manifest.json",
+    "sha256": "25d69556b8fbb5861af636602ac44f262d790f3b0e4a1db845ca68d02be1a21b"
+  },
+  "evidence": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\evidence\\export-roundtrip.json",
+      "sha256": "ac2282dd600e41c117a41e189203955adc6736f4043d46fbde621606378c5460",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\evidence\\native-roundtrip.json",
+      "sha256": "15ca24517abdb739aa38f75bfaa0a32b75711fcdb28c1c4d3930dbce0ea4d8dd",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\evidence\\source-reopen.json",
+      "sha256": "8c81ce359626e63c4e015309dc916d3653d54e166e1e642e5337f912648c8d13",
+      "recorded_status": "PASS"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\evidence\\package-validation.json",
+      "sha256": "23544dc5d994b0572eef7f3e2f308b9a22b93bf5e81b385b1c831cc8d2094187",
+      "recorded_status": "PASS"
+    }
+  ],
+  "archive": {
+    "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\runestone-dungeon-source-and-exports.zip",
+    "sha256": "db07e0e6bf64a48b1397b63eeee00b6be4e36f477ab55ad0618a260883edb0d7",
+    "members": 39,
+    "crc": "PASS",
+    "all_member_hashes_match": "PASS"
+  },
+  "images": [
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Classic.png",
+      "sha256": "e9d7289f3e2612d6043f4ee4d18e9672e8cbcf6c626bed49ba10a6a509938ee1"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Twilight.png",
+      "sha256": "62422ae019c72ac45669bac76b334135065ccb51c8d6a1b66b72d9cf81033c8e"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\collection-Warm.png",
+      "sha256": "8df5bf74f0b4fa91e8568ae7dc53bd5042666229afe5e8cdb51e28ff45f45cb2"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\detail.png",
+      "sha256": "586e7856f652c7ad269cbfe1865697ed8a40159ace1b80ef0cf3d8d44cc8f872"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\images\\icon.png",
+      "sha256": "69221435ad8005d8585babb4eae622bd278f2fba1d2c7a0e0123e6d161eb8863"
+    }
+  ],
+  "visual_review": {
+    "status": "PASS",
+    "actual_images_inspected": 5,
+    "checks": [
+      "All 12 collection models and captions inside frame and unobstructed",
+      "Arch center remains open and supports read coherently",
+      "Grounding of floor-mounted props is coherent; wall sconce remains an explicitly named wall-mounted prop",
+      "Classic Warm Twilight visibly preserve geometry with distinct palettes",
+      "Icon and detail retain complete silhouettes and beveled edges"
+    ],
+    "remaining_findings": []
+  },
+  "limits": [
+    "No Studio or browser actions. Native Roblox publication and listing are separate gates."
+  ]
+}

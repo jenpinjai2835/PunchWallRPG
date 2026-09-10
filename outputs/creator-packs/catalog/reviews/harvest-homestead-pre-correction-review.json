@@ -1,0 +1,284 @@
+{
+  "scope": "Read-only final local output audit. Actual renders inspected, evidence rebound to file hashes; no fresh Studio import and no native listing verification performed.",
+  "created_utc": "2026-09-10T18:12:13.905078+00:00",
+  "slug": "harvest-homestead",
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "source hash binds manifest",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "12 unique models",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "role and triangle budgets",
+      "passed": true,
+      "details": {
+        "roles": 13,
+        "triangles": 8808
+      }
+    },
+    {
+      "name": "source grounding",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "zero runtime scripts",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "24 actual export checks",
+      "passed": true,
+      "details": {
+        "individual_checks": 440
+      }
+    },
+    {
+      "name": "export hash 01_Raised_Garden_Bed.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 01_Raised_Garden_Bed.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Friendly_Scarecrow.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Friendly_Scarecrow.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Irrigation_Pump.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Irrigation_Pump.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Garden_Wheelbarrow.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Garden_Wheelbarrow.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Round_Hay_Bale.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Round_Hay_Bale.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Watering_Can.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Watering_Can.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Seed_Packet_Display.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Seed_Packet_Display.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Pumpkin_Cluster.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Pumpkin_Cluster.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Carrot_Bundle.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Carrot_Bundle.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Farm_Rake.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Farm_Rake.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Seedling_Tray.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Seedling_Tray.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Farm_Gate.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Farm_Gate.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "three palette audits",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "palette authored RGB and evidence Classic",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Warm",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Twilight",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "GLB valid header",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native hash and counts bind evidence",
+      "passed": true,
+      "details": {
+        "meshes": 39,
+        "triangles": 26424,
+        "bytes": 1848160
+      }
+    },
+    {
+      "name": "native embedded portable textures",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Classic_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Twilight_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Warm_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no exported animation cameras lights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "source reopen evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "archive CRC safe names unique entries",
+      "passed": true,
+      "details": {
+        "members": 53
+      }
+    },
+    {
+      "name": "archive members equal current files",
+      "passed": true,
+      "details": []
+    },
+    {
+      "name": "archive evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "five image dimensions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "human visual inspection five actual final PNGs",
+      "passed": true,
+      "details": "Three collections fully framed, all 12 props readable, palette differences visible; icon and detail show complete models without clipping."
+    }
+  ],
+  "findings": [
+    {
+      "priority": "low",
+      "file": "manifest.json assets[0].notes.dimensions and source note",
+      "issue": "Raised garden bed claims 3.92 x 2.54 stud footprint but measured geometry is 3.84 x 2.54. Correct prose to measured width."
+    }
+  ],
+  "package_pending_39_file_repack": true,
+  "hashes": {
+    "manifest.json": "8a6247b876df47d7bec4b137187c1b5813133927df136d399f8aa5766d344ea0",
+    "harvest-homestead-native.glb": "898a6b183455c2b545be28ad6e280d9ebdf11f11ed8e405096bf898dec044169",
+    "harvest-homestead-source-and-exports.zip": "827e3f0647f647b91ef41b41ea495a062c7230c42eb393d00cd01f64251a15df",
+    "images/collection-Classic.png": "aad2d44500b474b43eca4dbba27735f0862847e437821850a0e45e012507873c",
+    "images/collection-Twilight.png": "5757cb27ac6952e742428ea8c82a66777ed41027c708d6f4d7585e9c23b2c18f",
+    "images/collection-Warm.png": "2b05e051ace42987ff77cf155ac09a0bffade5f91468a96f9ba7f2adf37c8b81",
+    "images/detail.png": "2b41cc27502e98cec9e76c498bb5011a32b4394834e9150d59b69a05a6a06c8a",
+    "images/icon.png": "ba8b0f8812a6007a7c5b559944d4ca2cae9f7fc74037e8a392fc8b930b6e158d",
+    "evidence/export-roundtrip.json": "30fa00c6496d530050b8285b5bc667947d76c58497bf2a2a067cc54e18f76566",
+    "evidence/native-roundtrip.json": "7d64bb5c768dc5bdfdcc110cbf240d8bf30b359c96192dbbb19627691f22e797",
+    "evidence/package-validation.json": "ba40927f821ea804b1f0ede458191c19fd195960755271ac71deadd41a942f2e",
+    "evidence/source-reopen.json": "6fc3333a14f0d187616b6f62352f395f44c5c54c675e35c6729848231bb08f3a",
+    "evidence/studio-flow.json": "42998c4e5cc8a6cb82fc117760ba36f20966292f67a9e76bbc1660b9edae4da7",
+    "evidence/studio-preview.json": "e4a8fd7e0a5c7718a50a1633f1fb174f55178a5096a01f0be7929dc1c0a1f4d3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 39,
+  "triangles": 26424,
+  "sha256": "898a6b183455c2b545be28ad6e280d9ebdf11f11ed8e405096bf898dec044169",
+  "authoredRoot": "harvest_homestead_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

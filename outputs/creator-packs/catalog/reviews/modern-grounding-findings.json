@@ -1,0 +1,65 @@
+{
+  "status": "BLOCKED_GROUNDING_CORRECTION",
+  "checked_at_utc": "2026-09-10T18:20:22.424658+00:00",
+  "scope": "Final visual review uncovered positive ground gap; focused comparison of all nine existing manifests",
+  "findings": [
+    {
+      "slug": "starfall-arcade",
+      "asset": "02_Orbit_Pinball_Table",
+      "minimum_z": 0.0760405957698822,
+      "ground_pivot": [
+        0,
+        0,
+        0
+      ],
+      "source_module_sha256": "3446cb72ec95a0641f737e9bba2241f148eebbf6d1d229fd74d62e7bff510c29",
+      "manifest_sha256": "53cbd9830705b0dde9c3c32ab50caed49bcac126d7a84962b6bc77ded5cb0d7c",
+      "archive_sha256": "daaeefd19ddff93a8d3fc6f5efdc11f902cbfeaf4e2d859b91358be38be048df",
+      "severity": "P2",
+      "finding": "Floor-standing geometry is elevated above authored ground pivot",
+      "required_fix": "Ground assembly/feet, rebuild exports/source/renders/native preview/ZIP and revalidate changed artifacts"
+    },
+    {
+      "slug": "sunbeam-cafe",
+      "asset": "05_Slatted_Cafe_Chair",
+      "minimum_z": 0.07482893764972687,
+      "ground_pivot": [
+        0,
+        0,
+        0
+      ],
+      "source_module_sha256": "bb005b738efd59fc50a8427ce759f904102555db5b850c7d4755f4020faabedd",
+      "manifest_sha256": "ec0ffcdca42a0e493c8b6dc110e5a45c85d07b398fada12af1f9e958ecd1a739",
+      "archive_sha256": "59aafddf81003103e10f20393e88f08db27d041f931c36acd77654df09563d9b",
+      "severity": "P2",
+      "finding": "Floor-standing geometry is elevated above authored ground pivot",
+      "required_fix": "Ground assembly/feet, rebuild exports/source/renders/native preview/ZIP and revalidate changed artifacts"
+    },
+    {
+      "slug": "sunbeam-cafe",
+      "asset": "06_Menu_Easel",
+      "minimum_z": 0.06255273520946503,
+      "ground_pivot": [
+        0,
+        0,
+        0
+      ],
+      "source_module_sha256": "bb005b738efd59fc50a8427ce759f904102555db5b850c7d4755f4020faabedd",
+      "manifest_sha256": "ec0ffcdca42a0e493c8b6dc110e5a45c85d07b398fada12af1f9e958ecd1a739",
+      "archive_sha256": "59aafddf81003103e10f20393e88f08db27d041f931c36acd77654df09563d9b",
+      "severity": "P2",
+      "finding": "Floor-standing geometry is elevated above authored ground pivot",
+      "required_fix": "Ground assembly/feet, rebuild exports/source/renders/native preview/ZIP and revalidate changed artifacts"
+    }
+  ],
+  "all_product_images_viewed": {
+    "neon-relay-lab": 5,
+    "starfall-arcade": 5,
+    "sunbeam-cafe": 5
+  },
+  "other_visual_findings": [],
+  "other_packs": "No other undocumented positive minimum Z over .005; Harvest carrot .01 explicitly documented",
+  "prior_worker_gate_limitation": "No-below-ground gate did not test floor-contact for positively elevated assets",
+  "root_notified": true,
+  "writes": "Only this ignored worker report; no source/output edits"
+}

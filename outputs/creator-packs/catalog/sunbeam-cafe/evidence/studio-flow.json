@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-sunbeam-cafe-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "4735078c7b6c1d63c54e7cf345017e26af958afcfd462a56963dcaf87f118f44",
+  "manifest_sha256": "ef1e6481cb6a7db55b95da11345361a432f986fac10089e90d24392fdadde36d",
+  "executed_at": "2026-09-10T18:36:41.078Z"
+}

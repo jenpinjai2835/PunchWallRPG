@@ -1,0 +1,293 @@
+{
+  "scope": "Read-only final local output audit. Actual renders inspected and evidence rebound to file hashes; no fresh Studio import and no native listing verification performed.",
+  "created_utc": "2026-09-10T18:23:39.583075+00:00",
+  "slug": "tidewatch-harbor",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "source hash binds manifest",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "12 unique models",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "role and triangle budgets",
+      "passed": true,
+      "details": {
+        "roles": 12,
+        "triangles": 11282
+      }
+    },
+    {
+      "name": "source grounding no penetration or floating feet",
+      "passed": true,
+      "details": {
+        "01_Straight_Dock": 0.0,
+        "02_Corner_Dock": 0.0,
+        "03_Navigation_Beacon": 0.0,
+        "04_Mooring_Bollard": 0.0,
+        "05_Channel_Buoy": 0.0,
+        "06_Fishing_Rod_Rack": 0.0,
+        "07_Lobster_Trap": 0.0,
+        "08_Rope_Coil": 0.0026918910443782806,
+        "09_Harbor_Anchor": 0.0,
+        "10_Fresh_Catch_Crate": 0.0,
+        "11_Life_Ring": 0.0,
+        "12_Dock_Ladder": 0.0
+      }
+    },
+    {
+      "name": "zero runtime scripts",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "24 actual export checks",
+      "passed": true,
+      "details": {
+        "individual_checks": 420
+      }
+    },
+    {
+      "name": "export hash 01_Straight_Dock.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 01_Straight_Dock.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Corner_Dock.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Corner_Dock.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Navigation_Beacon.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Navigation_Beacon.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Mooring_Bollard.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Mooring_Bollard.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Channel_Buoy.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Channel_Buoy.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Fishing_Rod_Rack.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Fishing_Rod_Rack.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Lobster_Trap.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Lobster_Trap.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Rope_Coil.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Rope_Coil.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Harbor_Anchor.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Harbor_Anchor.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Fresh_Catch_Crate.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Fresh_Catch_Crate.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Life_Ring.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Life_Ring.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Dock_Ladder.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Dock_Ladder.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "three palette audits",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "palette authored RGB and evidence Classic",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Warm",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Twilight",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "GLB valid header",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native hash and counts bind evidence",
+      "passed": true,
+      "details": {
+        "meshes": 36,
+        "triangles": 33846,
+        "bytes": 2362060
+      }
+    },
+    {
+      "name": "native embedded portable textures",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Classic_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Twilight_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Warm_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no exported animation cameras lights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "source reopen evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "archive CRC safe names 39 unique entries",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "archive members equal current files",
+      "passed": true,
+      "details": []
+    },
+    {
+      "name": "archive evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "all archive payload hashes bound",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "five image dimensions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "human visual inspection five actual final PNGs",
+      "passed": true,
+      "details": "Three collection sheets fully framed, all 12 models visible, palette variants distinct. Square icon shows entire straight dock and detail entire corner dock, readable supported deck geometry without clipping."
+    }
+  ],
+  "findings": [],
+  "hashes": {
+    "manifest.json": "f9cf21d599c90928742c1b4d702dce08df0407413d6d94227adc31f03e4b86e9",
+    "tidewatch-harbor-native.glb": "2a589a7fed92025e901de6d0c657def0d058e37e2697b14c63b4b14a2cce5905",
+    "tidewatch-harbor-source-and-exports.zip": "f6a3436acf66e416f4329daae4d80424014ca6722b4226df84745d5456dfe79e",
+    "images/collection-Classic.png": "7b545c605d9f85eca040f544e95fbaac05eae246f761f3f757e8522a5b043c37",
+    "images/collection-Twilight.png": "50b266172d6d211abb447db630ee46175226b64d0fb77c1f8b8bccaa9a00008a",
+    "images/collection-Warm.png": "5b2af69072c2f1febc327f0be570b5ede4d2abf45a33360f7ab3dc0a7679160d",
+    "images/detail.png": "336c649eb2b41b8932dbe08e4840ca627e3c19c66af08acb8e889538a099b82b",
+    "images/icon.png": "fd37fa3330f9c6ca096ac52dcfb51e5d983382ec1733b6a609aae425fbf8da23",
+    "evidence/export-roundtrip.json": "1802b890d148ba24052af6df599fbec860672357aff7723f9cc74ad3c9efb64d",
+    "evidence/native-roundtrip.json": "37e3685534eadc6dc2278765d5b3b2b384ebd4628dfdff26068fa9ef9f37f95a",
+    "evidence/package-validation.json": "8d55c061029f63e92a69ab794dc8778e9f05b484e8840fc5e8bda7c14151d329",
+    "evidence/source-reopen.json": "9fb2e4da8b4234590bea8b3a1c1e2dc06ebe1ee0ff8f2c98b7246c4faed3077e",
+    "evidence/studio-flow.json": "a56af586b754ddd106aac9d3cb517906a66905c7054b52a12265a77a991e7288",
+    "evidence/studio-preview.json": "eb1ca44d4fdbd507bef5b2af2290aaf536bbff547593d89a4993cc9b3db039c9"
+  }
+}

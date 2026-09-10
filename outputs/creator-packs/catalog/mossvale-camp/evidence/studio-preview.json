@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:26.515Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "mossvale-camp",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Ridge_Tent",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a04371f4e5f70fcb8b6348a8873a9d59ddcb102a0816bd9329b7a9b899b756dc\",\"status\":\"PASS\",\"id\":\"01_Ridge_Tent\",\"mesh_count\":1,\"triangles\":664}"
+    },
+    {
+      "id": "02_Field_Kitchen",
+      "isError": false,
+      "text": "{\"source_sha256\":\"2cd4e26fe4460d66bb34a92e86847cb94c19ee9fd19a1a4b07c8d0ef36221fda\",\"status\":\"PASS\",\"id\":\"02_Field_Kitchen\",\"mesh_count\":1,\"triangles\":1176}"
+    },
+    {
+      "id": "03_Stone_Campfire",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7a39076a097093fd6184321add190f71d48e71f205b0a5917f3ad43c3e8a32fe\",\"status\":\"PASS\",\"id\":\"03_Stone_Campfire\",\"mesh_count\":1,\"triangles\":548}"
+    },
+    {
+      "id": "04_Rolled_Bedroll",
+      "isError": false,
+      "text": "{\"source_sha256\":\"82c8f4c14188c47fae5085f78c0914b78a0bf6a61e4f43f38441b2de6b0230b1\",\"status\":\"PASS\",\"id\":\"04_Rolled_Bedroll\",\"mesh_count\":1,\"triangles\":604}"
+    },
+    {
+      "id": "05_Trail_Backpack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"91a96bec2535fb798deaec087ecda128a1b7b4dfd922ebf87f6ca9dbc21b8b19\",\"status\":\"PASS\",\"id\":\"05_Trail_Backpack\",\"mesh_count\":1,\"triangles\":720}"
+    },
+    {
+      "id": "06_Woodpile_Rack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"00d11d20361d0bd7ffd44ec4a62eca96f875d49a3af0168b95171423677480bb\",\"status\":\"PASS\",\"id\":\"06_Woodpile_Rack\",\"mesh_count\":1,\"triangles\":912}"
+    },
+    {
+      "id": "07_Trail_Signpost",
+      "isError": false,
+      "text": "{\"source_sha256\":\"93ca1d281932def0930561038c8c4866eff3066b9fb491df0e26c8d3bc3d1337\",\"status\":\"PASS\",\"id\":\"07_Trail_Signpost\",\"mesh_count\":1,\"triangles\":198}"
+    },
+    {
+      "id": "08_Split_Log_Bench",
+      "isError": false,
+      "text": "{\"source_sha256\":\"0a91a50d108ab882b79559542a4e7cfdd97a482a79d94eff0790d63b59d06f2e\",\"status\":\"PASS\",\"id\":\"08_Split_Log_Bench\",\"mesh_count\":1,\"triangles\":172}"
+    },
+    {
+      "id": "09_Camp_Lantern",
+      "isError": false,
+      "text": "{\"source_sha256\":\"fb82f9f504062b72e9b32f04b1d4f7a7d7ae3890b527fb6c65addcc9cbb3d98a\",\"status\":\"PASS\",\"id\":\"09_Camp_Lantern\",\"mesh_count\":1,\"triangles\":476}"
+    },
+    {
+      "id": "10_Trail_Canteen",
+      "isError": false,
+      "text": "{\"source_sha256\":\"3ad21d50148fba0ef1ac90e7301b254be72c984ee893ce4ce3484a21a4f5fdc0\",\"status\":\"PASS\",\"id\":\"10_Trail_Canteen\",\"mesh_count\":1,\"triangles\":308}"
+    },
+    {
+      "id": "11_Supply_Sack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"d2b93cfec0530a6fe1afe90689a833e453378db598bae1933d3ddf859bffae46\",\"status\":\"PASS\",\"id\":\"11_Supply_Sack\",\"mesh_count\":1,\"triangles\":314}"
+    },
+    {
+      "id": "12_Round_Camp_Mat",
+      "isError": false,
+      "text": "{\"source_sha256\":\"50ecaa0035726b63e08bdab40467082897b21ddf5efb3068afa2920930c091da\",\"status\":\"PASS\",\"id\":\"12_Round_Camp_Mat\",\"mesh_count\":1,\"triangles\":668}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-mossvale-camp-local-preview.json"
+}

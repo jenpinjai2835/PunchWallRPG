@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-runestone-dungeon-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "281a73da4999c41f0563ca0804df192edf6bdf975b4d0900f82966e7ac02febd",
+  "manifest_sha256": "25d69556b8fbb5861af636602ac44f262d790f3b0e4a1db845ca68d02be1a21b",
+  "executed_at": "2026-09-10T18:36:34.780Z"
+}

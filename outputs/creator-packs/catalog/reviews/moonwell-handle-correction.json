@@ -1,0 +1,53 @@
+{
+  "status": "PASS_WORKER_FIX",
+  "commit": "c3d76d7ba411936a1269e57a7523ac2c0c6f05aa",
+  "changed_file": "work/creator-packs/catalog/packs/moonwell_alchemy.py",
+  "scope": "One line: handle centers moved from +/-1.00 to +/-1.10; lugs follow their existing coordinate relation",
+  "root_note": "No note text changed; retain Coordinator correction when integrating",
+  "geometry": {
+    "status": "PASS",
+    "source_sha256": "116b812e55536edd7b25ca367aa029b9c95afa8e7be0ad7f07fb634aecb874d9",
+    "asset": "02_Tripod_Cauldron",
+    "triangles": 792,
+    "minimum_z": 0.0,
+    "bounds_min": [
+      -1.4300000667572021,
+      -1.090000033378601,
+      0.0
+    ],
+    "bounds_max": [
+      1.4300000667572021,
+      1.0139250755310059,
+      1.5929999351501465
+    ],
+    "manifold_nonzero_positive_volume": "PASS",
+    "connections": [
+      {
+        "handle": "02_Tripod_Cauldron__Side_Handle",
+        "inner_cavity_clearance": 0.019999980926513672,
+        "handle_lug_surface_intersections": 18,
+        "lug_shell_surface_intersections": 10
+      },
+      {
+        "handle": "02_Tripod_Cauldron__Side_Handle.001",
+        "inner_cavity_clearance": 0.019999980926513672,
+        "handle_lug_surface_intersections": 18,
+        "lug_shell_surface_intersections": 10
+      }
+    ],
+    "threads": 1
+  },
+  "visual_review": {
+    "status": "PASS",
+    "images": [
+      "detail.png",
+      "interior.png"
+    ],
+    "result": "Gold interior sliver removed; both handles remain attached to lugs and pot shell; complete framing and coherent legs",
+    "hashes": {
+      "detail": "3CB186B4AD1573D087630663628943C28430C1F96D6B267B5E9D65DFFDB4A459",
+      "interior": "902856D3212083A71AE1E2AC5BD9E8F4F1F9C27F4032DE0F9E14EA1F17367176"
+    }
+  },
+  "remaining_gate": "Coordinator final export/render/ZIP and native preview rebuild"
+}

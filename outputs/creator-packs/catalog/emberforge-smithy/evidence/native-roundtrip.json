@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 18132,
+  "sha256": "d60859901ae8b239f6b3eaed83dbc4036beb90218436992c64ddc0de0884b944",
+  "authoredRoot": "emberforge_smithy_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

@@ -1,0 +1,83 @@
+{
+  "status": "WORKER_CHECKS_PASS_PENDING_COORDINATOR_INTEGRATION",
+  "packs": [
+    {
+      "module": "neon_relay_lab",
+      "source": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\creator-packs\\catalog\\packs\\neon_relay_lab.py",
+      "sourceSHA256": "35fc62f34bd58e17b517c6f3dba6163bbe7958cda68879c6f3b395c9a9ca70a4",
+      "assets": 12,
+      "roleMeshes": 12,
+      "triangles": 7158,
+      "maxPerAssetTriangles": 1012,
+      "minimumZ": 0.0,
+      "checks": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\neon_relay_lab\\geometry-checks.json",
+      "checksSHA256": "f9b17ae164b73f8099101c962b0fc5419c7231ac072a9d95bf591f242f3f3c78",
+      "contactSheet": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\neon_relay_lab\\contact-sheet.png",
+      "contactSheetSHA256": "f23198b38a56fc7029c678f6f57316f9b1aa5bb0707a0df11888996f9ee861db",
+      "visualInspection": "PASS: final actual rendered geometry inspected after corrections"
+    },
+    {
+      "module": "sunbeam_cafe",
+      "source": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\creator-packs\\catalog\\packs\\sunbeam_cafe.py",
+      "sourceSHA256": "bb005b738efd59fc50a8427ce759f904102555db5b850c7d4755f4020faabedd",
+      "assets": 12,
+      "roleMeshes": 12,
+      "triangles": 7828,
+      "maxPerAssetTriangles": 1452,
+      "minimumZ": 0.0,
+      "checks": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\sunbeam_cafe\\geometry-checks.json",
+      "checksSHA256": "89f61aa7885f5d867a82b69e0b9f97e23477b36b89297f8be263f46abf839d8c",
+      "contactSheet": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\sunbeam_cafe\\contact-sheet.png",
+      "contactSheetSHA256": "749e87f6938fc4143c5b66d6f4c54b57f73c87ed62841e42fc98352bb31e3841",
+      "visualInspection": "PASS: final actual rendered geometry inspected after corrections"
+    },
+    {
+      "module": "starfall_arcade",
+      "source": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\creator-packs\\catalog\\packs\\starfall_arcade.py",
+      "sourceSHA256": "3446cb72ec95a0641f737e9bba2241f148eebbf6d1d229fd74d62e7bff510c29",
+      "assets": 12,
+      "roleMeshes": 12,
+      "triangles": 9290,
+      "maxPerAssetTriangles": 1204,
+      "minimumZ": 0.0,
+      "checks": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\starfall_arcade\\geometry-checks.json",
+      "checksSHA256": "09bf7b26c3b88434330b16f4c4461faa20da885a26c9f998f8a21823e19a4fb2",
+      "contactSheet": "F:\\Roblox\\PuchWall-catalog-modern-20260910\\work\\tools\\catalog-modern-qa\\starfall_arcade\\contact-sheet.png",
+      "contactSheetSHA256": "285825d1f71ecf3da888337e1efd73c1645e7189066ddaf6b91055d836c576d1",
+      "visualInspection": "PASS: final actual rendered geometry inspected after corrections"
+    }
+  ],
+  "checklistCompleted": 3,
+  "checklistTotal": 3,
+  "blender": "4.5.9 LTS; CPU2threads; one process at a time",
+  "automatedChecks": [
+    "12 numbered unique IDs per pack",
+    "3 palettes of16hex colors",
+    "2 existing sampleIDs",
+    "finite mesh coordinates",
+    "positive object determinant",
+    "no zero-area triangles",
+    "all component meshes closed manifold",
+    "positive signed mesh volume",
+    "groundZ>=-.005",
+    "bounds<=12",
+    "every role has pivot",
+    "per-role triangle cap8000",
+    "pack triangles<35000",
+    "pack roles<=16"
+  ],
+  "knownWorkerDefects": [],
+  "remainingCoordinatorGates": [
+    "FBX/GLB roundtrip",
+    "palette PNG and embedded texture checks",
+    "source reopen after shared exporter",
+    "native Studio geometry and persisted dependencies",
+    "delivery ZIP and paid listings"
+  ],
+  "renderNote": "Each tile is uniformly scaled separately for contact-sheet readability; image shows actual source geometry, not relative model scale. Diagnostic .blend files are worker scratch and not product deliverables.",
+  "commit": "38ad8d4d4d9de44b27c08267b5fac97e13981b15",
+  "branch": "codex/feature/catalog-modern",
+  "gitDiffCheck": "PASS",
+  "trackedWorktree": "CLEAN",
+  "integrationOrder": 3
+}

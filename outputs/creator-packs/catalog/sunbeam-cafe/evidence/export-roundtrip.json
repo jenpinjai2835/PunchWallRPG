@@ -1,0 +1,5140 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\textures\\Classic_Palette.png",
+      "sha256": "A919B3E95E8CFEDAA6F03E7994F0A6400B9C17569FF84403F52FC92BD7447F2C",
+      "reference_rgb": [
+        [
+          169,
+          109,
+          68
+        ],
+        [
+          82,
+          60,
+          49
+        ],
+        [
+          217,
+          172,
+          119
+        ],
+        [
+          79,
+          147,
+          144
+        ],
+        [
+          173,
+          215,
+          197
+        ],
+        [
+          178,
+          139,
+          80
+        ],
+        [
+          245,
+          215,
+          155
+        ],
+        [
+          69,
+          86,
+          90
+        ],
+        [
+          122,
+          136,
+          137
+        ],
+        [
+          193,
+          204,
+          190
+        ],
+        [
+          255,
+          241,
+          214
+        ],
+        [
+          196,
+          120,
+          101
+        ],
+        [
+          125,
+          163,
+          110
+        ],
+        [
+          181,
+          156,
+          196
+        ],
+        [
+          156,
+          105,
+          79
+        ],
+        [
+          41,
+          59,
+          61
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          169,
+          109,
+          68
+        ],
+        [
+          82,
+          60,
+          49
+        ],
+        [
+          217,
+          172,
+          119
+        ],
+        [
+          79,
+          147,
+          144
+        ],
+        [
+          173,
+          215,
+          197
+        ],
+        [
+          178,
+          139,
+          80
+        ],
+        [
+          245,
+          215,
+          155
+        ],
+        [
+          69,
+          86,
+          90
+        ],
+        [
+          122,
+          136,
+          137
+        ],
+        [
+          193,
+          204,
+          190
+        ],
+        [
+          255,
+          241,
+          214
+        ],
+        [
+          196,
+          120,
+          101
+        ],
+        [
+          125,
+          163,
+          110
+        ],
+        [
+          181,
+          156,
+          196
+        ],
+        [
+          156,
+          105,
+          79
+        ],
+        [
+          41,
+          59,
+          61
+        ]
+      ],
+      "blender_rgb": [
+        [
+          169,
+          109,
+          68
+        ],
+        [
+          82,
+          60,
+          49
+        ],
+        [
+          217,
+          172,
+          119
+        ],
+        [
+          79,
+          147,
+          144
+        ],
+        [
+          173,
+          215,
+          197
+        ],
+        [
+          178,
+          139,
+          80
+        ],
+        [
+          245,
+          215,
+          155
+        ],
+        [
+          69,
+          86,
+          90
+        ],
+        [
+          122,
+          136,
+          137
+        ],
+        [
+          193,
+          204,
+          190
+        ],
+        [
+          255,
+          241,
+          214
+        ],
+        [
+          196,
+          120,
+          101
+        ],
+        [
+          125,
+          163,
+          110
+        ],
+        [
+          181,
+          156,
+          196
+        ],
+        [
+          156,
+          105,
+          79
+        ],
+        [
+          41,
+          59,
+          61
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\textures\\Warm_Palette.png",
+      "sha256": "D1E275FD9B9539A832DB9EE556F2FA36E34D07EF2F9550A5536C901024CF7BB9",
+      "reference_rgb": [
+        [
+          170,
+          103,
+          66
+        ],
+        [
+          84,
+          55,
+          45
+        ],
+        [
+          222,
+          173,
+          115
+        ],
+        [
+          183,
+          124,
+          87
+        ],
+        [
+          237,
+          201,
+          155
+        ],
+        [
+          190,
+          147,
+          83
+        ],
+        [
+          255,
+          225,
+          165
+        ],
+        [
+          100,
+          82,
+          80
+        ],
+        [
+          153,
+          134,
+          124
+        ],
+        [
+          216,
+          198,
+          176
+        ],
+        [
+          255,
+          240,
+          215
+        ],
+        [
+          207,
+          119,
+          99
+        ],
+        [
+          154,
+          171,
+          110
+        ],
+        [
+          193,
+          155,
+          189
+        ],
+        [
+          172,
+          112,
+          83
+        ],
+        [
+          62,
+          48,
+          45
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          170,
+          103,
+          66
+        ],
+        [
+          84,
+          55,
+          45
+        ],
+        [
+          222,
+          173,
+          115
+        ],
+        [
+          183,
+          124,
+          87
+        ],
+        [
+          237,
+          201,
+          155
+        ],
+        [
+          190,
+          147,
+          83
+        ],
+        [
+          255,
+          225,
+          165
+        ],
+        [
+          100,
+          82,
+          80
+        ],
+        [
+          153,
+          134,
+          124
+        ],
+        [
+          216,
+          198,
+          176
+        ],
+        [
+          255,
+          240,
+          215
+        ],
+        [
+          207,
+          119,
+          99
+        ],
+        [
+          154,
+          171,
+          110
+        ],
+        [
+          193,
+          155,
+          189
+        ],
+        [
+          172,
+          112,
+          83
+        ],
+        [
+          62,
+          48,
+          45
+        ]
+      ],
+      "blender_rgb": [
+        [
+          170,
+          103,
+          66
+        ],
+        [
+          84,
+          55,
+          45
+        ],
+        [
+          222,
+          173,
+          115
+        ],
+        [
+          183,
+          124,
+          87
+        ],
+        [
+          237,
+          201,
+          155
+        ],
+        [
+          190,
+          147,
+          83
+        ],
+        [
+          255,
+          225,
+          165
+        ],
+        [
+          100,
+          82,
+          80
+        ],
+        [
+          153,
+          134,
+          124
+        ],
+        [
+          216,
+          198,
+          176
+        ],
+        [
+          255,
+          240,
+          215
+        ],
+        [
+          207,
+          119,
+          99
+        ],
+        [
+          154,
+          171,
+          110
+        ],
+        [
+          193,
+          155,
+          189
+        ],
+        [
+          172,
+          112,
+          83
+        ],
+        [
+          62,
+          48,
+          45
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\textures\\Twilight_Palette.png",
+      "sha256": "ABF0746A0DE54B0B2DB2470D763702B591E6E7FE06C186269437DC9F9C9BBA9C",
+      "reference_rgb": [
+        [
+          144,
+          124,
+          131
+        ],
+        [
+          66,
+          60,
+          81
+        ],
+        [
+          197,
+          171,
+          177
+        ],
+        [
+          119,
+          122,
+          166
+        ],
+        [
+          188,
+          189,
+          217
+        ],
+        [
+          185,
+          160,
+          113
+        ],
+        [
+          240,
+          223,
+          189
+        ],
+        [
+          73,
+          73,
+          88
+        ],
+        [
+          135,
+          134,
+          149
+        ],
+        [
+          200,
+          197,
+          208
+        ],
+        [
+          244,
+          236,
+          237
+        ],
+        [
+          193,
+          137,
+          148
+        ],
+        [
+          143,
+          164,
+          155
+        ],
+        [
+          170,
+          152,
+          197
+        ],
+        [
+          150,
+          123,
+          129
+        ],
+        [
+          48,
+          43,
+          60
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          144,
+          124,
+          131
+        ],
+        [
+          66,
+          60,
+          81
+        ],
+        [
+          197,
+          171,
+          177
+        ],
+        [
+          119,
+          122,
+          166
+        ],
+        [
+          188,
+          189,
+          217
+        ],
+        [
+          185,
+          160,
+          113
+        ],
+        [
+          240,
+          223,
+          189
+        ],
+        [
+          73,
+          73,
+          88
+        ],
+        [
+          135,
+          134,
+          149
+        ],
+        [
+          200,
+          197,
+          208
+        ],
+        [
+          244,
+          236,
+          237
+        ],
+        [
+          193,
+          137,
+          148
+        ],
+        [
+          143,
+          164,
+          155
+        ],
+        [
+          170,
+          152,
+          197
+        ],
+        [
+          150,
+          123,
+          129
+        ],
+        [
+          48,
+          43,
+          60
+        ]
+      ],
+      "blender_rgb": [
+        [
+          144,
+          124,
+          131
+        ],
+        [
+          66,
+          60,
+          81
+        ],
+        [
+          197,
+          171,
+          177
+        ],
+        [
+          119,
+          122,
+          166
+        ],
+        [
+          188,
+          189,
+          217
+        ],
+        [
+          185,
+          160,
+          113
+        ],
+        [
+          240,
+          223,
+          189
+        ],
+        [
+          73,
+          73,
+          88
+        ],
+        [
+          135,
+          134,
+          149
+        ],
+        [
+          200,
+          197,
+          208
+        ],
+        [
+          244,
+          236,
+          237
+        ],
+        [
+          193,
+          137,
+          148
+        ],
+        [
+          143,
+          164,
+          155
+        ],
+        [
+          170,
+          152,
+          197
+        ],
+        [
+          150,
+          123,
+          129
+        ],
+        [
+          48,
+          43,
+          60
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Service_Counter",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Service_Counter__Body"
+            ],
+            "expected": [
+              "01_Service_Counter__Body"
+            ]
+          }
+        },
+        "01_Service_Counter__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Service_Counter__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 616,
+            "total_faces": 616
+          }
+        },
+        "01_Service_Counter__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 616,
+            "expected": 616
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.3499999046325684,
+              -1.1749995946884155,
+              -1.6771053878983366e-07
+            ],
+            "max": [
+              2.3499999046325684,
+              1.1750003099441528,
+              2.490000009536743
+            ],
+            "size": [
+              4.699999809265137,
+              2.3499999046325684,
+              2.490000177247282
+            ],
+            "expected_size": [
+              4.699999809265137,
+              2.3499999046325684,
+              2.489999771118164
+            ],
+            "max_error": 3.5762786865234375e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\01_Service_Counter.fbx",
+      "tolerance": 0.0001,
+      "sha256": "126424EF56B608EA55062177F6F1C552D8CF4B0CFC15FB0EC8D522174D37D587",
+      "bytes": 32604,
+      "triangles": 616,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Service_Counter__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Service_Counter__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1848,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 616
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Service_Counter",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Service_Counter__Body"
+            ],
+            "expected": [
+              "01_Service_Counter__Body"
+            ]
+          }
+        },
+        "01_Service_Counter__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Service_Counter__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 616,
+            "total_faces": 616
+          }
+        },
+        "01_Service_Counter__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Service_Counter__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 616,
+            "expected": 616
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.3499999046325684,
+              -1.1749999523162842,
+              0.0
+            ],
+            "max": [
+              2.3499999046325684,
+              1.1749999523162842,
+              2.489999771118164
+            ],
+            "size": [
+              4.699999809265137,
+              2.3499999046325684,
+              2.489999771118164
+            ],
+            "expected_size": [
+              4.699999809265137,
+              2.3499999046325684,
+              2.489999771118164
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\01_Service_Counter.glb",
+      "tolerance": 0.0001,
+      "sha256": "23B9392DD955AD7652367704C9E8DC6490163468A302DF8AAE867CDB6A740B6F",
+      "bytes": 48600,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 616,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Service_Counter__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Service_Counter__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1848,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 616
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Espresso_Machine",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Espresso_Machine__Body"
+            ],
+            "expected": [
+              "02_Espresso_Machine__Body"
+            ]
+          }
+        },
+        "02_Espresso_Machine__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Espresso_Machine__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1452,
+            "total_faces": 1452
+          }
+        },
+        "02_Espresso_Machine__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1452,
+            "expected": 1452
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.3650000095367432,
+              -1.3749998807907104,
+              -1.0752764723065411e-07
+            ],
+            "max": [
+              1.3649998903274536,
+              0.8100003004074097,
+              2.125
+            ],
+            "size": [
+              2.7299998998641968,
+              2.18500018119812,
+              2.1250001075276472
+            ],
+            "expected_size": [
+              2.7299998998641968,
+              2.185000002384186,
+              2.125
+            ],
+            "max_error": 2.980232238769531e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\02_Espresso_Machine.fbx",
+      "tolerance": 0.0001,
+      "sha256": "F1FD94FA4B099288CC5A66BD7A80BA9A7DC9DDDA9B9B5DA89537C81C7FA866E3",
+      "bytes": 50604,
+      "triangles": 1452,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Espresso_Machine__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Espresso_Machine__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 4356,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1452
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Espresso_Machine",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Espresso_Machine__Body"
+            ],
+            "expected": [
+              "02_Espresso_Machine__Body"
+            ]
+          }
+        },
+        "02_Espresso_Machine__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Espresso_Machine__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1452,
+            "total_faces": 1452
+          }
+        },
+        "02_Espresso_Machine__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Espresso_Machine__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1452,
+            "expected": 1452
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.3650000095367432,
+              -1.375,
+              0.0
+            ],
+            "max": [
+              1.3649998903274536,
+              0.8100000023841858,
+              2.125
+            ],
+            "size": [
+              2.7299998998641968,
+              2.185000002384186,
+              2.125
+            ],
+            "expected_size": [
+              2.7299998998641968,
+              2.185000002384186,
+              2.125
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\02_Espresso_Machine.glb",
+      "tolerance": 0.0001,
+      "sha256": "7BCC1B5697C8C6F397173BDDDE12DE2C76665D72BE5F8CD88210E88DD2767C4C",
+      "bytes": 102740,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1452,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Espresso_Machine__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Espresso_Machine__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 4356,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1452
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Pastry_Display",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Pastry_Display__Body"
+            ],
+            "expected": [
+              "03_Pastry_Display__Body"
+            ]
+          }
+        },
+        "03_Pastry_Display__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Pastry_Display__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1168,
+            "total_faces": 1168
+          }
+        },
+        "03_Pastry_Display__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1168,
+            "expected": 1168
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.465000033378601,
+              -0.7549996376037598,
+              -1.1358829254959346e-07
+            ],
+            "max": [
+              1.465000033378601,
+              0.7550003528594971,
+              2.2300000190734863
+            ],
+            "size": [
+              2.930000066757202,
+              1.5099999904632568,
+              2.230000132661779
+            ],
+            "expected_size": [
+              2.930000066757202,
+              1.5099999904632568,
+              2.2300000190734863
+            ],
+            "max_error": 3.5762786865234375e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\03_Pastry_Display.fbx",
+      "tolerance": 0.0001,
+      "sha256": "733C64237B1D6ED13B0727C6F052EAFFA6D36D2311D581BD760597024ADB67B0",
+      "bytes": 45116,
+      "triangles": 1168,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Pastry_Display__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Pastry_Display__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3504,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1168
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Pastry_Display",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Pastry_Display__Body"
+            ],
+            "expected": [
+              "03_Pastry_Display__Body"
+            ]
+          }
+        },
+        "03_Pastry_Display__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Pastry_Display__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1168,
+            "total_faces": 1168
+          }
+        },
+        "03_Pastry_Display__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Pastry_Display__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1168,
+            "expected": 1168
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.465000033378601,
+              -0.7549999952316284,
+              0.0
+            ],
+            "max": [
+              1.465000033378601,
+              0.7549999952316284,
+              2.2300000190734863
+            ],
+            "size": [
+              2.930000066757202,
+              1.5099999904632568,
+              2.2300000190734863
+            ],
+            "expected_size": [
+              2.930000066757202,
+              1.5099999904632568,
+              2.2300000190734863
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\03_Pastry_Display.glb",
+      "tolerance": 0.0001,
+      "sha256": "4455C4FCD615F1E0D4088987BF78274D9386A186AB6182B78B37EBCAB9632FF7",
+      "bytes": 84668,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1168,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Pastry_Display__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Pastry_Display__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3504,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1168
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Round_Cafe_Table",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Round_Cafe_Table__Body"
+            ],
+            "expected": [
+              "04_Round_Cafe_Table__Body"
+            ]
+          }
+        },
+        "04_Round_Cafe_Table__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Round_Cafe_Table__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 548,
+            "total_faces": 548
+          }
+        },
+        "04_Round_Cafe_Table__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 548,
+            "expected": 548
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4699997901916504,
+              -1.4699995517730713,
+              0.0024111599195748568
+            ],
+            "max": [
+              1.4699997901916504,
+              1.4700002670288086,
+              2.440000295639038
+            ],
+            "size": [
+              2.939999580383301,
+              2.93999981880188,
+              2.4375891357194632
+            ],
+            "expected_size": [
+              2.939999580383301,
+              2.93999981880188,
+              2.4375888258218765
+            ],
+            "max_error": 3.5762786865234375e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\04_Round_Cafe_Table.fbx",
+      "tolerance": 0.0001,
+      "sha256": "FFF4891AB37DFA8D7B9FA250CE135D3B7F5E848FB25ACD324516AEFD1CDB7E9F",
+      "bytes": 35324,
+      "triangles": 548,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Round_Cafe_Table__Body",
+          "actual": [
+            0.0,
+            -3.552713678800501e-15,
+            5.78810495469255e-22
+          ],
+          "expected": [
+            0.0,
+            -3.552713678800501e-15,
+            0.0
+          ],
+          "max_error": 5.78810495469255e-22
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Round_Cafe_Table__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1644,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 548
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Round_Cafe_Table",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Round_Cafe_Table__Body"
+            ],
+            "expected": [
+              "04_Round_Cafe_Table__Body"
+            ]
+          }
+        },
+        "04_Round_Cafe_Table__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Round_Cafe_Table__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 548,
+            "total_faces": 548
+          }
+        },
+        "04_Round_Cafe_Table__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Round_Cafe_Table__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 548,
+            "expected": 548
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4699997901916504,
+              -1.46999990940094,
+              0.0024112313985824585
+            ],
+            "max": [
+              1.4699997901916504,
+              1.46999990940094,
+              2.440000057220459
+            ],
+            "size": [
+              2.939999580383301,
+              2.93999981880188,
+              2.4375888258218765
+            ],
+            "expected_size": [
+              2.939999580383301,
+              2.93999981880188,
+              2.4375888258218765
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\04_Round_Cafe_Table.glb",
+      "tolerance": 0.0001,
+      "sha256": "6B59532F0132E448780F33F41424273D21C9C03CFDCEBEAEE122DAEA830CBDCA",
+      "bytes": 38980,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 548,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Round_Cafe_Table__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            -3.552713678800501e-15,
+            0.0
+          ],
+          "max_error": 3.552713678800501e-15
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Round_Cafe_Table__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1644,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 548
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Slatted_Cafe_Chair",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Slatted_Cafe_Chair__Body"
+            ],
+            "expected": [
+              "05_Slatted_Cafe_Chair__Body"
+            ]
+          }
+        },
+        "05_Slatted_Cafe_Chair__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Slatted_Cafe_Chair__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 748,
+            "total_faces": 748
+          }
+        },
+        "05_Slatted_Cafe_Chair__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 748,
+            "expected": 748
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7179999947547913,
+              -0.649999737739563,
+              -1.1961296308982128e-07
+            ],
+            "max": [
+              0.7180001735687256,
+              0.7665990591049194,
+              2.7800002098083496
+            ],
+            "size": [
+              1.4360001683235168,
+              1.4165987968444824,
+              2.7800003294213127
+            ],
+            "expected_size": [
+              1.4360001683235168,
+              1.4165985584259033,
+              2.7800002256408334
+            ],
+            "max_error": 4.172325134277344e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\05_Slatted_Cafe_Chair.fbx",
+      "tolerance": 0.0001,
+      "sha256": "DEC122720EF9280C35E66C9F69905728D88DEE6E9F4526653001359049AB799B",
+      "bytes": 41580,
+      "triangles": 748,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Slatted_Cafe_Chair__Body",
+          "actual": [
+            5.960464477539063e-08,
+            5.960464477539063e-08,
+            -9.710828705554713e-15
+          ],
+          "expected": [
+            5.960464477539063e-08,
+            5.960464477539063e-08,
+            0.0
+          ],
+          "max_error": 9.710828705554713e-15
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Slatted_Cafe_Chair__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2244,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.14499999582767487
+            ]
+          ],
+          "palette_faces": 748
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Slatted_Cafe_Chair",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Slatted_Cafe_Chair__Body"
+            ],
+            "expected": [
+              "05_Slatted_Cafe_Chair__Body"
+            ]
+          }
+        },
+        "05_Slatted_Cafe_Chair__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Slatted_Cafe_Chair__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 748,
+            "total_faces": 748
+          }
+        },
+        "05_Slatted_Cafe_Chair__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Slatted_Cafe_Chair__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 748,
+            "expected": 748
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.718000054359436,
+              -0.6499999761581421,
+              -1.5832483768463135e-08
+            ],
+            "max": [
+              0.7180001139640808,
+              0.7665985822677612,
+              2.7800002098083496
+            ],
+            "size": [
+              1.4360001683235168,
+              1.4165985584259033,
+              2.7800002256408334
+            ],
+            "expected_size": [
+              1.4360001683235168,
+              1.4165985584259033,
+              2.7800002256408334
+            ],
+            "max_error": 5.960464477539063e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\05_Slatted_Cafe_Chair.glb",
+      "tolerance": 0.0001,
+      "sha256": "18BCA3DADF0C9DD0BF6034FF985E505F586045F9A48230C5E4E88019E352946A",
+      "bytes": 58888,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 748,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Slatted_Cafe_Chair__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            5.960464477539063e-08,
+            5.960464477539063e-08,
+            0.0
+          ],
+          "max_error": 5.960464477539063e-08
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Slatted_Cafe_Chair__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2244,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.14499998092651367
+            ]
+          ],
+          "palette_faces": 748
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Menu_Easel",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Menu_Easel__Body"
+            ],
+            "expected": [
+              "06_Menu_Easel__Body"
+            ]
+          }
+        },
+        "06_Menu_Easel__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Menu_Easel__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 704,
+            "total_faces": 704
+          }
+        },
+        "06_Menu_Easel__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 704,
+            "expected": 704
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8349999189376831,
+              -0.6049999594688416,
+              2.0053811056186532e-08
+            ],
+            "max": [
+              0.8350000381469727,
+              0.8950000405311584,
+              2.6354241371154785
+            ],
+            "size": [
+              1.6699999570846558,
+              1.5,
+              2.6354241170616675
+            ],
+            "expected_size": [
+              1.6699999570846558,
+              1.5,
+              2.6354240477085114
+            ],
+            "max_error": 6.93531561068994e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\06_Menu_Easel.fbx",
+      "tolerance": 0.0001,
+      "sha256": "AF76D0DAFC5956DB7F614DAC555940D688DCEEBBA53F475D0015448DF2F4F055",
+      "bytes": 38972,
+      "triangles": 704,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Menu_Easel__Body",
+          "actual": [
+            5.960464477539063e-08,
+            4.470350134511136e-08,
+            1.1920928244535389e-07
+          ],
+          "expected": [
+            5.960464477539063e-08,
+            4.470348358154297e-08,
+            1.1920928955078125e-07
+          ],
+          "max_error": 1.7763568394002505e-14
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Menu_Easel__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2112,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 704
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Menu_Easel",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Menu_Easel__Body"
+            ],
+            "expected": [
+              "06_Menu_Easel__Body"
+            ]
+          }
+        },
+        "06_Menu_Easel__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Menu_Easel__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 704,
+            "total_faces": 704
+          }
+        },
+        "06_Menu_Easel__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Menu_Easel__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 704,
+            "expected": 704
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8349999785423279,
+              -0.6050000190734863,
+              -2.9802322387695312e-08
+            ],
+            "max": [
+              0.8349999785423279,
+              0.8949999809265137,
+              2.6354238986968994
+            ],
+            "size": [
+              1.6699999570846558,
+              1.5,
+              2.635423928499222
+            ],
+            "expected_size": [
+              1.6699999570846558,
+              1.5,
+              2.6354240477085114
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\06_Menu_Easel.glb",
+      "tolerance": 0.0001,
+      "sha256": "BC6B38CCA75287675954228BF613F553C0D98AB7F7342DE1BF9E8C1CEE243B50",
+      "bytes": 55256,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 704,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Menu_Easel__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            5.960464477539063e-08,
+            4.470348358154297e-08,
+            1.1920928955078125e-07
+          ],
+          "max_error": 1.1920928955078125e-07
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Menu_Easel__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2112,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 704
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Counter_Stool",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Counter_Stool__Body"
+            ],
+            "expected": [
+              "07_Counter_Stool__Body"
+            ]
+          }
+        },
+        "07_Counter_Stool__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Counter_Stool__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 528,
+            "total_faces": 528
+          }
+        },
+        "07_Counter_Stool__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 528,
+            "expected": 528
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.6899999976158142,
+              -1.1241526465255447e-07
+            ],
+            "max": [
+              0.6899999976158142,
+              0.6900002956390381,
+              2.1049997806549072
+            ],
+            "size": [
+              1.3799999952316284,
+              1.3800002932548523,
+              2.104999893070172
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              2.1049997806549072
+            ],
+            "max_error": 2.980232238769531e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\07_Counter_Stool.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C7848E7A29E9D2EE0B428FAD50B86DDEE93F12808EBED7B03755D7CDBDB218DA",
+      "bytes": 31596,
+      "triangles": 528,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Counter_Stool__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Counter_Stool__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1584,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 528
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Counter_Stool",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Counter_Stool__Body"
+            ],
+            "expected": [
+              "07_Counter_Stool__Body"
+            ]
+          }
+        },
+        "07_Counter_Stool__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Counter_Stool__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 528,
+            "total_faces": 528
+          }
+        },
+        "07_Counter_Stool__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Counter_Stool__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 528,
+            "expected": 528
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.6899999976158142,
+              0.0
+            ],
+            "max": [
+              0.6899999976158142,
+              0.6899999976158142,
+              2.1049997806549072
+            ],
+            "size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              2.1049997806549072
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              2.1049997806549072
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\07_Counter_Stool.glb",
+      "tolerance": 0.0001,
+      "sha256": "AEA62B14FD1F39CB6029FBC1DBF5D22DFE7CAEED7B9ECDC4FA494EE7513B98E8",
+      "bytes": 37040,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 528,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Counter_Stool__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Counter_Stool__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1584,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 528
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Takeaway_Cup",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Takeaway_Cup__Body"
+            ],
+            "expected": [
+              "08_Takeaway_Cup__Body"
+            ]
+          }
+        },
+        "08_Takeaway_Cup__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Takeaway_Cup__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 380,
+            "total_faces": 380
+          }
+        },
+        "08_Takeaway_Cup__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 380,
+            "expected": 380
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.46000000834465027,
+              -0.45999985933303833,
+              -4.887620264071302e-08
+            ],
+            "max": [
+              0.46000000834465027,
+              0.4600001573562622,
+              1.099500060081482
+            ],
+            "size": [
+              0.9200000166893005,
+              0.9200000166893005,
+              1.0995001089576846
+            ],
+            "expected_size": [
+              0.9200000166893005,
+              0.9200000166893005,
+              1.099500060081482
+            ],
+            "max_error": 1.4901161193847656e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\08_Takeaway_Cup.fbx",
+      "tolerance": 0.0001,
+      "sha256": "A69EB9F9A1629939BCE81CA2D95B85451D64932169B9C52A1D94723EC5E6D7A1",
+      "bytes": 28284,
+      "triangles": 380,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Takeaway_Cup__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Takeaway_Cup__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1140,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 380
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Takeaway_Cup",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Takeaway_Cup__Body"
+            ],
+            "expected": [
+              "08_Takeaway_Cup__Body"
+            ]
+          }
+        },
+        "08_Takeaway_Cup__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Takeaway_Cup__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 380,
+            "total_faces": 380
+          }
+        },
+        "08_Takeaway_Cup__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Takeaway_Cup__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 380,
+            "expected": 380
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.46000000834465027,
+              -0.46000000834465027,
+              0.0
+            ],
+            "max": [
+              0.46000000834465027,
+              0.46000000834465027,
+              1.099500060081482
+            ],
+            "size": [
+              0.9200000166893005,
+              0.9200000166893005,
+              1.099500060081482
+            ],
+            "expected_size": [
+              0.9200000166893005,
+              0.9200000166893005,
+              1.099500060081482
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\08_Takeaway_Cup.glb",
+      "tolerance": 0.0001,
+      "sha256": "A5A259A625E60B5E35E7553332C4C8DC6AAB4A2E6CEA6FFD4172C515EAEB46F2",
+      "bytes": 25660,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 380,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Takeaway_Cup__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Takeaway_Cup__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1140,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 380
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Cup_And_Saucer",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Cup_And_Saucer__Body"
+            ],
+            "expected": [
+              "09_Cup_And_Saucer__Body"
+            ]
+          }
+        },
+        "09_Cup_And_Saucer__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Cup_And_Saucer__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 588,
+            "total_faces": 588
+          }
+        },
+        "09_Cup_And_Saucer__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 588,
+            "expected": 588
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.6899999976158142,
+              -1.0101081926450206e-07
+            ],
+            "max": [
+              0.6899999976158142,
+              0.6899999976158142,
+              0.7300000190734863
+            ],
+            "size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              0.7300001200843056
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              0.7300000190734863
+            ],
+            "max_error": 1.0101081926450206e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\09_Cup_And_Saucer.fbx",
+      "tolerance": 0.0001,
+      "sha256": "0DBB31D3288DE5867D1C8BF53CB22F7C233421FA3E1164E3F8ED4F015C8BFD7D",
+      "bytes": 34012,
+      "triangles": 588,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Cup_And_Saucer__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Cup_And_Saucer__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1764,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 588
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Cup_And_Saucer",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Cup_And_Saucer__Body"
+            ],
+            "expected": [
+              "09_Cup_And_Saucer__Body"
+            ]
+          }
+        },
+        "09_Cup_And_Saucer__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Cup_And_Saucer__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 588,
+            "total_faces": 588
+          }
+        },
+        "09_Cup_And_Saucer__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Cup_And_Saucer__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 588,
+            "expected": 588
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6899999976158142,
+              -0.6899999976158142,
+              0.0
+            ],
+            "max": [
+              0.6899999976158142,
+              0.6899999976158142,
+              0.7300000190734863
+            ],
+            "size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              0.7300000190734863
+            ],
+            "expected_size": [
+              1.3799999952316284,
+              1.3799999952316284,
+              0.7300000190734863
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\09_Cup_And_Saucer.glb",
+      "tolerance": 0.0001,
+      "sha256": "D9D04FB42F30D6329441DC93427F3BCB6E367C358760328B915BBE56F4FF46FF",
+      "bytes": 42932,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 588,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Cup_And_Saucer__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Cup_And_Saucer__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1764,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 588
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Pastry_Tray",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Pastry_Tray__Body"
+            ],
+            "expected": [
+              "10_Pastry_Tray__Body"
+            ]
+          }
+        },
+        "10_Pastry_Tray__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Pastry_Tray__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 448,
+            "total_faces": 448
+          }
+        },
+        "10_Pastry_Tray__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 448,
+            "expected": 448
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.6399999856948853,
+              -9.918610288650598e-08
+            ],
+            "max": [
+              0.9700000286102295,
+              0.6399999856948853,
+              0.49000003933906555
+            ],
+            "size": [
+              1.940000057220459,
+              1.2799999713897705,
+              0.49000013852516844
+            ],
+            "expected_size": [
+              1.940000057220459,
+              1.2799999713897705,
+              0.49000000953674316
+            ],
+            "max_error": 9.918610288650598e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\10_Pastry_Tray.fbx",
+      "tolerance": 0.0001,
+      "sha256": "326D6D2DD2E84712AD7C5307C4650DBC2A458F6D5A24C97DB92DC5FEBC69E504",
+      "bytes": 29436,
+      "triangles": 448,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Pastry_Tray__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Pastry_Tray__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1344,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 448
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Pastry_Tray",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Pastry_Tray__Body"
+            ],
+            "expected": [
+              "10_Pastry_Tray__Body"
+            ]
+          }
+        },
+        "10_Pastry_Tray__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Pastry_Tray__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 448,
+            "total_faces": 448
+          }
+        },
+        "10_Pastry_Tray__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Pastry_Tray__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 448,
+            "expected": 448
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.6399999856948853,
+              0.0
+            ],
+            "max": [
+              0.9700000286102295,
+              0.6399999856948853,
+              0.49000000953674316
+            ],
+            "size": [
+              1.940000057220459,
+              1.2799999713897705,
+              0.49000000953674316
+            ],
+            "expected_size": [
+              1.940000057220459,
+              1.2799999713897705,
+              0.49000000953674316
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\10_Pastry_Tray.glb",
+      "tolerance": 0.0001,
+      "sha256": "BFBC28BBB78EF144B35669B4B4B065351BFD083BA0995824D3BB7D92FCDD405C",
+      "bytes": 33740,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 448,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Pastry_Tray__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Pastry_Tray__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1344,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 448
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Counter_Plant",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Counter_Plant__Body"
+            ],
+            "expected": [
+              "11_Counter_Plant__Body"
+            ]
+          }
+        },
+        "11_Counter_Plant__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Counter_Plant__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 536,
+            "total_faces": 536
+          }
+        },
+        "11_Counter_Plant__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 536,
+            "expected": 536
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.47999998927116394,
+              -0.4799998700618744,
+              -5.050540963225103e-08
+            ],
+            "max": [
+              0.47999998927116394,
+              0.4800001382827759,
+              1.5299999713897705
+            ],
+            "size": [
+              0.9599999785423279,
+              0.9600000083446503,
+              1.5300000218951801
+            ],
+            "expected_size": [
+              0.9599999785423279,
+              0.9599999785423279,
+              1.5299999713897705
+            ],
+            "max_error": 1.4901161193847656e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\11_Counter_Plant.fbx",
+      "tolerance": 0.0001,
+      "sha256": "D4EFF2722240296DF17827109F33A5A1FDF28B3F3316FEE87DAA2CEAA406D64A",
+      "bytes": 34284,
+      "triangles": 536,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Counter_Plant__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Counter_Plant__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1608,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.6449999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 536
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Counter_Plant",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Counter_Plant__Body"
+            ],
+            "expected": [
+              "11_Counter_Plant__Body"
+            ]
+          }
+        },
+        "11_Counter_Plant__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Counter_Plant__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 536,
+            "total_faces": 536
+          }
+        },
+        "11_Counter_Plant__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Counter_Plant__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 536,
+            "expected": 536
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.47999998927116394,
+              -0.47999998927116394,
+              0.0
+            ],
+            "max": [
+              0.47999998927116394,
+              0.47999998927116394,
+              1.5299999713897705
+            ],
+            "size": [
+              0.9599999785423279,
+              0.9599999785423279,
+              1.5299999713897705
+            ],
+            "expected_size": [
+              0.9599999785423279,
+              0.9599999785423279,
+              1.5299999713897705
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\11_Counter_Plant.glb",
+      "tolerance": 0.0001,
+      "sha256": "FD60A5665E9B5610C47C9AD5FD5A521159B1D4D0577C626D431EF7153717AB37",
+      "bytes": 39160,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 536,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Counter_Plant__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Counter_Plant__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1608,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.6449999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 536
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Pendant_Lamp",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Pendant_Lamp__Body"
+            ],
+            "expected": [
+              "12_Pendant_Lamp__Body"
+            ]
+          }
+        },
+        "12_Pendant_Lamp__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Pendant_Lamp__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 464,
+            "total_faces": 464
+          }
+        },
+        "12_Pendant_Lamp__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 464,
+            "expected": 464
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8500000238418579,
+              -0.8500000238418579,
+              -1.352241554286593e-07
+            ],
+            "max": [
+              0.8500000238418579,
+              0.8500000238418579,
+              2.369999885559082
+            ],
+            "size": [
+              1.7000000476837158,
+              1.7000000476837158,
+              2.3700000207832375
+            ],
+            "expected_size": [
+              1.7000000476837158,
+              1.7000000476837158,
+              2.369999885559082
+            ],
+            "max_error": 1.352241554286593e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\fbx\\12_Pendant_Lamp.fbx",
+      "tolerance": 0.0001,
+      "sha256": "3438AB9FF956F5F514B892801BBB8825EEE0BEDC534530216C0D443E581146A3",
+      "bytes": 30572,
+      "triangles": 464,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Pendant_Lamp__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Pendant_Lamp__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1392,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 464
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Pendant_Lamp",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Pendant_Lamp__Body"
+            ],
+            "expected": [
+              "12_Pendant_Lamp__Body"
+            ]
+          }
+        },
+        "12_Pendant_Lamp__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Pendant_Lamp__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 464,
+            "total_faces": 464
+          }
+        },
+        "12_Pendant_Lamp__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Pendant_Lamp__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 464,
+            "expected": 464
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8500000238418579,
+              -0.8500000238418579,
+              0.0
+            ],
+            "max": [
+              0.8500000238418579,
+              0.8500000238418579,
+              2.369999885559082
+            ],
+            "size": [
+              1.7000000476837158,
+              1.7000000476837158,
+              2.369999885559082
+            ],
+            "expected_size": [
+              1.7000000476837158,
+              1.7000000476837158,
+              2.369999885559082
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\sunbeam-cafe\\glb\\12_Pendant_Lamp.glb",
+      "tolerance": 0.0001,
+      "sha256": "CE398775BB2983DA8762B9DECBFBB73CC793BB2631FADA1323DE7136F12BBA21",
+      "bytes": 31564,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 464,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Pendant_Lamp__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Pendant_Lamp__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1392,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 464
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

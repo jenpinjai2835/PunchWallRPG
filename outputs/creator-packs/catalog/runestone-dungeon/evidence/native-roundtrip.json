@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 45,
+  "triangles": 18876,
+  "sha256": "28f8436900de2d81bd8530bb49c434fb3062955fd086dd4e16bb10c81e832859",
+  "authoredRoot": "runestone_dungeon_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

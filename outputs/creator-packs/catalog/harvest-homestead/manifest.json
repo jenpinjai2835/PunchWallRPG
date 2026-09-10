@@ -1,0 +1,630 @@
+{
+  "product": "Harvest Homestead",
+  "slug": "harvest-homestead",
+  "version": "1.0.0",
+  "asset_count": 12,
+  "palette_variants": [
+    "Classic",
+    "Warm",
+    "Twilight"
+  ],
+  "palettes": {
+    "Classic": [
+      "936645",
+      "4C382C",
+      "CFAD70",
+      "6C9160",
+      "A9C67C",
+      "D6A24A",
+      "F4D898",
+      "596762",
+      "7D8580",
+      "B7BBB0",
+      "F0E1B9",
+      "D87938",
+      "5C8F4C",
+      "977F9E",
+      "AF7754",
+      "2D382D"
+    ],
+    "Warm": [
+      "A26942",
+      "543A2C",
+      "DAB57D",
+      "A88A4E",
+      "D8BC78",
+      "DAA650",
+      "FFE0A0",
+      "6C6860",
+      "8C8377",
+      "C0B7A5",
+      "F5E3BA",
+      "C56933",
+      "82994E",
+      "AD8292",
+      "B58058",
+      "3D392B"
+    ],
+    "Twilight": [
+      "7A665D",
+      "3B3942",
+      "B5A391",
+      "698393",
+      "A2BDCA",
+      "BC9B65",
+      "EFDCAB",
+      "536675",
+      "7A8996",
+      "B1BEC3",
+      "E2E2D5",
+      "B87960",
+      "739787",
+      "9D8AB6",
+      "A2806E",
+      "2B3844"
+    ]
+  },
+  "samples": [
+    "09_Carrot_Bundle",
+    "10_Farm_Rake"
+  ],
+  "assets": [
+    {
+      "id": "01_Raised_Garden_Bed",
+      "category": "Farm",
+      "description": "A raised timber bed filled with three rows of broad-leaf seedlings.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts.",
+        "dimensions": "Raised bed outer timber footprint 3.84 by 2.54 studs. Soil and crops are included."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.9200000762939453,
+        -1.2699999809265137,
+        0.0
+      ],
+      "bounds_max": [
+        1.9199999570846558,
+        1.2699998617172241,
+        1.1779024600982666
+      ],
+      "size": [
+        3.840000033378601,
+        2.539999842643738,
+        1.1779024600982666
+      ],
+      "triangles": 1490,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "01_Raised_Garden_Bed__Body",
+          "vertices": 825,
+          "triangles": 1490,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02_Friendly_Scarecrow",
+      "category": "Farm",
+      "description": "Straw-hatted scarecrow on a braced ground post with patched tunic and straw hands.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.4172651767730713,
+        -0.6700000166893005,
+        0.0
+      ],
+      "bounds_max": [
+        1.4172651767730713,
+        0.6700000166893005,
+        3.5299997329711914
+      ],
+      "size": [
+        2.8345303535461426,
+        1.340000033378601,
+        3.5299997329711914
+      ],
+      "triangles": 998,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "02_Friendly_Scarecrow__Body",
+          "vertices": 539,
+          "triangles": 998,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03_Irrigation_Pump",
+      "category": "Farm",
+      "description": "Hand pump on a stone footing, with long operating lever and downward outlet.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.7350000143051147,
+        -0.8485510945320129,
+        0.0
+      ],
+      "bounds_max": [
+        1.242300033569336,
+        0.6399999856948853,
+        2.6191329956054688
+      ],
+      "size": [
+        1.9773000478744507,
+        1.4885510802268982,
+        2.6191329956054688
+      ],
+      "triangles": 416,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "03_Irrigation_Pump__Body",
+          "vertices": 224,
+          "triangles": 416,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "04_Garden_Wheelbarrow",
+      "category": "Farm",
+      "description": "One-wheel timber wheelbarrow with flared hollow steel pan and rear parking legs.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts.",
+        "interior": "Hollow flared pan has four solid walls and a separate floor. Static wheel and handles."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.8899999856948853,
+        -1.8199999332427979,
+        0.0
+      ],
+      "bounds_max": [
+        0.8899999856948853,
+        2.0391812324523926,
+        1.590000033378601
+      ],
+      "size": [
+        1.7799999713897705,
+        3.8591811656951904,
+        1.590000033378601
+      ],
+      "triangles": 892,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "04_Garden_Wheelbarrow__Body",
+          "vertices": 488,
+          "triangles": 892,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05_Round_Hay_Bale",
+      "category": "Farm",
+      "description": "Round cut hay bale with concentric straw face rings and two binding straps.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.8950000405311584,
+        -0.653201699256897,
+        -2.034573398645989e-08
+      ],
+      "bounds_max": [
+        0.8950000405311584,
+        0.653201699256897,
+        1.3400001525878906
+      ],
+      "size": [
+        1.790000081062317,
+        1.306403398513794,
+        1.3400001729336246
+      ],
+      "triangles": 1172,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "05_Round_Hay_Bale__Body",
+          "vertices": 588,
+          "triangles": 1172,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "06_Watering_Can",
+      "category": "Farm",
+      "description": "Open watering can with broad curved handle, long angled spout and perforated rose.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.3650609254837036,
+        -0.46000000834465027,
+        0.0
+      ],
+      "bounds_max": [
+        0.8450000286102295,
+        0.46000000834465027,
+        1.4249999523162842
+      ],
+      "size": [
+        2.210060954093933,
+        0.9200000166893005,
+        1.4249999523162842
+      ],
+      "triangles": 424,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "06_Watering_Can__Body",
+          "vertices": 228,
+          "triangles": 424,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "07_Seed_Packet_Display",
+      "category": "Farm",
+      "description": "Three illustrated seed packets in an angled timber countertop display.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.065000057220459,
+        -0.44999998807907104,
+        0.0
+      ],
+      "bounds_max": [
+        1.065000057220459,
+        0.4099999964237213,
+        1.4250000715255737
+      ],
+      "size": [
+        2.130000114440918,
+        0.8599999845027924,
+        1.4250000715255737
+      ],
+      "triangles": 498,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "07_Seed_Packet_Display__Body",
+          "vertices": 273,
+          "triangles": 498,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "08_Pumpkin_Cluster",
+      "category": "Farm",
+      "description": "Three ribbed pumpkins with individual stems and short trailing vines.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.949999988079071,
+        -0.7200000286102295,
+        0.0
+      ],
+      "bounds_max": [
+        0.8199999928474426,
+        0.6800000071525574,
+        1.0051116943359375
+      ],
+      "size": [
+        1.7699999809265137,
+        1.4000000357627869,
+        1.0051116943359375
+      ],
+      "triangles": 702,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "08_Pumpkin_Cluster__Body",
+          "vertices": 369,
+          "triangles": 702,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "09_Carrot_Bundle",
+      "category": "Farm",
+      "description": "Three sculpted carrots with leafy tops and a single binding band.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts.",
+        "placement": "Upright harvest bundle; carrot tips finish 0.01 studs above root."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.4016264081001282,
+        -0.20878343284130096,
+        0.009999990463256836
+      ],
+      "bounds_max": [
+        0.40162643790245056,
+        0.1385640949010849,
+        1.3028173446655273
+      ],
+      "size": [
+        0.8032528460025787,
+        0.34734752774238586,
+        1.2928173542022705
+      ],
+      "triangles": 452,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "09_Carrot_Bundle__Body",
+          "vertices": 252,
+          "triangles": 452,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10_Farm_Rake",
+      "category": "Farm",
+      "description": "Nine-tooth garden rake with broad painted head and a rounded timber handle.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.7149999737739563,
+        -0.09300000220537186,
+        0.0
+      ],
+      "bounds_max": [
+        0.7149999737739563,
+        0.09300000220537186,
+        3.0
+      ],
+      "size": [
+        1.4299999475479126,
+        0.1860000044107437,
+        3.0
+      ],
+      "triangles": 512,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "10_Farm_Rake__Body",
+          "vertices": 280,
+          "triangles": 512,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "11_Seedling_Tray",
+      "category": "Farm",
+      "description": "Six-cell propagation tray with separate soil plugs and small sprouts.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.0399999618530273,
+        -0.6499999761581421,
+        0.0
+      ],
+      "bounds_max": [
+        1.0399999618530273,
+        0.6499999761581421,
+        0.6884188055992126
+      ],
+      "size": [
+        2.0799999237060547,
+        1.2999999523162842,
+        0.6884188055992126
+      ],
+      "triangles": 716,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "11_Seedling_Tray__Body",
+          "vertices": 396,
+          "triangles": 716,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12_Farm_Gate",
+      "category": "Farm",
+      "description": "Timber farm gate with diagonal brace, hinges and a separate gate pivot.",
+      "notes": {
+        "use": "Static original visual model. Root sits at ground; no runtime scripts.",
+        "assembly": "Separate Gate role pivots on the left hinge about local Z; no animation supplied. Post spacing is 3.7 studs."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Gate": [
+          -1.7,
+          -0.05,
+          0
+        ]
+      },
+      "bounds_min": [
+        -2.0625035762786865,
+        -0.23500005900859833,
+        0.0
+      ],
+      "bounds_max": [
+        2.0625038146972656,
+        0.21250365674495697,
+        2.6100001335144043
+      ],
+      "size": [
+        4.125007390975952,
+        0.4475037157535553,
+        2.6100001335144043
+      ],
+      "triangles": 536,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "12_Farm_Gate__Body",
+          "vertices": 126,
+          "triangles": 228,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "12_Farm_Gate__Gate",
+          "vertices": 168,
+          "triangles": 308,
+          "pivot": [
+            -1.7000000476837158,
+            -0.05000000074505806,
+            0.0
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_scripts": 0,
+  "source_axes": {
+    "up": "+Z",
+    "front": "-Y",
+    "unit": "one intended stud"
+  },
+  "total_triangles": 8808,
+  "source_module_sha256": "70611489460b78e24030e413d8fa55bf5397558fc63ffad035d3ec4711fe7f74",
+  "native_publication": "PENDING",
+  "intendedPriceUSD": 4.99
+}

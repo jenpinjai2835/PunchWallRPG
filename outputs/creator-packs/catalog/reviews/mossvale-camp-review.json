@@ -1,0 +1,283 @@
+{
+  "scope": "Read-only final local output audit. Actual renders inspected, evidence rebound to file hashes; no fresh Studio import and no native listing verification performed.",
+  "created_utc": "2026-09-10T18:12:14.263575+00:00",
+  "slug": "mossvale-camp",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "source hash binds manifest",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "12 unique models",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "role and triangle budgets",
+      "passed": true,
+      "details": {
+        "roles": 12,
+        "triangles": 6760
+      }
+    },
+    {
+      "name": "source grounding",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "zero runtime scripts",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "24 actual export checks",
+      "passed": true,
+      "details": {
+        "individual_checks": 420
+      }
+    },
+    {
+      "name": "export hash 01_Ridge_Tent.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 01_Ridge_Tent.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Field_Kitchen.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 02_Field_Kitchen.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Stone_Campfire.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 03_Stone_Campfire.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Rolled_Bedroll.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 04_Rolled_Bedroll.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Trail_Backpack.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 05_Trail_Backpack.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Woodpile_Rack.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 06_Woodpile_Rack.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Trail_Signpost.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 07_Trail_Signpost.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Split_Log_Bench.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 08_Split_Log_Bench.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Camp_Lantern.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 09_Camp_Lantern.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Trail_Canteen.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 10_Trail_Canteen.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Supply_Sack.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 11_Supply_Sack.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Round_Camp_Mat.fbx",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "export hash 12_Round_Camp_Mat.glb",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "three palette audits",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "palette authored RGB and evidence Classic",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Warm",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "palette authored RGB and evidence Twilight",
+      "passed": true,
+      "details": {
+        "max_RGB_error": 0
+      }
+    },
+    {
+      "name": "GLB valid header",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native hash and counts bind evidence",
+      "passed": true,
+      "details": {
+        "meshes": 36,
+        "triangles": 20280,
+        "bytes": 1394832
+      }
+    },
+    {
+      "name": "native embedded portable textures",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Classic_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Twilight_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "native texture matches PNG Warm_Palette",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no exported animation cameras lights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "source reopen evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "archive CRC safe names unique entries",
+      "passed": true,
+      "details": {
+        "members": 39
+      }
+    },
+    {
+      "name": "archive members equal current files",
+      "passed": true,
+      "details": []
+    },
+    {
+      "name": "archive evidence hash",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "all archive payload hashes bound",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "five image dimensions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "human visual inspection five actual final PNGs",
+      "passed": true,
+      "details": "Three collections fully framed, all 12 props readable, palette differences visible; icon and detail show complete models without clipping."
+    }
+  ],
+  "findings": [],
+  "package_pending_39_file_repack": false,
+  "hashes": {
+    "manifest.json": "a0107b2d1f454514ecec667b9ec6c7c4ae06b7faf238db0efe52a600c9fe0452",
+    "mossvale-camp-native.glb": "858165199f6eb490628d3d9be721401cf862abe7c4e62ac1d6b9fbab9299c335",
+    "mossvale-camp-source-and-exports.zip": "b9e35b075fac5e79fdd276edf3d1b746e956acaf9ea040e059dfa4307fc8ca27",
+    "images/collection-Classic.png": "e453b08b81626611439a948101623d7c97614d7dd2fd2d2514cb082299466a46",
+    "images/collection-Twilight.png": "dc6aeb00b037e384e026552d385a7aafdd30063b79b0015d400e7e854ade9873",
+    "images/collection-Warm.png": "976f366320393edfa5cc491a7b1c55f071a171658fc54ee784230141da41224a",
+    "images/detail.png": "8694781cc11b732af06d39f3d7e27a8ee7bd04155b35cb5ae37e2bd8eb734d8e",
+    "images/icon.png": "39e45f7fd7f2cdb851da1d70553596fe519e89eda93d692f8881a37ff2ffd39d",
+    "evidence/export-roundtrip.json": "80904c11b0e3b523f814204fc5ca2520ed57124e506f7d722b750c8d424e5bd2",
+    "evidence/native-roundtrip.json": "18b2123e0ee49c89065b2b08a697d332a0de67fda12b5009fa17c9d07f4b0091",
+    "evidence/package-validation.json": "559c4d45b6fe53b1d0ff6b4dc4a5d201289e339e70f421b9ad106e9e6e92ecbe",
+    "evidence/source-reopen.json": "fd575289017935a40a1685a65542b7fd94aa789ea6a40ddf0dd7078a31357680",
+    "evidence/studio-flow.json": "dca8e1aef21e0d7bf58ede34b0242d5bc028c7c3db972bca9dd7c11d58e7a0f9",
+    "evidence/studio-preview.json": "dba0b6b36c2802c0553009fc076566c67b487971188abe63a12b6d067c68f262"
+  }
+}

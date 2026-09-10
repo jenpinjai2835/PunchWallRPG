@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-mossvale-camp-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "76ba6bf47022dbccfaccee1a3d2b5c15cbe1aeddc0151651a1df16d840fd6361",
+  "manifest_sha256": "a0107b2d1f454514ecec667b9ec6c7c4ae06b7faf238db0efe52a600c9fe0452",
+  "executed_at": "2026-09-10T18:36:28.663Z"
+}

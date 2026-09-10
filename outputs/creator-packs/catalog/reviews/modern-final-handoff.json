@@ -1,0 +1,115 @@
+{
+  "status": "READY_FOR_COORDINATOR_LOCAL_HANDOFF",
+  "checklist": "2/2: static audit/fix verification; three modern final artifact and Studio reviews",
+  "checked_at_utc": "2026-09-10T18:38:41.457928+00:00",
+  "packs": [
+    {
+      "slug": "neon-relay-lab",
+      "local_review": "PASS",
+      "artifact_report": "neon-relay-lab-final-review.json",
+      "artifact_report_sha256": "c54b5c5b4162252d1f59d7a28a78e129a119cf27bff5b9e46b8e756e56ed46b1",
+      "source_module_sha256": "35fc62f34bd58e17b517c6f3dba6163bbe7958cda68879c6f3b395c9a9ca70a4",
+      "editable_blend_sha256": "2d5f3396e60fac45a4fd48fffd3e36d8994ca5bf683441c993cd66d41c776957",
+      "aggregate_glb_sha256": "518e566d4e2bb9d713f7d9916721b303a9e36f0575051e24fa71c22a5d89daa0",
+      "zip": {
+        "file": "neon-relay-lab-source-and-exports.zip",
+        "bytes": 9042426,
+        "members": 39,
+        "crc": "PASS",
+        "payload_files_compared": 39,
+        "sha256": "e77e98220c6d7a5e046b47559634752bea92d80ce22dcce693a0ec97694aa5b5"
+      },
+      "base_triangles": 7158,
+      "studio": {
+        "flow_execution": "PASS",
+        "execution_utc": "2026-09-10T18:36:31.730Z",
+        "flow_sha256": "abc4514bdf11ddae9d746e7174d784b62f29e33b3a4d6688a523c8fe54ad6ce0",
+        "manifest_sha256": "846ace713b9764ac9b274ff12e204590dfa60e311e89899e078176c80bd14399",
+        "capture_sha256": "9842f477e6ef6b1026a8ad22b47cf76e45e659b45ae412644043650c8907518c",
+        "capture_visual_review": "Prior unchanged-source image PASS; latest flow linkage verified",
+        "preview_glb_hashes_compared": 12
+      },
+      "native_publication": "BLOCKED"
+    },
+    {
+      "slug": "starfall-arcade",
+      "local_review": "PASS",
+      "artifact_report": "starfall-arcade-corrected-final-review.json",
+      "artifact_report_sha256": "0ac5cf2e1258439d0222b47789378f9d957871b8f42eeab70004d08dc9ee05a8",
+      "source_module_sha256": "88d8fdbf5996833c221a081ab183394f174995d6c073c057f0704c587655763a",
+      "editable_blend_sha256": "334f7b8abf999f97eec19c1c4c1cfddafc9ebac63c665e7ee25df123f3e14cea",
+      "aggregate_glb_sha256": "e1c7c2d60757ae88bf041c4a344b36f536db6e360bc8cf5156d04dde755d612d",
+      "zip": {
+        "file": "starfall-arcade-source-and-exports.zip",
+        "bytes": 9374245,
+        "members": 39,
+        "crc": "PASS",
+        "payload_files_compared": 39,
+        "sha256": "963bcbe747be0ab3f092e3ce91cd738a607cdfa855d8c00f963724541601eae2"
+      },
+      "base_triangles": 9466,
+      "studio": {
+        "flow_execution": "PASS",
+        "execution_utc": "2026-09-10T18:36:37.922Z",
+        "flow_sha256": "076e9af321fcbfb61dbd5f6d33f9e30091b70b8c97abf3275ffec61cf4926f53",
+        "manifest_sha256": "44e7c6d7e1d465bf8fe172971eaccf305512cc5d647df1a228aa5c972ae49fa0",
+        "capture_sha256": "344814a8c769baa1d17d4b532114c1efeedff372eabd76a761fc61edc3998850",
+        "capture_visual_review": "PASS current corrected screenshot",
+        "preview_glb_hashes_compared": 12
+      },
+      "native_publication": "BLOCKED"
+    },
+    {
+      "slug": "sunbeam-cafe",
+      "local_review": "PASS",
+      "artifact_report": "sunbeam-cafe-corrected-final-review.json",
+      "artifact_report_sha256": "e5eab0f6929e22239f1ae36bde9019cfa7856c5d5a3ff21451074fd3b5a9cb2c",
+      "source_module_sha256": "bbdd966b92805d0df7c7994d75747688274a51bae6ce6fb6761e39fa62279f65",
+      "editable_blend_sha256": "88368c1f68b507a57250ae30cac065af9e1367da0f63328126caaf3efcf69d35",
+      "aggregate_glb_sha256": "eaaecc04a82b1b6d5e63f45f546fc7ac6fabf993a4511eab5dd01ae7a8b19a90",
+      "zip": {
+        "file": "sunbeam-cafe-source-and-exports.zip",
+        "bytes": 9101888,
+        "members": 39,
+        "crc": "PASS",
+        "payload_files_compared": 39,
+        "sha256": "00fabf9f1010da32c9468a040d897cec84124d31bb360acf49fb0fc48adb384b"
+      },
+      "base_triangles": 8180,
+      "studio": {
+        "flow_execution": "PASS",
+        "execution_utc": "2026-09-10T18:36:41.078Z",
+        "flow_sha256": "4735078c7b6c1d63c54e7cf345017e26af958afcfd462a56963dcaf87f118f44",
+        "manifest_sha256": "ef1e6481cb6a7db55b95da11345361a432f986fac10089e90d24392fdadde36d",
+        "capture_sha256": "9ab936efc7465fc1529d2e1ed84fe3a238461f680848c8d3690152b03fcb391d",
+        "capture_visual_review": "PASS current corrected screenshot",
+        "preview_glb_hashes_compared": 12
+      },
+      "native_publication": "BLOCKED"
+    }
+  ],
+  "totals": {
+    "unique_base_models": 36,
+    "palette_placements": 108,
+    "base_triangles_per_complete_palette": 24804,
+    "zip_members": 117,
+    "product_images_visually_reviewed": 15,
+    "export_files_verified": 72,
+    "individually_verified_flat_ground_contacts_on_corrected_props": 12
+  },
+  "closed_findings": [
+    "Packager now rejects missing/altered exports and excludes incidental files; bounded negative tests4/4 PASS.",
+    "Generic selected-role claim replaced with actual one joined mesh per prop for all modern packs.",
+    "Pinball, chair and menu easel grounding corrected, individually proved at source and actual final GLB."
+  ],
+  "unresolved_local_findings": [],
+  "limitations": [
+    "This is local deliverable acceptance, not native paid publication approval.",
+    "Native persistent upload/dependency permission and all nine new paid listings remain BLOCKED by recorded automatic approval rejection.",
+    "Creator Store purchases do not automatically include these source ZIPs.",
+    "No additional product image/ZIP tests repeated after fresh Studio notification; previously verified immutable artifact hashes retained."
+  ],
+  "root_combined_final_validation_sha256": "45cfc20c294873595612251546ad57ef89ed4da76338d804669703adfb3c6055",
+  "root_combined_validation": "localArtifactValidation PASS; overall BLOCKED",
+  "source_changes": "Correction commit334e41b9a181fd47d8be39df583077f7d40d537e already integrated; this review writes ignored reports only."
+}

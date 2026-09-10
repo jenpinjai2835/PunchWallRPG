@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-tidewatch-harbor-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "9f27f4e287ef7f7e48602f0ec11db5ed02d49d62ecd004c46d73ee56264289d6",
+  "manifest_sha256": "f9cf21d599c90928742c1b4d702dce08df0407413d6d94227adc31f03e4b86e9",
+  "executed_at": "2026-09-10T18:36:44.319Z"
+}

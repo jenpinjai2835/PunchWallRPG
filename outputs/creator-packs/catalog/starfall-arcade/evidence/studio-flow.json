@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-starfall-arcade-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "076e9af321fcbfb61dbd5f6d33f9e30091b70b8c97abf3275ffec61cf4926f53",
+  "manifest_sha256": "44e7c6d7e1d465bf8fe172971eaccf305512cc5d647df1a228aa5c972ae49fa0",
+  "executed_at": "2026-09-10T18:36:37.922Z"
+}

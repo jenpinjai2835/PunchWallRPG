@@ -1,0 +1,5140 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\textures\\Classic_Palette.png",
+      "sha256": "A0C7D2945BFE1FB353529436190DEBBC56F83F3D8354EB2783B5C7C30AFCF96A",
+      "reference_rgb": [
+        [
+          139,
+          105,
+          75
+        ],
+        [
+          65,
+          68,
+          61
+        ],
+        [
+          196,
+          163,
+          121
+        ],
+        [
+          69,
+          126,
+          146
+        ],
+        [
+          134,
+          186,
+          195
+        ],
+        [
+          203,
+          162,
+          103
+        ],
+        [
+          240,
+          211,
+          160
+        ],
+        [
+          75,
+          95,
+          105
+        ],
+        [
+          117,
+          139,
+          147
+        ],
+        [
+          176,
+          195,
+          196
+        ],
+        [
+          239,
+          230,
+          204
+        ],
+        [
+          200,
+          96,
+          69
+        ],
+        [
+          109,
+          159,
+          139
+        ],
+        [
+          142,
+          134,
+          166
+        ],
+        [
+          163,
+          131,
+          97
+        ],
+        [
+          40,
+          61,
+          73
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          139,
+          105,
+          75
+        ],
+        [
+          65,
+          68,
+          61
+        ],
+        [
+          196,
+          163,
+          121
+        ],
+        [
+          69,
+          126,
+          146
+        ],
+        [
+          134,
+          186,
+          195
+        ],
+        [
+          203,
+          162,
+          103
+        ],
+        [
+          240,
+          211,
+          160
+        ],
+        [
+          75,
+          95,
+          105
+        ],
+        [
+          117,
+          139,
+          147
+        ],
+        [
+          176,
+          195,
+          196
+        ],
+        [
+          239,
+          230,
+          204
+        ],
+        [
+          200,
+          96,
+          69
+        ],
+        [
+          109,
+          159,
+          139
+        ],
+        [
+          142,
+          134,
+          166
+        ],
+        [
+          163,
+          131,
+          97
+        ],
+        [
+          40,
+          61,
+          73
+        ]
+      ],
+      "blender_rgb": [
+        [
+          139,
+          105,
+          75
+        ],
+        [
+          65,
+          68,
+          61
+        ],
+        [
+          196,
+          163,
+          121
+        ],
+        [
+          69,
+          126,
+          146
+        ],
+        [
+          134,
+          186,
+          195
+        ],
+        [
+          203,
+          162,
+          103
+        ],
+        [
+          240,
+          211,
+          160
+        ],
+        [
+          75,
+          95,
+          105
+        ],
+        [
+          117,
+          139,
+          147
+        ],
+        [
+          176,
+          195,
+          196
+        ],
+        [
+          239,
+          230,
+          204
+        ],
+        [
+          200,
+          96,
+          69
+        ],
+        [
+          109,
+          159,
+          139
+        ],
+        [
+          142,
+          134,
+          166
+        ],
+        [
+          163,
+          131,
+          97
+        ],
+        [
+          40,
+          61,
+          73
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\textures\\Warm_Palette.png",
+      "sha256": "BE73953B869A87F0A41405E954F5E844AA0838D3DC0613275858D5BC7095717C",
+      "reference_rgb": [
+        [
+          165,
+          120,
+          79
+        ],
+        [
+          81,
+          67,
+          57
+        ],
+        [
+          215,
+          183,
+          134
+        ],
+        [
+          170,
+          112,
+          80
+        ],
+        [
+          220,
+          172,
+          122
+        ],
+        [
+          219,
+          178,
+          116
+        ],
+        [
+          255,
+          224,
+          171
+        ],
+        [
+          101,
+          103,
+          103
+        ],
+        [
+          141,
+          150,
+          145
+        ],
+        [
+          198,
+          204,
+          192
+        ],
+        [
+          246,
+          231,
+          200
+        ],
+        [
+          182,
+          77,
+          55
+        ],
+        [
+          145,
+          170,
+          121
+        ],
+        [
+          169,
+          148,
+          166
+        ],
+        [
+          184,
+          145,
+          103
+        ],
+        [
+          60,
+          66,
+          68
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          165,
+          120,
+          79
+        ],
+        [
+          81,
+          67,
+          57
+        ],
+        [
+          215,
+          183,
+          134
+        ],
+        [
+          170,
+          112,
+          80
+        ],
+        [
+          220,
+          172,
+          122
+        ],
+        [
+          219,
+          178,
+          116
+        ],
+        [
+          255,
+          224,
+          171
+        ],
+        [
+          101,
+          103,
+          103
+        ],
+        [
+          141,
+          150,
+          145
+        ],
+        [
+          198,
+          204,
+          192
+        ],
+        [
+          246,
+          231,
+          200
+        ],
+        [
+          182,
+          77,
+          55
+        ],
+        [
+          145,
+          170,
+          121
+        ],
+        [
+          169,
+          148,
+          166
+        ],
+        [
+          184,
+          145,
+          103
+        ],
+        [
+          60,
+          66,
+          68
+        ]
+      ],
+      "blender_rgb": [
+        [
+          165,
+          120,
+          79
+        ],
+        [
+          81,
+          67,
+          57
+        ],
+        [
+          215,
+          183,
+          134
+        ],
+        [
+          170,
+          112,
+          80
+        ],
+        [
+          220,
+          172,
+          122
+        ],
+        [
+          219,
+          178,
+          116
+        ],
+        [
+          255,
+          224,
+          171
+        ],
+        [
+          101,
+          103,
+          103
+        ],
+        [
+          141,
+          150,
+          145
+        ],
+        [
+          198,
+          204,
+          192
+        ],
+        [
+          246,
+          231,
+          200
+        ],
+        [
+          182,
+          77,
+          55
+        ],
+        [
+          145,
+          170,
+          121
+        ],
+        [
+          169,
+          148,
+          166
+        ],
+        [
+          184,
+          145,
+          103
+        ],
+        [
+          60,
+          66,
+          68
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\textures\\Twilight_Palette.png",
+      "sha256": "C6D7543F7E72EBCBD1958A404C704143481569F28EF5178BCC86C4BFB8BF1C03",
+      "reference_rgb": [
+        [
+          116,
+          104,
+          103
+        ],
+        [
+          55,
+          62,
+          76
+        ],
+        [
+          184,
+          175,
+          161
+        ],
+        [
+          83,
+          100,
+          141
+        ],
+        [
+          153,
+          172,
+          208
+        ],
+        [
+          183,
+          160,
+          113
+        ],
+        [
+          230,
+          216,
+          186
+        ],
+        [
+          73,
+          85,
+          111
+        ],
+        [
+          123,
+          139,
+          162
+        ],
+        [
+          181,
+          197,
+          215
+        ],
+        [
+          228,
+          231,
+          232
+        ],
+        [
+          173,
+          107,
+          118
+        ],
+        [
+          113,
+          159,
+          159
+        ],
+        [
+          171,
+          160,
+          203
+        ],
+        [
+          151,
+          132,
+          118
+        ],
+        [
+          39,
+          51,
+          72
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          116,
+          104,
+          103
+        ],
+        [
+          55,
+          62,
+          76
+        ],
+        [
+          184,
+          175,
+          161
+        ],
+        [
+          83,
+          100,
+          141
+        ],
+        [
+          153,
+          172,
+          208
+        ],
+        [
+          183,
+          160,
+          113
+        ],
+        [
+          230,
+          216,
+          186
+        ],
+        [
+          73,
+          85,
+          111
+        ],
+        [
+          123,
+          139,
+          162
+        ],
+        [
+          181,
+          197,
+          215
+        ],
+        [
+          228,
+          231,
+          232
+        ],
+        [
+          173,
+          107,
+          118
+        ],
+        [
+          113,
+          159,
+          159
+        ],
+        [
+          171,
+          160,
+          203
+        ],
+        [
+          151,
+          132,
+          118
+        ],
+        [
+          39,
+          51,
+          72
+        ]
+      ],
+      "blender_rgb": [
+        [
+          116,
+          104,
+          103
+        ],
+        [
+          55,
+          62,
+          76
+        ],
+        [
+          184,
+          175,
+          161
+        ],
+        [
+          83,
+          100,
+          141
+        ],
+        [
+          153,
+          172,
+          208
+        ],
+        [
+          183,
+          160,
+          113
+        ],
+        [
+          230,
+          216,
+          186
+        ],
+        [
+          73,
+          85,
+          111
+        ],
+        [
+          123,
+          139,
+          162
+        ],
+        [
+          181,
+          197,
+          215
+        ],
+        [
+          228,
+          231,
+          232
+        ],
+        [
+          173,
+          107,
+          118
+        ],
+        [
+          113,
+          159,
+          159
+        ],
+        [
+          171,
+          160,
+          203
+        ],
+        [
+          151,
+          132,
+          118
+        ],
+        [
+          39,
+          51,
+          72
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Straight_Dock",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Straight_Dock__Body"
+            ],
+            "expected": [
+              "01_Straight_Dock__Body"
+            ]
+          }
+        },
+        "01_Straight_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Straight_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1136,
+            "total_faces": 1136
+          }
+        },
+        "01_Straight_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1136,
+            "expected": 1136
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4900000095367432,
+              -2.990999937057495,
+              -4.6432393219220103e-07
+            ],
+            "max": [
+              1.4900000095367432,
+              2.991000175476074,
+              1.760000467300415
+            ],
+            "size": [
+              2.9800000190734863,
+              5.982000112533569,
+              1.7600009316243472
+            ],
+            "expected_size": [
+              2.9800000190734863,
+              5.982000112533569,
+              1.7599999904632568
+            ],
+            "max_error": 4.76837158203125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\01_Straight_Dock.fbx",
+      "tolerance": 0.0001,
+      "sha256": "DCB1BC34FAAF323890B554FCF3CD3EE9FC6E675C4D389EDA323125826CD8C751",
+      "bytes": 42764,
+      "triangles": 1136,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Straight_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Straight_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3408,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1136
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Straight_Dock",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Straight_Dock__Body"
+            ],
+            "expected": [
+              "01_Straight_Dock__Body"
+            ]
+          }
+        },
+        "01_Straight_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Straight_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1136,
+            "total_faces": 1136
+          }
+        },
+        "01_Straight_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Straight_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1136,
+            "expected": 1136
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.4900000095367432,
+              -2.991000175476074,
+              0.0
+            ],
+            "max": [
+              1.4900000095367432,
+              2.990999937057495,
+              1.7599999904632568
+            ],
+            "size": [
+              2.9800000190734863,
+              5.982000112533569,
+              1.7599999904632568
+            ],
+            "expected_size": [
+              2.9800000190734863,
+              5.982000112533569,
+              1.7599999904632568
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\01_Straight_Dock.glb",
+      "tolerance": 0.0001,
+      "sha256": "94AF0701FD8A699B602569268C3773C3CDA010B92C89420B68567A9A730A6ED2",
+      "bytes": 87104,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1136,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Straight_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Straight_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3408,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1136
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Corner_Dock",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Corner_Dock__Body"
+            ],
+            "expected": [
+              "02_Corner_Dock__Body"
+            ]
+          }
+        },
+        "02_Corner_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Corner_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1048,
+            "total_faces": 1048
+          }
+        },
+        "02_Corner_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1048,
+            "expected": 1048
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.990000009536743,
+              -2.989999771118164,
+              -4.692114998761099e-07
+            ],
+            "max": [
+              2.990000009536743,
+              2.9900002479553223,
+              1.7300004959106445
+            ],
+            "size": [
+              5.980000019073486,
+              5.980000019073486,
+              1.7300009651221444
+            ],
+            "expected_size": [
+              5.980000019073486,
+              5.980000019073486,
+              1.7300000190734863
+            ],
+            "max_error": 4.76837158203125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\02_Corner_Dock.fbx",
+      "tolerance": 0.0001,
+      "sha256": "96E1EF8A93E680A44DB841F8A44D0F73E9746C44C60B16ED37280E17F7051FA2",
+      "bytes": 39868,
+      "triangles": 1048,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Corner_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Corner_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3144,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.14499999582767487
+            ]
+          ],
+          "palette_faces": 1048
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Corner_Dock",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Corner_Dock__Body"
+            ],
+            "expected": [
+              "02_Corner_Dock__Body"
+            ]
+          }
+        },
+        "02_Corner_Dock__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Corner_Dock__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1048,
+            "total_faces": 1048
+          }
+        },
+        "02_Corner_Dock__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Corner_Dock__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1048,
+            "expected": 1048
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.990000009536743,
+              -2.990000009536743,
+              0.0
+            ],
+            "max": [
+              2.990000009536743,
+              2.990000009536743,
+              1.7300000190734863
+            ],
+            "size": [
+              5.980000019073486,
+              5.980000019073486,
+              1.7300000190734863
+            ],
+            "expected_size": [
+              5.980000019073486,
+              5.980000019073486,
+              1.7300000190734863
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\02_Corner_Dock.glb",
+      "tolerance": 0.0001,
+      "sha256": "989A3D8CB509F20C1C203931B9CD154F3BAA5339B97379C05CBCC5E9EFDE87E4",
+      "bytes": 74200,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1048,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Corner_Dock__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Corner_Dock__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3144,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.14499998092651367
+            ]
+          ],
+          "palette_faces": 1048
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Navigation_Beacon",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Navigation_Beacon__Body"
+            ],
+            "expected": [
+              "03_Navigation_Beacon__Body"
+            ]
+          }
+        },
+        "03_Navigation_Beacon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Navigation_Beacon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 678,
+            "total_faces": 678
+          }
+        },
+        "03_Navigation_Beacon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 678,
+            "expected": 678
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7599999904632568,
+              -0.7599999904632568,
+              -1.140444680913788e-07
+            ],
+            "max": [
+              0.7599999904632568,
+              0.7599999904632568,
+              3.8299999237060547
+            ],
+            "size": [
+              1.5199999809265137,
+              1.5199999809265137,
+              3.830000037750523
+            ],
+            "expected_size": [
+              1.5199999809265137,
+              1.5199999809265137,
+              3.8299999237060547
+            ],
+            "max_error": 1.140444680913788e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\03_Navigation_Beacon.fbx",
+      "tolerance": 0.0001,
+      "sha256": "4A3DA19CF20057CD3EC9CD1025CE85AD11517B415CA1627EA450247A1A0DAE1A",
+      "bytes": 34716,
+      "triangles": 678,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Navigation_Beacon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Navigation_Beacon__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2034,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 678
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Navigation_Beacon",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Navigation_Beacon__Body"
+            ],
+            "expected": [
+              "03_Navigation_Beacon__Body"
+            ]
+          }
+        },
+        "03_Navigation_Beacon__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Navigation_Beacon__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 678,
+            "total_faces": 678
+          }
+        },
+        "03_Navigation_Beacon__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Navigation_Beacon__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 678,
+            "expected": 678
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7599999904632568,
+              -0.7599999904632568,
+              0.0
+            ],
+            "max": [
+              0.7599999904632568,
+              0.7599999904632568,
+              3.8299999237060547
+            ],
+            "size": [
+              1.5199999809265137,
+              1.5199999809265137,
+              3.8299999237060547
+            ],
+            "expected_size": [
+              1.5199999809265137,
+              1.5199999809265137,
+              3.8299999237060547
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\03_Navigation_Beacon.glb",
+      "tolerance": 0.0001,
+      "sha256": "C5CF562CA8775253CC41E0B6C0110A49359DE26F1E3A473670DAA2F6AADE7F2B",
+      "bytes": 47460,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 678,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Navigation_Beacon__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Navigation_Beacon__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2034,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 678
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Mooring_Bollard",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Mooring_Bollard__Body"
+            ],
+            "expected": [
+              "04_Mooring_Bollard__Body"
+            ]
+          }
+        },
+        "04_Mooring_Bollard__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Mooring_Bollard__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 236,
+            "total_faces": 236
+          }
+        },
+        "04_Mooring_Bollard__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 236,
+            "expected": 236
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6700000166893005,
+              -0.49000000953674316,
+              -7.435699700408804e-08
+            ],
+            "max": [
+              0.6700000166893005,
+              0.49000003933906555,
+              0.9049999713897705
+            ],
+            "size": [
+              1.340000033378601,
+              0.9800000488758087,
+              0.9050000457467675
+            ],
+            "expected_size": [
+              1.340000033378601,
+              0.9800000190734863,
+              0.9049999713897705
+            ],
+            "max_error": 7.435699700408804e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\04_Mooring_Bollard.fbx",
+      "tolerance": 0.0001,
+      "sha256": "6344C7FFC634AE83550A62239837AD0DE1CCC3FD39670472B09C8FC49F9D25AA",
+      "bytes": 24924,
+      "triangles": 236,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Mooring_Bollard__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Mooring_Bollard__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 708,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 236
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Mooring_Bollard",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Mooring_Bollard__Body"
+            ],
+            "expected": [
+              "04_Mooring_Bollard__Body"
+            ]
+          }
+        },
+        "04_Mooring_Bollard__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Mooring_Bollard__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 236,
+            "total_faces": 236
+          }
+        },
+        "04_Mooring_Bollard__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Mooring_Bollard__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 236,
+            "expected": 236
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6700000166893005,
+              -0.49000000953674316,
+              0.0
+            ],
+            "max": [
+              0.6700000166893005,
+              0.49000000953674316,
+              0.9049999713897705
+            ],
+            "size": [
+              1.340000033378601,
+              0.9800000190734863,
+              0.9049999713897705
+            ],
+            "expected_size": [
+              1.340000033378601,
+              0.9800000190734863,
+              0.9049999713897705
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\04_Mooring_Bollard.glb",
+      "tolerance": 0.0001,
+      "sha256": "BF584D887F12D28934AD05D329136CE640C5B2D19838379BA4025F6E91CD728D",
+      "bytes": 17876,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 236,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Mooring_Bollard__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Mooring_Bollard__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 708,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 236
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Channel_Buoy",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Channel_Buoy__Body"
+            ],
+            "expected": [
+              "05_Channel_Buoy__Body"
+            ]
+          }
+        },
+        "05_Channel_Buoy__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Channel_Buoy__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 500,
+            "total_faces": 500
+          }
+        },
+        "05_Channel_Buoy__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 500,
+            "expected": 500
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8339999914169312,
+              -0.8339999318122864,
+              -5.050540963225103e-08
+            ],
+            "max": [
+              0.8339999914169312,
+              0.8340000510215759,
+              2.430000066757202
+            ],
+            "size": [
+              1.6679999828338623,
+              1.6679999828338623,
+              2.430000117262612
+            ],
+            "expected_size": [
+              1.6679999828338623,
+              1.6679999828338623,
+              2.430000066757202
+            ],
+            "max_error": 5.960464477539063e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\05_Channel_Buoy.fbx",
+      "tolerance": 0.0001,
+      "sha256": "A7B100F534FDEA6852AA1035187D634DA75F1F4DD0BBD3A9A56D39F1EA4B26F6",
+      "bytes": 32860,
+      "triangles": 500,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Channel_Buoy__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Channel_Buoy__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1500,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 500
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Channel_Buoy",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Channel_Buoy__Body"
+            ],
+            "expected": [
+              "05_Channel_Buoy__Body"
+            ]
+          }
+        },
+        "05_Channel_Buoy__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Channel_Buoy__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 500,
+            "total_faces": 500
+          }
+        },
+        "05_Channel_Buoy__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Channel_Buoy__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 500,
+            "expected": 500
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8339999914169312,
+              -0.8339999914169312,
+              0.0
+            ],
+            "max": [
+              0.8339999914169312,
+              0.8339999914169312,
+              2.430000066757202
+            ],
+            "size": [
+              1.6679999828338623,
+              1.6679999828338623,
+              2.430000066757202
+            ],
+            "expected_size": [
+              1.6679999828338623,
+              1.6679999828338623,
+              2.430000066757202
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\05_Channel_Buoy.glb",
+      "tolerance": 0.0001,
+      "sha256": "0480FC93DAD8B6FB660EC2ECFF9C6B34ECA119E983562A36B7C5261818DCDD8E",
+      "bytes": 36696,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 500,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Channel_Buoy__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Channel_Buoy__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1500,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 500
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Fishing_Rod_Rack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Fishing_Rod_Rack__Body"
+            ],
+            "expected": [
+              "06_Fishing_Rod_Rack__Body"
+            ]
+          }
+        },
+        "06_Fishing_Rod_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Fishing_Rod_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1344,
+            "total_faces": 1344
+          }
+        },
+        "06_Fishing_Rod_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1344,
+            "expected": 1344
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.3449999988079071,
+              -5.1124509070632485e-08
+            ],
+            "max": [
+              1.0199999809265137,
+              0.3450000286102295,
+              3.3320274353027344
+            ],
+            "size": [
+              2.0399999618530273,
+              0.6900000274181366,
+              3.3320274864272434
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              0.6899999976158142,
+              3.3320274353027344
+            ],
+            "max_error": 5.1124509070632485e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\06_Fishing_Rod_Rack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "F370DACB64FC1CD0CFDBDA8C5E978E483B548A93D2C7CF282C99817C110EFE53",
+      "bytes": 53484,
+      "triangles": 1344,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Fishing_Rod_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Fishing_Rod_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 4032,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1344
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Fishing_Rod_Rack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Fishing_Rod_Rack__Body"
+            ],
+            "expected": [
+              "06_Fishing_Rod_Rack__Body"
+            ]
+          }
+        },
+        "06_Fishing_Rod_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Fishing_Rod_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1344,
+            "total_faces": 1344
+          }
+        },
+        "06_Fishing_Rod_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Fishing_Rod_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1344,
+            "expected": 1344
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.3449999988079071,
+              0.0
+            ],
+            "max": [
+              1.0199999809265137,
+              0.3449999988079071,
+              3.3320274353027344
+            ],
+            "size": [
+              2.0399999618530273,
+              0.6899999976158142,
+              3.3320274353027344
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              0.6899999976158142,
+              3.3320274353027344
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\06_Fishing_Rod_Rack.glb",
+      "tolerance": 0.0001,
+      "sha256": "9E7B9E45CBC3A6A64212B3C060B4875C45F528DCE79AC8597C9042E2ADF6040E",
+      "bytes": 99224,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1344,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Fishing_Rod_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Fishing_Rod_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 4032,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1344
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Lobster_Trap",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Lobster_Trap__Body"
+            ],
+            "expected": [
+              "07_Lobster_Trap__Body"
+            ]
+          }
+        },
+        "07_Lobster_Trap__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Lobster_Trap__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 2656,
+            "total_faces": 2656
+          }
+        },
+        "07_Lobster_Trap__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 2656,
+            "expected": 2656
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2179999351501465,
+              -0.8488208055496216,
+              -1.200725279204562e-07
+            ],
+            "max": [
+              1.2179999351501465,
+              0.8488208055496216,
+              0.9190763831138611
+            ],
+            "size": [
+              2.435999870300293,
+              1.6976416110992432,
+              0.919076503186389
+            ],
+            "expected_size": [
+              2.435999870300293,
+              1.6976416110992432,
+              0.9190763831138611
+            ],
+            "max_error": 1.200725279204562e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\07_Lobster_Trap.fbx",
+      "tolerance": 0.0001,
+      "sha256": "A368B834EDC0BBE7197E69154BD99F6B889B6F611A34E3E9BEB159B1F817E1FF",
+      "bytes": 79276,
+      "triangles": 2656,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Lobster_Trap__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Lobster_Trap__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 7968,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 2656
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Lobster_Trap",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Lobster_Trap__Body"
+            ],
+            "expected": [
+              "07_Lobster_Trap__Body"
+            ]
+          }
+        },
+        "07_Lobster_Trap__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Lobster_Trap__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 2656,
+            "total_faces": 2656
+          }
+        },
+        "07_Lobster_Trap__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Lobster_Trap__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 2656,
+            "expected": 2656
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2179999351501465,
+              -0.8488208055496216,
+              0.0
+            ],
+            "max": [
+              1.2179999351501465,
+              0.8488208055496216,
+              0.9190763831138611
+            ],
+            "size": [
+              2.435999870300293,
+              1.6976416110992432,
+              0.9190763831138611
+            ],
+            "expected_size": [
+              2.435999870300293,
+              1.6976416110992432,
+              0.9190763831138611
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\07_Lobster_Trap.glb",
+      "tolerance": 0.0001,
+      "sha256": "23978ABE3BA2FF4CB353FA38A9163C24BBF42414FCCFA83F418E5CAF8ECD8C30",
+      "bytes": 204692,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 2656,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Lobster_Trap__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Lobster_Trap__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 7968,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 2656
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Rope_Coil",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Rope_Coil__Body"
+            ],
+            "expected": [
+              "08_Rope_Coil__Body"
+            ]
+          }
+        },
+        "08_Rope_Coil__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Rope_Coil__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1288,
+            "total_faces": 1288
+          }
+        },
+        "08_Rope_Coil__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1288,
+            "expected": 1288
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7450000047683716,
+              -0.7450000047683716,
+              0.002691775793209672
+            ],
+            "max": [
+              1.0908737182617188,
+              0.7450000047683716,
+              0.10730821639299393
+            ],
+            "size": [
+              1.8358737230300903,
+              1.4900000095367432,
+              0.10461644059978426
+            ],
+            "expected_size": [
+              1.8358737230300903,
+              1.4900000095367432,
+              0.10461621358990669
+            ],
+            "max_error": 1.1525116860866547e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\08_Rope_Coil.fbx",
+      "tolerance": 0.0001,
+      "sha256": "356BFE9D3B9AB2ECBDA252B7C89AB7034FF99EAF77DE6FEB9BB810D8C7517837",
+      "bytes": 51980,
+      "triangles": 1288,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Rope_Coil__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Rope_Coil__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3864,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1288
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Rope_Coil",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Rope_Coil__Body"
+            ],
+            "expected": [
+              "08_Rope_Coil__Body"
+            ]
+          }
+        },
+        "08_Rope_Coil__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Rope_Coil__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1288,
+            "total_faces": 1288
+          }
+        },
+        "08_Rope_Coil__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Rope_Coil__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1288,
+            "expected": 1288
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.7450000047683716,
+              -0.7450000047683716,
+              0.0026918910443782806
+            ],
+            "max": [
+              1.0908737182617188,
+              0.7450000047683716,
+              0.10730810463428497
+            ],
+            "size": [
+              1.8358737230300903,
+              1.4900000095367432,
+              0.10461621358990669
+            ],
+            "expected_size": [
+              1.8358737230300903,
+              1.4900000095367432,
+              0.10461621358990669
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\08_Rope_Coil.glb",
+      "tolerance": 0.0001,
+      "sha256": "B59F32E6DDA49C4767E95CB5783D0816C98500B5BBDE7C89C0689FFD5C30C7FE",
+      "bytes": 92532,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1288,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Rope_Coil__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Rope_Coil__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3864,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.6449999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1288
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Harbor_Anchor",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Harbor_Anchor__Body"
+            ],
+            "expected": [
+              "09_Harbor_Anchor__Body"
+            ]
+          }
+        },
+        "09_Harbor_Anchor__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Harbor_Anchor__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 300,
+            "total_faces": 300
+          }
+        },
+        "09_Harbor_Anchor__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 300,
+            "expected": 300
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.3050000071525574,
+              -4.343465320744144e-08
+            ],
+            "max": [
+              1.0199999809265137,
+              0.30500003695487976,
+              2.6700000762939453
+            ],
+            "size": [
+              2.0399999618530273,
+              0.6100000441074371,
+              2.6700001197285985
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              0.6100000143051147,
+              2.6700000762939453
+            ],
+            "max_error": 4.343465320744144e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\09_Harbor_Anchor.fbx",
+      "tolerance": 0.0001,
+      "sha256": "FE6CCE7EC511BF5235A1077754F1BB1870348A055289E1498355A87696585D1D",
+      "bytes": 26972,
+      "triangles": 300,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Harbor_Anchor__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Harbor_Anchor__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 900,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 300
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Harbor_Anchor",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Harbor_Anchor__Body"
+            ],
+            "expected": [
+              "09_Harbor_Anchor__Body"
+            ]
+          }
+        },
+        "09_Harbor_Anchor__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Harbor_Anchor__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 300,
+            "total_faces": 300
+          }
+        },
+        "09_Harbor_Anchor__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Harbor_Anchor__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 300,
+            "expected": 300
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0199999809265137,
+              -0.3050000071525574,
+              0.0
+            ],
+            "max": [
+              1.0199999809265137,
+              0.3050000071525574,
+              2.6700000762939453
+            ],
+            "size": [
+              2.0399999618530273,
+              0.6100000143051147,
+              2.6700000762939453
+            ],
+            "expected_size": [
+              2.0399999618530273,
+              0.6100000143051147,
+              2.6700000762939453
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\09_Harbor_Anchor.glb",
+      "tolerance": 0.0001,
+      "sha256": "67C8391F90ECA7CFFF6AD5CA732241855E7C36145807C78D7B83C7238968E3B6",
+      "bytes": 23444,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 300,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Harbor_Anchor__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Harbor_Anchor__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 900,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 300
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Fresh_Catch_Crate",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Fresh_Catch_Crate__Body"
+            ],
+            "expected": [
+              "10_Fresh_Catch_Crate__Body"
+            ]
+          }
+        },
+        "10_Fresh_Catch_Crate__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Fresh_Catch_Crate__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 636,
+            "total_faces": 636
+          }
+        },
+        "10_Fresh_Catch_Crate__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 636,
+            "expected": 636
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.065000057220459,
+              -0.7200000286102295,
+              -1.1013437273277304e-07
+            ],
+            "max": [
+              1.065000057220459,
+              0.7200000882148743,
+              0.5500000715255737
+            ],
+            "size": [
+              2.130000114440918,
+              1.4400001168251038,
+              0.5500001816599465
+            ],
+            "expected_size": [
+              2.130000114440918,
+              1.440000057220459,
+              0.550000011920929
+            ],
+            "max_error": 1.1013437273277304e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\10_Fresh_Catch_Crate.fbx",
+      "tolerance": 0.0001,
+      "sha256": "65BA58F4E35C3284A1FD85D9D3C1B34F84759EDECE26C93DAC94673DED5422CF",
+      "bytes": 35804,
+      "triangles": 636,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Fresh_Catch_Crate__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Fresh_Catch_Crate__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1908,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 636
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Fresh_Catch_Crate",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Fresh_Catch_Crate__Body"
+            ],
+            "expected": [
+              "10_Fresh_Catch_Crate__Body"
+            ]
+          }
+        },
+        "10_Fresh_Catch_Crate__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Fresh_Catch_Crate__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 636,
+            "total_faces": 636
+          }
+        },
+        "10_Fresh_Catch_Crate__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Fresh_Catch_Crate__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 636,
+            "expected": 636
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.065000057220459,
+              -0.7200000286102295,
+              0.0
+            ],
+            "max": [
+              1.065000057220459,
+              0.7200000286102295,
+              0.550000011920929
+            ],
+            "size": [
+              2.130000114440918,
+              1.440000057220459,
+              0.550000011920929
+            ],
+            "expected_size": [
+              2.130000114440918,
+              1.440000057220459,
+              0.550000011920929
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\10_Fresh_Catch_Crate.glb",
+      "tolerance": 0.0001,
+      "sha256": "302DFE034948E19BAECFB8DA1DA691BAA8CA42DB6EF3B14F8D01A10F6364FFA1",
+      "bytes": 48892,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 636,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Fresh_Catch_Crate__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Fresh_Catch_Crate__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1908,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 636
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Life_Ring",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Life_Ring__Body"
+            ],
+            "expected": [
+              "11_Life_Ring__Body"
+            ]
+          }
+        },
+        "11_Life_Ring__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Life_Ring__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 624,
+            "total_faces": 624
+          }
+        },
+        "11_Life_Ring__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 624,
+            "expected": 624
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8689126968383789,
+              -0.8689126372337341,
+              -1.1064759775081257e-07
+            ],
+            "max": [
+              0.8689126968383789,
+              0.8689127564430237,
+              0.38000011444091797
+            ],
+            "size": [
+              1.7378253936767578,
+              1.7378253936767578,
+              0.3800002250885157
+            ],
+            "expected_size": [
+              1.7378253936767578,
+              1.7378253936767578,
+              0.3799999952316284
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\11_Life_Ring.fbx",
+      "tolerance": 0.0001,
+      "sha256": "F0A456AF8B507AF3E4A6ABE527B03BEDD31B632A728E0D582E08B9939FE16E93",
+      "bytes": 35372,
+      "triangles": 624,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Life_Ring__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Life_Ring__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1872,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 624
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Life_Ring",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Life_Ring__Body"
+            ],
+            "expected": [
+              "11_Life_Ring__Body"
+            ]
+          }
+        },
+        "11_Life_Ring__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Life_Ring__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 624,
+            "total_faces": 624
+          }
+        },
+        "11_Life_Ring__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Life_Ring__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 624,
+            "expected": 624
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8689126968383789,
+              -0.8689126968383789,
+              0.0
+            ],
+            "max": [
+              0.8689126968383789,
+              0.8689126968383789,
+              0.3799999952316284
+            ],
+            "size": [
+              1.7378253936767578,
+              1.7378253936767578,
+              0.3799999952316284
+            ],
+            "expected_size": [
+              1.7378253936767578,
+              1.7378253936767578,
+              0.3799999952316284
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\11_Life_Ring.glb",
+      "tolerance": 0.0001,
+      "sha256": "F445727686966D7ACBEAAE4C9233C55156875701E9DF795DA7138F830EF319B2",
+      "bytes": 45036,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 624,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Life_Ring__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Life_Ring__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1872,
+          "valid": true,
+          "range": [
+            [
+              0.6050000190734863,
+              0.6050000190734863
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 624
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Dock_Ladder",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Dock_Ladder__Body"
+            ],
+            "expected": [
+              "12_Dock_Ladder__Body"
+            ]
+          }
+        },
+        "12_Dock_Ladder__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Dock_Ladder__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 836,
+            "total_faces": 836
+          }
+        },
+        "12_Dock_Ladder__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 836,
+            "expected": 836
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6000000238418579,
+              -0.059999994933605194,
+              -5.8651439260870575e-09
+            ],
+            "max": [
+              0.5999999642372131,
+              0.48067185282707214,
+              2.8406715393066406
+            ],
+            "size": [
+              1.199999988079071,
+              0.5406718477606773,
+              2.8406715451717846
+            ],
+            "expected_size": [
+              1.199999988079071,
+              0.5406714342534542,
+              2.8406715393066406
+            ],
+            "max_error": 4.172325134277344e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\fbx\\12_Dock_Ladder.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C4B7FDCE05426BA6829FC26FF6B150048977669FC5D79BB26BBEBD196C97396D",
+      "bytes": 39084,
+      "triangles": 836,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Dock_Ladder__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Dock_Ladder__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2508,
+          "valid": true,
+          "range": [
+            [
+              0.8550000190734863,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 836
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Dock_Ladder",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Dock_Ladder__Body"
+            ],
+            "expected": [
+              "12_Dock_Ladder__Body"
+            ]
+          }
+        },
+        "12_Dock_Ladder__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Dock_Ladder__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 836,
+            "total_faces": 836
+          }
+        },
+        "12_Dock_Ladder__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Dock_Ladder__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 836,
+            "expected": 836
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.6000000238418579,
+              -0.05999999865889549,
+              0.0
+            ],
+            "max": [
+              0.5999999642372131,
+              0.4806714355945587,
+              2.8406715393066406
+            ],
+            "size": [
+              1.199999988079071,
+              0.5406714342534542,
+              2.8406715393066406
+            ],
+            "expected_size": [
+              1.199999988079071,
+              0.5406714342534542,
+              2.8406715393066406
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\tidewatch-harbor\\glb\\12_Dock_Ladder.glb",
+      "tolerance": 0.0001,
+      "sha256": "CA4404B55A8FA3310B691DEBD5CB3CFDE2D3DBAFA4D0931B0D9F23590B6D1120",
+      "bytes": 65248,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 836,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Dock_Ladder__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Dock_Ladder__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2508,
+          "valid": true,
+          "range": [
+            [
+              0.8550000190734863,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 836
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

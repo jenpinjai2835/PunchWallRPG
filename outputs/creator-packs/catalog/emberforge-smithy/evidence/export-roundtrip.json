@@ -1,0 +1,5140 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\textures\\Classic_Palette.png",
+      "sha256": "175641B87AFB630538E03B408D3986D0BA8DC716E65CA7D2BB58610F8FC63F3D",
+      "reference_rgb": [
+        [
+          117,
+          80,
+          59
+        ],
+        [
+          51,
+          43,
+          42
+        ],
+        [
+          162,
+          122,
+          81
+        ],
+        [
+          184,
+          77,
+          50
+        ],
+        [
+          243,
+          148,
+          68
+        ],
+        [
+          174,
+          123,
+          67
+        ],
+        [
+          231,
+          188,
+          120
+        ],
+        [
+          64,
+          70,
+          81
+        ],
+        [
+          104,
+          98,
+          100
+        ],
+        [
+          171,
+          161,
+          152
+        ],
+        [
+          222,
+          209,
+          180
+        ],
+        [
+          184,
+          57,
+          46
+        ],
+        [
+          100,
+          129,
+          107
+        ],
+        [
+          112,
+          89,
+          120
+        ],
+        [
+          120,
+          81,
+          60
+        ],
+        [
+          37,
+          40,
+          48
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          117,
+          80,
+          59
+        ],
+        [
+          51,
+          43,
+          42
+        ],
+        [
+          162,
+          122,
+          81
+        ],
+        [
+          184,
+          77,
+          50
+        ],
+        [
+          243,
+          148,
+          68
+        ],
+        [
+          174,
+          123,
+          67
+        ],
+        [
+          231,
+          188,
+          120
+        ],
+        [
+          64,
+          70,
+          81
+        ],
+        [
+          104,
+          98,
+          100
+        ],
+        [
+          171,
+          161,
+          152
+        ],
+        [
+          222,
+          209,
+          180
+        ],
+        [
+          184,
+          57,
+          46
+        ],
+        [
+          100,
+          129,
+          107
+        ],
+        [
+          112,
+          89,
+          120
+        ],
+        [
+          120,
+          81,
+          60
+        ],
+        [
+          37,
+          40,
+          48
+        ]
+      ],
+      "blender_rgb": [
+        [
+          117,
+          80,
+          59
+        ],
+        [
+          51,
+          43,
+          42
+        ],
+        [
+          162,
+          122,
+          81
+        ],
+        [
+          184,
+          77,
+          50
+        ],
+        [
+          243,
+          148,
+          68
+        ],
+        [
+          174,
+          123,
+          67
+        ],
+        [
+          231,
+          188,
+          120
+        ],
+        [
+          64,
+          70,
+          81
+        ],
+        [
+          104,
+          98,
+          100
+        ],
+        [
+          171,
+          161,
+          152
+        ],
+        [
+          222,
+          209,
+          180
+        ],
+        [
+          184,
+          57,
+          46
+        ],
+        [
+          100,
+          129,
+          107
+        ],
+        [
+          112,
+          89,
+          120
+        ],
+        [
+          120,
+          81,
+          60
+        ],
+        [
+          37,
+          40,
+          48
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\textures\\Warm_Palette.png",
+      "sha256": "CD648EE3CA671B2ADE20B1C6828EF33499181ACCB4505B24789354755EA2EB05",
+      "reference_rgb": [
+        [
+          129,
+          84,
+          59
+        ],
+        [
+          53,
+          40,
+          39
+        ],
+        [
+          176,
+          136,
+          84
+        ],
+        [
+          207,
+          94,
+          48
+        ],
+        [
+          255,
+          185,
+          94
+        ],
+        [
+          177,
+          133,
+          66
+        ],
+        [
+          243,
+          211,
+          145
+        ],
+        [
+          73,
+          63,
+          66
+        ],
+        [
+          117,
+          103,
+          98
+        ],
+        [
+          186,
+          172,
+          150
+        ],
+        [
+          242,
+          222,
+          192
+        ],
+        [
+          187,
+          73,
+          49
+        ],
+        [
+          119,
+          141,
+          95
+        ],
+        [
+          128,
+          97,
+          116
+        ],
+        [
+          140,
+          90,
+          65
+        ],
+        [
+          43,
+          41,
+          48
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          129,
+          84,
+          59
+        ],
+        [
+          53,
+          40,
+          39
+        ],
+        [
+          176,
+          136,
+          84
+        ],
+        [
+          207,
+          94,
+          48
+        ],
+        [
+          255,
+          185,
+          94
+        ],
+        [
+          177,
+          133,
+          66
+        ],
+        [
+          243,
+          211,
+          145
+        ],
+        [
+          73,
+          63,
+          66
+        ],
+        [
+          117,
+          103,
+          98
+        ],
+        [
+          186,
+          172,
+          150
+        ],
+        [
+          242,
+          222,
+          192
+        ],
+        [
+          187,
+          73,
+          49
+        ],
+        [
+          119,
+          141,
+          95
+        ],
+        [
+          128,
+          97,
+          116
+        ],
+        [
+          140,
+          90,
+          65
+        ],
+        [
+          43,
+          41,
+          48
+        ]
+      ],
+      "blender_rgb": [
+        [
+          129,
+          84,
+          59
+        ],
+        [
+          53,
+          40,
+          39
+        ],
+        [
+          176,
+          136,
+          84
+        ],
+        [
+          207,
+          94,
+          48
+        ],
+        [
+          255,
+          185,
+          94
+        ],
+        [
+          177,
+          133,
+          66
+        ],
+        [
+          243,
+          211,
+          145
+        ],
+        [
+          73,
+          63,
+          66
+        ],
+        [
+          117,
+          103,
+          98
+        ],
+        [
+          186,
+          172,
+          150
+        ],
+        [
+          242,
+          222,
+          192
+        ],
+        [
+          187,
+          73,
+          49
+        ],
+        [
+          119,
+          141,
+          95
+        ],
+        [
+          128,
+          97,
+          116
+        ],
+        [
+          140,
+          90,
+          65
+        ],
+        [
+          43,
+          41,
+          48
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\textures\\Twilight_Palette.png",
+      "sha256": "CCFEEABC7016578E4EACAC8611819770624930CE5AC59FE60660858C1032E14B",
+      "reference_rgb": [
+        [
+          99,
+          81,
+          107
+        ],
+        [
+          48,
+          44,
+          64
+        ],
+        [
+          146,
+          132,
+          154
+        ],
+        [
+          120,
+          100,
+          180
+        ],
+        [
+          167,
+          158,
+          232
+        ],
+        [
+          149,
+          129,
+          181
+        ],
+        [
+          215,
+          192,
+          232
+        ],
+        [
+          56,
+          67,
+          89
+        ],
+        [
+          83,
+          94,
+          118
+        ],
+        [
+          146,
+          157,
+          177
+        ],
+        [
+          213,
+          211,
+          229
+        ],
+        [
+          155,
+          92,
+          139
+        ],
+        [
+          113,
+          155,
+          145
+        ],
+        [
+          130,
+          106,
+          187
+        ],
+        [
+          105,
+          86,
+          125
+        ],
+        [
+          33,
+          42,
+          59
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          99,
+          81,
+          107
+        ],
+        [
+          48,
+          44,
+          64
+        ],
+        [
+          146,
+          132,
+          154
+        ],
+        [
+          120,
+          100,
+          180
+        ],
+        [
+          167,
+          158,
+          232
+        ],
+        [
+          149,
+          129,
+          181
+        ],
+        [
+          215,
+          192,
+          232
+        ],
+        [
+          56,
+          67,
+          89
+        ],
+        [
+          83,
+          94,
+          118
+        ],
+        [
+          146,
+          157,
+          177
+        ],
+        [
+          213,
+          211,
+          229
+        ],
+        [
+          155,
+          92,
+          139
+        ],
+        [
+          113,
+          155,
+          145
+        ],
+        [
+          130,
+          106,
+          187
+        ],
+        [
+          105,
+          86,
+          125
+        ],
+        [
+          33,
+          42,
+          59
+        ]
+      ],
+      "blender_rgb": [
+        [
+          99,
+          81,
+          107
+        ],
+        [
+          48,
+          44,
+          64
+        ],
+        [
+          146,
+          132,
+          154
+        ],
+        [
+          120,
+          100,
+          180
+        ],
+        [
+          167,
+          158,
+          232
+        ],
+        [
+          149,
+          129,
+          181
+        ],
+        [
+          215,
+          192,
+          232
+        ],
+        [
+          56,
+          67,
+          89
+        ],
+        [
+          83,
+          94,
+          118
+        ],
+        [
+          146,
+          157,
+          177
+        ],
+        [
+          213,
+          211,
+          229
+        ],
+        [
+          155,
+          92,
+          139
+        ],
+        [
+          113,
+          155,
+          145
+        ],
+        [
+          130,
+          106,
+          187
+        ],
+        [
+          105,
+          86,
+          125
+        ],
+        [
+          33,
+          42,
+          59
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Hearth_Forge",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Hearth_Forge__Body"
+            ],
+            "expected": [
+              "01_Hearth_Forge__Body"
+            ]
+          }
+        },
+        "01_Hearth_Forge__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Hearth_Forge__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1314,
+            "total_faces": 1314
+          }
+        },
+        "01_Hearth_Forge__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1314,
+            "expected": 1314
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.299999952316284,
+              -1.7899999618530273,
+              -2.4894279704312794e-07
+            ],
+            "max": [
+              2.299999952316284,
+              1.600000023841858,
+              5.255000114440918
+            ],
+            "size": [
+              4.599999904632568,
+              3.3899999856948853,
+              5.255000363383715
+            ],
+            "expected_size": [
+              4.599999904632568,
+              3.3899999856948853,
+              5.255000114440918
+            ],
+            "max_error": 2.4894279704312794e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\01_Hearth_Forge.fbx",
+      "tolerance": 0.0001,
+      "sha256": "22D174883F70D8C47718986A6EFC1CCD38CE9BDC415CE4CDFB62C57869A45157",
+      "bytes": 47932,
+      "triangles": 1314,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Hearth_Forge__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Hearth_Forge__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3942,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1314
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Hearth_Forge",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Hearth_Forge__Body"
+            ],
+            "expected": [
+              "01_Hearth_Forge__Body"
+            ]
+          }
+        },
+        "01_Hearth_Forge__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Hearth_Forge__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1314,
+            "total_faces": 1314
+          }
+        },
+        "01_Hearth_Forge__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Hearth_Forge__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1314,
+            "expected": 1314
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.299999952316284,
+              -1.7899999618530273,
+              0.0
+            ],
+            "max": [
+              2.299999952316284,
+              1.600000023841858,
+              5.255000114440918
+            ],
+            "size": [
+              4.599999904632568,
+              3.3899999856948853,
+              5.255000114440918
+            ],
+            "expected_size": [
+              4.599999904632568,
+              3.3899999856948853,
+              5.255000114440918
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\01_Hearth_Forge.glb",
+      "tolerance": 0.0001,
+      "sha256": "A6589AA2E36A077AEBF8E1C547D729F8132518058BEFB324E72B58FA8BCF4511",
+      "bytes": 100448,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1314,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "01_Hearth_Forge__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Hearth_Forge__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3942,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 1314
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Horn_Anvil",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Horn_Anvil__Body"
+            ],
+            "expected": [
+              "02_Horn_Anvil__Body"
+            ]
+          }
+        },
+        "02_Horn_Anvil__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Horn_Anvil__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 556,
+            "total_faces": 556
+          }
+        },
+        "02_Horn_Anvil__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 556,
+            "expected": 556
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2549999952316284,
+              -0.8797272443771362,
+              -1.2550687245038716e-07
+            ],
+            "max": [
+              1.850000023841858,
+              0.8797274231910706,
+              2.234999895095825
+            ],
+            "size": [
+              3.1050000190734863,
+              1.7594546675682068,
+              2.2350000206026976
+            ],
+            "expected_size": [
+              3.1050000190734863,
+              1.7594544887542725,
+              2.234999895095825
+            ],
+            "max_error": 1.7881393432617188e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\02_Horn_Anvil.fbx",
+      "tolerance": 0.0001,
+      "sha256": "58B8A67B65021DC2B91EE9692D1BEE56E343FE0E71D5B4547929491793F85B0E",
+      "bytes": 32540,
+      "triangles": 556,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Horn_Anvil__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Horn_Anvil__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1668,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 556
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Horn_Anvil",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Horn_Anvil__Body"
+            ],
+            "expected": [
+              "02_Horn_Anvil__Body"
+            ]
+          }
+        },
+        "02_Horn_Anvil__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Horn_Anvil__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 556,
+            "total_faces": 556
+          }
+        },
+        "02_Horn_Anvil__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Horn_Anvil__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 556,
+            "expected": 556
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2549999952316284,
+              -0.8797272443771362,
+              0.0
+            ],
+            "max": [
+              1.850000023841858,
+              0.8797272443771362,
+              2.234999895095825
+            ],
+            "size": [
+              3.1050000190734863,
+              1.7594544887542725,
+              2.234999895095825
+            ],
+            "expected_size": [
+              3.1050000190734863,
+              1.7594544887542725,
+              2.234999895095825
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\02_Horn_Anvil.glb",
+      "tolerance": 0.0001,
+      "sha256": "FC4EDFAF66AC6294087813082D4CF1528B5FD8F45BE007B485ECCE29B813E155",
+      "bytes": 42188,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 556,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Horn_Anvil__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Horn_Anvil__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1668,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 556
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Quench_Tank",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Quench_Tank__Body"
+            ],
+            "expected": [
+              "03_Quench_Tank__Body"
+            ]
+          }
+        },
+        "03_Quench_Tank__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Quench_Tank__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 752,
+            "total_faces": 752
+          }
+        },
+        "03_Quench_Tank__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 752,
+            "expected": 752
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.440000057220459,
+              -0.8699997663497925,
+              -1.0101081926450206e-07
+            ],
+            "max": [
+              1.440000057220459,
+              0.8700002431869507,
+              1.5650001764297485
+            ],
+            "size": [
+              2.880000114440918,
+              1.7400000095367432,
+              1.5650002774405678
+            ],
+            "expected_size": [
+              2.880000114440918,
+              1.7400000095367432,
+              1.565000057220459
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\03_Quench_Tank.fbx",
+      "tolerance": 0.0001,
+      "sha256": "E23352114F84F35BF0E8F4000461020096C480AAED29A81C299171DCF29EFD26",
+      "bytes": 34108,
+      "triangles": 752,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Quench_Tank__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Quench_Tank__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2256,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 752
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Quench_Tank",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Quench_Tank__Body"
+            ],
+            "expected": [
+              "03_Quench_Tank__Body"
+            ]
+          }
+        },
+        "03_Quench_Tank__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Quench_Tank__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 752,
+            "total_faces": 752
+          }
+        },
+        "03_Quench_Tank__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Quench_Tank__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 752,
+            "expected": 752
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.440000057220459,
+              -0.8700000047683716,
+              0.0
+            ],
+            "max": [
+              1.440000057220459,
+              0.8700000047683716,
+              1.565000057220459
+            ],
+            "size": [
+              2.880000114440918,
+              1.7400000095367432,
+              1.565000057220459
+            ],
+            "expected_size": [
+              2.880000114440918,
+              1.7400000095367432,
+              1.565000057220459
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\03_Quench_Tank.glb",
+      "tolerance": 0.0001,
+      "sha256": "6B5856D7E93D07FDC8F77DBCEFF20F1D886ABDC3902B18F778074F7C8FC6B5ED",
+      "bytes": 55524,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 752,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Quench_Tank__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Quench_Tank__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2256,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 752
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Foot_Bellows",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Foot_Bellows__Body"
+            ],
+            "expected": [
+              "04_Foot_Bellows__Body"
+            ]
+          }
+        },
+        "04_Foot_Bellows__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Foot_Bellows__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 228,
+            "total_faces": 228
+          }
+        },
+        "04_Foot_Bellows__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 228,
+            "expected": 228
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8528000116348267,
+              -1.0,
+              5.539302705415139e-08
+            ],
+            "max": [
+              0.8528000116348267,
+              1.5000001192092896,
+              0.8750001192092896
+            ],
+            "size": [
+              1.7056000232696533,
+              2.5000001192092896,
+              0.8750000638162625
+            ],
+            "expected_size": [
+              1.7056000232696533,
+              2.5,
+              0.875
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\04_Foot_Bellows.fbx",
+      "tolerance": 0.0001,
+      "sha256": "611CAA82D4E9343E406FBC5A8628D004C15D1C64A8AE77C4D6F76994E1CAFFE0",
+      "bytes": 24796,
+      "triangles": 228,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Foot_Bellows__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Foot_Bellows__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 684,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 228
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Foot_Bellows",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Foot_Bellows__Body"
+            ],
+            "expected": [
+              "04_Foot_Bellows__Body"
+            ]
+          }
+        },
+        "04_Foot_Bellows__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Foot_Bellows__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 228,
+            "total_faces": 228
+          }
+        },
+        "04_Foot_Bellows__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Foot_Bellows__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 228,
+            "expected": 228
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8528000116348267,
+              -1.0,
+              0.0
+            ],
+            "max": [
+              0.8528000116348267,
+              1.5,
+              0.875
+            ],
+            "size": [
+              1.7056000232696533,
+              2.5,
+              0.875
+            ],
+            "expected_size": [
+              1.7056000232696533,
+              2.5,
+              0.875
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\04_Foot_Bellows.glb",
+      "tolerance": 0.0001,
+      "sha256": "519945E2162E255DC6D997B06AE62F12ECE6BFCF2DCF74972A14A784E040F4E5",
+      "bytes": 18572,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 228,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Foot_Bellows__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Foot_Bellows__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 684,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 228
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Treadle_Grindstone",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Treadle_Grindstone__Body"
+            ],
+            "expected": [
+              "05_Treadle_Grindstone__Body"
+            ]
+          }
+        },
+        "05_Treadle_Grindstone__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Treadle_Grindstone__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1004,
+            "total_faces": 1004
+          }
+        },
+        "05_Treadle_Grindstone__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1004,
+            "expected": 1004
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0740000009536743,
+              -1.1399997472763062,
+              -1.311511397261711e-07
+            ],
+            "max": [
+              1.0740000009536743,
+              1.0800002813339233,
+              3.109999895095825
+            ],
+            "size": [
+              2.1480000019073486,
+              2.2200000286102295,
+              3.110000026246965
+            ],
+            "expected_size": [
+              2.1480000019073486,
+              2.21999990940094,
+              3.109999895095825
+            ],
+            "max_error": 3.5762786865234375e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\05_Treadle_Grindstone.fbx",
+      "tolerance": 0.0001,
+      "sha256": "FE37E967290EE94B5E2FB9B01A59BB0101E1F8D1879A6BE2146F537EE175563E",
+      "bytes": 44268,
+      "triangles": 1004,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Treadle_Grindstone__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Treadle_Grindstone__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 3012,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1004
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Treadle_Grindstone",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Treadle_Grindstone__Body"
+            ],
+            "expected": [
+              "05_Treadle_Grindstone__Body"
+            ]
+          }
+        },
+        "05_Treadle_Grindstone__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Treadle_Grindstone__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 1004,
+            "total_faces": 1004
+          }
+        },
+        "05_Treadle_Grindstone__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Treadle_Grindstone__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1004,
+            "expected": 1004
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0740000009536743,
+              -1.1399999856948853,
+              0.0
+            ],
+            "max": [
+              1.0740000009536743,
+              1.0799999237060547,
+              3.109999895095825
+            ],
+            "size": [
+              2.1480000019073486,
+              2.21999990940094,
+              3.109999895095825
+            ],
+            "expected_size": [
+              2.1480000019073486,
+              2.21999990940094,
+              3.109999895095825
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\05_Treadle_Grindstone.glb",
+      "tolerance": 0.0001,
+      "sha256": "3CDB0B939E182A265E43268031C0988139FEBC7567682885397FCF1AF0DFD0EA",
+      "bytes": 75508,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1004,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Treadle_Grindstone__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Treadle_Grindstone__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 3012,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 1004
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Ingot_Stack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Ingot_Stack__Body"
+            ],
+            "expected": [
+              "06_Ingot_Stack__Body"
+            ]
+          }
+        },
+        "06_Ingot_Stack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Ingot_Stack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 60,
+            "total_faces": 60
+          }
+        },
+        "06_Ingot_Stack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 60,
+            "expected": 60
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.6200000047683716,
+              -1.0101081926450206e-07
+            ],
+            "max": [
+              0.9699999690055847,
+              0.6200000643730164,
+              0.5400000214576721
+            ],
+            "size": [
+              1.9399999976158142,
+              1.240000069141388,
+              0.5400001224684914
+            ],
+            "expected_size": [
+              1.9399999976158142,
+              1.2400000095367432,
+              0.5399999618530273
+            ],
+            "max_error": 1.0101081926450206e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\06_Ingot_Stack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "4041515C00BB33CC73FB09F17F395D5D19F4DFE6148639FE0BC347FA344CF256",
+      "bytes": 20924,
+      "triangles": 60,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Ingot_Stack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Ingot_Stack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 180,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35499998927116394
+            ],
+            [
+              0.39500001072883606,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 60
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Ingot_Stack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Ingot_Stack__Body"
+            ],
+            "expected": [
+              "06_Ingot_Stack__Body"
+            ]
+          }
+        },
+        "06_Ingot_Stack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Ingot_Stack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 60,
+            "total_faces": 60
+          }
+        },
+        "06_Ingot_Stack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Ingot_Stack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 60,
+            "expected": 60
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.6200000047683716,
+              0.0
+            ],
+            "max": [
+              0.9699999690055847,
+              0.6200000047683716,
+              0.5399999618530273
+            ],
+            "size": [
+              1.9399999976158142,
+              1.2400000095367432,
+              0.5399999618530273
+            ],
+            "expected_size": [
+              1.9399999976158142,
+              1.2400000095367432,
+              0.5399999618530273
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\06_Ingot_Stack.glb",
+      "tolerance": 0.0001,
+      "sha256": "900F62A8DB12C9B9BCF12A5B5EAC57F4C811698689EF4181DB9398D23F9F954E",
+      "bytes": 6064,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 60,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "06_Ingot_Stack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Ingot_Stack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 180,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35500001907348633
+            ],
+            [
+              0.39500001072883606,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 60
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Smith_Tongs",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Smith_Tongs__Body"
+            ],
+            "expected": [
+              "07_Smith_Tongs__Body"
+            ]
+          }
+        },
+        "07_Smith_Tongs__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Smith_Tongs__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 388,
+            "total_faces": 388
+          }
+        },
+        "07_Smith_Tongs__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 388,
+            "expected": 388
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.4530549943447113,
+              -1.4642897844314575,
+              -2.2260717713606937e-08
+            ],
+            "max": [
+              0.4530550241470337,
+              1.0436348915100098,
+              0.1900000125169754
+            ],
+            "size": [
+              0.906110018491745,
+              2.5079246759414673,
+              0.19000003477769312
+            ],
+            "expected_size": [
+              0.906110018491745,
+              2.507924795150757,
+              0.19000002193319254
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\07_Smith_Tongs.fbx",
+      "tolerance": 0.0001,
+      "sha256": "8CB3D111D6B4F4CA20746470D577E2003EC6A1D9534761CD308D36019DE666DE",
+      "bytes": 31500,
+      "triangles": 388,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Smith_Tongs__Body",
+          "actual": [
+            2.9802322387695312e-08,
+            5.960464477539063e-08,
+            7.4505708269612114e-09
+          ],
+          "expected": [
+            2.9802322387695312e-08,
+            5.960464477539063e-08,
+            7.450580596923828e-09
+          ],
+          "max_error": 9.769962616701378e-15
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Smith_Tongs__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1164,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 388
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Smith_Tongs",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Smith_Tongs__Body"
+            ],
+            "expected": [
+              "07_Smith_Tongs__Body"
+            ]
+          }
+        },
+        "07_Smith_Tongs__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Smith_Tongs__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 388,
+            "total_faces": 388
+          }
+        },
+        "07_Smith_Tongs__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Smith_Tongs__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 388,
+            "expected": 388
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.4530550241470337,
+              -1.464289903640747,
+              -1.965636542422544e-09
+            ],
+            "max": [
+              0.4530549943447113,
+              1.0436347723007202,
+              0.1900000125169754
+            ],
+            "size": [
+              0.906110018491745,
+              2.5079246759414673,
+              0.19000001448261195
+            ],
+            "expected_size": [
+              0.906110018491745,
+              2.507924795150757,
+              0.19000002193319254
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\07_Smith_Tongs.glb",
+      "tolerance": 0.0001,
+      "sha256": "22BE68784FDF8AC868FF74FBAA924559DB7172DAF43A2F0121B2C7B3D495208F",
+      "bytes": 30700,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 388,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Smith_Tongs__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            2.9802322387695312e-08,
+            5.960464477539063e-08,
+            7.450580596923828e-09
+          ],
+          "max_error": 5.960464477539063e-08
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Smith_Tongs__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1164,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 388
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Smith_Tool_Rack",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Smith_Tool_Rack__Body"
+            ],
+            "expected": [
+              "08_Smith_Tool_Rack__Body"
+            ]
+          }
+        },
+        "08_Smith_Tool_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Smith_Tool_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 612,
+            "total_faces": 612
+          }
+        },
+        "08_Smith_Tool_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 612,
+            "expected": 612
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2450000047683716,
+              -0.6299999952316284,
+              -9.612319473717434e-08
+            ],
+            "max": [
+              1.244999885559082,
+              0.6299999952316284,
+              2.7699997425079346
+            ],
+            "size": [
+              2.4899998903274536,
+              1.2599999904632568,
+              2.7699998386311293
+            ],
+            "expected_size": [
+              2.4899998903274536,
+              1.2599999904632568,
+              2.7699997425079346
+            ],
+            "max_error": 9.612319473717434e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\08_Smith_Tool_Rack.fbx",
+      "tolerance": 0.0001,
+      "sha256": "251EEB5783364CBDD9868598CC6654AD7C3ED745282F655FCAA17C4165F26EA1",
+      "bytes": 33436,
+      "triangles": 612,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Smith_Tool_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Smith_Tool_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1836,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 612
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Smith_Tool_Rack",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Smith_Tool_Rack__Body"
+            ],
+            "expected": [
+              "08_Smith_Tool_Rack__Body"
+            ]
+          }
+        },
+        "08_Smith_Tool_Rack__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Smith_Tool_Rack__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 612,
+            "total_faces": 612
+          }
+        },
+        "08_Smith_Tool_Rack__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Smith_Tool_Rack__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 612,
+            "expected": 612
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2450000047683716,
+              -0.6299999952316284,
+              0.0
+            ],
+            "max": [
+              1.244999885559082,
+              0.6299999952316284,
+              2.7699997425079346
+            ],
+            "size": [
+              2.4899998903274536,
+              1.2599999904632568,
+              2.7699997425079346
+            ],
+            "expected_size": [
+              2.4899998903274536,
+              1.2599999904632568,
+              2.7699997425079346
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\08_Smith_Tool_Rack.glb",
+      "tolerance": 0.0001,
+      "sha256": "03F773D36BCCA4D5A00E20DF34AAFE4476B42FB5FB96574B6E17956A3017BA60",
+      "bytes": 47080,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 612,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Smith_Tool_Rack__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Smith_Tool_Rack__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1836,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 612
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Casting_Mould",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Casting_Mould__Body"
+            ],
+            "expected": [
+              "09_Casting_Mould__Body"
+            ]
+          }
+        },
+        "09_Casting_Mould__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Casting_Mould__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "09_Casting_Mould__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2799999713897705,
+              -0.550000011920929,
+              -7.983113192722158e-08
+            ],
+            "max": [
+              1.2799999713897705,
+              0.5500000715255737,
+              0.5000000596046448
+            ],
+            "size": [
+              2.559999942779541,
+              1.1000000834465027,
+              0.5000001394357767
+            ],
+            "expected_size": [
+              2.559999942779541,
+              1.100000023841858,
+              0.5
+            ],
+            "max_error": 7.983113192722158e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\09_Casting_Mould.fbx",
+      "tolerance": 0.0001,
+      "sha256": "954CC06A9D480B2F5D6B70E83FD6D5AA5BD46D1B33DDBA8865BA90DFD7FD2EF4",
+      "bytes": 25884,
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Casting_Mould__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Casting_Mould__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Casting_Mould",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Casting_Mould__Body"
+            ],
+            "expected": [
+              "09_Casting_Mould__Body"
+            ]
+          }
+        },
+        "09_Casting_Mould__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Casting_Mould__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 308,
+            "total_faces": 308
+          }
+        },
+        "09_Casting_Mould__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Casting_Mould__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 308,
+            "expected": 308
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.2799999713897705,
+              -0.550000011920929,
+              0.0
+            ],
+            "max": [
+              1.2799999713897705,
+              0.550000011920929,
+              0.5
+            ],
+            "size": [
+              2.559999942779541,
+              1.100000023841858,
+              0.5
+            ],
+            "expected_size": [
+              2.559999942779541,
+              1.100000023841858,
+              0.5
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\09_Casting_Mould.glb",
+      "tolerance": 0.0001,
+      "sha256": "774FEC97564699FCBE04C6144048791215F1F8972CE9A56E9F4FB1946FBF27FA",
+      "bytes": 25196,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 308,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Casting_Mould__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Casting_Mould__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 924,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 308
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Coal_Scuttle",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Coal_Scuttle__Body"
+            ],
+            "expected": [
+              "10_Coal_Scuttle__Body"
+            ]
+          }
+        },
+        "10_Coal_Scuttle__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Coal_Scuttle__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 298,
+            "total_faces": 298
+          }
+        },
+        "10_Coal_Scuttle__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 298,
+            "expected": 298
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8299999833106995,
+              -0.7893767952919006,
+              -7.902284693273032e-08
+            ],
+            "max": [
+              0.8299999833106995,
+              0.7893770337104797,
+              1.844271183013916
+            ],
+            "size": [
+              1.659999966621399,
+              1.5787538290023804,
+              1.844271262036763
+            ],
+            "expected_size": [
+              1.659999966621399,
+              1.5787538290023804,
+              1.844271183013916
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\10_Coal_Scuttle.fbx",
+      "tolerance": 0.0001,
+      "sha256": "12C2C2ABB07C23C7DB16C3D4777486E311AB19914077D2CF5BDEB82007032172",
+      "bytes": 27212,
+      "triangles": 298,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Coal_Scuttle__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Coal_Scuttle__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 894,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 298
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Coal_Scuttle",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Coal_Scuttle__Body"
+            ],
+            "expected": [
+              "10_Coal_Scuttle__Body"
+            ]
+          }
+        },
+        "10_Coal_Scuttle__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Coal_Scuttle__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 298,
+            "total_faces": 298
+          }
+        },
+        "10_Coal_Scuttle__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Coal_Scuttle__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 298,
+            "expected": 298
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.8299999833106995,
+              -0.7893769145011902,
+              0.0
+            ],
+            "max": [
+              0.8299999833106995,
+              0.7893769145011902,
+              1.844271183013916
+            ],
+            "size": [
+              1.659999966621399,
+              1.5787538290023804,
+              1.844271183013916
+            ],
+            "expected_size": [
+              1.659999966621399,
+              1.5787538290023804,
+              1.844271183013916
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\10_Coal_Scuttle.glb",
+      "tolerance": 0.0001,
+      "sha256": "3E55261435105874F39F20634B0111D5DB6F450B001CE5C44409D8ADB9725D02",
+      "bytes": 22748,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 298,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Coal_Scuttle__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Coal_Scuttle__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 894,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 298
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Forge_Heat_Shield",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Forge_Heat_Shield__Body"
+            ],
+            "expected": [
+              "11_Forge_Heat_Shield__Body"
+            ]
+          }
+        },
+        "11_Forge_Heat_Shield__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Forge_Heat_Shield__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 420,
+            "total_faces": 420
+          }
+        },
+        "11_Forge_Heat_Shield__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 420,
+            "expected": 420
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.5899999737739563,
+              -9.04209613850071e-08
+            ],
+            "max": [
+              0.9699999690055847,
+              0.5899999737739563,
+              2.2249999046325684
+            ],
+            "size": [
+              1.9399999976158142,
+              1.1799999475479126,
+              2.2249999950535297
+            ],
+            "expected_size": [
+              1.9399999976158142,
+              1.1799999475479126,
+              2.2249999046325684
+            ],
+            "max_error": 9.04209613850071e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\11_Forge_Heat_Shield.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C4D9E933229FEA787A01A0066736F0FA5F93265B100E5E7EF82C706A92B5C5AB",
+      "bytes": 29052,
+      "triangles": 420,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Forge_Heat_Shield__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Forge_Heat_Shield__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1260,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 420
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Forge_Heat_Shield",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Forge_Heat_Shield__Body"
+            ],
+            "expected": [
+              "11_Forge_Heat_Shield__Body"
+            ]
+          }
+        },
+        "11_Forge_Heat_Shield__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Forge_Heat_Shield__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 420,
+            "total_faces": 420
+          }
+        },
+        "11_Forge_Heat_Shield__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Forge_Heat_Shield__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 420,
+            "expected": 420
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.9700000286102295,
+              -0.5899999737739563,
+              0.0
+            ],
+            "max": [
+              0.9699999690055847,
+              0.5899999737739563,
+              2.2249999046325684
+            ],
+            "size": [
+              1.9399999976158142,
+              1.1799999475479126,
+              2.2249999046325684
+            ],
+            "expected_size": [
+              1.9399999976158142,
+              1.1799999475479126,
+              2.2249999046325684
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\11_Forge_Heat_Shield.glb",
+      "tolerance": 0.0001,
+      "sha256": "7E6304E83417BAEA89038A70316B5DBAA8A34EEE8B5E97405468C107929E25CC",
+      "bytes": 32032,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 420,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Forge_Heat_Shield__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Forge_Heat_Shield__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1260,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 420
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Forged_Blade_Blank",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Forged_Blade_Blank__Body"
+            ],
+            "expected": [
+              "12_Forged_Blade_Blank__Body"
+            ]
+          }
+        },
+        "12_Forged_Blade_Blank__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Forged_Blade_Blank__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 104,
+            "total_faces": 104
+          }
+        },
+        "12_Forged_Blade_Blank__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 104,
+            "expected": 104
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.574999988079071,
+              -1.4950000047683716,
+              -1.1554334378161002e-07
+            ],
+            "max": [
+              0.574999988079071,
+              1.2799999713897705,
+              0.30000025033950806
+            ],
+            "size": [
+              1.149999976158142,
+              2.774999976158142,
+              0.30000036588285184
+            ],
+            "expected_size": [
+              1.149999976158142,
+              2.774999976158142,
+              0.30000001192092896
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\fbx\\12_Forged_Blade_Blank.fbx",
+      "tolerance": 0.0001,
+      "sha256": "B506302CE06A0FD1E9A9A90CB71645D2612CCD85A4DA4061D8568C73B9277D58",
+      "bytes": 22012,
+      "triangles": 104,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Forged_Blade_Blank__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Forged_Blade_Blank__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 312,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 104
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Forged_Blade_Blank",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Forged_Blade_Blank__Body"
+            ],
+            "expected": [
+              "12_Forged_Blade_Blank__Body"
+            ]
+          }
+        },
+        "12_Forged_Blade_Blank__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Forged_Blade_Blank__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 104,
+            "total_faces": 104
+          }
+        },
+        "12_Forged_Blade_Blank__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Forged_Blade_Blank__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 104,
+            "expected": 104
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.574999988079071,
+              -1.4950000047683716,
+              0.0
+            ],
+            "max": [
+              0.574999988079071,
+              1.2799999713897705,
+              0.30000001192092896
+            ],
+            "size": [
+              1.149999976158142,
+              2.774999976158142,
+              0.30000001192092896
+            ],
+            "expected_size": [
+              1.149999976158142,
+              2.774999976158142,
+              0.30000001192092896
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\glb\\12_Forged_Blade_Blank.glb",
+      "tolerance": 0.0001,
+      "sha256": "F1ADAC8901162258488F0745733D52222C4474D7277EFF62F54C69DF201C5EBC",
+      "bytes": 9608,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 104,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Forged_Blade_Blank__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Forged_Blade_Blank__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 312,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 104
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

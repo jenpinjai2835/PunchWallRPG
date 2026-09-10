@@ -1,0 +1,68 @@
+{
+  "task": "Worker3 read-only integrated catalog audit",
+  "checked_at_utc": "2026-09-10T18:07:54.188232+00:00",
+  "status": "STATIC_REVIEW_COMPLETE_WITH_FINDINGS",
+  "scope": "Shared build/package/batch and metadata/roles/notes of all nine modules; final modern visual and ZIP review waiting for root PASS",
+  "source_sha256": {
+    "work\\creator-packs\\catalog\\build.py": "ed907de797f5d3a01d0027a37efee1490a74c61097c6b51012b451e0ee767dc6",
+    "work\\creator-packs\\catalog\\package.py": "9b1b1ccaa8140e9b392492cfecbbd15d166e0efd2ed9d956a97e24eaedd7297e",
+    "work\\creator-packs\\catalog\\batch.py": "ff70a3b1d9f620cd1b298eb2d6410adbd72146dfed49dc68bcbf57f2c41b565f",
+    "work\\creator-packs\\catalog\\packs\\emberforge_smithy.py": "a6815f7eafa2be81069d194793e1e8d7f00e85e0e26dde85374869f1db9ac506",
+    "work\\creator-packs\\catalog\\packs\\harvest_homestead.py": "05799d4fdae505d4ec569df691288236e7be1379831bccbab96b6533a287a1e9",
+    "work\\creator-packs\\catalog\\packs\\moonwell_alchemy.py": "7f1e8d52f320b3ae26d2e55454647dae0f4a498aceb9cc0e9fa4cf39a641f4df",
+    "work\\creator-packs\\catalog\\packs\\mossvale_camp.py": "bbf008f4d6ef3e9266ad4092ac5b124d13a039b7f780dcad2055c723580baa73",
+    "work\\creator-packs\\catalog\\packs\\neon_relay_lab.py": "35fc62f34bd58e17b517c6f3dba6163bbe7958cda68879c6f3b395c9a9ca70a4",
+    "work\\creator-packs\\catalog\\packs\\runestone_dungeon.py": "fdaf59a254c97bf3aa803940fda676682d1805a5ba405031cd7efcf4bad41b20",
+    "work\\creator-packs\\catalog\\packs\\starfall_arcade.py": "3446cb72ec95a0641f737e9bba2241f148eebbf6d1d229fd74d62e7bff510c29",
+    "work\\creator-packs\\catalog\\packs\\sunbeam_cafe.py": "bb005b738efd59fc50a8427ce759f904102555db5b850c7d4755f4020faabedd",
+    "work\\creator-packs\\catalog\\packs\\tidewatch_harbor.py": "ecc1e9b5edf034c2a4e76cb4bb55048e66c6fb59a93d652f3d8ab24d815109d8"
+  },
+  "findings": [
+    {
+      "priority": "P2",
+      "file": "work/creator-packs/catalog/package.py",
+      "line": 15,
+      "title": "Packaging trusts PASS labels without requiring tested deliverables or their recorded hashes",
+      "evidence": "Scratch fixture declaring 12 models, with zero FBX/GLB/Blend files and synthetic PASS labels, returns PASS and produces a 7-entry ZIP. Real export/native/source reports contain SHA256 values that package.py does not compare.",
+      "fix": "Require exact files/counts derived from manifest; verify each against the corresponding recorded successful validation SHA before archiving.",
+      "proof": "package-negative-proof.json"
+    },
+    {
+      "priority": "P2",
+      "file": "work/creator-packs/catalog/package.py",
+      "line": 37,
+      "title": "Recursive inclusion ships internal and incidental output files",
+      "evidence": "Builder creates evidence/build.log and packager creates STORE-DRAFT.md, both included by rglob. Scratch diagnostic-probe.txt is also included.",
+      "fix": "Use explicit buyer allowlist and exclude logs, internal listing draft, developer previews/probes, stale outputs and backup files."
+    },
+    {
+      "priority": "P2",
+      "file": "work/creator-packs/catalog/package.py",
+      "line": 23,
+      "title": "Generic listing promises separate selected roles for one-mesh packs",
+      "evidence": "Seven packs have only default Body roles. Harvest and Runestone have explicit secondary roles.",
+      "fix": "Generate role claims from manifest actual role meshes, or omit the generic separation promise."
+    },
+    {
+      "priority": "P2",
+      "file": "work/creator-packs/catalog/packs/moonwell_alchemy.py",
+      "line": 65,
+      "title": "Brew surface removability is not preserved in the exported mesh",
+      "evidence": "Brew_Surface cylinder line 61 uses default Body; frozen export helper joins all Body pieces. The manifest note calls it removable.",
+      "fix": "Describe removal as a Blender-source edit, change note to static opaque insert, or assign and validate separate semantic role."
+    }
+  ],
+  "positive_checks": [
+    "Per-export validator checks isolated reimport, real file SHA, geometry, UV swatches, embedded texture pixels, bounds and role pivots.",
+    "Palette PNG generator packs all three images with fake users.",
+    "Editable source is saved while all 12 models are visible and Classic colors restored in source reopen.",
+    "Aggregate roundtrip explicitly states native Roblox publication is separate.",
+    "Store draft says local source ZIP is not automatically included with Creator Store purchase."
+  ],
+  "limitations": [
+    "No root files modified, no Blender/Studio/browser/account actions in this audit.",
+    "Synthetic fixture demonstrates a validator defect, not missing geometry in real final outputs.",
+    "All nine native paid publications remain BLOCKED by automatic approval rejection of beta setting/restart.",
+    "Final three modern packs visual/ZIP review is WAITING for root batch PASS."
+  ]
+}

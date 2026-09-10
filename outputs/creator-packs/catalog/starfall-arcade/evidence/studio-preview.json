@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:35.639Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "starfall-arcade",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Comet_Arcade_Cabinet",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ccc55364596fbeff6d51383954f402fb2495520f4eec6a9004199fc1b4a90db4\",\"status\":\"PASS\",\"id\":\"01_Comet_Arcade_Cabinet\",\"mesh_count\":1,\"triangles\":1014}"
+    },
+    {
+      "id": "02_Orbit_Pinball_Table",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a22b183b991431e14760f70f4faaf9e6186f9b2a9659a995a22e5b131948284d\",\"status\":\"PASS\",\"id\":\"02_Orbit_Pinball_Table\",\"mesh_count\":1,\"triangles\":1376}"
+    },
+    {
+      "id": "03_Vector_Racing_Seat",
+      "isError": false,
+      "text": "{\"source_sha256\":\"2355e6f0aa88c0f886276417a7698d742a9a3c32fd2f8317fe5dac82cd309322\",\"status\":\"PASS\",\"id\":\"03_Vector_Racing_Seat\",\"mesh_count\":1,\"triangles\":1204}"
+    },
+    {
+      "id": "04_Prize_Crane_Machine",
+      "isError": false,
+      "text": "{\"source_sha256\":\"5877d8f9391d2ba10b4ef1c4a8ac212045c2539cc27bb1431e97ee5d0f0cb137\",\"status\":\"PASS\",\"id\":\"04_Prize_Crane_Machine\",\"mesh_count\":1,\"triangles\":1140}"
+    },
+    {
+      "id": "05_Token_Exchange_Kiosk",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4fcaf074f43ce37c36ba05216bb07b24e321bf1d0259579cf464f812a9729eab\",\"status\":\"PASS\",\"id\":\"05_Token_Exchange_Kiosk\",\"mesh_count\":1,\"triangles\":616}"
+    },
+    {
+      "id": "06_Rhythm_Pad",
+      "isError": false,
+      "text": "{\"source_sha256\":\"b1ef67e8c2357764d06b9b74fffdd84a232c6bb32566a863d876f09409a3a033\",\"status\":\"PASS\",\"id\":\"06_Rhythm_Pad\",\"mesh_count\":1,\"triangles\":768}"
+    },
+    {
+      "id": "07_Comet_Jukebox",
+      "isError": false,
+      "text": "{\"source_sha256\":\"f93445b71809ee9717ff14a62cbd0dee9a4bf88d1ee4a811b367143ad3af0144\",\"status\":\"PASS\",\"id\":\"07_Comet_Jukebox\",\"mesh_count\":1,\"triangles\":844}"
+    },
+    {
+      "id": "08_Gamepad_Stand",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4a09e99434320db5030dcf6ab23ef2eeaece25ea7b4394042b3962b96889d973\",\"status\":\"PASS\",\"id\":\"08_Gamepad_Stand\",\"mesh_count\":1,\"triangles\":460}"
+    },
+    {
+      "id": "09_Prize_Capsule",
+      "isError": false,
+      "text": "{\"source_sha256\":\"02454b78ed85b8f3bf705e16f40ef3b5c468b450f3ceaa10da61ec9c06382f5f\",\"status\":\"PASS\",\"id\":\"09_Prize_Capsule\",\"mesh_count\":1,\"triangles\":388}"
+    },
+    {
+      "id": "10_Queue_Barrier",
+      "isError": false,
+      "text": "{\"source_sha256\":\"aef86cba547a477ba041b13238ed90c586ea6ed0dfe6c06c1e6e8a9e71e16876\",\"status\":\"PASS\",\"id\":\"10_Queue_Barrier\",\"mesh_count\":1,\"triangles\":292}"
+    },
+    {
+      "id": "11_Ticket_Dispenser",
+      "isError": false,
+      "text": "{\"source_sha256\":\"6486669b4c8a518cb96b2711ac07c25f4f56421c2f774285c228b75f7de4e170\",\"status\":\"PASS\",\"id\":\"11_Ticket_Dispenser\",\"mesh_count\":1,\"triangles\":616}"
+    },
+    {
+      "id": "12_Wall_Scoreboard",
+      "isError": false,
+      "text": "{\"source_sha256\":\"5f33072779b6037ef317d357650e1822c3f7194ba3a38c6c05ebcbb56f6c3186\",\"status\":\"PASS\",\"id\":\"12_Wall_Scoreboard\",\"mesh_count\":1,\"triangles\":748}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-starfall-arcade-local-preview.json"
+}

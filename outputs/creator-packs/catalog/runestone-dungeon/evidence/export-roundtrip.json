@@ -1,0 +1,5632 @@
+{
+  "status": "PASS",
+  "palettes": [
+    {
+      "variant": "Classic",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\textures\\Classic_Palette.png",
+      "sha256": "90924CBC15DBD70B40B1F9C2A6F4413ACB28F2135CEE5877C9344E42BF07D8C9",
+      "reference_rgb": [
+        [
+          102,
+          85,
+          70
+        ],
+        [
+          48,
+          47,
+          53
+        ],
+        [
+          146,
+          128,
+          108
+        ],
+        [
+          64,
+          142,
+          142
+        ],
+        [
+          137,
+          202,
+          197
+        ],
+        [
+          170,
+          145,
+          95
+        ],
+        [
+          224,
+          204,
+          151
+        ],
+        [
+          65,
+          67,
+          76
+        ],
+        [
+          100,
+          108,
+          115
+        ],
+        [
+          158,
+          169,
+          171
+        ],
+        [
+          217,
+          213,
+          190
+        ],
+        [
+          151,
+          85,
+          78
+        ],
+        [
+          105,
+          144,
+          118
+        ],
+        [
+          121,
+          112,
+          152
+        ],
+        [
+          125,
+          103,
+          90
+        ],
+        [
+          34,
+          43,
+          51
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          102,
+          85,
+          70
+        ],
+        [
+          48,
+          47,
+          53
+        ],
+        [
+          146,
+          128,
+          108
+        ],
+        [
+          64,
+          142,
+          142
+        ],
+        [
+          137,
+          202,
+          197
+        ],
+        [
+          170,
+          145,
+          95
+        ],
+        [
+          224,
+          204,
+          151
+        ],
+        [
+          65,
+          67,
+          76
+        ],
+        [
+          100,
+          108,
+          115
+        ],
+        [
+          158,
+          169,
+          171
+        ],
+        [
+          217,
+          213,
+          190
+        ],
+        [
+          151,
+          85,
+          78
+        ],
+        [
+          105,
+          144,
+          118
+        ],
+        [
+          121,
+          112,
+          152
+        ],
+        [
+          125,
+          103,
+          90
+        ],
+        [
+          34,
+          43,
+          51
+        ]
+      ],
+      "blender_rgb": [
+        [
+          102,
+          85,
+          70
+        ],
+        [
+          48,
+          47,
+          53
+        ],
+        [
+          146,
+          128,
+          108
+        ],
+        [
+          64,
+          142,
+          142
+        ],
+        [
+          137,
+          202,
+          197
+        ],
+        [
+          170,
+          145,
+          95
+        ],
+        [
+          224,
+          204,
+          151
+        ],
+        [
+          65,
+          67,
+          76
+        ],
+        [
+          100,
+          108,
+          115
+        ],
+        [
+          158,
+          169,
+          171
+        ],
+        [
+          217,
+          213,
+          190
+        ],
+        [
+          151,
+          85,
+          78
+        ],
+        [
+          105,
+          144,
+          118
+        ],
+        [
+          121,
+          112,
+          152
+        ],
+        [
+          125,
+          103,
+          90
+        ],
+        [
+          34,
+          43,
+          51
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Warm",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\textures\\Warm_Palette.png",
+      "sha256": "E4C583E3D5AC557338F8D1F3578A0F850378671DB02389FBBE5915E73619C289",
+      "reference_rgb": [
+        [
+          118,
+          86,
+          66
+        ],
+        [
+          53,
+          43,
+          44
+        ],
+        [
+          175,
+          139,
+          98
+        ],
+        [
+          175,
+          120,
+          61
+        ],
+        [
+          233,
+          186,
+          107
+        ],
+        [
+          174,
+          135,
+          77
+        ],
+        [
+          237,
+          199,
+          139
+        ],
+        [
+          76,
+          69,
+          71
+        ],
+        [
+          131,
+          112,
+          99
+        ],
+        [
+          184,
+          166,
+          140
+        ],
+        [
+          235,
+          219,
+          192
+        ],
+        [
+          173,
+          89,
+          64
+        ],
+        [
+          138,
+          145,
+          100
+        ],
+        [
+          148,
+          115,
+          125
+        ],
+        [
+          148,
+          111,
+          80
+        ],
+        [
+          47,
+          45,
+          50
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          118,
+          86,
+          66
+        ],
+        [
+          53,
+          43,
+          44
+        ],
+        [
+          175,
+          139,
+          98
+        ],
+        [
+          175,
+          120,
+          61
+        ],
+        [
+          233,
+          186,
+          107
+        ],
+        [
+          174,
+          135,
+          77
+        ],
+        [
+          237,
+          199,
+          139
+        ],
+        [
+          76,
+          69,
+          71
+        ],
+        [
+          131,
+          112,
+          99
+        ],
+        [
+          184,
+          166,
+          140
+        ],
+        [
+          235,
+          219,
+          192
+        ],
+        [
+          173,
+          89,
+          64
+        ],
+        [
+          138,
+          145,
+          100
+        ],
+        [
+          148,
+          115,
+          125
+        ],
+        [
+          148,
+          111,
+          80
+        ],
+        [
+          47,
+          45,
+          50
+        ]
+      ],
+      "blender_rgb": [
+        [
+          118,
+          86,
+          66
+        ],
+        [
+          53,
+          43,
+          44
+        ],
+        [
+          175,
+          139,
+          98
+        ],
+        [
+          175,
+          120,
+          61
+        ],
+        [
+          233,
+          186,
+          107
+        ],
+        [
+          174,
+          135,
+          77
+        ],
+        [
+          237,
+          199,
+          139
+        ],
+        [
+          76,
+          69,
+          71
+        ],
+        [
+          131,
+          112,
+          99
+        ],
+        [
+          184,
+          166,
+          140
+        ],
+        [
+          235,
+          219,
+          192
+        ],
+        [
+          173,
+          89,
+          64
+        ],
+        [
+          138,
+          145,
+          100
+        ],
+        [
+          148,
+          115,
+          125
+        ],
+        [
+          148,
+          111,
+          80
+        ],
+        [
+          47,
+          45,
+          50
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    },
+    {
+      "variant": "Twilight",
+      "status": "PASS",
+      "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\textures\\Twilight_Palette.png",
+      "sha256": "DDB7EB1E5D9D63D375A704067058B401117988B20DA5F4D8D235EFF1B4F5D5F9",
+      "reference_rgb": [
+        [
+          83,
+          74,
+          102
+        ],
+        [
+          40,
+          42,
+          59
+        ],
+        [
+          144,
+          131,
+          159
+        ],
+        [
+          107,
+          104,
+          175
+        ],
+        [
+          176,
+          169,
+          233
+        ],
+        [
+          151,
+          131,
+          180
+        ],
+        [
+          216,
+          198,
+          238
+        ],
+        [
+          54,
+          63,
+          89
+        ],
+        [
+          85,
+          94,
+          125
+        ],
+        [
+          146,
+          159,
+          190
+        ],
+        [
+          212,
+          217,
+          233
+        ],
+        [
+          139,
+          95,
+          145
+        ],
+        [
+          98,
+          150,
+          155
+        ],
+        [
+          139,
+          114,
+          198
+        ],
+        [
+          117,
+          96,
+          130
+        ],
+        [
+          29,
+          38,
+          58
+        ]
+      ],
+      "actual_png_rgb": [
+        [
+          83,
+          74,
+          102
+        ],
+        [
+          40,
+          42,
+          59
+        ],
+        [
+          144,
+          131,
+          159
+        ],
+        [
+          107,
+          104,
+          175
+        ],
+        [
+          176,
+          169,
+          233
+        ],
+        [
+          151,
+          131,
+          180
+        ],
+        [
+          216,
+          198,
+          238
+        ],
+        [
+          54,
+          63,
+          89
+        ],
+        [
+          85,
+          94,
+          125
+        ],
+        [
+          146,
+          159,
+          190
+        ],
+        [
+          212,
+          217,
+          233
+        ],
+        [
+          139,
+          95,
+          145
+        ],
+        [
+          98,
+          150,
+          155
+        ],
+        [
+          139,
+          114,
+          198
+        ],
+        [
+          117,
+          96,
+          130
+        ],
+        [
+          29,
+          38,
+          58
+        ]
+      ],
+      "blender_rgb": [
+        [
+          83,
+          74,
+          102
+        ],
+        [
+          40,
+          42,
+          59
+        ],
+        [
+          144,
+          131,
+          159
+        ],
+        [
+          107,
+          104,
+          175
+        ],
+        [
+          176,
+          169,
+          233
+        ],
+        [
+          151,
+          131,
+          180
+        ],
+        [
+          216,
+          198,
+          238
+        ],
+        [
+          54,
+          63,
+          89
+        ],
+        [
+          85,
+          94,
+          125
+        ],
+        [
+          146,
+          159,
+          190
+        ],
+        [
+          212,
+          217,
+          233
+        ],
+        [
+          139,
+          95,
+          145
+        ],
+        [
+          98,
+          150,
+          155
+        ],
+        [
+          139,
+          114,
+          198
+        ],
+        [
+          117,
+          96,
+          130
+        ],
+        [
+          29,
+          38,
+          58
+        ]
+      ],
+      "max_rgb_byte_error": 0,
+      "blender_matches_raw_png": true,
+      "mismatched_cells": []
+    }
+  ],
+  "exports": [
+    {
+      "id": "01_Pointed_Gateway",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 3,
+            "expected": 3
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Pointed_Gateway__Crown",
+              "01_Pointed_Gateway__LeftPier",
+              "01_Pointed_Gateway__RightPier"
+            ],
+            "expected": [
+              "01_Pointed_Gateway__Crown",
+              "01_Pointed_Gateway__LeftPier",
+              "01_Pointed_Gateway__RightPier"
+            ]
+          }
+        },
+        "01_Pointed_Gateway__Crown finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Pointed_Gateway__Crown finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 392,
+            "total_faces": 392
+          }
+        },
+        "01_Pointed_Gateway__Crown material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "01_Pointed_Gateway__LeftPier finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Pointed_Gateway__LeftPier finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 352,
+            "total_faces": 352
+          }
+        },
+        "01_Pointed_Gateway__LeftPier material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "01_Pointed_Gateway__RightPier finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "01_Pointed_Gateway__RightPier finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 352,
+            "total_faces": 352
+          }
+        },
+        "01_Pointed_Gateway__RightPier material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1096,
+            "expected": 1096
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.494999885559082,
+              -0.6600000262260437,
+              -9.85670070008382e-08
+            ],
+            "max": [
+              2.494999885559082,
+              0.6600000858306885,
+              6.045000076293945
+            ],
+            "size": [
+              4.989999771118164,
+              1.3200001120567322,
+              6.045000174860952
+            ],
+            "expected_size": [
+              4.989999771118164,
+              1.3200000524520874,
+              6.045000076293945
+            ],
+            "max_error": 9.85670070008382e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\01_Pointed_Gateway.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C700DF93DDD0D22C4F6B55FBE8C11D1821C2B4FDBA41E024F595C40A01E0BA6E",
+      "bytes": 50780,
+      "triangles": 1096,
+      "mesh_count": 3,
+      "role_pivots": [
+        {
+          "mesh": "01_Pointed_Gateway__Crown",
+          "actual": [
+            0.0,
+            4.936496225127485e-07,
+            3.0299999713897705
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            3.0299999713897705
+          ],
+          "max_error": 4.936496225127485e-07
+        },
+        {
+          "mesh": "01_Pointed_Gateway__LeftPier",
+          "actual": [
+            -2.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            -2.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        },
+        {
+          "mesh": "01_Pointed_Gateway__RightPier",
+          "actual": [
+            2.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            2.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Pointed_Gateway__Crown",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1176,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 392
+        },
+        {
+          "mesh": "01_Pointed_Gateway__LeftPier",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1056,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 352
+        },
+        {
+          "mesh": "01_Pointed_Gateway__RightPier",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1056,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 352
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "01_Pointed_Gateway",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 3,
+            "expected": 3
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "01_Pointed_Gateway__Crown",
+              "01_Pointed_Gateway__LeftPier",
+              "01_Pointed_Gateway__RightPier"
+            ],
+            "expected": [
+              "01_Pointed_Gateway__Crown",
+              "01_Pointed_Gateway__LeftPier",
+              "01_Pointed_Gateway__RightPier"
+            ]
+          }
+        },
+        "01_Pointed_Gateway__Crown finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Pointed_Gateway__Crown finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 392,
+            "total_faces": 392
+          }
+        },
+        "01_Pointed_Gateway__Crown material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__Crown material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "01_Pointed_Gateway__LeftPier finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Pointed_Gateway__LeftPier finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 352,
+            "total_faces": 352
+          }
+        },
+        "01_Pointed_Gateway__LeftPier material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__LeftPier material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "01_Pointed_Gateway__RightPier finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "01_Pointed_Gateway__RightPier finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 352,
+            "total_faces": 352
+          }
+        },
+        "01_Pointed_Gateway__RightPier material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "01_Pointed_Gateway__RightPier material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 1096,
+            "expected": 1096
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.494999885559082,
+              -0.6600000262260437,
+              0.0
+            ],
+            "max": [
+              2.494999885559082,
+              0.6600000262260437,
+              6.045000076293945
+            ],
+            "size": [
+              4.989999771118164,
+              1.3200000524520874,
+              6.045000076293945
+            ],
+            "expected_size": [
+              4.989999771118164,
+              1.3200000524520874,
+              6.045000076293945
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\01_Pointed_Gateway.glb",
+      "tolerance": 0.0001,
+      "sha256": "1714785320A9C3EBAB2F820C04148356B6AD38AEA3E2CE9FCB95776FB7202CBC",
+      "bytes": 87536,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 1096,
+      "mesh_count": 3,
+      "role_pivots": [
+        {
+          "mesh": "01_Pointed_Gateway__Crown",
+          "actual": [
+            0.0,
+            0.0,
+            3.0299999713897705
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            3.0299999713897705
+          ],
+          "max_error": 0.0
+        },
+        {
+          "mesh": "01_Pointed_Gateway__LeftPier",
+          "actual": [
+            -2.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            -2.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        },
+        {
+          "mesh": "01_Pointed_Gateway__RightPier",
+          "actual": [
+            2.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            2.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "01_Pointed_Gateway__Crown",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1176,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 392
+        },
+        {
+          "mesh": "01_Pointed_Gateway__LeftPier",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1056,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 352
+        },
+        {
+          "mesh": "01_Pointed_Gateway__RightPier",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1056,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 352
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Masonry_Wall",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Masonry_Wall__Body"
+            ],
+            "expected": [
+              "02_Masonry_Wall__Body"
+            ]
+          }
+        },
+        "02_Masonry_Wall__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "02_Masonry_Wall__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 880,
+            "total_faces": 880
+          }
+        },
+        "02_Masonry_Wall__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 880,
+            "expected": 880
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.0,
+              -0.40499937534332275,
+              -5.7836842870528926e-08
+            ],
+            "max": [
+              2.0,
+              0.4050006568431854,
+              4.0
+            ],
+            "size": [
+              4.0,
+              0.8100000321865082,
+              4.000000057836843
+            ],
+            "expected_size": [
+              4.0,
+              0.8100000023841858,
+              4.0
+            ],
+            "max_error": 6.556510925292969e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\02_Masonry_Wall.fbx",
+      "tolerance": 0.0001,
+      "sha256": "BBFAB1ABC06758AE0930849E5FCC264C4C8C1C8799B3C6DDE37B526B66B48F91",
+      "bytes": 36348,
+      "triangles": 880,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Masonry_Wall__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Masonry_Wall__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2640,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 880
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "02_Masonry_Wall",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "02_Masonry_Wall__Body"
+            ],
+            "expected": [
+              "02_Masonry_Wall__Body"
+            ]
+          }
+        },
+        "02_Masonry_Wall__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "02_Masonry_Wall__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 880,
+            "total_faces": 880
+          }
+        },
+        "02_Masonry_Wall__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "02_Masonry_Wall__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 880,
+            "expected": 880
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.0,
+              -0.4050000011920929,
+              0.0
+            ],
+            "max": [
+              2.0,
+              0.4050000011920929,
+              4.0
+            ],
+            "size": [
+              4.0,
+              0.8100000023841858,
+              4.0
+            ],
+            "expected_size": [
+              4.0,
+              0.8100000023841858,
+              4.0
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\02_Masonry_Wall.glb",
+      "tolerance": 0.0001,
+      "sha256": "4769CCB50E1C85B19E2C139ECC4BD4C90888AD8BC7D285C9A9CF68600E47E815",
+      "bytes": 68536,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 880,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "02_Masonry_Wall__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "02_Masonry_Wall__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2640,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 880
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Flagstone_Tile",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Flagstone_Tile__Body"
+            ],
+            "expected": [
+              "03_Flagstone_Tile__Body"
+            ]
+          }
+        },
+        "03_Flagstone_Tile__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "03_Flagstone_Tile__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 440,
+            "total_faces": 440
+          }
+        },
+        "03_Flagstone_Tile__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 440,
+            "expected": 440
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.0,
+              -2.0,
+              -3.2176833997255017e-07
+            ],
+            "max": [
+              2.0,
+              2.0,
+              0.290000319480896
+            ],
+            "size": [
+              4.0,
+              4.0,
+              0.29000064124923597
+            ],
+            "expected_size": [
+              4.0,
+              4.0,
+              0.28999999165534973
+            ],
+            "max_error": 3.2782554626464844e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\03_Flagstone_Tile.fbx",
+      "tolerance": 0.0001,
+      "sha256": "16FE10DCDE6FA0A760D66F0E5CC7FA80FA3710FD339BB00F0BBA0310FE183E2C",
+      "bytes": 27916,
+      "triangles": 440,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Flagstone_Tile__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Flagstone_Tile__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1320,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 440
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "03_Flagstone_Tile",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "03_Flagstone_Tile__Body"
+            ],
+            "expected": [
+              "03_Flagstone_Tile__Body"
+            ]
+          }
+        },
+        "03_Flagstone_Tile__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "03_Flagstone_Tile__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 440,
+            "total_faces": 440
+          }
+        },
+        "03_Flagstone_Tile__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "03_Flagstone_Tile__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 440,
+            "expected": 440
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -2.0,
+              -2.0,
+              0.0
+            ],
+            "max": [
+              2.0,
+              2.0,
+              0.28999999165534973
+            ],
+            "size": [
+              4.0,
+              4.0,
+              0.28999999165534973
+            ],
+            "expected_size": [
+              4.0,
+              4.0,
+              0.28999999165534973
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\03_Flagstone_Tile.glb",
+      "tolerance": 0.0001,
+      "sha256": "7569E07EA7AE3DAF50EFAD109B186567A75EC79F5B1443DB0B0C935CC1B3A5A4",
+      "bytes": 35164,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 440,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "03_Flagstone_Tile__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "03_Flagstone_Tile__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1320,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 440
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Octagonal_Pillar",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Octagonal_Pillar__Body"
+            ],
+            "expected": [
+              "04_Octagonal_Pillar__Body"
+            ]
+          }
+        },
+        "04_Octagonal_Pillar__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "04_Octagonal_Pillar__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 380,
+            "total_faces": 380
+          }
+        },
+        "04_Octagonal_Pillar__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 380,
+            "expected": 380
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.824999988079071,
+              -0.8249993920326233,
+              -1.1322986637196664e-07
+            ],
+            "max": [
+              0.824999988079071,
+              0.8250005841255188,
+              3.7700002193450928
+            ],
+            "size": [
+              1.649999976158142,
+              1.649999976158142,
+              3.770000332574959
+            ],
+            "expected_size": [
+              1.649999976158142,
+              1.649999976158142,
+              3.7699999809265137
+            ],
+            "max_error": 5.960464477539062e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\04_Octagonal_Pillar.fbx",
+      "tolerance": 0.0001,
+      "sha256": "49263AC507289E6A149E3CF1EFBCCEE3C8B432C6658CA678A0B7E4E6E2295E47",
+      "bytes": 29452,
+      "triangles": 380,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Octagonal_Pillar__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Octagonal_Pillar__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1140,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 380
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "04_Octagonal_Pillar",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "04_Octagonal_Pillar__Body"
+            ],
+            "expected": [
+              "04_Octagonal_Pillar__Body"
+            ]
+          }
+        },
+        "04_Octagonal_Pillar__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "04_Octagonal_Pillar__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 380,
+            "total_faces": 380
+          }
+        },
+        "04_Octagonal_Pillar__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "04_Octagonal_Pillar__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 380,
+            "expected": 380
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.824999988079071,
+              -0.824999988079071,
+              0.0
+            ],
+            "max": [
+              0.824999988079071,
+              0.824999988079071,
+              3.7699999809265137
+            ],
+            "size": [
+              1.649999976158142,
+              1.649999976158142,
+              3.7699999809265137
+            ],
+            "expected_size": [
+              1.649999976158142,
+              1.649999976158142,
+              3.7699999809265137
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\04_Octagonal_Pillar.glb",
+      "tolerance": 0.0001,
+      "sha256": "4E260844FEE566E59E08CE2947B21AB27F88F274A24C332EF8EE3E38B2BCEA5A",
+      "bytes": 29684,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 380,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "04_Octagonal_Pillar__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "04_Octagonal_Pillar__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1140,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 380
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Tripod_Brazier",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Tripod_Brazier__Body"
+            ],
+            "expected": [
+              "05_Tripod_Brazier__Body"
+            ]
+          }
+        },
+        "05_Tripod_Brazier__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "05_Tripod_Brazier__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 656,
+            "total_faces": 656
+          }
+        },
+        "05_Tripod_Brazier__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 656,
+            "expected": 656
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.875,
+              -0.8749997615814209,
+              -1.2537056193195895e-07
+            ],
+            "max": [
+              0.875,
+              0.8750002384185791,
+              2.259999990463257
+            ],
+            "size": [
+              1.75,
+              1.75,
+              2.2600001158338188
+            ],
+            "expected_size": [
+              1.75,
+              1.75,
+              2.259999990463257
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\05_Tripod_Brazier.fbx",
+      "tolerance": 0.0001,
+      "sha256": "83284A18B0ACDA907162BF70FD11E9B3259F2EA30C9A45DCD833C5C10C98BE98",
+      "bytes": 37132,
+      "triangles": 656,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Tripod_Brazier__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Tripod_Brazier__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1968,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 656
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "05_Tripod_Brazier",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "05_Tripod_Brazier__Body"
+            ],
+            "expected": [
+              "05_Tripod_Brazier__Body"
+            ]
+          }
+        },
+        "05_Tripod_Brazier__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "05_Tripod_Brazier__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 656,
+            "total_faces": 656
+          }
+        },
+        "05_Tripod_Brazier__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "05_Tripod_Brazier__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 656,
+            "expected": 656
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.875,
+              -0.875,
+              0.0
+            ],
+            "max": [
+              0.875,
+              0.875,
+              2.259999990463257
+            ],
+            "size": [
+              1.75,
+              1.75,
+              2.259999990463257
+            ],
+            "expected_size": [
+              1.75,
+              1.75,
+              2.259999990463257
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\05_Tripod_Brazier.glb",
+      "tolerance": 0.0001,
+      "sha256": "CCC4A55118F874B3DAA5EF04CE4AC8FA76500B21E41B7B0A1AA7E264E8E52E2E",
+      "bytes": 48648,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 656,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "05_Tripod_Brazier__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "05_Tripod_Brazier__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1968,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 656
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Stone_Sarcophagus",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 2,
+            "expected": 2
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Stone_Sarcophagus__Body",
+              "06_Stone_Sarcophagus__Lid"
+            ],
+            "expected": [
+              "06_Stone_Sarcophagus__Body",
+              "06_Stone_Sarcophagus__Lid"
+            ]
+          }
+        },
+        "06_Stone_Sarcophagus__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Stone_Sarcophagus__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 64,
+            "total_faces": 64
+          }
+        },
+        "06_Stone_Sarcophagus__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "06_Stone_Sarcophagus__Lid finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "06_Stone_Sarcophagus__Lid finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 152,
+            "total_faces": 152
+          }
+        },
+        "06_Stone_Sarcophagus__Lid material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 216,
+            "expected": 216
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0191999673843384,
+              -1.7640000581741333,
+              -2.634427289649466e-07
+            ],
+            "max": [
+              1.0191999673843384,
+              1.6169999837875366,
+              1.5899999141693115
+            ],
+            "size": [
+              2.0383999347686768,
+              3.38100004196167,
+              1.5900001776120405
+            ],
+            "expected_size": [
+              2.0383999347686768,
+              3.38100004196167,
+              1.590000033378601
+            ],
+            "max_error": 2.634427289649466e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\06_Stone_Sarcophagus.fbx",
+      "tolerance": 0.0001,
+      "sha256": "184AEADDB9817185BEEDD70AE29D7D3899559430638088B11515F0617B2FE42A",
+      "bytes": 26684,
+      "triangles": 216,
+      "mesh_count": 2,
+      "role_pivots": [
+        {
+          "mesh": "06_Stone_Sarcophagus__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        },
+        {
+          "mesh": "06_Stone_Sarcophagus__Lid",
+          "actual": [
+            0.0,
+            1.963194193876916e-07,
+            1.2050000429153442
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            1.2050000429153442
+          ],
+          "max_error": 1.963194193876916e-07
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Stone_Sarcophagus__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 192,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 64
+        },
+        {
+          "mesh": "06_Stone_Sarcophagus__Lid",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 456,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 152
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "06_Stone_Sarcophagus",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 2,
+            "expected": 2
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "06_Stone_Sarcophagus__Body",
+              "06_Stone_Sarcophagus__Lid"
+            ],
+            "expected": [
+              "06_Stone_Sarcophagus__Body",
+              "06_Stone_Sarcophagus__Lid"
+            ]
+          }
+        },
+        "06_Stone_Sarcophagus__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Stone_Sarcophagus__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 64,
+            "total_faces": 64
+          }
+        },
+        "06_Stone_Sarcophagus__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "06_Stone_Sarcophagus__Lid finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "06_Stone_Sarcophagus__Lid finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 152,
+            "total_faces": 152
+          }
+        },
+        "06_Stone_Sarcophagus__Lid material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "06_Stone_Sarcophagus__Lid material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 216,
+            "expected": 216
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0191999673843384,
+              -1.7640000581741333,
+              0.0
+            ],
+            "max": [
+              1.0191999673843384,
+              1.6169999837875366,
+              1.590000033378601
+            ],
+            "size": [
+              2.0383999347686768,
+              3.38100004196167,
+              1.590000033378601
+            ],
+            "expected_size": [
+              2.0383999347686768,
+              3.38100004196167,
+              1.590000033378601
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\06_Stone_Sarcophagus.glb",
+      "tolerance": 0.0001,
+      "sha256": "EBE40EC17A0D921D2EC74E752975B3850CC0885779B01D7C93DDC2C3DAC90B61",
+      "bytes": 18352,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 216,
+      "mesh_count": 2,
+      "role_pivots": [
+        {
+          "mesh": "06_Stone_Sarcophagus__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        },
+        {
+          "mesh": "06_Stone_Sarcophagus__Lid",
+          "actual": [
+            0.0,
+            0.0,
+            1.2050000429153442
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            1.2050000429153442
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "06_Stone_Sarcophagus__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 192,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 64
+        },
+        {
+          "mesh": "06_Stone_Sarcophagus__Lid",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 456,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 152
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Ritual_Altar",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Ritual_Altar__Body"
+            ],
+            "expected": [
+              "07_Ritual_Altar__Body"
+            ]
+          }
+        },
+        "07_Ritual_Altar__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "07_Ritual_Altar__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 800,
+            "total_faces": 800
+          }
+        },
+        "07_Ritual_Altar__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 800,
+            "expected": 800
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.7300000190734863,
+              -0.9349997639656067,
+              -1.2988036246497359e-07
+            ],
+            "max": [
+              1.7300000190734863,
+              0.9350002408027649,
+              1.910000205039978
+            ],
+            "size": [
+              3.4600000381469727,
+              1.8700000047683716,
+              1.9100003349203405
+            ],
+            "expected_size": [
+              3.4600000381469727,
+              1.8700000047683716,
+              1.9100000858306885
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\07_Ritual_Altar.fbx",
+      "tolerance": 0.0001,
+      "sha256": "FFFF2C38B39452F9F21ABBB6CFEA37CA49FD100870417538B2CB4402C5B365E5",
+      "bytes": 38684,
+      "triangles": 800,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Ritual_Altar__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Ritual_Altar__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 2400,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 800
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "07_Ritual_Altar",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "07_Ritual_Altar__Body"
+            ],
+            "expected": [
+              "07_Ritual_Altar__Body"
+            ]
+          }
+        },
+        "07_Ritual_Altar__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "07_Ritual_Altar__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 800,
+            "total_faces": 800
+          }
+        },
+        "07_Ritual_Altar__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "07_Ritual_Altar__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 800,
+            "expected": 800
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.7300000190734863,
+              -0.9350000023841858,
+              0.0
+            ],
+            "max": [
+              1.7300000190734863,
+              0.9350000023841858,
+              1.9100000858306885
+            ],
+            "size": [
+              3.4600000381469727,
+              1.8700000047683716,
+              1.9100000858306885
+            ],
+            "expected_size": [
+              3.4600000381469727,
+              1.8700000047683716,
+              1.9100000858306885
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\07_Ritual_Altar.glb",
+      "tolerance": 0.0001,
+      "sha256": "0E37E0EF9574D544CA1A85E3222E7DFC9EBE6198C76D078E474733C6A691E4DC",
+      "bytes": 62544,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 800,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "07_Ritual_Altar__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "07_Ritual_Altar__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 2400,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 800
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Iron_Grate",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Iron_Grate__Body"
+            ],
+            "expected": [
+              "08_Iron_Grate__Body"
+            ]
+          }
+        },
+        "08_Iron_Grate__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "08_Iron_Grate__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 654,
+            "total_faces": 654
+          }
+        },
+        "08_Iron_Grate__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 654,
+            "expected": 654
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -0.11999998986721039,
+              -1.547746286689744e-08
+            ],
+            "max": [
+              1.4999998807907104,
+              0.12000056356191635,
+              3.4850001335144043
+            ],
+            "size": [
+              2.9999998807907104,
+              0.24000055342912674,
+              3.485000148991867
+            ],
+            "expected_size": [
+              2.9999998807907104,
+              0.23999999463558197,
+              3.4850001335144043
+            ],
+            "max_error": 5.662441253662109e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\08_Iron_Grate.fbx",
+      "tolerance": 0.0001,
+      "sha256": "6F45644B7F53D81E2EAC42982152F5E97083B18B714EF2F87F6B04FB37953A1F",
+      "bytes": 33548,
+      "triangles": 654,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Iron_Grate__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Iron_Grate__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1962,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.39500001072883606
+            ]
+          ],
+          "palette_faces": 654
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "08_Iron_Grate",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "08_Iron_Grate__Body"
+            ],
+            "expected": [
+              "08_Iron_Grate__Body"
+            ]
+          }
+        },
+        "08_Iron_Grate__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "08_Iron_Grate__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 654,
+            "total_faces": 654
+          }
+        },
+        "08_Iron_Grate__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "08_Iron_Grate__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 654,
+            "expected": 654
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -0.11999999731779099,
+              0.0
+            ],
+            "max": [
+              1.4999998807907104,
+              0.11999999731779099,
+              3.4850001335144043
+            ],
+            "size": [
+              2.9999998807907104,
+              0.23999999463558197,
+              3.4850001335144043
+            ],
+            "expected_size": [
+              2.9999998807907104,
+              0.23999999463558197,
+              3.4850001335144043
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\08_Iron_Grate.glb",
+      "tolerance": 0.0001,
+      "sha256": "AEDEACE49C106169130B8DCFBB3543CF2F55EE2916724FAF3B5B2F4BE1FE68FB",
+      "bytes": 51096,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 654,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "08_Iron_Grate__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "08_Iron_Grate__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1962,
+          "valid": true,
+          "range": [
+            [
+              0.35499998927116394,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.39499998092651367
+            ]
+          ],
+          "palette_faces": 654
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Wall_Sconce",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Wall_Sconce__Body"
+            ],
+            "expected": [
+              "09_Wall_Sconce__Body"
+            ]
+          }
+        },
+        "09_Wall_Sconce__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "09_Wall_Sconce__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 310,
+            "total_faces": 310
+          }
+        },
+        "09_Wall_Sconce__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 310,
+            "expected": 310
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.3499999940395355,
+              -0.7228695750236511,
+              -5.239528633182999e-08
+            ],
+            "max": [
+              0.3499999940395355,
+              0.36000025272369385,
+              1.8800002336502075
+            ],
+            "size": [
+              0.699999988079071,
+              1.082869827747345,
+              1.8800002860454939
+            ],
+            "expected_size": [
+              0.699999988079071,
+              1.0828697681427002,
+              1.880000114440918
+            ],
+            "max_error": 2.384185791015625e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\09_Wall_Sconce.fbx",
+      "tolerance": 0.0001,
+      "sha256": "42B00B29FCC5606D6972BAC2A3BBEB7DE08835FB065B0A616840DC3B20500632",
+      "bytes": 27356,
+      "triangles": 310,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Wall_Sconce__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Wall_Sconce__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 930,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35499998927116394
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 310
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "09_Wall_Sconce",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "09_Wall_Sconce__Body"
+            ],
+            "expected": [
+              "09_Wall_Sconce__Body"
+            ]
+          }
+        },
+        "09_Wall_Sconce__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "09_Wall_Sconce__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 310,
+            "total_faces": 310
+          }
+        },
+        "09_Wall_Sconce__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "09_Wall_Sconce__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 310,
+            "expected": 310
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.3499999940395355,
+              -0.7228697538375854,
+              0.0
+            ],
+            "max": [
+              0.3499999940395355,
+              0.36000001430511475,
+              1.880000114440918
+            ],
+            "size": [
+              0.699999988079071,
+              1.0828697681427002,
+              1.880000114440918
+            ],
+            "expected_size": [
+              0.699999988079071,
+              1.0828697681427002,
+              1.880000114440918
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\09_Wall_Sconce.glb",
+      "tolerance": 0.0001,
+      "sha256": "F034C96340DA47DB19F8E4B137BD03E1646BFEB22D6F9B9DFE8832DE4CF3AB21",
+      "bytes": 22924,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 310,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "09_Wall_Sconce__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "09_Wall_Sconce__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 930,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.35500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.8949999809265137
+            ]
+          ],
+          "palette_faces": 310
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Broken_Column",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Broken_Column__Body"
+            ],
+            "expected": [
+              "10_Broken_Column__Body"
+            ]
+          }
+        },
+        "10_Broken_Column__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "10_Broken_Column__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 142,
+            "total_faces": 142
+          }
+        },
+        "10_Broken_Column__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 142,
+            "expected": 142
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0099999904632568,
+              -0.906500518321991,
+              -1.1604520011587738e-07
+            ],
+            "max": [
+              1.265745997428894,
+              0.8065005540847778,
+              1.1999999284744263
+            ],
+            "size": [
+              2.275745987892151,
+              1.7130010724067688,
+              1.2000000445196264
+            ],
+            "expected_size": [
+              2.275745987892151,
+              1.7130010724067688,
+              1.2000000476837158
+            ],
+            "max_error": 1.1920928955078125e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\10_Broken_Column.fbx",
+      "tolerance": 0.0001,
+      "sha256": "C4AD53A84483DD0E2FD934B9150AAC24751B434A4B917FC6321021D6E683221A",
+      "bytes": 23660,
+      "triangles": 142,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Broken_Column__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Broken_Column__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 426,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 142
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "10_Broken_Column",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "10_Broken_Column__Body"
+            ],
+            "expected": [
+              "10_Broken_Column__Body"
+            ]
+          }
+        },
+        "10_Broken_Column__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "10_Broken_Column__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 142,
+            "total_faces": 142
+          }
+        },
+        "10_Broken_Column__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "10_Broken_Column__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 142,
+            "expected": 142
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.0099999904632568,
+              -0.906500518321991,
+              0.0
+            ],
+            "max": [
+              1.265745997428894,
+              0.8065005540847778,
+              1.2000000476837158
+            ],
+            "size": [
+              2.275745987892151,
+              1.7130010724067688,
+              1.2000000476837158
+            ],
+            "expected_size": [
+              2.275745987892151,
+              1.7130010724067688,
+              1.2000000476837158
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\10_Broken_Column.glb",
+      "tolerance": 0.0001,
+      "sha256": "09F8B05BCF11F405E6FC09CF94A1C78605D9B4A81A72884226BD29E6E6444DCE",
+      "bytes": 12436,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 142,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "10_Broken_Column__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "10_Broken_Column__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 426,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 142
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Three_Stone_Steps",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Three_Stone_Steps__Body"
+            ],
+            "expected": [
+              "11_Three_Stone_Steps__Body"
+            ]
+          }
+        },
+        "11_Three_Stone_Steps__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "11_Three_Stone_Steps__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 264,
+            "total_faces": 264
+          }
+        },
+        "11_Three_Stone_Steps__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 264,
+            "expected": 264
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -1.3050000667572021,
+              -2.0959137714271492e-07
+            ],
+            "max": [
+              1.5,
+              1.255000114440918,
+              1.0199998617172241
+            ],
+            "size": [
+              3.0,
+              2.56000018119812,
+              1.0200000713086013
+            ],
+            "expected_size": [
+              3.0,
+              2.5600000619888306,
+              1.0199999958276749
+            ],
+            "max_error": 1.9469021594886726e-07
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\11_Three_Stone_Steps.fbx",
+      "tolerance": 0.0001,
+      "sha256": "5564228D25DFC915419A8FE429C921AE50F737D929823238397823BEB5B5B1F7",
+      "bytes": 25516,
+      "triangles": 264,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Three_Stone_Steps__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Three_Stone_Steps__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 792,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 264
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "11_Three_Stone_Steps",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "11_Three_Stone_Steps__Body"
+            ],
+            "expected": [
+              "11_Three_Stone_Steps__Body"
+            ]
+          }
+        },
+        "11_Three_Stone_Steps__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "11_Three_Stone_Steps__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 264,
+            "total_faces": 264
+          }
+        },
+        "11_Three_Stone_Steps__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "11_Three_Stone_Steps__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 264,
+            "expected": 264
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -1.5,
+              -1.3050000667572021,
+              -1.4901161193847656e-08
+            ],
+            "max": [
+              1.5,
+              1.2549999952316284,
+              1.0199999809265137
+            ],
+            "size": [
+              3.0,
+              2.5600000619888306,
+              1.0199999958276749
+            ],
+            "expected_size": [
+              3.0,
+              2.5600000619888306,
+              1.0199999958276749
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\11_Three_Stone_Steps.glb",
+      "tolerance": 0.0001,
+      "sha256": "C0A8C026A2E68D4F44544D7C32F18D56E762954DD40BDBA84B306B374FD51087",
+      "bytes": 21888,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 264,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "11_Three_Stone_Steps__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "11_Three_Stone_Steps__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 792,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.6050000190734863
+            ],
+            [
+              0.39500001072883606,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 264
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Rune_Obelisk",
+      "format": "fbx",
+      "status": "PASS",
+      "checks": {
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Rune_Obelisk__Body"
+            ],
+            "expected": [
+              "12_Rune_Obelisk__Body"
+            ]
+          }
+        },
+        "12_Rune_Obelisk__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "PaletteUV"
+          ]
+        },
+        "12_Rune_Obelisk__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 454,
+            "total_faces": 454
+          }
+        },
+        "12_Rune_Obelisk__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "PaletteUV",
+            "validated_uv": "PaletteUV"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 454,
+            "expected": 454
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.5899999737739563,
+              -0.5600000023841858,
+              -8.26333632630849e-08
+            ],
+            "max": [
+              0.5899999737739563,
+              0.5600000023841858,
+              2.6700000762939453
+            ],
+            "size": [
+              1.1799999475479126,
+              1.1200000047683716,
+              2.6700001589273086
+            ],
+            "expected_size": [
+              1.1799999475479126,
+              1.1200000047683716,
+              2.6700000762939453
+            ],
+            "max_error": 8.26333632630849e-08
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "GildedGrove_Classic matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "GildedGrove_Classic portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": true
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\fbx\\12_Rune_Obelisk.fbx",
+      "tolerance": 0.0001,
+      "sha256": "4B56241F21F152F4F400B014D5E558215EF556160A3A90DC293F64F558FE6A02",
+      "bytes": 31308,
+      "triangles": 454,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Rune_Obelisk__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Rune_Obelisk__Body",
+          "uv_layers": 1,
+          "layer_name": "PaletteUV",
+          "loop_count": 1362,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10499999672174454
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 454
+        }
+      ],
+      "textures": [
+        {
+          "image": "GildedGrove_Classic",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    },
+    {
+      "id": "12_Rune_Obelisk",
+      "format": "glb",
+      "status": "PASS",
+      "checks": {
+        "GLB has only embedded dependencies": {
+          "pass": true,
+          "details": null
+        },
+        "mesh count": {
+          "pass": true,
+          "details": {
+            "actual": 1,
+            "expected": 1
+          }
+        },
+        "mesh names and role identity": {
+          "pass": true,
+          "details": {
+            "actual": [
+              "12_Rune_Obelisk__Body"
+            ],
+            "expected": [
+              "12_Rune_Obelisk__Body"
+            ]
+          }
+        },
+        "12_Rune_Obelisk__Body finite vertices": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body finite world transform": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body nonzero triangles": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body role pivot": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body triangle count": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body single unambiguous UV layer": {
+          "pass": true,
+          "details": [
+            "UVMap"
+          ]
+        },
+        "12_Rune_Obelisk__Body finite atlas UVs": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body every face addresses one palette swatch": {
+          "pass": true,
+          "details": {
+            "correct_faces": 454,
+            "total_faces": 454
+          }
+        },
+        "12_Rune_Obelisk__Body material 0 base color texture": {
+          "pass": true,
+          "details": null
+        },
+        "12_Rune_Obelisk__Body material 0 shader samples atlas UV": {
+          "pass": true,
+          "details": {
+            "shader_uv": "UVMap",
+            "validated_uv": "UVMap"
+          }
+        },
+        "total triangle count": {
+          "pass": true,
+          "details": {
+            "actual": 454,
+            "expected": 454
+          }
+        },
+        "world bounds and dimensions": {
+          "pass": true,
+          "details": {
+            "min": [
+              -0.5899999737739563,
+              -0.5600000023841858,
+              0.0
+            ],
+            "max": [
+              0.5899999737739563,
+              0.5600000023841858,
+              2.6700000762939453
+            ],
+            "size": [
+              1.1799999475479126,
+              1.1200000047683716,
+              2.6700000762939453
+            ],
+            "expected_size": [
+              1.1799999475479126,
+              1.1200000047683716,
+              2.6700000762939453
+            ],
+            "max_error": 0.0
+          }
+        },
+        "at least one texture decoded": {
+          "pass": true,
+          "details": null
+        },
+        "Classic_Palette matches source palette pixels": {
+          "pass": true,
+          "details": {
+            "width": 64,
+            "height": 64,
+            "max_pixel_error": 0.0
+          }
+        },
+        "Classic_Palette portable embedded texture": {
+          "pass": true,
+          "details": {
+            "packed": true,
+            "loaded_from_isolated_folder": false
+          }
+        }
+      },
+      "errors": [],
+      "source_file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\runestone-dungeon\\glb\\12_Rune_Obelisk.glb",
+      "tolerance": 0.0001,
+      "sha256": "03D0E07FCBDF36A8BC3344FF6EB8C86E07180BE87917D847F4FC12864AF0AE2C",
+      "bytes": 36600,
+      "glb": {
+        "version": 2,
+        "external_uri_count": 0,
+        "embedded_image_count": 1,
+        "chunk_count": 2
+      },
+      "triangles": 454,
+      "mesh_count": 1,
+      "role_pivots": [
+        {
+          "mesh": "12_Rune_Obelisk__Body",
+          "actual": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "expected": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_error": 0.0
+        }
+      ],
+      "uv": [
+        {
+          "mesh": "12_Rune_Obelisk__Body",
+          "uv_layers": 1,
+          "layer_name": "UVMap",
+          "loop_count": 1362,
+          "valid": true,
+          "range": [
+            [
+              0.10499999672174454,
+              0.10500001907348633
+            ],
+            [
+              0.8949999809265137,
+              0.6449999809265137
+            ]
+          ],
+          "palette_faces": 454
+        }
+      ],
+      "textures": [
+        {
+          "image": "Classic_Palette",
+          "decoded": true,
+          "pixel_match": true,
+          "portable": true
+        }
+      ],
+      "coordinate_system": "Blender importers restored source Z-up coordinates"
+    }
+  ]
+}

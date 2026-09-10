@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "scope": "Local Studio geometry and visual preview; no persistent uploaded assets",
+  "packs": [
+    {
+      "slug": "emberforge-smithy",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-emberforge-smithy-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "harvest-homestead",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-harvest-homestead-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "moonwell-alchemy",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-moonwell-alchemy-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "mossvale-camp",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-mossvale-camp-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "neon-relay-lab",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-neon-relay-lab-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "runestone-dungeon",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-runestone-dungeon-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "starfall-arcade",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-starfall-arcade-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "sunbeam-cafe",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-sunbeam-cafe-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    },
+    {
+      "slug": "tidewatch-harbor",
+      "status": "PASS",
+      "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-tidewatch-harbor-local-preview.json",
+      "models": 12,
+      "capture": "evidence/studio-preview.png"
+    }
+  ]
+}

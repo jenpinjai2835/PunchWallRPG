@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-emberforge-smithy-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "a22305d3a56951d4f462fdcbd5bcc7b72c8ca5c6e71ab6aac2b36eece70c553e",
+  "manifest_sha256": "ffa00f2d6aa694a99dcff5118b525d73819974b2ae26facc2dfd5788ec389ed0",
+  "executed_at": "2026-09-10T18:36:19.485Z"
+}

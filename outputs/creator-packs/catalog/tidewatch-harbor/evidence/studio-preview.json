@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:41.942Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "tidewatch-harbor",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Straight_Dock",
+      "isError": false,
+      "text": "{\"source_sha256\":\"94af0701fd8a699b602569268c3773c3cda010b92c89420b68567a9a730a6ed2\",\"status\":\"PASS\",\"id\":\"01_Straight_Dock\",\"mesh_count\":1,\"triangles\":1136}"
+    },
+    {
+      "id": "02_Corner_Dock",
+      "isError": false,
+      "text": "{\"source_sha256\":\"989a3d8cb509f20c1c203931b9cd154f3baa5339b97379c05cbcc5e9efde87e4\",\"status\":\"PASS\",\"id\":\"02_Corner_Dock\",\"mesh_count\":1,\"triangles\":1048}"
+    },
+    {
+      "id": "03_Navigation_Beacon",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c5cf562ca8775253cc41e0b6c0110a49359de26f1e3a473670daa2f6aade7f2b\",\"status\":\"PASS\",\"id\":\"03_Navigation_Beacon\",\"mesh_count\":1,\"triangles\":678}"
+    },
+    {
+      "id": "04_Mooring_Bollard",
+      "isError": false,
+      "text": "{\"source_sha256\":\"bf584d887f12d28934ad05d329136ce640c5b2d19838379ba4025f6e91cd728d\",\"status\":\"PASS\",\"id\":\"04_Mooring_Bollard\",\"mesh_count\":1,\"triangles\":236}"
+    },
+    {
+      "id": "05_Channel_Buoy",
+      "isError": false,
+      "text": "{\"source_sha256\":\"0480fc93dad8b6fb660ec2ecff9c6b34eca119e983562a36b7c5261818dcdd8e\",\"status\":\"PASS\",\"id\":\"05_Channel_Buoy\",\"mesh_count\":1,\"triangles\":500}"
+    },
+    {
+      "id": "06_Fishing_Rod_Rack",
+      "isError": false,
+      "text": "{\"source_sha256\":\"9e7b9e45cbc3a6a64212b3c060b4875c45f528dce79ac8597c9042e2adf6040e\",\"status\":\"PASS\",\"id\":\"06_Fishing_Rod_Rack\",\"mesh_count\":1,\"triangles\":1344}"
+    },
+    {
+      "id": "07_Lobster_Trap",
+      "isError": false,
+      "text": "{\"source_sha256\":\"23978abe3ba2ff4cb353fa38a9163c24bbf42414fccfa83f418e5caf8ecd8c30\",\"status\":\"PASS\",\"id\":\"07_Lobster_Trap\",\"mesh_count\":1,\"triangles\":2656}"
+    },
+    {
+      "id": "08_Rope_Coil",
+      "isError": false,
+      "text": "{\"source_sha256\":\"b59f32e6dda49c4767e95cb5783d0816c98500b5bbde7c89c0689ffd5c30c7fe\",\"status\":\"PASS\",\"id\":\"08_Rope_Coil\",\"mesh_count\":1,\"triangles\":1288}"
+    },
+    {
+      "id": "09_Harbor_Anchor",
+      "isError": false,
+      "text": "{\"source_sha256\":\"67c8391f90eca7cfff6ad5ca732241855e7c36145807c78d7b83c7238968e3b6\",\"status\":\"PASS\",\"id\":\"09_Harbor_Anchor\",\"mesh_count\":1,\"triangles\":300}"
+    },
+    {
+      "id": "10_Fresh_Catch_Crate",
+      "isError": false,
+      "text": "{\"source_sha256\":\"302dfe034948e19baecfb8da1da691baa8ca42db6ef3b14f8d01a10f6364ffa1\",\"status\":\"PASS\",\"id\":\"10_Fresh_Catch_Crate\",\"mesh_count\":1,\"triangles\":636}"
+    },
+    {
+      "id": "11_Life_Ring",
+      "isError": false,
+      "text": "{\"source_sha256\":\"f445727686966d7acbeaae4c9233c55156875701e9df795da7138f830ef319b2\",\"status\":\"PASS\",\"id\":\"11_Life_Ring\",\"mesh_count\":1,\"triangles\":624}"
+    },
+    {
+      "id": "12_Dock_Ladder",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ca4404b55a8fa3310b691debd5cb3cfde2d3dbafa4d0931b0d9f23590b6d1120\",\"status\":\"PASS\",\"id\":\"12_Dock_Ladder\",\"mesh_count\":1,\"triangles\":836}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-tidewatch-harbor-local-preview.json"
+}

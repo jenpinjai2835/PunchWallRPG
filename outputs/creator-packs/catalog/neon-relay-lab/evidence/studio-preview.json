@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:29.517Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "neon-relay-lab",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Command_Console",
+      "isError": false,
+      "text": "{\"source_sha256\":\"bcdb45708d6bc0f85f9d1a345778115c5b846ae5fb7929229e896e9e55d6eb25\",\"status\":\"PASS\",\"id\":\"01_Command_Console\",\"mesh_count\":1,\"triangles\":808}"
+    },
+    {
+      "id": "02_Reactor_Cell",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a4b8ba726dc3452957b241f5520d9fdaff62feb49f87f2e639cc8a9f2d31ba80\",\"status\":\"PASS\",\"id\":\"02_Reactor_Cell\",\"mesh_count\":1,\"triangles\":816}"
+    },
+    {
+      "id": "03_Server_Tower",
+      "isError": false,
+      "text": "{\"source_sha256\":\"e86d8945431924354ae2322de54fd81cc2f8d1666b7b886cc380c7e40a190b19\",\"status\":\"PASS\",\"id\":\"03_Server_Tower\",\"mesh_count\":1,\"triangles\":1012}"
+    },
+    {
+      "id": "04_Signal_Beacon",
+      "isError": false,
+      "text": "{\"source_sha256\":\"47235b00780a315ab2c585046e6083bf755858f14ad9896d69bd55e708cff130\",\"status\":\"PASS\",\"id\":\"04_Signal_Beacon\",\"mesh_count\":1,\"triangles\":372}"
+    },
+    {
+      "id": "05_Specimen_Scanner",
+      "isError": false,
+      "text": "{\"source_sha256\":\"44ab131eacbad218b7ed46e72ef8d018be0ee809ed43c35256e1285a2b200cdc\",\"status\":\"PASS\",\"id\":\"05_Specimen_Scanner\",\"mesh_count\":1,\"triangles\":462}"
+    },
+    {
+      "id": "06_Service_Vent",
+      "isError": false,
+      "text": "{\"source_sha256\":\"8e1f22038f5663f3709a811da436ad6ae178ca4e6f7cc527ea90d6bb0f3f8415\",\"status\":\"PASS\",\"id\":\"06_Service_Vent\",\"mesh_count\":1,\"triangles\":552}"
+    },
+    {
+      "id": "07_Data_Tablet",
+      "isError": false,
+      "text": "{\"source_sha256\":\"5b208b54b0abf1d8fa16d89210b1b219b09fac4935d90a54c775cae6d22ddf00\",\"status\":\"PASS\",\"id\":\"07_Data_Tablet\",\"mesh_count\":1,\"triangles\":308}"
+    },
+    {
+      "id": "08_Battery_Canister",
+      "isError": false,
+      "text": "{\"source_sha256\":\"b436c7e7e38f156da02c9b688489528a25c23b57a6901a941f684aae08126842\",\"status\":\"PASS\",\"id\":\"08_Battery_Canister\",\"mesh_count\":1,\"triangles\":588}"
+    },
+    {
+      "id": "09_Cable_Spool",
+      "isError": false,
+      "text": "{\"source_sha256\":\"0c430754804ba0ad76eba6f02955e0d7b16098ec84bc13599cfbdd58cc919a21\",\"status\":\"PASS\",\"id\":\"09_Cable_Spool\",\"mesh_count\":1,\"triangles\":956}"
+    },
+    {
+      "id": "10_Floor_Conduit",
+      "isError": false,
+      "text": "{\"source_sha256\":\"20a4257d0451efcb3c2e272f8227e0bb17abff53129c54df7f231777d3bb2438\",\"status\":\"PASS\",\"id\":\"10_Floor_Conduit\",\"mesh_count\":1,\"triangles\":396}"
+    },
+    {
+      "id": "11_Technician_Dock",
+      "isError": false,
+      "text": "{\"source_sha256\":\"34be344c2afdd508654e5f4a7faa3949d9b1079386f62b569a2d18b5b8b82520\",\"status\":\"PASS\",\"id\":\"11_Technician_Dock\",\"mesh_count\":1,\"triangles\":492}"
+    },
+    {
+      "id": "12_Status_Pylon",
+      "isError": false,
+      "text": "{\"source_sha256\":\"209bcdb1aafea923ccf20608dcf0ee4cc7c54b198486b808abf56a172d179ea0\",\"status\":\"PASS\",\"id\":\"12_Status_Pylon\",\"mesh_count\":1,\"triangles\":396}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-neon-relay-lab-local-preview.json"
+}

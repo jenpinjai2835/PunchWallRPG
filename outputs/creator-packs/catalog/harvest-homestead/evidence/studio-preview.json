@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:20.311Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "harvest-homestead",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Raised_Garden_Bed",
+      "isError": false,
+      "text": "{\"source_sha256\":\"2f8fc832001e32c6130f5de537fcac99ce60816f5139d3bac9f8ddb46289a633\",\"status\":\"PASS\",\"id\":\"01_Raised_Garden_Bed\",\"mesh_count\":1,\"triangles\":1490}"
+    },
+    {
+      "id": "02_Friendly_Scarecrow",
+      "isError": false,
+      "text": "{\"source_sha256\":\"40ad35a37f4264e9a99f502bf29bafd3292fad3bfe21daa21624f8fdc0957e69\",\"status\":\"PASS\",\"id\":\"02_Friendly_Scarecrow\",\"mesh_count\":1,\"triangles\":998}"
+    },
+    {
+      "id": "03_Irrigation_Pump",
+      "isError": false,
+      "text": "{\"source_sha256\":\"23170906fcc7066077c9410b62379bc3124e97e66ce573431c91777d64554604\",\"status\":\"PASS\",\"id\":\"03_Irrigation_Pump\",\"mesh_count\":1,\"triangles\":416}"
+    },
+    {
+      "id": "04_Garden_Wheelbarrow",
+      "isError": false,
+      "text": "{\"source_sha256\":\"369d12437993ed289132ae958a1f4520b43a6e994009986418afdb13a76c212c\",\"status\":\"PASS\",\"id\":\"04_Garden_Wheelbarrow\",\"mesh_count\":1,\"triangles\":892}"
+    },
+    {
+      "id": "05_Round_Hay_Bale",
+      "isError": false,
+      "text": "{\"source_sha256\":\"e15eb58d1be12c02ff09af87202096d31dfe39409f848c70ab04eea98de30e94\",\"status\":\"PASS\",\"id\":\"05_Round_Hay_Bale\",\"mesh_count\":1,\"triangles\":1172}"
+    },
+    {
+      "id": "06_Watering_Can",
+      "isError": false,
+      "text": "{\"source_sha256\":\"738f72f801602371a47ba6ff12caea54904a553cdc8d981fd4fe1e432a046e85\",\"status\":\"PASS\",\"id\":\"06_Watering_Can\",\"mesh_count\":1,\"triangles\":424}"
+    },
+    {
+      "id": "07_Seed_Packet_Display",
+      "isError": false,
+      "text": "{\"source_sha256\":\"e101f8054533fb7c4c12c0ed54b812c2aa8b93752cf8aec138c5c341b94c4f22\",\"status\":\"PASS\",\"id\":\"07_Seed_Packet_Display\",\"mesh_count\":1,\"triangles\":498}"
+    },
+    {
+      "id": "08_Pumpkin_Cluster",
+      "isError": false,
+      "text": "{\"source_sha256\":\"231e04f95be43dafb9e6e78aa8783cf7fbe90a714eadff1973fbbe62ca74db17\",\"status\":\"PASS\",\"id\":\"08_Pumpkin_Cluster\",\"mesh_count\":1,\"triangles\":702}"
+    },
+    {
+      "id": "09_Carrot_Bundle",
+      "isError": false,
+      "text": "{\"source_sha256\":\"0083e13bbbb232c0bd6ad64f91bcb0a3c9169227ab121bc01bd82dd69bcc3a31\",\"status\":\"PASS\",\"id\":\"09_Carrot_Bundle\",\"mesh_count\":1,\"triangles\":452}"
+    },
+    {
+      "id": "10_Farm_Rake",
+      "isError": false,
+      "text": "{\"source_sha256\":\"deada2c0f66d4aae313f46262518f0b3b184840d99cd8b478529585665e7b47a\",\"status\":\"PASS\",\"id\":\"10_Farm_Rake\",\"mesh_count\":1,\"triangles\":512}"
+    },
+    {
+      "id": "11_Seedling_Tray",
+      "isError": false,
+      "text": "{\"source_sha256\":\"d2c85550b1fad2d1ab7464be30677e95445628d68118edf2fb327a650ecf1688\",\"status\":\"PASS\",\"id\":\"11_Seedling_Tray\",\"mesh_count\":1,\"triangles\":716}"
+    },
+    {
+      "id": "12_Farm_Gate",
+      "isError": false,
+      "text": "{\"source_sha256\":\"18550058117921a9402e95b262334a475eaeaa8a6d8f1d01735b5885c8bee0fa\",\"status\":\"PASS\",\"id\":\"12_Farm_Gate\",\"mesh_count\":2,\"triangles\":536}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-harvest-homestead-local-preview.json"
+}

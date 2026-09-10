@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:32.590Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "runestone-dungeon",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Pointed_Gateway",
+      "isError": false,
+      "text": "{\"source_sha256\":\"1714785320a9c3ebab2f820c04148356b6ad38aea3e2ce9fcb95776fb7202cbc\",\"status\":\"PASS\",\"id\":\"01_Pointed_Gateway\",\"mesh_count\":3,\"triangles\":1096}"
+    },
+    {
+      "id": "02_Masonry_Wall",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4769ccb50e1c85b19e2c139ecc4bd4c90888ad8bc7d285c9a9cf68600e47e815\",\"status\":\"PASS\",\"id\":\"02_Masonry_Wall\",\"mesh_count\":1,\"triangles\":880}"
+    },
+    {
+      "id": "03_Flagstone_Tile",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7569e07ea7ae3daf50efad109b186567a75ec79f5b1443db0b0c935cc1b3a5a4\",\"status\":\"PASS\",\"id\":\"03_Flagstone_Tile\",\"mesh_count\":1,\"triangles\":440}"
+    },
+    {
+      "id": "04_Octagonal_Pillar",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4e260844fee566e59e08ce2947b21ab27f88f274a24c332ef8ee3e38b2bcea5a\",\"status\":\"PASS\",\"id\":\"04_Octagonal_Pillar\",\"mesh_count\":1,\"triangles\":380}"
+    },
+    {
+      "id": "05_Tripod_Brazier",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ccc4a55118f874b3daa5ef04ce4ac8fa76500b21e41b7b0a1aa7e264e8e52e2e\",\"status\":\"PASS\",\"id\":\"05_Tripod_Brazier\",\"mesh_count\":1,\"triangles\":656}"
+    },
+    {
+      "id": "06_Stone_Sarcophagus",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ebe40ec17a0d921d2ec74e752975b3850cc0885779b01d7c93ddc2c3dac90b61\",\"status\":\"PASS\",\"id\":\"06_Stone_Sarcophagus\",\"mesh_count\":2,\"triangles\":216}"
+    },
+    {
+      "id": "07_Ritual_Altar",
+      "isError": false,
+      "text": "{\"source_sha256\":\"0e37e0ef9574d544ca1a85e3222e7dfc9ebe6198c76d078e474733c6a691e4dc\",\"status\":\"PASS\",\"id\":\"07_Ritual_Altar\",\"mesh_count\":1,\"triangles\":800}"
+    },
+    {
+      "id": "08_Iron_Grate",
+      "isError": false,
+      "text": "{\"source_sha256\":\"aedeace49c106169130b8dcfbb3543cf2f55ee2916724faf3b5b2f4be1fe68fb\",\"status\":\"PASS\",\"id\":\"08_Iron_Grate\",\"mesh_count\":1,\"triangles\":654}"
+    },
+    {
+      "id": "09_Wall_Sconce",
+      "isError": false,
+      "text": "{\"source_sha256\":\"f034c96340da47db19f8e4b137bd03e1646bfeb22d6f9b9dfe8832de4cf3ab21\",\"status\":\"PASS\",\"id\":\"09_Wall_Sconce\",\"mesh_count\":1,\"triangles\":310}"
+    },
+    {
+      "id": "10_Broken_Column",
+      "isError": false,
+      "text": "{\"source_sha256\":\"09f8b05bcf11f405e6fc09cf94a1c78605d9b4a81a72884226bd29e6e6444dce\",\"status\":\"PASS\",\"id\":\"10_Broken_Column\",\"mesh_count\":1,\"triangles\":142}"
+    },
+    {
+      "id": "11_Three_Stone_Steps",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c0a8c026a2e68d4f44544d7c32f18d56e762954dd40bdba84b306b374fd51087\",\"status\":\"PASS\",\"id\":\"11_Three_Stone_Steps\",\"mesh_count\":1,\"triangles\":264}"
+    },
+    {
+      "id": "12_Rune_Obelisk",
+      "isError": false,
+      "text": "{\"source_sha256\":\"03d0e07fcbdf36a8bc3344ff6eb8c86e07180be87917d847f4fc12864af0ae2c\",\"status\":\"PASS\",\"id\":\"12_Rune_Obelisk\",\"mesh_count\":1,\"triangles\":454}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-runestone-dungeon-local-preview.json"
+}

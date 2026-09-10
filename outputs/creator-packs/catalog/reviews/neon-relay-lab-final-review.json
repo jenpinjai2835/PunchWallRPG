@@ -1,0 +1,83 @@
+{
+  "status": "PASS_LOCAL_DELIVERY_REVIEW",
+  "slug": "neon-relay-lab",
+  "checked_at_utc": "2026-09-10T18:16:30.937722+00:00",
+  "scope": "Independent read-only review of final output bytes/evidence and five actual product images plus saved Studio preview",
+  "asset_count": 12,
+  "palette_count": 3,
+  "base_triangles": 7158,
+  "source_module_sha256": "35fc62f34bd58e17b517c6f3dba6163bbe7958cda68879c6f3b395c9a9ca70a4",
+  "editable_blend_sha256": "2d5f3396e60fac45a4fd48fffd3e36d8994ca5bf683441c993cd66d41c776957",
+  "aggregate_glb_sha256": "518e566d4e2bb9d713f7d9916721b303a9e36f0575051e24fa71c22a5d89daa0",
+  "zip": {
+    "file": "neon-relay-lab-source-and-exports.zip",
+    "bytes": 9042426,
+    "members": 39,
+    "crc": "PASS",
+    "payload_files_compared": 39,
+    "sha256": "e77e98220c6d7a5e046b47559634752bea92d80ce22dcce693a0ec97694aa5b5"
+  },
+  "export_files_compared": 24,
+  "recorded_export_checks_all_true": 420,
+  "aggregate_embedded_palette_sha256": {
+    "Classic_Palette": "5a196848708e9bbd6b2b1143b83257eb22b91ff1a776e23f871f37a633668cb2",
+    "Twilight_Palette": "83046418b19054ce114dd208d2162da532f0d463b9f86f4ef949b16724cb5992",
+    "Warm_Palette": "9fbf42ec788c9db40ab68fa63c618d380c08abdb781bff1481e88aad60d5533b"
+  },
+  "aggregate_material_binding": "36 roles each references matching variant embedded palette",
+  "images": {
+    "collection-Classic": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "1baf69eff3e0a882178d02dbd28c8dd185a444b0791cf21b6f1b0b24d2272dfb",
+      "visual_review": "PASS"
+    },
+    "collection-Warm": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "44f4537f09bc2e905bf1f167a1972f297d4788c2bed3fd9d5adcffe88ac903c8",
+      "visual_review": "PASS"
+    },
+    "collection-Twilight": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "485524eabf6afc992f31e4e87e77941776ecb3c8b97ac3d6097d4b81ab44ec58",
+      "visual_review": "PASS"
+    },
+    "icon": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "3503e54dac27e4cee35dd7b257acdd265e3e425c482ccd53d7bdd2261a7c4e4c",
+      "visual_review": "PASS"
+    },
+    "detail": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "86232cb1651fb525cb806223008ce0e0527d34111723b0b9a5ebf61f54dc205f",
+      "visual_review": "PASS"
+    }
+  },
+  "visual_notes": [
+    "All 12 distinct props visible in each collection; no crop or obstructed silhouette.",
+    "Classic/Warm/Twilight differences visible, consistent with intended material themes.",
+    "Console and reactor detail images show attached controls, complete supports and grounded base.",
+    "Saved Studio preview shows all 12 props and matches the exported geometry; local preview only."
+  ],
+  "findings": [],
+  "limitations": [
+    "No Blender rerun or Studio/browser/account actions performed by reviewer. Existing reopen and Studio flow evidence is hash-bound to reviewed files.",
+    "Native asset persistence, permissions and paid publication are not verified by this review; publication remains BLOCKED.",
+    "Other two modern packs await root completion notification."
+  ],
+  "audit_harness_note": "Initial case-sensitive hash comparison rejected uppercase report digests; normalized hex case, verified all 24 digests match. No product defect."
+}

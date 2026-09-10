@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "catalog-harvest-homestead-local-preview",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "checks": [
+        "Check final exported geometry in local Studio preview"
+      ]
+    }
+  ],
+  "flow_sha256": "1f5323d6f5d4f7dcd0433977185b068e850c38d27960d3fa67599c6c4de6e6d4",
+  "manifest_sha256": "f97943ff4bfbba0333608f9a6bdf6d45dceed3b27a1c039ea0062e5326bbeb06",
+  "executed_at": "2026-09-10T18:36:22.524Z"
+}

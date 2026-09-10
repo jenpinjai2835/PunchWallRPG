@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 21474,
+  "sha256": "518e566d4e2bb9d713f7d9916721b303a9e36f0575051e24fa71c22a5d89daa0",
+  "authoredRoot": "neon_relay_lab_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

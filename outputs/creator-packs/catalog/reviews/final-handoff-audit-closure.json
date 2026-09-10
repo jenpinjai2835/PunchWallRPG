@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "created_utc": "2026-09-10T18:39:14.362438+00:00",
+  "scope": "Actual unchanged coordinator finalizer with real read-only final outputs; only ROOT redirected to nine copied flow files. First Emberforge flow retains name and embedded manifest, appended harmless comment. No positive finalizer rerun or image/archive review repeat.",
+  "findings_closed": {
+    "executed_flow_revision_binding": true,
+    "aggregate_report_documentation": "Static fix PASS: row accurately lists isolated reload status, counts, triangles, authored root, layout and payload SHA."
+  },
+  "positive_prerequisite": {
+    "localArtifactValidation": "PASS",
+    "overallStatus": "BLOCKED",
+    "executed_flow_sha256": "a22305d3a56951d4f462fdcbd5bcc7b72c8ca5c6e71ab6aac2b36eece70c553e",
+    "executed_manifest_sha256": "ffa00f2d6aa694a99dcff5118b525d73819974b2ae26facc2dfd5788ec389ed0",
+    "inner_ok": true
+  },
+  "negative_fixture": {
+    "copied_flows": 9,
+    "modified_file": "F:\\Roblox\\PuchWall-catalog-natural-20260910\\work\\tools\\natural-final-review\\flow-closure\\temporary-root\\work\\automation\\flows\\creator-packs\\catalog-emberforge-smithy-local-preview.json",
+    "same_flow_name": true,
+    "embedded_manifest_unchanged": true,
+    "modified_flow_sha256": "b4c80d9af7564010a9edb315b07ea4424c5a693d17309b3abeaf91f98c28a918"
+  },
+  "actual_finalizer_sha256": "31b64bcebff7a14b88428bf8c1e4f46c72947d6393b876b5f4090a67f5790c9d",
+  "exception": {
+    "type": "AssertionError",
+    "message": "Stale executed Studio flow",
+    "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 37, in <module>\n  File \"F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\creator-packs\\catalog\\finalize.py\", line 62, in main\n    assert execution['flow_sha256'] == sha(flow_path), 'Stale executed Studio flow'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Stale executed Studio flow\n"
+  },
+  "write_guard": {
+    "enabled_before_finalizer_import_and_execution": true,
+    "policy": "Deny filesystem writes/mutations outside worker ignored scratch, including output writes on unexpected success.",
+    "blocked_attempts": [],
+    "writes_during_finalizer": []
+  },
+  "watched_root_files_unchanged": true,
+  "watched_sha256": {
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\creator-packs\\catalog\\finalize.py": "31b64bcebff7a14b88428bf8c1e4f46c72947d6393b876b5f4090a67f5790c9d",
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-emberforge-smithy-local-preview.json": "a22305d3a56951d4f462fdcbd5bcc7b72c8ca5c6e71ab6aac2b36eece70c553e",
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\manifest.json": "ffa00f2d6aa694a99dcff5118b525d73819974b2ae26facc2dfd5788ec389ed0",
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\emberforge-smithy\\evidence\\studio-flow.json": "872c3f2df7e49ad99159a7587b5b4f010d4e4352f8079f89bc04071aaf8fb315",
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\final-validation.json": "45cfc20c294873595612251546ad57ef89ed4da76338d804669703adfb3c6055",
+    "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\catalog\\CATALOG.md": "ae634cac909516018b61be2be94f3498208b2d3e318275691b82664c89431424"
+  },
+  "harness_note": "Initial evidence serialization hit a Path/string conversion error after execution. Corrected audit-only sha helper and repeated negative test; no product file was changed.",
+  "native_listing_claim": "None; overall publication remains BLOCKED."
+}

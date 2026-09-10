@@ -1,0 +1,129 @@
+{
+  "status": "PASS_LOCAL_ARTIFACT_REVIEW_STUDIO_REFRESH_PENDING",
+  "slug": "starfall-arcade",
+  "checked_at_utc": "2026-09-10T18:36:52.196117+00:00",
+  "scope": "Read-only final corrected output/ZIP/image review; direct GLB contact triangles",
+  "asset_count": 12,
+  "palette_count": 3,
+  "base_triangles": 9466,
+  "source_module_sha256": "88d8fdbf5996833c221a081ab183394f174995d6c073c057f0704c587655763a",
+  "editable_blend_sha256": "334f7b8abf999f97eec19c1c4c1cfddafc9ebac63c665e7ee25df123f3e14cea",
+  "aggregate_glb_sha256": "e1c7c2d60757ae88bf041c4a344b36f536db6e360bc8cf5156d04dde755d612d",
+  "zip": {
+    "file": "starfall-arcade-source-and-exports.zip",
+    "bytes": 9374245,
+    "members": 39,
+    "crc": "PASS",
+    "payload_files_compared": 39,
+    "sha256": "963bcbe747be0ab3f092e3ce91cd738a607cdfa855d8c00f963724541601eae2"
+  },
+  "export_files_compared": 24,
+  "recorded_export_checks_all_true": 420,
+  "aggregate_embedded_palette_sha256": {
+    "Classic_Palette": "3b2e1c7cbd3cc57c5ddc0b58313ecad3f8dfea7f5e27d8add2c9ac2078975dcd",
+    "Twilight_Palette": "c704eafd6b279c75a102ea856b79da3ba63b22d6641accfd2653794ab7b7de04",
+    "Warm_Palette": "68e45aaba9f1a1002c38f98fa2e81dd1505a7f2655618e1023b4a28164b9ad6f"
+  },
+  "aggregate_material_binding": "36 roles each references matching variant embedded palette",
+  "images": {
+    "collection-Classic": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "d98cec60c08261eb5c253ea2ebd643ebb1e9a16b27e193ac42232b5056ee19af",
+      "visual_review": "PASS"
+    },
+    "collection-Warm": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "adb20f1afcffcffcd562d9db8b21840ede5ce52daecbc032c3e8b74719966f08",
+      "visual_review": "PASS"
+    },
+    "collection-Twilight": {
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "sha256": "c607bc8694a3f8fa8f2e322fe29e8e02221d763ea1c2bb3f0d648c1ccdb3ddc3",
+      "visual_review": "PASS"
+    },
+    "icon": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "211f8826beac103d7b3e320076c5fe98056fc46f9086d04b22d7fdac877728d4",
+      "visual_review": "PASS"
+    },
+    "detail": {
+      "dimensions": [
+        900,
+        900
+      ],
+      "sha256": "4620fce033cd06c026226bffab53bb4d96d94525434e6e403149253645625729",
+      "visual_review": "PASS"
+    }
+  },
+  "corrected_ground_contacts": {
+    "02_Orbit_Pinball_Table": {
+      "actual_glb_sha256": "a22b183b991431e14760f70f4faaf9e6186f9b2a9659a995a22e5b131948284d",
+      "minimumY": -6.705522537231445e-08,
+      "flatFootContacts": [
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.06051599999999997,
+          "centerXZ": [
+            -0.9503999999999999,
+            1.5225
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.06051599999999997,
+          "centerXZ": [
+            -0.9503999999999999,
+            -1.47
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": -0.0,
+          "maximumY": -0.0,
+          "flatArea": 0.06051599999999997,
+          "centerXZ": [
+            0.9503999999999999,
+            1.5225
+          ],
+          "triangles": 2
+        },
+        {
+          "minimumY": 0.0,
+          "maximumY": 0.0,
+          "flatArea": 0.06051599999999997,
+          "centerXZ": [
+            0.9503999999999999,
+            -1.47
+          ],
+          "triangles": 2
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "visual_notes": [
+    "All five new actual renders inspected; complete 12-prop collections and distinct palette variants.",
+    "Changed standing props show proportional foot pads resting at ground; no new crop, gap or unsupported part seen."
+  ],
+  "findings": [],
+  "limitations": [
+    "Old pre-fix Studio screenshots/flows excluded. Final Studio evidence awaits root notification.",
+    "Native persistent uploads and paid listings remain BLOCKED.",
+    "No Blender, Studio, browser, account or root/source writes performed during this review."
+  ]
+}

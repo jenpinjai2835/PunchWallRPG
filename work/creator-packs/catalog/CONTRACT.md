@@ -4,7 +4,7 @@ Task CREATOR-CATALOG-10-20260910. User confirmed ten TOTAL packs, including Gild
 
 ## Owners and integration
 
-User sequencing update: publish and verify one paid Gilded Grove listing first, show its actual storefront and price, then resume the remaining packs. New-pack workers are WAITING and preserve their uncommitted checkpoints. Their dependency is the Coordinator's verified first paid listing; no further catalog production before that gate.
+User sequencing update: publish and verify one paid Gilded Grove listing first, show its actual storefront and price, then resume the remaining packs. That dependency was satisfied by ordinary Model122456766146790 revision2, independently verified at US$5.99 and recorded in `work/docs/GILDED_GROVE_FIRST_SALE_20260911.md` (commit edc02a4). The nine source collections resumed and were integrated in the declared order. Their persistent native publication remains BLOCKED by automatic approval review of the Studio beta opt-in/restart action; local export, visual, Studio preview and package checks continue independently.
 
 Coordinator owns this contract, shared exporter/packager/Studio tooling, source integration, all final outputs, seller/CDP state, publication, verification and handoff. Preserve the frozen first-pack04254dd artifact and PR3. Parent branch starts from fresh origin/develop and integrates that dependency. Workers own only their three assigned source modules and ignored scratch inside separate worktrees; no shared file edits.
 

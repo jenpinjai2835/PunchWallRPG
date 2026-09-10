@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 24540,
+  "sha256": "eaaecc04a82b1b6d5e63f45f546fc7ac6fabf993a4511eab5dd01ae7a8b19a90",
+  "authoredRoot": "sunbeam_cafe_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

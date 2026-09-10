@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:38.794Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "sunbeam-cafe",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Service_Counter",
+      "isError": false,
+      "text": "{\"source_sha256\":\"23b9392dd955ad7652367704c9e8dc6490163468a302df8aae867cdb6a740b6f\",\"status\":\"PASS\",\"id\":\"01_Service_Counter\",\"mesh_count\":1,\"triangles\":616}"
+    },
+    {
+      "id": "02_Espresso_Machine",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7bcc1b5697c8c6f397173bddde12de2c76665d72be5f8cd88210e88dd2767c4c\",\"status\":\"PASS\",\"id\":\"02_Espresso_Machine\",\"mesh_count\":1,\"triangles\":1452}"
+    },
+    {
+      "id": "03_Pastry_Display",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4455c4fcd615f1e0d4088987bf78274d9386a186ab6182b78b37ebcab9632ff7\",\"status\":\"PASS\",\"id\":\"03_Pastry_Display\",\"mesh_count\":1,\"triangles\":1168}"
+    },
+    {
+      "id": "04_Round_Cafe_Table",
+      "isError": false,
+      "text": "{\"source_sha256\":\"6b59532f0132e448780f33f41424273d21c9c03cfdcebeaee122daea830cbdca\",\"status\":\"PASS\",\"id\":\"04_Round_Cafe_Table\",\"mesh_count\":1,\"triangles\":548}"
+    },
+    {
+      "id": "05_Slatted_Cafe_Chair",
+      "isError": false,
+      "text": "{\"source_sha256\":\"18bca3dadf0c9dd0bf6034ff985e505f586045f9a48230c5e4e88019e352946a\",\"status\":\"PASS\",\"id\":\"05_Slatted_Cafe_Chair\",\"mesh_count\":1,\"triangles\":748}"
+    },
+    {
+      "id": "06_Menu_Easel",
+      "isError": false,
+      "text": "{\"source_sha256\":\"bc6b38cca75287675954228bf613f553c0d98ab7f7342de1bf9e8c1cee243b50\",\"status\":\"PASS\",\"id\":\"06_Menu_Easel\",\"mesh_count\":1,\"triangles\":704}"
+    },
+    {
+      "id": "07_Counter_Stool",
+      "isError": false,
+      "text": "{\"source_sha256\":\"aea62b14fd1f39cb6029fbc1dbf5d22dfe7caeed7b9ecdc4fa494ee7513b98e8\",\"status\":\"PASS\",\"id\":\"07_Counter_Stool\",\"mesh_count\":1,\"triangles\":528}"
+    },
+    {
+      "id": "08_Takeaway_Cup",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a5a259a625e60b5e35e7553332c4c8dc6aab4a2e6cea6ffd4172c515eaeb46f2\",\"status\":\"PASS\",\"id\":\"08_Takeaway_Cup\",\"mesh_count\":1,\"triangles\":380}"
+    },
+    {
+      "id": "09_Cup_And_Saucer",
+      "isError": false,
+      "text": "{\"source_sha256\":\"d9d04fb42f30d6329441dc93427f3bcb6e367c358760328b915bbe56f4ff46ff\",\"status\":\"PASS\",\"id\":\"09_Cup_And_Saucer\",\"mesh_count\":1,\"triangles\":588}"
+    },
+    {
+      "id": "10_Pastry_Tray",
+      "isError": false,
+      "text": "{\"source_sha256\":\"bfbc28bbb78ef144b35669b4b4b065351bfd083ba0995824d3bb7d92fcdd405c\",\"status\":\"PASS\",\"id\":\"10_Pastry_Tray\",\"mesh_count\":1,\"triangles\":448}"
+    },
+    {
+      "id": "11_Counter_Plant",
+      "isError": false,
+      "text": "{\"source_sha256\":\"fd60a5665e9b5610c47c9ad5fd5a521159b1d4d0577c626d431ef7153717ab37\",\"status\":\"PASS\",\"id\":\"11_Counter_Plant\",\"mesh_count\":1,\"triangles\":536}"
+    },
+    {
+      "id": "12_Pendant_Lamp",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ce398775bb2983da8762b9decbfbb73cc793bb2631fada1323de7136f12bba21\",\"status\":\"PASS\",\"id\":\"12_Pendant_Lamp\",\"mesh_count\":1,\"triangles\":464}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-sunbeam-cafe-local-preview.json"
+}

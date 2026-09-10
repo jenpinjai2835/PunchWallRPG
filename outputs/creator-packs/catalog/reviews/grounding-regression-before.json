@@ -1,0 +1,24 @@
+{
+  "status": "EXPECTED_FAILURE",
+  "unsupportedFloorGaps": [
+    {
+      "id": "02_Orbit_Pinball_Table",
+      "minZ": 0.0760405957698822,
+      "slug": "starfall-arcade",
+      "actualExportBoundsVerified": true
+    },
+    {
+      "id": "05_Slatted_Cafe_Chair",
+      "minZ": 0.07482893764972687,
+      "slug": "sunbeam-cafe",
+      "actualExportBoundsVerified": true
+    },
+    {
+      "id": "06_Menu_Easel",
+      "minZ": 0.06255273520946503,
+      "slug": "sunbeam-cafe",
+      "actualExportBoundsVerified": true
+    }
+  ],
+  "scope": "Initial outputs independently inspected before modern corrective geometry integration"
+}

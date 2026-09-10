@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-10T18:36:23.397Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "slug": "moonwell-alchemy",
+  "status": "PASS",
+  "scope": "Local preview only",
+  "results": [
+    {
+      "id": "01_Crescent_Workbench",
+      "isError": false,
+      "text": "{\"source_sha256\":\"036e5144bd71704f8745f0e12f85f1e2c08e54196b523ecaa6363716f96f5726\",\"status\":\"PASS\",\"id\":\"01_Crescent_Workbench\",\"mesh_count\":1,\"triangles\":1392}"
+    },
+    {
+      "id": "02_Tripod_Cauldron",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c32614acd23afac87a647a018478db15f1332f98ce44092fb54c4a9e7c52bd94\",\"status\":\"PASS\",\"id\":\"02_Tripod_Cauldron\",\"mesh_count\":1,\"triangles\":792}"
+    },
+    {
+      "id": "03_Copper_Distiller",
+      "isError": false,
+      "text": "{\"source_sha256\":\"34061e9768477846778532e6d7689438d26633e4fb82c82052158755589d492c\",\"status\":\"PASS\",\"id\":\"03_Copper_Distiller\",\"mesh_count\":1,\"triangles\":1396}"
+    },
+    {
+      "id": "04_Specimen_Stand",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c962d9a04a0fd029104e0f48364140390899305eba0ab3ece17138afaf2ce838\",\"status\":\"PASS\",\"id\":\"04_Specimen_Stand\",\"mesh_count\":1,\"triangles\":944}"
+    },
+    {
+      "id": "05_Apothecary_Balance",
+      "isError": false,
+      "text": "{\"source_sha256\":\"676855c578f39b06e48709a970160e0ca12a47d4aa6447de68d457e4c5ab958b\",\"status\":\"PASS\",\"id\":\"05_Apothecary_Balance\",\"mesh_count\":1,\"triangles\":572}"
+    },
+    {
+      "id": "06_Open_Tome_Stand",
+      "isError": false,
+      "text": "{\"source_sha256\":\"5433cf12f70cb6debe8f7d9af2801d4d0f68efc9d1fc5fb3649eab995c18d27b\",\"status\":\"PASS\",\"id\":\"06_Open_Tome_Stand\",\"mesh_count\":1,\"triangles\":396}"
+    },
+    {
+      "id": "07_Reagent_Caddy",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4280a022532e2c91a47a9010bf051a6c26f37cf4b9c3e8c536888071bb6bc063\",\"status\":\"PASS\",\"id\":\"07_Reagent_Caddy\",\"mesh_count\":1,\"triangles\":1236}"
+    },
+    {
+      "id": "08_Mortar_and_Pestle",
+      "isError": false,
+      "text": "{\"source_sha256\":\"02591ca4e61aacba15a20ae651fa82d7b5260ef7c99e7bdd891ed6ff8dd0771f\",\"status\":\"PASS\",\"id\":\"08_Mortar_and_Pestle\",\"mesh_count\":1,\"triangles\":264}"
+    },
+    {
+      "id": "09_Scroll_Cradle",
+      "isError": false,
+      "text": "{\"source_sha256\":\"f8d93dc3d1cc25f7572574fe58766688101ad76ecc82ea0a11e4c97d54742309\",\"status\":\"PASS\",\"id\":\"09_Scroll_Cradle\",\"mesh_count\":1,\"triangles\":736}"
+    },
+    {
+      "id": "10_Herb_Drying_Frame",
+      "isError": false,
+      "text": "{\"source_sha256\":\"da7824309b9f24bb99408ca6eceec60b9c7c6743bbd1a6f31080c450b7c5768e\",\"status\":\"PASS\",\"id\":\"10_Herb_Drying_Frame\",\"mesh_count\":1,\"triangles\":1020}"
+    },
+    {
+      "id": "11_Prism_Focus",
+      "isError": false,
+      "text": "{\"source_sha256\":\"97b15146998b179004dd019d557cc2b2b06d8a05845b559a23335ab16403b34b\",\"status\":\"PASS\",\"id\":\"11_Prism_Focus\",\"mesh_count\":1,\"triangles\":248}"
+    },
+    {
+      "id": "12_Wax_Seal_Set",
+      "isError": false,
+      "text": "{\"source_sha256\":\"cc94b00f2fd221f13850c665b9a69d55b01710b86de8cb8b8251dec324a9b199\",\"status\":\"PASS\",\"id\":\"12_Wax_Seal_Set\",\"mesh_count\":1,\"triangles\":272}"
+    }
+  ],
+  "flow": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\automation\\flows\\creator-packs\\catalog-moonwell-alchemy-local-preview.json"
+}

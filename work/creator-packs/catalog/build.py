@@ -240,6 +240,11 @@ def main():
     assert sum(a['mesh_count'] for a in records)<=16
     assert sum(a['triangles'] for a in records)<35000
     assert all(a['bounds_min'][2]>=-.005 and all(m['triangles']<8000 for m in a['meshes']) for a in records)
+    for asset in records:
+        z = asset['bounds_min'][2]
+        documented_tip_clearance = (meta['slug'] == 'harvest-homestead' and
+                                    asset['id'] == '09_Carrot_Bundle' and abs(z-.01) < .001)
+        assert z <= .005 or documented_tip_clearance, f"Unsupported floor gap: {asset['id']} ({z})"
     manifest={'product':meta['title'],'slug':meta['slug'],'version':'1.0.0',
         'asset_count':12,'palette_variants':list(meta['palettes']),'palettes':meta['palettes'],
         'samples':meta['samples'],'assets':records,'runtime_scripts':0,

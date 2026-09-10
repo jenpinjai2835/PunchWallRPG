@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "placements": 36,
+  "meshParts": 36,
+  "triangles": 27804,
+  "sha256": "20c1ae8a865c43506e944218dba049ec5155af0f5dce41426494a6b4f9964582",
+  "authoredRoot": "moonwell_alchemy_AuthoredOrigin",
+  "layoutStep": 8,
+  "bankWidth": 36,
+  "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+}

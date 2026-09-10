@@ -1,0 +1,6 @@
+{
+  "at": "2026-09-10T18:38:00.982Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "isError": false,
+  "text": "{\"status\":\"PASS\",\"scope\":\"No new errors beyond recorded first-sale diagnostic history; built-in MaterialManager warning retained\",\"knownHistoricalErrors\":4,\"unexpectedErrors\":0}"
+}

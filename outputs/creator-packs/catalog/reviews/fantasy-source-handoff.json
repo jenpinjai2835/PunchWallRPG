@@ -1,0 +1,812 @@
+{
+  "status": "PASS",
+  "owner": "Worker2 / merchant_stalls",
+  "commit": "3eb7bb18e26bdca2a14a6d374b879233157b065f",
+  "branch": "codex/feature/catalog-fantasy",
+  "worktree": "F:/Roblox/PuchWall-catalog-fantasy-20260910",
+  "verified_at_utc": "2026-09-10T17:46:18.106952+00:00",
+  "blender": "4.5.9 LTS",
+  "threads": 2,
+  "checklist": {
+    "completed": 3,
+    "total": 3
+  },
+  "scope": "Three original twelve-model source collections; worker eligibility for integration, not final exported or published delivery.",
+  "geometry": [
+    {
+      "module": "emberforge_smithy",
+      "source_sha256": "a6815f7eafa2be81069d194793e1e8d7f00e85e0e26dde85374869f1db9ac506",
+      "assets": [
+        {
+          "id": "01_Hearth_Forge",
+          "objects": 34,
+          "triangles": 1314,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -2.299999952316284,
+              -1.7899999618530273,
+              0.0
+            ],
+            [
+              2.299999952316284,
+              1.600000023841858,
+              5.255000114440918
+            ]
+          ]
+        },
+        {
+          "id": "02_Horn_Anvil",
+          "objects": 11,
+          "triangles": 556,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.2549999952316284,
+              -0.8797272443771362,
+              0.0
+            ],
+            [
+              1.850000023841858,
+              0.8797272443771362,
+              2.234999895095825
+            ]
+          ]
+        },
+        {
+          "id": "03_Quench_Tank",
+          "objects": 20,
+          "triangles": 752,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.440000057220459,
+              -0.8700000047683716,
+              0.0
+            ],
+            [
+              1.440000057220459,
+              0.8700000047683716,
+              1.565000057220459
+            ]
+          ]
+        },
+        {
+          "id": "04_Foot_Bellows",
+          "objects": 9,
+          "triangles": 228,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.8528000116348267,
+              -1.0,
+              0.0
+            ],
+            [
+              0.8528000116348267,
+              1.5,
+              0.875
+            ]
+          ]
+        },
+        {
+          "id": "05_Treadle_Grindstone",
+          "objects": 23,
+          "triangles": 1004,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.0740000009536743,
+              -1.1399999856948853,
+              0.0
+            ],
+            [
+              1.0740000009536743,
+              1.0800000429153442,
+              3.1100001335144043
+            ]
+          ]
+        },
+        {
+          "id": "06_Ingot_Stack",
+          "objects": 5,
+          "triangles": 60,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.9700000286102295,
+              -0.6200000047683716,
+              0.0
+            ],
+            [
+              0.9700000286102295,
+              0.6200000047683716,
+              0.5399999618530273
+            ]
+          ]
+        },
+        {
+          "id": "07_Smith_Tongs",
+          "objects": 9,
+          "triangles": 388,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.4530549645423889,
+              -1.4642897844314575,
+              0.0
+            ],
+            [
+              0.4530549645423889,
+              1.0436346530914307,
+              0.1899999976158142
+            ]
+          ]
+        },
+        {
+          "id": "08_Smith_Tool_Rack",
+          "objects": 15,
+          "triangles": 612,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.2450000047683716,
+              -0.6299999952316284,
+              0.0
+            ],
+            [
+              1.2450000047683716,
+              0.6299999952316284,
+              2.7699999809265137
+            ]
+          ]
+        },
+        {
+          "id": "09_Casting_Mould",
+          "objects": 7,
+          "triangles": 308,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.2799999713897705,
+              -0.550000011920929,
+              0.0
+            ],
+            [
+              1.2799999713897705,
+              0.550000011920929,
+              0.5
+            ]
+          ]
+        },
+        {
+          "id": "10_Coal_Scuttle",
+          "objects": 5,
+          "triangles": 298,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.8299999833106995,
+              -0.7893769145011902,
+              0.0
+            ],
+            [
+              0.8299999833106995,
+              0.7893769145011902,
+              1.844271183013916
+            ]
+          ]
+        },
+        {
+          "id": "11_Forge_Heat_Shield",
+          "objects": 11,
+          "triangles": 420,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.9700000286102295,
+              -0.5899999737739563,
+              0.0
+            ],
+            [
+              0.9700000286102295,
+              0.5899999737739563,
+              2.2249999046325684
+            ]
+          ]
+        },
+        {
+          "id": "12_Forged_Blade_Blank",
+          "objects": 3,
+          "triangles": 104,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.574999988079071,
+              -1.4950000047683716,
+              0.0
+            ],
+            [
+              0.574999988079071,
+              1.2799999713897705,
+              0.30000001192092896
+            ]
+          ]
+        }
+      ],
+      "count": 12,
+      "triangles": 6044,
+      "roles": 12,
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "module": "moonwell_alchemy",
+      "source_sha256": "7f1e8d52f320b3ae26d2e55454647dae0f4a498aceb9cc0e9fa4cf39a641f4df",
+      "assets": [
+        {
+          "id": "01_Crescent_Workbench",
+          "objects": 28,
+          "triangles": 1392,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -2.065000057220459,
+              -1.1299999952316284,
+              0.0
+            ],
+            [
+              2.065000057220459,
+              1.1949999332427979,
+              3.159450054168701
+            ]
+          ]
+        },
+        {
+          "id": "02_Tripod_Cauldron",
+          "objects": 13,
+          "triangles": 792,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.3300000429153442,
+              -1.090000033378601,
+              0.0
+            ],
+            [
+              1.3300000429153442,
+              1.0139250755310059,
+              1.5929999351501465
+            ]
+          ]
+        },
+        {
+          "id": "03_Copper_Distiller",
+          "objects": 21,
+          "triangles": 1396,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.6749999523162842,
+              -0.8849999904632568,
+              0.0
+            ],
+            [
+              1.6749999523162842,
+              0.8849999904632568,
+              2.3318772315979004
+            ]
+          ]
+        },
+        {
+          "id": "04_Specimen_Stand",
+          "objects": 19,
+          "triangles": 944,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.215000033378601,
+              -0.4699999988079071,
+              0.0
+            ],
+            [
+              1.215000033378601,
+              0.4699999988079071,
+              3.252664804458618
+            ]
+          ]
+        },
+        {
+          "id": "05_Apothecary_Balance",
+          "objects": 11,
+          "triangles": 572,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.4900000095367432,
+              -0.4469965696334839,
+              0.0
+            ],
+            [
+              1.4900000095367432,
+              0.4469965696334839,
+              2.0399999618530273
+            ]
+          ]
+        },
+        {
+          "id": "06_Open_Tome_Stand",
+          "objects": 9,
+          "triangles": 396,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.8849999904632568,
+              -0.5904413461685181,
+              0.0
+            ],
+            [
+              0.8849999904632568,
+              0.5904413461685181,
+              1.5792127847671509
+            ]
+          ]
+        },
+        {
+          "id": "07_Reagent_Caddy",
+          "objects": 19,
+          "triangles": 1236,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.1799999475479126,
+              -0.75,
+              0.0
+            ],
+            [
+              1.1799999475479126,
+              0.75,
+              1.06125009059906
+            ]
+          ]
+        },
+        {
+          "id": "08_Mortar_and_Pestle",
+          "objects": 4,
+          "triangles": 264,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.6499999761581421,
+              -0.6499999761581421,
+              0.0
+            ],
+            [
+              0.6499999761581421,
+              0.6499999761581421,
+              1.0192323923110962
+            ]
+          ]
+        },
+        {
+          "id": "09_Scroll_Cradle",
+          "objects": 12,
+          "triangles": 736,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.8399999737739563,
+              -0.5222440958023071,
+              0.0
+            ],
+            [
+              0.8399999737739563,
+              0.5222440958023071,
+              0.8059999942779541
+            ]
+          ]
+        },
+        {
+          "id": "10_Herb_Drying_Frame",
+          "objects": 27,
+          "triangles": 1020,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.0499999523162842,
+              -0.7300000190734863,
+              0.0
+            ],
+            [
+              1.0499999523162842,
+              0.9900000095367432,
+              2.655062198638916
+            ]
+          ]
+        },
+        {
+          "id": "11_Prism_Focus",
+          "objects": 6,
+          "triangles": 248,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.9449999928474426,
+              -0.5199999809265137,
+              0.0
+            ],
+            [
+              0.9449999928474426,
+              0.5199999809265137,
+              1.1339999437332153
+            ]
+          ]
+        },
+        {
+          "id": "12_Wax_Seal_Set",
+          "objects": 6,
+          "triangles": 272,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.6899999976158142,
+              -0.5,
+              0.0
+            ],
+            [
+              0.6899999976158142,
+              0.5,
+              0.7199999690055847
+            ]
+          ]
+        }
+      ],
+      "count": 12,
+      "triangles": 9268,
+      "roles": 12,
+      "issues": [],
+      "status": "PASS"
+    },
+    {
+      "module": "runestone_dungeon",
+      "source_sha256": "fdaf59a254c97bf3aa803940fda676682d1805a5ba405031cd7efcf4bad41b20",
+      "assets": [
+        {
+          "id": "01_Pointed_Gateway",
+          "objects": 26,
+          "triangles": 1096,
+          "roles": [
+            "Crown",
+            "LeftPier",
+            "RightPier"
+          ],
+          "bounds": [
+            [
+              -2.494999885559082,
+              -0.6600000262260437,
+              0.0
+            ],
+            [
+              2.494999885559082,
+              0.6600000262260437,
+              6.045000076293945
+            ]
+          ]
+        },
+        {
+          "id": "02_Masonry_Wall",
+          "objects": 20,
+          "triangles": 880,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -2.0,
+              -0.4050000011920929,
+              0.0
+            ],
+            [
+              2.0,
+              0.4050000011920929,
+              4.0
+            ]
+          ]
+        },
+        {
+          "id": "03_Flagstone_Tile",
+          "objects": 10,
+          "triangles": 440,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -2.0,
+              -2.0,
+              0.0
+            ],
+            [
+              2.0,
+              2.0,
+              0.28999999165534973
+            ]
+          ]
+        },
+        {
+          "id": "04_Octagonal_Pillar",
+          "objects": 9,
+          "triangles": 380,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.824999988079071,
+              -0.824999988079071,
+              0.0
+            ],
+            [
+              0.824999988079071,
+              0.824999988079071,
+              3.7699999809265137
+            ]
+          ]
+        },
+        {
+          "id": "05_Tripod_Brazier",
+          "objects": 14,
+          "triangles": 656,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.875,
+              -0.875,
+              0.0
+            ],
+            [
+              0.875,
+              0.875,
+              2.259999990463257
+            ]
+          ]
+        },
+        {
+          "id": "06_Stone_Sarcophagus",
+          "objects": 6,
+          "triangles": 216,
+          "roles": [
+            "Body",
+            "Lid"
+          ],
+          "bounds": [
+            [
+              -1.0191999673843384,
+              -1.7640000581741333,
+              0.0
+            ],
+            [
+              1.0191999673843384,
+              1.6169999837875366,
+              1.590000033378601
+            ]
+          ]
+        },
+        {
+          "id": "07_Ritual_Altar",
+          "objects": 17,
+          "triangles": 800,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.7300000190734863,
+              -0.9350000023841858,
+              0.0
+            ],
+            [
+              1.7300000190734863,
+              0.9350000023841858,
+              1.9100000858306885
+            ]
+          ]
+        },
+        {
+          "id": "08_Iron_Grate",
+          "objects": 16,
+          "triangles": 654,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.5,
+              -0.11999999731779099,
+              0.0
+            ],
+            [
+              1.5,
+              0.11999999731779099,
+              3.4850001335144043
+            ]
+          ]
+        },
+        {
+          "id": "09_Wall_Sconce",
+          "objects": 7,
+          "triangles": 310,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.3499999940395355,
+              -0.7228697538375854,
+              0.0
+            ],
+            [
+              0.3499999940395355,
+              0.36000001430511475,
+              1.880000114440918
+            ]
+          ]
+        },
+        {
+          "id": "10_Broken_Column",
+          "objects": 4,
+          "triangles": 142,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.0099999904632568,
+              -0.906500518321991,
+              0.0
+            ],
+            [
+              1.265745997428894,
+              0.8065004944801331,
+              1.2000000476837158
+            ]
+          ]
+        },
+        {
+          "id": "11_Three_Stone_Steps",
+          "objects": 6,
+          "triangles": 264,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -1.5,
+              -1.3050000667572021,
+              0.0
+            ],
+            [
+              1.5,
+              1.2549999952316284,
+              1.0199999809265137
+            ]
+          ]
+        },
+        {
+          "id": "12_Rune_Obelisk",
+          "objects": 11,
+          "triangles": 454,
+          "roles": [
+            "Body"
+          ],
+          "bounds": [
+            [
+              -0.5899999737739563,
+              -0.5600000023841858,
+              0.0
+            ],
+            [
+              0.5899999737739563,
+              0.5600000023841858,
+              2.6700000762939453
+            ]
+          ]
+        }
+      ],
+      "count": 12,
+      "triangles": 6292,
+      "roles": 15,
+      "issues": [],
+      "status": "PASS"
+    }
+  ],
+  "visual_review": {
+    "method": "Inspected three final contact sheets composed from36 actual Blender Workbench renders; portrait framing corrected and reinspected after process completed.",
+    "status": "PASS",
+    "corrections": [
+      "Supported grindstone treadle linkage and grounded frame shoes.",
+      "Ground foot pads for cauldron, herb tripod and brazier.",
+      "Full forge hood straps aligned to sloping masonry face.",
+      "Quench tank uses muted green water rather than ember accent."
+    ],
+    "images": [
+      {
+        "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-fantasy\\emberforge_smithy-contact.png",
+        "sha256": "10489623dfc95f06eca68a66345ee4cd9eb7125d17daf1ece6730f7a7fdcf8b0",
+        "models_inspected": 12
+      },
+      {
+        "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-fantasy\\moonwell_alchemy-contact.png",
+        "sha256": "7f3d5f541d05e23e927bf5a511db88faf7e0c7c35a270f42820ab7928af835e2",
+        "models_inspected": 12
+      },
+      {
+        "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-fantasy\\runestone_dungeon-contact.png",
+        "sha256": "fe9344d3a24cd09e28bd4f9127f8d4e49a85a27337347b65a792558cac4627bb",
+        "models_inspected": 12
+      }
+    ],
+    "remaining_findings": []
+  },
+  "commands": [
+    "blender.exe --background --factory-startup --threads 2 --python-exit-code 1 --python work/tools/catalog-fantasy/check.py",
+    "python.exe work/tools/catalog-fantasy/contact_sheets.py",
+    "git diff --cached --check"
+  ],
+  "remaining_coordinator_gates": [
+    "Integrate after Worker1 in declared order.",
+    "FBX/GLB export and fresh-scene roundtrip.",
+    "Palette/source persistence and native Studio asset checks.",
+    "Packaging and paid-listing verification."
+  ]
+}

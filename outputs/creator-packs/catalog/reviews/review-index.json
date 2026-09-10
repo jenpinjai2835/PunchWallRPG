@@ -1,0 +1,151 @@
+{
+  "status": "PASS",
+  "packs": [
+    {
+      "slug": "mossvale-camp",
+      "status": "PASS",
+      "reviewerGroup": "natural",
+      "handoff": "natural-final-handoff.json",
+      "handoff_sha256": "5c7535b824643a02ffa30bb9292979a1458494ddeb24284964e20fa442af1661",
+      "source_sha256": "bbf008f4d6ef3e9266ad4092ac5b124d13a039b7f780dcad2055c723580baa73",
+      "zip_sha256": "b9e35b075fac5e79fdd276edf3d1b746e956acaf9ea040e059dfa4307fc8ca27",
+      "reviewedImages": {
+        "collection-Classic.png": "e453b08b81626611439a948101623d7c97614d7dd2fd2d2514cb082299466a46",
+        "collection-Twilight.png": "dc6aeb00b037e384e026552d385a7aafdd30063b79b0015d400e7e854ade9873",
+        "collection-Warm.png": "976f366320393edfa5cc491a7b1c55f071a171658fc54ee784230141da41224a",
+        "detail.png": "8694781cc11b732af06d39f3d7e27a8ee7bd04155b35cb5ae37e2bd8eb734d8e",
+        "icon.png": "39e45f7fd7f2cdb851da1d70553596fe519e89eda93d692f8881a37ff2ffd39d"
+      }
+    },
+    {
+      "slug": "harvest-homestead",
+      "status": "PASS",
+      "reviewerGroup": "natural",
+      "handoff": "natural-final-handoff.json",
+      "handoff_sha256": "5c7535b824643a02ffa30bb9292979a1458494ddeb24284964e20fa442af1661",
+      "source_sha256": "70611489460b78e24030e413d8fa55bf5397558fc63ffad035d3ec4711fe7f74",
+      "zip_sha256": "610ba01e6c5ec2c7c95ed940f6390d515301495568a4965275fb27700b346ea1",
+      "reviewedImages": {
+        "collection-Classic.png": "b010a35d5c725913b7934610c8137b7bf99ea626adc1ac54e0a56b8ca00d4461",
+        "collection-Twilight.png": "5ef03244eb85cab7d1689d0102c51d45fdedb1793f64a58ce52c33b846d6bb76",
+        "collection-Warm.png": "e38aaadb96d4d01e127259bc7e0357ced2cd9223ac547453c898f9304d44e8d3",
+        "detail.png": "f1891445c102c9aab03e47c1c627d84521d6310e9e584dea6c71e77bcebc5318",
+        "icon.png": "75d0ed594f29a18bb0daae1e8f5d768862e233ab832c69d5034bb7993542fb27"
+      }
+    },
+    {
+      "slug": "tidewatch-harbor",
+      "status": "PASS",
+      "reviewerGroup": "natural",
+      "handoff": "natural-final-handoff.json",
+      "handoff_sha256": "5c7535b824643a02ffa30bb9292979a1458494ddeb24284964e20fa442af1661",
+      "source_sha256": "ecc1e9b5edf034c2a4e76cb4bb55048e66c6fb59a93d652f3d8ab24d815109d8",
+      "zip_sha256": "f6a3436acf66e416f4329daae4d80424014ca6722b4226df84745d5456dfe79e",
+      "reviewedImages": {
+        "collection-Classic.png": "7b545c605d9f85eca040f544e95fbaac05eae246f761f3f757e8522a5b043c37",
+        "collection-Twilight.png": "50b266172d6d211abb447db630ee46175226b64d0fb77c1f8b8bccaa9a00008a",
+        "collection-Warm.png": "5b2af69072c2f1febc327f0be570b5ede4d2abf45a33360f7ab3dc0a7679160d",
+        "detail.png": "336c649eb2b41b8932dbe08e4840ca627e3c19c66af08acb8e889538a099b82b",
+        "icon.png": "fd37fa3330f9c6ca096ac52dcfb51e5d983382ec1733b6a609aae425fbf8da23"
+      }
+    },
+    {
+      "slug": "emberforge-smithy",
+      "status": "PASS",
+      "reviewerGroup": "fantasy",
+      "handoff": "fantasy-final-handoff.json",
+      "handoff_sha256": "bbd09cfba275586f579c6d0b0ca6add533c0e9e1292a582ab96d53d60d6b2a29",
+      "source_sha256": "a6815f7eafa2be81069d194793e1e8d7f00e85e0e26dde85374869f1db9ac506",
+      "zip_sha256": "02fad409028ee0dd7aa43ec35a87343c15bab247f7f079d5131b11bda9a0a969",
+      "reviewedImages": {
+        "collection-Classic.png": "85b23c7d6729d55db1cde156938e32a5be70e441ed992f1294e9111b9aa64b15",
+        "collection-Twilight.png": "4f338e104dcaded1d41376f30a13828d313b3f51be5c1bd9bcb3940a66453213",
+        "collection-Warm.png": "b10e767b070701687038fd3fe33845d6503b0854ecf61bd0f436f379d3c1a100",
+        "detail.png": "3a26cad0361351533c800a0c8d1c935d3463475722fd0d6b6f20ea3f462c661d",
+        "icon.png": "e818884462d201764a0cfc9fc28390b4fc41570de1672092c7d4aa61d21b6a75"
+      }
+    },
+    {
+      "slug": "moonwell-alchemy",
+      "status": "PASS",
+      "reviewerGroup": "fantasy",
+      "handoff": "fantasy-final-handoff.json",
+      "handoff_sha256": "bbd09cfba275586f579c6d0b0ca6add533c0e9e1292a582ab96d53d60d6b2a29",
+      "source_sha256": "c721613ed0cbd3b9bc98aa1e16c1fbfa66071c066663e201a4d8a291b5c50ba2",
+      "zip_sha256": "16568241618ef1035164d403b8ad0a4cc76cacaa6d42c713c7d6da140de42bf9",
+      "reviewedImages": {
+        "collection-Classic.png": "a5d1c231277d5cbedb6418dd5b304cb1c9732fd95436e6e91d17b21d027fbec3",
+        "collection-Twilight.png": "2c682e4a9521eb8af35b123321ebc6d067e6241cf1775325de2ce38b104b5363",
+        "collection-Warm.png": "8a15d992151cdc4c51f86c4b62d9664357a7cc99b5cc3bce50a66575e48da0b5",
+        "detail.png": "82a11d87e38efd1f2d9082b17aefbaf9eefd6d1b16f7feef1e9230ed2ad69083",
+        "icon.png": "2e7d2e4996502a7384c74112b1ce3b7d668198f512ffd70ae8cb902b07159188"
+      }
+    },
+    {
+      "slug": "runestone-dungeon",
+      "status": "PASS",
+      "reviewerGroup": "fantasy",
+      "handoff": "fantasy-final-handoff.json",
+      "handoff_sha256": "bbd09cfba275586f579c6d0b0ca6add533c0e9e1292a582ab96d53d60d6b2a29",
+      "source_sha256": "fdaf59a254c97bf3aa803940fda676682d1805a5ba405031cd7efcf4bad41b20",
+      "zip_sha256": "db07e0e6bf64a48b1397b63eeee00b6be4e36f477ab55ad0618a260883edb0d7",
+      "reviewedImages": {
+        "collection-Classic.png": "e9d7289f3e2612d6043f4ee4d18e9672e8cbcf6c626bed49ba10a6a509938ee1",
+        "collection-Twilight.png": "62422ae019c72ac45669bac76b334135065ccb51c8d6a1b66b72d9cf81033c8e",
+        "collection-Warm.png": "8df5bf74f0b4fa91e8568ae7dc53bd5042666229afe5e8cdb51e28ff45f45cb2",
+        "detail.png": "586e7856f652c7ad269cbfe1865697ed8a40159ace1b80ef0cf3d8d44cc8f872",
+        "icon.png": "69221435ad8005d8585babb4eae622bd278f2fba1d2c7a0e0123e6d161eb8863"
+      }
+    },
+    {
+      "slug": "neon-relay-lab",
+      "status": "PASS",
+      "reviewerGroup": "modern",
+      "handoff": "modern-final-handoff.json",
+      "handoff_sha256": "ae8ea2f258369c1248715e0d8d83d76ce67bc1077306532ccd07f2f451d590c5",
+      "source_sha256": "35fc62f34bd58e17b517c6f3dba6163bbe7958cda68879c6f3b395c9a9ca70a4",
+      "zip_sha256": "e77e98220c6d7a5e046b47559634752bea92d80ce22dcce693a0ec97694aa5b5",
+      "reviewedImages": {
+        "collection-Classic.png": "1baf69eff3e0a882178d02dbd28c8dd185a444b0791cf21b6f1b0b24d2272dfb",
+        "collection-Warm.png": "44f4537f09bc2e905bf1f167a1972f297d4788c2bed3fd9d5adcffe88ac903c8",
+        "collection-Twilight.png": "485524eabf6afc992f31e4e87e77941776ecb3c8b97ac3d6097d4b81ab44ec58",
+        "icon.png": "3503e54dac27e4cee35dd7b257acdd265e3e425c482ccd53d7bdd2261a7c4e4c",
+        "detail.png": "86232cb1651fb525cb806223008ce0e0527d34111723b0b9a5ebf61f54dc205f"
+      }
+    },
+    {
+      "slug": "starfall-arcade",
+      "status": "PASS",
+      "reviewerGroup": "modern",
+      "handoff": "modern-final-handoff.json",
+      "handoff_sha256": "ae8ea2f258369c1248715e0d8d83d76ce67bc1077306532ccd07f2f451d590c5",
+      "source_sha256": "88d8fdbf5996833c221a081ab183394f174995d6c073c057f0704c587655763a",
+      "zip_sha256": "963bcbe747be0ab3f092e3ce91cd738a607cdfa855d8c00f963724541601eae2",
+      "reviewedImages": {
+        "collection-Classic.png": "d98cec60c08261eb5c253ea2ebd643ebb1e9a16b27e193ac42232b5056ee19af",
+        "collection-Warm.png": "adb20f1afcffcffcd562d9db8b21840ede5ce52daecbc032c3e8b74719966f08",
+        "collection-Twilight.png": "c607bc8694a3f8fa8f2e322fe29e8e02221d763ea1c2bb3f0d648c1ccdb3ddc3",
+        "icon.png": "211f8826beac103d7b3e320076c5fe98056fc46f9086d04b22d7fdac877728d4",
+        "detail.png": "4620fce033cd06c026226bffab53bb4d96d94525434e6e403149253645625729"
+      }
+    },
+    {
+      "slug": "sunbeam-cafe",
+      "status": "PASS",
+      "reviewerGroup": "modern",
+      "handoff": "modern-final-handoff.json",
+      "handoff_sha256": "ae8ea2f258369c1248715e0d8d83d76ce67bc1077306532ccd07f2f451d590c5",
+      "source_sha256": "bbdd966b92805d0df7c7994d75747688274a51bae6ce6fb6761e39fa62279f65",
+      "zip_sha256": "00fabf9f1010da32c9468a040d897cec84124d31bb360acf49fb0fc48adb384b",
+      "reviewedImages": {
+        "collection-Classic.png": "2b27efaae15aed688a8c1260078faa137e9bb890ea15b02ff5e59c3accacdad6",
+        "collection-Warm.png": "eb1f88ee49693b96b0f222a010bc6b661f3e6cfa086f4779a278582d5058e7f3",
+        "collection-Twilight.png": "808985888d3a44f1e57a7822cdaa4b133f2fda99cc70b745f1d00f40651e0d83",
+        "icon.png": "45c27592c1650e6f57709079e1eea823b264d0ce29330eeba4a058f272f9a970",
+        "detail.png": "731bc77b2522d5c0d6c020d4848ad61677be8ee8411e5ea2c820fb696d21193d"
+      }
+    }
+  ],
+  "imagesInspectedAndBound": 45,
+  "scope": "Independent local artifact review handoffs; paid native publication remains separate"
+}

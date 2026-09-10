@@ -1,0 +1,122 @@
+{
+  "reviewer": "Worker2 / merchant_stalls",
+  "recorded_utc": "2026-09-10T17:59:05.778863+00:00",
+  "scope": "Read-only catalog/build.py review and actual Emberforge Blender export/render smoke; scratch outputs only.",
+  "checklist": {
+    "actual_export_and_reimport_smoke": "PASS",
+    "actual_render_visual_review": "COMPLETE_WITH_MINOR_PRESENTATION_FINDING"
+  },
+  "source": {
+    "worker_commit": "3eb7bb18e26bdca2a14a6d374b879233157b065f",
+    "module": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\creator-packs\\catalog\\packs\\emberforge_smithy.py",
+    "module_sha256": "a6815f7eafa2be81069d194793e1e8d7f00e85e0e26dde85374869f1db9ac506",
+    "module_matches_manifest": true,
+    "builder": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\work\\creator-packs\\catalog\\build.py",
+    "core_gate_loaded_builder_sha256": "7cd2a7cb53b2f754f2369ccf2d3c18699c761b6e463820d973b7b439603770c7",
+    "builder_sha256_at_report": "ed907de797f5d3a01d0027a37efee1490a74c61097c6b51012b451e0ee767dc6",
+    "full_smoke_loaded_builder_sha256": "Not recorded at launch; world fix was present, later source-reopen gate was not loaded.",
+    "root_revision_note": "Parent confirmed newer source-reopen gate was added after this full smoke loaded; parent will rerun combined pipeline."
+  },
+  "runtime": {
+    "blender": "4.5.9 LTS",
+    "threads": 2,
+    "exit_code": 0,
+    "log": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke.log"
+  },
+  "geometry": {
+    "models": 12,
+    "triangles": 6044,
+    "roles": 12
+  },
+  "exports": {
+    "status": "PASS",
+    "individual_imports": 24,
+    "formats": [
+      "FBX",
+      "GLB"
+    ],
+    "palettes_checked": 3,
+    "evidence": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\evidence\\export-roundtrip.json"
+  },
+  "native_aggregate": {
+    "status": "PASS",
+    "placements": 36,
+    "meshParts": 36,
+    "triangles": 18132,
+    "sha256": "d60859901ae8b239f6b3eaed83dbc4036beb90218436992c64ddc0de0884b944",
+    "authoredRoot": "emberforge_smithy_AuthoredOrigin",
+    "layoutStep": 8,
+    "bankWidth": 36,
+    "scope": "Isolated Blender GLB reload; native Roblox publication remains separate"
+  },
+  "native_aggregate_evidence": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\evidence\\native-roundtrip.json",
+  "studio_vertex_geometry": {
+    "files": 12,
+    "directory": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\studio-geometry",
+    "generator_assertions": "PASS"
+  },
+  "images": [
+    {
+      "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\images\\collection-Classic.png",
+      "sha256": "ebcba621587004994a36bc68130b59ec1e71551c506b8d792f08885102091160",
+      "inspected": true,
+      "geometry_framing": "PASS",
+      "grounding": "PASS",
+      "caption_status": "MINOR_OCCLUSION_REPORTED"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\images\\collection-Warm.png",
+      "sha256": "18a1f75c525698c93131e6d050a0fd5abcbfabff333863efeb7ab4135a8aef4e",
+      "inspected": true,
+      "geometry_framing": "PASS",
+      "grounding": "PASS",
+      "caption_status": "MINOR_OCCLUSION_REPORTED"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\images\\collection-Twilight.png",
+      "sha256": "024e7d2a7dbbc88edbc68d021a83c37bde52c02fa27bbb14de7e8269682a0fc1",
+      "inspected": true,
+      "geometry_framing": "PASS",
+      "grounding": "PASS",
+      "caption_status": "MINOR_OCCLUSION_REPORTED"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\images\\icon.png",
+      "sha256": "a76959e7ece46191086b7c83856f48a85cabc14274e0fa54f7ba0ddc93b4cd1b",
+      "inspected": true,
+      "geometry_framing": "PASS",
+      "grounding": "PASS",
+      "caption_status": "NOT_APPLICABLE"
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-catalog-fantasy-20260910\\work\\tools\\catalog-export-smoke\\images\\detail.png",
+      "sha256": "1a2eb68d3faa5235ecacdfa600c6e204c726a528114b3210e2f6ecc6291c90af",
+      "inspected": true,
+      "geometry_framing": "PASS",
+      "grounding": "PASS",
+      "caption_status": "NOT_APPLICABLE"
+    }
+  ],
+  "findings": [
+    {
+      "id": "WORLD_NONE",
+      "priority": "P1",
+      "status": "FIXED_BY_PARENT_AND_RERUN_PASS",
+      "evidence": "Initial run stopped at lights_setup(scene): AttributeError scene.world None after empty factory reset.",
+      "fix": "Parent creates scene.world before lights_setup; complete rerun rendered all five images and exited 0."
+    },
+    {
+      "id": "FOREGROUND_CAPTION_OCCLUSION",
+      "priority": "P3",
+      "status": "REPORTED_PARENT_SCHEDULED_CORRECTION",
+      "evidence": "Foreground Hearth Forge hides the beginning of next-row Treadle Grindstone caption in all three collection renders. Long labels otherwise fit their plates.",
+      "fix": "Parent plans height-sorted display positions and a higher camera angle; no worker source changes."
+    }
+  ],
+  "limits": [
+    "This is Emberforge smoke evidence, not nine-pack combined regression.",
+    "The newly added source-reopen gate was not executed in the loaded full-smoke revision.",
+    "Native Roblox import, collision behavior, publication, paid-listing verification and user-facing final packaging were not performed in this audit.",
+    "No Studio, browser, root/shared source or root outputs were edited."
+  ]
+}
