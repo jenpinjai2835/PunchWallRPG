@@ -59,7 +59,7 @@ def _cauldron():
     _lathe(a,"Pot_Shell",[(0,.57),(.20,.87),(.79,1.04),(1.11,.89),(1.11,.75),(.25,.67)],(0,0,.40),"iron",14)
     a.torus("Thick_Rim",.83,.083,(0,0,1.51),"gold",major_segments=14)
     a.cylinder("Brew_Surface",.73,.045,(0,0,1.22),"teal",14)
-    for x in (-1.00,1.00):
+    for x in (-1.10,1.10):
         a.torus("Side_Handle",.27,.06,(x,0,1.12),"gold",rotation=(pi/2,0,0),major_segments=10)
         a.box("Handle_Lug",(.22,.22,.15),(x*.91,0,.97),"iron",.03)
     a.notes["contents"]="Opaque brew surface can be removed in editable Blender source; FBX/GLB export joins it into Body. Hollow pot has an inner wall and floor."
