@@ -49,7 +49,7 @@ def _bed():
         for iy,y in enumerate((-.65,0,.65)):
             for j in range(3):
                 _leaf(a,f"Leaf_{ix}_{iy}_{j}",(x,y,.70),.53,.13,j*2*pi/3)
-    a.notes["dimensions"]="Raised bed outer timber footprint 3.92 by 2.54 studs. Soil and crops are included."
+    a.notes["dimensions"]="Raised bed outer timber footprint 3.84 by 2.54 studs. Soil and crops are included."
     return a
 
 

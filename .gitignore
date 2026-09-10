@@ -3,6 +3,9 @@ outputs/*.lock
 outputs/**/*.lock
 *.lock
 outputs/creator-packs/gilded-grove/**/*.blend1
+outputs/creator-packs/catalog/**/*.blend1
+outputs/creator-packs/catalog/**/*.log
+work/creator-packs/**/__pycache__/
 
 # Local logs and generated test result caches
 outputs/*.log

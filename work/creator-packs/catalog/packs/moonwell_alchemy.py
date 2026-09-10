@@ -62,7 +62,7 @@ def _cauldron():
     for x in (-1.00,1.00):
         a.torus("Side_Handle",.27,.06,(x,0,1.12),"gold",rotation=(pi/2,0,0),major_segments=10)
         a.box("Handle_Lug",(.22,.22,.15),(x*.91,0,.97),"iron",.03)
-    a.notes["contents"]="Removable opaque brew surface; hollow pot has an inner wall and floor."
+    a.notes["contents"]="Opaque brew surface can be removed in editable Blender source; FBX/GLB export joins it into Body. Hollow pot has an inner wall and floor."
     return a
 
 
