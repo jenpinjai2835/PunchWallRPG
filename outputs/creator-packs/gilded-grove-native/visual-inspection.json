@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "artifact_sha256": "0754F4B729547F450D5225C7A5F04B01D3187191B637FA68FD83FD53FC723049",
+  "image": "contact-sheet.png",
+  "image_sha256": "FD427AD70870F323B442E9E75B089BF6DED89EEE5A360A65DB88F303AA71C5AB",
+  "render_engine": "Cycles CPU",
+  "render_threads": 2,
+  "samples": 16,
+  "resolution": [
+    2200,
+    1350
+  ],
+  "inspection": "Actual isolated aggregate reimport rendered and inspected. All 72 placements appear in three labeled palette banks, every base prop is visible, forms are separated, and teal/ember/amethyst accents are distinct. No cropping or texture corruption observed. Render-only floor, text, lights and camera are excluded from the GLB.",
+  "limitations": "This is an aggregate overview; production native asset loading and permissions are validated separately by the Coordinator."
+}

@@ -1,0 +1,5293 @@
+{
+  "status": "PASS",
+  "blender": "4.5.9 LTS",
+  "artifact": "GildedGrove_24Models_3Palettes.glb",
+  "sha256": "0754F4B729547F450D5225C7A5F04B01D3187191B637FA68FD83FD53FC723049",
+  "bytes": 5344140,
+  "source_manifest_sha256": "4C394C78BCA506BCDC53B31946F2349AAEDBA69E88AAB2B068821A610B1759B3",
+  "source_glb_sha256": {
+    "01_Wayfarer_Chest": "E6157473C240EF5F837C743A395CE2D082022EB71D059269F33FE4ED6C018028",
+    "02_Royal_Chest": "BA6CA37DBB6B9AC47A77D02BEB3FD99CAA0C675B801372E25066BB38B0DB7328",
+    "03_Shipping_Crate": "7162932ADB6E1745A84BBD2DA50C7803FF8F590857A1EB3203B9F6877CA931B8",
+    "04_Open_Crate": "33A9A341800445097A6A1BEA5302E3D19E4E863638062C2A60B65EA85FC71E34",
+    "05_Merchant_Barrel": "4DDF877FDF52429B0D6E08C95EE4A373279CA162B408D0F82078ECA74575DDFD",
+    "06_Coin_Coffer": "72F80A630C4A06E2F3C8B84EF69746BBA5327AE9258782753F02AECA30EDB516",
+    "07_Display_Tray": "356C0519F1BC792ACE08CC8B62A32A76EA4708F3E29A31B53A886C49E077500E",
+    "08_Treasure_Cart": "EA10C7329FE76A473DBC01797D2D74F1444987B65D743EF6C2D5E9C15EC02EEF",
+    "09_Coin_Stack": "55441614A14913B4A46185B61B4D7C4660B135F5BFF6B29977A92E190A49BCED",
+    "10_Coin_Pouch": "718BD682ACD0317C112AD770166B5ABCFC9B5EB161AF68F2A3A0B5396A411E19",
+    "11_Cut_Gem": "7ABC17B98E28B4331A7337642BB9A7F986547362363B031DAC60F3FDB562F831",
+    "12_Crystal_Cluster": "048276F77436CD528CBDECF1C31E0308AE143684A8E2EECDC03261FDE74C853E",
+    "13_Ore_Node": "A33A2C0F237E370FCF93DDA971E7EA5F584153F8A1D98C4A8CB5D183DD86A4AB",
+    "14_Alchemy_Bottle": "06BDB16E630DEF0FAAE46B32F62204D941DBED3F8FECC493D74BE576625870C5",
+    "15_Reward_Medallion": "451381B1427BB7C8E41FB870EBF7AA0C4203553D73331A7852DD3D76E504AE53",
+    "16_Upgrade_Hammer": "1E5299C2DA657404CCBC3AF2B75D4D6E8D5D111A6AAA8D97A5C62052EC4E49BD",
+    "17_Merchant_Stall": "FDF7A2AB04AADDA905ADCC5A45BBAEF5BB27632713B7DD1B7582EFE5DA0F9777",
+    "18_Upgrade_Station": "4FB6C53B7FD83BD57EF3DA99AEAF945238B5B201F9455C65FC394CC0BFD56404",
+    "19_Reward_Pedestal": "3233B6266D02691A91D44495A0C6B8B1D25D81025853984EC126BC1BE0AF50FA",
+    "20_Hanging_Shop_Sign": "C9503613304B2E900DF2645EC590726831810D34D33AA530CEC980C1B53EB5A6",
+    "21_Lantern_Post": "05D5DB3F8566075E58ECB06A8FF5F49F7C702256D4F8E23C8DBBB7CE21B75A00",
+    "22_Display_Shelf": "04B92CA75AE22C34E8EA2DD64A82F3E93FC4838F91190971586D9E3C42C304AC",
+    "23_Market_Fence": "B2C80271FC4F21B1148355C6AF56819AB9081545044B4EF126F81C996582A0CF",
+    "24_Portal_Arch": "C8789D20BD016078E9A54D0EC3D6544F81161452879B56C6344AE0570F54DD3C"
+  },
+  "unique_base_models": 24,
+  "palette_variants": 3,
+  "variant_placements": 72,
+  "mesh_count": 99,
+  "triangles": 75648,
+  "checks": [
+    {
+      "name": "GLB under 20 MB",
+      "pass": true,
+      "details": 5344140
+    },
+    {
+      "name": "No external buffers or images",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Exactly three embedded palettes",
+      "pass": true,
+      "details": {
+        "Teal_Palette": "7B5E1CFCCEF5CB7DAF8505DA7BD1741481C7524FC6256AD21119A5F26EE32C38",
+        "Ember_Palette": "680B1C917BB18D9139A1B191F1F75ED4AF706A41029127B3123AF37DC35FD2F6",
+        "Amethyst_Palette": "A107BFBDB37B62081EFA05259E7F73D0C5CE147C2CFB43DCC4A40562E6019047"
+      }
+    },
+    {
+      "name": "Teal embedded PNG bytes match verified source",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember embedded PNG bytes match verified source",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst embedded PNG bytes match verified source",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "No exported animations, cameras or lights",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Single named package root",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "99 role meshes",
+      "pass": true,
+      "details": 99
+    },
+    {
+      "name": "75,648 aggregate triangles",
+      "pass": true,
+      "details": 75648
+    },
+    {
+      "name": "Only empty hierarchy and mesh nodes",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Hierarchy contains 1 root, 3 palettes and 72 props",
+      "pass": true,
+      "details": 175
+    },
+    {
+      "name": "Teal intended RGB palette",
+      "pass": true,
+      "details": {
+        "variant": "Teal",
+        "status": "PASS",
+        "file": "F:\\Roblox\\PuchWall-gilded-native-20260910\\outputs\\creator-packs\\gilded-grove\\textures\\Teal_Palette.png",
+        "sha256": "7B5E1CFCCEF5CB7DAF8505DA7BD1741481C7524FC6256AD21119A5F26EE32C38",
+        "reference_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            20,
+            127,
+            134
+          ],
+          [
+            88,
+            206,
+            202
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "actual_png_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            20,
+            127,
+            134
+          ],
+          [
+            88,
+            206,
+            202
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "blender_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            20,
+            127,
+            134
+          ],
+          [
+            88,
+            206,
+            202
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "max_rgb_byte_error": 0,
+        "blender_matches_raw_png": true,
+        "mismatched_cells": []
+      }
+    },
+    {
+      "name": "Ember intended RGB palette",
+      "pass": true,
+      "details": {
+        "variant": "Ember",
+        "status": "PASS",
+        "file": "F:\\Roblox\\PuchWall-gilded-native-20260910\\outputs\\creator-packs\\gilded-grove\\textures\\Ember_Palette.png",
+        "sha256": "680B1C917BB18D9139A1B191F1F75ED4AF706A41029127B3123AF37DC35FD2F6",
+        "reference_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            172,
+            75,
+            50
+          ],
+          [
+            248,
+            160,
+            90
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "actual_png_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            172,
+            75,
+            50
+          ],
+          [
+            248,
+            160,
+            90
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "blender_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            172,
+            75,
+            50
+          ],
+          [
+            248,
+            160,
+            90
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "max_rgb_byte_error": 0,
+        "blender_matches_raw_png": true,
+        "mismatched_cells": []
+      }
+    },
+    {
+      "name": "Amethyst intended RGB palette",
+      "pass": true,
+      "details": {
+        "variant": "Amethyst",
+        "status": "PASS",
+        "file": "F:\\Roblox\\PuchWall-gilded-native-20260910\\outputs\\creator-packs\\gilded-grove\\textures\\Amethyst_Palette.png",
+        "sha256": "A107BFBDB37B62081EFA05259E7F73D0C5CE147C2CFB43DCC4A40562E6019047",
+        "reference_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            103,
+            77,
+            145
+          ],
+          [
+            189,
+            147,
+            239
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "actual_png_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            103,
+            77,
+            145
+          ],
+          [
+            189,
+            147,
+            239
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "blender_rgb": [
+          [
+            112,
+            76,
+            53
+          ],
+          [
+            53,
+            44,
+            45
+          ],
+          [
+            168,
+            121,
+            76
+          ],
+          [
+            103,
+            77,
+            145
+          ],
+          [
+            189,
+            147,
+            239
+          ],
+          [
+            214,
+            165,
+            77
+          ],
+          [
+            255,
+            226,
+            161
+          ],
+          [
+            51,
+            61,
+            76
+          ],
+          [
+            98,
+            112,
+            121
+          ],
+          [
+            166,
+            182,
+            183
+          ],
+          [
+            241,
+            226,
+            194
+          ],
+          [
+            190,
+            89,
+            65
+          ],
+          [
+            98,
+            185,
+            130
+          ],
+          [
+            152,
+            114,
+            215
+          ],
+          [
+            156,
+            104,
+            74
+          ],
+          [
+            32,
+            41,
+            52
+          ]
+        ],
+        "max_rgb_byte_error": 0,
+        "blender_matches_raw_png": true,
+        "mismatched_cells": []
+      }
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 01_Wayfarer_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 02_Royal_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 03_Shipping_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 04_Open_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 05_Merchant_Barrel source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 06_Coin_Coffer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 07_Display_Tray source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Left decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart Wheel_Right decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 08_Treasure_Cart source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 09_Coin_Stack source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 10_Coin_Pouch source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 11_Cut_Gem source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 12_Crystal_Cluster source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 13_Ore_Node source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 14_Alchemy_Bottle source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 15_Reward_Medallion source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 16_Upgrade_Hammer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 17_Merchant_Stall source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 18_Upgrade_Station source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 19_Reward_Pedestal source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 20_Hanging_Shop_Sign source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 21_Lantern_Post source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 22_Display_Shelf source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 23_Market_Fence source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch ArchTop decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch LeftPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch RightPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Teal 24_Portal_Arch source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 01_Wayfarer_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 02_Royal_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 03_Shipping_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 04_Open_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 05_Merchant_Barrel source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 06_Coin_Coffer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 07_Display_Tray source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Left decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart Wheel_Right decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 08_Treasure_Cart source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 09_Coin_Stack source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 10_Coin_Pouch source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 11_Cut_Gem source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 12_Crystal_Cluster source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 13_Ore_Node source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 14_Alchemy_Bottle source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 15_Reward_Medallion source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 16_Upgrade_Hammer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 17_Merchant_Stall source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 18_Upgrade_Station source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 19_Reward_Pedestal source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 20_Hanging_Shop_Sign source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 21_Lantern_Post source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 22_Display_Shelf source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 23_Market_Fence source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch ArchTop decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch LeftPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch RightPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Ember 24_Portal_Arch source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 01_Wayfarer_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 02_Royal_Chest source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 03_Shipping_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 04_Open_Crate source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 05_Merchant_Barrel source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer Lid decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 06_Coin_Coffer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 07_Display_Tray source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Left decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart Wheel_Right decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 08_Treasure_Cart source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 09_Coin_Stack source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 10_Coin_Pouch source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 11_Cut_Gem source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 12_Crystal_Cluster source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 13_Ore_Node source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 14_Alchemy_Bottle source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 15_Reward_Medallion source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 16_Upgrade_Hammer source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 17_Merchant_Stall source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 18_Upgrade_Station source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 19_Reward_Pedestal source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 20_Hanging_Shop_Sign source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 21_Lantern_Post source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 22_Display_Shelf source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence Body decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 23_Market_Fence source dimensions preserved",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch hierarchy",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch grid position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch bank position",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch ArchTop decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch LeftPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar pivot",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar triangles",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar finite positive geometry",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar single correct atlas UV",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar shader uses intended palette",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch RightPillar decoded palette pixels",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Amethyst 24_Portal_Arch source dimensions preserved",
+      "pass": true,
+      "details": null
+    }
+  ],
+  "limitations": "Blender roundtrip evidence only. Native Roblox upload and fresh Studio load remain separate gates."
+}
