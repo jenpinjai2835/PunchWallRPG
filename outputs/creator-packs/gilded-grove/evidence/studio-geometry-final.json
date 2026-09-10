@@ -1,0 +1,128 @@
+{
+  "at": "2026-09-10T16:00:12.372Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "method": "EditableMesh from actual exported GLB geometry; local preview only",
+  "results": [
+    {
+      "file": "01_Wayfarer_Chest.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"e6157473c240ef5f837c743a395ce2d082022eb71d059269f33fe4ed6c018028\",\"status\":\"PASS\",\"id\":\"01_Wayfarer_Chest\",\"mesh_count\":2,\"triangles\":2156}"
+    },
+    {
+      "file": "02_Royal_Chest.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ba6ca37dbb6b9ac47a77d02beb3fd99caa0c675b801372e25066bb38b0db7328\",\"status\":\"PASS\",\"id\":\"02_Royal_Chest\",\"mesh_count\":2,\"triangles\":2248}"
+    },
+    {
+      "file": "03_Shipping_Crate.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7162932adb6e1745a84bbd2da50c7803ff8f590857a1eb3203b9f6877ca931b8\",\"status\":\"PASS\",\"id\":\"03_Shipping_Crate\",\"mesh_count\":2,\"triangles\":1752}"
+    },
+    {
+      "file": "04_Open_Crate.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"33a9a341800445097a6a1bea5302e3d19e4e863638062c2a60b65ea85fc71e34\",\"status\":\"PASS\",\"id\":\"04_Open_Crate\",\"mesh_count\":1,\"triangles\":1012}"
+    },
+    {
+      "file": "05_Merchant_Barrel.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4ddf877fdf52429b0d6e08c95ee4a373279ca162b408d0f82078eca74575ddfd\",\"status\":\"PASS\",\"id\":\"05_Merchant_Barrel\",\"mesh_count\":2,\"triangles\":1020}"
+    },
+    {
+      "file": "06_Coin_Coffer.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"72f80a630c4a06e2f3c8b84ef69746bba5327ae9258782753f02aeca30edb516\",\"status\":\"PASS\",\"id\":\"06_Coin_Coffer\",\"mesh_count\":2,\"triangles\":482}"
+    },
+    {
+      "file": "07_Display_Tray.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"356c0519f1bc792ace08cc8b62a32a76ea4708f3e29a31b53a886c49e077500e\",\"status\":\"PASS\",\"id\":\"07_Display_Tray\",\"mesh_count\":1,\"triangles\":880}"
+    },
+    {
+      "file": "08_Treasure_Cart.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"ea10c7329fe76a473dbc01797d2d74f1444987b65d743ef6c2d5e9c15ec02eef\",\"status\":\"PASS\",\"id\":\"08_Treasure_Cart\",\"mesh_count\":3,\"triangles\":2464}"
+    },
+    {
+      "file": "09_Coin_Stack.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"55441614a14913b4a46185b61b4d7c4660b135f5bff6b29977a92e190a49bced\",\"status\":\"PASS\",\"id\":\"09_Coin_Stack\",\"mesh_count\":1,\"triangles\":1188}"
+    },
+    {
+      "file": "10_Coin_Pouch.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"718bd682acd0317c112ad770166b5abcfc9b5eb161af68f2a3a0b5396a411e19\",\"status\":\"PASS\",\"id\":\"10_Coin_Pouch\",\"mesh_count\":1,\"triangles\":592}"
+    },
+    {
+      "file": "11_Cut_Gem.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"7abc17b98e28b4331a7337642bb9a7f986547362363b031dac60f3fdb562f831\",\"status\":\"PASS\",\"id\":\"11_Cut_Gem\",\"mesh_count\":1,\"triangles\":210}"
+    },
+    {
+      "file": "12_Crystal_Cluster.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"048276f77436cd528cbdecf1c31e0308ae143684a8e2eecdc03261fde74c853e\",\"status\":\"PASS\",\"id\":\"12_Crystal_Cluster\",\"mesh_count\":1,\"triangles\":140}"
+    },
+    {
+      "file": "13_Ore_Node.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"a33a2c0f237e370fcf93dda971e7ea5f584153f8a1d98c4a8cb5d183dd86a4ab\",\"status\":\"PASS\",\"id\":\"13_Ore_Node\",\"mesh_count\":1,\"triangles\":188}"
+    },
+    {
+      "file": "14_Alchemy_Bottle.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"06bdb16e630def0faae46b32f62204d941dbed3f8fecc493d74be576625870c5\",\"status\":\"PASS\",\"id\":\"14_Alchemy_Bottle\",\"mesh_count\":1,\"triangles\":284}"
+    },
+    {
+      "file": "15_Reward_Medallion.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"451381b1427bb7c8e41fb870ebf7aa0c4203553d73331a7852dd3d76e504ae53\",\"status\":\"PASS\",\"id\":\"15_Reward_Medallion\",\"mesh_count\":1,\"triangles\":312}"
+    },
+    {
+      "file": "16_Upgrade_Hammer.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"1e5299c2da657404ccbc3af2b75d4d6e8d5d111a6aaa8d97a5c62052ec4e49bd\",\"status\":\"PASS\",\"id\":\"16_Upgrade_Hammer\",\"mesh_count\":1,\"triangles\":484}"
+    },
+    {
+      "file": "17_Merchant_Stall.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"fdf7a2ab04aadda905adcc5a45bbaef5bb27632713b7dd1b7582efe5da0f9777\",\"status\":\"PASS\",\"id\":\"17_Merchant_Stall\",\"mesh_count\":1,\"triangles\":2436}"
+    },
+    {
+      "file": "18_Upgrade_Station.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"4fb6c53b7fd83bd57ef3da99aeaf945238b5b201f9455c65fc394cc0bfd56404\",\"status\":\"PASS\",\"id\":\"18_Upgrade_Station\",\"mesh_count\":1,\"triangles\":1950}"
+    },
+    {
+      "file": "19_Reward_Pedestal.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"3233b6266d02691a91d44495a0c6b8b1d25d81025853984ec126bc1be0af50fa\",\"status\":\"PASS\",\"id\":\"19_Reward_Pedestal\",\"mesh_count\":1,\"triangles\":566}"
+    },
+    {
+      "file": "20_Hanging_Shop_Sign.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c9503613304b2e900df2645ec590726831810d34d33aa530cec980c1b53eb5a6\",\"status\":\"PASS\",\"id\":\"20_Hanging_Shop_Sign\",\"mesh_count\":1,\"triangles\":668}"
+    },
+    {
+      "file": "21_Lantern_Post.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"05d5db3f8566075e58ecb06a8ff5f49f7c702256d4f8e23c8dbbb7ce21b75a00\",\"status\":\"PASS\",\"id\":\"21_Lantern_Post\",\"mesh_count\":1,\"triangles\":884}"
+    },
+    {
+      "file": "22_Display_Shelf.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"04b92ca75ae22c34e8ea2dd64a82f3e93fc4838f91190971586d9e3c42c304ac\",\"status\":\"PASS\",\"id\":\"22_Display_Shelf\",\"mesh_count\":1,\"triangles\":1452}"
+    },
+    {
+      "file": "23_Market_Fence.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"b2c80271fc4f21b1148355c6af56819ab9081545044b4ef126f81c996582a0cf\",\"status\":\"PASS\",\"id\":\"23_Market_Fence\",\"mesh_count\":1,\"triangles\":660}"
+    },
+    {
+      "file": "24_Portal_Arch.json",
+      "isError": false,
+      "text": "{\"source_sha256\":\"c8789d20bd016078e9a54d0ec3d6544f81161452879b56c6344ae0570f54dd3c\",\"status\":\"PASS\",\"id\":\"24_Portal_Arch\",\"mesh_count\":3,\"triangles\":1188}"
+    }
+  ],
+  "status": "PASS"
+}

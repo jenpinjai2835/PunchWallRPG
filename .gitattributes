@@ -8,6 +8,15 @@
 *.zip binary
 *.exe binary
 
+# Preserve this source pack's reproducible ZIP and SHA-linked evidence bytes.
+work/creator-packs/gilded-grove/** text eol=lf
+work/automation/flows/creator-packs/** text eol=lf
+work/automation/scripts/validate_gilded_source.py text eol=lf
+outputs/creator-packs/gilded-grove/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/creator-packs/gilded-grove/**/*.blend binary
+outputs/creator-packs/gilded-grove/**/*.fbx binary
+outputs/creator-packs/gilded-grove/**/*.glb binary
+
 # Preserve exact bytes of the final build and SHA-linked acceptance evidence.
 outputs/PunchWallRPGPlayable_v1_final.build.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 work/docs/evidence/smash-full-emote-readiness-r4-20260906/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

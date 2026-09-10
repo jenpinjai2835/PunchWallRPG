@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "studioMcp": "C:\\Users\\Jennarong Pinjai\\AppData\\Local\\Roblox\\Versions\\version-93202a13414c4131\\StudioMCP.exe",
+  "results": [
+    {
+      "ok": true,
+      "flow": "gilded-grove-assets",
+      "selectedStudio": {
+        "id": "1497482c-c1db-496d-8ed6-2818bf155932",
+        "name": "Place1"
+      },
+      "selectedPlace": {
+        "name": "Place1",
+        "placeId": "0",
+        "datamodelType": "Edit"
+      },
+      "checks": [
+        "isolated edit preview available",
+        "all models have expected geometry and visual-only properties",
+        "samples exist and chest pivots support reversible authoring rotation"
+      ],
+      "consoleClassifications": []
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 An original stylized prop collection for building merchant corners, loot displays, and reward areas. This is a visual model pack. Shopping, currency, inventory, rewards, chest opening, and other interactions are not included.
 
-**Local source delivery — Creator Store publication is pending.** All 24 FBX and 24 GLB files passed Blender roundtrip import checks. A native Studio geometry preview is being checked separately; it does not validate Studio's **File > Import** workflow, which remains blocked. No uploaded Roblox asset IDs or persistent `.rbxm` delivery are included.
+**Local source delivery — Creator Store publication is pending.** All 24 FBX and 24 GLB files passed Blender roundtrip import checks, including exact authored palette colors. The native Studio geometry preview passed with 24 models and 33 MeshParts. It does not validate Studio's **File > Import** workflow, which remains blocked by UI automation. No uploaded Roblox asset IDs or persistent `.rbxm` delivery are included. The manifest's `studio_validation: PENDING` refers to that outstanding importer gate.
 
 ## Package contents
 
@@ -13,6 +13,8 @@ An original stylized prop collection for building merchant corners, loot display
 - A free sample selection: `03_Shipping_Crate`, `09_Coin_Stack`, and `12_Crystal_Cluster`. These three models are also part of the full 24-model collection.
 
 The final file manifest is the authority for filenames and model statistics. No Roblox asset IDs are supplied until the models have been imported and uploaded under the intended creator account.
+
+The collection contains **25,216 triangles** across 33 exported mesh objects. Individual models range from 140 to 2,464 triangles. The three samples total 3,080 triangles. These are geometry counts, not a measured frame-rate claim.
 
 | Folder / file | Contents |
 | --- | --- |
@@ -37,7 +39,7 @@ See Roblox's [Importer guide](https://create.roblox.com/docs/studio/importer), [
 
 ## Using the models
 
-Keep the model hierarchy when you need independently movable pieces. A separated lid or sign is only geometry; it has no opening animation or interaction script. Check its actual origin before animating it. Do not assume a hinge pivot has been verified until the final manifest says so.
+Keep the model hierarchy when you need independently movable pieces. Chest lids have authored hinge pivots, checked in the portable export roundtrip and through reversible rotation in the local Studio geometry preview. Recheck pivots after File > Import before animating. The separated parts contain no animation or interaction script.
 
 The color variants use a common palette layout. Preserve the UV layout when editing, and switch to the corresponding palette texture in your material. Recheck all faces after a texture change. FBX and GLB are alternative deliveries of the same asset, so import the format you need rather than both copies.
 
@@ -45,11 +47,25 @@ Performance depends on the number of instances, lighting, shadows, effects, and 
 
 If you see an import issue, retain the model filename, format, Blender/Studio version, import settings, and exact warning. These details make a size, texture, or pivot problem reproducible.
 
+## Rebuild from source
+
+Use Blender 4.5.9 LTS or a compatible version. From the unzipped full package:
+
+```text
+blender --background --factory-startup --python source/scripts/build.py -- --out rebuilt
+blender --background --factory-startup --python source/scripts/presentation.py -- --package rebuilt
+blender --background --factory-startup --python source/scripts/validate_exports.py -- --package rebuilt --report rebuilt/export-check.json
+```
+
+All geometry is authored locally with the included scripts. The source scenes contain packed palette textures. The importer uploads and any gameplay integration are separate steps.
+
 ## คู่มือภาษาไทย
 
 แพ็กนี้เป็นโมเดลตกแต่งต้นฉบับสำหรับมุมร้านค้า จุดแสดงของรางวัล และฉากเก็บสมบัติ มี 24 โมเดล พร้อมไฟล์ Blender, FBX, GLB และสี Teal / Ember / Amethyst โดยสามชุดสีเป็นการเปลี่ยนสีของโมเดลเดิม ไม่ได้นับเพิ่มเป็น 72 โมเดล
 
 **สถานะไฟล์:** นำเข้า FBX และ GLB กลับใน Blender ผ่านครบ 48 ไฟล์แล้ว ส่วนภาพตัวอย่างผ่าน geometry ใน Studio เป็นการตรวจแยก ไม่ใช่ผลทดสอบเมนู File > Import ซึ่งยังติดข้อจำกัด ไม่มี asset ID ที่อัปโหลด หรือไฟล์ `.rbxm` สำหรับวางใช้โดยตรง และยังไม่ได้เผยแพร่ขายใน Creator Store
+
+ตรวจสีทั้งสามชุดตรงกับค่าที่ออกแบบไว้ และตรวจฉากตัวอย่าง Studio ผ่านครบ 24 โมเดล / 33 MeshPart รวม 25,216 สามเหลี่ยม ตัวเลขนี้เป็นขนาด geometry ของแพ็ก ไม่ใช่ผลวัด FPS บนมือถือ
 
 1. แตกไฟล์ให้ครบและเก็บโฟลเดอร์พื้นผิวไว้ด้วย เริ่มลองโมเดลตัวอย่างหนึ่งชิ้นในฉากทดสอบแยก
 2. ใน Studio เลือก **File > Import** แล้วเลือกไฟล์ FBX ของโมเดลนั้น

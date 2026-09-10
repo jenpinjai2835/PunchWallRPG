@@ -1,0 +1,33 @@
+{
+  "name": "gilded-grove-assets",
+  "description": "Isolated authoring preview of 24 original asset models. Requires studio-preview.mjs first; no Smash gameplay is touched. This verifies local EditableMesh geometry, not File > Import or asset publication.",
+  "studioName": "^(Place1|GildedGrove.*)$",
+  "steps": [
+    {
+      "type": "call",
+      "tool": "get_studio_state",
+      "expectRegex": ["Current Studio Mode:\\s*Edit"],
+      "label": "isolated edit preview available"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "assert(game.PlaceId==0,'Expected local authoring place');local f=assert(workspace:FindFirstChild('GildedGrovePreview'));assert(f:GetAttribute('LocalGeometryPreview'));local n,p,t=0,0,0;for _,m in f:GetChildren() do assert(m:IsA('Model'));n+=1;local a=0;for _,v in m:GetDescendants() do assert(not v:IsA('LuaSourceContainer'),'Unexpected behavior');if v:IsA('BasePart') then assert(v:IsA('MeshPart') and v.Anchored and not v.CanCollide and not v.CanTouch);assert(v.Size.X>0 and v.Size.Y>0 and v.Size.Z>0);assert(v:GetAttribute('Triangles')>0);p+=1;a+=v:GetAttribute('Triangles') end end assert(a==m:GetAttribute('Triangles'));assert(#m:GetAttribute('SourceGLBSHA256')==64);t+=a end;assert(n==24 and p==33 and t==25216,'Preview count mismatch');return game:GetService('HttpService'):JSONEncode({status='PASS',models=n,meshParts=p,triangles=t})"
+      },
+      "expectRegex": ["\"status\":\"PASS\"", "\"models\":24", "\"meshParts\":33", "\"triangles\":25216"],
+      "label": "all models have expected geometry and visual-only properties"
+    },
+    {
+      "type": "call",
+      "tool": "execute_luau",
+      "args": {
+        "datamodel_type": "Edit",
+        "code": "local f=workspace.GildedGrovePreview;local samples={'03_Shipping_Crate','09_Coin_Stack','12_Crystal_Cluster'};for _,n in samples do assert(f:FindFirstChild(n),n) end;for _,n in {'01_Wayfarer_Chest','02_Royal_Chest'} do local m=f[n];local lid=assert(m:FindFirstChild('Lid'));local before=lid:GetPivot();lid:PivotTo(before*CFrame.Angles(math.rad(35),0,0));assert((lid:GetPivot().Position-before.Position).Magnitude<0.001,'Hinge pivot moved');lid:PivotTo(before);assert((lid:GetPivot().Position-before.Position).Magnitude<0.001) end;return 'PASS samples and reversible hinge rotation'"
+      },
+      "expectText": ["PASS samples and reversible hinge rotation"],
+      "label": "samples exist and chest pivots support reversible authoring rotation"
+    }
+  ]
+}
