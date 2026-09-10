@@ -1,0 +1,323 @@
+{
+  "status": "PASS",
+  "blender_version": "4.5.9 LTS",
+  "method": "Reopen both delivered .blend files without saving; evaluate only mesh descendants of Editable_* roots; independently decode all packed PNG bytes, check chunk CRCs and all 4096 RGB pixels per palette against literal authored constants.",
+  "files": [
+    {
+      "file": "F:\\Roblox\\PuchWall-merchant-pack-20260910\\outputs\\creator-packs\\gilded-grove\\source\\GildedGrove_Editable.blend",
+      "sha256": "b33bab91e5ae2b7f4faf1e67466d0ad75233a9d2f09aba84a1b95089d332e9ee",
+      "status": "PASS",
+      "asset_roots": 24,
+      "triangles_excluding_stage": 25216,
+      "assets": [
+        {
+          "asset": "01_Wayfarer_Chest",
+          "parts": 65,
+          "triangles": 2156
+        },
+        {
+          "asset": "02_Royal_Chest",
+          "parts": 66,
+          "triangles": 2248
+        },
+        {
+          "asset": "03_Shipping_Crate",
+          "parts": 42,
+          "triangles": 1752
+        },
+        {
+          "asset": "04_Open_Crate",
+          "parts": 23,
+          "triangles": 1012
+        },
+        {
+          "asset": "05_Merchant_Barrel",
+          "parts": 21,
+          "triangles": 1020
+        },
+        {
+          "asset": "06_Coin_Coffer",
+          "parts": 12,
+          "triangles": 482
+        },
+        {
+          "asset": "07_Display_Tray",
+          "parts": 20,
+          "triangles": 880
+        },
+        {
+          "asset": "08_Treasure_Cart",
+          "parts": 52,
+          "triangles": 2464
+        },
+        {
+          "asset": "09_Coin_Stack",
+          "parts": 27,
+          "triangles": 1188
+        },
+        {
+          "asset": "10_Coin_Pouch",
+          "parts": 11,
+          "triangles": 592
+        },
+        {
+          "asset": "11_Cut_Gem",
+          "parts": 5,
+          "triangles": 210
+        },
+        {
+          "asset": "12_Crystal_Cluster",
+          "parts": 4,
+          "triangles": 140
+        },
+        {
+          "asset": "13_Ore_Node",
+          "parts": 4,
+          "triangles": 188
+        },
+        {
+          "asset": "14_Alchemy_Bottle",
+          "parts": 5,
+          "triangles": 284
+        },
+        {
+          "asset": "15_Reward_Medallion",
+          "parts": 6,
+          "triangles": 312
+        },
+        {
+          "asset": "16_Upgrade_Hammer",
+          "parts": 11,
+          "triangles": 484
+        },
+        {
+          "asset": "17_Merchant_Stall",
+          "parts": 66,
+          "triangles": 2436
+        },
+        {
+          "asset": "18_Upgrade_Station",
+          "parts": 43,
+          "triangles": 1950
+        },
+        {
+          "asset": "19_Reward_Pedestal",
+          "parts": 16,
+          "triangles": 566
+        },
+        {
+          "asset": "20_Hanging_Shop_Sign",
+          "parts": 15,
+          "triangles": 668
+        },
+        {
+          "asset": "21_Lantern_Post",
+          "parts": 23,
+          "triangles": 884
+        },
+        {
+          "asset": "22_Display_Shelf",
+          "parts": 33,
+          "triangles": 1452
+        },
+        {
+          "asset": "23_Market_Fence",
+          "parts": 15,
+          "triangles": 660
+        },
+        {
+          "asset": "24_Portal_Arch",
+          "parts": 35,
+          "triangles": 1188
+        }
+      ],
+      "packed_palette_checks": [
+        {
+          "palette": "Teal",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "7b5e1cfccef5cb7daf8505da7bd1741481c7524fc6256ad21119a5f26ee32c38"
+        },
+        {
+          "palette": "Ember",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "680b1c917bb18d9139a1b191f1f75ed4af706a41029127b3123af37dc35fd2f6"
+        },
+        {
+          "palette": "Amethyst",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "a107bfbdb37b62081efa05259e7f73d0c5ce147c2cfb43dcc4a40562e6019047"
+        }
+      ]
+    },
+    {
+      "file": "F:\\Roblox\\PuchWall-merchant-pack-20260910\\outputs\\creator-packs\\gilded-grove\\source\\GildedGrove_MerchantScene.blend",
+      "sha256": "b0a929280019435c0c5452d90f847194adcefad55a5fc110decbf5b0da25f835",
+      "status": "PASS",
+      "asset_roots": 24,
+      "triangles_excluding_stage": 25216,
+      "assets": [
+        {
+          "asset": "01_Wayfarer_Chest",
+          "parts": 65,
+          "triangles": 2156
+        },
+        {
+          "asset": "02_Royal_Chest",
+          "parts": 66,
+          "triangles": 2248
+        },
+        {
+          "asset": "03_Shipping_Crate",
+          "parts": 42,
+          "triangles": 1752
+        },
+        {
+          "asset": "04_Open_Crate",
+          "parts": 23,
+          "triangles": 1012
+        },
+        {
+          "asset": "05_Merchant_Barrel",
+          "parts": 21,
+          "triangles": 1020
+        },
+        {
+          "asset": "06_Coin_Coffer",
+          "parts": 12,
+          "triangles": 482
+        },
+        {
+          "asset": "07_Display_Tray",
+          "parts": 20,
+          "triangles": 880
+        },
+        {
+          "asset": "08_Treasure_Cart",
+          "parts": 52,
+          "triangles": 2464
+        },
+        {
+          "asset": "09_Coin_Stack",
+          "parts": 27,
+          "triangles": 1188
+        },
+        {
+          "asset": "10_Coin_Pouch",
+          "parts": 11,
+          "triangles": 592
+        },
+        {
+          "asset": "11_Cut_Gem",
+          "parts": 5,
+          "triangles": 210
+        },
+        {
+          "asset": "12_Crystal_Cluster",
+          "parts": 4,
+          "triangles": 140
+        },
+        {
+          "asset": "13_Ore_Node",
+          "parts": 4,
+          "triangles": 188
+        },
+        {
+          "asset": "14_Alchemy_Bottle",
+          "parts": 5,
+          "triangles": 284
+        },
+        {
+          "asset": "15_Reward_Medallion",
+          "parts": 6,
+          "triangles": 312
+        },
+        {
+          "asset": "16_Upgrade_Hammer",
+          "parts": 11,
+          "triangles": 484
+        },
+        {
+          "asset": "17_Merchant_Stall",
+          "parts": 66,
+          "triangles": 2436
+        },
+        {
+          "asset": "18_Upgrade_Station",
+          "parts": 43,
+          "triangles": 1950
+        },
+        {
+          "asset": "19_Reward_Pedestal",
+          "parts": 16,
+          "triangles": 566
+        },
+        {
+          "asset": "20_Hanging_Shop_Sign",
+          "parts": 15,
+          "triangles": 668
+        },
+        {
+          "asset": "21_Lantern_Post",
+          "parts": 23,
+          "triangles": 884
+        },
+        {
+          "asset": "22_Display_Shelf",
+          "parts": 33,
+          "triangles": 1452
+        },
+        {
+          "asset": "23_Market_Fence",
+          "parts": 15,
+          "triangles": 660
+        },
+        {
+          "asset": "24_Portal_Arch",
+          "parts": 35,
+          "triangles": 1188
+        }
+      ],
+      "packed_palette_checks": [
+        {
+          "palette": "Teal",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "7b5e1cfccef5cb7daf8505da7bd1741481c7524fc6256ad21119a5f26ee32c38"
+        },
+        {
+          "palette": "Ember",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "680b1c917bb18d9139a1b191f1f75ed4af706a41029127b3123af37dc35fd2f6"
+        },
+        {
+          "palette": "Amethyst",
+          "status": "PASS",
+          "packed": true,
+          "fake_user": true,
+          "colorspace": "sRGB",
+          "authored_RGB_pixels": 4096,
+          "png_sha256": "a107bfbdb37b62081efa05259e7f73d0c5ce147c2cfb43dcc4a40562e6019047"
+        }
+      ]
+    }
+  ]
+}

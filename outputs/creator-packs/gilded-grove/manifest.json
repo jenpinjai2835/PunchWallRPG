@@ -1,0 +1,1216 @@
+{
+  "product": "Gilded Grove - Merchant & Loot",
+  "version": "0.1.0",
+  "asset_count": 24,
+  "blender_version": "4.5.9 LTS",
+  "source_axes": {
+    "up": "+Z",
+    "front": "-Y",
+    "unit": "one intended stud; select Studs in Studio"
+  },
+  "palette_variants": [
+    "Teal",
+    "Ember",
+    "Amethyst"
+  ],
+  "samples": [
+    "03_Shipping_Crate",
+    "09_Coin_Stack",
+    "12_Crystal_Cluster"
+  ],
+  "runtime_scripts": 0,
+  "external_mesh_dependencies": 0,
+  "total_triangles": 25216,
+  "assets": [
+    {
+      "id": "01_Wayfarer_Chest",
+      "category": "Containers",
+      "description": "Hollow walnut adventurer chest with teal barrel lid and brass straps.",
+      "notes": {
+        "interior": "Empty rectangular body and curved shell lid.",
+        "animation": "Lid pivot is on the rear hinge; rotate local X to open."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Lid": [
+          0,
+          0.99,
+          1.47
+        ]
+      },
+      "bounds_min": [
+        -1.5799999237060547,
+        -1.0899999141693115,
+        0.0
+      ],
+      "bounds_max": [
+        1.5799999237060547,
+        1.0550000667572021,
+        2.134999990463257
+      ],
+      "size": [
+        3.1599998474121094,
+        2.1449999809265137,
+        2.134999990463257
+      ],
+      "triangles": 2156,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "01_Wayfarer_Chest__Body",
+          "vertices": 856,
+          "triangles": 1584,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "01_Wayfarer_Chest__Lid",
+          "vertices": 348,
+          "triangles": 572,
+          "pivot": [
+            0.0,
+            0.9900000095367432,
+            1.4700000286102295
+          ]
+        }
+      ]
+    },
+    {
+      "id": "02_Royal_Chest",
+      "category": "Containers",
+      "description": "Tall jewel-front royal strongbox, stepped feet and a faceted crown lid.",
+      "notes": {
+        "animation": "Lid contains crown, shell and front tongue; rear hinge pivot."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Lid": [
+          0,
+          1.05,
+          1.75
+        ]
+      },
+      "bounds_min": [
+        -1.4500000476837158,
+        -1.3300000429153442,
+        0.0
+      ],
+      "bounds_max": [
+        1.4500000476837158,
+        1.1349999904632568,
+        3.049999952316284
+      ],
+      "size": [
+        2.9000000953674316,
+        2.465000033378601,
+        3.049999952316284
+      ],
+      "triangles": 2248,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "02_Royal_Chest__Body",
+          "vertices": 883,
+          "triangles": 1618,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "02_Royal_Chest__Lid",
+          "vertices": 373,
+          "triangles": 630,
+          "pivot": [
+            0.0,
+            1.0499999523162842,
+            1.75
+          ]
+        }
+      ]
+    },
+    {
+      "id": "03_Shipping_Crate",
+      "category": "Containers",
+      "description": "Free sample: braced shipping crate with removable plank top and hollow body.",
+      "notes": {
+        "sample": "Included in the free three-model sampler.",
+        "animation": "Lift Lid vertically; this top is removable, not hinged."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Lid": [
+          0,
+          0,
+          1.87
+        ]
+      },
+      "bounds_min": [
+        -1.2300000190734863,
+        -1.1450001001358032,
+        2.9802322387695312e-08
+      ],
+      "bounds_max": [
+        1.3050000667572021,
+        1.0549999475479126,
+        2.0850000381469727
+      ],
+      "size": [
+        2.5350000858306885,
+        2.200000047683716,
+        2.0850000083446503
+      ],
+      "triangles": 1752,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "03_Shipping_Crate__Body",
+          "vertices": 792,
+          "triangles": 1444,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "03_Shipping_Crate__Lid",
+          "vertices": 168,
+          "triangles": 308,
+          "pivot": [
+            0.0,
+            0.0,
+            1.8700000047683716
+          ]
+        }
+      ]
+    },
+    {
+      "id": "04_Open_Crate",
+      "category": "Containers",
+      "description": "Low slatted market crate with actual open handholds and a cream merchant plaque.",
+      "notes": {
+        "interior": "Open slatted crate; end handholds are genuine geometry openings."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.399999976158142,
+        -1.0195000171661377,
+        0.0
+      ],
+      "bounds_max": [
+        1.399999976158142,
+        0.9350000023841858,
+        1.340000033378601
+      ],
+      "size": [
+        2.799999952316284,
+        1.9545000195503235,
+        1.340000033378601
+      ],
+      "triangles": 1012,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "04_Open_Crate__Body",
+          "vertices": 552,
+          "triangles": 1012,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "05_Merchant_Barrel",
+      "category": "Containers",
+      "description": "Twelve shaped walnut staves, broad brass hoops and a removable flat lid.",
+      "notes": {
+        "animation": "Lift Lid vertically to expose the stave-built hollow interior."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Lid": [
+          0,
+          0,
+          2.28
+        ]
+      },
+      "bounds_min": [
+        -0.9629999995231628,
+        -0.9629999995231628,
+        0.0
+      ],
+      "bounds_max": [
+        0.9629999995231628,
+        0.9629999995231628,
+        2.433000087738037
+      ],
+      "size": [
+        1.9259999990463257,
+        1.9259999990463257,
+        2.433000087738037
+      ],
+      "triangles": 1020,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "05_Merchant_Barrel__Body",
+          "vertices": 456,
+          "triangles": 860,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "05_Merchant_Barrel__Lid",
+          "vertices": 88,
+          "triangles": 160,
+          "pivot": [
+            0.0,
+            0.0,
+            2.2799999713897705
+          ]
+        }
+      ]
+    },
+    {
+      "id": "06_Coin_Coffer",
+      "category": "Containers",
+      "description": "Small octagonal teal coin strongbox with a brass collar and garnet seal.",
+      "notes": {
+        "animation": "Rear Lid pivot supplied; coin coffer body has a usable empty cavity."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Lid": [
+          0,
+          0.97,
+          1.2
+        ]
+      },
+      "bounds_min": [
+        -1.0024093389511108,
+        -1.0519999265670776,
+        0.0
+      ],
+      "bounds_max": [
+        1.0024093389511108,
+        1.0024093389511108,
+        1.7400000095367432
+      ],
+      "size": [
+        2.0048186779022217,
+        2.0544092655181885,
+        1.7400000095367432
+      ],
+      "triangles": 482,
+      "mesh_count": 2,
+      "meshes": [
+        {
+          "name": "06_Coin_Coffer__Body",
+          "vertices": 192,
+          "triangles": 364,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "06_Coin_Coffer__Lid",
+          "vertices": 67,
+          "triangles": 118,
+          "pivot": [
+            0.0,
+            0.9700000286102295,
+            1.2000000476837158
+          ]
+        }
+      ]
+    },
+    {
+      "id": "07_Display_Tray",
+      "category": "Containers",
+      "description": "Shallow brass-edged jeweler tray with cream lining and raised side handles.",
+      "notes": {
+        "interior": "Empty lined tray supplied ready for displaying other pack items."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.5575000047683716,
+        -0.9874999523162842,
+        0.0
+      ],
+      "bounds_max": [
+        1.5575002431869507,
+        0.9874999523162842,
+        0.7475000619888306
+      ],
+      "size": [
+        3.1150002479553223,
+        1.9749999046325684,
+        0.7475000619888306
+      ],
+      "triangles": 880,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "07_Display_Tray__Body",
+          "vertices": 480,
+          "triangles": 880,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "08_Treasure_Cart",
+      "category": "Containers",
+      "description": "Two-wheeled market handcart with spoked wheels, hollow plank bed and pull shafts.",
+      "notes": {
+        "animation": "Each Wheel role has its own axle-center pivot, local X axis.",
+        "interior": "Empty bed; pull shafts and parking feet are static decoration."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "Wheel_Left": [
+          -1.45,
+          0.31,
+          0.765
+        ],
+        "Wheel_Right": [
+          1.45,
+          0.31,
+          0.765
+        ]
+      },
+      "bounds_min": [
+        -1.6100000143051147,
+        -2.7980353832244873,
+        -5.960464477539063e-08
+      ],
+      "bounds_max": [
+        1.6100000143051147,
+        1.3499999046325684,
+        1.7349998950958252
+      ],
+      "size": [
+        3.2200000286102295,
+        4.148035287857056,
+        1.73499995470047
+      ],
+      "triangles": 2464,
+      "mesh_count": 3,
+      "meshes": [
+        {
+          "name": "08_Treasure_Cart__Body",
+          "vertices": 672,
+          "triangles": 1232,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "08_Treasure_Cart__Wheel_Left",
+          "vertices": 328,
+          "triangles": 616,
+          "pivot": [
+            -1.4500000476837158,
+            0.3100000023841858,
+            0.7649999856948853
+          ]
+        },
+        {
+          "name": "08_Treasure_Cart__Wheel_Right",
+          "vertices": 328,
+          "triangles": 616,
+          "pivot": [
+            1.4500000476837158,
+            0.3100000023841858,
+            0.7649999856948853
+          ]
+        }
+      ]
+    },
+    {
+      "id": "09_Coin_Stack",
+      "category": "Rewards",
+      "description": "Three stacks of faceted mint coins with raised diamond stamps.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.8799999952316284,
+        -0.9600000381469727,
+        0.0
+      ],
+      "bounds_max": [
+        0.8400000333786011,
+        0.6799999475479126,
+        0.6710000038146973
+      ],
+      "size": [
+        1.7200000286102295,
+        1.6399999856948853,
+        0.6710000038146973
+      ],
+      "triangles": 1188,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "09_Coin_Stack__Body",
+          "vertices": 648,
+          "triangles": 1188,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10_Coin_Pouch",
+      "category": "Rewards",
+      "description": "Faceted leather purse, folded neck, brass cord and spilled coins.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.7200000286102295,
+        -0.7699999809265137,
+        0.0
+      ],
+      "bounds_max": [
+        1.0800000429153442,
+        0.6847606897354126,
+        1.4600000381469727
+      ],
+      "size": [
+        1.8000000715255737,
+        1.4547606706619263,
+        1.4600000381469727
+      ],
+      "triangles": 592,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "10_Coin_Pouch__Body",
+          "vertices": 316,
+          "triangles": 592,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "11_Cut_Gem",
+      "category": "Rewards",
+      "description": "Large cut gem with six broad, readable facets and a brass setting.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.6200000047683716,
+        -0.6200000047683716,
+        0.0
+      ],
+      "bounds_max": [
+        0.6200000047683716,
+        0.6200000047683716,
+        1.309999942779541
+      ],
+      "size": [
+        1.2400000095367432,
+        1.2400000095367432,
+        1.309999942779541
+      ],
+      "triangles": 210,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "11_Cut_Gem__Body",
+          "vertices": 115,
+          "triangles": 210,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12_Crystal_Cluster",
+      "category": "Gathering",
+      "description": "Three asymmetric crystal spires rooted in a faceted stone outcrop.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.8559204339981079,
+        -0.9261814951896667,
+        0.0
+      ],
+      "bounds_max": [
+        0.949999988079071,
+        0.9261814951896667,
+        2.080857753753662
+      ],
+      "size": [
+        1.805920422077179,
+        1.8523629903793335,
+        2.080857753753662
+      ],
+      "triangles": 140,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "12_Crystal_Cluster__Body",
+          "vertices": 78,
+          "triangles": 140,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "13_Ore_Node",
+      "category": "Gathering",
+      "description": "Broad layered boulder with exposed golden mineral seams.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.1879323720932007,
+        -0.9060231447219849,
+        0.0
+      ],
+      "bounds_max": [
+        1.1569583415985107,
+        0.9060231447219849,
+        1.7859396934509277
+      ],
+      "size": [
+        2.3448907136917114,
+        1.8120462894439697,
+        1.7859396934509277
+      ],
+      "triangles": 188,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "13_Ore_Node__Body",
+          "vertices": 102,
+          "triangles": 188,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "14_Alchemy_Bottle",
+      "category": "Rewards",
+      "description": "Opaque stylized potion flask with a cork, collar and diamond label.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.5699999928474426,
+        -0.622499942779541,
+        0.0
+      ],
+      "bounds_max": [
+        0.5699999928474426,
+        0.5699999928474426,
+        1.4700000286102295
+      ],
+      "size": [
+        1.1399999856948853,
+        1.1924999356269836,
+        1.4700000286102295
+      ],
+      "triangles": 284,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "14_Alchemy_Bottle__Body",
+          "vertices": 152,
+          "triangles": 284,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "15_Reward_Medallion",
+      "category": "Rewards",
+      "description": "Upright sun medallion with a central jewel and a self-standing plinth.",
+      "notes": {},
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.7699999809265137,
+        -0.375,
+        0.0
+      ],
+      "bounds_max": [
+        0.7699999809265137,
+        0.375,
+        1.809999942779541
+      ],
+      "size": [
+        1.5399999618530273,
+        0.75,
+        1.809999942779541
+      ],
+      "triangles": 312,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "15_Reward_Medallion__Body",
+          "vertices": 168,
+          "triangles": 312,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "16_Upgrade_Hammer",
+      "category": "Tools",
+      "description": "A chunky display hammer with an iron head, brass faces and wrapped handle.",
+      "notes": {
+        "interaction": "Static display prop; no Tool, damage or upgrade script included."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -0.8849999904632568,
+        -0.41499999165534973,
+        0.019999980926513672
+      ],
+      "bounds_max": [
+        0.8849999904632568,
+        0.41499999165534973,
+        2.4200000762939453
+      ],
+      "size": [
+        1.7699999809265137,
+        0.8299999833106995,
+        2.4000000953674316
+      ],
+      "triangles": 484,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "16_Upgrade_Hammer__Body",
+          "vertices": 264,
+          "triangles": 484,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "17_Merchant_Stall",
+      "category": "Shop Fixtures",
+      "description": "Open merchant counter with a striped sloping canopy and framed walnut panels.",
+      "notes": {
+        "placement": "Front faces -Y. Rear opening remains clear for a vendor.",
+        "design": "Seven original cloth stripes; no baked text or third-party assets."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -3.0,
+        -1.5,
+        0.0
+      ],
+      "bounds_max": [
+        3.0,
+        1.5,
+        5.461999893188477
+      ],
+      "size": [
+        6.0,
+        3.0,
+        5.461999893188477
+      ],
+      "triangles": 2436,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "17_Merchant_Stall__Body",
+          "vertices": 1350,
+          "triangles": 2436,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "18_Upgrade_Station",
+      "category": "Shop Fixtures",
+      "description": "Walnut artificer bench with a brass upgrade ring, gem cradle and side crank.",
+      "notes": {
+        "design": "Visual fixture only; upgrade logic and effects are intentionally absent."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -2.075000047683716,
+        -0.8600000143051147,
+        0.0
+      ],
+      "bounds_max": [
+        2.075000286102295,
+        0.85999995470047,
+        4.425000190734863
+      ],
+      "size": [
+        4.150000333786011,
+        1.7199999690055847,
+        4.425000190734863
+      ],
+      "triangles": 1950,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "18_Upgrade_Station__Body",
+          "vertices": 1055,
+          "triangles": 1950,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "19_Reward_Pedestal",
+      "category": "Shop Fixtures",
+      "description": "Octagonal stepped stone reward plinth with brass inlays and a faceted teal gem.",
+      "notes": {
+        "placement": "Eight-sided foundation; clear centreline for reward placement."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.2699999809265137,
+        -1.2699999809265137,
+        0.0
+      ],
+      "bounds_max": [
+        1.2699999809265137,
+        1.2699999809265137,
+        3.359999895095825
+      ],
+      "size": [
+        2.5399999618530273,
+        2.5399999618530273,
+        3.359999895095825
+      ],
+      "triangles": 566,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "19_Reward_Pedestal__Body",
+          "vertices": 315,
+          "triangles": 566,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "20_Hanging_Shop_Sign",
+      "category": "Shop Fixtures",
+      "description": "Blank octagonal walnut sign with brass border, twin hangers and wall bracket.",
+      "notes": {
+        "placement": "Mount the vertical bracket flush to a wall or post.",
+        "label": "Add localized text to either teal face; no lettering baked into mesh."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.5149999856948853,
+        -0.08999999612569809,
+        0.0
+      ],
+      "bounds_max": [
+        1.3299998044967651,
+        0.32999998331069946,
+        3.0
+      ],
+      "size": [
+        2.8449997901916504,
+        0.41999997943639755,
+        3.0
+      ],
+      "triangles": 668,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "20_Hanging_Shop_Sign__Body",
+          "vertices": 360,
+          "triangles": 668,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "21_Lantern_Post",
+      "category": "Shop Fixtures",
+      "description": "Freestanding market lantern with stone foot, curved wood bracket and brass cage.",
+      "notes": {
+        "lighting": "Opaque warm core; add a PointLight in Studio if desired."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.1100000143051147,
+        -0.5600000023841858,
+        0.0
+      ],
+      "bounds_max": [
+        1.4196193218231201,
+        0.5600000023841858,
+        4.862499713897705
+      ],
+      "size": [
+        2.529619336128235,
+        1.1200000047683716,
+        4.862499713897705
+      ],
+      "triangles": 884,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "21_Lantern_Post__Body",
+          "vertices": 486,
+          "triangles": 884,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22_Display_Shelf",
+      "category": "Shop Fixtures",
+      "description": "Open three-tier walnut merchandise shelf with teal side braces and a brass crest.",
+      "notes": {
+        "placement": "Three usable surfaces at Z 0.37, 1.46 and 2.55; open back."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -1.6699999570846558,
+        -0.6449999809265137,
+        0.0
+      ],
+      "bounds_max": [
+        1.6700000762939453,
+        0.6449999809265137,
+        3.450000047683716
+      ],
+      "size": [
+        3.340000033378601,
+        1.2899999618530273,
+        3.450000047683716
+      ],
+      "triangles": 1452,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "22_Display_Shelf__Body",
+          "vertices": 792,
+          "triangles": 1452,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "23_Market_Fence",
+      "category": "Shop Fixtures",
+      "description": "Four-unit repeatable walnut market fence with teal diamond centre and brass caps.",
+      "notes": {
+        "grid": "Exactly 4 units wide. Translate by 4 units along X to tile."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ]
+      },
+      "bounds_min": [
+        -2.0,
+        -0.3174999952316284,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.1899999976158142,
+        1.6449999809265137
+      ],
+      "size": [
+        4.0,
+        0.5074999928474426,
+        1.6449999809265137
+      ],
+      "triangles": 660,
+      "mesh_count": 1,
+      "meshes": [
+        {
+          "name": "23_Market_Fence__Body",
+          "vertices": 360,
+          "triangles": 660,
+          "pivot": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "24_Portal_Arch",
+      "category": "Shop Fixtures",
+      "description": "Open walk-through stone arch with segmented voussoirs, brass keys and teal crown.",
+      "notes": {
+        "clearance": "Open centre 4.02 units wide below the curved top; no portal plane.",
+        "placement": "Stone feet on Z 0. Visual arch only; teleport logic is not included."
+      },
+      "role_pivots": {
+        "Body": [
+          0,
+          0,
+          0
+        ],
+        "LeftPillar": [
+          -2.42,
+          0,
+          0
+        ],
+        "RightPillar": [
+          2.42,
+          0,
+          0
+        ],
+        "ArchTop": [
+          0,
+          0,
+          4.09
+        ]
+      },
+      "bounds_min": [
+        -2.9800000190734863,
+        -0.7849999666213989,
+        0.0
+      ],
+      "bounds_max": [
+        2.9800000190734863,
+        0.6700000166893005,
+        6.958550930023193
+      ],
+      "size": [
+        5.960000038146973,
+        1.4549999833106995,
+        6.958550930023193
+      ],
+      "triangles": 1188,
+      "mesh_count": 3,
+      "meshes": [
+        {
+          "name": "24_Portal_Arch__LeftPillar",
+          "vertices": 216,
+          "triangles": 396,
+          "pivot": [
+            -2.4200000762939453,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "24_Portal_Arch__RightPillar",
+          "vertices": 216,
+          "triangles": 396,
+          "pivot": [
+            2.4200000762939453,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "24_Portal_Arch__ArchTop",
+          "vertices": 232,
+          "triangles": 396,
+          "pivot": [
+            0.0,
+            0.0,
+            4.090000152587891
+          ]
+        }
+      ]
+    }
+  ],
+  "studio_validation": "PENDING",
+  "notes": "24 unique base models; palette swaps are not additional models. No gameplay systems included."
+}

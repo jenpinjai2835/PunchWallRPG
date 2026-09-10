@@ -1,0 +1,29 @@
+{
+  "product": "Gilded Grove - Merchant & Loot",
+  "status": "PASS",
+  "verification_scope": "ZIP allowlists, counts, CRC, bytes, SHA256 only",
+  "archives": [
+    {
+      "file_count": 91,
+      "payload_files": 90,
+      "uncompressed_bytes": 37830588,
+      "crc": "PASS",
+      "exact_bytes": "PASS",
+      "sha256_ledger": "PASS",
+      "archive": "GildedGrove_Full.zip",
+      "bytes": 25928639,
+      "sha256": "362d308394ef61142ac5b517a32f0579cdfd0eec80624a9f3e8222c4c842a9da"
+    },
+    {
+      "file_count": 15,
+      "payload_files": 14,
+      "uncompressed_bytes": 1980657,
+      "crc": "PASS",
+      "exact_bytes": "PASS",
+      "sha256_ledger": "PASS",
+      "archive": "GildedGrove_Samples.zip",
+      "bytes": 1740019,
+      "sha256": "93c14e6c1bc20b2a410372f703bf5b1790edd2efb8acff6df25c0da9aa3bb574"
+    }
+  ]
+}

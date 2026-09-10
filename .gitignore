@@ -2,6 +2,7 @@
 outputs/*.lock
 outputs/**/*.lock
 *.lock
+outputs/creator-packs/gilded-grove/**/*.blend1
 
 # Local logs and generated test result caches
 outputs/*.log
