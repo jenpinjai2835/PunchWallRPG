@@ -1,0 +1,42 @@
+{
+  "at": "2026-09-10T17:28:20.460Z",
+  "state": "UPLOADED",
+  "method": "PATCH",
+  "assetId": "122456766146790",
+  "previousRevision": "1",
+  "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\gilded-grove-native\\corrected-store-model.rbxm",
+  "sha256": "9772ab0eb298cbdb3637a1a85b9a6dbec5032139a9f06670f0e30d83603a86e4",
+  "bytes": 481932,
+  "creatorId": "9158952231",
+  "httpStatus": 200,
+  "response": {
+    "path": "operations/eb908405-00bf-4734-9f47-4541d48980c9",
+    "operationId": "eb908405-00bf-4734-9f47-4541d48980c9",
+    "done": false
+  },
+  "operation": "operations/eb908405-00bf-4734-9f47-4541d48980c9",
+  "operationResponse": {
+    "path": "operations/eb908405-00bf-4734-9f47-4541d48980c9",
+    "operationId": "eb908405-00bf-4734-9f47-4541d48980c9",
+    "done": true,
+    "response": {
+      "path": "assets/122456766146790",
+      "revisionId": "2",
+      "revisionCreateTime": "2026-09-10T17:28:19.896351300Z",
+      "assetId": "122456766146790",
+      "displayName": "GildedGroveReadyForSale",
+      "description": "GildedGroveReadyForSale",
+      "assetType": "Model",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    }
+  },
+  "checkedAt": "2026-09-10T17:28:48.370Z"
+}

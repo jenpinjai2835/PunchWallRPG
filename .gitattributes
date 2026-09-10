@@ -16,6 +16,8 @@ outputs/creator-packs/gilded-grove/** -text whitespace=blank-at-eol,blank-at-eof
 outputs/creator-packs/gilded-grove/**/*.blend binary
 outputs/creator-packs/gilded-grove/**/*.fbx binary
 outputs/creator-packs/gilded-grove/**/*.glb binary
+outputs/creator-packs/gilded-grove-native/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+outputs/creator-packs/gilded-grove-native/*.glb binary
 
 # Preserve exact bytes of the final build and SHA-linked acceptance evidence.
 outputs/PunchWallRPGPlayable_v1_final.build.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

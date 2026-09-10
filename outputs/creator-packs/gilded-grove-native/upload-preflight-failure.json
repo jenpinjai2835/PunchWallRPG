@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-10T16:59:50.013Z",
+  "state": "FAILED_BEFORE_POST",
+  "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\gilded-grove-native\\GildedGrove_24Models_3Palettes.glb",
+  "sha256": "0754f4b729547f450d5225c7a5f04b01d3187191b637fa68fd83fd53fc723049",
+  "bytes": 5344140,
+  "creatorId": "9158952231",
+  "title": "Gilded Grove - Merchant & Loot",
+  "reason": "FormData unavailable in Node REPL module. Exception occurred before any HTTP call. Fixed with native HTTPS multipart encoder."
+}

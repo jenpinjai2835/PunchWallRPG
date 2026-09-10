@@ -1,0 +1,41 @@
+{
+  "at": "2026-09-10T17:01:07.012Z",
+  "state": "UPLOADED",
+  "file": "F:\\Roblox\\PuchWall-creator-catalog-20260910\\outputs\\creator-packs\\gilded-grove-native\\GildedGrove_24Models_3Palettes.glb",
+  "sha256": "0754f4b729547f450d5225c7a5f04b01d3187191b637fa68fd83fd53fc723049",
+  "bytes": 5344140,
+  "creatorId": "9158952231",
+  "title": "Gilded Grove - Merchant & Loot",
+  "httpStatus": 200,
+  "response": {
+    "path": "operations/2ba56741-26ca-4007-9cee-1a95e07544b2",
+    "operationId": "2ba56741-26ca-4007-9cee-1a95e07544b2",
+    "done": false
+  },
+  "operation": "operations/2ba56741-26ca-4007-9cee-1a95e07544b2",
+  "operationResponse": {
+    "path": "operations/2ba56741-26ca-4007-9cee-1a95e07544b2",
+    "operationId": "2ba56741-26ca-4007-9cee-1a95e07544b2",
+    "done": true,
+    "response": {
+      "path": "assets/82732630458121",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:24.766226500Z",
+      "assetId": "82732630458121",
+      "displayName": "Gilded Grove - Merchant & Loot",
+      "description": "24 original stylized merchant and loot props in Teal, Ember and Amethyst palettes. Visual models only; no gameplay systems. Includes chests, crates, barrel, coffer, display tray, treasure cart, coins, gems, crystals, bottle, medallion, hammer, merchant stall, upgrade station, reward pedestal, shop sign, lantern post, shelf, fence and portal arch. Separate selected lids and cart wheels for authoring. 24 unique base props, 72 palette variants. Lighting depends on your experience.",
+      "assetType": "Model",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    }
+  },
+  "checkedAt": "2026-09-10T17:02:14.738Z",
+  "assetId": "82732630458121"
+}

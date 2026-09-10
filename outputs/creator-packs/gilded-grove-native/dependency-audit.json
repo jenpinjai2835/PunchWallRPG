@@ -1,0 +1,1742 @@
+{
+  "at": "2026-09-10T17:12:07.351Z",
+  "count": 102,
+  "allOwned": true,
+  "allApproved": true,
+  "results": [
+    {
+      "assetId": "122290563386365",
+      "path": "assets/122290563386365",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.084437300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "85902580154669",
+      "path": "assets/85902580154669",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.671821100Z",
+      "displayName": "image",
+      "assetType": "Image",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "123414606498543",
+      "path": "assets/123414606498543",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.492665200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "104502930139770",
+      "path": "assets/104502930139770",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.882245700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "107765443833736",
+      "path": "assets/107765443833736",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.683290900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "83860384483944",
+      "path": "assets/83860384483944",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.681526600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "120489026307379",
+      "path": "assets/120489026307379",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:23.071738700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "126787360685111",
+      "path": "assets/126787360685111",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.679871100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "124916550261144",
+      "path": "assets/124916550261144",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.812622700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "80652947224236",
+      "path": "assets/80652947224236",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.773306600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "111409211002444",
+      "path": "assets/111409211002444",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:23.043595400Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "83814070453387",
+      "path": "assets/83814070453387",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.874577500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "99885854884114",
+      "path": "assets/99885854884114",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.397596600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "100448527549692",
+      "path": "assets/100448527549692",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.669797500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "82466275246764",
+      "path": "assets/82466275246764",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.975948500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "75431987336377",
+      "path": "assets/75431987336377",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.700916600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "75960497619868",
+      "path": "assets/75960497619868",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.069631Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "115737077950347",
+      "path": "assets/115737077950347",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.428497700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "82236041606413",
+      "path": "assets/82236041606413",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.861298900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "114146090977704",
+      "path": "assets/114146090977704",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.041963600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "110441081559460",
+      "path": "assets/110441081559460",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.420050300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "113601619365777",
+      "path": "assets/113601619365777",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.412218200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "140482239372602",
+      "path": "assets/140482239372602",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.031355400Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "131880333394976",
+      "path": "assets/131880333394976",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.497050600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "140334496625101",
+      "path": "assets/140334496625101",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.501131100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "78628127807977",
+      "path": "assets/78628127807977",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.798630200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "108132472621661",
+      "path": "assets/108132472621661",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.137665600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "121321548873218",
+      "path": "assets/121321548873218",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.484609500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "128390357159002",
+      "path": "assets/128390357159002",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.127368600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "118600253673420",
+      "path": "assets/118600253673420",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.833516900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "86780908089104",
+      "path": "assets/86780908089104",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.239893700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "117282488013978",
+      "path": "assets/117282488013978",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.772929500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "120300894018287",
+      "path": "assets/120300894018287",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.066369700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "99364431480626",
+      "path": "assets/99364431480626",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.501918300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "107978026389677",
+      "path": "assets/107978026389677",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.697554600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "93976189551200",
+      "path": "assets/93976189551200",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.964429700Z",
+      "displayName": "image",
+      "assetType": "Image",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "100070044493816",
+      "path": "assets/100070044493816",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.872202200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "106804613766464",
+      "path": "assets/106804613766464",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.808233300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "109060048400383",
+      "path": "assets/109060048400383",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.054361100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "106664515433455",
+      "path": "assets/106664515433455",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.456739800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "114641291447963",
+      "path": "assets/114641291447963",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.724991700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "80894768773140",
+      "path": "assets/80894768773140",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.563538100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "90235518832389",
+      "path": "assets/90235518832389",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.386482800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "106062304659684",
+      "path": "assets/106062304659684",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.379118900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "78148106807031",
+      "path": "assets/78148106807031",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.082164200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "72245067149504",
+      "path": "assets/72245067149504",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.528731200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "127320151821356",
+      "path": "assets/127320151821356",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.817140100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "112222357501405",
+      "path": "assets/112222357501405",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.801235200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "130187056444586",
+      "path": "assets/130187056444586",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.196969600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "84675769486991",
+      "path": "assets/84675769486991",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.709504900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "94532607255599",
+      "path": "assets/94532607255599",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.832877100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "74874734539362",
+      "path": "assets/74874734539362",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.116777100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "136733436338923",
+      "path": "assets/136733436338923",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.390154900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "134673281132482",
+      "path": "assets/134673281132482",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.414126500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "83348345561609",
+      "path": "assets/83348345561609",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.666763Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "132909782442531",
+      "path": "assets/132909782442531",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.033681800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "134255770116128",
+      "path": "assets/134255770116128",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.620252700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "127494804409896",
+      "path": "assets/127494804409896",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.520122Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "128071123884801",
+      "path": "assets/128071123884801",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.498374200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "89761019289557",
+      "path": "assets/89761019289557",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.197150800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "100039105831305",
+      "path": "assets/100039105831305",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.154824800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "126310708223186",
+      "path": "assets/126310708223186",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.023512100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "139178265782611",
+      "path": "assets/139178265782611",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.472326Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "124526768055380",
+      "path": "assets/124526768055380",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.395691700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "137648740086420",
+      "path": "assets/137648740086420",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.115777700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "138103802229912",
+      "path": "assets/138103802229912",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.980428300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "102083170973410",
+      "path": "assets/102083170973410",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.345143600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "98343448481595",
+      "path": "assets/98343448481595",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.417570900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "109612248348402",
+      "path": "assets/109612248348402",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.147459100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "135564760440656",
+      "path": "assets/135564760440656",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.899138900Z",
+      "displayName": "image",
+      "assetType": "Image",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "71849216535121",
+      "path": "assets/71849216535121",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.755211200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "128567227477595",
+      "path": "assets/128567227477595",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.809683500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "73846644336075",
+      "path": "assets/73846644336075",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.951010100Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "97998413798638",
+      "path": "assets/97998413798638",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.157499500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "88531186013771",
+      "path": "assets/88531186013771",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.800882600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "118603183943480",
+      "path": "assets/118603183943480",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.750142Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "131284064200015",
+      "path": "assets/131284064200015",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.351535500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "80998026660575",
+      "path": "assets/80998026660575",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:23.139806200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "128706087461858",
+      "path": "assets/128706087461858",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.001650400Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "71274929861174",
+      "path": "assets/71274929861174",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.661137800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "104530983702634",
+      "path": "assets/104530983702634",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.843112300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "90319085459663",
+      "path": "assets/90319085459663",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.680147800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "74466315812536",
+      "path": "assets/74466315812536",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.090711900Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "85004381423380",
+      "path": "assets/85004381423380",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:23.021553300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "111621591202867",
+      "path": "assets/111621591202867",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:19.691001200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "88826292865945",
+      "path": "assets/88826292865945",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.439015500Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "86298432202091",
+      "path": "assets/86298432202091",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.509132200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "134284622869753",
+      "path": "assets/134284622869753",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.202495400Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "128125565692770",
+      "path": "assets/128125565692770",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.744661700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "83535354091132",
+      "path": "assets/83535354091132",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.350758200Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "109723094181425",
+      "path": "assets/109723094181425",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.649426600Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "101145791255303",
+      "path": "assets/101145791255303",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.527205300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "82119568100499",
+      "path": "assets/82119568100499",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.722818300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "129619116890889",
+      "path": "assets/129619116890889",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.268825300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "88261890249406",
+      "path": "assets/88261890249406",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.053322Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "102911290736884",
+      "path": "assets/102911290736884",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.284687Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "121426154973899",
+      "path": "assets/121426154973899",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:20.074803800Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "105034001657451",
+      "path": "assets/105034001657451",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.862531700Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "78929070726928",
+      "path": "assets/78929070726928",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.708466300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "140601498534735",
+      "path": "assets/140601498534735",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.169123300Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "93625244445035",
+      "path": "assets/93625244445035",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:21.166271400Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    },
+    {
+      "assetId": "101881592074557",
+      "path": "assets/101881592074557",
+      "revisionId": "1",
+      "revisionCreateTime": "2026-09-10T17:01:22.092765Z",
+      "displayName": "mesh",
+      "assetType": "Mesh",
+      "creationContext": {
+        "creator": {
+          "userId": "9158952231"
+        }
+      },
+      "moderationResult": {
+        "moderationState": "Approved"
+      },
+      "state": "Active"
+    }
+  ]
+}

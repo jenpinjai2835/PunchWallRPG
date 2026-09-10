@@ -4,6 +4,8 @@ Task CREATOR-CATALOG-10-20260910. User confirmed ten TOTAL packs, including Gild
 
 ## Owners and integration
 
+User sequencing update: publish and verify one paid Gilded Grove listing first, show its actual storefront and price, then resume the remaining packs. New-pack workers are WAITING and preserve their uncommitted checkpoints. Their dependency is the Coordinator's verified first paid listing; no further catalog production before that gate.
+
 Coordinator owns this contract, shared exporter/packager/Studio tooling, source integration, all final outputs, seller/CDP state, publication, verification and handoff. Preserve the frozen first-pack04254dd artifact and PR3. Parent branch starts from fresh origin/develop and integrates that dependency. Workers own only their three assigned source modules and ignored scratch inside separate worktrees; no shared file edits.
 
 1. Worker1: `packs/mossvale_camp.py`, `packs/harvest_homestead.py`, `packs/tidewatch_harbor.py`.

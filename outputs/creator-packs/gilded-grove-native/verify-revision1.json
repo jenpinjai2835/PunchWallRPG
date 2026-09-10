@@ -1,0 +1,6 @@
+{
+  "at": "2026-09-10T17:22:09.190Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "isError": true,
+  "text": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1256: Geometry offset from authored origin: Teal/01_Wayfarer_Chest lower=-1.5699996948242188, -3.479243755340576, -1.3849906921386719 expected=-1.5799999237060547, 0, -1.0550000667572021"
+}

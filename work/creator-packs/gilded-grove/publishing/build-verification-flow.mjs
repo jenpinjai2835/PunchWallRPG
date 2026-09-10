@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../../..');
+const instance=process.argv[2] || 'GildedGroveReadyForSale';
+if (!/^[A-Za-z0-9_]+$/.test(instance)) throw Error('Expected a simple verification instance name');
+const source=fs.readFileSync(path.join(root,'work/creator-packs/gilded-grove/publishing/verify-model.lua'),'utf8');
+const manifest=fs.readFileSync(path.join(root,'outputs/creator-packs/gilded-grove/manifest.json'),'utf8');
+const code=source.replace('__MANIFEST_JSON__',manifest).replace('__MODEL_NAME__',instance);
+const flow={name:'gilded-grove-native-model',description:'Passive authoring assertions for the named native model. This flow alone does not prove a live paid listing. Rebuild against GildedGroveFinalVerification after a fresh load of the final ordinary Model.',studioName:'^(Place1|GildedGrove.*)$',steps:[{type:'call',tool:'execute_luau',args:{datamodel_type:'Edit',code},expectRegex:['"status":"PASS"','"meshParts":99','"placements":72','"palettes":3','"triangles":75648','"authoredBoundsChecked":72'],label:'native persistent meshes, three palettes, named roles, anchors, dimensions, pivots and authored grounding'}]};
+const output=path.join(root,'work/automation/flows/creator-packs/gilded-grove-native-model.json');
+fs.writeFileSync(output,JSON.stringify(flow,null,2)+'\n');
+console.log(JSON.stringify({output,instance}));

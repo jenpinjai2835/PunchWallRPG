@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "independentDecoder": "rbxmk 0.9.1 read-only; never used to write RBXM",
+  "parts": 99,
+  "componentsCompared": 2376,
+  "exactFloat32Components": true,
+  "allAnchored": true,
+  "uniqueTextures": [
+    "rbxassetid://135564760440656",
+    "rbxassetid://85902580154669",
+    "rbxassetid://93976189551200"
+  ],
+  "fileSHA256": "9772ab0eb298cbdb3637a1a85b9a6dbec5032139a9f06670f0e30d83603a86e4",
+  "nativeStudioReload": "REQUIRED"
+}

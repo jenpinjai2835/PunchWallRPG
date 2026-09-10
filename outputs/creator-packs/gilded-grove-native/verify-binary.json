@@ -1,0 +1,6 @@
+{
+  "at": "2026-09-10T17:27:32.994Z",
+  "studio": "1497482c-c1db-496d-8ed6-2818bf155932",
+  "isError": true,
+  "text": "sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Tools.ExecuteLuauTool:47: sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Util.CommandExecution:54: AssistantCommand:1218: Missing verification instance"
+}

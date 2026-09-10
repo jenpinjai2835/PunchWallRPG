@@ -1,0 +1,46 @@
+{
+  "at": "2026-09-10T17:36:58.3229323Z",
+  "task": "GILDED-FIRST-SALE",
+  "sourceCommit": "ea8b66837a3c63c8afab28c56594babf2bf7a13e",
+  "seller": "APPROVED",
+  "creatorId": "9158952231",
+  "importPackageId": "82732630458121",
+  "importPackageIsSellable": false,
+  "sourcePackage": "PASS",
+  "aggregateReimport": {
+    "status": "PASS",
+    "checks": 897
+  },
+  "preparedNativeModel": {
+    "status": "PASS",
+    "uniqueModels": 24,
+    "palettes": 3,
+    "meshParts": 99,
+    "triangles": 75648,
+    "allAnchored": true,
+    "pivotsValidated": true,
+    "authoredBoundsChecked": 72
+  },
+  "dependencies": {
+    "count": 102,
+    "allOwned": true,
+    "allApproved": true
+  },
+  "ordinaryModelUpload": "PASS_ASSET_122456766146790_REVISION_2",
+  "paidListing": "PASS_PUBLIC_BUY_FOR_5.99_USD",
+  "intendedPriceUSD": 5.99,
+  "temporaryKey": {
+    "name": "Gilded Grove Model Upload 20260910",
+    "approvedByUser": true,
+    "creatorRestricted": true,
+    "ipRestricted": true,
+    "scopes": [
+      "asset:read",
+      "asset:write"
+    ],
+    "expires": "2026-09-12",
+    "revocation": "PASS_DELETED_AND_SECRET_CLEARED"
+  },
+  "otherPacks": "FIRST_SALE_DEPENDENCY_CLEARED_AND_WORKERS_RESUMED",
+  "storefront": "https://create.roblox.com/store/asset/122456766146790/Gilded-Grove-Merchant-Loot"
+}
