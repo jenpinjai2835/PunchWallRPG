@@ -120,13 +120,14 @@ def _chair():
     for x in (-.52,.52):
         for y in (-.46,.46):
             a.beam("Chair leg",(x*1.15,y*1.15,.08),(x,y,1.3),.16,"wood")
+            a.box("Chair level foot",(.24,.24,.12),(x*1.15,y*1.15,.06),"wood",.012)
     a.box("Seat base",(1.38,1.30,.16),(0,0,1.32),"wood",.055)
     a.box("Seat cushion",(1.25,1.17,.13),(0,-.01,1.455),"teal",.065)
     for x in (-.57,.57):a.beam("Back upright",(x,.49,1.26),(x,.69,2.70),.16,"wood")
     for z,y in ((1.95,.60),(2.35,.65),(2.68,.70)):
         a.box("Back slat",(1.26,.13,.20),(0,y,z),"woodlight",.045)
     for x in (-.53,.53):a.beam("Side stretcher",(x,-.48,.65),(x,.50,.65),.09,"darkwood")
-    a.notes={"front":"Seat opens toward -Y; chair back faces +Y. No Seat instance or sitting behavior."}
+    a.notes={"front":"Seat opens toward -Y; chair back faces +Y. No Seat instance or sitting behavior.","placement":"Four flat foot pads contact Z=0 beneath the splayed legs."}
     return a
 
 
@@ -135,13 +136,15 @@ def _menu():
     for x in (-.63,.63):
         a.beam("Front easel leg",(x,-.50,.08),(x,.10,2.48),.16,"wood")
         a.beam("Rear easel leg",(x,.79,.08),(x,.11,2.35),.16,"wood")
+        a.box("Easel front level foot",(.19,.21,.12),(x,-.50,.06),"wood",.012)
+        a.box("Easel rear level foot",(.19,.21,.12),(x,.79,.06),"wood",.012)
         a.beam("Easel side brace",(x,-.31,.79),(x,.60,.79),.10,"darkwood")
     a.box("Menu backing",(1.67,.16,1.79),(0,-.18,1.75),"woodlight",.055,rotation=(-.20,0,0))
     a.box("Menu face",(1.39,.065,1.51),(0,-.285,1.771),"black",.035,rotation=(-.20,0,0))
     for z,width in ((2.26,.95),(1.97,.94),(1.70,.82),(1.43,.91)):
         y=-.285+(z-1.771)*math.tan(.20)-.041/math.cos(.20)
         a.box("Menu row",(width,.025,.055),(-.05,y,z),"cream",.012,rotation=(-.20,0,0))
-    a.notes={"use":"Abstract menu lines only; no copied text, fonts, brands or ordering UI."}
+    a.notes={"use":"Abstract menu lines only; no copied text, fonts, brands or ordering UI.","placement":"Four flat foot pads contact Z=0 at the front and rear supports."}
     return a
 
 

@@ -73,6 +73,7 @@ def _pinball():
     for x in (-.88,.88):
         for y in (-1.45,1.40):
             a.beam("Splayed leg", (x*1.08,y*1.05,.08),(x,y,1.92),.19,"iron")
+            a.box("Pinball level foot",(.27,.27,.12),(x*1.08,y*1.05,.06),"iron",.012)
     a.box("Playing cabinet", (2.23,3.64,.53),(0,0,1.86),"wood",.075)
     a.box("Playing field", (1.90,3.28,.08),(0,0,2.16),"teal",.025)
     for x in (-1.06,1.06):
@@ -92,7 +93,7 @@ def _pinball():
     _star(a,"Orbit score emblem",.19,(0,1.323,2.90))
     for x in (-.60,.60): _face(a,"Score dash",(.23,.06),(x,1.323,2.90),"teallight",.01)
     a.cylinder("Launch plunger",.085,.25,(.73,-1.90,1.92),"stonelight",10,(math.pi/2,0,0))
-    a.notes={"use":"Open playing field is deliberate. All bumpers, flippers and ball are fixed visual geometry; no simulation.","placement":"Four feet reach ground. Front and plunger face -Y."}
+    a.notes={"use":"Open playing field is deliberate. All bumpers, flippers and ball are fixed visual geometry; no simulation.","placement":"Four flat foot pads contact Z=0 beneath the splayed legs. Front and plunger face -Y."}
     return a
 
 
