@@ -6,9 +6,12 @@ Usage: blender --background --factory-startup --python validate_exports.py --
 Exports are copied to isolated folders without companion textures and imported
 into fresh scenes. This is a Blender portability check, not a Roblox Studio test.
 The package is read-only; temporary FBX texture extraction stays beside copies.
+All three PNG palettes are also decoded independently and compared byte-for-byte
+at swatch centers against the authored PALETTES literal in geometry.py.
 """
 
 import argparse
+import ast
 import hashlib
 import json
 import math
@@ -18,9 +21,9 @@ import struct
 import sys
 import tempfile
 import time
+import zlib
 
 import bpy
-from mathutils import Vector
 
 
 TOLERANCE = 1e-4
@@ -57,6 +60,102 @@ def palette_snapshot(path):
     snapshot["swatch_centers"] = centers
     bpy.data.images.remove(image)
     return snapshot
+
+
+def palette_reference(path):
+    """Read authored color constants without importing/executing generator code."""
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "PALETTES"
+                                                for t in node.targets):
+            palettes = ast.literal_eval(node.value)
+            if set(palettes) != {"Teal", "Ember", "Amethyst"}:
+                raise ValueError("Palette reference must define the three authored variants")
+            for colors in palettes.values():
+                if len(colors) != 16 or any(len(c) != 6 or any(ch not in "0123456789abcdefABCDEF"
+                                                             for ch in c) for c in colors):
+                    raise ValueError("Each authored palette must contain 16 RGB hex colors")
+            return palettes
+    raise ValueError("No literal PALETTES assignment found in reference source")
+
+
+def png_swatch_bytes(path):
+    """Decode PNG bytes directly: no image library or color-space conversion.
+
+    Supports the package's noninterlaced 8-bit RGB/RGBA PNGs, including all five
+    PNG row filters. Returned cells follow the atlas's bottom-to-top UV order.
+    """
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("Palette is not a PNG")
+    offset, compressed, header = 8, bytearray(), None
+    while offset < len(data):
+        length = struct.unpack_from(">I", data, offset)[0]
+        kind = data[offset + 4:offset + 8]
+        payload = data[offset + 8:offset + 8 + length]
+        stored_crc = struct.unpack_from(">I", data, offset + 8 + length)[0]
+        if len(payload) != length or zlib.crc32(kind + payload) & 0xffffffff != stored_crc:
+            raise ValueError("PNG chunk length or CRC mismatch")
+        if kind == b"IHDR":
+            header = struct.unpack(">IIBBBBB", payload)
+        elif kind == b"IDAT":
+            compressed.extend(payload)
+        offset += 12 + length
+        if kind == b"IEND":
+            break
+    if header is None:
+        raise ValueError("PNG IHDR is missing")
+    width, height, bits, color, compression, filters, interlace = header
+    if (width, height) != (64, 64) or bits != 8 or color not in (2, 6) or any((compression, filters, interlace)):
+        raise ValueError("Expected a 64 by 64 noninterlaced 8-bit RGB/RGBA PNG")
+    channels = 3 if color == 2 else 4
+    stride = width * channels
+    raw = zlib.decompress(compressed)
+    if len(raw) != height * (stride + 1):
+        raise ValueError("PNG decompressed pixel length mismatch")
+    rows, previous = [], bytearray(stride)
+    for row in range(height):
+        start = row * (stride + 1)
+        method = raw[start]
+        if method > 4:
+            raise ValueError("Unknown PNG filter")
+        scan = bytearray(raw[start + 1:start + 1 + stride])
+        for i in range(stride):
+            left = scan[i - channels] if i >= channels else 0
+            above = previous[i]
+            upper_left = previous[i - channels] if i >= channels else 0
+            predictor = 0
+            if method == 1:
+                predictor = left
+            elif method == 2:
+                predictor = above
+            elif method == 3:
+                predictor = (left + above) // 2
+            elif method == 4:
+                p = left + above - upper_left
+                distances = (abs(p - left), abs(p - above), abs(p - upper_left))
+                predictor = (left, above, upper_left)[distances.index(min(distances))]
+            scan[i] = (scan[i] + predictor) & 255
+        rows.append(scan)
+        previous = scan
+    return [list(rows[height - 1 - (row * 16 + 8)][(col * 16 + 8) * channels:
+                 (col * 16 + 8) * channels + 3]) for row in range(4) for col in range(4)]
+
+
+def audit_palette(path, expected_hex, variant):
+    expected = [[int(code[i:i + 2], 16) for i in (0, 2, 4)] for code in expected_hex]
+    actual = png_swatch_bytes(path)
+    snapshot = palette_snapshot(path)
+    blender_bytes = [[round(v * 255) for v in rgb] for rgb in snapshot["swatch_centers"]]
+    differences = [max(abs(a - b) for a, b in zip(rgb, ref)) for rgb, ref in zip(actual, expected)]
+    passed = max(differences) == 0 and blender_bytes == actual
+    result = {"variant": variant, "status": "PASS" if passed else "FAIL",
+              "file": str(path), "sha256": sha256(path),
+              "reference_rgb": expected, "actual_png_rgb": actual,
+              "blender_rgb": blender_bytes, "max_rgb_byte_error": max(differences),
+              "blender_matches_raw_png": blender_bytes == actual,
+              "mismatched_cells": [i for i, difference in enumerate(differences) if difference]}
+    return result, snapshot
 
 
 def glb_audit(path):
@@ -287,6 +386,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", required=True)
     parser.add_argument("--report", required=True)
+    parser.add_argument("--palette-source", help="geometry.py containing literal PALETTES; defaults beside validator")
+    parser.add_argument("--negative-palette", help="Known incorrect Teal PNG; must fail the authored RGB check")
+    parser.add_argument("--palettes-only", action="store_true", help="Focused palette and optional negative fixture check")
     opt = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
     package = Path(opt.package).resolve()
     report_path = Path(opt.report).resolve()
@@ -297,17 +399,37 @@ def main():
     if len(manifest["assets"]) != manifest["asset_count"]:
         raise ValueError("Manifest asset count does not match entries")
     fresh_scene()
+    reference_path = Path(opt.palette_source).resolve() if opt.palette_source else Path(__file__).with_name("geometry.py")
+    reference = palette_reference(reference_path)
+    palette_results = []
+    palette = None
+    for variant, colors in reference.items():
+        result, snapshot = audit_palette(package / "textures" / (variant + "_Palette.png"), colors, variant)
+        palette_results.append(result)
+        if variant == "Teal":
+            palette = snapshot
+        print("PALETTE_VALIDATION " + json.dumps({"variant": variant, "status": result["status"],
+              "max_rgb_byte_error": result["max_rgb_byte_error"]}), flush=True)
     palette_path = package / "textures" / "Teal_Palette.png"
-    palette = palette_snapshot(palette_path)
     report = {"validator": "Gilded Grove Blender FBX and GLB round-trip validation",
               "blender": bpy.app.version_string, "scope": "Blender exports only; no Roblox Studio pass asserted",
               "package": str(package), "manifest_sha256": sha256(manifest_path),
               "source_palette_sha256": sha256(palette_path),
+              "palette_reference_file": str(reference_path),
+              "palette_reference_sha256": sha256(reference_path),
+              "palette_results": palette_results,
               "source_palette_swatch_centers": palette["swatch_centers"],
-              "expected_imports": 2 * len(manifest["assets"]), "results": []}
+              "expected_imports": 0 if opt.palettes_only else 2 * len(manifest["assets"]), "results": []}
+    if opt.negative_palette:
+        negative, _ = audit_palette(Path(opt.negative_palette).resolve(), reference["Teal"], "Teal negative fixture")
+        negative["expected_failure_detected"] = negative["status"] == "FAIL" and negative["max_rgb_byte_error"] > 0
+        report["negative_palette_fixture"] = negative
+        print("PALETTE_NEGATIVE_FIXTURE " + json.dumps({"status": negative["status"],
+              "expected_failure_detected": negative["expected_failure_detected"],
+              "max_rgb_byte_error": negative["max_rgb_byte_error"]}), flush=True)
     with tempfile.TemporaryDirectory(prefix="gilded-grove-export-check-") as temporary:
         scratch = Path(temporary)
-        for asset in manifest["assets"]:
+        for asset in ([] if opt.palettes_only else manifest["assets"]):
             for kind in ("fbx", "glb"):
                 report["results"].append(validate_one(asset, kind, package, scratch, palette))
                 # Persist after every actual import so interrupted checks remain visible.
@@ -315,7 +437,9 @@ def main():
         fresh_scene()
     report["passed"] = sum(r["status"] == "PASS" for r in report["results"])
     report["failed"] = len(report["results"]) - report["passed"]
-    report["status"] = "PASS" if report["passed"] == report["expected_imports"] else "FAIL"
+    palette_pass = all(r["status"] == "PASS" for r in palette_results)
+    negative_pass = not opt.negative_palette or report["negative_palette_fixture"]["expected_failure_detected"]
+    report["status"] = "PASS" if (report["passed"] == report["expected_imports"] and palette_pass and negative_pass) else "FAIL"
     report["elapsed_seconds"] = round(time.time() - started, 3)
     report_path.write_text(json.dumps(report, indent=2, allow_nan=False), encoding="utf-8")
     print("EXPORT_VALIDATION_SUMMARY " + json.dumps({k: report[k] for k in
