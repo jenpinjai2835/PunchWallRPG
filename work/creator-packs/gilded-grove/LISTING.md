@@ -2,6 +2,8 @@
 
 **Internal draft only.** Proposed price: **US$5.99**. No listing has been published, no purchase has been made, and seller/Stripe onboarding is not configured by this task. Confirm actual delivery contents and Studio import results before copying any description to a store.
 
+The current artifact is a local source package. Blender roundtrip imports passed for all 48 FBX/GLB files. Studio geometry preview work does not constitute a passing **File > Import** test. That workflow remains blocked, and there are no uploaded model IDs or persistent `.rbxm` files yet. Do not describe this draft as ready for Creator Store publication.
+
 ## English description
 
 Build a welcoming merchant corner or a treasure-filled reward area with **Gilded Grove Merchant & Loot**, a coordinated collection of 24 original stylized props.
@@ -15,7 +17,7 @@ The pack brings warm wood, gold accents, and jewel colors together across your s
 - Three coordinated color palettes: Teal, Ember, and Amethyst.
 - A showcase scene, preview renders, and an English/Thai import guide.
 
-**Try the three-model sample:** Shipping Crate, Coin Stack, and Crystal Cluster. The samples are part of the full collection; color variants are not counted as additional models.
+**Try the three-model sample:** `03_Shipping_Crate`, `09_Coin_Stack`, and `12_Crystal_Cluster`. The samples are part of the full collection; color variants are not counted as additional models.
 
 **Visual assets only.** No shop, economy, inventory, reward system, animation, or interaction scripts are included. Preview lighting is for presentation; appearance and performance depend on your scene and device.
 
@@ -25,7 +27,7 @@ The pack brings warm wood, gold accents, and jewel colors together across your s
 
 เลือกชุดสี **Teal, Ember หรือ Amethyst** และนำแต่ละโมเดลไปจัดวางได้ตามฉากของคุณ ในชุดไฟล์มีโมเดล FBX / GLB แยกชิ้น ไฟล์ Blender ที่แก้ไขได้ พื้นผิวแบบ palette ฉากโชว์ ภาพตัวอย่าง และคู่มือนำเข้าภาษาไทย/อังกฤษ
 
-ทดลองสามโมเดลตัวอย่างได้: **Shipping Crate, Coin Stack และ Crystal Cluster** ตัวอย่างเหล่านี้รวมอยู่ในแพ็กเต็มแล้ว ชุดสีไม่นับเพิ่มจำนวนโมเดล
+ทดลองสามโมเดลตัวอย่างได้: **03_Shipping_Crate, 09_Coin_Stack และ 12_Crystal_Cluster** ตัวอย่างเหล่านี้รวมอยู่ในแพ็กเต็มแล้ว ชุดสีไม่นับเพิ่มจำนวนโมเดล
 
 **เป็นโมเดลตกแต่งเท่านั้น** ไม่มีระบบร้านค้า เงิน inventory แจกของรางวัล animation หรือสคริปต์โต้ตอบ ภาพตัวอย่างใช้การจัดแสงสำหรับแสดงสินค้า ผลในเกมและความลื่นขึ้นกับฉากและอุปกรณ์ที่ใช้
 
