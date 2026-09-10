@@ -120,6 +120,11 @@ def _upgrade_station():
     a.gem("Upgrade_Crystal", 0.44, 0.90, (0, -0.10, 1.97), "teal")
     for x in (-0.48, 0.48):
         a.beam("Crystal_Claw", (x, -0.10, 1.9), (x * 0.68, -0.1, 2.33), 0.105, "gold")
+    # A bench-mounted bearing physically supports the side wheel and its axle.
+    a.box("Bearing_Foot", (0.56, 0.57, 0.10), (1.36, 0.31, 1.65), "iron", 0.035)
+    a.box("Bearing_Upright", (0.28, 0.31, 0.60), (1.36, 0.31, 1.99), "iron", 0.04)
+    a.cylinder("Bearing_Collar", 0.24, 0.32, (1.36, 0.31, 2.26), "gold",
+               rotation=(0, pi / 2, 0), vertices=8)
     a.cylinder("Handwheel_Axle", 0.17, 0.35, (1.36, 0.31, 2.26), "iron",
                rotation=(0, pi / 2, 0))
     a.torus("Handwheel", 0.37, 0.08, (1.56, 0.31, 2.26), "gold",
